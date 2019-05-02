@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- definition of simple elements -->
+	<xs:element name="assignment" type="xs:string"/>
+	<xs:element name="csvdata" type="xs:string"/> <!-- should have the form of "<path>\<file>.csv" -->
+	<xs:element name="description" type="xs:string"/>
+	<xs:element name="id" type="xs:positiveInteger"/>
+	<xs:element name="name" type="xs:string"/>
+	<xs:element name="nr" type="xs:positiveInteger"/>
+	<xs:element name="physicalcost" type="xs:string"/>
+	<xs:element name="type" type="xs:string"/> <!--  predefined options -->
+	<xs:element name="timestamp" type="xs:dateTime"/>
+	<xs:element name="unit" type="xs:string"/>
+	<xs:element name="version" type="xs:string"/> <!-- todo should force "int.int.int" -->
+	<xs:element name="virtualcost" type="xs:string"/>
+	<xs:element name="price" type="xs:decimal"/>
+	
+	<!-- Root element -->
+	<xs:element name="metadata">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="timestamp"/>
+  				<xs:element ref="version"/>
+  				<xs:element ref="description"/>
+  				<xs:element ref="configuration"/>
+  				<xs:element ref="simulation"/>
+  				<xs:element ref="columns"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="configuration">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="assignment"/>
+  				<xs:element ref="physicalcost"/>
+  				<xs:element ref="virtualcost"/>
+  				<xs:element ref="timeperiod"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="timeperiod">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="id"/>
+  				<xs:element ref="name"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="simulation">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="iteration"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="iteration">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="nr"/>
+  				<xs:element ref="csvdata"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="columns">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="column" maxOccurs="unbounded"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="column">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element ref="name"/>
+  				<xs:element ref="unit"/>
+  				<xs:element ref="type"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+</xs:schema>
