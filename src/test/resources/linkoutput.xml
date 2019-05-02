@@ -1,1 +1,57 @@
-
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 	Tabular output with some meta information, so use a dedicated format for this driven by a schema -->
+<!-- 	we choose not to adopt the existing tabular w3 schema approach (http://www.w3.org/TR/tabular-metadata/) which also works with csv because their scheme is defined in json 
+		and it does not cater for structured meta data unrelated to the columns apart from a general description (it seems) -->
+<metadata>
+	<timestamp>2/5/2019-11:38:24</timestamp>
+	<version>0.0.1</version>	
+	<csvfile>"linkdata.csv"</csvfile>
+	<description>description of this particular link output</description>
+	<configuration>
+		<timeperiod>
+			<id>1</id>
+			<name>morning peak 6-9</name>			
+		</timeperiod>
+	</configuration>
+	<simulation>
+		<iteration>1</iteration>
+		<assignment>traditional static assignment</assignment>
+		<physicalcost>BPR</physicalcost>
+		<virtualcost>fixed</virtualcost>
+	</simulation>
+	<columns>
+		<column>
+			<name>linkid</name>
+			<unit>none</unit>
+			<valuetype>integer</valuetype>				
+		</column>
+		<column>
+			<name>modeid</name>
+			<valuetype>integer</valuetype>				
+		</column>
+		<column>
+			<name>speed</name>
+			<unit>km/h</unit>
+			<valuetype>float</valuetype>				
+		</column>
+		<column>
+			<name>density</name>
+			<unit>veh/km</unit>
+			<valuetype>float</valuetype>				
+		</column>
+		<column>
+			<name>flow</name>
+			<unit>veh/h</unit>
+			<valuetype>float</valuetype>				
+		</column>	
+		<column>
+			<name>travel time</name>
+			<unit>s</unit>
+			<valuetype>float</valuetype>				
+		</column>								
+	</columns>
+	<!-- put actual data in linked csv -->
+	<rowdata>
+		<row> 1,1,,48.33,30.21,1478.45,421.3</row>
+	</rowdata>	
+</metadata>
