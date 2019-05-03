@@ -1,17 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!--  definition of simple types -->
+	<xs:simpleType name="versiontype">
+	  <xs:restriction base="xs:string">
+	    <xs:pattern value="[0-9]\.[0-9]\.[0-9]"/>
+	  </xs:restriction>
+	</xs:simpleType>	
+	<xs:simpleType name="csvfile">
+	  <xs:restriction base="xs:string">
+	    <xs:pattern value=".*\.csv"/>
+	  </xs:restriction>
+	</xs:simpleType>	
+	<xs:simpleType name="datatypedescription"> 
+    	<xs:restriction base="xs:string"> 
+			<xs:enumeration value="double"/>
+        	<xs:enumeration value="float"/>
+        	<xs:enumeration value="integer"/>
+        	<xs:enumeration value="boolean"/> 
+      	</xs:restriction> 
+	</xs:simpleType> 
+
 	<!-- definition of simple elements -->
 	<xs:element name="assignment" type="xs:string"/>
-	<xs:element name="csvdata" type="xs:string"/> <!-- should have the form of "<path>\<file>.csv" -->
+	<xs:element name="csvdata" type="csvfile"/>
 	<xs:element name="description" type="xs:string"/>
 	<xs:element name="id" type="xs:positiveInteger"/>
 	<xs:element name="name" type="xs:string"/>
 	<xs:element name="nr" type="xs:positiveInteger"/>
 	<xs:element name="physicalcost" type="xs:string"/>
-	<xs:element name="type" type="xs:string"/> <!--  predefined options -->
+	<xs:element name="type" type="datatypedescription"/>
 	<xs:element name="timestamp" type="xs:dateTime"/>
 	<xs:element name="unit" type="xs:string"/>
-	<xs:element name="version" type="xs:string"/> <!-- todo should force "int.int.int" -->
+	<xs:element name="version" type="versiontype"/>
 	<xs:element name="virtualcost" type="xs:string"/>
 	<xs:element name="price" type="xs:decimal"/>
 	
