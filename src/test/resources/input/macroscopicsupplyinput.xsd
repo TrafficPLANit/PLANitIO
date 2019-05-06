@@ -107,13 +107,13 @@
   				<xs:element ref="nodes"/>
   				<xs:element ref="links"/>
   			</xs:sequence>
-  		<xs:attribute ref="srsname" use="xs:optional">
-  			<xs:annotation>
-				<xs:documentation>
-					Spatial reference system chosen for infrastructure, if absent Cartesian system is assume with 0,0 to be the top left 
-				</xs:documentation>
-			</xs:annotation>
-  		</xs:attribute>
+	  		<xs:attribute ref="srsname" use="optional">
+	  			<xs:annotation>
+					<xs:documentation>
+						Spatial reference system chosen for infrastructure, if absent Cartesian system is assume with 0,0 to be the top left 
+					</xs:documentation>
+				</xs:annotation>
+	  		</xs:attribute>
   		</xs:complexType>
   	</xs:element>  	
   	
