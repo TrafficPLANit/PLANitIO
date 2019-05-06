@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<macroscopicdemand
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xmlns:gml="http://www.opengis.net/gml"											
+	 xsi:noNamespaceSchemaLocation="macroscopicdemandinput.xsd">						<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
+	<configuration>																	<!-- optional -> if not present we assume it aligns with earlier demand inputs on the project -->
+		<modes>																		<!-- if absent a single mode (car) with pcu 1 is assumed -->
+			<mode id="1">															<!-- mandatory attributes, for referencing -->
+				<name>car</name>													<!-- optional -->
+				<pcu>1</pcu>														<!-- optional, default available -->				
+			</mode>										
+		</modes>		
+		<travellertypes>															<!-- optional, if not present, single default traveller type assumed -->
+			<travellertype id="1">
+				<name>default</name>
+			</travellertype>
+		</travellertypes>
+		<userclasses>
+			<userclass id="1" moderef="1" travellertyperef="1">						<!-- travellertyperef optional when no travellertypes are explicitly defined -->
+				<name>regular car user</name>
+			</userclass>
+		</userclasses>
+		<timeperiods>
+			<timeperiod id="1">
+				<name>morning peak 6AM-8AM</name>									<!-- description of the period -->
+				<starttime></starttime>												<!-- start time without a date in 24h format -->
+				<duration>7200</duration>											<!-- duration in seconds -->
+			</timeperiod>
+		</timeperiods>
+	</configuration>
+	<oddemands>																		<!-- different formats supported -->
+		<odmatrix timeperiodref="1" userclassref="1">								<!-- odmatrix is a potentially square matrix with all origin zones and destination zones, so id references not needed (but optionally available)-->
+			<o ref="1">																<!-- in case some elements are not present, it is assumed they are zero, i.e., it can cater for sparse matrices as well -->
+				<d ref="1">0.0</d>													<!-- all values are of type double -->
+				<d ref="2">150.0</d> 
+			</o>
+			<o ref="2">
+				<d ref="1">300</d>
+				<!-- second element absent, sparse matrix to save space, in case of a sparse matrix, all elements must have references -->
+			</o>
+		</odmatrix>
+		<odrowmatrix timeperiodref="1" userclassref="1" ds=",">					<!-- odrowmatrix is a matrix where each origin zone provides a comma separated list of destination values (no exception) -->
+			<odrow ref="1">0.0,150.0</odrow>									<!-- origin reference is optional, if not all origins are present, it is assumed the row has no demand at all, destination separator when absent is assumed to be a "," -->																				
+			<odrow ref="2">300.0,0.0</odrow>
+		</odrowmatrix>
+		<odrawmatrix timeperiodref="1" userclassref="1">							<!-- odrawmatrix is a square matrix where all od combinations are provided as one long comma separated list and since the matrix is square the parser delineates the data into the correct od demands -->
+			<values os=" " ds=",">0.0,150.0 300.0,0.0</values>
+		</odrawmatrix>
+	</oddemands>
+</macroscopicdemand>

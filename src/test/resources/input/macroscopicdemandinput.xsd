@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- simple elements -->
+	<xs:element name="name" type="xs:string"/>
+	<xs:element name="pcu" type="xs:float" default="1"/>
+	<xs:element name="starttime" type="xs:time" default="00:00:00"/> <!-- hh:mm:ss -->
+	<xs:element name="duration">
+		<xs:simpleType>
+			<!-- restricted by maximum number of seconds in a day -->
+	    	<xs:restriction base="xs:positiveInteger">
+      			<xs:minInclusive value="1"/>
+      			<xs:maxInclusive value="86400"/> 
+	    	</xs:restriction>
+		</xs:simpleType>
+	</xs:element>    
+	
+	<!-- Root element -->
+	<xs:element name="macroscopicdemand">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<!-- when configuration is absent it must have been part of another demand input file that has already been parsed -->
+  				<xs:element ref="configuration" minOccurs="0"/>
+  				<xs:element ref="oddemands"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+  	<!-- Configuration of the demand, i.e., the metadata -->
+	<xs:element name="configuration">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<!-- when absent, single mode with pcu=1 is assumed and no references to modes are possible in subsequent elements -->
+  				<xs:element ref="modes" minOccurs="0"/>
+  				<!-- when absent, single traveller type is assumed and no references to traveller types are possible in subsequent elements -->
+  				<xs:element ref="travellertypes" minOccurs="0"/>
+  				<xs:element ref="userclasses" />
+  				<xs:element ref="timeperiods"/>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="oddemands">
+  		<xs:complexType>
+  			<xs:choice maxOccurs="unbounded">
+      			<xs:element ref="odmatrix"/>
+      			<xs:element ref="odrowmatrix"/>
+      			<xs:element ref="odrawmatrix"/>
+    		</xs:choice>
+  		</xs:complexType>
+  	</xs:element>  	
+  	
+  	<!-- full (element-by-element) or sparse matrix definition -->
+	<xs:element name="odmatrix">
+  		<xs:complexType>
+  			<xs:sequence maxOccurs="unbounded">
+  				<!-- origin row in od matrix -->
+      			<xs:element name="o">
+      				<xs:complexType>
+      					<xs:sequence>
+      						<!-- destination cell in origin row matrix -->
+      						<xs:element name="d" maxOccurs="unbounded">
+								<xs:complexType>	      						
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+					      					<!-- absence only allowed when all destination (zones) are provided, i.e., number of entries equates to number of zones -->
+					      					<xs:attribute name="ref" type="xs:positiveInteger" use="optional"/>
+					      				</xs:extension>      					
+				      				</xs:simpleContent>      						
+				      			</xs:complexType>
+      						</xs:element>
+      					</xs:sequence>
+	      				<!-- absence only allowed when all origins (zones) are provided, i.e., number of rows equates to number of zones -->
+	      				<xs:attribute name="ref" type="xs:positiveInteger" use="optional"/>      					
+      				</xs:complexType>
+      			</xs:element>
+    		</xs:sequence>		
+			<xs:attribute name="timeperiodref" type="xs:positiveInteger" use="required"/>
+			<xs:attribute name="userclassref" type="xs:positiveInteger" use="required"/>
+  		</xs:complexType>  		
+  	</xs:element> 
+  	
+  	<xs:element name="odrawmatrix">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<!-- csv like string of entire matrix (including zero values) formatted based on os (origin separator) and ds (destination separator) attribute configuration -->
+      			<xs:element name="values">
+					<xs:complexType>      			
+	      				<xs:simpleContent>
+	      					<xs:extension base = "xs:string">
+		      					<!-- absence only allowed when all origins (zones) are provided, i.e., number of rows equates to number of zones -->
+		      					<xs:attribute name="os" type="xs:string" use="optional" default=" "/>
+								<xs:attribute name="ds" type="xs:string" use="optional" default=","/>
+							</xs:extension>	      				      					
+	      				</xs:simpleContent>
+					</xs:complexType>	      				
+      			</xs:element>
+    		</xs:sequence>		
+			<xs:attribute name="timeperiodref" type="xs:positiveInteger" use="required"/>
+			<xs:attribute name="userclassref" type="xs:positiveInteger" use="required"/>
+  		</xs:complexType>  		
+  	</xs:element> 
+  	
+	<xs:element name="odrowmatrix">
+  		<xs:complexType>
+  			<xs:sequence maxOccurs="unbounded">
+  				<!-- origin row in od matrix -->
+      			<xs:element name="odrow">
+					<xs:complexType>      			
+	      				<xs:simpleContent>
+	      					<xs:extension base="xs:string">
+	      						<!-- reference to origin row,, gaps in the numbering indicate zero content rows, absence of ref only allowed if all rows are ordered and available for all zones  -->
+								<xs:attribute name="ref" type="xs:positiveInteger" use="optional"/>
+							</xs:extension>	      				      					
+	      				</xs:simpleContent>
+					</xs:complexType>	      				
+      			</xs:element>
+    		</xs:sequence>		
+			<xs:attribute name="timeperiodref" type="xs:positiveInteger" use="required"/>
+			<xs:attribute name="userclassref" type="xs:positiveInteger" use="required"/>
+			<!-- destination separator used for each row -->
+			<xs:attribute name="ds" type="xs:string" use="optional" default=","/>			
+  		</xs:complexType>  		
+  	</xs:element>  	
+  	
+	<xs:element name="modes">
+  		<xs:complexType>
+  			<xs:sequence>
+			  	 <xs:element name="mode" maxOccurs="unbounded">
+			  		<xs:complexType>
+			  			<xs:sequence>
+			  				<xs:element ref="name" minOccurs="0"/>
+			  				<xs:element ref="pcu" minOccurs="0"/>
+			  			</xs:sequence>
+			  			<xs:attribute name="id" type="xs:positiveInteger" use="required"/>  			
+			  		</xs:complexType>
+			  	</xs:element>  			
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>
+  	
+	<xs:element name="timeperiods">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element name="timeperiod" maxOccurs="unbounded">
+  					<xs:complexType>
+			  			<xs:sequence>
+			  				<xs:element ref="name"/>
+			  				<xs:element ref="starttime" minOccurs="0"/>
+			  				<xs:element ref="duration"/>
+			  			</xs:sequence>  					
+						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>	   					
+  					</xs:complexType>
+  				</xs:element>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>   	
+  	  	
+	<xs:element name="travellertypes">
+  		<xs:complexType>
+  			<xs:sequence>
+			  	<xs:element name="travellertype" maxOccurs="unbounded">
+			  		<xs:complexType>
+			  			<xs:sequence>
+			  				<xs:element ref="name"/>
+			  			</xs:sequence>
+						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>	  			
+			  		</xs:complexType> 		
+			  	</xs:element>    			
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>  	
+  	  	
+	<xs:element name="userclasses">
+  		<xs:complexType>
+  			<xs:sequence>
+  				<xs:element name="userclass" maxOccurs="unbounded">
+  					<xs:complexType>
+			  			<xs:sequence>
+			  				<xs:element ref="name"/>
+			  			</xs:sequence>  					
+						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+						<xs:attribute name="moderef" type="xs:positiveInteger" use="optional"/>
+						<xs:attribute name="travellertyperef" type="xs:positiveInteger" use="optional"/>	   					
+  					</xs:complexType>
+  				</xs:element>
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>  	  	
+  	
+</xs:schema>
