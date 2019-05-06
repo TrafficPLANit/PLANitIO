@@ -1,13 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+	<!-- simple attributes -->
+	<xs:attribute name="ds" type="xs:string" default=",">
+		<xs:annotation>
+			<xs:documentation>
+				Destination separator, i.e., the separator after the end of each cell.
+			</xs:documentation>
+		</xs:annotation> 								
+	</xs:attribute>
+	
+	<xs:attribute name="os" type="xs:string" default=" ">
+		<xs:annotation>
+			<xs:documentation>
+				Origin separator, i.e., the separator after the end of each row.
+			</xs:documentation>
+		</xs:annotation> 		      					
+	</xs:attribute>	
+	
+	<xs:attribute name="timeperiodref" type="xs:positiveInteger">
+		<xs:annotation>
+			<xs:documentation>
+				Reference to the time period the item relates to
+			</xs:documentation>
+		</xs:annotation>	
+	</xs:attribute>		
+	
+	<xs:attribute name="userclassref" type="xs:positiveInteger">
+		<xs:annotation>
+			<xs:documentation>
+				Reference to the user class the travel demand related to. Can be absent if only default user class/single user class exists.
+			</xs:documentation>
+		</xs:annotation>	
+	</xs:attribute>	
+
 	<!-- simple elements -->
 	<xs:element name="name" type="xs:string"/>
-	<xs:element name="pcu" type="xs:float" default="1"/>
-	<xs:element name="starttime" type="xs:time" default="00:00:00"/> <!-- hh:mm:ss -->
+	<xs:element name="pcu" type="xs:float" default="1">
+		<xs:annotation>
+			<xs:documentation>
+				PCU represents the scaling factor converting any mode into Passenger Car Units (pcu) 
+			</xs:documentation>
+		</xs:annotation> 
+	</xs:element>
+	<xs:element name="starttime" type="xs:time" default="00:00:00">
+		<xs:annotation>
+			<xs:documentation>
+				Start time is given in 24-hour format like the following 'hh:mm:ss' 
+			</xs:documentation>
+		</xs:annotation> 
+	</xs:element>
 	<xs:element name="duration">
+		<xs:annotation>
+			<xs:documentation>
+				Duration is a positive integer (in seconds) and we start counting from the start time. Note that the duration must always be less
+				than the number of seconds in a day (86400). 
+			</xs:documentation>
+		</xs:annotation> 	
 		<xs:simpleType>
-			<!-- restricted by maximum number of seconds in a day -->
 	    	<xs:restriction base="xs:positiveInteger">
       			<xs:minInclusive value="1"/>
       			<xs:maxInclusive value="86400"/> 
@@ -17,10 +67,20 @@
 	
 	<!-- Root element -->
 	<xs:element name="macroscopicdemand">
+		<xs:annotation>
+			<xs:documentation>
+				The macroscopic demand, i.e., in traffic flows not discrete vehicles, for the project at hand per mode per time period, per od 
+			</xs:documentation>
+		</xs:annotation>	
   		<xs:complexType>
   			<xs:sequence>
-  				<!-- when configuration is absent it must have been part of another demand input file that has already been parsed -->
-  				<xs:element ref="configuration" minOccurs="0"/>
+  				<xs:element ref="configuration" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+							In case the configuration is absent it must have been part of another demand input file that has already been parsed
+						</xs:documentation>
+					</xs:annotation>	  				
+  				</xs:element>
   				<xs:element ref="oddemands"/>
   			</xs:sequence>
   		</xs:complexType>
@@ -30,17 +90,54 @@
 	<xs:element name="configuration">
   		<xs:complexType>
   			<xs:sequence>
-  				<!-- when absent, single mode with pcu=1 is assumed and no references to modes are possible in subsequent elements -->
-  				<xs:element ref="modes" minOccurs="0"/>
-  				<!-- when absent, single traveller type is assumed and no references to traveller types are possible in subsequent elements -->
-  				<xs:element ref="travellertypes" minOccurs="0"/>
-  				<xs:element ref="userclasses" />
-  				<xs:element ref="timeperiods"/>
+  				<xs:element ref="modes" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+							Modes available in this project. Note that when this element is absent a single 'virtual' mode is created to represent 
+							all modes. If this is the case, no references to modes are to be made in any forthcoming elements as there is nothing to refer
+							to, i.e., no ids of modes are present so they cannot be referred.
+						</xs:documentation>
+					</xs:annotation>  				
+  				</xs:element>
+  				<xs:element ref="travellertypes" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+							Traveller types available in this project. Note that when this element is absent a single 'virtual' traveller type is created to represent 
+							all travellers. If this is the case, no references to traveller types are to be made in any forthcoming elements as there is nothing to refer
+							to, i.e., no ids of traveller types are present so they cannot be referred.
+						</xs:documentation>
+					</xs:annotation>   				
+  				</xs:element>
+  				<xs:element ref="userclasses" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+							Userclasses define the types of travellers we have by combining a mode with a traveller type. In case no userclasses are explicitly defined, i.e.,
+							the element is absent, then it is assumed we only have a single 'virtual' user class. In that case at most a single mode and/or traveller type can be defined
+							otherwise the user class is no longer uniquely defined. Similarly, no references to userclasses can be made anywhere and instead the virtual user class is assumed
+							automatically.
+						</xs:documentation>
+					</xs:annotation>   		  				
+  				</xs:element>
+  				<xs:element ref="timeperiods">
+					<xs:annotation>
+						<xs:documentation>
+							Time periods determine how the travel demand in the origin-destination matrices is to be interpreted. As many time periods as one wishes can be defined and each
+							od-matrix can be related to at most a single time period.
+						</xs:documentation>
+					</xs:annotation>    				
+  				</xs:element>
   			</xs:sequence>
   		</xs:complexType>
   	</xs:element>
   	
 	<xs:element name="oddemands">
+		<xs:annotation>
+			<xs:documentation>
+				Origin destination travel demands can be provided in various formats depending on what the user prefers. Either very readable but bloated (in terms of space)
+				or more efficient but less human readable. Multiple matrices can be defined here, or they can be spread across multiple files if this is preferred in terms
+				of file size
+			</xs:documentation>
+		</xs:annotation>
   		<xs:complexType>
   			<xs:choice maxOccurs="unbounded">
       			<xs:element ref="odmatrix"/>
@@ -52,82 +149,128 @@
   	
   	<!-- full (element-by-element) or sparse matrix definition -->
 	<xs:element name="odmatrix">
+		<xs:annotation>
+			<xs:documentation>
+				This ODmatrix allows for cell-by-cell values and takes up most space if each cell is provided. It is however possible to skip zero cells or rows resulting in a simple sparse
+				format.
+			</xs:documentation>
+		</xs:annotation>	
   		<xs:complexType>
   			<xs:sequence maxOccurs="unbounded">
-  				<!-- origin row in od matrix -->
       			<xs:element name="o">
+					<xs:annotation>
+						<xs:documentation>Origin 'row'</xs:documentation>
+					</xs:annotation>	      			
       				<xs:complexType>
       					<xs:sequence>
-      						<!-- destination cell in origin row matrix -->
       						<xs:element name="d" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Destination 'column'</xs:documentation>
+								</xs:annotation>      						
 								<xs:complexType>	      						
 									<xs:simpleContent>
-										<xs:extension base="xs:string">
-					      					<!-- absence only allowed when all destination (zones) are provided, i.e., number of entries equates to number of zones -->
-					      					<xs:attribute name="ref" type="xs:positiveInteger" use="optional"/>
+										<xs:extension base="xs:float">
+					      					<xs:attribute name="ref" type="xs:positiveInteger" use="optional">
+					      						<xs:annotation>
+													<xs:documentation>
+														Reference to the destination zone id this cell relates to. When absent all destinations must be present in this matrix row in an incremental order.
+													</xs:documentation>
+												</xs:annotation>
+					      					</xs:attribute>
 					      				</xs:extension>      					
 				      				</xs:simpleContent>      						
 				      			</xs:complexType>
       						</xs:element>
       					</xs:sequence>
-	      				<!-- absence only allowed when all origins (zones) are provided, i.e., number of rows equates to number of zones -->
-	      				<xs:attribute name="ref" type="xs:positiveInteger" use="optional"/>      					
+	      				<xs:attribute name="ref" type="xs:positiveInteger" use="optional">
+							<xs:annotation>
+								<xs:documentation>
+									Reference to the origin zone id this row relates to. When absent all origins must be present in the matrix in an incremental order.
+								</xs:documentation>
+							</xs:annotation>	      				
+	      				</xs:attribute>      					
       				</xs:complexType>
       			</xs:element>
     		</xs:sequence>		
-			<xs:attribute name="timeperiodref" type="xs:positiveInteger" use="required"/>
-			<xs:attribute name="userclassref" type="xs:positiveInteger" use="required"/>
+			<xs:attribute ref="timeperiodref" use="required"/>
+			<xs:attribute ref="userclassref" use="optional"/>
   		</xs:complexType>  		
   	</xs:element> 
   	
   	<xs:element name="odrawmatrix">
+		<xs:annotation>
+			<xs:documentation>
+				CSV like string of entire matrix (including zero values) formatted based on os (origin separator) and ds (destination separator) attribute configuration
+			</xs:documentation>
+		</xs:annotation>  	
   		<xs:complexType>
   			<xs:sequence>
-  				<!-- csv like string of entire matrix (including zero values) formatted based on os (origin separator) and ds (destination separator) attribute configuration -->
       			<xs:element name="values">
 					<xs:complexType>      			
 	      				<xs:simpleContent>
 	      					<xs:extension base = "xs:string">
-		      					<!-- absence only allowed when all origins (zones) are provided, i.e., number of rows equates to number of zones -->
-		      					<xs:attribute name="os" type="xs:string" use="optional" default=" "/>
-								<xs:attribute name="ds" type="xs:string" use="optional" default=","/>
+		      					<xs:attribute ref="os" use="optional" />     					
+								<xs:attribute ref="ds" use="optional" />
 							</xs:extension>	      				      					
 	      				</xs:simpleContent>
 					</xs:complexType>	      				
       			</xs:element>
     		</xs:sequence>		
-			<xs:attribute name="timeperiodref" type="xs:positiveInteger" use="required"/>
-			<xs:attribute name="userclassref" type="xs:positiveInteger" use="required"/>
+			<xs:attribute ref="timeperiodref" use="required"/>			
+			<xs:attribute ref="userclassref" use="optional"/>		
   		</xs:complexType>  		
   	</xs:element> 
   	
 	<xs:element name="odrowmatrix">
+		<xs:annotation>
+			<xs:documentation>
+				CSV like structure on a per row basis, allowing one to leave out rows with zero values
+			</xs:documentation>
+		</xs:annotation> 	
   		<xs:complexType>
   			<xs:sequence maxOccurs="unbounded">
-  				<!-- origin row in od matrix -->
       			<xs:element name="odrow">
+					<xs:annotation>
+						<xs:documentation>Single row in od-matrix</xs:documentation>
+					</xs:annotation>      			
 					<xs:complexType>      			
 	      				<xs:simpleContent>
 	      					<xs:extension base="xs:string">
-	      						<!-- reference to origin row,, gaps in the numbering indicate zero content rows, absence of ref only allowed if all rows are ordered and available for all zones  -->
-								<xs:attribute name="ref" type="xs:positiveInteger" use="optional"/>
+								<xs:attribute name="ref" type="xs:positiveInteger" use="optional">
+									<xs:annotation>
+										<xs:documentation>
+											Reference to origin row, gaps in reference indicate zero values rows for all destinations. In case no 'ref' attribute is
+											provided, it should be absent on all rows and we assume that all origins are provided in incremental order.
+										</xs:documentation>
+									</xs:annotation>								
+								</xs:attribute>								
 							</xs:extension>	      				      					
 	      				</xs:simpleContent>
 					</xs:complexType>	      				
       			</xs:element>
     		</xs:sequence>		
-			<xs:attribute name="timeperiodref" type="xs:positiveInteger" use="required"/>
-			<xs:attribute name="userclassref" type="xs:positiveInteger" use="required"/>
-			<!-- destination separator used for each row -->
-			<xs:attribute name="ds" type="xs:string" use="optional" default=","/>			
+			<xs:attribute ref="timeperiodref" use="required"/>
+			<xs:attribute ref="userclassref" use="optional"/>				
+			<xs:attribute ref="ds" use="optional"/>		
   		</xs:complexType>  		
   	</xs:element>  	
   	
 	<xs:element name="modes">
+		<xs:annotation>
+			<xs:documentation>
+				The modes of transport used by travellers.
+			</xs:documentation>
+		</xs:annotation>		
   		<xs:complexType>
   			<xs:sequence>
 			  	 <xs:element name="mode" maxOccurs="unbounded">
 			  		<xs:complexType>
+						<xs:annotation>
+							<xs:documentation>
+								Each mode can have a description(name) and pcu value besides their unique identifier (id). 
+								When no name is given, the description is absent. When no pcu value is defined the default is adopted.
+							</xs:documentation>
+						</xs:annotation>				  		
 			  			<xs:sequence>
 			  				<xs:element ref="name" minOccurs="0"/>
 			  				<xs:element ref="pcu" minOccurs="0"/>
