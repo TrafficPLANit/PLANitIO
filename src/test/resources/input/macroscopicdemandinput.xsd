@@ -1,23 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:include schemaLocation="PLANit.xsd" />
 
-	<!-- simple attributes -->
-	<xs:attribute name="ds" type="xs:string" default=",">
-		<xs:annotation>
-			<xs:documentation>
-				Destination separator, i.e., the separator after the end of each cell.
-			</xs:documentation>
-		</xs:annotation> 								
-	</xs:attribute>
-	
-	<xs:attribute name="os" type="xs:string" default=" ">
-		<xs:annotation>
-			<xs:documentation>
-				Origin separator, i.e., the separator after the end of each row.
-			</xs:documentation>
-		</xs:annotation> 		      					
-	</xs:attribute>	
-	
+	<!-- Demand specific attributes -->
 	<xs:attribute name="timeperiodref" type="xs:positiveInteger">
 		<xs:annotation>
 			<xs:documentation>
@@ -35,7 +20,6 @@
 	</xs:attribute>	
 
 	<!-- simple elements -->
-	<xs:element name="name" type="xs:string"/>
 	<xs:element name="pcu" type="xs:float" default="1">
 		<xs:annotation>
 			<xs:documentation>
