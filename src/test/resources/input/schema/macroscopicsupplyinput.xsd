@@ -74,6 +74,15 @@
 		</xs:annotation>	
   		<xs:complexType>
   			<xs:sequence>
+  				<xs:element ref="modes" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+							Modes available in this project. Note that when this element is absent a single 'virtual' mode is created to represent 
+							all modes. If this is the case, no references to modes are to be made in any forthcoming elements as there is nothing to refer
+							to, i.e., no ids of modes are present so they cannot be referred.
+						</xs:documentation>
+					</xs:annotation>  				
+  				</xs:element>  			
   				<xs:element ref="linksegmenttypes" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>
@@ -268,6 +277,33 @@
   			</xs:sequence>
   		</xs:complexType>
   	</xs:element>
+  	
+	<xs:element name="modes">
+		<xs:annotation>
+			<xs:documentation>
+				The modes of transport used by travellers.
+			</xs:documentation>
+		</xs:annotation>		
+  		<xs:complexType>
+  			<xs:sequence>
+			  	 <xs:element name="mode" maxOccurs="unbounded">
+			  		<xs:complexType>
+						<xs:annotation>
+							<xs:documentation>
+								Each mode can have a description(name) and pcu value besides their unique identifier (id). 
+								When no name is given, the description is absent. When no pcu value is defined the default is adopted.
+							</xs:documentation>
+						</xs:annotation>				  		
+			  			<xs:sequence>
+			  				<xs:element ref="name" minOccurs="0"/>
+			  				<xs:element ref="pcu" minOccurs="0"/>
+			  			</xs:sequence>
+			  			<xs:attribute name="id" type="xs:positiveInteger" use="required"/>  			
+			  		</xs:complexType>
+			  	</xs:element>  			
+  			</xs:sequence>
+  		</xs:complexType>
+  	</xs:element>  	
   	
 	<xs:element name="nodes">
 		<xs:annotation>

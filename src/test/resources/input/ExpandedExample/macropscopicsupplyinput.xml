@@ -4,6 +4,12 @@
 	 xmlns:gml="http://www.opengis.net/gml"											
 	 xsi:noNamespaceSchemaLocation="../schema/macroscopicsupplyinput.xsd">						<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
 	<configuration>																		<!-- optional, single linksegmenttype assumed when absent -->
+		<modes>																			<!-- if absent a single mode (car) with pcu 1 is assumed -->
+			<mode id="1">																<!-- mandatory attributes, for referencing -->
+				<name>car</name>														<!-- optional -->
+				<pcu>1</pcu>															<!-- optional, default available -->				
+			</mode>										
+		</modes>		
 		<linksegmenttypes>																<!-- optional, if not present a default link segment type is used for all links -->
 			<linksegmenttype id="1">													<!-- mandatory attribute -->
 				<name>local road</name>													<!-- optional -->

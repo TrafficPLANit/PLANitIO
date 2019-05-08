@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<PLANit	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:gml="http://www.opengis.net/gml"											
+		xsi:noNamespaceSchemaLocation="../schema/macroscopicinput.xsd">
+	<macroscopicnetwork>						
+		<infrastructure>												  
+			<nodes>
+				<node id="1"> 																
+	                <gml:Point> 															
+	                    <gml:pos>150.512796 -34.900145</gml:pos>
+	                </gml:Point>														
+				</node>
+				<node id="2"> 
+					<gml:Point> 															
+	                    <gml:pos>150.512527 -34.900319</gml:pos>
+	                </gml:Point> 					
+				</node>				
+			</nodes>		
+			<links>
+				<link>																
+					<linksegment id="1" dir="a_b" nodearef="1" nodebref="2">
+						<maxspeed>60</maxspeed>
+					</linksegment>						
+					<linksegment id="2" dir="b_a" nodearef="1" nodebref="2">
+						<maxspeed>50</maxspeed>
+					</linksegment>				
+					<length>1.33</length>																	
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<centroid>										
+					<gml:Point>
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="1"/>
+					<connectoid noderef="11"/>
+				</connectoids>												
+			</zone>
+		</zones>
+	</macroscopiczoning>	
+	<macroscopicdemand>					
+		<configuration>																					
+			<timeperiods>																
+				<timeperiod id="1">
+					<duration>3600</duration>											
+				</timeperiod>
+			</timeperiods>
+		</configuration>
+		<oddemands>																		
+			<odmatrix timeperiodref="1">
+				<o ref="1">																
+					<d ref="1">0.0</d>													
+					<d ref="2">150.0</d> 
+				</o>
+				<o ref="2">
+					<d ref="1">300</d>
+				</o>
+			</odmatrix>
+		</oddemands>
+	</macroscopicdemand>	
+</PLANit>
+
