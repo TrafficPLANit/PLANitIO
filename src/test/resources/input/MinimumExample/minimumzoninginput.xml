@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<macroscopiczoning
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xmlns:gml="http://www.opengis.net/gml"											
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopiczoninginput.xsd">
+	<zones>
+		<zone id="1">
+			<centroid>										
+				<gml:Point>
+					<gml:pos>45.256 -110.45</gml:pos>
+				</gml:Point>
+			</centroid>
+			<connectoids>
+				<connectoid noderef="1"/>
+				<connectoid noderef="11"/>
+			</connectoids>												
+		</zone>
+	</zones>
+</macroscopiczoning>

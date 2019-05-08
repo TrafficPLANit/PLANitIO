@@ -33,19 +33,32 @@
 			</xs:documentation>
 		</xs:annotation>	
 		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="connectoid" minOccurs="1">
-					<xs:annotation>
-						<xs:documentation>
-							Each connectoid represents a potential point of exit/entry from/to the physical network coming from the zone/centroid. There
-							must be at minimum one connectoid to be able to leave/enter the zone. 
-						</xs:documentation>
-					</xs:annotation>				
-				</xs:element>
-				TODO -> continue here ()
+			<xs:sequence maxOccurs="unbounded">
+				<xs:element ref="connectoid"/>
 			</xs:sequence>
 		</xs:complexType>
-	</xs:element>		
+	</xs:element>
+	
+	<xs:element name="connectoid">
+		<xs:annotation>
+			<xs:documentation>
+				Each connectoid represents a potential point of exit/entry from/to the physical network coming from the zone/centroid. There
+				must be at minimum one connectoid to be able to leave/enter the zone. 
+			</xs:documentation>
+		</xs:annotation>				
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="name" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="noderef" type="xs:positiveInteger" use="required">
+				<xs:annotation>
+					<xs:documentation>
+						Reference to the node that also acts as a connectoid for the zone.
+					</xs:documentation>
+				</xs:annotation>			
+			</xs:attribute>					
+		</xs:complexType>				
+	</xs:element>
 
 	<!-- Root element -->
 	<xs:element name="macroscopiczoning">
@@ -75,8 +88,8 @@
 									</xs:documentation>
 								</xs:annotation>							
 							</xs:element>
-							<xs:element ref="connectoids">
-							<xs:element ref="gml:Polygon">
+							<xs:element ref="connectoids"/>
+							<xs:element ref="gml:Polygon" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>
 										Each travel zone has a geographical area in the form of a Polygon. We recommend not using an interior polygon as "islands"

@@ -2,7 +2,7 @@
 <macroscopiczoning
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xmlns:gml="http://www.opengis.net/gml"											
-	 xsi:noNamespaceSchemaLocation="macroscopiczoninginput.xsd">
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopiczoninginput.xsd">
 	<zones srsname="EPSG:4326">								<!-- Optional coordinate system used for the zoning (assumed to be the same as the one used for the infrastructure but for clarity it can be repeated -->
 		<zone id="1">										<!-- Each zone must have a unique identifier. Note that depending on the type of OD matrix these identifiers must have no gaps and start with 1, otherwise one risks the possibility that travel demand cannot be properly parsed. This is the only identifier that necessarily is the same identifier that is used internally for this particular reason, i.e., externalid=id  -->
 			<name>Glebe</name>								<!-- Optional -->
@@ -12,10 +12,10 @@
 					<gml:pos>45.256 -110.45</gml:pos>
 				</gml:Point>
 			</centroid>
-			<connectoids>									<!-- optional, when absent it depends on the assignment configuration how the connectoids are (auto-)generated -->
-				<connectoid noderef="1">
-				<connectoid noderef="14">
-			</connectoids>	
+			<connectoids>
+				<connectoid noderef="1"/>
+				<connectoid noderef="11"/>
+			</connectoids>									<!-- optional, when absent it depends on the assignment configuration how the connectoids are (auto-)generated -->	
 			<gml:Polygon>									<!-- Optional, since in macroscopic context we only use the centroid so the polygon is mainly for display purposes. Note this assumes "no island", one can also construct exterior and interior component, but this is not allowed in PLANit -->
 				<gml:exterior>
 					<gml:LinearRing>

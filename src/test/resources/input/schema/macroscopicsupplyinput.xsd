@@ -168,8 +168,8 @@
 	<xs:element name="linksegment">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="noflanes"/>		
-				<xs:element ref="maxspeed"/>
+				<xs:element ref="noflanes" minOccurs="0"/>		
+				<xs:element ref="maxspeed" />
 			</xs:sequence>
 			<xs:attribute name="id" 		type="xs:positiveInteger" 	use="required"/>
 			<xs:attribute name="dir" 		type="direction"			use="required"/>
@@ -216,7 +216,7 @@
 					</xs:annotation>	  				
   					<xs:complexType>
   						<xs:sequence>
-  							<xs:element ref="name"/>
+  							<xs:element ref="name" minOccurs="0"/>
   							<!-- a link segment has a direction, at most two directions exist per link -->
   							<xs:element ref="linksegment" minOccurs="1" maxOccurs="2">
 								<xs:annotation>
@@ -241,7 +241,7 @@
 								</xs:annotation>	  							
   							</xs:element> 							
   						</xs:sequence>
-  						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+  						<xs:attribute name="id" type="xs:positiveInteger" use="optional"/>
   					</xs:complexType>		
   				</xs:element>
   			</xs:sequence>
@@ -280,7 +280,7 @@
   				<xs:element name="node" maxOccurs="unbounded">
   					<xs:complexType>
   						<xs:sequence>
-  							<xs:element ref="name"/>
+  							<xs:element ref="name" minOccurs="0"/>
   							<xs:element ref="gml:Point">
   								<xs:annotation>
 									<xs:documentation>

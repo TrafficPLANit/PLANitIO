@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <macroscopicdemand
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"								
-	 xsi:noNamespaceSchemaLocation="macroscopicdemandinput.xsd">					<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicdemandinput.xsd">					<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
 	<configuration>																	<!-- optional -> if not present we assume it aligns with earlier demand inputs on the project -->
 		<modes>																		<!-- if absent a single mode (car) with pcu 1 is assumed -->
 			<mode id="1">															<!-- mandatory attributes, for referencing -->
