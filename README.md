@@ -1,2 +1,2 @@
 # PLANitXML
-XML data format parsers for PLANit projects
+XML data I/O format parsers for PLANit projects
