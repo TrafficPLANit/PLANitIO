@@ -3,7 +3,22 @@
 <xs:include schemaLocation="PLANit.xsd" />
 <xs:import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" />
 
-	<!-- simple types -->
+	<!-- Complex types -->
+	<xs:complexType name="LengthType">
+		<xs:simpleContent>
+			<xs:extension base="xs:float">
+	      		<xs:attribute name="unit" type="lengthUnit" default="km" use="optional">
+		    		<xs:annotation>
+						<xs:documentation>
+							Default length unit is assumed to be kilometres (km))
+						</xs:documentation>
+					</xs:annotation>	 
+				</xs:attribute>
+		    </xs:extension>
+		</xs:simpleContent>
+   	</xs:complexType>	
+
+	<!-- Simple types -->
 	<xs:simpleType name="direction">
 		<xs:annotation>
 			<xs:documentation>
@@ -75,23 +90,6 @@
 				Number of lanes of a link segment
 			</xs:documentation>
 		</xs:annotation>	
-	</xs:element>
-	
-	<xs:element name="length">
-		<xs:annotation>
-			<xs:documentation>
-				Length of a link in km which overrides the actual length which is normally deduced from the geo spatial information 
-			</xs:documentation>
-		</xs:annotation>
-		<xs:complexType>
-			<xs:attribute name="unit" type="lengthUnit" use="optional" default="km">
-				<xs:annotation>
-					<xs:documentation>
-						Unit of the length, default is assumed to be in km 
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-		</xs:complexType>
 	</xs:element>
 
 	<!-- Complex elements -->
@@ -269,7 +267,7 @@
 									</xs:documentation>
 								</xs:annotation>	  				  							
   							</xs:element>  							
-  							<xs:element ref="length" minOccurs="0">
+  							<xs:element name="length" minOccurs="0" type="LengthType">
 								<xs:annotation>
 									<xs:documentation>
 										Optional length property which overrides any geo spatial length which is deduced from the coordinate system
