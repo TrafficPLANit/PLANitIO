@@ -16,6 +16,18 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
+	<xs:simpleType name="lengthUnit">
+		<xs:annotation>
+			<xs:documentation>
+				Choice between km (kilometres), m (metres)
+			</xs:documentation>
+		</xs:annotation>	
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="km"/>
+      		<xs:enumeration value="m"/>
+		</xs:restriction>
+	</xs:simpleType>	
+	
 	<!-- simple elements -->
 	<xs:element name="maxdensitylane" type="xs:float" default="180.0">
 		<xs:annotation>
@@ -24,6 +36,14 @@
 			</xs:documentation>
 		</xs:annotation>	
 	</xs:element>
+	
+	<xs:element name="pcu" type="xs:float" default="1">
+		<xs:annotation>
+			<xs:documentation>
+				Person car equivalent of a mode
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>	
 	
 	<xs:element name="capacitylane" type="xs:float" default="1800.0">
 		<xs:annotation>
@@ -57,12 +77,21 @@
 		</xs:annotation>	
 	</xs:element>
 	
-	<xs:element name="length" type="xs:float">
+	<xs:element name="length">
 		<xs:annotation>
 			<xs:documentation>
 				Length of a link in km which overrides the actual length which is normally deduced from the geo spatial information 
 			</xs:documentation>
 		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="unit" type="lengthUnit" use="optional" default="km">
+				<xs:annotation>
+					<xs:documentation>
+						Unit of the length, default is assumed to be in km 
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
 	</xs:element>
 
 	<!-- Complex elements -->
@@ -144,26 +173,38 @@
 									</xs:documentation>
 								</xs:annotation>							
 							</xs:element>
-							<xs:element name="mode">
+							<xs:element name="modes" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>
-										Mode specific attributes associated with the link segment type are the maximum and critical speed.
-										If a mode is not defined on the link segment type it is assumed the mode is not allowed on the link segment.
+										When not present, all modes are assumed to be allowed based on their default properties 
+										(possibly dynamically capped by the physical link properties)
 									</xs:documentation>
-								</xs:annotation>							
-								<xs:complexType>
-									<xs:sequence>
-										<xs:element ref="maxspeed"/>
-										<xs:element ref="critspeed"/>
+								</xs:annotation>
+						  		<xs:complexType>
+						  			<xs:sequence>
+						  				<xs:element name="mode" maxOccurs="unbounded">
+						  					<xs:annotation>
+												<xs:documentation>
+													Mode specific attributes associated with the link segment type are the maximum and critical speed.
+													If a mode is not defined on the link segment type it is assumed the mode is not allowed on the link segment.
+												</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>													
+													<xs:element ref="maxspeed"/>
+													<xs:element ref="critspeed"/>
+												</xs:sequence>
+												<xs:attribute name="ref" type="xs:positiveInteger">
+													<xs:annotation>
+														<xs:documentation>
+															Refers to the unique identifier for the mode this information relates to. If '0' is used
+															all non-defined modes on the link segment type will take on the values provided for this 'all modes' entry.
+														</xs:documentation>
+													</xs:annotation>									
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
 									</xs:sequence>
-									<xs:attribute name="ref" type="xs:positiveInteger">
-										<xs:annotation>
-											<xs:documentation>
-												Refers to the unique identifier for the mode this information relates to. If '0' is used
-												all non-defined modes on the link segment type will take on the values provided for this 'all modes' entry.
-											</xs:documentation>
-										</xs:annotation>									
-									</xs:attribute>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -177,25 +218,11 @@
 	<xs:element name="linksegment">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="noflanes" minOccurs="0"/>		
+				<xs:element ref="noflanes" minOccurs="0" />		
 				<xs:element ref="maxspeed" />
 			</xs:sequence>
 			<xs:attribute name="id" 		type="xs:positiveInteger" 	use="required"/>
-			<xs:attribute name="dir" 		type="direction"			use="required"/>
-			<xs:attribute name="nodearef" 	type="xs:positiveInteger" 	use="required">
-				<xs:annotation>
-					<xs:documentation>
-						Refers to the unique node identifier (id) associated with node 'a' of this link segment
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute name="nodebref" 	type="xs:positiveInteger" 	use="required">
-				<xs:annotation>
-					<xs:documentation>
-						Refers to the unique node identifier associated with node 'b' of this link segment
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>			
+			<xs:attribute name="dir" 		type="direction"			use="required"/>	
 			<xs:attribute name="typeref" 	type="xs:positiveInteger" 	use="optional">
 				<xs:annotation>
 					<xs:documentation>
@@ -251,6 +278,20 @@
   							</xs:element> 							
   						</xs:sequence>
   						<xs:attribute name="id" type="xs:positiveInteger" use="optional"/>
+						<xs:attribute name="nodearef" 	type="xs:positiveInteger" 	use="required">
+							<xs:annotation>
+								<xs:documentation>
+									Refers to the unique node identifier (id) associated with node 'a' of this link segment
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="nodebref" 	type="xs:positiveInteger" 	use="required">
+							<xs:annotation>
+								<xs:documentation>
+									Refers to the unique node identifier associated with node 'b' of this link segment
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>	  						
   					</xs:complexType>		
   				</xs:element>
   			</xs:sequence>
@@ -296,7 +337,7 @@
 						</xs:annotation>				  		
 			  			<xs:sequence>
 			  				<xs:element ref="name" minOccurs="0"/>
-			  				<xs:element ref="pcu" minOccurs="0"/>
+			  				<xs:element ref="pcu" minOccurs="0" />
 			  			</xs:sequence>
 			  			<xs:attribute name="id" type="xs:positiveInteger" use="required"/>  			
 			  		</xs:complexType>

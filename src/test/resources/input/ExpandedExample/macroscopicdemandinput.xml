@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <macroscopicdemand
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"								
-	 xsi:noNamespaceSchemaLocation="../schema/macroscopicdemandinput.xsd">					<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicdemandinput.xsd">			<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
 	<configuration>																	<!-- optional -> if not present we assume it aligns with earlier demand inputs on the project -->	
 		<travellertypes>															<!-- optional, if not present, single default traveller type assumed -->
 			<travellertype id="1">
@@ -15,9 +15,9 @@
 		</userclasses>
 		<timeperiods>																
 			<timeperiod id="1">
-				<name>Afternoon 2PM-4PM</name>									<!-- description of the period -->
+				<name>Afternoon 2PM-4PM</name>										<!-- description of the period -->
 				<starttime>14:00:00</starttime>										<!-- start time without a date in 24h format -->
-				<duration>7200</duration>											<!-- duration in seconds -->
+				<duration unit="s">7200</duration>									<!-- duration in seconds -->
 			</timeperiod>
 		</timeperiods>
 	</configuration>
@@ -32,8 +32,8 @@
 				<!-- second element absent, sparse matrix to save space, in case of a sparse matrix, all elements must have references -->
 			</o>
 		</odmatrix>
-		<odrowmatrix timeperiodref="1" userclassref="1" ds=",">					<!-- odrowmatrix is a matrix where each origin zone provides a comma separated list of destination values (no exception) -->
-			<odrow ref="1">0.0,150.0</odrow>									<!-- origin reference is optional, if not all origins are present, it is assumed the row has no demand at all, destination separator when absent is assumed to be a "," -->																				
+		<odrowmatrix timeperiodref="1" userclassref="1" ds=",">						<!-- odrowmatrix is a matrix where each origin zone provides a comma separated list of destination values (no exception) -->
+			<odrow ref="1">0.0,150.0</odrow>										<!-- origin reference is optional, if not all origins are present, it is assumed the row has no demand at all, destination separator when absent is assumed to be a "," -->																				
 			<odrow ref="2">300.0,0.0</odrow>
 		</odrowmatrix>
 		<odrawmatrix timeperiodref="1" userclassref="1">							<!-- odrawmatrix is a square matrix where all od combinations are provided as one long comma separated list and since the matrix is square the parser delineates the data into the correct od demands -->

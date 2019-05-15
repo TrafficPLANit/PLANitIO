@@ -17,11 +17,11 @@
 				</node>				
 			</nodes>		
 			<links>
-				<link>																
-					<linksegment id="1" dir="a_b" nodearef="1" nodebref="2">
+				<link nodearef="1" nodebref="2">																
+					<linksegment id="1" dir="a_b">
 						<maxspeed>60</maxspeed>
 					</linksegment>						
-					<linksegment id="2" dir="b_a" nodearef="1" nodebref="2">
+					<linksegment id="2" dir="b_a">
 						<maxspeed>50</maxspeed>
 					</linksegment>				
 					<length>1.33</length>																	

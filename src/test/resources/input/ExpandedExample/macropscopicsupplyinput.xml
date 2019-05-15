@@ -15,10 +15,12 @@
 				<name>local road</name>													<!-- optional -->
 				<maxdensitylane>180</maxdensitylane>									<!-- optional, has default -->
 				<capacitylane>2000</capacitylane>										<!-- optional, has default -->
-				<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode is assumed to be banned from the link segment -->
-					<maxspeed>40</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-					<critspeed>35</critspeed>											<!-- optional (no default), idfdefined should be lower or equal than (mode specific) link max speed when present, represents the speed at capacity -->
-				</mode>
+				<modes>
+					<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode is assumed to be banned from the link segment -->
+						<maxspeed>40</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						<critspeed>35</critspeed>											<!-- optional (no default), idfdefined should be lower or equal than (mode specific) link max speed when present, represents the speed at capacity -->
+					</mode>				
+				</modes>
 			</linksegmenttype>
 		</linksegmenttypes>			
 	</configuration>
@@ -38,20 +40,20 @@
 			</node>				
 		</nodes>		
 		<links>
-			<link id="1">																<!-- optional since it can be derived from the two nodes -->
+			<link id="1" nodearef="1" nodebref="2">																<!-- optional since it can be derived from the two nodes -->
 				<name>Broadway</name>													<!-- optional -->
-				<linksegment id="1" dir="a_b" nodearef="1" nodebref="2" typeref="1">	<!-- mandatory attributes, except for id can be derived from direction, and typeref which if absent must mean there are no linksegmenttypes defined and we use default one-->
+				<linksegment id="1" dir="a_b" typeref="1">	<!-- mandatory attributes, except for id can be derived from direction, and typeref which if absent must mean there are no linksegmenttypes defined and we use default one-->
 					<noflanes>2</noflanes>												<!-- optional, has default -->
 					<maxspeed>50</maxspeed>												<!-- optional, has (deduced?) default (Q:do we make this part of link segmenttype or not?)-->						
 				</linksegment>
-				<linksegment id="2" dir="b_a" nodearef="1" nodebref="2" typeref="1">
+				<linksegment id="2" dir="b_a" typeref="1">
 					<noflanes>1</noflanes>
 					<maxspeed>50</maxspeed>
 				</linksegment>					
 				<gml:LineString>														<!-- optional, indicating shape points on the link, in case the first and last coordinate do not match the node points, the node points are added to the string -->
 					<gml:coordinates cs=" " ts=",">100,200 150,300</gml:coordinates>
 				</gml:LineString>	
-				<length>1.33</length>													<!-- manual override of link length in case for some reason the coordinates should not be used to deduce the length -->				
+				<length unit="km">1.33</length>													<!-- manual override of link length in case for some reason the coordinates should not be used to deduce the length -->				
 			</link>
 		</links>
 	</infrastructure>
