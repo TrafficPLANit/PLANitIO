@@ -4,7 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
+import org.planit.cost.physical.PhysicalCost;
+import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.event.listener.InputBuilderListener;
@@ -50,9 +51,12 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
         } else if (projectComponent instanceof Demands) {
             //populateDemands((Demands) projectComponent);
             LOGGER.info("populating demands - not yet implemented - ignore");
-        } else if (projectComponent instanceof BPRLinkTravelTimeCost) {
-            //populateBprParameters((BPRLinkTravelTimeCost) projectComponent); //place parameters on the BPR cost component
-            LOGGER.info("populating cost - not yet implemented - ignore");
+        } else if (projectComponent instanceof PhysicalCost) {
+            //populatePhysicalCost((PhysicalCost) projectComponent); 
+            LOGGER.info("populating physical cost - not yet implemented - ignore");
+        } else if (projectComponent instanceof VirtualCost) {
+            //populateVirtualCost((VirtualCost) projectComponent);
+            LOGGER.info("populating virtual cost - not yet implemented - ignore");            
         } else {
             LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName() + " which is not yet implement by PLANitXML");
         }

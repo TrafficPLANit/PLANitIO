@@ -1,6 +1,5 @@
 package org.planit.project;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
@@ -15,6 +14,13 @@ import org.planit.trafficassignment.DeterministicTrafficAssignment;
  * within the project instead of full flexibility. Advanced users who want to utilise all the flexibility of PLANit should instead
  * use PLANitProject in the PLANit core.
  * 
+ * Default configuration for this type of project:
+ *   (i)     Use the native output formatter (PLANitXML format),
+ *   (ii)    Use a macroscopic network,
+ *   (iii)   Use the native input parser (PLANitXML format) 
+ *   (iv)    The assignment will by default persist link outputs
+ *   (v)     Parsing of the inputs occurs after configuration of all other components to quickly identify user configuration errors           
+ * 
  * @author markr
  *
  */
@@ -26,14 +32,12 @@ public class PlanItSimpleProject extends PlanItProject {
     private static final Logger LOGGER = Logger.getLogger(PlanItProject.class.getName());
     
     /**
-     * initialise this simple project
+     * Initialise this simple project with as many components as possible directly after its inception here
      */
     private void initialiseSimpleProject() {
         try {
-            // use the default Output formatter
+            // register the default Output formatter as a formatter that is available
             this.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
-            // use a macroscopic network representation
-            this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
         } catch (PlanItException e) {
             LOGGER.severe("Could not instantiate default settings for project");
         }
@@ -41,9 +45,15 @@ public class PlanItSimpleProject extends PlanItProject {
     
     /**
      * Parse the input data for the project here
+     * @throws PlanItException 
      */
-    private void processSimpleProjectInputData() {
-        // TODO Auto-generated method stub        
+    private void processSimpleProjectInputData() throws PlanItException {
+        // parse a macroscopic network representation
+        this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+        // parse the zoning system
+        this.createAndRegisterZoning();
+        // parse the demands
+        this.createAndRegisterDemands();
     }       
     
     // Public
@@ -54,7 +64,7 @@ public class PlanItSimpleProject extends PlanItProject {
      * 
      */
     public PlanItSimpleProject() {  
-        // use the default input builder with the current path
+        // use the default input builder with the current path as the project path
         super(new PlanItXMLInputBuilder(Paths.get("").toAbsolutePath().toString()));
         LOGGER.info("Searching for input files in: "+Paths.get("").toAbsolutePath().toString());
         initialiseSimpleProject();
@@ -71,11 +81,7 @@ public class PlanItSimpleProject extends PlanItProject {
         LOGGER.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());
         initialiseSimpleProject();
     }    
-    
-    public void someCall() {
-        LOGGER.info("some call made to simple project");
-    }
-    
+        
     /** On a simple project we only allow a single assignment to be registered. This is verified here. If multiple assignments
      * are required within the same project, then a simple project cannot be used 
      * 
@@ -98,10 +104,9 @@ public class PlanItSimpleProject extends PlanItProject {
      */
     @Override
     public void executeAllTrafficAssignments() throws PlanItException {
-        trafficAssignments.forEach( (id,ta) -> {
-            processSimpleProjectInputData();
-            executeTrafficAssignment(ta);
-        });
+        // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
+        processSimpleProjectInputData();
+        super.executeAllTrafficAssignments();
     }
 
 }
