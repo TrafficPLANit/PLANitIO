@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.planit.basiccsv.input.BasicCsvScan;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
@@ -52,13 +51,13 @@ public class PlanItXmlTest{
 	@Test
 	public void testBasic1() {	
 		try {
-			runTest("src\\test\\resources\\basic\\test1\\network.csv", 
-					     "src\\test\\resources\\basic\\test1\\demands.csv",  
-					     "src\\test\\resources\\basic\\test1\\link_types.csv",  
-					     "src\\test\\resources\\basic\\test1\\zones.csv", 
-                         "src\\test\\resources\\basic\\test1\\time_periods.csv", 
-                         "src\\test\\resources\\basic\\test1\\modes.csv", 
-					     "src\\test\\resources\\basic\\test1\\results.csv");
+			runTest("src\\test\\resources\\basic\\csv\\test1\\network.csv", 
+					     "src\\test\\resources\\basic\\csv\\test1\\demands.csv",  
+					     "src\\test\\resources\\basic\\csv\\test1\\link_types.csv",  
+					     "src\\test\\resources\\basic\\csv\\test1\\zones.csv", 
+                         "src\\test\\resources\\basic\\csv\\test1\\time_periods.csv", 
+                         "src\\test\\resources\\basic\\csv\\test1\\modes.csv", 
+					     "src\\test\\resources\\basic\\csv\\test1\\results.csv");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -68,13 +67,13 @@ public class PlanItXmlTest{
 	@Test
 	public void testBasic2() {	
 		try {
-			runTest("src\\test\\resources\\basic\\test2\\network.csv", 
-					     "src\\test\\resources\\basic\\test2\\demands.csv", 
-					     "src\\test\\resources\\basic\\test2\\link_types.csv", 
-					     "src\\test\\resources\\basic\\test2\\zones.csv", 
-                         "src\\test\\resources\\basic\\test2\\time_periods.csv", 
-                         "src\\test\\resources\\basic\\test2\\modes.csv", 
-					     "src\\test\\resources\\basic\\test2\\results.csv");
+			runTest("src\\test\\resources\\basic\\csv\\test2\\network.csv", 
+					     "src\\test\\resources\\basic\\csv\\test2\\demands.csv", 
+					     "src\\test\\resources\\basic\\csv\\test2\\link_types.csv", 
+					     "src\\test\\resources\\basic\\csv\\test2\\zones.csv", 
+                         "src\\test\\resources\\basic\\csv\\test2\\time_periods.csv", 
+                         "src\\test\\resources\\basic\\csv\\test2\\modes.csv", 
+					     "src\\test\\resources\\basic\\csv\\test2\\results.csv");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -84,13 +83,13 @@ public class PlanItXmlTest{
 	@Test
 	public void testBasic3() {	
 		try {
-			runTest("src\\test\\resources\\basic\\test3\\network.csv", 
-					     "src\\test\\resources\\basic\\test3\\demands.csv",  
-					     "src\\test\\resources\\basic\\test3\\link_types.csv", 
-					     "src\\test\\resources\\basic\\test3\\zones.csv", 
-                         "src\\test\\resources\\basic\\test3\\time_periods.csv", 
-                         "src\\test\\resources\\basic\\test3\\modes.csv", 
-					     "src\\test\\resources\\basic\\test3\\results.csv");
+			runTest("src\\test\\resources\\basic\\csv\\test3\\network.csv", 
+					     "src\\test\\resources\\basic\\csv\\test3\\demands.csv",  
+					     "src\\test\\resources\\basic\\csv\\test3\\link_types.csv", 
+					     "src\\test\\resources\\basic\\csv\\test3\\zones.csv", 
+                         "src\\test\\resources\\basic\\csv\\test3\\time_periods.csv", 
+                         "src\\test\\resources\\basic\\csv\\test3\\modes.csv", 
+					     "src\\test\\resources\\basic\\csv\\test3\\results.csv");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -100,13 +99,13 @@ public class PlanItXmlTest{
     @Test
     public void testBasic13() {  
         try {
-            runTest("src\\test\\resources\\basic\\test13\\network.csv", 
-                         "src\\test\\resources\\basic\\test13\\demands.csv",  
-                         "src\\test\\resources\\basic\\test13\\link_types.csv", 
-                         "src\\test\\resources\\basic\\test13\\zones.csv", 
-                         "src\\test\\resources\\basic\\test13\\time_periods.csv", 
-                         "src\\test\\resources\\basic\\test13\\modes.csv", 
-                         "src\\test\\resources\\basic\\test13\\results.csv");
+            runTest("src\\test\\resources\\basic\\csv\\test13\\network.csv", 
+                         "src\\test\\resources\\basic\\csv\\test13\\demands.csv",  
+                         "src\\test\\resources\\basic\\csv\\test13\\link_types.csv", 
+                         "src\\test\\resources\\basic\\csv\\test13\\zones.csv", 
+                         "src\\test\\resources\\basic\\csv\\test13\\time_periods.csv", 
+                         "src\\test\\resources\\basic\\csv\\test13\\modes.csv", 
+                         "src\\test\\resources\\basic\\csv\\test13\\results.csv");
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -116,13 +115,13 @@ public class PlanItXmlTest{
 	@Test
 	public void testRouteChoice1() {
 		try {
-			runTest("src\\test\\resources\\route_choice\\test1\\network.csv", 
-					     "src\\test\\resources\\route_choice\\test1\\demands.csv", 
-					     "src\\test\\resources\\route_choice\\test1\\link_types.csv", 
-					     "src\\test\\resources\\route_choice\\test1\\zones.csv", 
-                         "src\\test\\resources\\route_choice\\test1\\time_periods.csv", 
-                         "src\\test\\resources\\route_choice\\test1\\modes.csv", 
-					     "src\\test\\resources\\route_choice\\test1\\results.csv",
+			runTest("src\\test\\resources\\route_choice\\csv\\test1\\network.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test1\\demands.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test1\\link_types.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test1\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test1\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test1\\modes.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test1\\results.csv",
 					     500, 0.0);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -133,13 +132,13 @@ public class PlanItXmlTest{
 	@Test
 	public void testRouteChoice2() {
 		try {
-			runTest("src\\test\\resources\\route_choice\\test2\\network.csv", 
-					     "src\\test\\resources\\route_choice\\test2\\demands.csv", 
-					     "src\\test\\resources\\route_choice\\test2\\link_types.csv", 
-					     "src\\test\\resources\\route_choice\\test2\\zones.csv", 
-                         "src\\test\\resources\\route_choice\\test2\\time_periods.csv", 
-                         "src\\test\\resources\\route_choice\\test2\\modes.csv", 
-					     "src\\test\\resources\\route_choice\\test2\\results.csv",
+			runTest("src\\test\\resources\\route_choice\\csv\\test2\\network.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test2\\demands.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test2\\link_types.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test2\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test2\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test2\\modes.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test2\\results.csv",
 					     500, 0.0);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -150,13 +149,13 @@ public class PlanItXmlTest{
 	@Test
 	public void testRouteChoice3() {
 		try {
-			runTest("src\\test\\resources\\route_choice\\test3\\network.csv", 
-					     "src\\test\\resources\\route_choice\\test3\\demands.csv", 
-					     "src\\test\\resources\\route_choice\\test3\\link_types.csv", 
-					     "src\\test\\resources\\route_choice\\test3\\zones.csv", 
-                         "src\\test\\resources\\route_choice\\test3\\time_periods.csv", 
-                         "src\\test\\resources\\route_choice\\test3\\modes.csv", 
-					     "src\\test\\resources\\route_choice\\test3\\results.csv",
+			runTest("src\\test\\resources\\route_choice\\csv\\test3\\network.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test3\\demands.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test3\\link_types.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test3\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test3\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test3\\modes.csv", 
+					     "src\\test\\resources\\route_choice\\csv\\test3\\results.csv",
                          500, 0.0);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -167,13 +166,13 @@ public class PlanItXmlTest{
 	@Test
     public void testRouteChoice4() {
         try {
-            runTest("src\\test\\resources\\route_choice\\test4\\network.csv", 
-                         "src\\test\\resources\\route_choice\\test4\\demands.csv", 
-                         "src\\test\\resources\\route_choice\\test4\\link_types.csv", 
-                         "src\\test\\resources\\route_choice\\test4\\zones.csv", 
-                         "src\\test\\resources\\route_choice\\test4\\time_periods.csv", 
-                         "src\\test\\resources\\route_choice\\test4\\modes.csv", 
-                         "src\\test\\resources\\route_choice\\test4\\results.csv",
+            runTest("src\\test\\resources\\route_choice\\csv\\test4\\network.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test4\\demands.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test4\\link_types.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test4\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test4\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test4\\modes.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test4\\results.csv",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -184,13 +183,13 @@ public class PlanItXmlTest{
     @Test
     public void testRouteChoice42() {
         try {
-            runTest("src\\test\\resources\\route_choice\\test42\\network.csv", 
-                         "src\\test\\resources\\route_choice\\test42\\demands.csv", 
-                         "src\\test\\resources\\route_choice\\test42\\link_types.csv", 
-                         "src\\test\\resources\\route_choice\\test42\\zones.csv", 
-                         "src\\test\\resources\\route_choice\\test42\\time_periods.csv", 
-                         "src\\test\\resources\\route_choice\\test42\\modes.csv", 
-                         "src\\test\\resources\\route_choice\\test42\\results.csv",
+            runTest("src\\test\\resources\\route_choice\\csv\\test42\\network.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test42\\demands.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test42\\link_types.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test42\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test42\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test42\\modes.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test42\\results.csv",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -201,13 +200,13 @@ public class PlanItXmlTest{
     @Test
     public void testRouteChoice5() {
         try {
-            runTest("src\\test\\resources\\route_choice\\test5\\network.csv", 
-                         "src\\test\\resources\\route_choice\\test5\\demands.csv", 
-                         "src\\test\\resources\\route_choice\\test5\\link_types.csv", 
-                         "src\\test\\resources\\route_choice\\test5\\zones.csv", 
-                         "src\\test\\resources\\route_choice\\test5\\time_periods.csv", 
-                         "src\\test\\resources\\route_choice\\test5\\modes.csv", 
-                         "src\\test\\resources\\route_choice\\test5\\results.csv",
+            runTest("src\\test\\resources\\route_choice\\csv\\test5\\network.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test5\\demands.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test5\\link_types.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test5\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test5\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test5\\modes.csv", 
+                         "src\\test\\resources\\route_choice\\csv\\test5\\results.csv",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
