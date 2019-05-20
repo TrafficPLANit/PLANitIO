@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<macroscopiczoning xmlns:gml="http://www.opengis.net/gml" 
+                xmlns:smil20="http://www.w3.org/2001/SMIL20/" 
+                xmlns:smil20lang="http://www.w3.org/2001/SMIL20/Language" 
+                xmlns:xlink="http://www.w3.org/1999/xlink" 
+                xmlns:xml="http://www.w3.org/XML/1998/namespace" 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                xsi:noNamespaceSchemaLocation="../../../../../main/resources/schema/macroscopiczoninginput.xsd">
+    <zones>
+    	<zone id="1">
+    		<centroid>
+     			<name>1</name>
+    		</centroid>
+    		<connectoids>
+    			<connectoid noderef="11">
+    				<length>1.0</length>
+    			</connectoid>
+    		</connectoids>
+    	</zone>
+    	<zone id="2">
+    		<centroid>
+     			<name>2</name>
+    		</centroid>
+    		<connectoids>
+    			<connectoid noderef="12">
+    				<length>1.0</length>
+    			</connectoid>
+     		</connectoids>
+    	</zone>
+    	<zone id="3">
+    		<centroid>
+     			<name>3</name>
+    		</centroid>
+    		<connectoids>
+    			<connectoid noderef="13">
+    				<length>1.0</length>
+    			</connectoid>
+     		</connectoids>
+    	</zone>
+    	<zone id="4">
+    		<centroid>
+     			<name>4</name>
+    		</centroid>
+    		<connectoids>
+    			<connectoid noderef="14">
+    				<length>1.0</length>
+    			</connectoid>
+     		</connectoids>
+    	</zone>
+     	<zone id="5">
+    		<centroid>
+     			<name>5</name>
+    		</centroid>
+    		<connectoids>
+    			<connectoid noderef="15">
+    				<length>1.0</length>
+    			</connectoid>
+     		</connectoids>
+    	</zone>
+    	<zone id="6">
+    		<centroid>
+     			<name>6</name>
+    		</centroid>
+    		<connectoids>
+    			<connectoid noderef="16">
+    				<length>1.0</length>
+    			</connectoid>
+     		</connectoids>
+    	</zone>
+    </zones>
+</macroscopiczoning>
