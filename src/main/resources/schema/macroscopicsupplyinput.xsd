@@ -84,7 +84,7 @@
 		</xs:annotation>	
 	</xs:element>
 		
-	<xs:element name="noflanes" type="xs:positiveInteger" default="1">
+	<xs:element name="numberoflanes" type="xs:positiveInteger" default="1">
 		<xs:annotation>
 			<xs:documentation>
 				Number of lanes of a link segment
@@ -216,7 +216,7 @@
 	<xs:element name="linksegment">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="noflanes" minOccurs="0" maxOccurs="1"/>		
+				<xs:element ref="numberoflanes" minOccurs="0" maxOccurs="1"/>		
 				<xs:element ref="maxspeed" minOccurs="0" maxOccurs="1"/>
 			</xs:sequence>
 			<xs:attribute name="id" 		type="xs:positiveInteger" 	use="required"/>
