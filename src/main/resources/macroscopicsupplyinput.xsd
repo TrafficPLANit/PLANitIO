@@ -93,7 +93,7 @@
 	</xs:element>
 
 	<!-- Complex elements -->
-	<xs:element name="configuration">
+	<xs:element name="linkconfiguration">
 		<xs:annotation>
 			<xs:documentation>
 				Configuration, i.e., meta data of the network infrastructure 
@@ -305,7 +305,7 @@
 		</xs:annotation>	
   		<xs:complexType>
   			<xs:sequence>
-  				<xs:element ref="configuration" minOccurs="0">
+  				<xs:element ref="linkconfiguration" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>
 							When configuration is absent we assume a single link segment type for the entire simulation and a simple Cartesian coordinate system with top-left (0,0) 
