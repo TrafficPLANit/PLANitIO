@@ -9,7 +9,7 @@
 	    	</userclass>
 	    </userclasses>
 	    <timeperiods>
-	    	<timeperiod id="1">
+	    	<timeperiod id="0">
 	    		<name>1</name>
 	    		<starttime>00:00:01</starttime>
 	    		<duration>86400</duration>
@@ -18,7 +18,7 @@
    </configuration>
        
 	<oddemands>
-		<odrowmatrix timeperiodref="1" userclassref="1">
+		<odrowmatrix timeperiodref="0" userclassref="1">
 			<odrow ref="1">100,200,300,400</odrow>
 			<odrow ref="2">200,400,600,800</odrow>
 			<odrow ref="3">300,600,900,1200</odrow>

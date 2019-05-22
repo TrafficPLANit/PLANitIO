@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -37,8 +40,16 @@ import org.planit.userclass.Mode;
 import org.planit.zoning.Zone;
 import org.planit.zoning.Zoning;
 
+import generated.Configuration;
 import generated.Connectoid;
+import generated.Durationunit;
+import generated.Macroscopicdemand;
 import generated.Macroscopiczoning;
+import generated.Oddemands;
+import generated.Odmatrix;
+import generated.Odrawmatrix;
+import generated.Odrowmatrix;
+import generated.Timeperiods;
 import generated.Zones;
 
 public class PlanItXml implements InputBuilderListener  {
@@ -292,7 +303,7 @@ public class PlanItXml implements InputBuilderListener  {
         
         //create and register zones
     	try {
-	    	JAXBContext jaxbContext     = JAXBContext.newInstance(Macroscopiczoning.class);
+	    	JAXBContext jaxbContext = JAXBContext.newInstance(Macroscopiczoning.class);
 	    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 	    	InputStream inStream = new FileInputStream(zoningXmlFileLocation);
 	    	Macroscopiczoning macroscopiczoning = (Macroscopiczoning) jaxbUnmarshaller.unmarshal( inStream );
@@ -314,34 +325,6 @@ public class PlanItXml implements InputBuilderListener  {
     		throw new PlanItException(e);
     	}
         
-/*       
-        try (Reader in = new FileReader(zoneFileLocation)) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-            VirtualNetwork virtualNetwork = zoning.getVirtualNetwork();
-            for (CSVRecord record : records) {
-                long nodeExternalId = Integer.parseInt(record.get("Node"));
-                long zoneExternalId;
-                try {
-                    zoneExternalId = Integer.parseInt(record.get("Zone"));
-                } catch (IllegalArgumentException iae) {
-                    try {
-                        zoneExternalId = Integer.parseInt(record.get("Centroid"));
-                    } catch (IllegalArgumentException iae2) {
-                        throw new PlanItException("The zones definition file must contain a column headed either 'Zone' or 'Centroid'.");
-                    }
-                }
-                Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
-                Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
-                Centroid centroid = zone.getCentroid();
-                virtualNetwork.connectoids.registerNewConnectoid(centroid, node, CONNECTOID_LENGTH);
-                noCentroids++;
-            }
-            zones = zoning.zones;
-            in.close();         
-        } catch (Exception ex) {
-            throw new PlanItException(ex);
-        }
-*/
     }
     
 /**
@@ -354,8 +337,59 @@ public class PlanItXml implements InputBuilderListener  {
         LOGGER.info("Populating Demands");  
         if (noCentroids == 0)
             throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
-        
-        Map<Integer, TimePeriod> timePeriodMap = getTimePeriods();
+ 
+        Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
+    	try {
+	    	JAXBContext jaxbContext = JAXBContext.newInstance(Macroscopicdemand.class);
+	    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+	    	InputStream inStream = new FileInputStream(demandXmlFileLocation);
+	    	Macroscopicdemand macroscopicdemand = (Macroscopicdemand)  jaxbUnmarshaller.unmarshal(inStream);
+	    	Configuration configuration = macroscopicdemand.getConfiguration();
+	        for (Timeperiods.Timeperiod timePeriodGenerated : configuration.getTimeperiods().getTimeperiod()) {
+                int timePeriodId = timePeriodGenerated.getId().intValue();
+                XMLGregorianCalendar time = timePeriodGenerated.getStarttime();
+                int startTime = 3600 * time.getHour() + 60 * time.getMinute() + time.getSecond();
+                int duration = timePeriodGenerated.getDuration().getValue().intValue();
+                Durationunit durationUnit = timePeriodGenerated.getDuration().getUnit();
+                switch (durationUnit) {
+                	case H:  duration *= 3600;
+                				   break;
+                	case M: duration *= 60;
+ 				   				   break;
+                }
+                 TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
+                timePeriodMap.put(timePeriodId, timePeriod);
+	        }
+	    	Oddemands oddemands = macroscopicdemand.getOddemands();
+	    	Object odmatrixInput = oddemands.getOdmatrixOrOdrowmatrixOrOdrawmatrix().get(0);
+	    	if (odmatrixInput instanceof Odmatrix) {
+	    		Odmatrix odmatrix = (Odmatrix) odmatrixInput;
+	    	} else if (odmatrixInput instanceof Odrowmatrix) {
+	    		Odrowmatrix odrowmatrix = (Odrowmatrix) odmatrixInput;
+	    	} else {
+	    		Odrawmatrix odrawmatrix = (Odrawmatrix) odmatrixInput;
+	    	}
+	    	inStream.close();
+    	} catch (Exception e) {
+    		throw new PlanItException(e);
+    	}
+              
+ /*       
+        Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
+        try (Reader in = new FileReader(timePeriodFileLocation)) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
+            for (CSVRecord record : records) {
+                int timePeriodId = Integer.parseInt(record.get("TimePeriod"));
+                int startTime = Integer.parseInt(record.get("StartTime"));
+                int duration = Integer.parseInt(record.get("Duration"));
+                TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
+                timePeriodMap.put(timePeriodId, timePeriod);
+            }
+         } catch (Exception ex) {
+            throw new PlanItException(ex);
+        }
+ */
+    	
         Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(timePeriodMap);       
         try (Reader in = new FileReader(demandFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
@@ -413,29 +447,6 @@ public class PlanItXml implements InputBuilderListener  {
         int externalZoneId = Integer.parseInt(record.get(columnHeader));
         Zone zone = zones.getZoneByExternalId(externalZoneId);
         return zone.getId();
-    }
-    
-/**
- * Read in the time periods from the time period input file
- * 
- * @return                                   Map containing TimePeriod objects
- * @throws PlanItException        thrown if the input file cannot be opened
- */
-    private Map<Integer, TimePeriod> getTimePeriods() throws PlanItException {
-        Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
-        try (Reader in = new FileReader(timePeriodFileLocation)) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-            for (CSVRecord record : records) {
-                int timePeriodId = Integer.parseInt(record.get("TimePeriod"));
-                int startTime = Integer.parseInt(record.get("StartTime"));
-                int duration = Integer.parseInt(record.get("Duration"));
-                TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
-                timePeriodMap.put(timePeriodId, timePeriod);
-            }
-            return timePeriodMap;
-        } catch (Exception ex) {
-            throw new PlanItException(ex);
-        }
     }
     
 /**

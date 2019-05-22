@@ -37,7 +37,7 @@
 	</xs:simpleType>	
 
 	<!-- Demand specific attributes -->
-	<xs:attribute name="timeperiodref" type="xs:positiveInteger">
+	<xs:attribute name="timeperiodref" type="xs:nonNegativeInteger">
 		<xs:annotation>
 			<xs:documentation>
 				Reference to the time period the item relates to
@@ -270,7 +270,7 @@
 			  				<xs:element ref="starttime" minOccurs="0"/>
 			  				<xs:element ref="duration"/>
 			  			</xs:sequence>  					
-						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>	   					
+						<xs:attribute name="id" type="xs:nonNegativeInteger" use="required"/>	   					
   					</xs:complexType>
   				</xs:element>
   			</xs:sequence>

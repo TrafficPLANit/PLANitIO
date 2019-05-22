@@ -12,7 +12,7 @@
 	    	</userclass>
 	    </userclasses>
 	    <timeperiods>
-	    	<timeperiod id="1">
+	    	<timeperiod id="0">
 	    		<name>1</name>
 	    		<starttime>00:00:01</starttime>
 	    		<duration>86400</duration>
@@ -21,12 +21,12 @@
    </configuration>
        
 	<oddemands>
-		<odmatrix timeperiodref="1" userclassref="1">
+		<odmatrix timeperiodref="0" userclassref="1">
 			<o ref="31">																
 				<d ref="27">3000</d> 
 			</o>
 		</odmatrix>
-		<odmatrix timeperiodref="1" userclassref="2">
+		<odmatrix timeperiodref="0" userclassref="2">
 			<o ref="31">																
 				<d ref="27">600</d> 
 			</o>
