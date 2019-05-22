@@ -34,13 +34,16 @@ public class PlanItXmlMain {
 
     private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
     
-    private String networkFileLocation = "src\\test\\resources\\route_choice\\test5\\network.csv"; 
-    private String demandFileLocation =   "src\\test\\resources\\route_choice\\test5\\demands.csv";
-    private String routeTypesFileLocation ="src\\test\\resources\\route_choice\\test5\\link_types.csv";
-    private String zoneFileLocation =  "src\\test\\resources\\route_choice\\test5\\zones.csv"; 
-    private String timePeriodFileLocation = "src\\test\\resources\\route_choice\\test5\\time_periods.csv"; 
-    private String modeFileLocation = "src\\test\\resources\\route_choice\\test5\\modes.csv";
-    private String resultsFileLocation = "src\\test\\resources\\route_choice\\test5\\results.csv";
+    private String networkFileLocation =       "src\\test\\resources\\route_choice\\xml\\test5\\network.csv"; 
+    private String demandFileLocation =        "src\\test\\resources\\route_choice\\xml\\test5\\demands.csv";
+    private String routeTypesFileLocation =   "src\\test\\resources\\route_choice\\xml\\test5\\link_types.csv";
+    private String zoneFileLocation =              "src\\test\\resources\\route_choice\\xml\\test5\\zones.csv"; 
+    private String timePeriodFileLocation =   "src\\test\\resources\\route_choicexml\\test5\\time_periods.csv"; 
+    private String modeFileLocation =            "src\\test\\resources\\route_choicexml\\test5\\modes.csv";
+    private String resultsFileLocation =          "src\\test\\resources\\route_choicexml\\test5\\results.csv";
+    private String zoningXmlFileLocation =     "src\\test\\resources\\route_choicexml\\test5\\zones.xml";
+    private String demandXmlFileLocation =  "src\\test\\resources\\route_choicexml\\test5\\demands.xml";
+    private String supplyXmlFileLocation =     "src\\test\\resources\\route_choicexml\\test5\\suplly.xml";
     private int maxIterations = 500;
     private double epsilon = 0.00;
 	
@@ -72,7 +75,7 @@ public class PlanItXmlMain {
 		
 		//SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, demandFileLocation, routeTypesFileLocation, zoneFileLocation, timePeriodFileLocation, modeFileLocation);
+		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, demandFileLocation, routeTypesFileLocation, zoneFileLocation, timePeriodFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, supplyXmlFileLocation);
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 		
 		//RAW INPUT START --------------------------------
