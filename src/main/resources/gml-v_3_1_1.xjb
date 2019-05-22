@@ -1,42 +1,29 @@
-<!--jaxb:bindings version="1.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-	xmlns:wildcard="http://jaxb2-commons.dev.java.net/basic/wildcard"
-	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-	xmlns:annox="http://annox.dev.java.net"
-	jaxb:extensionBindingPrefixes="xjc wildcard annox"  -->
-<jaxb:bindings version="1.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-	jaxb:extensionBindingPrefixes="xjc" >
+<jaxb:bindings version="1.0" 
+                        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
+						xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+						xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+						jaxb:extensionBindingPrefixes="xjc" >
 
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" node="/xs:schema">
 		<jaxb:schemaBindings>
 			<jaxb:package name="net.opengis.gml.v_3_1_1"/>
 		</jaxb:schemaBindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryPrimitives.xsd" 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryPrimitives.xsd" node="/xs:schema">
 
 		<jaxb:bindings node="xs:element[@name='_Solid']">
 			<jaxb:factoryMethod name="ASolidElement"/>
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic0d1d.xsd" 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic0d1d.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='_Curve']">
 			<jaxb:factoryMethod name="ACurveElement"/>
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic2d.xsd " 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic2d.xsd" 	node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='_Surface']">
 			<jaxb:factoryMethod name="ASurfaceElement"/>
 		</jaxb:bindings>
@@ -45,9 +32,7 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/defaultStyle.xsd" 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/defaultStyle.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='graphStyle']">
 			<jaxb:factoryMethod name="GraphStylePropertyElement"/>
 		</jaxb:bindings>
@@ -79,54 +64,26 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/feature.xsd" 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/feature.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='_FeatureCollection']">
 			<jaxb:factoryMethod name="AFeatureCollectionElement"/>
 		</jaxb:bindings>
 		<jaxb:bindings node="xs:complexType[@name='FeaturePropertyType']/xs:sequence/xs:element[@ref='gml:_Feature']">
-			<!--wildcard:lax/ -->
 		</jaxb:bindings>
 		<jaxb:bindings node="xs:complexType[@name='FeatureArrayPropertyType']/xs:sequence/xs:element[@ref='gml:_Feature']">
-			<!-- wildcard:lax/ -->
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/observation.xsd" 
-		node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/observation.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:complexType[@name='TargetPropertyType']/xs:sequence/xs:choice/xs:element[@ref='gml:_Feature']">
-			<!-- wildcard:lax/ -->
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/smil/smil20.xsd" 
-		node="/xs:schema">
-		<jaxb:schemaBindings>
-			<jaxb:package name="org.w3.smil.v_2_0"/>
-		</jaxb:schemaBindings>
-	</jaxb:bindings>
-
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/smil/smil20-language.xsd" 
-		node="/xs:schema">
-		<jaxb:schemaBindings>
-			<jaxb:package name="org.w3.smil.v_2_0.language"/>
-		</jaxb:schemaBindings>
-	</jaxb:bindings>
-	
-	<jaxb:bindings 
-		schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/grids.xsd" 
-		node="/xs:schema">	
+	<jaxb:bindings	schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/grids.xsd" node="/xs:schema">	
 		<!-- https://java.net/jira/browse/JAXB-986 -->
 		<jaxb:bindings node="xs:complexType[@name='GridEnvelopeType']//xs:element[@name='low']">
-			<!-- annox:annotate target="field">@javax.xml.bind.annotation.XmlSchemaType(name="integer")</annox:annotate -->
 		</jaxb:bindings>
 		<jaxb:bindings node="xs:complexType[@name='GridEnvelopeType']//xs:element[@name='high']">
-			<!-- annox:annotate target="field">@javax.xml.bind.annotation.XmlSchemaType(name="integer")</annox:annotate -->
 		</jaxb:bindings>
 	</jaxb:bindings>
 
