@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -15,6 +17,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -37,6 +41,8 @@ import org.planit.network.virtual.Centroid;
 import org.planit.network.virtual.VirtualNetwork;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
+import org.planit.userclass.TravellerType;
+import org.planit.userclass.UserClass;
 import org.planit.zoning.Zone;
 import org.planit.zoning.Zoning;
 
@@ -50,6 +56,8 @@ import generated.Odmatrix;
 import generated.Odrawmatrix;
 import generated.Odrowmatrix;
 import generated.Timeperiods;
+import generated.Travellertypes;
+import generated.Userclasses;
 import generated.Zones;
 
 public class PlanItXml implements InputBuilderListener  {
@@ -288,7 +296,17 @@ public class PlanItXml implements InputBuilderListener  {
         nodes = network.nodes;
         numberOfLinkSegments = network.linkSegments.getNumberOfLinkSegments();
     }
-
+    
+    private Object generateObjectFromXml(Class<?> clazz, String xmlFileLocation) throws Exception {
+    	JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    	XMLInputFactory xmlinputFactory = XMLInputFactory.newInstance();
+    	XMLStreamReader xmlStreamReader = xmlinputFactory.createXMLStreamReader(new FileReader(xmlFileLocation));
+    	Object obj = jaxbUnmarshaller.unmarshal(xmlStreamReader);
+    	xmlStreamReader.close();
+        return obj;
+    }
+    
 /**
  * Creates the Zoning object and connectoids from the data in the input file
  * 
@@ -303,10 +321,7 @@ public class PlanItXml implements InputBuilderListener  {
         
         //create and register zones
     	try {
-	    	JAXBContext jaxbContext = JAXBContext.newInstance(Macroscopiczoning.class);
-	    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-	    	InputStream inStream = new FileInputStream(zoningXmlFileLocation);
-	    	Macroscopiczoning macroscopiczoning = (Macroscopiczoning) jaxbUnmarshaller.unmarshal( inStream );
+    		Macroscopiczoning macroscopiczoning = (Macroscopiczoning) generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
             VirtualNetwork virtualNetwork = zoning.getVirtualNetwork();
 	    	for (Zones.Zone zoneGenerated : macroscopiczoning.getZones().getZone()) {
                 long zoneExternalId = zoneGenerated.getId().longValue();
@@ -320,7 +335,6 @@ public class PlanItXml implements InputBuilderListener  {
                 noCentroids++;
  	    	}
             zones = zoning.zones;
-	    	inStream.close();
     	} catch (Exception e) {
     		throw new PlanItException(e);
     	}
@@ -340,12 +354,43 @@ public class PlanItXml implements InputBuilderListener  {
  
         Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
     	try {
-	    	JAXBContext jaxbContext = JAXBContext.newInstance(Macroscopicdemand.class);
-	    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-	    	InputStream inStream = new FileInputStream(demandXmlFileLocation);
-	    	Macroscopicdemand macroscopicdemand = (Macroscopicdemand)  jaxbUnmarshaller.unmarshal(inStream);
+    		Macroscopicdemand macroscopicdemand = (Macroscopicdemand) generateObjectFromXml(Macroscopicdemand.class, demandXmlFileLocation);
 	    	Configuration configuration = macroscopicdemand.getConfiguration();
-	        for (Timeperiods.Timeperiod timePeriodGenerated : configuration.getTimeperiods().getTimeperiod()) {
+	    	Timeperiods timeperiods = configuration.getTimeperiods();
+	    	Userclasses userclasses = configuration.getUserclasses();
+	    	if (userclasses.getUserclass().isEmpty()) {
+	    		Userclasses.Userclass userclass = new Userclasses.Userclass();
+	    		userclass.setName("Default");
+	    		userclass.setId(new BigInteger("1"));
+	    		userclass.setModeref(new BigInteger("1"));
+	    		userclass.setTravellertyperef(new BigInteger("1"));
+	    		userclasses.getUserclass().add(userclass);
+	    	}
+	    	Travellertypes travellertypes = configuration.getTravellertypes();
+	    	if (travellertypes == null) {
+	    		travellertypes = new Travellertypes();
+	    	}
+	    	if (travellertypes.getTravellertype().isEmpty()) {
+	    		Travellertypes.Travellertype travellerType = new Travellertypes.Travellertype();
+	    		travellerType.setId(new BigInteger("1"));
+	    		travellerType.setName("Default");
+	    		travellertypes.getTravellertype().add(travellerType);
+	    	}
+	    	for (Travellertypes.Travellertype travellertype : travellertypes.getTravellertype()) {
+	    		TravellerType travellerType = new TravellerType(travellertype.getId().longValue(), travellertype.getName());
+	    	}
+	    	for (Userclasses.Userclass userclass : userclasses.getUserclass()) {
+	    		int modeId = userclass.getModeref().intValue();
+	    		//Mode mode = modeMap.get(modeId);
+	    		TravellerType travellerType;
+	    		if (userclass.getTravellertyperef() == null) {
+	    			travellerType =  TravellerType.getById(1);  			
+	    		} else {
+	    			travellerType = TravellerType.getById(userclass.getTravellertyperef().longValue());
+	    		}
+	    		UserClass userClass = new UserClass(userclass.getId().longValue(), userclass.getName(), modeId, travellerType.getId());
+	    	}
+	        for (Timeperiods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {
                 int timePeriodId = timePeriodGenerated.getId().intValue();
                 XMLGregorianCalendar time = timePeriodGenerated.getStarttime();
                 int startTime = 3600 * time.getHour() + 60 * time.getMinute() + time.getSecond();
@@ -357,24 +402,72 @@ public class PlanItXml implements InputBuilderListener  {
                 	case M: duration *= 60;
  				   				   break;
                 }
-                 TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
+                TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
                 timePeriodMap.put(timePeriodId, timePeriod);
 	        }
-	    	Oddemands oddemands = macroscopicdemand.getOddemands();
-	    	Object odmatrixInput = oddemands.getOdmatrixOrOdrowmatrixOrOdrawmatrix().get(0);
-	    	if (odmatrixInput instanceof Odmatrix) {
-	    		Odmatrix odmatrix = (Odmatrix) odmatrixInput;
-	    	} else if (odmatrixInput instanceof Odrowmatrix) {
-	    		Odrowmatrix odrowmatrix = (Odrowmatrix) odmatrixInput;
-	    	} else {
-	    		Odrawmatrix odrawmatrix = (Odrawmatrix) odmatrixInput;
-	    	}
-	    	inStream.close();
+
+	        Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(timePeriodMap);       
+	        List<Object> oddemands = macroscopicdemand.getOddemands().getOdmatrixOrOdrowmatrixOrOdrawmatrix();
+	        for (Object odmatrixInput : oddemands) {
+		    	if (odmatrixInput instanceof Odmatrix) {
+		    		Odmatrix odmatrix = (Odmatrix) odmatrixInput;
+		    		int timePeriodId = odmatrix.getTimeperiodref().intValue();
+		    		int userClassId = (odmatrix.getUserclassref() == null) ? 1 : odmatrix.getUserclassref().intValue();
+		    		int modeId = (int) UserClass.getById(userClassId).getModeId();
+	                Mode mode = modeMap.get(modeId);
+	                TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
+	                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);     
+	                List<Odmatrix.O> o = odmatrix.getO();
+	                for (Odmatrix.O originZone : o) {
+	                	long originZoneId = zones.getZoneByExternalId(originZone.getRef().longValue()).getId();
+	                	List<Odmatrix.O.D> d = originZone.getD();
+	                	for (Odmatrix.O.D demandZone : d) {
+	                		long destinationZoneId = zones.getZoneByExternalId(demandZone.getRef().longValue()).getId();
+	                		double demand = demandZone.getValue() * mode.getPcu();
+	                		matrixDemand.set(originZoneId, destinationZoneId, demand);
+	                		demands.registerODDemand(timePeriod, mode, matrixDemand);
+	                	}
+	                }
+	                
+		    	} else if (odmatrixInput instanceof Odrowmatrix) {
+		    		Odrowmatrix odrowmatrix = (Odrowmatrix) odmatrixInput;
+		    		int timePeriodId = odrowmatrix.getTimeperiodref().intValue();
+		    		int userClassId = (odrowmatrix.getUserclassref() == null) ? 1 : odrowmatrix.getUserclassref().intValue();
+		    		int modeId = (int) UserClass.getById(userClassId).getModeId();
+	                Mode mode = modeMap.get(modeId);
+	                TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
+	                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);  
+	                String separator = (odrowmatrix.getDs() == null) ? "," : odrowmatrix.getDs();
+	                List<Odrowmatrix.Odrow> odrow = odrowmatrix.getOdrow();
+	                for (Odrowmatrix.Odrow originRow : odrow) {
+	                	long originZoneId = zones.getZoneByExternalId(originRow.getRef().longValue()).getId();
+	                	String[] rowValuesAsString = originRow.getValue().split(separator);
+	                	for (int i=0; i<rowValuesAsString.length ; i++) {
+	                		long destinationZoneId = zones.getZoneByExternalId(i + 1).getId();
+	                		double demand = Double.parseDouble(rowValuesAsString[i]) * mode.getPcu();
+	    	                matrixDemand.set(originZoneId, destinationZoneId, demand);
+	    	                demands.registerODDemand(timePeriod, mode, matrixDemand);
+	                	}
+	                }
+	                
+		    	} else {
+		    		Odrawmatrix odrawmatrix = (Odrawmatrix) odmatrixInput;
+		    		int timePeriodId = odrawmatrix.getTimeperiodref().intValue();
+		    		int userClassId = (odrawmatrix.getUserclassref() == null) ? 1 : odrawmatrix.getUserclassref().intValue();
+		    		long modeId = UserClass.getById(userClassId).getModeId();
+	                Mode mode = modeMap.get(modeId);
+	                TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
+	                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);   
+	                
+                   //TODO - Raw matrix not finished yet
+		    	}
+	        }
+
     	} catch (Exception e) {
+            e.printStackTrace();
     		throw new PlanItException(e);
     	}
-              
- /*       
+/*                  
         Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
         try (Reader in = new FileReader(timePeriodFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
@@ -388,8 +481,7 @@ public class PlanItXml implements InputBuilderListener  {
          } catch (Exception ex) {
             throw new PlanItException(ex);
         }
- */
-    	
+   	
         Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(timePeriodMap);       
         try (Reader in = new FileReader(demandFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
@@ -401,18 +493,19 @@ public class PlanItXml implements InputBuilderListener  {
                 }
                 int timePeriodId = Integer.parseInt(record.get("TimePeriod"));
                 TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
-                MatrixDemand odMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);               
+                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);               
                 long originZoneId = getZoneId(record, "Origin"); 
                 long destinationZoneId = getZoneId(record, "Destination");    
                 double demand = Double.parseDouble(record.get("Demand")) * mode.getPcu();               
-                odMatrix.set(originZoneId, destinationZoneId, demand);
-                demands.registerODDemand(timePeriod, mode, odMatrix);
+                matrixDemand.set(originZoneId, destinationZoneId, demand);
+                demands.registerODDemand(timePeriod, mode, matrixDemand);
             }
             in.close();
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new PlanItException(ex);
         }
+*/
     }
     
 /**
