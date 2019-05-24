@@ -18,7 +18,7 @@
 		</xs:annotation> 								
 	</xs:attribute>
 	
-	<xs:attribute name="os" type="xs:string" default=" ">
+	<xs:attribute name="os" type="xs:string" default=",">
 		<xs:annotation>
 			<xs:documentation>
 				Origin separator, i.e., the separator after the end of each row.

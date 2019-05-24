@@ -1,10 +1,9 @@
 package org.planit.xml.input;
 
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,8 +13,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -53,6 +50,7 @@ import org.planit.generated.Macroscopicdemand;
 import org.planit.generated.Macroscopiczoning;
 import org.planit.generated.Odmatrix;
 import org.planit.generated.Odrawmatrix;
+import org.planit.generated.Odrawmatrix.Values;
 import org.planit.generated.Odrowmatrix;
 import org.planit.generated.Timeperiods;
 import org.planit.generated.Travellertypes;
@@ -80,6 +78,7 @@ public class PlanItXml implements InputBuilderListener  {
     private String zoningXmlFileLocation;
     private String demandXmlFileLocation;
     private String supplyXmlFileLocation;
+    private List<String> RESERVED_CHARACTERS;
     
     private int noCentroids;
     private Map<Integer, BasicCsvMacroscopicLinkSegmentType> linkSegmentTypeMap;
@@ -123,6 +122,8 @@ public class PlanItXml implements InputBuilderListener  {
     	this.zoningXmlFileLocation = zoningXmlFileLocation;
     	this.demandXmlFileLocation = demandXmlFileLocation;
     	this.supplyXmlFileLocation = supplyXmlFileLocation;
+    	String[] reservedCharacters = {"+", "*", "^"};
+    	RESERVED_CHARACTERS = Arrays.asList(reservedCharacters);
     }
     
 /**
@@ -253,7 +254,7 @@ public class PlanItXml implements InputBuilderListener  {
 /**
  * Creates the physical network object from the data in the input file
  *  
- * @param network                           the physical network object to be populated from the input data
+ * @param network                      the physical network object to be populated from the input data
  * @throws PlanItException          thrown if there is an error reading the input file
  */
     public void populateNetwork(@Nonnull MacroscopicNetwork network)  throws PlanItException {
@@ -296,15 +297,27 @@ public class PlanItXml implements InputBuilderListener  {
         numberOfLinkSegments = network.linkSegments.getNumberOfLinkSegments();
     }
     
+    /**
+     * Generates a Java object populated with the data from an XML input file.
+     * 
+     * This method creates a JAXB Unmarshaller object which it uses to populate the Java class.
+     * 
+     * The output object will be of a generated class, created from the same XSD file which is used to validate the input XML file.
+     * 
+     * @param clazz                       Class of the object to be populated 
+     * @param xmlFileLocation     location of the input XML file
+     * @return                                an instance of the output class, populated with the data from the XML file.
+     * @throws Exception              thrown if the XML file is invalid or cannot be opened
+     */
     private Object generateObjectFromXml(Class<?> clazz, String xmlFileLocation) throws Exception {
-    	JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-    	XMLInputFactory xmlinputFactory = XMLInputFactory.newInstance();
-    	XMLStreamReader xmlStreamReader = xmlinputFactory.createXMLStreamReader(new FileReader(xmlFileLocation));
-    	Object obj = jaxbUnmarshaller.unmarshal(xmlStreamReader);
-    	xmlStreamReader.close();
+       	JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+       	Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+       	XMLInputFactory xmlinputFactory = XMLInputFactory.newInstance();
+       	XMLStreamReader xmlStreamReader = xmlinputFactory.createXMLStreamReader(new FileReader(xmlFileLocation));
+       	Object obj = unmarshaller.unmarshal(xmlStreamReader);
+       	xmlStreamReader.close();
         return obj;
-    }
+    } 
     
 /**
  * Creates the Zoning object and connectoids from the data in the input file
@@ -338,6 +351,13 @@ public class PlanItXml implements InputBuilderListener  {
     		throw new PlanItException(e);
     	}
         
+    }
+    
+    private String escapeSeparator(String separator) {
+    	if (RESERVED_CHARACTERS.contains(separator)) {
+    		return "\\" + separator;
+     	}
+    	return separator;
     }
     
 /**
@@ -424,10 +444,9 @@ public class PlanItXml implements InputBuilderListener  {
 	                		long destinationZoneId = zones.getZoneByExternalId(demandZone.getRef().longValue()).getId();
 	                		double demand = demandZone.getValue() * mode.getPcu();
 	                		matrixDemand.set(originZoneId, destinationZoneId, demand);
-	                		demands.registerODDemand(timePeriod, mode, matrixDemand);
 	                	}
 	                }
-	                
+	                demands.registerODDemand(timePeriod, mode, matrixDemand);
 		    	} else if (odmatrixInput instanceof Odrowmatrix) {
 		    		Odrowmatrix odrowmatrix = (Odrowmatrix) odmatrixInput;
 		    		int timePeriodId = odrowmatrix.getTimeperiodref().intValue();
@@ -437,6 +456,7 @@ public class PlanItXml implements InputBuilderListener  {
 	                TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
 	                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);  
 	                String separator = (odrowmatrix.getDs() == null) ? "," : odrowmatrix.getDs();
+	                separator = escapeSeparator(separator);
 	                List<Odrowmatrix.Odrow> odrow = odrowmatrix.getOdrow();
 	                for (Odrowmatrix.Odrow originRow : odrow) {
 	                	long originZoneId = zones.getZoneByExternalId(originRow.getRef().longValue()).getId();
@@ -445,66 +465,63 @@ public class PlanItXml implements InputBuilderListener  {
 	                		long destinationZoneId = zones.getZoneByExternalId(i + 1).getId();
 	                		double demand = Double.parseDouble(rowValuesAsString[i]) * mode.getPcu();
 	    	                matrixDemand.set(originZoneId, destinationZoneId, demand);
-	    	                demands.registerODDemand(timePeriod, mode, matrixDemand);
 	                	}
 	                }
-	                
-		    	} else {
+	                demands.registerODDemand(timePeriod, mode, matrixDemand);
+		    	} else if (odmatrixInput instanceof Odrawmatrix) {
 		    		Odrawmatrix odrawmatrix = (Odrawmatrix) odmatrixInput;
 		    		int timePeriodId = odrawmatrix.getTimeperiodref().intValue();
 		    		int userClassId = (odrawmatrix.getUserclassref() == null) ? 1 : odrawmatrix.getUserclassref().intValue();
-		    		long modeId = UserClass.getById(userClassId).getModeId();
+		    		int modeId = (int) UserClass.getById(userClassId).getModeId();
 	                Mode mode = modeMap.get(modeId);
 	                TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
 	                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);   
-	                
-                   //TODO - Raw matrix not finished yet
+	                Values values = odrawmatrix.getValues();
+	                String originSeparator = (values.getOs() == null) ? "," : values.getOs();
+	                originSeparator = escapeSeparator(originSeparator);
+	                String demandSeparator = (values.getDs() == null) ? "," : values.getDs();
+	                demandSeparator = escapeSeparator(demandSeparator);
+	                if (originSeparator.equals(demandSeparator)) {
+	                	String [] allValuesAsString = values.getValue().split(originSeparator);
+	                	int size = allValuesAsString.length;
+	                	int noRows = (int) Math.round(Math.sqrt(size));
+	                	if ((noRows * noRows) != size) {
+	                		throw new Exception("Element <odrawmatrix> contains a string of " + size + " values, which is not an exact square");
+	                	}
+	                	int noCols = noRows;
+	                	for (int i=0; i <noRows; i++) {
+	                		int row = i * noRows;
+	                		for (int col=0; col < noCols; col++) {
+	                			long originZoneId = zones.getZoneByExternalId(i + 1).getId();
+	                			long destinationZoneId = zones.getZoneByExternalId(col + 1).getId();
+	                			double demand = Double.parseDouble(allValuesAsString[row + col]) * mode.getPcu();
+	                			matrixDemand.set(originZoneId, destinationZoneId, demand);
+	                		}
+	                	}
+	                } else {
+	                	String [] originRows = values.getValue().split(originSeparator);
+	                	int noRows = originRows.length;
+	                	for (int i=0; i <noRows; i++) {	
+	                		String [] allValuesAsString = originRows[i].split(demandSeparator);
+	                		int noCols = allValuesAsString.length;
+	                		if (noRows != noCols) {
+	                			throw new Exception("Element <odrawmatrix> does not parse to a square matrix: Row " + (i+1) + " has " + noCols + " values.");
+	                		}
+	                		for (int col=0; col < noCols; col++) {
+	                			long originZoneId = zones.getZoneByExternalId(i + 1).getId();
+	                			long destinationZoneId = zones.getZoneByExternalId(col + 1).getId();
+	                			double demand = Double.parseDouble(allValuesAsString[col]) * mode.getPcu();
+	                			matrixDemand.set(originZoneId, destinationZoneId, demand);
+	                		}
+	                	}
+	                }
+	                demands.registerODDemand(timePeriod, mode, matrixDemand);
 		    	}
 	        }
-
     	} catch (Exception e) {
             e.printStackTrace();
     		throw new PlanItException(e);
     	}
-/*                  
-        Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
-        try (Reader in = new FileReader(timePeriodFileLocation)) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-            for (CSVRecord record : records) {
-                int timePeriodId = Integer.parseInt(record.get("TimePeriod"));
-                int startTime = Integer.parseInt(record.get("StartTime"));
-                int duration = Integer.parseInt(record.get("Duration"));
-                TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
-                timePeriodMap.put(timePeriodId, timePeriod);
-            }
-         } catch (Exception ex) {
-            throw new PlanItException(ex);
-        }
-   	
-        Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(timePeriodMap);       
-        try (Reader in = new FileReader(demandFileLocation)) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-            for (CSVRecord record : records) {
-                int modeId = Integer.parseInt(record.get("Mode"));
-                Mode mode = modeMap.get(modeId);
-                if  ((modeId != 0) && (!modeMap.containsKey(modeId))) {
-                    throw new PlanItException("Mode Id " + modeId + " found in demands file but not in modes definition file");
-                }
-                int timePeriodId = Integer.parseInt(record.get("TimePeriod"));
-                TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
-                MatrixDemand matrixDemand = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);               
-                long originZoneId = getZoneId(record, "Origin"); 
-                long destinationZoneId = getZoneId(record, "Destination");    
-                double demand = Double.parseDouble(record.get("Demand")) * mode.getPcu();               
-                matrixDemand.set(originZoneId, destinationZoneId, demand);
-                demands.registerODDemand(timePeriod, mode, matrixDemand);
-            }
-            in.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new PlanItException(ex);
-        }
-*/
     }
     
 /**

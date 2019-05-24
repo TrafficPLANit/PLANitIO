@@ -225,6 +225,46 @@ public class PlanItXmlTest{
     }
 
     @Test
+    public void testRouteChoice4raw() {
+        try {
+            runTest("src\\test\\resources\\route_choice\\xml\\test4raw\\network.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw\\demands.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw\\link_types.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw\\modes.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw\\results.csv",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw\\zones.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw\\demands.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw\\supply.xml",
+                         500, 0.0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } 
+    }
+
+    @Test
+    public void testRouteChoice4raw2() {
+        try {
+            runTest("src\\test\\resources\\route_choice\\xml\\test4raw2\\network.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw2\\demands.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw2\\link_types.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw2\\zones.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw2\\time_periods.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw2\\modes.csv", 
+                         "src\\test\\resources\\route_choice\\xml\\test4raw2\\results.csv",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\zones.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\demands.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\supply.xml",
+                         500, 0.0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } 
+    }
+
+   @Test
     public void testRouteChoice5() {
         try {
             runTest("src\\test\\resources\\route_choice\\xml\\test5\\network.csv", 
@@ -258,7 +298,15 @@ public class PlanItXmlTest{
 	                                    Double epsilon) throws Exception {
 		//SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-        InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, demandFileLocation, linkTypesFileLocation, zoneFileLocation, timePeriodFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, supplyXmlFileLocation);
+        InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, 
+        		                                                                                        demandFileLocation, 
+        		                                                                                        linkTypesFileLocation, 
+        		                                                                                        zoneFileLocation, 
+        		                                                                                        timePeriodFileLocation, 
+        		                                                                                        modeFileLocation, 
+        		                                                                                        zoningXmlFileLocation, 
+        		                                                                                        demandXmlFileLocation, 
+        		                                                                                        supplyXmlFileLocation);
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 			
 		//RAW INPUT START --------------------------------
@@ -314,7 +362,18 @@ public class PlanItXmlTest{
                                        String zoningXmlFileLocation, 
                                        String demandXmlFileLocation, 
                                        String supplyXmlFileLocation) throws Exception {
-        runTest(networkFileLocation, demandFileLocation, routeTypesFileLocation, zoneFileLocation, timePeriodFileLocation, modeFileLocation, resultsFileLocation, zoningXmlFileLocation, demandXmlFileLocation, supplyXmlFileLocation, null, null);
+        runTest(networkFileLocation, 
+        		     demandFileLocation, 
+        		     routeTypesFileLocation, 
+        		     zoneFileLocation, 
+        		     timePeriodFileLocation, 
+        		     modeFileLocation, 
+        		     resultsFileLocation, 
+        		     zoningXmlFileLocation, 
+        		     demandXmlFileLocation, 
+        		     supplyXmlFileLocation, 
+       		         null, 
+        		     null);
     }
 	
 }
