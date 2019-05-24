@@ -46,19 +46,18 @@ import org.planit.userclass.UserClass;
 import org.planit.zoning.Zone;
 import org.planit.zoning.Zoning;
 
-import generated.Configuration;
-import generated.Connectoid;
-import generated.Durationunit;
-import generated.Macroscopicdemand;
-import generated.Macroscopiczoning;
-import generated.Oddemands;
-import generated.Odmatrix;
-import generated.Odrawmatrix;
-import generated.Odrowmatrix;
-import generated.Timeperiods;
-import generated.Travellertypes;
-import generated.Userclasses;
-import generated.Zones;
+import org.planit.generated.Configuration;
+import org.planit.generated.Connectoid;
+import org.planit.generated.Durationunit;
+import org.planit.generated.Macroscopicdemand;
+import org.planit.generated.Macroscopiczoning;
+import org.planit.generated.Odmatrix;
+import org.planit.generated.Odrawmatrix;
+import org.planit.generated.Odrowmatrix;
+import org.planit.generated.Timeperiods;
+import org.planit.generated.Travellertypes;
+import org.planit.generated.Userclasses;
+import org.planit.generated.Zones;
 
 public class PlanItXml implements InputBuilderListener  {
 

@@ -26,7 +26,4 @@
 		</xs:annotation> 		      					
 	</xs:attribute>	
 	
-	<!-- Simple PLANit elements -->
-	<xs:element name="name" type="xs:string" default=""/>	
-
 </xs:schema>

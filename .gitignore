@@ -4,3 +4,5 @@
 /.settings
 /.project
 /doc
+/src/main/java/org/planit/generated
+/src/main/java/META-INF

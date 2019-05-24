@@ -4,7 +4,7 @@
 <xs:import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" />
 
 	<!-- Complex types -->
-	<xs:complexType name="LengthType">
+	<xs:complexType name="linkLengthType">
 		<xs:simpleContent>
 			<xs:extension base="xs:float">
 	      		<xs:attribute name="unit" type="lengthUnit" default="km" use="optional">
@@ -156,7 +156,7 @@
   				<xs:element name="linksegmenttype" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element ref="name"/>
+							<xs:element name="name" type="xs:string" default=""/>
 							<xs:element ref="maxdensitylane" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>
@@ -250,7 +250,7 @@
 					</xs:annotation>	  				
   					<xs:complexType>
   						<xs:sequence>
-  							<xs:element ref="name" minOccurs="0"/>
+  							<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
   							<!-- a link segment has a direction, at most two directions exist per link -->
   							<xs:element ref="linksegment" minOccurs="1" maxOccurs="2">
 								<xs:annotation>
@@ -267,7 +267,7 @@
 									</xs:documentation>
 								</xs:annotation>	  				  							
   							</xs:element>  							
-  							<xs:element name="length" minOccurs="0" type="LengthType">
+  							<xs:element name="length" minOccurs="0" type="linkLengthType">
 								<xs:annotation>
 									<xs:documentation>
 										Optional length property which overrides any geo spatial length which is deduced from the coordinate system
@@ -334,7 +334,7 @@
 							</xs:documentation>
 						</xs:annotation>				  		
 			  			<xs:sequence>
-			  				<xs:element ref="name" minOccurs="0"/>
+			  				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
 			  				<xs:element ref="pcu" minOccurs="0" />
 			  			</xs:sequence>
 			  			<xs:attribute name="id" type="xs:positiveInteger" use="required"/>  			
@@ -355,7 +355,7 @@
   				<xs:element name="node" maxOccurs="unbounded">
   					<xs:complexType>
   						<xs:sequence>
-  							<xs:element ref="name" minOccurs="0" maxOccurs="1"/>
+  							<xs:element name="name" type="xs:string" default="" minOccurs="0" maxOccurs="1"/>
   							<xs:element ref="gml:Point" minOccurs="0" maxOccurs="1">
   								<xs:annotation>
 									<xs:documentation>

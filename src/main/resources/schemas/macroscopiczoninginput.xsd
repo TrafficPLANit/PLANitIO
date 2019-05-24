@@ -12,7 +12,7 @@
 		</xs:annotation>	
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="name" minOccurs="0" />
+				<xs:element name="name" type="xs:string" default="" minOccurs="0" />
 				<xs:element ref="gml:Point" minOccurs="0" >
 					<xs:annotation>
 						<xs:documentation>
@@ -49,7 +49,7 @@
 		</xs:annotation>				
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="name" minOccurs="0"/>
+				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
 				<xs:element name="length" minOccurs="0" maxOccurs="1" type="xs:float"/>
 			</xs:sequence>
 			<xs:attribute name="noderef" type="xs:positiveInteger" use="required">
@@ -82,7 +82,7 @@
 				<xs:element name="zone" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element ref="name" minOccurs="0" />
+							<xs:element name="name" type="xs:string" default="" minOccurs="0" />
 							<xs:element ref="centroid">
 								<xs:annotation>
 									<xs:documentation>

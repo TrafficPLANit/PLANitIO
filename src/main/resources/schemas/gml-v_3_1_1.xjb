@@ -2,7 +2,7 @@
                         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
 						xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 						xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-						jaxb:extensionBindingPrefixes="xjc" >
+						jaxb:extensionBindingPrefixes="xjc">
 
 	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" node="/xs:schema">
 		<jaxb:schemaBindings>
@@ -15,6 +15,9 @@
 		<jaxb:bindings node="xs:element[@name='_Solid']">
 			<jaxb:factoryMethod name="ASolidElement"/>
 		</jaxb:bindings>
+		<jaxb:bindings node="xs:element[@name='Arc']">
+			<jaxb:factoryMethod name="GmlArc"/>
+		</jaxb:bindings>
 	</jaxb:bindings>
 
 	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic0d1d.xsd" node="/xs:schema">
@@ -23,7 +26,7 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic2d.xsd" 	node="/xs:schema">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryBasic2d.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='_Surface']">
 			<jaxb:factoryMethod name="ASurfaceElement"/>
 		</jaxb:bindings>
@@ -64,6 +67,7 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
+
 	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/feature.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='_FeatureCollection']">
 			<jaxb:factoryMethod name="AFeatureCollectionElement"/>
@@ -79,12 +83,28 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings	schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/grids.xsd" node="/xs:schema">	
-		<!-- https://java.net/jira/browse/JAXB-986 -->
-		<jaxb:bindings node="xs:complexType[@name='GridEnvelopeType']//xs:element[@name='low']">
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/smil/smil20.xsd" node="/xs:schema">
+		<jaxb:schemaBindings>
+			<jaxb:package name="org.w3.smil.v_2_0"/>
+		</jaxb:schemaBindings>
+		<jaxb:bindings node="xs:element[@name='animate']">
+			<jaxb:factoryMethod name="SmilAnimate"/>
 		</jaxb:bindings>
-		<jaxb:bindings node="xs:complexType[@name='GridEnvelopeType']//xs:element[@name='high']">
+		<jaxb:bindings node="xs:element[@name='animateMotion']">
+			<jaxb:factoryMethod name="SmilAnimateMotion"/>
+		</jaxb:bindings>
+		<jaxb:bindings node="xs:element[@name='animateColor']">
+			<jaxb:factoryMethod name="SmilAnimateColor"/>
+		</jaxb:bindings>
+		<jaxb:bindings node="xs:element[@name='set']">
+			<jaxb:factoryMethod name="SmilSet"/>
 		</jaxb:bindings>
 	</jaxb:bindings>
 
+	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/smil/smil20-language.xsd" node="/xs:schema">
+		<jaxb:schemaBindings>
+			<jaxb:package name="org.w3.smil.v_2_0.language"/>
+		</jaxb:schemaBindings>
+	</jaxb:bindings>
+	
 </jaxb:bindings>
