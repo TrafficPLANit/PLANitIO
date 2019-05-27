@@ -17,8 +17,9 @@ PLANit.xsd                                    Common XML definitions used by the
 macroscopicdemandinput.xsd     XSD definition for demand input XML file
 macroscopiczoninginput.xsd        XSD definition for zoning input XML file
 macroscopicsupplyinput.xsd        XSD definition for supply input XML file
+PLANit.xjb                                     XJB file to define the package name for the generated Java classes which correspond to the definitions in the project's own XSD files
 gml-v_3_1_1.xjb                          XJB file to resolve name clashes which appear when XJC is run on GML files
-xlink-v_1_0.xjb                             XJB file to resolve name clashes which appear when XJC is run on GML files
+xlink-v_1_0.xjb                             XJB file to resolve name clashes which appear when XJC is run on GML files                               
 
 The last two files are taken from the OCG Schemas project (https://github.com/highsource/ogc-schemas).  This project was created to address known problems which arise when running the XJC 
 compiler on schemas defined by the Open Geospatial Consortium (OGC).  PLANit uses GML, which is one of the OGC schemas.  If the XJB files were not present, the Maven-JAXB2-Plugin would 
@@ -26,7 +27,7 @@ not generate Java classes.
 
 The XJB had the following additions for this project:
 
-gml-v_3_1_!.xjb:
+gml-v_3_1_1.xjb:
 
 		<jaxb:bindings node="xs:element[@name='Arc']">
 			<jaxb:factoryMethod name="GmlArc"/>
