@@ -13,8 +13,7 @@
     		</centroid>
     		<connectoids>
     			<connectoid noderef="11">
-    				<length>1.0</length>
-    			</connectoid>
+     			</connectoid>
     		</connectoids>
     	</zone>
     	<zone id="2">

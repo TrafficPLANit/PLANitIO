@@ -70,13 +70,11 @@
 		    <artifactId>commons-csv</artifactId>
 		    <version>1.6</version>
 		</dependency> 
-
 		<dependency>
 		    <groupId>org.jvnet.jaxb2.maven2</groupId>
 		    <artifactId>maven-jaxb2-plugin</artifactId>
 		    <version>${maven.jaxb2.plugin.version}</version>
 		</dependency>
-
 	</dependencies>
 	
 	<build>
@@ -100,7 +98,7 @@
 			         </args>
 			        <schemaDirectory>src/main/resources/schemas</schemaDirectory>
 			        <generateDirectory>src/main/java</generateDirectory>
-			    </configuration>	
+         		</configuration>	
                 <executions>
 	                <execution>
 	                    <id>generate</id>

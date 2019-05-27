@@ -34,7 +34,7 @@
 			</xs:documentation>
 		</xs:annotation>	
 		<xs:complexType>
-			<xs:sequence maxOccurs="unbounded">
+			<xs:sequence minOccurs="1" maxOccurs="unbounded">
 				<xs:element ref="connectoid"/>
 			</xs:sequence>
 		</xs:complexType>
@@ -49,8 +49,8 @@
 		</xs:annotation>				
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
-				<xs:element name="length" minOccurs="0" maxOccurs="1" type="xs:float"/>
+				<xs:element name="name"  type="xs:string" default=""     minOccurs="0" maxOccurs="1"/>
+				<xs:element name="length" type="xs:float"  default="1.0" minOccurs="0" maxOccurs="1"/>
 			</xs:sequence>
 			<xs:attribute name="noderef" type="xs:positiveInteger" use="required">
 				<xs:annotation>

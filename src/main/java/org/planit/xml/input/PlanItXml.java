@@ -40,6 +40,7 @@ import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.TravellerType;
 import org.planit.userclass.UserClass;
+import org.planit.xml.constants.Default;
 import org.planit.zoning.Zone;
 import org.planit.zoning.Zoning;
 
@@ -67,8 +68,7 @@ public class PlanItXml implements InputBuilderListener  {
     private static final int ONE_WAY_AB =  1;
     private static final int ONE_WAY_BA =  2;
     private static final int TWO_WAY = 3;
-    private static final double CONNECTOID_LENGTH = 1.0;
-    
+     
     private String networkFileLocation;
     private String demandFileLocation;
     private String linkTypesFileLocation;
@@ -339,7 +339,7 @@ public class PlanItXml implements InputBuilderListener  {
                 long zoneExternalId = zoneGenerated.getId().longValue();
                 Connectoid connectoid = zoneGenerated.getConnectoids().getConnectoid().get(0);
                 long nodeExternalId = connectoid.getNoderef().longValue();
-                double connectoidLength = connectoid.getLength();
+                double connectoidLength = (connectoid.getLength() == null) ? Default.CONNECTOID_LENGTH : connectoid.getLength();
                 Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
                 Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
                 Centroid centroid = zone.getCentroid();
