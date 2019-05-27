@@ -297,18 +297,18 @@ public class PlanItXml implements InputBuilderListener  {
         numberOfLinkSegments = network.linkSegments.getNumberOfLinkSegments();
     }
     
-    /**
-     * Generates a Java object populated with the data from an XML input file.
-     * 
-     * This method creates a JAXB Unmarshaller object which it uses to populate the Java class.
-     * 
-     * The output object will be of a generated class, created from the same XSD file which is used to validate the input XML file.
-     * 
-     * @param clazz                       Class of the object to be populated 
-     * @param xmlFileLocation     location of the input XML file
-     * @return                                an instance of the output class, populated with the data from the XML file.
-     * @throws Exception              thrown if the XML file is invalid or cannot be opened
-     */
+ /**
+  * Generates a Java object populated with the data from an XML input file.
+  * 
+  * This method creates a JAXB Unmarshaller object which it uses to populate the Java class.
+  * 
+  * The output object will be of a generated class, created from the same XSD file which is used to validate the input XML file.
+  * 
+  * @param clazz                       Class of the object to be populated 
+  * @param xmlFileLocation     location of the input XML file
+  * @return                                an instance of the output class, populated with the data from the XML file.
+  * @throws Exception              thrown if the XML file is invalid or cannot be opened
+  */
     private Object generateObjectFromXml(Class<?> clazz, String xmlFileLocation) throws Exception {
        	JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
        	Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -353,6 +353,12 @@ public class PlanItXml implements InputBuilderListener  {
         
     }
     
+ /**
+  * Convert regular expression special characters to act like simple strings during String.split() calls
+  * 
+  * @param separator			raw String separator 
+  * @return							String separator with escape characters added if appropriate
+  */
     private String escapeSeparator(String separator) {
     	if (RESERVED_CHARACTERS.contains(separator)) {
     		return "\\" + separator;

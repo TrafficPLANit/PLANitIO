@@ -77,11 +77,6 @@
 		    <version>${maven.jaxb2.plugin.version}</version>
 		</dependency>
 
-		<dependency>
-		    <groupId>org.jvnet.ogc</groupId>
-		    <artifactId>wfs-v_1_1_0</artifactId>
-		    <version>2.6.1</version>
-		</dependency>
 	</dependencies>
 	
 	<build>
@@ -105,6 +100,8 @@
 			         </args>
 			        <schemaDirectory>src/main/resources/schemas</schemaDirectory>
 			        <generateDirectory>src/main/java</generateDirectory>
+			        <!--  TODO: The authors of the Maven JAXB2 Plugin recommend that we create new XJB files to specify packages rather than the <generatePackage> element.  But writing the XJB files
+			                 was taking too long and the <generatePackage> approach is working fine, so we continue to use it for now.  -->
 			        <generatePackage>org.planit.generated</generatePackage>
 			    </configuration>	
                 <executions>
