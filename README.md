@@ -13,7 +13,7 @@ XJB files are used by JAXB to configure how JAXB creates Java files and to resol
 
 The src/main/resources directory contains the following files which are used by JAXB:
 
-
+|File|Purpose|
 |---| ---|
 |PLANit.xsd|Common XML definitions used by the other XSD file|
 |macroscopicdemandinput.xsd|XSD definition for demand input XML file|
