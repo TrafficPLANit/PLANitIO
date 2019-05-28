@@ -348,6 +348,7 @@ public class PlanItXml implements InputBuilderListener  {
  	    	}
             zones = zoning.zones;
     	} catch (Exception e) {
+    		e.printStackTrace();
     		throw new PlanItException(e);
     	}
         

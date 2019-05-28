@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <macroscopiczoning xmlns:gml="http://www.opengis.net/gml" 
-                xmlns:smil20="http://www.w3.org/2001/SMIL20/" 
-                xmlns:smil20lang="http://www.w3.org/2001/SMIL20/Language" 
-                xmlns:xlink="http://www.w3.org/1999/xlink" 
-                xmlns:xml="http://www.w3.org/XML/1998/namespace" 
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-                xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopiczoninginput.xsd">
+					              xmlns:xml="http://www.w3.org/XML/1998/namespace" 
+					              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+					              xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopiczoninginput.xsd">
     <zones>
     	<zone id="1">
     		<centroid>
