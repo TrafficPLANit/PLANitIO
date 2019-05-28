@@ -145,15 +145,20 @@
 		</xs:annotation>
   		<xs:complexType>
   			<xs:choice maxOccurs="unbounded">
-      			<xs:element ref="odmatrix"/>
+      			<xs:element ref="odcellbycellmatrix"/>
       			<xs:element ref="odrowmatrix"/>
       			<xs:element ref="odrawmatrix"/>
     		</xs:choice>
   		</xs:complexType>
   	</xs:element>  	
   	
+  	<xs:complexType name="odmatrix">
+ 			<xs:attribute ref="timeperiodref" use="required"/>
+			<xs:attribute ref="userclassref" use="optional"/>
+  	</xs:complexType>
+  	
   	<!-- full (element-by-element) or sparse matrix definition -->
-	<xs:element name="odmatrix">
+	<xs:element name="odcellbycellmatrix">
 		<xs:annotation>
 			<xs:documentation>
 				This ODmatrix allows for cell-by-cell values and takes up most space if each cell is provided. It is however possible to skip zero cells or rows resulting in a simple sparse
@@ -161,6 +166,8 @@
 			</xs:documentation>
 		</xs:annotation>	
   		<xs:complexType>
+  		<xs:complexContent>
+  		    <xs:extension base="odmatrix">
   			<xs:sequence maxOccurs="unbounded">
       			<xs:element name="o">
 					<xs:annotation>
@@ -196,9 +203,13 @@
 	      				</xs:attribute>      					
       				</xs:complexType>
       			</xs:element>
-    		</xs:sequence>		
+    		</xs:sequence>	
+    		</xs:extension>
+    		</xs:complexContent>
+  <!-- 	
 			<xs:attribute ref="timeperiodref" use="required"/>
 			<xs:attribute ref="userclassref" use="optional"/>
+-->
   		</xs:complexType>  		
   	</xs:element> 
   	
@@ -209,6 +220,8 @@
 			</xs:documentation>
 		</xs:annotation>  	
   		<xs:complexType>
+  		<xs:complexContent>
+  		    <xs:extension base="odmatrix">
   			<xs:sequence>
       			<xs:element name="values">
 					<xs:complexType>      			
@@ -221,9 +234,13 @@
 					</xs:complexType>	      				
       			</xs:element>
     		</xs:sequence>		
-			<xs:attribute ref="timeperiodref" use="required"/>			
-			<xs:attribute ref="userclassref" use="optional"/>		
-  		</xs:complexType>  		
+    		</xs:extension>
+    		</xs:complexContent>
+  <!-- 	
+			<xs:attribute ref="timeperiodref" use="required"/>
+			<xs:attribute ref="userclassref" use="optional"/>
+-->
+ 		</xs:complexType>  		
   	</xs:element> 
   	
 	<xs:element name="odrowmatrix">
@@ -233,6 +250,8 @@
 			</xs:documentation>
 		</xs:annotation> 	
   		<xs:complexType>
+   		<xs:complexContent>
+  		    <xs:extension base="odmatrix">
   			<xs:sequence maxOccurs="unbounded">
       			<xs:element name="odrow">
 					<xs:annotation>
@@ -254,9 +273,13 @@
 					</xs:complexType>	      				
       			</xs:element>
     		</xs:sequence>		
+  <!-- 	
 			<xs:attribute ref="timeperiodref" use="required"/>
-			<xs:attribute ref="userclassref" use="optional"/>				
+			<xs:attribute ref="userclassref" use="optional"/>
+-->
 			<xs:attribute ref="ds" use="optional"/>		
+    		</xs:extension>
+    		</xs:complexContent>
   		</xs:complexType>  		
   	</xs:element>  	
   	  	

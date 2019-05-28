@@ -28,21 +28,21 @@
    </configuration>
        
 	<oddemands>
-		<odmatrix timeperiodref="0" userclassref="1">
+		<odcellbycellmatrix timeperiodref="0" userclassref="1">
 			<o ref="1">																
 				<d ref="2">1</d> 
 			</o>
-		</odmatrix>
-		<odmatrix timeperiodref="1" userclassref="1">
+		</odcellbycellmatrix>
+		<odcellbycellmatrix timeperiodref="1" userclassref="1">
 			<o ref="1">																
 				<d ref="3">1</d> 
 			</o>
-		</odmatrix>
-		<odmatrix timeperiodref="2" userclassref="1">
+		</odcellbycellmatrix>
+		<odcellbycellmatrix timeperiodref="2" userclassref="1">
 			<o ref="1">																
 				<d ref="4">1</d> 
 			</o>
-		</odmatrix>
+		</odcellbycellmatrix>
 	</oddemands>
 </macroscopicdemand>
 

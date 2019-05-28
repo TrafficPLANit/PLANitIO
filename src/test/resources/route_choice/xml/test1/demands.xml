@@ -18,7 +18,7 @@
    </configuration>
        
 	<oddemands>
-		<odmatrix timeperiodref="0" userclassref="1">
+		<odcellbycellmatrix timeperiodref="0" userclassref="1">
 			<o ref="3">																
 				<d ref="4">1000</d> 
 			</o>
@@ -28,7 +28,7 @@
 			<o ref="2">																
 				<d ref="6">1000</d> 
 			</o>
-		</odmatrix>
+		</odcellbycellmatrix>
 	</oddemands>
 </macroscopicdemand>
 

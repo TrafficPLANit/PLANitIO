@@ -21,16 +21,16 @@
    </configuration>
        
 	<oddemands>
-		<odmatrix timeperiodref="0" userclassref="1">
+		<odcellbycellmatrix timeperiodref="0" userclassref="1">
 			<o ref="31">																
 				<d ref="27">3000</d> 
 			</o>
-		</odmatrix>
-		<odmatrix timeperiodref="0" userclassref="2">
+		</odcellbycellmatrix>
+		<odcellbycellmatrix timeperiodref="0" userclassref="2">
 			<o ref="31">																
 				<d ref="27">600</d> 
 			</o>
-		</odmatrix>
+		</odcellbycellmatrix>
 	</oddemands>
 </macroscopicdemand>
 
