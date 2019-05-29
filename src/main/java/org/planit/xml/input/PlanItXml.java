@@ -35,6 +35,7 @@ import org.planit.network.virtual.VirtualNetwork;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.constants.Default;
+import org.planit.xml.input.validation.XmlValidator;
 import org.planit.xml.process.generated.ProcessConfiguration;
 import org.planit.xml.process.generated.UpdateDemands;
 import org.planit.zoning.Zone;
@@ -65,10 +66,7 @@ public class PlanItXml implements InputBuilderListener  {
     private static final int TWO_WAY = 3;
      
     private String networkFileLocation;
-    private String demandFileLocation;
     private String linkTypesFileLocation;
-    private String zoneFileLocation;
-    private String timePeriodFileLocation;
     private String modeFileLocation;
     private String zoningXmlFileLocation;
     private String demandXmlFileLocation;
@@ -87,35 +85,63 @@ public class PlanItXml implements InputBuilderListener  {
      * the number of parsed link segments
      */
     private int numberOfLinkSegments;
-
-/**
- * Constructor which reads in input file locations and instantiates the event manager.
- * 
- * @param networkFileLocation                   location of the network definition file
- * @param demandFileLocation                   location of the demands file
- * @param linkTypesFileLocation                 location of the link types file
- * @param zoneFileLocation                        location of the zones file
- * @param timePeriodFileLocation              location of the time periods file
- * @param modeFileLocation                       location of the mode definitions file
- */
+    
+ /**
+  * Constructor which reads in the XML input files 
+  * 
+  * @param zoningXmlFileLocation      location of XML zones input file
+  * @param demandXmlFileLocation   location of XML demands input file
+  * @param supplyXmlFileLocation      location of XML supply inputs file
+  */
     public PlanItXml(String networkFileLocation, 
-					               String demandFileLocation, 
-					               String linkTypesFileLocation, 
-						           String zoneFileLocation, 
-						           String timePeriodFileLocation, 
-						           String modeFileLocation,
-						           String zoningXmlFileLocation,
-						           String demandXmlFileLocation,
-						           String supplyXmlFileLocation) {
+						         String linkTypesFileLocation, 
+							     String modeFileLocation,
+							     String zoningXmlFileLocation,
+							     String demandXmlFileLocation,
+							     String supplyXmlFileLocation) {
         this.networkFileLocation = networkFileLocation;
-        this.demandFileLocation = demandFileLocation;
         this.linkTypesFileLocation = linkTypesFileLocation;
-        this.zoneFileLocation = zoneFileLocation;       
-        this.timePeriodFileLocation = timePeriodFileLocation;
         this.modeFileLocation = modeFileLocation;
     	this.zoningXmlFileLocation = zoningXmlFileLocation;
     	this.demandXmlFileLocation = demandXmlFileLocation;
     	this.supplyXmlFileLocation = supplyXmlFileLocation;
+    }
+
+/**
+ * Constructor which reads in the XML input files and XSD files to validate them against
+ * 
+ * If a null value is entered for the location of an XSD file, no validation is carried out on the corresponding input XML file.
+ * 
+ * @param zoningXmlFileLocation      location of XML zones input file
+ * @param demandXmlFileLocation   location of XML demands input file
+ * @param supplyXmlFileLocation      location of XML supply inputs file
+ * @param zoningXsdFileLocation      location of XSD schema file for zones
+ * @param demandXsdFileLocation   location of XSD schema file for demands
+ * @param supplyXsdFileLocation      location of XSD schema file for supply
+ */
+    public PlanItXml(String networkFileLocation, 
+					             String linkTypesFileLocation, 
+						         String modeFileLocation,
+						         String zoningXmlFileLocation,
+						         String demandXmlFileLocation,
+						         String supplyXmlFileLocation,
+						         String zoningXsdFileLocation,
+						         String demandXsdFileLocation,
+						         String supplyXsdFileLocation) throws PlanItException {
+    	this(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, supplyXmlFileLocation);
+    	try {
+    		if (zoningXsdFileLocation != null) {
+    			XmlValidator.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
+    		}
+    		if (demandXsdFileLocation != null) {
+    			XmlValidator.validateXml(demandXmlFileLocation, demandXsdFileLocation);
+    		}
+    		if (supplyXsdFileLocation != null) {
+    			XmlValidator.validateXml(supplyXmlFileLocation,supplyXsdFileLocation);
+    		}
+    	} catch (Exception e) {
+    		throw new PlanItException(e);
+    	}
     }
     
 /**

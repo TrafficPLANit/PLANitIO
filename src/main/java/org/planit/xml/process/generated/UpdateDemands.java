@@ -248,5 +248,4 @@ public class UpdateDemands {
 		matrixDemand.set(originZoneId, destinationZoneId, demand);
     }
     
-
 }

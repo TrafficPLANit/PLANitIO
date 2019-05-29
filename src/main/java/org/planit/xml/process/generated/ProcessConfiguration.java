@@ -16,7 +16,7 @@ import org.planit.userclass.UserClass;
 import org.planit.xml.constants.Default;
 
 /**
- * Methods to generate and store PLANit objects from the classes generated from XSD specifications.
+ * Methods to generate and store PLANit configuration objects from the configuration object in the XML demand input file.
  * 
  * @author gman6028
  *
