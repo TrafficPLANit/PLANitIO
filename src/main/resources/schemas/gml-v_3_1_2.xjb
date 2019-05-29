@@ -3,13 +3,6 @@
 						xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 						xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
 						jaxb:extensionBindingPrefixes="xjc">
-
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" node="/xs:schema">
-		<jaxb:schemaBindings>
-			<jaxb:package name="net.opengis.gml.v_3_1_1"/>
-		</jaxb:schemaBindings>
-	</jaxb:bindings>
-
 	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/geometryPrimitives.xsd" node="/xs:schema">
 
 		<jaxb:bindings node="xs:element[@name='_Solid']">
@@ -56,18 +49,6 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/coverage.xsd" node="/xs:schema">
-		<jaxb:bindings node="xs:simpleType[@name='IncrementOrder']">
-			<jaxb:typesafeEnumClass>
-				<jaxb:typesafeEnumMember name="PLUS_X_PLUS_Y" value="+x+y"/>
-				<jaxb:typesafeEnumMember name="PLUS_X_MINUS_Y" value="+x-y"/>
-				<jaxb:typesafeEnumMember name="MINUS_X_PLUS_Y" value="-x+y"/>
-				<jaxb:typesafeEnumMember name="MINUS_X_MINUS_Y" value="-x-y"/>
-			</jaxb:typesafeEnumClass>
-		</jaxb:bindings>
-	</jaxb:bindings>
-
-
 	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/feature.xsd" node="/xs:schema">
 		<jaxb:bindings node="xs:element[@name='_FeatureCollection']">
 			<jaxb:factoryMethod name="AFeatureCollectionElement"/>
@@ -78,33 +59,4 @@
 		</jaxb:bindings>
 	</jaxb:bindings>
 
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/observation.xsd" node="/xs:schema">
-		<jaxb:bindings node="xs:complexType[@name='TargetPropertyType']/xs:sequence/xs:choice/xs:element[@ref='gml:_Feature']">
-		</jaxb:bindings>
-	</jaxb:bindings>
-
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/smil/smil20.xsd" node="/xs:schema">
-		<jaxb:schemaBindings>
-			<jaxb:package name="org.w3.smil.v_2_0"/>
-		</jaxb:schemaBindings>
-		<jaxb:bindings node="xs:element[@name='animate']">
-			<jaxb:factoryMethod name="SmilAnimate"/>
-		</jaxb:bindings>
-		<jaxb:bindings node="xs:element[@name='animateMotion']">
-			<jaxb:factoryMethod name="SmilAnimateMotion"/>
-		</jaxb:bindings>
-		<jaxb:bindings node="xs:element[@name='animateColor']">
-			<jaxb:factoryMethod name="SmilAnimateColor"/>
-		</jaxb:bindings>
-		<jaxb:bindings node="xs:element[@name='set']">
-			<jaxb:factoryMethod name="SmilSet"/>
-		</jaxb:bindings>
-	</jaxb:bindings>
-
-	<jaxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.1.1/smil/smil20-language.xsd" node="/xs:schema">
-		<jaxb:schemaBindings>
-			<jaxb:package name="org.w3.smil.v_2_0.language"/>
-		</jaxb:schemaBindings>
-	</jaxb:bindings>
-	
 </jaxb:bindings>

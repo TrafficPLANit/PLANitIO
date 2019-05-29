@@ -2,6 +2,12 @@ package org.planit.xml.constants;
 
 import java.math.BigInteger;
 
+/**
+ * Default values used for the population of Java classes when a value is not set in the XML input file
+ * 
+ * @author gman6028
+ *
+ */
 public interface Default {
 	
 	public static final double CONNECTOID_LENGTH = 1.0;
