@@ -28,20 +28,11 @@ public interface XmlValidator {
  */
 	public static void validateXml(String xmlFileLocation, String schemaFileLocation) throws Exception {
         LOGGER.info("Validating " + xmlFileLocation + " against " + schemaFileLocation);  
-		try {
-		    String schemaLang = "http://www.w3.org/2001/XMLSchema";
-
-		    SchemaFactory factory = SchemaFactory.newInstance(schemaLang);
-
-		    Schema schema = factory.newSchema(new StreamSource(schemaFileLocation));
-		    Validator validator = schema.newValidator();
-
-		    validator.validate(new StreamSource(xmlFileLocation));
-
-		} catch (SAXException e) {
-		    System.out.println(" sax exception :" + e.getMessage());
-		} catch (Exception ex) {
-		    System.out.println("excep :" + ex.getMessage());
-		}	}
+		String schemaLang = "http://www.w3.org/2001/XMLSchema";
+		SchemaFactory factory = SchemaFactory.newInstance(schemaLang);
+		Schema schema = factory.newSchema(new StreamSource(schemaFileLocation));
+		Validator validator = schema.newValidator();
+        validator.validate(new StreamSource(xmlFileLocation));
+	}
 
 }

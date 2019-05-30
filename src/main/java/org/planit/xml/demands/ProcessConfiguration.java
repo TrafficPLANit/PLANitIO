@@ -1,4 +1,4 @@
-package org.planit.xml.process.generated;
+package org.planit.xml.demands;
 
 import java.util.HashMap;
 import java.util.Map;

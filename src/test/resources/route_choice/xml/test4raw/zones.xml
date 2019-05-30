@@ -7,6 +7,9 @@
     	<zone id="1">
     		<centroid>
      			<name>1</name>
+  				<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:pos>45.256 -110.45</gml:pos>
+				</gml:Point>
     		</centroid>
     		<connectoids>
     			<connectoid noderef="21">
@@ -17,6 +20,9 @@
     	<zone id="2">
     		<centroid>
      			<name>2</name>
+ 				<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:pos>45.256 -110.45</gml:pos>
+				</gml:Point>
     		</centroid>
     		<connectoids>
     			<connectoid noderef="22">
@@ -27,6 +33,9 @@
     	<zone id="3">
     		<centroid>
      			<name>3</name>
+ 				<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:pos>45.256 -110.45</gml:pos>
+				</gml:Point>
     		</centroid>
     		<connectoids>
     			<connectoid noderef="23">
@@ -37,6 +46,9 @@
     	<zone id="4">
     		<centroid>
      			<name>4</name>
+ 				<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:pos>45.256 -110.45</gml:pos>
+				</gml:Point>
     		</centroid>
     		<connectoids>
     			<connectoid noderef="24">

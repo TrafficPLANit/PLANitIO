@@ -31,22 +31,19 @@ import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
-import org.planit.network.virtual.VirtualNetwork;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
-import org.planit.xml.constants.Default;
+import org.planit.xml.demands.ProcessConfiguration;
+import org.planit.xml.demands.UpdateDemands;
 import org.planit.xml.input.validation.XmlValidator;
-import org.planit.xml.process.generated.ProcessConfiguration;
-import org.planit.xml.process.generated.UpdateDemands;
-import org.planit.zoning.Zone;
+import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
 
 import org.planit.generated.Configuration;
-import org.planit.generated.Connectoid;
 import org.planit.generated.Macroscopicdemand;
 import org.planit.generated.Macroscopiczoning;
 import org.planit.generated.Odmatrix;
-import org.planit.generated.Zones;
+import org.planit.generated.Zones.Zone;
 
 /**
  * Class which reads inputs from XML input files
@@ -80,7 +77,7 @@ public class PlanItXml implements InputBuilderListener  {
     private LinkSegments linkSegments;
     private Nodes nodes;
     private Zoning.Zones zones;
-    
+	
     /**
      * the number of parsed link segments
      */
@@ -92,13 +89,14 @@ public class PlanItXml implements InputBuilderListener  {
   * @param zoningXmlFileLocation      location of XML zones input file
   * @param demandXmlFileLocation   location of XML demands input file
   * @param supplyXmlFileLocation      location of XML supply inputs file
+ * @throws PlanItException 
   */
     public PlanItXml(String networkFileLocation, 
 						         String linkTypesFileLocation, 
 							     String modeFileLocation,
 							     String zoningXmlFileLocation,
 							     String demandXmlFileLocation,
-							     String supplyXmlFileLocation) {
+							     String supplyXmlFileLocation) throws PlanItException {
         this.networkFileLocation = networkFileLocation;
         this.linkTypesFileLocation = linkTypesFileLocation;
         this.modeFileLocation = modeFileLocation;
@@ -115,9 +113,9 @@ public class PlanItXml implements InputBuilderListener  {
  * @param zoningXmlFileLocation      location of XML zones input file
  * @param demandXmlFileLocation   location of XML demands input file
  * @param supplyXmlFileLocation      location of XML supply inputs file
- * @param zoningXsdFileLocation      location of XSD schema file for zones
- * @param demandXsdFileLocation   location of XSD schema file for demands
- * @param supplyXsdFileLocation      location of XSD schema file for supply
+ * @param zoningXsdFileLocation       location of XSD schema file for zones
+ * @param demandXsdFileLocation    location of XSD schema file for demands
+ * @param supplyXsdFileLocation       location of XSD schema file for supply
  */
     public PlanItXml(String networkFileLocation, 
 					             String linkTypesFileLocation, 
@@ -137,7 +135,7 @@ public class PlanItXml implements InputBuilderListener  {
     			XmlValidator.validateXml(demandXmlFileLocation, demandXsdFileLocation);
     		}
     		if (supplyXsdFileLocation != null) {
-    			XmlValidator.validateXml(supplyXmlFileLocation,supplyXsdFileLocation);
+    			XmlValidator.validateXml(supplyXmlFileLocation, supplyXsdFileLocation);
     		}
     	} catch (Exception e) {
     		throw new PlanItException(e);
@@ -175,9 +173,9 @@ public class PlanItXml implements InputBuilderListener  {
 /**
  * Tests whether a node referred to in the network input file already exists, and creates it if it does not 
  * 
- * @param network                           the physical network object
- * @param record                            the record in the network input file which refers to this node
- * @param columnName                the column in the record which refers to this node
+ * @param network                       the physical network object
+ * @param record                          the record in the network input file which refers to this node
+ * @param columnName               the column in the record which refers to this node
  * @return                                      the node which has been created or found
  */
     private Node identifyAndRegisterNode(MacroscopicNetwork network, CSVRecord record, String columnName) {
@@ -194,11 +192,11 @@ public class PlanItXml implements InputBuilderListener  {
 /**
  * Registers a new link segment in the physical network and stores the alpha and beta values for the link
  * 
- * @param network                           the physical network object
- * @param link                              the link from which the link segment will be created
- * @param abDirection                   direction of travel
- * @param linkSegmentType           object storing the input values for this link
- * @param noLanes                       the number of lanes in this link
+ * @param network                      the physical network object
+ * @param link                             the link from which the link segment will be created
+ * @param abDirection                direction of travel
+ * @param linkSegmentType        object storing the input values for this link
+ * @param noLanes                      the number of lanes in this link
  * @throws PlanItException          thrown if there is an error
  */
     private void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
@@ -219,8 +217,8 @@ public class PlanItXml implements InputBuilderListener  {
 /**
  * Reads route type values from input file and stores them in a Map
  * 
- * @return                                      Map containing link type values
- * @throws PlanItException          thrown if there is an error reading the input file
+ * @return                                    Map containing link type values
+ * @throws PlanItException         thrown if there is an error reading the input file
  */
     private Map<Integer, BasicCsvMacroscopicLinkSegmentType> createLinkSegmentTypeMap() throws PlanItException {
         double maximumDensity = Double.POSITIVE_INFINITY;
@@ -348,19 +346,12 @@ public class PlanItXml implements InputBuilderListener  {
             throw new PlanItException("Cannot parse zoning input file before the network input file has been parsed.");
         noCentroids = 0;
         
-        //create and register zones
+        //create and register zones, centroids and connectoids
     	try {
     		Macroscopiczoning macroscopiczoning = (Macroscopiczoning) generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
-            VirtualNetwork virtualNetwork = zoning.getVirtualNetwork();
-	    	for (Zones.Zone zoneGenerated : macroscopiczoning.getZones().getZone()) {
-                long zoneExternalId = zoneGenerated.getId().longValue();
-                Connectoid connectoid = zoneGenerated.getConnectoids().getConnectoid().get(0);
-                long nodeExternalId = connectoid.getNoderef().longValue();
-                double connectoidLength = (connectoid.getLength() == null) ? Default.CONNECTOID_LENGTH : connectoid.getLength();
-                Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
-                Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
-                Centroid centroid = zone.getCentroid();
-                virtualNetwork.connectoids.registerNewConnectoid(centroid, node, connectoidLength);
+	    	for (Zone zone : macroscopiczoning.getZones().getZone()) {
+                Centroid  centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
+                UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
                 noCentroids++;
  	    	}
             zones = zoning.zones;

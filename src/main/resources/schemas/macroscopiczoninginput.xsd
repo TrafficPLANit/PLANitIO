@@ -13,7 +13,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="name" type="xs:string" default="" minOccurs="0" />
-				<xs:element ref="gml:Point" minOccurs="0" >
+				<xs:element ref="gml:Point" minOccurs="1" maxOccurs="1">
 					<xs:annotation>
 						<xs:documentation>
 							Each centroids geo spatial location determines its location (point of departure/arrival). It should fall within the zones
