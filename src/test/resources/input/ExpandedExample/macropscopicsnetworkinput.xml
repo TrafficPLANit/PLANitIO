@@ -2,7 +2,7 @@
 <macroscopicnetwork
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xmlns:gml="http://www.opengis.net/gml"											
-	 xsi:noNamespaceSchemaLocation="../schema/macroscopicsupplyinput.xsd">						<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicnetworkinput.xsd">						<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
 	<configuration>																		<!-- optional, single linksegmenttype assumed when absent -->
 		<modes>																			<!-- if absent a single mode (car) with pcu 1 is assumed -->
 			<mode id="1">																<!-- mandatory attributes, for referencing -->

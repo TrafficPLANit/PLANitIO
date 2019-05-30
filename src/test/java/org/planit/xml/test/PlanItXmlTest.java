@@ -40,13 +40,13 @@ public class PlanItXmlTest{
     
     private String zoningXsdFileLocation;
     private String demandXsdFileLocation;
-    private String supplyXsdFileLocation;
+    private String networkXsdFileLocation;
     
 	@Before
 	public void setUp() throws Exception {
 		zoningXsdFileLocation = "src\\main\\resources\\schemas\\macroscopiczoninginput.xsd";
 		demandXsdFileLocation = "src\\main\\resources\\schemas\\macroscopicdemandinput.xsd";
-		supplyXsdFileLocation = "src\\main\\resources\\schemas\\macroscopicsupplyinput.xsd";
+		networkXsdFileLocation = "src\\main\\resources\\schemas\\macroscopicnetworkinput.xsd";
 	}
 
 	@After
@@ -64,7 +64,7 @@ public class PlanItXmlTest{
 					     "src\\test\\resources\\basic\\xml\\test1\\results.csv",
 					     "src\\test\\resources\\basic\\xml\\test1\\zones.xml",
 					     "src\\test\\resources\\basic\\xml\\test1\\demands.xml",
-					     "src\\test\\resources\\basic\\xml\\test1\\supply.xml"); 
+					     "src\\test\\resources\\basic\\xml\\test1\\network.xml"); 
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -80,7 +80,7 @@ public class PlanItXmlTest{
 					     "src\\test\\resources\\basic\\xml\\test2\\results.csv",
 					     "src\\test\\resources\\basic\\xml\\test2\\zones.xml",
 					     "src\\test\\resources\\basic\\xml\\test2\\demands.xml",
-					     "src\\test\\resources\\basic\\xml\\test2\\supply.xml");
+					     "src\\test\\resources\\basic\\xml\\test2\\network.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -96,7 +96,7 @@ public class PlanItXmlTest{
 					     "src\\test\\resources\\basic\\xml\\test3\\results.csv",
 					     "src\\test\\resources\\basic\\xml\\test3\\zones.xml",
 					     "src\\test\\resources\\basic\\xml\\test3\\demands.xml",
-					     "src\\test\\resources\\basic\\xml\\test3\\supply.xml");
+					     "src\\test\\resources\\basic\\xml\\test3\\network.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -112,7 +112,7 @@ public class PlanItXmlTest{
                          "src\\test\\resources\\basic\\xml\\test13\\results.csv",
 					     "src\\test\\resources\\basic\\xml\\test13\\zones.xml",
 					     "src\\test\\resources\\basic\\xml\\test13\\demands.xml",
-					     "src\\test\\resources\\basic\\xml\\test13\\supply.xml");
+					     "src\\test\\resources\\basic\\xml\\test13\\network.xml");
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -128,7 +128,7 @@ public class PlanItXmlTest{
 					     "src\\test\\resources\\route_choice\\xml\\test1\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test1\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test1\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test1\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test1\\network.xml",
 					     500, 0.0);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,7 +145,7 @@ public class PlanItXmlTest{
 					     "src\\test\\resources\\route_choice\\xml\\test2\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test2\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test2\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test2\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test2\\network.xml",
 					     500, 0.0);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,7 +162,7 @@ public class PlanItXmlTest{
 					     "src\\test\\resources\\route_choice\\xml\\test3\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test3\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test3\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test3\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test3\\network.xml",
                          500, 0.0);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -179,7 +179,7 @@ public class PlanItXmlTest{
                          "src\\test\\resources\\route_choice\\xml\\test4\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test4\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test4\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test4\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4\\network.xml",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,7 +196,7 @@ public class PlanItXmlTest{
                          "src\\test\\resources\\route_choice\\xml\\test42\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test42\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test42\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test42\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test42\\network.xml",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -213,7 +213,7 @@ public class PlanItXmlTest{
                          "src\\test\\resources\\route_choice\\xml\\test4raw\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test4raw\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test4raw\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test4raw\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw\\network.xml",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -230,7 +230,7 @@ public class PlanItXmlTest{
                          "src\\test\\resources\\route_choice\\xml\\test4raw2\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test4raw2\\network.xml",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -247,7 +247,7 @@ public class PlanItXmlTest{
                          "src\\test\\resources\\route_choice\\xml\\test5\\results.csv",
 					     "src\\test\\resources\\route_choice\\xml\\test5\\zones.xml",
 					     "src\\test\\resources\\route_choice\\xml\\test5\\demands.xml",
-					     "src\\test\\resources\\route_choice\\xml\\test5\\supply.xml",
+					     "src\\test\\resources\\route_choice\\xml\\test5\\network.xml",
                          500, 0.0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -261,7 +261,7 @@ public class PlanItXmlTest{
 	                                    String resultsFileLocation, 
 	      		                        String zoningXmlFileLocation,
 	      		                        String demandXmlFileLocation,
-	      		                        String supplyXmlFileLocation,
+	      		                        String networkXmlFileLocation,
 							            Integer maxIterations, 
 	                                    Double epsilon) throws Exception {
 		//SET UP SCANNER AND PROJECT
@@ -271,7 +271,7 @@ public class PlanItXmlTest{
          		                                                                                        modeFileLocation, 
         		                                                                                        zoningXmlFileLocation, 
         		                                                                                        demandXmlFileLocation, 
-        		                                                                                        supplyXmlFileLocation);
+        		                                                                                        networkXmlFileLocation);
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 			
 		//RAW INPUT START --------------------------------
@@ -323,14 +323,14 @@ public class PlanItXmlTest{
                                         String resultsFileLocation, 
                                         String zoningXmlFileLocation, 
                                         String demandXmlFileLocation, 
-                                        String supplyXmlFileLocation) throws Exception {
+                                        String networkXmlFileLocation) throws Exception {
         runTest(networkFileLocation, 
         		     linkTypesFileLocation, 
         		     modeFileLocation, 
         		     resultsFileLocation, 
         		     zoningXmlFileLocation, 
         		     demandXmlFileLocation, 
-        		     supplyXmlFileLocation, 
+        		     networkXmlFileLocation, 
        		         null, 
         		     null);
     }
@@ -341,10 +341,10 @@ public class PlanItXmlTest{
 							            String resultsFileLocation, 
 							            String zoningXmlFileLocation,
 							            String demandXmlFileLocation,
-							            String supplyXmlFileLocation,
+							            String networkXmlFileLocation,
 								        String zoningXsdFileLocation,
 								        String demandXsdFileLocation,
-								        String supplyXsdFileLocation,
+								        String networkXsdFileLocation,
 							            Integer maxIterations, 
 							            Double epsilon) throws Exception {
 	//SET UP SCANNER AND PROJECT
@@ -354,10 +354,10 @@ public class PlanItXmlTest{
 						                                                                            modeFileLocation, 
 						                                                                            zoningXmlFileLocation, 
 						                                                                            demandXmlFileLocation, 
-						                                                                            supplyXmlFileLocation,
+						                                                                            networkXmlFileLocation,
 						                                           						            zoningXsdFileLocation,
 						                                        						            demandXsdFileLocation,
-						                                        						            supplyXsdFileLocation);
+						                                        						            networkXsdFileLocation);
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 		
 		//RAW INPUT START --------------------------------
@@ -409,7 +409,7 @@ public class PlanItXmlTest{
 							            String resultsFileLocation, 
 							            String zoningXmlFileLocation, 
 							            String demandXmlFileLocation, 
-							            String supplyXmlFileLocation,
+							            String networkXmlFileLocation,
 								        String zoningXsdFileLocation,
 								        String demandXsdFileLocation,
 								        String supplyXsdFileLocation) throws Exception {
@@ -419,7 +419,7 @@ public class PlanItXmlTest{
 					 resultsFileLocation, 
 					 zoningXmlFileLocation, 
 					 demandXmlFileLocation, 
-					 supplyXmlFileLocation,
+					 networkXmlFileLocation,
 			         zoningXsdFileLocation,
 			         demandXsdFileLocation,
 			         supplyXsdFileLocation, 

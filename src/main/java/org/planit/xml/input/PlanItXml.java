@@ -36,11 +36,15 @@ import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
 import org.planit.xml.demands.UpdateDemands;
 import org.planit.xml.input.validation.XmlValidator;
+import org.planit.xml.network.ProcessLinkConfiguration;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
 
 import org.planit.generated.Configuration;
+import org.planit.generated.Infrastructure;
+import org.planit.generated.Linkconfiguration;
 import org.planit.generated.Macroscopicdemand;
+import org.planit.generated.Macroscopicnetwork;
 import org.planit.generated.Macroscopiczoning;
 import org.planit.generated.Odmatrix;
 import org.planit.generated.Zones.Zone;
@@ -67,7 +71,7 @@ public class PlanItXml implements InputBuilderListener  {
     private String modeFileLocation;
     private String zoningXmlFileLocation;
     private String demandXmlFileLocation;
-    private String supplyXmlFileLocation;
+    private String networkXmlFileLocation;
     
     private int noCentroids;
     private Map<Integer, BasicCsvMacroscopicLinkSegmentType> linkSegmentTypeMap;
@@ -88,21 +92,20 @@ public class PlanItXml implements InputBuilderListener  {
   * 
   * @param zoningXmlFileLocation      location of XML zones input file
   * @param demandXmlFileLocation   location of XML demands input file
-  * @param supplyXmlFileLocation      location of XML supply inputs file
- * @throws PlanItException 
+  * @param networkXmlFileLocation   location of XML network inputs file
   */
     public PlanItXml(String networkFileLocation, 
 						         String linkTypesFileLocation, 
 							     String modeFileLocation,
 							     String zoningXmlFileLocation,
 							     String demandXmlFileLocation,
-							     String supplyXmlFileLocation) throws PlanItException {
+							     String networkXmlFileLocation) {
         this.networkFileLocation = networkFileLocation;
         this.linkTypesFileLocation = linkTypesFileLocation;
         this.modeFileLocation = modeFileLocation;
     	this.zoningXmlFileLocation = zoningXmlFileLocation;
     	this.demandXmlFileLocation = demandXmlFileLocation;
-    	this.supplyXmlFileLocation = supplyXmlFileLocation;
+    	this.networkXmlFileLocation = networkXmlFileLocation;
     }
 
 /**
@@ -112,21 +115,22 @@ public class PlanItXml implements InputBuilderListener  {
  * 
  * @param zoningXmlFileLocation      location of XML zones input file
  * @param demandXmlFileLocation   location of XML demands input file
- * @param supplyXmlFileLocation      location of XML supply inputs file
+ * @param networkXmlFileLocation   location of XML network inputs file
  * @param zoningXsdFileLocation       location of XSD schema file for zones
  * @param demandXsdFileLocation    location of XSD schema file for demands
- * @param supplyXsdFileLocation       location of XSD schema file for supply
+ * @param networkXsdFileLocation    location of XSD schema file for network
+ * @throws PlanItException                 thrown if one of the input XML files is invalid
  */
     public PlanItXml(String networkFileLocation, 
 					             String linkTypesFileLocation, 
 						         String modeFileLocation,
 						         String zoningXmlFileLocation,
 						         String demandXmlFileLocation,
-						         String supplyXmlFileLocation,
+						         String networkXmlFileLocation,
 						         String zoningXsdFileLocation,
 						         String demandXsdFileLocation,
-						         String supplyXsdFileLocation) throws PlanItException {
-    	this(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, supplyXmlFileLocation);
+						         String networkXsdFileLocation) throws PlanItException {
+    	this(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
     	try {
     		if (zoningXsdFileLocation != null) {
     			XmlValidator.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
@@ -134,8 +138,8 @@ public class PlanItXml implements InputBuilderListener  {
     		if (demandXsdFileLocation != null) {
     			XmlValidator.validateXml(demandXmlFileLocation, demandXsdFileLocation);
     		}
-    		if (supplyXsdFileLocation != null) {
-    			XmlValidator.validateXml(supplyXmlFileLocation, supplyXsdFileLocation);
+    		if (networkXsdFileLocation != null) {
+    			XmlValidator.validateXml(networkXmlFileLocation, networkXsdFileLocation);
     		}
     	} catch (Exception e) {
     		throw new PlanItException(e);
@@ -147,7 +151,7 @@ public class PlanItXml implements InputBuilderListener  {
  * 
  * We only handle BPR travel time functions at this stage.
  * 
- * @param event                         object creation event
+ * @param event                      object creation event
  * @throws PlanItException      captures any exception thrown during creation events
  */
     @Override
@@ -275,8 +279,18 @@ public class PlanItXml implements InputBuilderListener  {
     public void populateNetwork(@Nonnull MacroscopicNetwork network)  throws PlanItException {
         
         LOGGER.info("Populating Network");
+       
+        try {
+        	Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
+        	Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
+        	Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
+        	modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
+        	//TODO - finish ProcessLinkConfiguration.createLinkSegmentTypeMap() which goes here
+        } catch (Exception ex) {
+            throw new PlanItException(ex);
+        }
 
-        modeMap = getModes();       
+        //modeMap = getModes();       
         linkSegmentTypeMap = createLinkSegmentTypeMap();
         alphaMapMap = new HashMap<MacroscopicLinkSegment, Map<Long, Double>>();
         betaMapMap = new HashMap<MacroscopicLinkSegment, Map<Long, Double>>();

@@ -18,7 +18,7 @@ The src/main/resources directory contains the following files which are used by 
 |PLANit.xsd|Common XML definitions used by the other XSD file|
 |macroscopicdemandinput.xsd|XSD schema for demand input XML file|
 |macroscopiczoninginput.xsd|XSD schema for zoning input XML file|
-|macroscopicsupplyinput.xsd|XSD schema for supply input XML file|
+|macroscopicnetworkinput.xsd|XSD schema for network input XML file|
 |PLANit.xjb|XJB file to define the package name for the generated Java classes which correspond to the definitions in the project's own XSD files|
 |gml-v_3_1_1.xjb|XJB file to resolve name clashes which appear when XJC is run on GML files|
 |xlink-v_1_0.xjb|XJB file to resolve name clashes which appear when XJC is run on GML files|                        
