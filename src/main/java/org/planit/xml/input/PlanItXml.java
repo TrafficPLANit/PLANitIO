@@ -9,10 +9,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -35,8 +31,8 @@ import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
 import org.planit.xml.demands.UpdateDemands;
-import org.planit.xml.input.validation.XmlValidator;
 import org.planit.xml.network.ProcessLinkConfiguration;
+import org.planit.xml.process.XmlProcessor;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
 
@@ -133,13 +129,13 @@ public class PlanItXml implements InputBuilderListener  {
     	this(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
     	try {
     		if (zoningXsdFileLocation != null) {
-    			XmlValidator.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
+    			XmlProcessor.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
     		}
     		if (demandXsdFileLocation != null) {
-    			XmlValidator.validateXml(demandXmlFileLocation, demandXsdFileLocation);
+    			XmlProcessor.validateXml(demandXmlFileLocation, demandXsdFileLocation);
     		}
     		if (networkXsdFileLocation != null) {
-    			XmlValidator.validateXml(networkXmlFileLocation, networkXsdFileLocation);
+    			XmlProcessor.validateXml(networkXmlFileLocation, networkXsdFileLocation);
     		}
     	} catch (Exception e) {
     		throw new PlanItException(e);
@@ -164,8 +160,8 @@ public class PlanItXml implements InputBuilderListener  {
                 populateZoning((Zoning) projectComponent); 
             } else if (projectComponent instanceof Demands) {
                 populateDemands((Demands) projectComponent); 
-            } else if (projectComponent instanceof BPRLinkTravelTimeCost) {
-                populateBprParameters((BPRLinkTravelTimeCost) projectComponent); //place parameters on the BPR cost component
+//            } else if (projectComponent instanceof BPRLinkTravelTimeCost) {
+//                populateBprParameters((BPRLinkTravelTimeCost) projectComponent); //place parameters on the BPR cost component
             } else {
                 LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName() + " which is not handled by BascCsvScan");
             }
@@ -203,19 +199,22 @@ public class PlanItXml implements InputBuilderListener  {
  * @param noLanes                      the number of lanes in this link
  * @throws PlanItException          thrown if there is an error
  */
-    private void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
+    //private void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
+    private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
         
         //create the link and store it in the network object
         MacroscopicLinkSegment linkSegment =  (MacroscopicLinkSegment) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
         linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
         linkSegment.setNumberOfLanes(noLanes);
-        MacroscopicLinkSegmentType macroscopicLinkSegmentType = network.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(), linkSegmentType.getMaximumDensityPerLane(), null).getFirst();
+        MacroscopicLinkSegmentType macroscopicLinkSegmentType = 
+        		network.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(), linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getLinkType(), null).getFirst();
         linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
         network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
         
         //store the alpha and beta values for the link
-        alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
-        betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
+        //alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
+        //betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
+        return linkSegment;
     }
 
 /**
@@ -281,7 +280,7 @@ public class PlanItXml implements InputBuilderListener  {
         LOGGER.info("Populating Network");
        
         try {
-        	Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
+        	Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) XmlProcessor.generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
         	Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
         	Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
         	modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
@@ -310,12 +309,18 @@ public class PlanItXml implements InputBuilderListener  {
                 BasicCsvMacroscopicLinkSegmentType linkSegmentType = linkSegmentTypeMap.get(linkType);
                 Link link = network.links.registerNewLink(startNode, endNode, length);
                 if ((linkDirection == ONE_WAY_AB)  ||  (linkDirection == TWO_WAY)) {
-                    generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);
-                }
+                	MacroscopicLinkSegment linkSegment = generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);
+                    alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
+                    betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
+               }
                 // Generate B->A direction link segment
                 if ((linkDirection == ONE_WAY_BA)  ||  (linkDirection == TWO_WAY)) {
-                    generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes);
+                	MacroscopicLinkSegment linkSegment = generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes);
+                    alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
+                    betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
                 }
+                //alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
+                //betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
             }
             in.close();
         } catch (Exception ex) {
@@ -325,28 +330,6 @@ public class PlanItXml implements InputBuilderListener  {
         nodes = network.nodes;
         numberOfLinkSegments = network.linkSegments.getNumberOfLinkSegments();
     }
-    
- /**
-  * Generates a Java object populated with the data from an XML input file.
-  * 
-  * This method creates a JAXB Unmarshaller object which it uses to populate the Java class.
-  * 
-  * The output object will be of a generated class, created from the same XSD file which is used to validate the input XML file.
-  * 
-  * @param clazz                       Class of the object to be populated 
-  * @param xmlFileLocation     location of the input XML file
-  * @return                                an instance of the output class, populated with the data from the XML file.
-  * @throws Exception              thrown if the XML file is invalid or cannot be opened
-  */
-    private Object generateObjectFromXml(Class<?> clazz, String xmlFileLocation) throws Exception {
-       	JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-       	Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-       	XMLInputFactory xmlinputFactory = XMLInputFactory.newInstance();
-       	XMLStreamReader xmlStreamReader = xmlinputFactory.createXMLStreamReader(new FileReader(xmlFileLocation));
-       	Object obj = unmarshaller.unmarshal(xmlStreamReader);
-       	xmlStreamReader.close();
-        return obj;
-    } 
     
 /**
  * Creates the Zoning object and connectoids from the data in the input file
@@ -362,7 +345,7 @@ public class PlanItXml implements InputBuilderListener  {
         
         //create and register zones, centroids and connectoids
     	try {
-    		Macroscopiczoning macroscopiczoning = (Macroscopiczoning) generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
+    		Macroscopiczoning macroscopiczoning = (Macroscopiczoning) XmlProcessor.generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
 	    	for (Zone zone : macroscopiczoning.getZones().getZone()) {
                 Centroid  centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
                 UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
@@ -386,7 +369,7 @@ public class PlanItXml implements InputBuilderListener  {
         if (noCentroids == 0)
             throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
      	try {
-    		Macroscopicdemand macroscopicdemand = (Macroscopicdemand) generateObjectFromXml(Macroscopicdemand.class, demandXmlFileLocation);
+    		Macroscopicdemand macroscopicdemand = (Macroscopicdemand) XmlProcessor.generateObjectFromXml(Macroscopicdemand.class, demandXmlFileLocation);
         	Configuration configuration = macroscopicdemand.getConfiguration();
     		Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration.generateAndStoreConfigurationData(configuration);
 	        List<Odmatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
@@ -431,6 +414,7 @@ public class PlanItXml implements InputBuilderListener  {
  */
     public void populateBprParameters(@Nonnull BPRLinkTravelTimeCost costComponent) throws PlanItException {
         LOGGER.info("Populating BPR Parameters");  
+
         try {
             if (numberOfLinkSegments <= 0) {
                 throw new PlanItException("Cannot populate BPR parameters before physical network has been parsed");
@@ -441,18 +425,15 @@ public class PlanItXml implements InputBuilderListener  {
             if (betaMapMap.keySet().isEmpty()) {
                 throw new PlanItException("Beta parameters have not been set - should have been read in from the route types file");
             }
-            BPRLinkTravelTimeCost.BPRParameters[] bprLinkSegmentParameters = new BPRLinkTravelTimeCost.BPRParameters[numberOfLinkSegments];
             Iterator<LinkSegment> iterator = linkSegments.iterator();
-            while (iterator.hasNext()) {
-                MacroscopicLinkSegment macroscopicLinkSegment = (MacroscopicLinkSegment) iterator.next();
-                Map<Long, Double> alphaMap = alphaMapMap.get(macroscopicLinkSegment);
-                Map<Long, Double> betaMap = betaMapMap.get(macroscopicLinkSegment);
-                bprLinkSegmentParameters[(int) macroscopicLinkSegment.getId()] = new BPRLinkTravelTimeCost.BPRParameters(alphaMap, betaMap);
-            }           
+            BPRLinkTravelTimeCost.BPRParameters[] bprLinkSegmentParameters = BPRLinkTravelTimeCost.getBPRParameters(iterator,  numberOfLinkSegments, alphaMapMap,  betaMapMap);
+
             costComponent.populate(bprLinkSegmentParameters);
+
         } catch (PlanItException e) {
             throw new PlanItException(e);
         }
+
     }
-        
+
 }

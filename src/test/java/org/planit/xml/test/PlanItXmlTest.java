@@ -3,6 +3,9 @@ package org.planit.xml.test;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.logging.Logger;
@@ -14,7 +17,10 @@ import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
 import org.planit.event.listener.InputBuilderListener;
+import org.planit.exceptions.PlanItException;
+import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.formatter.CSVOutputFormatter;
@@ -51,10 +57,10 @@ public class PlanItXmlTest{
 
 	@After
 	public void tearDown() throws Exception {
-	    File tempFile = new File(TEST_RESULTS_LOCATION);
-	    tempFile.delete();
+	    //File tempFile = new File(TEST_RESULTS_LOCATION);
+	    //tempFile.delete();
 	}
-
+/*
 	@Test
 	public void testBasic1() {	
 		try {
@@ -237,7 +243,7 @@ public class PlanItXmlTest{
             fail(e.getMessage());
         } 
     }
-
+*/
    @Test
     public void testRouteChoice5() {
         try {
@@ -255,6 +261,16 @@ public class PlanItXmlTest{
         } 
     }
 
+   private void runTest(String networkFileLocation, 
+							           String linkTypesFileLocation, 
+							           String modeFileLocation,
+							           String resultsFileLocation, 
+							           String zoningXmlFileLocation, 
+							           String demandXmlFileLocation, 
+							           String networkXmlFileLocation) throws Exception {
+		runTest(networkFileLocation, linkTypesFileLocation, modeFileLocation, resultsFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, null, null);
+	}
+
 	private void runTest(String networkFileLocation, 
 	                                    String linkTypesFileLocation, 
 	                                    String modeFileLocation,
@@ -266,75 +282,23 @@ public class PlanItXmlTest{
 	                                    Double epsilon) throws Exception {
 		//SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-        InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, 
-        		                                                                                        linkTypesFileLocation, 
-         		                                                                                        modeFileLocation, 
-        		                                                                                        zoningXmlFileLocation, 
-        		                                                                                        demandXmlFileLocation, 
-        		                                                                                        networkXmlFileLocation);
-		PlanItProject project = new PlanItProject(inputBuilderListener);
-			
-		//RAW INPUT START --------------------------------
-		PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-		Zoning zoning = project.createAndRegisterZoning();
-		Demands demands = project.createAndRegisterDemands(); 			
-		//RAW INPUT END -----------------------------------	
-			
-		// TRAFFIC ASSIGNMENT START------------------------				
-		DeterministicTrafficAssignment assignment = project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());	
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment.getBuilder();
- 			
-		// SUPPLY SIDE
-		taBuilder.registerPhysicalNetwork(physicalNetwork);								
-		// SUPPLY-DEMAND INTERACTIONS
-		taBuilder.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName()); 		
-		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());					
-		// SUPPLY-DEMAND INTERFACE
-		taBuilder.registerZoning(zoning);
-			
-		// DEMAND SIDE	
-		taBuilder.registerDemands(demands);
-			
-        // OUTPUT
-        assignment.activateOutput(OutputType.LINK);
-        OutputFormatter outputFormatter = project.createAndRegisterOutputFormatter(CSVOutputFormatter.class.getCanonicalName());
-        CSVOutputFormatter csvOutputFormatter = (CSVOutputFormatter) outputFormatter;
-        csvOutputFormatter.setOutputFileName(TEST_RESULTS_LOCATION);
-        taBuilder.registerOutputFormatter(outputFormatter);
-        
-		// "USER" configuration
-        if (maxIterations != null) {
-                assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-        }
-        if (epsilon != null) {
-		        assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
-        }
-			
-        project.executeAllTrafficAssignments();
-        SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMapFromFile = CsvIoUtils.createResultsMapFromCsvFile(resultsFileLocation);
-        SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMap = CsvIoUtils.createResultsMapFromCsvFile(TEST_RESULTS_LOCATION);
-		TestHelper.compareResultsToCsvFileContents(resultsMap, resultsMapFromFile);
+        InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
+		runTestFrominputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon);
 	}
 	
     private void runTest(String networkFileLocation, 
-                                        String linkTypesFileLocation, 
-                                        String modeFileLocation,
-                                        String resultsFileLocation, 
-                                        String zoningXmlFileLocation, 
-                                        String demandXmlFileLocation, 
-                                        String networkXmlFileLocation) throws Exception {
-        runTest(networkFileLocation, 
-        		     linkTypesFileLocation, 
-        		     modeFileLocation, 
-        		     resultsFileLocation, 
-        		     zoningXmlFileLocation, 
-        		     demandXmlFileLocation, 
-        		     networkXmlFileLocation, 
-       		         null, 
-        		     null);
+							            String linkTypesFileLocation, 
+							            String modeFileLocation,
+							            String resultsFileLocation, 
+							            String zoningXmlFileLocation, 
+							            String demandXmlFileLocation, 
+							            String networkXmlFileLocation,
+								        String zoningXsdFileLocation,
+								        String demandXsdFileLocation,
+								        String supplyXsdFileLocation) throws Exception {
+    	runTest(networkFileLocation, linkTypesFileLocation, modeFileLocation, resultsFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation,  zoningXsdFileLocation, demandXsdFileLocation, supplyXsdFileLocation, null, null);
     }
-	
+    
 	private void runTest(String networkFileLocation, 
 							            String linkTypesFileLocation, 
 							            String modeFileLocation,
@@ -348,16 +312,13 @@ public class PlanItXmlTest{
 							            Integer maxIterations, 
 							            Double epsilon) throws Exception {
 	//SET UP SCANNER AND PROJECT
-	IdGenerator.reset();
-	InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, 
-						                                                                            linkTypesFileLocation, 
-						                                                                            modeFileLocation, 
-						                                                                            zoningXmlFileLocation, 
-						                                                                            demandXmlFileLocation, 
-						                                                                            networkXmlFileLocation,
-						                                           						            zoningXsdFileLocation,
-						                                        						            demandXsdFileLocation,
-						                                        						            networkXsdFileLocation);
+		IdGenerator.reset();
+		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation,zoningXsdFileLocation, demandXsdFileLocation, networkXsdFileLocation);
+		runTestFrominputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon);
+	}
+
+    
+    private void runTestFrominputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation, Integer maxIterations, Double epsilon) throws PlanItException {
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 		
 		//RAW INPUT START --------------------------------
@@ -373,9 +334,53 @@ public class PlanItXmlTest{
 		// SUPPLY SIDE
 		taBuilder.registerPhysicalNetwork(physicalNetwork);								
 		// SUPPLY-DEMAND INTERACTIONS
-		taBuilder.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName()); 		
-		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());					
+		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+/*	
+		int numberOfLinkSegments = physicalNetwork.linkSegments.getNumberOfLinkSegments();
+        BPRLinkTravelTimeCost.BPRParameters[] bprLinkSegmentParameters = new BPRLinkTravelTimeCost.BPRParameters[numberOfLinkSegments];
+        for (LinkSegment linkSegment : physicalNetwork.linkSegments) {
+        	long linkSegmentId = linkSegment.getLinkSegmentId();
+        	MacroscopicLinkSegment macroscopicLinkSegment = (MacroscopicLinkSegment) physicalNetwork.linkSegments.getLinkSegment(linkSegmentId);
+        	//MacroscopicLinkSegment macroscopicLinkSegment = (MacroscopicLinkSegment) linkSegment;
+            Map<Long, Double> alphaMap = inputBuilderListener.getAlphaMapMap().get(macroscopicLinkSegment);
+            Map<Long, Double> betaMap = inputBuilderListener.getBetaMapMap().get(macroscopicLinkSegment);
+            bprLinkSegmentParameters[(int) macroscopicLinkSegment.getId()] = new BPRLinkTravelTimeCost.BPRParameters(alphaMap, betaMap);
+        }
+
+        bprLinkTravelTimeCost.populate(bprLinkSegmentParameters);
+*/       
+		int numberOfLinkSegments = physicalNetwork.linkSegments.getNumberOfLinkSegments();
+	    Map<MacroscopicLinkSegment, Map<Long, Double>> alphaMapMap = new HashMap<MacroscopicLinkSegment, Map<Long, Double>>();
+	    Map<MacroscopicLinkSegment, Map<Long, Double>> betaMapMap = new HashMap<MacroscopicLinkSegment, Map<Long, Double>>();
+        Iterator<LinkSegment> iterator = physicalNetwork.linkSegments.iterator();
+        while (iterator.hasNext()) {
+        	MacroscopicLinkSegment macroscopiclinkSegment =  (MacroscopicLinkSegment) iterator.next();
+        	if (macroscopiclinkSegment.getLinkSegmentType().getLinkType() == 1) {
+        		Map<Long, Double> alphaMap = new HashMap<Long, Double>();
+        		alphaMap.put((long) 1, 0.5);
+        		alphaMap.put((long) 2, 0.8);
+        		alphaMapMap.put(macroscopiclinkSegment, alphaMap);
+        		Map<Long, Double> betaMap = new HashMap<Long, Double>();
+        		betaMap.put((long) 1, 4.0);
+        		betaMap.put((long) 2, 4.5);
+        		betaMapMap.put(macroscopiclinkSegment, betaMap);
+        	} else if (macroscopiclinkSegment.getLinkSegmentType().getLinkType() == 2) {
+        		Map<Long, Double> alphaMap = new HashMap<Long, Double>();
+        		alphaMap.put((long) 1, 0.5);
+        		alphaMap.put((long) 2, 0.0);
+        		alphaMapMap.put(macroscopiclinkSegment, alphaMap);
+        		Map<Long, Double> betaMap = new HashMap<Long, Double>();
+        		betaMap.put((long) 1, 4.0);
+        		betaMap.put((long) 2, 0.0);
+        		betaMapMap.put(macroscopiclinkSegment, betaMap);
+        	}
+        }
+        iterator = physicalNetwork.linkSegments.iterator();
+        BPRLinkTravelTimeCost.BPRParameters[] bprLinkSegmentParameters = BPRLinkTravelTimeCost.getBPRParameters(iterator,  numberOfLinkSegments, alphaMapMap,  betaMapMap);
+	    bprLinkTravelTimeCost.populate(bprLinkSegmentParameters);
+		
+		SpeedConnectoidTravelTimeCost speedConnectoidTravelTimeCost = (SpeedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName()); 		
+		MSASmoothing msaSmoothing = (MSASmoothing) taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());					
 		// SUPPLY-DEMAND INTERFACE
 		taBuilder.registerZoning(zoning);
 		
@@ -391,40 +396,16 @@ public class PlanItXmlTest{
 		
 		// "USER" configuration
 		if (maxIterations != null) {
-		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+			assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
 		}
 		if (epsilon != null) {
-		assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+			assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 		}
 		
 		project.executeAllTrafficAssignments();
 		SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMapFromFile = CsvIoUtils.createResultsMapFromCsvFile(resultsFileLocation);
 		SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMap = CsvIoUtils.createResultsMapFromCsvFile(TEST_RESULTS_LOCATION);
 		TestHelper.compareResultsToCsvFileContents(resultsMap, resultsMapFromFile);
-	}
-
-    private void runTest(String networkFileLocation, 
-							            String linkTypesFileLocation, 
-							            String modeFileLocation,
-							            String resultsFileLocation, 
-							            String zoningXmlFileLocation, 
-							            String demandXmlFileLocation, 
-							            String networkXmlFileLocation,
-								        String zoningXsdFileLocation,
-								        String demandXsdFileLocation,
-								        String supplyXsdFileLocation) throws Exception {
-		runTest(networkFileLocation, 
-					 linkTypesFileLocation, 
-					 modeFileLocation, 
-					 resultsFileLocation, 
-					 zoningXmlFileLocation, 
-					 demandXmlFileLocation, 
-					 networkXmlFileLocation,
-			         zoningXsdFileLocation,
-			         demandXsdFileLocation,
-			         supplyXsdFileLocation, 
-					 null, 
-					 null);
-	}
+    }
 
 }
