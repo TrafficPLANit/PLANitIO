@@ -71,18 +71,11 @@ public class PlanItXml implements InputBuilderListener  {
     
     private int noCentroids;
     private Map<Integer, BasicCsvMacroscopicLinkSegmentType> linkSegmentTypeMap;
-    private Map<MacroscopicLinkSegment, Map<Long, Double>> alphaMapMap;
-    private Map<MacroscopicLinkSegment, Map<Long, Double>> betaMapMap;
     private Map<Integer, Mode> modeMap;
     private LinkSegments linkSegments;
     private Nodes nodes;
     private Zoning.Zones zones;
 	
-    /**
-     * the number of parsed link segments
-     */
-    private int numberOfLinkSegments;
-    
  /**
   * Constructor which reads in the XML input files 
   * 
@@ -160,8 +153,6 @@ public class PlanItXml implements InputBuilderListener  {
                 populateZoning((Zoning) projectComponent); 
             } else if (projectComponent instanceof Demands) {
                 populateDemands((Demands) projectComponent); 
-//            } else if (projectComponent instanceof BPRLinkTravelTimeCost) {
-//                populateBprParameters((BPRLinkTravelTimeCost) projectComponent); //place parameters on the BPR cost component
             } else {
                 LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName() + " which is not handled by BascCsvScan");
             }
@@ -190,7 +181,7 @@ public class PlanItXml implements InputBuilderListener  {
     }
 
 /**
- * Registers a new link segment in the physical network and stores the alpha and beta values for the link
+ * Registers a new link segment in the physical network
  * 
  * @param network                      the physical network object
  * @param link                             the link from which the link segment will be created
@@ -199,7 +190,6 @@ public class PlanItXml implements InputBuilderListener  {
  * @param noLanes                      the number of lanes in this link
  * @throws PlanItException          thrown if there is an error
  */
-    //private void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
     private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
         
         //create the link and store it in the network object
@@ -211,9 +201,6 @@ public class PlanItXml implements InputBuilderListener  {
         linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
         network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
         
-        //store the alpha and beta values for the link
-        //alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
-        //betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
         return linkSegment;
     }
 
@@ -284,6 +271,7 @@ public class PlanItXml implements InputBuilderListener  {
         	Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
         	Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
         	modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
+        	network.setNoModes(modeMap.keySet().size());
         	//TODO - finish ProcessLinkConfiguration.createLinkSegmentTypeMap() which goes here
         } catch (Exception ex) {
             throw new PlanItException(ex);
@@ -291,8 +279,7 @@ public class PlanItXml implements InputBuilderListener  {
 
         //modeMap = getModes();       
         linkSegmentTypeMap = createLinkSegmentTypeMap();
-        alphaMapMap = new HashMap<MacroscopicLinkSegment, Map<Long, Double>>();
-        betaMapMap = new HashMap<MacroscopicLinkSegment, Map<Long, Double>>();
+        network.setNoLinkSegmentTypes(linkSegmentTypeMap.keySet().size());
     
         try (Reader in = new FileReader(networkFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
@@ -310,17 +297,11 @@ public class PlanItXml implements InputBuilderListener  {
                 Link link = network.links.registerNewLink(startNode, endNode, length);
                 if ((linkDirection == ONE_WAY_AB)  ||  (linkDirection == TWO_WAY)) {
                 	MacroscopicLinkSegment linkSegment = generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);
-                    alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
-                    betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
                }
                 // Generate B->A direction link segment
                 if ((linkDirection == ONE_WAY_BA)  ||  (linkDirection == TWO_WAY)) {
                 	MacroscopicLinkSegment linkSegment = generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes);
-                    alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
-                    betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
                 }
-                //alphaMapMap.put(linkSegment, linkSegmentType.getAlphaMap());
-                //betaMapMap.put(linkSegment, linkSegmentType.getBetaMap());
             }
             in.close();
         } catch (Exception ex) {
@@ -328,7 +309,6 @@ public class PlanItXml implements InputBuilderListener  {
         }
         linkSegments = network.linkSegments;
         nodes = network.nodes;
-        numberOfLinkSegments = network.linkSegments.getNumberOfLinkSegments();
     }
     
 /**
@@ -406,34 +386,4 @@ public class PlanItXml implements InputBuilderListener  {
         }
     }
     
-/**
- * Populate the BPR parameters object from data which has previously been read in from the route types file
- * 
- * @param costComponent         the BPR travel time cost object to be populated
- * @throws PlanItException         thrown if the alpha and beta parameters have not already been stored
- */
-    public void populateBprParameters(@Nonnull BPRLinkTravelTimeCost costComponent) throws PlanItException {
-        LOGGER.info("Populating BPR Parameters");  
-
-        try {
-            if (numberOfLinkSegments <= 0) {
-                throw new PlanItException("Cannot populate BPR parameters before physical network has been parsed");
-            }
-            if (alphaMapMap.keySet().isEmpty()) {
-                throw new PlanItException("Alpha parameters have not been set - should have been read in from the route types file");
-            }
-            if (betaMapMap.keySet().isEmpty()) {
-                throw new PlanItException("Beta parameters have not been set - should have been read in from the route types file");
-            }
-            Iterator<LinkSegment> iterator = linkSegments.iterator();
-            BPRLinkTravelTimeCost.BPRParameters[] bprLinkSegmentParameters = BPRLinkTravelTimeCost.getBPRParameters(iterator,  numberOfLinkSegments, alphaMapMap,  betaMapMap);
-
-            costComponent.populate(bprLinkSegmentParameters);
-
-        } catch (PlanItException e) {
-            throw new PlanItException(e);
-        }
-
-    }
-
 }
