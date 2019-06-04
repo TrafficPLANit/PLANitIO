@@ -264,7 +264,7 @@ public class PlanItXmlTest{
             fail(e.getMessage());
         } 
     }
-
+    
    @Test
     public void testRouteChoice5() {
         try {

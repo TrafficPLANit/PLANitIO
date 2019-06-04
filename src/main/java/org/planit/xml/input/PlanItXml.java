@@ -3,7 +3,6 @@ package org.planit.xml.input;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -12,16 +11,12 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.planit.basiccsv.network.physical.macroscopic.BasicCsvMacroscopicLinkSegmentType;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.Link;
-import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.Node;
-import org.planit.network.physical.PhysicalNetwork.LinkSegments;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
@@ -32,6 +27,7 @@ import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
 import org.planit.xml.demands.UpdateDemands;
 import org.planit.xml.network.ProcessLinkConfiguration;
+import org.planit.xml.network.physical.macroscopic.XmlMacroscopicLinkSegmentType;
 import org.planit.xml.process.XmlProcessor;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
@@ -70,9 +66,8 @@ public class PlanItXml implements InputBuilderListener  {
     private String networkXmlFileLocation;
     
     private int noCentroids;
-    private Map<Integer, BasicCsvMacroscopicLinkSegmentType> linkSegmentTypeMap;
+    private Map<Integer, XmlMacroscopicLinkSegmentType> linkSegmentTypeMap;
     private Map<Integer, Mode> modeMap;
-    private LinkSegments linkSegments;
     private Nodes nodes;
     private Zoning.Zones zones;
 	
@@ -190,14 +185,13 @@ public class PlanItXml implements InputBuilderListener  {
  * @param noLanes                      the number of lanes in this link
  * @throws PlanItException          thrown if there is an error
  */
-    private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, BasicCsvMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
+    private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection, XmlMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
         
         //create the link and store it in the network object
         MacroscopicLinkSegment linkSegment =  (MacroscopicLinkSegment) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
         linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
         linkSegment.setNumberOfLanes(noLanes);
-        MacroscopicLinkSegmentType macroscopicLinkSegmentType = 
-        		network.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(), linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getLinkType(), null).getFirst();
+        MacroscopicLinkSegmentType macroscopicLinkSegmentType = network.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(), linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getLinkType(), null).getFirst();
         linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
         network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
         
@@ -210,10 +204,10 @@ public class PlanItXml implements InputBuilderListener  {
  * @return                                    Map containing link type values
  * @throws PlanItException         thrown if there is an error reading the input file
  */
-    private Map<Integer, BasicCsvMacroscopicLinkSegmentType> createLinkSegmentTypeMap() throws PlanItException {
+    private Map<Integer, XmlMacroscopicLinkSegmentType> createLinkSegmentTypeMap() throws PlanItException {
         double maximumDensity = Double.POSITIVE_INFINITY;
-        BasicCsvMacroscopicLinkSegmentType.reset();
-        Map<Integer, BasicCsvMacroscopicLinkSegmentType> linkSegmentMap = new HashMap<Integer, BasicCsvMacroscopicLinkSegmentType>();
+        XmlMacroscopicLinkSegmentType.reset();
+        Map<Integer, XmlMacroscopicLinkSegmentType> linkSegmentMap = new HashMap<Integer, XmlMacroscopicLinkSegmentType>();
         try (Reader in = new FileReader(linkTypesFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
             for (CSVRecord record : records) {
@@ -231,21 +225,19 @@ public class PlanItXml implements InputBuilderListener  {
                 if  ((modeId != 0) && (!modeMap.containsKey(modeId))) {
                     throw new PlanItException("Mode Id " + modeId + " found in link types file but not in modes definition file");
                 }
-                double alpha = Double.parseDouble(record.get("Alpha"));
-                double beta = Double.parseDouble(record.get("Beta"));
-                BasicCsvMacroscopicLinkSegmentType linkSegmentType = BasicCsvMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, alpha, beta, modeId,  modeMap, type);
+                XmlMacroscopicLinkSegmentType linkSegmentType = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, modeId,  modeMap, type);
                 linkSegmentMap.put(type, linkSegmentType);
             }
             in.close();
             
             //If a mode is missing for a link type, set the speed to zero for vehicles of this type in this link type, meaning they are forbidden
             for (Integer linkType : linkSegmentMap.keySet()) {
-                BasicCsvMacroscopicLinkSegmentType linkSegmentType = linkSegmentMap.get(linkType);
+            	XmlMacroscopicLinkSegmentType linkSegmentType = linkSegmentMap.get(linkType);
                 for (Mode mode : modeMap.values()) {
                     long modeId = mode.getId();
                     if (!linkSegmentType.getSpeedMap().containsKey(modeId)) {
                         LOGGER.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName() + ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
-                        BasicCsvMacroscopicLinkSegmentType linkSegmentTypeNew = BasicCsvMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, maximumDensity, 0.0, 0.0, 0.0, (int) modeId,  modeMap, linkType);
+                        XmlMacroscopicLinkSegmentType linkSegmentTypeNew = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, maximumDensity, 0.0, (int) modeId,  modeMap, linkType);
                         linkSegmentMap.put(linkType, linkSegmentTypeNew);
                     }
                 }
@@ -277,7 +269,6 @@ public class PlanItXml implements InputBuilderListener  {
             throw new PlanItException(ex);
         }
 
-        //modeMap = getModes();       
         linkSegmentTypeMap = createLinkSegmentTypeMap();
         network.setNoLinkSegmentTypes(linkSegmentTypeMap.keySet().size());
     
@@ -293,21 +284,20 @@ public class PlanItXml implements InputBuilderListener  {
                 if (!linkSegmentTypeMap.containsKey(linkType)) {
                     throw new PlanItException("Link type " + linkType + " found in " + networkFileLocation + " but not in " + linkTypesFileLocation);
                 }
-                BasicCsvMacroscopicLinkSegmentType linkSegmentType = linkSegmentTypeMap.get(linkType);
+                 XmlMacroscopicLinkSegmentType linkSegmentType = linkSegmentTypeMap.get(linkType);
                 Link link = network.links.registerNewLink(startNode, endNode, length);
                 if ((linkDirection == ONE_WAY_AB)  ||  (linkDirection == TWO_WAY)) {
-                	MacroscopicLinkSegment linkSegment = generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);
+                	generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);
                }
                 // Generate B->A direction link segment
                 if ((linkDirection == ONE_WAY_BA)  ||  (linkDirection == TWO_WAY)) {
-                	MacroscopicLinkSegment linkSegment = generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes);
+                	generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes);
                 }
             }
             in.close();
         } catch (Exception ex) {
             throw new PlanItException(ex);
         }
-        linkSegments = network.linkSegments;
         nodes = network.nodes;
     }
     
