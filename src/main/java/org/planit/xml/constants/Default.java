@@ -25,6 +25,8 @@ public class Default {
 	public static final String SEPARATOR = ",";
 	
 	public static CoordinateReferenceSystem COORDINATE_REFERENCE_SYSTEM;
+	public static final float LANE_CAPACITY = 1800.0f;
+	public static final float MAXIMUM_LANE_DENSITY = 180.0f;
 
     static {
     	COORDINATE_REFERENCE_SYSTEM = new DefaultGeographicCRS(DefaultGeographicCRS.WGS84);

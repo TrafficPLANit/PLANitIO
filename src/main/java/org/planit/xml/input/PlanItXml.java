@@ -221,11 +221,11 @@ public class PlanItXml implements InputBuilderListener  {
                 } else {
                    capacity = 0.0;
                 }
-                int modeId = Integer.parseInt(record.get("Mode"));
-                if  ((modeId != 0) && (!modeMap.containsKey(modeId))) {
-                    throw new PlanItException("Mode Id " + modeId + " found in link types file but not in modes definition file");
+                int modeExternalId = Integer.parseInt(record.get("Mode"));
+                if  ((modeExternalId != 0) && (!modeMap.containsKey(modeExternalId))) {
+                    throw new PlanItException("Mode Id " + modeExternalId + " found in link types file but not in modes definition file");
                 }
-                XmlMacroscopicLinkSegmentType linkSegmentType = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, modeId,  modeMap, type);
+                XmlMacroscopicLinkSegmentType linkSegmentType = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, modeExternalId,  modeMap, type);
                 linkSegmentMap.put(type, linkSegmentType);
             }
             in.close();
@@ -234,10 +234,10 @@ public class PlanItXml implements InputBuilderListener  {
             for (Integer linkType : linkSegmentMap.keySet()) {
             	XmlMacroscopicLinkSegmentType linkSegmentType = linkSegmentMap.get(linkType);
                 for (Mode mode : modeMap.values()) {
-                    long modeId = mode.getId();
-                    if (!linkSegmentType.getSpeedMap().containsKey(modeId)) {
+                    long modeExternalId = mode.getExternalId();
+                    if (!linkSegmentType.getSpeedMap().containsKey(modeExternalId)) {
                         LOGGER.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName() + ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
-                        XmlMacroscopicLinkSegmentType linkSegmentTypeNew = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, maximumDensity, 0.0, (int) modeId,  modeMap, linkType);
+                        XmlMacroscopicLinkSegmentType linkSegmentTypeNew = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, maximumDensity, 0.0, modeExternalId,  modeMap, linkType);
                         linkSegmentMap.put(linkType, linkSegmentTypeNew);
                     }
                 }
@@ -263,14 +263,12 @@ public class PlanItXml implements InputBuilderListener  {
         	Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
         	Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
         	modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
-        	network.setNoModes(modeMap.keySet().size());
         	//TODO - finish ProcessLinkConfiguration.createLinkSegmentTypeMap() which goes here
         } catch (Exception ex) {
             throw new PlanItException(ex);
         }
 
         linkSegmentTypeMap = createLinkSegmentTypeMap();
-        network.setNoLinkSegmentTypes(linkSegmentTypeMap.keySet().size());
     
         try (Reader in = new FileReader(networkFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
@@ -361,14 +359,14 @@ public class PlanItXml implements InputBuilderListener  {
         try (Reader in = new FileReader(modeFileLocation)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
             for (CSVRecord record : records) {
-                int modeId = Integer.parseInt(record.get("Mode"));
-                if (modeId == 0) {
+                int modeExternalId = Integer.parseInt(record.get("Mode"));
+                if ( modeExternalId == 0) {
                     throw new PlanItException("Found a Mode value of 0 in the modes definition file, this is prohibited");
                 }
                 String name = record.get("Name");
                 double pcu = Double.parseDouble(record.get("PCU"));
-                Mode mode = new Mode(modeId, name, pcu);
-                modeMap.put(modeId, mode);
+                Mode mode = new Mode(modeExternalId, name, pcu);
+				modeMap.put(modeExternalId, mode);
             }
             return modeMap;
         } catch (Exception ex) {

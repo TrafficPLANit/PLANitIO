@@ -14,6 +14,8 @@ import org.planit.generated.Linkconfiguration;
 import org.planit.generated.Linksegmenttypes;
 import org.planit.generated.Modes;
 import org.planit.userclass.Mode;
+import org.planit.xml.constants.Default;
+import org.planit.xml.network.physical.macroscopic.XmlMacroscopicLinkSegmentType;
 
 public class ProcessLinkConfiguration {
 
@@ -44,14 +46,15 @@ public class ProcessLinkConfiguration {
 	 * @throws PlanItException         thrown if there is an error reading the input file
 	 */
 /*
-	 public static Map<Integer, BasicCsvMacroscopicLinkSegmentType> createLinkSegmentTypeMap(Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
-	     double maximumDensity = Double.POSITIVE_INFINITY;
-	     BasicCsvMacroscopicLinkSegmentType.reset();
-	     Map<Integer, BasicCsvMacroscopicLinkSegmentType> linkSegmentMap = new HashMap<Integer, BasicCsvMacroscopicLinkSegmentType>();
+	 public static Map<Integer, XmlMacroscopicLinkSegmentType> createLinkSegmentTypeMap(Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
+	     //double maximumDensity = Double.POSITIVE_INFINITY;
+	     XmlMacroscopicLinkSegmentType.reset();
+	     Map<Integer, XmlMacroscopicLinkSegmentType> linkSegmentMap = new HashMap<Integer, XmlMacroscopicLinkSegmentType>();
 	     for (Linksegmenttypes.Linksegmenttype linkSegmentType : linkconfiguration.getLinksegmenttypes().getLinksegmenttype()) {
 	    	 int type = linkSegmentType.getId().intValue();
 	    	 String name = linkSegmentType.getName();
-	    	 Float capacity = (linkSegmentType.getCapacitylane() == null) ? 0.0f : linkSegmentType.getCapacitylane();
+	    	 Float capacity = (linkSegmentType.getCapacitylane() == null) ? Default.LANE_CAPACITY : linkSegmentType.getCapacitylane();
+	    	 Float maximumDensity = (linkSegmentType.getMaxdensitylane() == null) ? Default.MAXIMUM_LANE_DENSITY : linkSegmentType.getMaxdensitylane();
 	     }
 	     
 	     
@@ -72,21 +75,19 @@ public class ProcessLinkConfiguration {
 	             if  ((modeId != 0) && (!modeMap.containsKey(modeId))) {
 	                 throw new PlanItException("Mode Id " + modeId + " found in link types file but not in modes definition file");
 	             }
-	             double alpha = Double.parseDouble(record.get("Alpha"));
-	             double beta = Double.parseDouble(record.get("Beta"));
-	             BasicCsvMacroscopicLinkSegmentType linkSegmentType = BasicCsvMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, alpha, beta, modeId,  modeMap, type);
+	             XmlMacroscopicLinkSegmentType linkSegmentType = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, modeId,  modeMap, type);
 	             linkSegmentMap.put(type, linkSegmentType);
 	         }
 	         in.close();
 	         
 	         //If a mode is missing for a link type, set the speed to zero for vehicles of this type in this link type, meaning they are forbidden
 	         for (Integer linkType : linkSegmentMap.keySet()) {
-	             BasicCsvMacroscopicLinkSegmentType linkSegmentType = linkSegmentMap.get(linkType);
+	             XmlMacroscopicLinkSegmentType linkSegmentType = linkSegmentMap.get(linkType);
 	             for (Mode mode : modeMap.values()) {
 	                 long modeId = mode.getId();
 	                 if (!linkSegmentType.getSpeedMap().containsKey(modeId)) {
 	                     LOGGER.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName() + ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
-	                     BasicCsvMacroscopicLinkSegmentType linkSegmentTypeNew = BasicCsvMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, maximumDensity, 0.0, 0.0, 0.0, (int) modeId,  modeMap, linkType);
+	                     XmlMacroscopicLinkSegmentType linkSegmentTypeNew = XmlMacroscopicLinkSegmentType.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, maximumDensity, 0.0, (int) modeId,  modeMap, linkType);
 	                     linkSegmentMap.put(linkType, linkSegmentTypeNew);
 	                 }
 	             }
