@@ -86,9 +86,7 @@ public class XmlMacroscopicLinkSegmentType {
 	 *         data from current row in the XML file
 	 */
 	public static XmlMacroscopicLinkSegmentType createOrUpdateLinkSegmentType(String name, double capacityPerLane,
-			double maximumDensityPerLane, double speed,
-			// int modeNo,
-			long modeExternalId, Map<Integer, Mode> modeMap, int linkType) {
+			double maximumDensityPerLane, double speed, long modeExternalId, Map<Integer, Mode> modeMap, int linkType) {
 		XmlMacroscopicLinkSegmentType linkSegmentType;
 		if (!existingLinks.containsKey(linkType)) {
 			if (capacityPerLane == 0.0) {
@@ -113,13 +111,11 @@ public class XmlMacroscopicLinkSegmentType {
 				linkSegmentType.setMaximumDensityPerLane(maximumDensityPerLane);
 			}
 		}
-		// if (modeNo == 0) {
 		if (modeExternalId == 0) {
 			modeMap.keySet().forEach(eachModeNo -> {
 				updateLinkSegmentType(linkSegmentType, modeMap, eachModeNo, speed, linkType);
 			});
 		} else {
-			// updateLinkSegmentType(linkSegmentType, modeMap, modeNo, speed, linkType);
 			updateLinkSegmentType(linkSegmentType, modeMap, modeExternalId, speed, linkType);
 		}
 		return linkSegmentType;

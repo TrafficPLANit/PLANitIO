@@ -283,46 +283,46 @@ public class PlanItXmlTest {
 
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, Consumer<BPRLinkTravelTimeCost> consumer) throws Exception {
+			String networkXmlFileLocation, Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		runTest(networkFileLocation, linkTypesFileLocation, modeFileLocation, resultsFileLocation,
-				zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, null, null, consumer);
+				zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, null, null, setCostParameters);
 	}
 
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, Integer maxIterations, Double epsilon,
-			Consumer<BPRLinkTravelTimeCost> consumer) throws Exception {
+			Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, linkTypesFileLocation,
 				modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
-		runTestFrominputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon, consumer);
+		runTestFrominputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon, setCostParameters);
 	}
 
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
-			String supplyXsdFileLocation, Consumer<BPRLinkTravelTimeCost> consumer) throws Exception {
+			String supplyXsdFileLocation, Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		runTest(networkFileLocation, linkTypesFileLocation, modeFileLocation, resultsFileLocation,
 				zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, zoningXsdFileLocation,
-				demandXsdFileLocation, supplyXsdFileLocation, null, null, consumer);
+				demandXsdFileLocation, supplyXsdFileLocation, null, null, setCostParameters);
 	}
 
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
 			String networkXsdFileLocation, Integer maxIterations, Double epsilon,
-			Consumer<BPRLinkTravelTimeCost> consumer) throws Exception {
+			Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, linkTypesFileLocation,
 				modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation,
 				zoningXsdFileLocation, demandXsdFileLocation, networkXsdFileLocation);
-		runTestFrominputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon, consumer);
+		runTestFrominputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon, setCostParameters);
 	}
 
 	private void runTestFrominputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
-			Integer maxIterations, Double epsilon, Consumer<BPRLinkTravelTimeCost> consumer) throws PlanItException {
+			Integer maxIterations, Double epsilon, Consumer<BPRLinkTravelTimeCost> setCostParameters) throws PlanItException {
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 
 		// RAW INPUT START --------------------------------
@@ -343,8 +343,9 @@ public class PlanItXmlTest {
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
-		consumer.accept(bprLinkTravelTimeCost);
-		bprLinkTravelTimeCost.update(physicalNetwork);
+		setCostParameters.accept(bprLinkTravelTimeCost);
+		//TODO  - move call to registerCostParameters() to the TrafficAssignment.execute() after changes to reading of alpha and beta in BasicCsvScan have been made
+		physicalNetwork.registerCostParameters(bprLinkTravelTimeCost);
 		SpeedConnectoidTravelTimeCost speedConnectoidTravelTimeCost = (SpeedConnectoidTravelTimeCost) taBuilder
 				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
 		MSASmoothing msaSmoothing = (MSASmoothing) taBuilder
