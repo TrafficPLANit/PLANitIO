@@ -1,4 +1,4 @@
-Type,Name,Mode,Speed,Capacity,Alpha,Beta
-1,Standard,1,60,,0.5,4
-1,,2,50,1200,0.8,4.5
-2,NoTrucks,1,60,1200,0.5,4
+Type,Name,Mode,Speed,Capacity
+1,Standard,1,60,
+1,,2,50,1200
+2,NoTrucks,1,60,1200

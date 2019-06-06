@@ -327,10 +327,6 @@ public class PlanItXmlTest {
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
 		setCostParameters.accept(bprLinkTravelTimeCost);
-		// TODO - move call to updateCostParameters() to the
-		// TradiitonalStaticAssignment.initialiseBeforeEquilibration() after changes to
-		// reading of alpha and beta in BasicCsvScan have been made
-		bprLinkTravelTimeCost.updateCostParameters(physicalNetwork);
 		SpeedConnectoidTravelTimeCost speedConnectoidTravelTimeCost = (SpeedConnectoidTravelTimeCost) taBuilder
 				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
 		MSASmoothing msaSmoothing = (MSASmoothing) taBuilder
