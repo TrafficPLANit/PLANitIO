@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -43,19 +43,19 @@ public class PlanItXmlTest {
 	private String zoningXsdFileLocation;
 	private String demandXsdFileLocation;
 	private String networkXsdFileLocation;
-	private BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> standardConsumer;
-	private BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> zeroConsumer;
+	private Consumer<BPRLinkTravelTimeCost> standardConsumer;
+	private Consumer<BPRLinkTravelTimeCost> zeroConsumer;
 
 	@Before
 	public void setUp() throws Exception {
 		zoningXsdFileLocation = "src\\main\\resources\\schemas\\macroscopiczoninginput.xsd";
 		demandXsdFileLocation = "src\\main\\resources\\schemas\\macroscopicdemandinput.xsd";
 		networkXsdFileLocation = "src\\main\\resources\\schemas\\macroscopicnetworkinput.xsd";
-		standardConsumer = (physicalNetwork, bprLinkTravelTimeCost) -> {
-			bprLinkTravelTimeCost.setDefaultParameters(physicalNetwork, 0.5, 4.0);
+		standardConsumer = (bprLinkTravelTimeCost) -> {
+			bprLinkTravelTimeCost.setDefaultParameters(0.5, 4.0);
 		};
-		zeroConsumer = (physicalNetwork, bprLinkTravelTimeCost) -> {
-			bprLinkTravelTimeCost.setDefaultParameters(physicalNetwork, 0.0, 0.0);
+		zeroConsumer = (bprLinkTravelTimeCost) -> {
+			bprLinkTravelTimeCost.setDefaultParameters(0.0, 0.0);
 		};
 	}
 
@@ -251,9 +251,9 @@ public class PlanItXmlTest {
 					"src\\test\\resources\\route_choice\\xml\\test5\\zones.xml",
 					"src\\test\\resources\\route_choice\\xml\\test5\\demands.xml",
 					"src\\test\\resources\\route_choice\\xml\\test5\\network.xml", 500, 0.0,
-					(physicalNetwork, bprLinkTravelTimeCost) -> {
-						standardConsumer.accept(physicalNetwork, bprLinkTravelTimeCost);
-						bprLinkTravelTimeCost.setParameters(1, 2, 0.8, 4.5);
+					(bprLinkTravelTimeCost) -> {
+						standardConsumer.accept(bprLinkTravelTimeCost);
+						bprLinkTravelTimeCost.setDefaultParameters(1, 2, 0.8, 4.5);
 					});
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -263,8 +263,7 @@ public class PlanItXmlTest {
 
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters)
-			throws Exception {
+			String networkXmlFileLocation, Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		runTest(networkFileLocation, linkTypesFileLocation, modeFileLocation, resultsFileLocation,
 				zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, null, null, setCostParameters);
 	}
@@ -272,7 +271,7 @@ public class PlanItXmlTest {
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters) throws Exception {
+			Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, linkTypesFileLocation,
@@ -284,8 +283,7 @@ public class PlanItXmlTest {
 	private void runTest(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
-			String supplyXsdFileLocation, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters)
-			throws Exception {
+			String supplyXsdFileLocation, Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		runTest(networkFileLocation, linkTypesFileLocation, modeFileLocation, resultsFileLocation,
 				zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, zoningXsdFileLocation,
 				demandXsdFileLocation, supplyXsdFileLocation, null, null, setCostParameters);
@@ -295,7 +293,7 @@ public class PlanItXmlTest {
 			String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
 			String networkXsdFileLocation, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters) throws Exception {
+			Consumer<BPRLinkTravelTimeCost> setCostParameters) throws Exception {
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXml(networkFileLocation, linkTypesFileLocation,
@@ -306,7 +304,7 @@ public class PlanItXmlTest {
 	}
 
 	private void runTestFrominputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
-			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters)
+			Integer maxIterations, Double epsilon, Consumer<BPRLinkTravelTimeCost> setCostParameters)
 			throws PlanItException {
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 
@@ -328,7 +326,7 @@ public class PlanItXmlTest {
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
-		setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
+		setCostParameters.accept(bprLinkTravelTimeCost);
 		// TODO - move call to updateCostParameters() to the
 		// TradiitonalStaticAssignment.initialiseBeforeEquilibration() after changes to
 		// reading of alpha and beta in BasicCsvScan have been made
