@@ -22,7 +22,7 @@
         	</linksegmenttype>
         	<linksegmenttype id="2">
 				<name>Capacity2000</name>													<!-- optional -->
-				<capacitylane>1200</capacitylane>										<!-- optional, has default -->
+				<capacitylane>2000</capacitylane>										<!-- optional, has default -->
 				<modes>
 					<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode is assumed to be banned from the link segment -->
 						<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
@@ -31,7 +31,7 @@
         	</linksegmenttype>
         	<linksegmenttype id="3">
 				<name>Capacity2500</name>													<!-- optional -->
-				<capacitylane>1200</capacitylane>										<!-- optional, has default -->
+				<capacitylane>2500</capacitylane>										<!-- optional, has default -->
 				<modes>
 					<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode is assumed to be banned from the link segment -->
 						<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
