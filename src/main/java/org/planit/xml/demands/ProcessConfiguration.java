@@ -13,7 +13,7 @@ import org.planit.generated.Userclasses;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravellerType;
 import org.planit.userclass.UserClass;
-import org.planit.xml.constants.Default;
+import org.planit.constants.Default;
 
 /**
  * Methods to generate and store PLANit configuration objects from the configuration object in the XML demand input file.

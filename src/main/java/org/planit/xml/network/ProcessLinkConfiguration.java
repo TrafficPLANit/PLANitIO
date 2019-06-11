@@ -9,7 +9,7 @@ import org.planit.generated.Linkconfiguration;
 import org.planit.generated.Linksegmenttypes;
 import org.planit.generated.Modes;
 import org.planit.userclass.Mode;
-import org.planit.xml.constants.Default;
+import org.planit.constants.Default;
 import org.planit.xml.network.physical.macroscopic.XmlMacroscopicLinkSegmentType;
 
 public class ProcessLinkConfiguration {

@@ -13,7 +13,7 @@ import org.planit.geo.PlanitGeoUtils;
 import org.planit.network.physical.Node;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.virtual.Centroid;
-import org.planit.xml.constants.Default;
+import org.planit.constants.Default;
 import org.planit.zoning.Zoning;
 
 import com.vividsolutions.jts.geom.Coordinate;

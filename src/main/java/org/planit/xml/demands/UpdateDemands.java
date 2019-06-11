@@ -17,7 +17,7 @@ import org.planit.generated.Odrawmatrix.Values;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
-import org.planit.xml.constants.Default;
+import org.planit.constants.Default;
 import org.planit.zoning.Zoning.Zones;
 
 /**

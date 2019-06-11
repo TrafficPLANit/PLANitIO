@@ -193,7 +193,7 @@ public class PlanItXml implements InputBuilderListener {
 		linkSegment.setNumberOfLanes(noLanes);
 		MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
 				.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getLinkType(), null)
+						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getLinkTypeExternalId(), null)
 				.getFirst();
 		linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
 		network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);

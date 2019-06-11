@@ -167,7 +167,7 @@ public class XmlMacroscopicLinkSegmentType {
 		return speedMap;
 	}
 
-	public int getLinkType() {
+	public int getLinkTypeExternalId() {
 		return linkType;
 	}
 
