@@ -73,8 +73,8 @@ public class UpdateDemands {
 			int timePeriodId = odmatrix.getTimeperiodref().intValue();
 			int userClassId = (odmatrix.getUserclassref() == null) ? Default.USER_CLASS_ID.intValue()
 					: odmatrix.getUserclassref().intValue();
-			int modeExternalId = (int) UserClass.getById(userClassId).getModeExternalId();
-			Mode mode = modeMap.get(modeExternalId);
+			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
+			Mode mode = modeMap.get(externalId);
 			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
 			MatrixDemand demandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
 			updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), demandMatrix, zones);
@@ -171,7 +171,7 @@ public class UpdateDemands {
 	/**
 	 * Update the demand matrix object from a generated OD raw matrix
 	 * 
-	 * @param odrowmatrix  Odrawmatrix object generated from the input XML
+	 * @param odrawmatrix  Odrawmatrix object generated from the input XML
 	 * @param pcu          number of PCUs for current mode of travel
 	 * @param matrixDemand MatrixDemand object to be updated
 	 * @param zones        zones in the current network

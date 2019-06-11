@@ -8,6 +8,7 @@ import org.planit.demand.Demands;
 import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.OutputConfiguration;
@@ -18,6 +19,7 @@ import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
+import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
 import org.planit.xml.input.PlanItXml;
 import org.planit.zoning.Zoning;
@@ -36,11 +38,11 @@ public class PlanItXmlMain {
     
     private String networkFileLocation =       "src\\test\\resources\\route_choice\\xml\\test5\\network.csv"; 
     private String linkTypesFileLocation =      "src\\test\\resources\\route_choice\\xml\\test5\\link_types.csv";
-    private String modeFileLocation =            "src\\test\\resources\\route_choicexml\\test5\\modes.csv";
-    private String resultsFileLocation =          "src\\test\\resources\\route_choicexml\\test5\\results.csv";
-    private String zoningXmlFileLocation =     "src\\test\\resources\\route_choicexml\\test5\\zones.xml";
-    private String demandXmlFileLocation =  "src\\test\\resources\\route_choicexml\\test5\\demands.xml";
-    private String networkXmlFileLocation =  "src\\test\\resources\\route_choicexml\\test5\\network.xml";
+    private String modeFileLocation =            "src\\test\\resources\\route_choice\\xml\\test5\\modes.csv";
+    private String resultsFileLocation =          "src\\test\\resources\\route_choice\\xml\\test5\\results.csv";
+    private String zoningXmlFileLocation =     "src\\test\\resources\\route_choice\\xml\\test5\\zones.xml";
+    private String demandXmlFileLocation =  "src\\test\\resources\\route_choice\\xml\\test5\\demands.xml";
+    private String networkXmlFileLocation =  "src\\test\\resources\\route_choice\\xml\\test5\\network.xml";
     private int maxIterations = 500;
     private double epsilon = 0.00;
 	
@@ -93,7 +95,11 @@ public class PlanItXmlMain {
 		// SUPPLY SIDE
 		taBuilder.registerPhysicalNetwork(physicalNetwork);								
 		// SUPPLY-DEMAND INTERACTIONS
-		taBuilder.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+		MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
+		MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork.findMacroscopicLinkSegmentTypeByExternalId(1);
+		Mode mode = Mode.getByExternalId(2);
+		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName()); 		
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());					
 		// SUPPLY-DEMAND INTERFACE

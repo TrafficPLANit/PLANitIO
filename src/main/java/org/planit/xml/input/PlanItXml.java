@@ -27,7 +27,7 @@ import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
 import org.planit.xml.demands.UpdateDemands;
 import org.planit.xml.network.ProcessLinkConfiguration;
-import org.planit.xml.network.physical.macroscopic.XmlMacroscopicLinkSegmentType;
+import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.xml.process.XmlProcessor;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
@@ -66,7 +66,7 @@ public class PlanItXml implements InputBuilderListener {
 	private String networkXmlFileLocation;
 
 	private int noCentroids;
-	private Map<Integer, XmlMacroscopicLinkSegmentType> linkSegmentTypeMap;
+	private Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap;
 	private Map<Integer, Mode> modeMap;
 	private Nodes nodes;
 	private Zoning.Zones zones;
@@ -184,7 +184,7 @@ public class PlanItXml implements InputBuilderListener {
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link,
-			boolean abDirection, XmlMacroscopicLinkSegmentType linkSegmentType, int noLanes) throws PlanItException {
+			boolean abDirection, MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes) throws PlanItException {
 
 		// create the link and store it in the network object
 		MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) network.linkSegments
@@ -193,7 +193,7 @@ public class PlanItXml implements InputBuilderListener {
 		linkSegment.setNumberOfLanes(noLanes);
 		MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
 				.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getLinkTypeExternalId(), null)
+						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), null)
 				.getFirst();
 		linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
 		network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
@@ -236,7 +236,7 @@ public class PlanItXml implements InputBuilderListener {
 					throw new PlanItException("Link type " + linkType + " found in " + networkFileLocation
 							+ " but not in " + linkTypesFileLocation);
 				}
-				XmlMacroscopicLinkSegmentType linkSegmentType = linkSegmentTypeMap.get(linkType);
+				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
 				Link link = network.links.registerNewLink(startNode, endNode, length);
 				if ((linkDirection == ONE_WAY_AB) || (linkDirection == TWO_WAY)) {
 					generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);

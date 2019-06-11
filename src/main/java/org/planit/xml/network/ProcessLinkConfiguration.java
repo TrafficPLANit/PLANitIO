@@ -10,7 +10,7 @@ import org.planit.generated.Linksegmenttypes;
 import org.planit.generated.Modes;
 import org.planit.userclass.Mode;
 import org.planit.constants.Default;
-import org.planit.xml.network.physical.macroscopic.XmlMacroscopicLinkSegmentType;
+import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 
 public class ProcessLinkConfiguration {
 
@@ -49,10 +49,10 @@ public class ProcessLinkConfiguration {
 	 * @return Map containing link type values
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	public static Map<Integer, XmlMacroscopicLinkSegmentType> createLinkSegmentTypeMap(
+	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(
 			Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
-		XmlMacroscopicLinkSegmentType.reset();
-		Map<Integer, XmlMacroscopicLinkSegmentType> linkSegmentMap = new HashMap<Integer, XmlMacroscopicLinkSegmentType>();
+		MacroscopicLinkSegmentTypeXmlHelper.reset();
+		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 		for (Linksegmenttypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
 				.getLinksegmenttype()) {
 			int type = linkSegmentTypeGenerated.getId().intValue();
@@ -64,7 +64,7 @@ public class ProcessLinkConfiguration {
 			for (Linksegmenttypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
 				int modeId = mode.getRef().intValue();
 				Float speed = mode.getMaxspeed();
-				XmlMacroscopicLinkSegmentType linkSegmentType = XmlMacroscopicLinkSegmentType
+				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
 						.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, modeId, modeMap, type);
 				linkSegmentMap.put(type, linkSegmentType);
 			}
@@ -72,13 +72,13 @@ public class ProcessLinkConfiguration {
 		// If a mode is missing for a link type, set the speed to zero for vehicles of
 		// this type in this link type, meaning they are forbidden
 		for (Integer linkType : linkSegmentMap.keySet()) {
-			XmlMacroscopicLinkSegmentType linkSegmentType = linkSegmentMap.get(linkType);
+			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentMap.get(linkType);
 			for (Mode mode : modeMap.values()) {
 				long modeExternalId = mode.getExternalId();
 				if (!linkSegmentType.getSpeedMap().containsKey(modeExternalId)) {
 					LOGGER.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName()
 							+ ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
-					XmlMacroscopicLinkSegmentType linkSegmentTypeNew = XmlMacroscopicLinkSegmentType
+					MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeNew = MacroscopicLinkSegmentTypeXmlHelper
 							.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, Default.MAXIMUM_LANE_DENSITY,
 									0.0, (int) modeExternalId, modeMap, linkType);
 					linkSegmentMap.put(linkType, linkSegmentTypeNew);

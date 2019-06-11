@@ -12,17 +12,17 @@ import org.planit.userclass.Mode;
  * @author gman6028
  *
  */
-public class XmlMacroscopicLinkSegmentType {
+public class MacroscopicLinkSegmentTypeXmlHelper {
 
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger LOGGER = Logger.getLogger(XmlMacroscopicLinkSegmentType.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(MacroscopicLinkSegmentTypeXmlHelper.class.getName());
 
 	/**
 	 * External reference number of link type
 	 */
-	private int linkType;
+	private int externalId;
 
 	/**
 	 * Name of link type
@@ -44,7 +44,7 @@ public class XmlMacroscopicLinkSegmentType {
 	 */
 	private Map<Long, Double> speedMap;
 
-	private static Map<Integer, XmlMacroscopicLinkSegmentType> existingLinks;
+	private static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> existingLinks;
 
 	/**
 	 * Constructor
@@ -52,13 +52,14 @@ public class XmlMacroscopicLinkSegmentType {
 	 * @param name                  name of the link type
 	 * @param capacityPerLane       capacity per lane
 	 * @param maximumDensityPerLane maximum density per lane
+	 * @param externalId            external Id of the link segment type
 	 */
-	public XmlMacroscopicLinkSegmentType(String name, double capacityPerLane, double maximumDensityPerLane,
-			int linkType) {
+	public MacroscopicLinkSegmentTypeXmlHelper(String name, double capacityPerLane, double maximumDensityPerLane,
+			int externalId) {
 		this.name = name;
 		this.capacityPerLane = capacityPerLane;
 		this.maximumDensityPerLane = maximumDensityPerLane;
-		this.linkType = linkType;
+		this.externalId = externalId;
 		speedMap = new HashMap<Long, Double>();
 	}
 
@@ -66,7 +67,7 @@ public class XmlMacroscopicLinkSegmentType {
 	 * Reset the store of existing links
 	 */
 	public static void reset() {
-		existingLinks = new HashMap<Integer, XmlMacroscopicLinkSegmentType>();
+		existingLinks = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 	}
 
 	/**
@@ -79,23 +80,23 @@ public class XmlMacroscopicLinkSegmentType {
 	 * @param capacityPerLane       capacity per lane
 	 * @param maximumDensityPerLane maximum density per lane
 	 * @param speed                 maximum speed
-	 * @param modeNo                number of the mode used in the XML input file
+	 * @param modeExternalId                reference to the mode used in the XML input file
 	 * @param modeMap               Map storing modes
-	 * @param linkType              id number of the link type
+	 * @param externalId              id number of the link type
 	 * @return XmlMacroscopicLinkSegmentType object, created or updated to include
 	 *         data from current row in the XML file
 	 */
-	public static XmlMacroscopicLinkSegmentType createOrUpdateLinkSegmentType(String name, double capacityPerLane,
-			double maximumDensityPerLane, double speed, long modeExternalId, Map<Integer, Mode> modeMap, int linkType) {
-		XmlMacroscopicLinkSegmentType linkSegmentType;
-		if (!existingLinks.containsKey(linkType)) {
+	public static MacroscopicLinkSegmentTypeXmlHelper createOrUpdateLinkSegmentType(String name, double capacityPerLane,
+			double maximumDensityPerLane, double speed, long modeExternalId, Map<Integer, Mode> modeMap, int externalId) {
+		MacroscopicLinkSegmentTypeXmlHelper linkSegmentType;
+		if (!existingLinks.containsKey(externalId)) {
 			if (capacityPerLane == 0.0) {
 				LOGGER.warning(
 						"Link Type " + name + " initially defined without a capacity, being given a capacity of zero.");
 			}
-			linkSegmentType = new XmlMacroscopicLinkSegmentType(name, capacityPerLane, maximumDensityPerLane, linkType);
+			linkSegmentType = new MacroscopicLinkSegmentTypeXmlHelper(name, capacityPerLane, maximumDensityPerLane, externalId);
 		} else {
-			linkSegmentType = existingLinks.get(linkType);
+			linkSegmentType = existingLinks.get(externalId);
 			if (capacityPerLane != linkSegmentType.getCapacityPerLane()) {
 				LOGGER.warning("Different capacity per lane values for Link Type " + linkSegmentType.getName()
 						+ ".  Will use the highest one.");
@@ -113,10 +114,10 @@ public class XmlMacroscopicLinkSegmentType {
 		}
 		if (modeExternalId == 0) {
 			modeMap.keySet().forEach(eachModeNo -> {
-				updateLinkSegmentType(linkSegmentType, modeMap, eachModeNo, speed, linkType);
+				updateLinkSegmentType(linkSegmentType, modeMap, eachModeNo, speed, externalId);
 			});
 		} else {
-			updateLinkSegmentType(linkSegmentType, modeMap, modeExternalId, speed, linkType);
+			updateLinkSegmentType(linkSegmentType, modeMap, modeExternalId, speed, externalId);
 		}
 		return linkSegmentType;
 	}
@@ -129,10 +130,12 @@ public class XmlMacroscopicLinkSegmentType {
 	 * @param modeMap         Map storing modes
 	 * @param modeExternalId  external Id of the mode used in the XML input file
 	 * @param speed           maximum speed
-	 * @param linkType        id number of the link type
+	 * @param modeExternalId  reference to the mode for the current link segment
+	 *                        type
+	 * @param externalId      id number of the link type
 	 */
-	private static void updateLinkSegmentType(XmlMacroscopicLinkSegmentType linkSegmentType, Map<Integer, Mode> modeMap,
-			long modeExternalId, double speed, int linkType) {
+	private static void updateLinkSegmentType(MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, Map<Integer, Mode> modeMap,
+			long modeExternalId, double speed, int externalId) {
 		if (speed < 0.0) {
 			LOGGER.warning("A negative maximum speed has been defined for Link Type " + linkSegmentType.getName()
 					+ " and Mode " + modeMap.get((int) modeExternalId).getName()
@@ -140,7 +143,7 @@ public class XmlMacroscopicLinkSegmentType {
 			speed = 0.0;
 		}
 		linkSegmentType.getSpeedMap().put(modeExternalId, speed);
-		existingLinks.put(linkType, linkSegmentType);
+		existingLinks.put(externalId, linkSegmentType);
 	}
 
 	public String getName() {
@@ -167,8 +170,8 @@ public class XmlMacroscopicLinkSegmentType {
 		return speedMap;
 	}
 
-	public int getLinkTypeExternalId() {
-		return linkType;
+	public int getExternalId() {
+		return externalId;
 	}
 
 }
