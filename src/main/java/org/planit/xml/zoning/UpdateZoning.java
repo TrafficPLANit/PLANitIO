@@ -78,7 +78,7 @@ public class UpdateZoning {
         Connectoid connectoid = zone.getConnectoids().getConnectoid().get(0);
         long nodeExternalId = connectoid.getNoderef().longValue();
         Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
-		double connectoidLength = (connectoid.getLength() == null) ? Default.CONNECTOID_LENGTH : connectoid.getLength();
+		double connectoidLength = (connectoid.getLength() == null) ? org.planit.network.virtual.Connectoid.DEFAULT_LENGTH: connectoid.getLength();
         zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
 	}
 

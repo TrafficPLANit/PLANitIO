@@ -17,7 +17,7 @@ import org.planit.generated.Odrawmatrix.Values;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
-import org.planit.constants.Default;
+import org.planit.xml.input.PlanItXml;
 import org.planit.zoning.Zoning.Zones;
 
 /**
@@ -71,7 +71,7 @@ public class UpdateDemands {
 				timePeriodMap, modeMap, noCentroids);
 		for (Odmatrix odmatrix : oddemands) {
 			int timePeriodId = odmatrix.getTimeperiodref().intValue();
-			int userClassId = (odmatrix.getUserclassref() == null) ? Default.USER_CLASS_ID.intValue()
+			int userClassId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
 					: odmatrix.getUserclassref().intValue();
 			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
 			Mode mode = modeMap.get(externalId);
@@ -156,7 +156,7 @@ public class UpdateDemands {
 	 */
 	private static void updateDemandMatrixFromOdRowMatrix(Odrowmatrix odrowmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) {
-		String separator = (odrowmatrix.getDs() == null) ? Default.SEPARATOR : odrowmatrix.getDs();
+		String separator = (odrowmatrix.getDs() == null) ? PlanItXml.DEFAULT_SEPARATOR : odrowmatrix.getDs();
 		separator = escapeSeparator(separator);
 		List<Odrowmatrix.Odrow> odrow = odrowmatrix.getOdrow();
 		for (Odrowmatrix.Odrow originZone : odrow) {
@@ -181,9 +181,9 @@ public class UpdateDemands {
 	private static void updateDemandMatrixFromOdRawMatrix(Odrawmatrix odrawmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) throws Exception {
 		Values values = odrawmatrix.getValues();
-		String originSeparator = (values.getOs() == null) ? Default.SEPARATOR : values.getOs();
+		String originSeparator = (values.getOs() == null) ? PlanItXml.DEFAULT_SEPARATOR : values.getOs();
 		originSeparator = escapeSeparator(originSeparator);
-		String destinationSeparator = (values.getDs() == null) ? Default.SEPARATOR : values.getDs();
+		String destinationSeparator = (values.getDs() == null) ? PlanItXml.DEFAULT_SEPARATOR : values.getDs();
 		destinationSeparator = escapeSeparator(destinationSeparator);
 		if (originSeparator.equals(destinationSeparator)) {
 			updateDemandMatrixForEqualSeparators(values, originSeparator, pcu, matrixDemand, zones);

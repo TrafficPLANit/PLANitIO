@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.planit.constants.Default;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
 import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.userclass.Mode;
@@ -188,15 +187,14 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 			speed = 0.0;
 		}
 		linkSegmentType.getSpeedMap().put(modeExternalId, speed);
-		MacroscopicModeProperties macroscopicModeProperties = new MacroscopicModeProperties(speed,
-				Default.CRITICAL_SPEED);
+		MacroscopicModeProperties macroscopicModeProperties = new MacroscopicModeProperties(speed, MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED);
 		Mode mode = Mode.getByExternalId(modeExternalId);
 		MacroscopicLinkSegmentTypeModeProperties macroscopicLinkSegmentTypeModeProperties = new MacroscopicLinkSegmentTypeModeProperties(
 				mode, macroscopicModeProperties);
 		linkSegmentType.setMacroscopicLinkSegmentTypeModeProperties(macroscopicLinkSegmentTypeModeProperties);
 		existingLinks.put(externalId, linkSegmentType);
 	}
-
+	
 	/**
 	 * Update an existing XmlMacroscopicLinkSegmentType linkSegmentType
 	 * 

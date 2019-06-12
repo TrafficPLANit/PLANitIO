@@ -73,6 +73,23 @@ public class PlanItXml implements InputBuilderListener {
 	private Nodes nodes;
 	private Zoning.Zones zones;
 
+    /**
+     * If no user class is defined the default user class will be assumed to have a mode referencing the
+     * default external mode id (1) 
+     */
+    public static final long DEFAULT_MODE_EXTERNAL_ID = 1;
+    
+    /**
+     * If no user class is defined the default user class will be assumed to have a traveler type referencing the
+     * default external traveler type id (1) 
+     */    
+    public static final long DEFAULT_TRAVELER_TYPE_EXTERNAL_ID = 1;    
+    
+    /**
+     * The default separator that is assumed when no separator is provided
+     */
+    public static final String DEFAULT_SEPARATOR = ",";    
+    
 	/**
 	 * Constructor which reads in the XML input files
 	 * 
