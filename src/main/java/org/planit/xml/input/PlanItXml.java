@@ -20,6 +20,8 @@ import org.planit.network.physical.Node;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
+import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
 import org.planit.time.TimePeriod;
@@ -184,7 +186,7 @@ public class PlanItXml implements InputBuilderListener {
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link,
-			boolean abDirection, MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes) throws PlanItException {
+			boolean abDirection, MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes, MacroscopicLinkSegmentTypeModeProperties modeProperties) throws PlanItException {
 
 		// create the link and store it in the network object
 		MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) network.linkSegments
@@ -193,7 +195,7 @@ public class PlanItXml implements InputBuilderListener {
 		linkSegment.setNumberOfLanes(noLanes);
 		MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
 				.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), null)
+						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties)
 				.getFirst();
 		linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
 		network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
@@ -216,9 +218,9 @@ public class PlanItXml implements InputBuilderListener {
 			Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) XmlProcessor
 					.generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
 			Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-			Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
 			linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration, modeMap);
+			Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
 		} catch (Exception ex) {
 			throw new PlanItException(ex);
 		}
@@ -238,12 +240,13 @@ public class PlanItXml implements InputBuilderListener {
 				}
 				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
 				Link link = network.links.registerNewLink(startNode, endNode, length);
+				MacroscopicLinkSegmentTypeModeProperties modeProperties =  linkSegmentType.getMacroscopicLinkSegmentTypeModeProperties();
 				if ((linkDirection == ONE_WAY_AB) || (linkDirection == TWO_WAY)) {
-					generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes);
+					generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes, modeProperties);
 				}
 				// Generate B->A direction link segment
 				if ((linkDirection == ONE_WAY_BA) || (linkDirection == TWO_WAY)) {
-					generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes);
+					generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes, modeProperties);
 				}
 			}
 			in.close();
@@ -312,6 +315,7 @@ public class PlanItXml implements InputBuilderListener {
 	 * @return Map storing the Mode objects
 	 * @throws PlanItException thrown if the mode definition file cannot be opened
 	 */
+/*
 	private Map<Integer, Mode> getModes() throws PlanItException {
 		Map<Integer, Mode> modeMap = new HashMap<Integer, Mode>();
 		try (Reader in = new FileReader(modeFileLocation)) {
@@ -332,5 +336,5 @@ public class PlanItXml implements InputBuilderListener {
 			throw new PlanItException(ex);
 		}
 	}
-
+*/
 }

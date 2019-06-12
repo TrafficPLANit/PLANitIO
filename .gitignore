@@ -2,7 +2,7 @@
 /target
 /.classpath
 /.settings
-/.project
+.project
 /doc
 /src/main/java/org/planit/generated
 /src/main/java/META-INF

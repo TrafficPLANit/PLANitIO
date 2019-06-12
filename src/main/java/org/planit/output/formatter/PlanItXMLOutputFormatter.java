@@ -1,4 +1,4 @@
-package org.planit.xml.output.formatter;
+package org.planit.output.formatter;
 
 import java.util.Set;
 import java.util.logging.Logger;

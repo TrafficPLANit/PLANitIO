@@ -49,8 +49,7 @@ public class ProcessLinkConfiguration {
 	 * @return Map containing link type values
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(
-			Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
+	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
 		MacroscopicLinkSegmentTypeXmlHelper.reset();
 		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 		for (Linksegmenttypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
@@ -63,9 +62,16 @@ public class ProcessLinkConfiguration {
 					: linkSegmentTypeGenerated.getMaxdensitylane();
 			for (Linksegmenttypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
 				int modeId = mode.getRef().intValue();
-				Float speed = mode.getMaxspeed();
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
-						.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, speed, modeId, modeMap, type);
+				Float maxSpeed = mode.getMaxspeed();
+				Float critSpeed = mode.getCritspeed();
+				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType;
+				if (critSpeed == null) {
+					linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
+							.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, modeId, modeMap, type);
+				} else {
+					linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
+							.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, critSpeed, modeId, modeMap, type);
+				}
 				linkSegmentMap.put(type, linkSegmentType);
 			}
 		}

@@ -5,4 +5,4 @@
  * @author mraa2518
  *
  */
-package org.planit.xml.output.formatter;
+package org.planit.output.formatter;
