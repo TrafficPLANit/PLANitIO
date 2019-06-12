@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 
@@ -32,12 +33,17 @@ public class PlanItSimpleProject extends PlanItProject {
     private static final Logger LOGGER = Logger.getLogger(PlanItProject.class.getName());
     
     /**
+     * Simple project registers native PLANitXML outputformatter by default which is stored in this reference
+     */
+    private PlanItXMLOutputFormatter defaultOutputFormatter = null;
+    
+    /**
      * Initialise this simple project with as many components as possible directly after its inception here
      */
     private void initialiseSimpleProject() {
         try {
             // register the default Output formatter as a formatter that is available
-            this.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+            defaultOutputFormatter = (PlanItXMLOutputFormatter) this.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
         } catch (PlanItException e) {
             LOGGER.severe("Could not instantiate default settings for project");
         }
@@ -65,8 +71,8 @@ public class PlanItSimpleProject extends PlanItProject {
      */
     public PlanItSimpleProject() {  
         // use the default input builder with the current path as the project path
-        super(new PlanItXMLInputBuilder(Paths.get("").toAbsolutePath().toString()));
-        LOGGER.info("Searching for input files in: "+Paths.get("").toAbsolutePath().toString());
+        super(new PlanItXMLInputBuilder(Paths.get(".").toAbsolutePath().toString()));
+        LOGGER.info("Searching for input files in: "+Paths.get(".").toAbsolutePath().toString());
         initialiseSimpleProject();
     }       
         
@@ -95,7 +101,7 @@ public class PlanItSimpleProject extends PlanItProject {
         }
         return super.createAndRegisterDeterministicAssignment(trafficAssignmentType);
     }    
-
+    
     /** Override where we conduct the parsing of all inputs at the last moment such that any mistakes regarding the configuration
      * will be found quickly and are not hampered by long load times for parsing inputs. This is mainly useful for inexperienced users
      * who just want to run a single model. If one wants complete control of the process flow use @see org.planit.project.PlanItProject instead
@@ -108,5 +114,12 @@ public class PlanItSimpleProject extends PlanItProject {
         processSimpleProjectInputData();
         super.executeAllTrafficAssignments();
     }
+    
+    /** Collect the default outputformatter for PLANit simple project which is the native XMLFormatter
+     * @return defaultOutputformatter
+     */
+    public PlanItXMLOutputFormatter getDefaultOutputFormatter() {
+        return this.defaultOutputFormatter;
+    }    
 
 }
