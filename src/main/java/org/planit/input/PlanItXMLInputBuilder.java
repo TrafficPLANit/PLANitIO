@@ -1,5 +1,6 @@
 package org.planit.input;
 
+import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
@@ -26,6 +27,26 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
      */
     private static final Logger LOGGER = Logger.getLogger(PlanItProject.class.getName());
     
+    /**
+     * If no user class is defined the default user class will be assumed to have a mode referencing the
+     * default external mode id (1) 
+     */
+    public static final long DEFAULT_MODE_EXTERNAL_ID = 1;
+    
+    /**
+     * If no user class is defined the default user class will be assumed to have a traveler type referencing the
+     * default external traveler type id (1) 
+     */    
+    public static final long DEFAULT_TRAVELER_TYPE_EXTERNAL_ID = 1;    
+    
+    /**
+     * The default separator that is assumed when no separator is provided
+     */
+    public static final String DEFAULT_SEPARATOR = ",";    
+    
+    /**
+     * The path to look for the project input files
+     */
     private final Path projectPath;  
     
     /** Constructor of PLANit XML input taking the uri path where the input files are assumed to be located
