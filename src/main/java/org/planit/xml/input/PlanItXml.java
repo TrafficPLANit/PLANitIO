@@ -2,7 +2,6 @@ package org.planit.xml.input;
 
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -326,32 +325,4 @@ public class PlanItXml implements InputBuilderListener {
 		}
 	}
 
-	/**
-	 * Read in the modes from the mode definition file
-	 * 
-	 * @return Map storing the Mode objects
-	 * @throws PlanItException thrown if the mode definition file cannot be opened
-	 */
-/*
-	private Map<Integer, Mode> getModes() throws PlanItException {
-		Map<Integer, Mode> modeMap = new HashMap<Integer, Mode>();
-		try (Reader in = new FileReader(modeFileLocation)) {
-			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-			for (CSVRecord record : records) {
-				int modeExternalId = Integer.parseInt(record.get("Mode"));
-				if (modeExternalId == 0) {
-					throw new PlanItException(
-							"Found a Mode value of 0 in the modes definition file, this is prohibited");
-				}
-				String name = record.get("Name");
-				double pcu = Double.parseDouble(record.get("PCU"));
-				Mode mode = new Mode(modeExternalId, name, pcu);
-				modeMap.put(modeExternalId, mode);
-			}
-			return modeMap;
-		} catch (Exception ex) {
-			throw new PlanItException(ex);
-		}
-	}
-*/
 }
