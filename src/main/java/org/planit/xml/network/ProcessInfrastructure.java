@@ -93,17 +93,8 @@ public class ProcessInfrastructure {
 			long endNodeId = generatedLink.getNodebref().longValue();
 			Node endNode = network.nodes.findNodeByExternalIdentifier(endNodeId);
 			double length = Double.MIN_VALUE;
-			if (generatedLink.getLineString() != null) {
-//TODO - write a method to generate a link length from generated LineString object, call it here				
-			}
-			LinkLengthType linkLengthType = generatedLink.getLength();
-			if (linkLengthType != null) {
-				length = linkLengthType.getValue();
-				LengthUnit lengthUnit = linkLengthType.getUnit();
-				if ((lengthUnit != null) && (lengthUnit.equals(LengthUnit.M))) {
-					length /= 1000.0;
-				}
-			}
+			length = getLengthFromLineString(length, generatedLink);
+			length = getLengthFromLength(length, generatedLink);
 			if (length == Double.MIN_VALUE) {
 				throw new PlanItException(
 						"Error in network XML file: Must define either a length or GML LineString for link from node "
@@ -126,6 +117,41 @@ public class ProcessInfrastructure {
 				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, modeProperties);
 			}
 		}
+	}
+	
+	/**
+	 * Get the link length from the <length> element in the XML file, if this has been set
+	 * 
+	 * @param initLength initial length value
+	 * @param generatedLink object storing link data from XML file
+	 * @return final length value
+	 */
+	private static double getLengthFromLength(double initLength, Links.Link generatedLink) {
+		LinkLengthType linkLengthType = generatedLink.getLength();
+		if (linkLengthType != null) {
+			double length = linkLengthType.getValue();
+			LengthUnit lengthUnit = linkLengthType.getUnit();
+			if ((lengthUnit != null) && (lengthUnit.equals(LengthUnit.M))) {
+				length /= 1000.0;
+			}
+			return length;
+		}
+		return initLength;
+	}
+
+	/**
+	 * Get the link length from the <gml:LineString> element in the XML file, if this has been set
+	 * 
+	 * @param initLength initial length value
+	 * @param generatedLink object storing link data from XML file
+	 * @return final length value
+	 */
+	
+	private static double getLengthFromLineString(double initLength, Links.Link generatedLink) {
+		if (generatedLink.getLineString() != null) {
+//TODO - write code to generate a link length from generated LineString object	
+		}
+		return initLength;
 	}
 
 	/**
