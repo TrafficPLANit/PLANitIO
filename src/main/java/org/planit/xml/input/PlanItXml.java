@@ -1,38 +1,15 @@
 package org.planit.xml.input;
 
-import java.io.FileReader;
-import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
-import org.planit.network.physical.Link;
-import org.planit.network.physical.Node;
-import org.planit.network.physical.PhysicalNetwork.Nodes;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
-import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
-import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Centroid;
-import org.planit.time.TimePeriod;
-import org.planit.userclass.Mode;
-import org.planit.xml.demands.ProcessConfiguration;
-import org.planit.xml.demands.UpdateDemands;
-import org.planit.xml.network.ProcessLinkConfiguration;
-import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
-import org.planit.xml.process.XmlProcessor;
-import org.planit.xml.zoning.UpdateZoning;
-import org.planit.zoning.Zoning;
-
 import org.planit.generated.Configuration;
 import org.planit.generated.Infrastructure;
 import org.planit.generated.Linkconfiguration;
@@ -41,6 +18,19 @@ import org.planit.generated.Macroscopicnetwork;
 import org.planit.generated.Macroscopiczoning;
 import org.planit.generated.Odmatrix;
 import org.planit.generated.Zones.Zone;
+import org.planit.network.physical.PhysicalNetwork.Nodes;
+import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.virtual.Centroid;
+import org.planit.time.TimePeriod;
+import org.planit.userclass.Mode;
+import org.planit.xml.demands.ProcessConfiguration;
+import org.planit.xml.demands.UpdateDemands;
+import org.planit.xml.network.ProcessInfrastructure;
+import org.planit.xml.network.ProcessLinkConfiguration;
+import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
+import org.planit.xml.process.XmlProcessor;
+import org.planit.xml.zoning.UpdateZoning;
+import org.planit.zoning.Zoning;
 
 /**
  * Class which reads inputs from XML input files
@@ -55,13 +45,6 @@ public class PlanItXml implements InputBuilderListener {
 	 */
 	private static final Logger LOGGER = Logger.getLogger(PlanItXml.class.getName());
 
-	private static final int ONE_WAY_AB = 1;
-	private static final int ONE_WAY_BA = 2;
-	private static final int TWO_WAY = 3;
-
-	private String networkFileLocation;
-	private String linkTypesFileLocation;
-	private String modeFileLocation;
 	private String zoningXmlFileLocation;
 	private String demandXmlFileLocation;
 	private String networkXmlFileLocation;
@@ -72,23 +55,23 @@ public class PlanItXml implements InputBuilderListener {
 	private Nodes nodes;
 	private Zoning.Zones zones;
 
-    /**
-     * If no user class is defined the default user class will be assumed to have a mode referencing the
-     * default external mode id (1) 
-     */
-    public static final long DEFAULT_MODE_EXTERNAL_ID = 1;
-    
-    /**
-     * If no user class is defined the default user class will be assumed to have a traveler type referencing the
-     * default external traveler type id (1) 
-     */    
-    public static final long DEFAULT_TRAVELER_TYPE_EXTERNAL_ID = 1;    
-    
-    /**
-     * The default separator that is assumed when no separator is provided
-     */
-    public static final String DEFAULT_SEPARATOR = ",";    
-    
+	/**
+	 * If no user class is defined the default user class will be assumed to have a
+	 * mode referencing the default external mode id (1)
+	 */
+	public static final long DEFAULT_MODE_EXTERNAL_ID = 1;
+
+	/**
+	 * If no user class is defined the default user class will be assumed to have a
+	 * traveler type referencing the default external traveler type id (1)
+	 */
+	public static final long DEFAULT_TRAVELER_TYPE_EXTERNAL_ID = 1;
+
+	/**
+	 * The default separator that is assumed when no separator is provided
+	 */
+	public static final String DEFAULT_SEPARATOR = ",";
+
 	/**
 	 * Constructor which reads in the XML input files
 	 * 
@@ -96,11 +79,7 @@ public class PlanItXml implements InputBuilderListener {
 	 * @param demandXmlFileLocation  location of XML demands input file
 	 * @param networkXmlFileLocation location of XML network inputs file
 	 */
-	public PlanItXml(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
-			String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation) {
-		this.networkFileLocation = networkFileLocation;
-		this.linkTypesFileLocation = linkTypesFileLocation;
-		this.modeFileLocation = modeFileLocation;
+	public PlanItXml(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation) {
 		this.zoningXmlFileLocation = zoningXmlFileLocation;
 		this.demandXmlFileLocation = demandXmlFileLocation;
 		this.networkXmlFileLocation = networkXmlFileLocation;
@@ -121,12 +100,10 @@ public class PlanItXml implements InputBuilderListener {
 	 * @param networkXsdFileLocation location of XSD schema file for network
 	 * @throws PlanItException thrown if one of the input XML files is invalid
 	 */
-	public PlanItXml(String networkFileLocation, String linkTypesFileLocation, String modeFileLocation,
-			String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation,
+	public PlanItXml(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation,
 			String zoningXsdFileLocation, String demandXsdFileLocation, String networkXsdFileLocation)
 			throws PlanItException {
-		this(networkFileLocation, linkTypesFileLocation, modeFileLocation, zoningXmlFileLocation, demandXmlFileLocation,
-				networkXmlFileLocation);
+		this(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
 		try {
 			if (zoningXsdFileLocation != null) {
 				XmlProcessor.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
@@ -171,55 +148,6 @@ public class PlanItXml implements InputBuilderListener {
 	}
 
 	/**
-	 * Tests whether a node referred to in the network input file already exists,
-	 * and creates it if it does not
-	 * 
-	 * @param network    the physical network object
-	 * @param record     the record in the network input file which refers to this
-	 *                   node
-	 * @param columnName the column in the record which refers to this node
-	 * @return the node which has been created or found
-	 */
-	private Node identifyAndRegisterNode(MacroscopicNetwork network, CSVRecord record, String columnName) {
-		long nodeId = Integer.parseInt(record.get(columnName));
-		Node node = network.nodes.findNodeByExternalIdentifier(nodeId);
-		if (node == null) {
-			node = new Node();
-			node.setExternalId(nodeId);
-			network.nodes.registerNode(node);
-		}
-		return node;
-	}
-
-	/**
-	 * Registers a new link segment in the physical network
-	 * 
-	 * @param network         the physical network object
-	 * @param link            the link from which the link segment will be created
-	 * @param abDirection     direction of travel
-	 * @param linkSegmentType object storing the input values for this link
-	 * @param noLanes         the number of lanes in this link
-	 * @throws PlanItException thrown if there is an error
-	 */
-	private MacroscopicLinkSegment generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link,
-			boolean abDirection, MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes, MacroscopicLinkSegmentTypeModeProperties modeProperties) throws PlanItException {
-
-		// create the link and store it in the network object
-		MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) network.linkSegments
-				.createDirectionalLinkSegment(link, abDirection);
-		linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
-		linkSegment.setNumberOfLanes(noLanes);
-		MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
-				.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties)
-				.getFirst();
-		linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
-		network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
-
-		return linkSegment;
-	}
-
-	/**
 	 * Creates the physical network object from the data in the input file
 	 * 
 	 * @param network the physical network object to be populated from the input
@@ -237,35 +165,8 @@ public class PlanItXml implements InputBuilderListener {
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
 			linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration, modeMap);
 			Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
-		} catch (Exception ex) {
-			throw new PlanItException(ex);
-		}
-
-		try (Reader in = new FileReader(networkFileLocation)) {
-			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(in);
-			for (CSVRecord record : records) {
-				Node startNode = identifyAndRegisterNode(network, record, "StartNode");
-				Node endNode = identifyAndRegisterNode(network, record, "EndNode");
-				int linkDirection = Integer.parseInt(record.get("Direction"));
-				double length = Double.parseDouble(record.get("Length"));
-				int noLanes = Integer.parseInt(record.get("NoLanes"));
-				int linkType = Integer.parseInt(record.get("Type"));
-				if (!linkSegmentTypeMap.containsKey(linkType)) {
-					throw new PlanItException("Link type " + linkType + " found in " + networkFileLocation
-							+ " but not in " + linkTypesFileLocation);
-				}
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
-				Link link = network.links.registerNewLink(startNode, endNode, length);
-				MacroscopicLinkSegmentTypeModeProperties modeProperties =  linkSegmentType.getMacroscopicLinkSegmentTypeModeProperties();
-				if ((linkDirection == ONE_WAY_AB) || (linkDirection == TWO_WAY)) {
-					generateAndRegisterLinkSegment(network, link, true, linkSegmentType, noLanes, modeProperties);
-				}
-				// Generate B->A direction link segment
-				if ((linkDirection == ONE_WAY_BA) || (linkDirection == TWO_WAY)) {
-					generateAndRegisterLinkSegment(network, link, false, linkSegmentType, noLanes, modeProperties);
-				}
-			}
-			in.close();
+			ProcessInfrastructure.registerNodes(infrastructure, network);
+			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
 		} catch (Exception ex) {
 			throw new PlanItException(ex);
 		}

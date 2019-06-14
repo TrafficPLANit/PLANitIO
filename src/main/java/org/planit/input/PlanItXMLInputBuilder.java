@@ -1,6 +1,5 @@
 package org.planit.input;
 
-import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;

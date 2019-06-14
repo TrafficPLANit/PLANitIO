@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class UpdateZoning {
 	
     private static final Logger LOGGER = Logger.getLogger(UpdateZoning.class.getName());
+    
 	private static PlanitGeoUtils planitGeoUtils;
 	
 	static {

@@ -9,9 +9,16 @@ import org.planit.generated.Linkconfiguration;
 import org.planit.generated.Linksegmenttypes;
 import org.planit.generated.Modes;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.userclass.Mode;
 import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 
+/**
+ * Process the LinkConfiguration object populated with data from the XML file
+ * 
+ * @author gman6028
+ *
+ */
 public class ProcessLinkConfiguration {
 
 	/**
@@ -49,27 +56,29 @@ public class ProcessLinkConfiguration {
 	 * @return Map containing link type values
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
+	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(
+			Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
 		MacroscopicLinkSegmentTypeXmlHelper.reset();
 		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 		for (Linksegmenttypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
 				.getLinksegmenttype()) {
 			int type = linkSegmentTypeGenerated.getId().intValue();
 			String name = linkSegmentTypeGenerated.getName();
-			double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE	: linkSegmentTypeGenerated.getCapacitylane();
-			double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE 	: linkSegmentTypeGenerated.getMaxdensitylane();
+			double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null)
+					? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE
+					: linkSegmentTypeGenerated.getCapacitylane();
+			double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null)
+					? MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE
+					: linkSegmentTypeGenerated.getMaxdensitylane();
 			for (Linksegmenttypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
 				int modeId = mode.getRef().intValue();
-				Float maxSpeed = mode.getMaxspeed();
-				Float critSpeed = mode.getCritspeed();
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType;
-				if (critSpeed == null) {
-					linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
-							.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, modeId, modeMap, type);
-				} else {
-					linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
-							.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, critSpeed, modeId, modeMap, type);
-				}
+				double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED
+						: mode.getMaxspeed();
+				double critSpeed = (mode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED
+						: mode.getCritspeed();
+				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
+						.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, critSpeed, modeId,
+								modeMap, type);
 				linkSegmentMap.put(type, linkSegmentType);
 			}
 		}
@@ -83,7 +92,10 @@ public class ProcessLinkConfiguration {
 					LOGGER.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName()
 							+ ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
 					MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeNew = MacroscopicLinkSegmentTypeXmlHelper
-							.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0, MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE,	0.0, (int) modeExternalId, modeMap, linkType);
+							.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0,
+									MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE,
+									MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED, 0.0, (int) modeExternalId,
+									modeMap, linkType);
 					linkSegmentMap.put(linkType, linkSegmentTypeNew);
 				}
 			}

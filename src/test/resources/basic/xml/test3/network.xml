@@ -48,6 +48,7 @@
 			<node id="22"/>
 			<node id="23"/>
 			<node id="24"/>
+			<node id="25"/>
 		</nodes>
 		<links>
 			<link nodearef="1" nodebref="2">
