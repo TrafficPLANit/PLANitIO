@@ -25,8 +25,7 @@ import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModePro
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
+import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
 /**
@@ -62,13 +61,9 @@ public class ProcessInfrastructure {
 
 			Node node = new Node();
 			node.setExternalId(generatedNode.getId().longValue());
-			PointType point = generatedNode.getPoint();
-			if (point != null) {
-				List<Double> value = point.getPos().getValue();
-				Coordinate coordinate = new Coordinate(value.get(0), value.get(1));
-				Coordinate[] coordinates = { coordinate };
-				List<Position> positions = planitGeoUtils.convertToDirectPositions(coordinates);
-				DirectPosition centrePointGeometry = (DirectPosition) positions.get(0);
+			PointType pointType = generatedNode.getPoint();
+			if (pointType != null) {
+				DirectPosition centrePointGeometry = getDirectPositionFromPointType(pointType);
 				node.setCentrePointGeometry(centrePointGeometry);
 			}
 			network.nodes.registerNode(node);
@@ -118,11 +113,12 @@ public class ProcessInfrastructure {
 			}
 		}
 	}
-	
+
 	/**
-	 * Get the link length from the <length> element in the XML file, if this has been set
+	 * Get the link length from the <length> element in the XML file, if this has
+	 * been set
 	 * 
-	 * @param initLength initial length value
+	 * @param initLength    initial length value
 	 * @param generatedLink object storing link data from XML file
 	 * @return final length value
 	 */
@@ -140,20 +136,64 @@ public class ProcessInfrastructure {
 	}
 
 	/**
-	 * Get the link length from the <gml:LineString> element in the XML file, if this has been set
+	 * Get the link length from the <gml:LineString> element in the XML file, if
+	 * this has been set
 	 * 
-	 * @param initLength initial length value
+	 * @param initLength    initial length value
 	 * @param generatedLink object storing link data from XML file
 	 * @return final length value
+	 * @throws PlanItException
 	 */
-	
-	private static double getLengthFromLineString(double initLength, Links.Link generatedLink) {
-		if (generatedLink.getLineString() != null) {
-//TODO - write code to generate a link length from generated LineString object	
+//TODO  - Create some test cases for this, currently no test cases exist for it
+	private static double getLengthFromLineString(double initLength, Links.Link generatedLink) throws PlanItException {
+		LineStringType lineStringType = generatedLink.getLineString();
+		if (lineStringType != null) {
+			List<Double> posList = lineStringType.getPosList().getValue();
+			double distanceInMetres = 0.0;
+			Position startPosition = null;
+			Position endPosition = null;
+			for (int i = 0; i < posList.size(); i += 2) {
+				endPosition = planitGeoUtils.getDirectPositionFromValues(posList.get(i), posList.get(i + 1));
+				if (startPosition != null) {
+					distanceInMetres += planitGeoUtils.getDistanceInMetres(startPosition, endPosition);
+				}
+				startPosition = endPosition;
+			}
+			return distanceInMetres / 1000.0;
 		}
 		return initLength;
 	}
 
+	/**
+	 * Create GML position from generated PointType object
+	 * 
+	 * @param pointType PointType object storing the location, read in from an XML
+	 *                  input file
+	 * @return DirectPosition object storing the location
+	 * @throws PlanItException thrown if there is an error during processing
+	 */
+	private static DirectPosition getDirectPositionFromPointType(PointType pointType) throws PlanItException {
+		List<Double> value = pointType.getPos().getValue();
+		return planitGeoUtils.getDirectPositionFromValues(value.get(0), value.get(1));
+	}
+
+	/**
+	 * Create DirectPosition object from X- and Y-coordinates
+	 * 
+	 * @param xCoordinate X-coordinate
+	 * @param yCoordinate Y-coordinate
+	 * @return DirectPosition object representing the location
+	 * @throws PlanItException thrown if there is an error during processing
+	 */
+/*
+	private static DirectPosition getDirectPositionFromValues(double xCoordinate, double yCoordinate)
+			throws PlanItException {
+		Coordinate coordinate = new Coordinate(xCoordinate, yCoordinate);
+		Coordinate[] coordinates = { coordinate };
+		List<Position> positions = planitGeoUtils.convertToDirectPositions(coordinates);
+		return (DirectPosition) positions.get(0);
+	}
+*/
 	/**
 	 * Registers a new link segment in the physical network
 	 * 
