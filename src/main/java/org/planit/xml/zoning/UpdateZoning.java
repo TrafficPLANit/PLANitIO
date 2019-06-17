@@ -13,10 +13,13 @@ import org.planit.geo.PlanitGeoUtils;
 import org.planit.network.physical.Node;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.virtual.Centroid;
+import org.planit.xml.util.XmlUtils;
 import org.planit.constants.Default;
 import org.planit.zoning.Zoning;
 
 import com.vividsolutions.jts.geom.Coordinate;
+
+import net.opengis.gml.PointType;
 
 /**
  * This class contains methods to update the Zoning object using input values from the XML zoning input file.
@@ -79,8 +82,21 @@ public class UpdateZoning {
         Connectoid connectoid = zone.getConnectoids().getConnectoid().get(0);
         long nodeExternalId = connectoid.getNoderef().longValue();
         Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
-		double connectoidLength = (connectoid.getLength() == null) ? org.planit.network.virtual.Connectoid.DEFAULT_LENGTH: connectoid.getLength();
-        zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
+        DirectPosition nodePosition = node.getCentrePointGeometry();
+        double connectoidLength;
+        if (connectoid.getLength() != null) {
+        	connectoidLength = connectoid.getLength();
+//TODO  - need to create some test cases in which nodes have a GML location
+        } else if (nodePosition != null){
+        	//if node has a GML Point, get the GML Point from the centroid and calculate the length between them
+        	org.planit.generated.Centroid generatedCentroid = zone.getCentroid();
+        	PointType pointType = generatedCentroid.getPoint();
+        	DirectPosition centroidPosition = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
+        	connectoidLength =  planitGeoUtils.getDistanceInMetres(centroidPosition, nodePosition);
+         } else {
+        	connectoidLength = org.planit.network.virtual.Connectoid.DEFAULT_LENGTH;
+        }
+         zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
 	}
 
 }

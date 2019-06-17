@@ -24,6 +24,7 @@ import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
+import org.planit.xml.util.XmlUtils;
 
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
@@ -63,7 +64,7 @@ public class ProcessInfrastructure {
 			node.setExternalId(generatedNode.getId().longValue());
 			PointType pointType = generatedNode.getPoint();
 			if (pointType != null) {
-				DirectPosition centrePointGeometry = getDirectPositionFromPointType(pointType);
+				DirectPosition centrePointGeometry = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
 				node.setCentrePointGeometry(centrePointGeometry);
 			}
 			network.nodes.registerNode(node);
@@ -172,28 +173,11 @@ public class ProcessInfrastructure {
 	 * @return DirectPosition object storing the location
 	 * @throws PlanItException thrown if there is an error during processing
 	 */
-	private static DirectPosition getDirectPositionFromPointType(PointType pointType) throws PlanItException {
-		List<Double> value = pointType.getPos().getValue();
-		return planitGeoUtils.getDirectPositionFromValues(value.get(0), value.get(1));
-	}
+//	private static DirectPosition getDirectPositionFromPointType(PointType pointType) throws PlanItException {
+//		List<Double> value = pointType.getPos().getValue();
+//		return planitGeoUtils.getDirectPositionFromValues(value.get(0), value.get(1));
+//	}
 
-	/**
-	 * Create DirectPosition object from X- and Y-coordinates
-	 * 
-	 * @param xCoordinate X-coordinate
-	 * @param yCoordinate Y-coordinate
-	 * @return DirectPosition object representing the location
-	 * @throws PlanItException thrown if there is an error during processing
-	 */
-/*
-	private static DirectPosition getDirectPositionFromValues(double xCoordinate, double yCoordinate)
-			throws PlanItException {
-		Coordinate coordinate = new Coordinate(xCoordinate, yCoordinate);
-		Coordinate[] coordinates = { coordinate };
-		List<Position> positions = planitGeoUtils.convertToDirectPositions(coordinates);
-		return (DirectPosition) positions.get(0);
-	}
-*/
 	/**
 	 * Registers a new link segment in the physical network
 	 * 

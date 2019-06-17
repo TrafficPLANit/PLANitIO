@@ -190,7 +190,7 @@ public class PlanItXml implements InputBuilderListener {
 			Macroscopiczoning macroscopiczoning = (Macroscopiczoning) XmlProcessor
 					.generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
 			for (Zone zone : macroscopiczoning.getZones().getZone()) {
-				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
+				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);				
 				UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
 				noCentroids++;
 			}
