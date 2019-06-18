@@ -7,7 +7,7 @@ import org.planit.exceptions.PlanItException;
 import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.formatter.OutputFormatter;
-import org.planit.output.formatter.PlanItXMLOutputFormatter;
+import org.planit.output.formatter.XMLOutputFormatter;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 
 /**
@@ -35,7 +35,7 @@ public class PlanItSimpleProject extends PlanItProject {
     /**
      * Simple project registers native PLANitXML outputformatter by default which is stored in this reference
      */
-    private PlanItXMLOutputFormatter defaultOutputFormatter = null;
+    private XMLOutputFormatter defaultOutputFormatter = null;
     
     /**
      * Initialise this simple project with as many components as possible directly after its inception here
@@ -43,7 +43,7 @@ public class PlanItSimpleProject extends PlanItProject {
     private void initialiseSimpleProject() {
         try {
             // register the default Output formatter as a formatter that is available
-            defaultOutputFormatter = (PlanItXMLOutputFormatter) this.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+            defaultOutputFormatter = (XMLOutputFormatter) this.createAndRegisterOutputFormatter(XMLOutputFormatter.class.getCanonicalName());
         } catch (PlanItException e) {
             LOGGER.severe("Could not instantiate default settings for project");
         }
@@ -118,7 +118,7 @@ public class PlanItSimpleProject extends PlanItProject {
     /** Collect the default outputformatter for PLANit simple project which is the native XMLFormatter
      * @return defaultOutputformatter
      */
-    public PlanItXMLOutputFormatter getDefaultOutputFormatter() {
+    public XMLOutputFormatter getDefaultOutputFormatter() {
         return this.defaultOutputFormatter;
     }    
 

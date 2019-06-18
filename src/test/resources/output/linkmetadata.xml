@@ -8,7 +8,7 @@
 	<timestamp>2019-02-05T11:38:24</timestamp>
 	<version>0.0.1</version>	
 	<description>description of this particular link output</description>
-	<configuration>
+	<outputconfiguration>
 		<assignment>traditional static assignment</assignment>
 		<physicalcost>BPR</physicalcost>
 		<virtualcost>fixed</virtualcost>
@@ -16,7 +16,7 @@
 			<id>1</id>
 			<name>morning peak 6-9</name>			
 		</timeperiod>
-	</configuration>
+	</outputconfiguration>
 	<simulation>
 		<iteration>
 			<nr>1</nr>

@@ -20,8 +20,8 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
-import org.planit.output.formatter.CSVOutputFormatter;
-import org.planit.output.formatter.OutputFormatter;
+import org.planit.output.formatter.XMLOutputFormatter;
+import org.planit.output.xml.Column;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.BprResultDto;
@@ -39,7 +39,8 @@ import org.planit.zoning.Zoning;
 public class PlanItXmlTest {
 
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlTest.class.getName());
-	private static final String TEST_RESULTS_LOCATION = "src\\test\\testRunOutput.csv";
+	private static final String CSV_TEST_RESULTS_LOCATION = "src\\test\\testRunOutput.csv";
+	private static final String XML_TEST_RESULTS_LOCATION = "src\\test\\testRunOutput.xml";
 
 	private String zoningXsdFileLocation;
 	private String demandXsdFileLocation;
@@ -54,7 +55,7 @@ public class PlanItXmlTest {
 
 	@After
 	public void tearDown() throws Exception {
-		File tempFile = new File(TEST_RESULTS_LOCATION);
+		File tempFile = new File(CSV_TEST_RESULTS_LOCATION);
 		tempFile.delete();
 	}
 
@@ -297,11 +298,16 @@ public class PlanItXmlTest {
 
 		// OUTPUT
 		assignment.activateOutput(OutputType.LINK);
-		OutputFormatter outputFormatter = project
-				.createAndRegisterOutputFormatter(CSVOutputFormatter.class.getCanonicalName());
-		CSVOutputFormatter csvOutputFormatter = (CSVOutputFormatter) outputFormatter;
-		csvOutputFormatter.setOutputFileName(TEST_RESULTS_LOCATION);
-		taBuilder.registerOutputFormatter(outputFormatter);
+		XMLOutputFormatter xmlOutputFormatter = (XMLOutputFormatter) project
+				.createAndRegisterOutputFormatter(XMLOutputFormatter.class.getCanonicalName());
+		xmlOutputFormatter.setCsvOutputFileName(CSV_TEST_RESULTS_LOCATION);
+		xmlOutputFormatter.addColumn(Column.LINK_ID);
+		xmlOutputFormatter.addColumn(Column.MODE_ID);
+		xmlOutputFormatter.addColumn(Column.SPEED);
+		xmlOutputFormatter.addColumn(Column.DENSITY);
+		xmlOutputFormatter.addColumn(Column.FLOW);
+		xmlOutputFormatter.addColumn(Column.TRAVEL_TIME);
+		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
 		// "USER" configuration
 		if (maxIterations != null) {
@@ -315,7 +321,7 @@ public class PlanItXmlTest {
 		SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMapFromFile = CsvIoUtils
 				.createResultsMapFromCsvFile(resultsFileLocation);
 		SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMap = CsvIoUtils
-				.createResultsMapFromCsvFile(TEST_RESULTS_LOCATION);
+				.createResultsMapFromCsvFile(CSV_TEST_RESULTS_LOCATION);
 		TestHelper.compareResultsToCsvFileContents(resultsMap, resultsMapFromFile);
 	}
 

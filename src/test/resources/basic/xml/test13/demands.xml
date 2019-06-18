@@ -2,7 +2,7 @@
 <macroscopicdemand xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
                         xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopicdemandinput.xsd">
       
-   <configuration>
+   <demandconfiguration>
 	    <userclasses>
 	    	<userclass id="1" moderef="1">
 	    		<name>1</name>
@@ -25,7 +25,7 @@
 	    		<duration>28800</duration>
 	    	</timeperiod>
 	    </timeperiods> 
-   </configuration>
+   </demandconfiguration>
        
 	<oddemands>
 		<odcellbycellmatrix timeperiodref="0" userclassref="1">

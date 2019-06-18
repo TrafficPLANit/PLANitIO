@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.planit.generated.Configuration;
+import org.planit.generated.Demandconfiguration;
 import org.planit.generated.Durationunit;
 import org.planit.generated.Timeperiods;
 import org.planit.generated.Travellertypes;
@@ -28,25 +28,25 @@ public class ProcessConfiguration {
 	/**
 	 * Sets up all the configuration data from the XML demands file
 	 * 
-	 * @param configuration the generated Configuration object containing the data
+	 * @param demandconfiguration the generated Demandconfiguration object containing the data
 	 *                      from the XML input file
 	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
 	 */
-	public static Map<Integer, TimePeriod> generateAndStoreConfigurationData(Configuration configuration) {
-		ProcessConfiguration.generateAndStoreTravellerTypes(configuration);
-		ProcessConfiguration.generateAndStoreUserClasses(configuration);
-		return ProcessConfiguration.generateTimePeriodMap(configuration);
+	public static Map<Integer, TimePeriod> generateAndStoreConfigurationData(Demandconfiguration demandconfiguration) {
+		ProcessConfiguration.generateAndStoreTravellerTypes(demandconfiguration);
+		ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration);
+		return ProcessConfiguration.generateTimePeriodMap(demandconfiguration);
 	}
 
 	/**
 	 * Generate TravellerType objects from generated configuration object and store
 	 * them
 	 * 
-	 * @param configuration generated Configuration object from demand XML input
+	 * @param configuration generated Demandconfiguration object from demand XML input
 	 */
-	private static void generateAndStoreTravellerTypes(Configuration configuration) {
-		Travellertypes travellertypes = (configuration.getTravellertypes() == null) ? new Travellertypes()
-				: configuration.getTravellertypes();
+	private static void generateAndStoreTravellerTypes(Demandconfiguration demandconfiguration) {
+		Travellertypes travellertypes = (demandconfiguration.getTravellertypes() == null) ? new Travellertypes()
+				: demandconfiguration.getTravellertypes();
 		if (travellertypes.getTravellertype().isEmpty()) {
 			travellertypes.getTravellertype().add(generateDefaultTravellerType());
 		}
@@ -70,10 +70,10 @@ public class ProcessConfiguration {
 	/**
 	 * Generate UserClass objects from generated configuration object and store them
 	 * 
-	 * @param configuration generated Configuration object from demand XML input
+	 * @param configuration generated Demandconfiguration object from demand XML input
 	 */
-	private static void generateAndStoreUserClasses(Configuration configuration) {
-		Userclasses userclasses = configuration.getUserclasses();
+	private static void generateAndStoreUserClasses(Demandconfiguration demandconfiguration) {
+		Userclasses userclasses = demandconfiguration.getUserclasses();
 		if (userclasses.getUserclass().isEmpty()) {
 			userclasses.getUserclass().add(generateDefaultUserClass());
 		}
@@ -105,11 +105,11 @@ public class ProcessConfiguration {
 	/**
 	 * Generate a Map of TimePeriod objects from generated configuration object
 	 * 
-	 * @param configuration generated Configuration object from demand XML input
+	 * @param configuration generated Demandconfiguration object from demand XML input
 	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
 	 */
-	private static Map<Integer, TimePeriod> generateTimePeriodMap(Configuration configuration) {
-		Timeperiods timeperiods = configuration.getTimeperiods();
+	private static Map<Integer, TimePeriod> generateTimePeriodMap(Demandconfiguration demandconfiguration) {
+		Timeperiods timeperiods = demandconfiguration.getTimeperiods();
 		Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
 		for (Timeperiods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {
 			int timePeriodId = timePeriodGenerated.getId().intValue();

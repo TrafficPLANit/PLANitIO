@@ -10,7 +10,7 @@ import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.Configuration;
+import org.planit.generated.Demandconfiguration;
 import org.planit.generated.Infrastructure;
 import org.planit.generated.Linkconfiguration;
 import org.planit.generated.Macroscopicdemand;
@@ -28,7 +28,7 @@ import org.planit.xml.demands.UpdateDemands;
 import org.planit.xml.network.ProcessInfrastructure;
 import org.planit.xml.network.ProcessLinkConfiguration;
 import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
-import org.planit.xml.process.XmlProcessor;
+import org.planit.xml.util.XmlUtils;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
 
@@ -106,13 +106,13 @@ public class PlanItXml implements InputBuilderListener {
 		this(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
 		try {
 			if (zoningXsdFileLocation != null) {
-				XmlProcessor.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
+				XmlUtils.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
 			}
 			if (demandXsdFileLocation != null) {
-				XmlProcessor.validateXml(demandXmlFileLocation, demandXsdFileLocation);
+				XmlUtils.validateXml(demandXmlFileLocation, demandXsdFileLocation);
 			}
 			if (networkXsdFileLocation != null) {
-				XmlProcessor.validateXml(networkXmlFileLocation, networkXsdFileLocation);
+				XmlUtils.validateXml(networkXmlFileLocation, networkXsdFileLocation);
 			}
 		} catch (Exception e) {
 			throw new PlanItException(e);
@@ -159,7 +159,7 @@ public class PlanItXml implements InputBuilderListener {
 		LOGGER.info("Populating Network");
 
 		try {
-			Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) XmlProcessor
+			Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) XmlUtils
 					.generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
 			Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
@@ -187,10 +187,10 @@ public class PlanItXml implements InputBuilderListener {
 
 		// create and register zones, centroids and connectoids
 		try {
-			Macroscopiczoning macroscopiczoning = (Macroscopiczoning) XmlProcessor
+			Macroscopiczoning macroscopiczoning = (Macroscopiczoning) XmlUtils
 					.generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
 			for (Zone zone : macroscopiczoning.getZones().getZone()) {
-				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);				
+				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
 				UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
 				noCentroids++;
 			}
@@ -212,11 +212,11 @@ public class PlanItXml implements InputBuilderListener {
 		if (noCentroids == 0)
 			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
 		try {
-			Macroscopicdemand macroscopicdemand = (Macroscopicdemand) XmlProcessor
+			Macroscopicdemand macroscopicdemand = (Macroscopicdemand) XmlUtils
 					.generateObjectFromXml(Macroscopicdemand.class, demandXmlFileLocation);
-			Configuration configuration = macroscopicdemand.getConfiguration();
+			Demandconfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
 			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration
-					.generateAndStoreConfigurationData(configuration);
+					.generateAndStoreConfigurationData(demandconfiguration);
 			List<Odmatrix> oddemands = macroscopicdemand.getOddemands()
 					.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
 			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, modeMap, timePeriodMap, noCentroids, zones);

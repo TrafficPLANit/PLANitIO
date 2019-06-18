@@ -71,7 +71,7 @@
 		</xs:annotation>	
   		<xs:complexType>
   			<xs:sequence>
-  				<xs:element ref="configuration" minOccurs="0">
+  				<xs:element ref="demandconfiguration" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>
 							In case the configuration is absent it must have been part of another demand input file that has already been parsed
@@ -84,7 +84,7 @@
   	</xs:element>
   	
   	<!-- Configuration of the demand, i.e., the metadata -->
-	<xs:element name="configuration">
+	<xs:element name="demandconfiguration">
   		<xs:complexType>
   			<xs:sequence>
   				<xs:element ref="travellertypes" minOccurs="0">
