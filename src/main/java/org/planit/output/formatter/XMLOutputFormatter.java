@@ -11,19 +11,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.planit.data.SimulationData;
+import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Columns;
 import org.planit.generated.Iteration;
 import org.planit.generated.Metadata;
 import org.planit.generated.Outputconfiguration;
 import org.planit.generated.Simulation;
+import org.planit.generated.Timeperiod;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.Node;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
@@ -59,14 +61,19 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	private String xmlNameExtension;
 	private String xmlNameRoot;
 	private String xmlOutputDirectory;
-	private String xmlOutputFileName;
-	
+	private String currentXmlOutputDirectory;
+	private String currentCsvOutputDirectory;
+
 	private String csvNameExtension;
 	private String csvNameRoot;
 	private String csvOutputDirectory;
 	private String csvOutputFileName;
 	private CSVPrinter csvPrinter;
 	private List<Column> columns;
+	private String description;
+	private String version;
+
+	private static int directoryCounter = 0;
 
 	/**
 	 * Base constructor
@@ -81,84 +88,285 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 		csvOutputFileName = null;
 		columns = new ArrayList<Column>();
 	}
-	
+
 	public void addColumn(Column column) {
 		columns.add(column);
 	}
 
 	/**
-	 * Generates the name of an output file from the class properties.
+	 * Generates the name of an output file.
 	 * 
-	 * This method also creates the output file directory if it does not already
-	 * exist.
-	 * 
+	 * @param outputDirectory location output files are to be written
+	 * @param nameRoot        root name of the output files
+	 * @param nameExtension   extension of the output files
+	 * @param iteration       current iteration
 	 * @return the name of the output file
 	 * @throws PlanItException thrown if the output directory cannot be opened
 	 */
-	private String generateOutputFileName(String outputDirectory, String nameRoot, String nameExtension)
+	private String generateOutputFileName(String outputDirectory, String nameRoot, String nameExtension, int iteration)
 			throws PlanItException {
 		try {
-			File directory = new File(outputDirectory);
-			if (!directory.isDirectory()) {
-				Files.createDirectories(directory.toPath());
-			}
-			String[] files = directory.list();
-			int pos = files.length + 1;
-			String newFileName = outputDirectory + "\\" + nameRoot + pos + nameExtension;
+			String newFileName = outputDirectory + "\\" + nameRoot + iteration + nameExtension;
 			return newFileName;
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
 	}
 
-	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration)
+	/**
+	 * Generates the name of an output file.
+	 * 
+	 * @param outputDirectory location output files are to be written
+	 * @param nameRoot        root name of the output files
+	 * @param nameExtension   extension of the output files
+	 * @return the name of the output file
+	 * @throws PlanItException thrown if the output directory cannot be opened
+	 */
+	private String generateOutputFileName(String outputDirectory, String nameRoot, String nameExtension)
 			throws PlanItException {
 		try {
-			OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
-			if (outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter) {
-				TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
-				writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, modes, timePeriod);
-			} else {
-				throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
-						+ " which has not been defined yet");
-			}
-			String	xmlOutputFileName = generateOutputFileName(xmlOutputDirectory, xmlNameRoot, xmlNameExtension);
-			Metadata metadata = new Metadata();
-			GregorianCalendar gregorianCalendar = new GregorianCalendar();
-			DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
-			XMLGregorianCalendar xmlGregorianCalendar = datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
-			metadata.setTimestamp(xmlGregorianCalendar);
-			metadata.setVersion("0.0.1");
-			metadata.setDescription("Description");
-			Outputconfiguration outputconfiguration = new Outputconfiguration();
-			outputconfiguration.setAssignment("Traditional Static Assignment");
-			outputconfiguration.setPhysicalcost("BPR");
-			outputconfiguration.setVirtualcost("Fixed");
-			org.planit.generated.Timeperiod timeperiod = new org.planit.generated.Timeperiod();
-			timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
-			timeperiod.setName(timePeriod.getDescription());
-			outputconfiguration.setTimeperiod(timeperiod);
-			metadata.setOutputconfiguration(outputconfiguration);
-			Simulation simulation = new Simulation();
-			Iteration iteration = new Iteration();
-			iteration.setNr(BigInteger.valueOf(1));
-			iteration.setCsvdata(csvOutputFileName);
-			simulation.setIteration(iteration);
-			metadata.setSimulation(simulation);
-			Columns generatedColumns = new Columns();
-			for (Column column : columns) {
-				org.planit.generated.Column generatedColumn = new org.planit.generated.Column();
-				generatedColumn.setName(Column.getName(column));
-				generatedColumn.setUnit(Column.getUnits(column));
-				generatedColumn.setType(Column.getType(column));
-				generatedColumns.getColumn().add(generatedColumn);
-			}
-			metadata.setColumns(generatedColumns);
-			XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, xmlOutputFileName);
+			String newFileName = outputDirectory + "\\" + nameRoot + nameExtension;
+			return newFileName;
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
+	}
+
+	/**
+	 * Persist the output data based on the passed in configuration and adapter
+	 * (contained in the configuration)
+	 * 
+	 * @param timePeriod              TimePeriod for the assignment to be saved
+	 * @param modes                   Set of modes for the assignment to be saved
+	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
+	 *                                be saved
+	 * @param simulationData          simulation data for the current iteration
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration,
+			SimulationData simulationData) throws PlanItException {
+		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
+		if (outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter) {
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
+			TraditionalStaticAssignmentSimulationData traditionalStaticAssignmentSimulationData = (TraditionalStaticAssignmentSimulationData) simulationData;
+			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes,
+					traditionalStaticAssignmentLinkOutputAdapter, traditionalStaticAssignmentSimulationData);
+		} else {
+			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
+					+ " which has not been defined yet");
+		}
+	}
+
+	/**
+	 * Persist the data for the current iteration using
+	 * TraditionalStaticAssignmentLinkOutputAdapter
+	 * 
+	 * @param timePeriod                                   TimePeriod for the
+	 *                                                     assignment to be saved
+	 * @param modes                                        Set of modes for the
+	 *                                                     assignment to be saved
+	 * @param traditionalStaticAssignmentLinkOutputAdapter output adapter
+	 * @param simulationData                               simulation data for the
+	 *                                                     current iteration
+	 * @throws PlanItException thrown if there is an error
+	 */
+	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
+			TraditionalStaticAssignmentSimulationData simulationData) throws PlanItException {
+		try {
+			int iterationIndex = simulationData.getIterationIndex();
+			String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNameRoot, csvNameExtension,
+					iterationIndex);
+			String currentXmlOutputFileName = generateOutputFileName(currentXmlOutputDirectory,
+					xmlNameRoot + "_" + timePeriod.getDescription() + "_" + iterationIndex, xmlNameExtension);
+			if (simulationData.isConverged()) {
+				writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
+						timePeriod);
+			}
+			Metadata metadata = new Metadata();
+
+			metadata = new Metadata();
+			metadata.setTimestamp(getTimestamp());
+			if (version != null)
+				metadata.setVersion(version);
+			if (description != null)
+				metadata.setDescription(description);
+			metadata.setOutputconfiguration(
+					getOutputconfiguration(traditionalStaticAssignmentLinkOutputAdapter, timePeriod));
+			metadata.setSimulation(getSimulation(iterationIndex, csvFileName));
+			metadata.setColumns(getColumns());
+
+			createCsvFileForCurrentIteration(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
+					csvFileName);
+			XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, currentXmlOutputFileName);
+
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Create the CSV file for the current iteration
+	 * 
+	 * @param traditionalStaticAssignmentLinkOutputAdapter outputAdapter storing
+	 *                                                     network
+	 * @param traditionalStaticAssignmentSimulationData    simulation data for the
+	 *                                                     current iteration
+	 * @param csvFileName                                  name of the CSV output
+	 *                                                     file for the current
+	 *                                                     iteration
+	 * @throws PlanItException thrown if the CSV file cannot be created or written
+	 *                         to
+	 */
+	private void createCsvFileForCurrentIteration(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
+			TraditionalStaticAssignmentSimulationData simulationData, Set<Mode> modes, String csvFileName)
+			throws PlanItException {
+
+		try {
+			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
+			List<String> titles = new ArrayList<String>();
+			columns.forEach(column -> {
+				titles.add(Column.getName(column));
+			});
+			csvIterationPrinter.printRecord(titles);
+			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
+
+			for (Mode mode : modes) {
+				double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
+				double[] modalNetworkSegmentFlows = simulationData.getModalNetworkSegmentFlows(mode);
+
+				Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
+				while (linkSegmentIter.hasNext()) {
+					MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) linkSegmentIter.next();
+					int id = (int) linkSegment.getId();
+					double flow = modalNetworkSegmentFlows[id];
+					if (flow > 0.0) {
+						double travelTime = modalNetworkSegmentCosts[id];
+						double length = linkSegment.getParentLink().getLength();
+						double speed = length / travelTime;
+						Node startNode = (Node) linkSegment.getUpstreamVertex();
+						Node endNode = (Node) linkSegment.getDownstreamVertex();
+						List<Object> row = new ArrayList<Object>();
+						for (Column column : columns) {
+							switch (column) {
+							case LINK_ID:
+								row.add(id);
+								break;
+							case MODE_ID:
+								row.add(mode.getExternalId());
+								break;
+							case SPEED:
+								row.add(speed);
+								break;
+							case DENSITY:
+								row.add(linkSegment.getLinkSegmentType().getMaximumDensityPerLane());
+								break;
+							case FLOW:
+								row.add(flow);
+								break;
+							case TRAVEL_TIME:
+								row.add(travelTime);
+								break;
+							case LENGTH:
+								row.add(length);
+								break;
+							case START_NODE_ID:
+								row.add(startNode.getExternalId());
+								break;
+							case END_NODE_ID:
+								row.add(endNode.getExternalId());
+								break;
+							}
+						}
+						csvIterationPrinter.printRecord(row);
+					}
+
+				}
+			}
+			csvIterationPrinter.close();
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Generate time stamp for the current date and time
+	 * 
+	 * @return XMLGregorianCalendar with the current date and time
+	 * @throws DatatypeConfigurationException thrown if the time stamp cannot be
+	 *                                        created
+	 */
+	private XMLGregorianCalendar getTimestamp() throws DatatypeConfigurationException {
+		GregorianCalendar gregorianCalendar = new GregorianCalendar();
+		DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+		return datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
+	}
+
+	/**
+	 * Create generated Columns object to be used in the XML output, based on user
+	 * selections
+	 * 
+	 * @return generated Columns object
+	 */
+	private Columns getColumns() {
+		Columns generatedColumns = new Columns();
+		for (Column column : columns) {
+			org.planit.generated.Column generatedColumn = new org.planit.generated.Column();
+			generatedColumn.setName(Column.getName(column));
+			generatedColumn.setUnit(Column.getUnits(column));
+			generatedColumn.setType(Column.getType(column));
+			generatedColumns.getColumn().add(generatedColumn);
+		}
+		return generatedColumns;
+	}
+
+	/**
+	 * Create the generated Simulation object to be used in the XML output
+	 * 
+	 * @param iterationIndex index of the current iteration
+	 * @param csvFileName    name of the output CSV file for this iteration
+	 * @return generated Simulation object
+	 * @throws PlanItException
+	 */
+	private Simulation getSimulation(int iterationIndex, String csvFileName) throws PlanItException {
+		Simulation simulation = new Simulation();
+		Iteration iteration = new Iteration();
+		iteration.setNr(BigInteger.valueOf(iterationIndex));
+		iteration.setCsvdata(csvFileName);
+		simulation.setIteration(iteration);
+		return simulation;
+	}
+
+	/**
+	 * Create the generated Outputconfiguration object
+	 * 
+	 * @param outputAdapter the OutputAdapter containing the run information
+	 * @param timePeriod    the current time period
+	 * @return the Outputconfiguration object
+	 */
+	private Outputconfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
+		Outputconfiguration outputconfiguration = new Outputconfiguration();
+		outputconfiguration.setAssignment(getClassName(outputAdapter.getTrafficAssignment()));
+		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getPhysicalCost()));
+		outputconfiguration.setVirtualcost(getClassName(outputAdapter.getTrafficAssignment().getVirtualCost()));
+		Timeperiod timeperiod = new Timeperiod();
+		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
+		timeperiod.setName(timePeriod.getDescription());
+		outputconfiguration.setTimeperiod(timeperiod);
+		return outputconfiguration;
+	}
+
+	/**
+	 * Return the name of a Java object class as a short string
+	 * 
+	 * @param object the Java object
+	 * @return the name of the object
+	 */
+	private String getClassName(Object object) {
+		String name = object.getClass().getCanonicalName();
+		String[] words = name.split("\\.");
+		return words[words.length - 1];
 	}
 
 	/**
@@ -171,10 +379,13 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private void writeResultsForCurrentTimePeriod(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+			TraditionalStaticAssignmentSimulationData simulationData, Set<Mode> modes, TimePeriod timePeriod)
+			throws PlanItException {
 		TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
 		for (Mode mode : modes) {
-			double[] modalNetworkSegmentCosts = outputAdapter.getModalNetworkSegmentCosts(mode);
+			// double[] modalNetworkSegmentCosts =
+			// outputAdapter.getModalNetworkSegmentCosts(mode);
+			double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
 			double[] modalNetworkSegmentFlows = outputAdapter.getModalNetworkSegmentFlows(mode);
 			writeResultsForCurrentModeAndTimePeriod(outputAdapter, mode, timePeriod, modalNetworkSegmentCosts,
 					modalNetworkSegmentFlows, transportNetwork);
@@ -221,13 +432,21 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 		}
 	}
 
+	/**
+	 * Create the output directories and open the CSV writers
+	 */
 	@Override
 	public void open() throws PlanItException {
-		if (xmlOutputFileName == null) {
-			xmlOutputFileName = generateOutputFileName(xmlOutputDirectory, xmlNameRoot, xmlNameExtension);
-		}
+		directoryCounter++;
+		currentXmlOutputDirectory = xmlOutputDirectory + "\\" + directoryCounter;
+		createOrOpenOutputDirectory(currentXmlOutputDirectory);
+
+		currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
+		createOrOpenOutputDirectory(currentCsvOutputDirectory);
+
 		if (csvOutputFileName == null) {
-			csvOutputFileName = generateOutputFileName(csvOutputDirectory, csvNameRoot, csvNameExtension);
+			int pos = createOrOpenOutputDirectory(csvOutputDirectory) + 1;
+			csvOutputFileName = generateOutputFileName(csvOutputDirectory, csvNameRoot, csvNameExtension, pos);
 		}
 		try {
 			csvPrinter = new CSVPrinter(new FileWriter(csvOutputFileName), CSVFormat.EXCEL);
@@ -238,12 +457,69 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 		}
 	}
 
+	/**
+	 * Close the XML and CSV writers
+	 */
 	@Override
 	public void close() throws PlanItException {
 		try {
 			csvPrinter.close();
 		} catch (Exception e) {
 			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Creates the output file directory if it does not already exist.
+	 * 
+	 * @param outputDirectory the output file directory
+	 * @return number of files in this directory
+	 * @throws PlanItException thrown if the directory cannot be opened or created
+	 */
+	private int createOrOpenOutputDirectory(String outputDirectory) throws PlanItException {
+		try {
+			File directory = new File(outputDirectory);
+			if (!directory.isDirectory()) {
+				Files.createDirectories(directory.toPath());
+			}
+			return directory.list().length;
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Call this method to delete all existing files in the XML output directory
+	 * 
+	 * @throws PlanItException
+	 */
+	public void resetXmlOutputDirectory() throws PlanItException {
+		createOrOpenOutputDirectory(xmlOutputDirectory);
+		File directory = new File(xmlOutputDirectory);
+		purgeDirectory(directory);
+	}
+
+	/**
+	 * Call this method to delete all existing files in the CSV output directory
+	 * 
+	 * @throws PlanItException
+	 */
+	public void resetCsvOutputDirectory() throws PlanItException {
+		createOrOpenOutputDirectory(csvOutputDirectory);
+		File directory = new File(csvOutputDirectory);
+		purgeDirectory(directory);
+	}
+
+	/**
+	 * Remove all files and sub-directories from a specified directory
+	 * 
+	 * @param directory directory to be cleared
+	 */
+	private void purgeDirectory(File directory) {
+		for (File file : directory.listFiles()) {
+			if (file.isDirectory())
+				purgeDirectory(file);
+			file.delete();
 		}
 	}
 
@@ -272,15 +548,6 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void setXmlNameRoot(String xmlNameRoot) {
 		this.xmlNameRoot = xmlNameRoot;
-	}
-
-	/**
-	 * Set the output file name
-	 * 
-	 * @param outputFileName the XML output file name
-	 */
-	public void setXmlOutputFileName(String xmlOutputFileName) {
-		this.xmlOutputFileName = xmlOutputFileName;
 	}
 
 	/**
@@ -317,6 +584,14 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void setCsvOutputFileName(String csvOutputFileName) {
 		this.csvOutputFileName = csvOutputFileName;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 }

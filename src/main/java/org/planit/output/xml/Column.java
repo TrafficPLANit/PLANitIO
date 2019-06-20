@@ -8,6 +8,9 @@ public enum Column {
     SPEED, 
     DENSITY,
     FLOW,
+    LENGTH,
+    START_NODE_ID,
+    END_NODE_ID,
     TRAVEL_TIME;
 	
 	public static String getName(Column column) {
@@ -24,6 +27,12 @@ public enum Column {
 			case FLOW: outString = "flow";
 			break;
 			case TRAVEL_TIME: outString = "travel time";
+			break;
+			case LENGTH: outString = "length";
+			break;
+			case START_NODE_ID: outString = "start node id";
+			break;
+			case END_NODE_ID: outString = "end node id";
 			break;
 		}
 		return outString;
@@ -44,6 +53,12 @@ public enum Column {
 			break;
 			case TRAVEL_TIME: outString = "hr";
 			break;
+			case LENGTH: outString = "km";
+			break;
+			case START_NODE_ID: outString = "none";
+			break;
+			case END_NODE_ID: outString = "none";
+			break;
 		}
 		return outString;
 	}
@@ -63,6 +78,12 @@ public enum Column {
 			case FLOW: outString = Datatypedescription.FLOAT;
 			break;
 			case TRAVEL_TIME: outString = Datatypedescription.FLOAT;
+			break;
+			case LENGTH: outString = Datatypedescription.DOUBLE;
+			break;
+			case START_NODE_ID:  outString = Datatypedescription.INTEGER;
+			break;
+			case END_NODE_ID:  outString = Datatypedescription.INTEGER;
 			break;
 		}
 		return outString;

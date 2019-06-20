@@ -116,7 +116,7 @@ public class PlanItXmlMain {
 		XMLOutputFormatter xmlOutputFormatter = (XMLOutputFormatter) project
 				.createAndRegisterOutputFormatter(XMLOutputFormatter.class.getCanonicalName());
 		xmlOutputFormatter.setCsvOutputFileName(csvResultsFileLocation);
-		xmlOutputFormatter.setXmlOutputFileName(xmlResultsFileLocation);
+		//xmlOutputFormatter.setXmlOutputFileName(xmlResultsFileLocation);
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 		
 
