@@ -49,29 +49,75 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 
 	private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
 	private static final String DEFAULT_XML_NAME_ROOT = "XMLOutput";
-	private static final String DEFAULT_XML_OUTPUT_DIRECTORY = "C:\\Users\\Public\\PlanIt\\Xml";
+	private static final String DEFAULT_XML_ROOT_OUTPUT_DIRECTORY = "C:\\Users\\Public\\PlanIt\\Xml";
 	private static final String DEFAULT_CSV_NAME_EXTENSION = ".csv";
 	private static final String DEFAULT_CSV_NAME_ROOT = "CSVOutput";
-	private static final String DEFAULT_CSV_OUTPUT_DIRECTORY = "C:\\Users\\Public\\PlanIt\\Csv";
+	private static final String DEFAULT_CSV_ROOT_OUTPUT_DIRECTORY = "C:\\Users\\Public\\PlanIt\\Csv";
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger LOGGER = Logger.getLogger(XMLOutputFormatter.class.getName());
 
+	/**
+	 * The extension of the XML output files
+	 */
 	private String xmlNameExtension;
+
+	/**
+	 * The root name of the XML output files
+	 */
 	private String xmlNameRoot;
-	private String xmlOutputDirectory;
+
+	/**
+	 * The root directory to store the XML output files
+	 */
+	private String xmlRootOutputDirectory;
+
+	/**
+	 * The directory of the XML output file for the current iteration
+	 */
 	private String currentXmlOutputDirectory;
+
+	/**
+	 * The directory of the CSV output file for the current iteration
+	 */
 	private String currentCsvOutputDirectory;
 
+	/**
+	 * The extension of the CSV output files
+	 */
 	private String csvNameExtension;
+
+	/**
+	 * The root name of the CSV output files
+	 */
 	private String csvNameRoot;
-	private String csvOutputDirectory;
-	private String csvOutputFileName;
-	private CSVPrinter csvPrinter;
+
+	/**
+	 * The root directory of the CSV output files
+	 */
+	private String csvRootOutputDirectory;
+
+	/**
+	 * List of columns to be included in the CSV files
+	 */
 	private List<Column> columns;
+
+	/**
+	 * Description to be included in the XML file in the <description> element
+	 */
 	private String description;
+
+	/**
+	 * Version to be included in the XML file in the <version> element
+	 */
 	private String version;
+
+	// TODO - csvSummaryOutputFileName and csvPrinter only exist to create output
+	// CSV files which correspond to BasicCsv output. We can probably remove this
+	// later.
+	private String csvSummaryOutputFileName;
+	private CSVPrinter csvPrinter;
 
 	private static int directoryCounter = 0;
 
@@ -79,13 +125,13 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 * Base constructor
 	 */
 	public XMLOutputFormatter() {
-		xmlOutputDirectory = DEFAULT_XML_OUTPUT_DIRECTORY;
+		xmlRootOutputDirectory = DEFAULT_XML_ROOT_OUTPUT_DIRECTORY;
 		xmlNameRoot = DEFAULT_XML_NAME_ROOT;
 		xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
-		csvOutputDirectory = DEFAULT_CSV_OUTPUT_DIRECTORY;
+		csvRootOutputDirectory = DEFAULT_CSV_ROOT_OUTPUT_DIRECTORY;
 		csvNameRoot = DEFAULT_CSV_NAME_ROOT;
 		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
-		csvOutputFileName = null;
+		csvSummaryOutputFileName = null;
 		columns = new ArrayList<Column>();
 	}
 
@@ -179,8 +225,11 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
 			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
 			TraditionalStaticAssignmentSimulationData simulationData) throws PlanItException {
-		writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
-				timePeriod);
+		// TODO - We only write output to the CSV summary output file for comparison
+		// with BasicCsv results. We can remove this call when this functionality is no
+		// longer required
+		writeResultsToCsvSummaryFileForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData,
+				modes, timePeriod);
 		int iterationIndex = simulationData.getIterationIndex();
 		String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNameRoot, csvNameExtension,
 				iterationIndex);
@@ -192,12 +241,15 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 
 	/**
 	 * Create the XML output file for the current iteration
-	 *  
-	 * @param iteration index of the current iteration
+	 * 
+	 * @param iteration                                    index of the current
+	 *                                                     iteration
 	 * @param traditionalStaticAssignmentLinkOutputAdapter output adapter
-	 * @param timePeriod the current time period
-	 * @param csvFileName the corresponding CSV output file name
-	 * @throws PlanItException thrown if there is an error writing the data to an XML file
+	 * @param timePeriod                                   the current time period
+	 * @param csvFileName                                  the corresponding CSV
+	 *                                                     output file name
+	 * @throws PlanItException thrown if there is an error writing the data to an
+	 *                         XML file
 	 */
 	private void createXmlFileForCurrentIteration(int iterationIndex,
 			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
@@ -249,18 +301,17 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 			});
 			csvIterationPrinter.printRecord(titles);
 			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
+			Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
 
 			for (Mode mode : modes) {
 				double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
 				double[] modalNetworkSegmentFlows = simulationData.getModalNetworkSegmentFlows(mode);
-
-				Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
 				while (linkSegmentIter.hasNext()) {
 					MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) linkSegmentIter.next();
 					int id = (int) linkSegment.getId();
 					double flow = modalNetworkSegmentFlows[id];
-					double travelTime = modalNetworkSegmentCosts[id];
 					if (flow > 0.0) {
+						double travelTime = modalNetworkSegmentCosts[id];
 						csvIterationPrinter.printRecord(getRow(linkSegment, mode, id, flow, travelTime));
 					}
 				}
@@ -401,7 +452,7 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Write the results for the current time period to the CSV file
+	 * Write the results for the current time period to the CSV summary file
 	 * 
 	 * @param outputAdapter TraditionalStaticAssignmentLinkOutputAdapter used to
 	 *                      retrieve the results of the assignment
@@ -409,7 +460,8 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 * @param timePeriod    the current time period
 	 * @throws PlanItException thrown if there is an error
 	 */
-	private void writeResultsForCurrentTimePeriod(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
+	private void writeResultsToCsvSummaryFileForCurrentTimePeriod(
+			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
 			TraditionalStaticAssignmentSimulationData simulationData, Set<Mode> modes, TimePeriod timePeriod)
 			throws PlanItException {
 		if (simulationData.isConverged()) {
@@ -417,14 +469,15 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 			for (Mode mode : modes) {
 				double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
 				double[] modalNetworkSegmentFlows = simulationData.getModalNetworkSegmentFlows(mode);
-				writeResultsForCurrentModeAndTimePeriod(outputAdapter, mode, timePeriod, modalNetworkSegmentCosts,
-						modalNetworkSegmentFlows, transportNetwork);
+				writeResultsToCsvSummaryFileForCurrentModeAndTimePeriod(outputAdapter, mode, timePeriod,
+						modalNetworkSegmentCosts, modalNetworkSegmentFlows, transportNetwork);
 			}
 		}
 	}
 
 	/**
-	 * Write results for the current mode and time period to the CSV file
+	 * Write results for the current mode and time period to the CSV summary output
+	 * file
 	 * 
 	 * @param outputAdapter            TraditionalStaticAssignmentLinkOutputAdapter
 	 * @param mode                     current mode of travel
@@ -435,9 +488,10 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 * @param transportNetwork         the transport network
 	 * @throws PlanItException thrown if there is an error
 	 */
-	private void writeResultsForCurrentModeAndTimePeriod(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			Mode mode, TimePeriod timePeriod, double[] modalNetworkSegmentCosts, double[] modalNetworkSegmentFlows,
-			TransportNetwork transportNetwork) throws PlanItException {
+	private void writeResultsToCsvSummaryFileForCurrentModeAndTimePeriod(
+			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter, Mode mode, TimePeriod timePeriod,
+			double[] modalNetworkSegmentCosts, double[] modalNetworkSegmentFlows, TransportNetwork transportNetwork)
+			throws PlanItException {
 		try {
 			double totalCost = 0.0;
 			Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
@@ -469,18 +523,28 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	@Override
 	public void open() throws PlanItException {
 		directoryCounter++;
-		currentXmlOutputDirectory = xmlOutputDirectory + "\\" + directoryCounter;
+		currentXmlOutputDirectory = xmlRootOutputDirectory + "\\" + directoryCounter;
 		createOrOpenOutputDirectory(currentXmlOutputDirectory);
 
-		currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
+		currentCsvOutputDirectory = csvRootOutputDirectory + "\\" + directoryCounter;
 		createOrOpenOutputDirectory(currentCsvOutputDirectory);
+		openCsvSummaryOutputFile();
+	}
 
+	/**
+	 * Open the CSV Summary Output file and write its header line
+	 * 
+	 * @throws PlanItException thrown if the CSV output file cannot be opened
+	 */
+//TODO - We only create the CSV Summary Output file to create CSV output files whose content can be compared to BasicCsv output.  We will remove this method when this functionality is no longer required.
+	private void openCsvSummaryOutputFile() throws PlanItException {
 		try {
-			if (csvOutputFileName == null) {
-				int pos = createOrOpenOutputDirectory(csvOutputDirectory) + 1;
-				csvOutputFileName = generateOutputFileName(csvOutputDirectory, csvNameRoot, csvNameExtension, pos);
+			if (csvSummaryOutputFileName == null) {
+				int pos = createOrOpenOutputDirectory(csvRootOutputDirectory) + 1;
+				csvSummaryOutputFileName = generateOutputFileName(csvRootOutputDirectory, csvNameRoot, csvNameExtension,
+						pos);
 			}
-			csvPrinter = new CSVPrinter(new FileWriter(csvOutputFileName), CSVFormat.EXCEL);
+			csvPrinter = new CSVPrinter(new FileWriter(csvSummaryOutputFileName), CSVFormat.EXCEL);
 			csvPrinter.printRecord("Run Id", "Time Period Id", "Mode Id", "Start Node Id", "End Node Id", "Link Flow",
 					"Capacity", "Length", "Speed", "Link Cost", "Cost to End Node");
 		} catch (Exception e) {
@@ -525,8 +589,8 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException
 	 */
 	public void resetXmlOutputDirectory() throws PlanItException {
-		createOrOpenOutputDirectory(xmlOutputDirectory);
-		File directory = new File(xmlOutputDirectory);
+		createOrOpenOutputDirectory(xmlRootOutputDirectory);
+		File directory = new File(xmlRootOutputDirectory);
 		purgeDirectory(directory);
 	}
 
@@ -536,8 +600,8 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException
 	 */
 	public void resetCsvOutputDirectory() throws PlanItException {
-		createOrOpenOutputDirectory(csvOutputDirectory);
-		File directory = new File(csvOutputDirectory);
+		createOrOpenOutputDirectory(csvRootOutputDirectory);
+		File directory = new File(csvRootOutputDirectory);
 		purgeDirectory(directory);
 	}
 
@@ -557,10 +621,10 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Sets the name of the XML output file directory
 	 * 
-	 * @param outputDirectory the name of the XML output file directory
+	 * @param xmlRootOutputDirectory the name of the XML output file directory
 	 */
-	public void setXmlDirectory(String xmlOutputDirectory) {
-		this.xmlOutputDirectory = xmlOutputDirectory;
+	public void setXmlDirectory(String xmlRootOutputDirectory) {
+		this.xmlRootOutputDirectory = xmlRootOutputDirectory;
 	}
 
 	/**
@@ -584,10 +648,10 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Sets the name of the CSV output file directory
 	 * 
-	 * @param outputDirectory the name of the CSV output file directory
+	 * @param csvRootOutputDirectory the name of the CSV output file directory
 	 */
-	public void setCsvDirectory(String csvOutputDirectory) {
-		this.csvOutputDirectory = csvOutputDirectory;
+	public void setCsvDirectory(String csvRootOutputDirectory) {
+		this.csvRootOutputDirectory = csvRootOutputDirectory;
 	}
 
 	/**
@@ -609,12 +673,14 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Set the output file name
+	 * Set the CSV summary output file name
+	 * 
+	 * If this method is not called during the setup phase, the CSV summary output file is not created.
 	 * 
 	 * @param outputFileName the CSV output file name
 	 */
-	public void setCsvOutputFileName(String csvOutputFileName) {
-		this.csvOutputFileName = csvOutputFileName;
+	public void setCsvSummaryOutputFileName(String csvSummaryOutputFileName) {
+		this.csvSummaryOutputFileName = csvSummaryOutputFileName;
 	}
 
 	/**
@@ -633,6 +699,24 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	/**
+	 * Set the XML output file root directory
+	 * 
+	 * @param xmlRootOutputDirectory the XML output file root directory
+	 */
+	public void setXmlRootOutputDirectory(String xmlRootOutputDirectory) {
+		this.xmlRootOutputDirectory = xmlRootOutputDirectory;
+	}
+
+	/**
+	 * Set the CSV output file root directory
+	 * 
+	 * @param csvRootOutputDirectory the CSV output file root directory
+	 */
+	public void setCsvRootOutputDirectory(String csvRootOutputDirectory) {
+		this.csvRootOutputDirectory = csvRootOutputDirectory;
 	}
 
 }

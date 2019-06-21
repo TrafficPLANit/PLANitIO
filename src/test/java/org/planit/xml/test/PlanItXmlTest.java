@@ -41,7 +41,6 @@ public class PlanItXmlTest {
 
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlTest.class.getName());
 	private static final String CSV_TEST_RESULTS_LOCATION = "src\\test\\testRunOutput.csv";
-	private static final String XML_TEST_RESULTS_LOCATION = "src\\test\\testRunOutput.xml";
 	private static final String DEFAULT_VERSION = "0.0.1";
 	private static boolean clearOutputDirectories;
 
@@ -314,7 +313,7 @@ public class PlanItXmlTest {
 			xmlOutputFormatter.resetCsvOutputDirectory();
 			clearOutputDirectories = false;
 		}
-		xmlOutputFormatter.setCsvOutputFileName(CSV_TEST_RESULTS_LOCATION);
+		xmlOutputFormatter.setCsvSummaryOutputFileName(CSV_TEST_RESULTS_LOCATION);
 		xmlOutputFormatter.addColumn(Column.LINK_ID);
 		xmlOutputFormatter.addColumn(Column.START_NODE_ID);
 		xmlOutputFormatter.addColumn(Column.END_NODE_ID);
