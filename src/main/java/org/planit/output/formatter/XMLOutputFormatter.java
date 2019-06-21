@@ -89,6 +89,11 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 		columns = new ArrayList<Column>();
 	}
 
+	/**
+	 * Add a column to the output CSV files
+	 * 
+	 * @param column column to be included in the output files
+	 */
 	public void addColumn(Column column) {
 		columns.add(column);
 	}
@@ -174,19 +179,29 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
 			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
 			TraditionalStaticAssignmentSimulationData simulationData) throws PlanItException {
+
+		//if (simulationData.isConverged()) {
+			writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
+					timePeriod);
+		//}
+
+		int iterationIndex = simulationData.getIterationIndex();
+		String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNameRoot, csvNameExtension,
+				iterationIndex);
+		createCsvFileForCurrentIteration(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
+				csvFileName);
+		createXmlFileForCurrentIteration(iterationIndex, traditionalStaticAssignmentLinkOutputAdapter, timePeriod,
+				csvFileName);
+	}
+
+	private void createXmlFileForCurrentIteration(int iterationIndex,
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
+			TimePeriod timePeriod, String csvFileName) throws PlanItException {
 		try {
-			int iterationIndex = simulationData.getIterationIndex();
-			String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNameRoot, csvNameExtension,
-					iterationIndex);
 			String currentXmlOutputFileName = generateOutputFileName(currentXmlOutputDirectory,
 					xmlNameRoot + "_" + timePeriod.getDescription() + "_" + iterationIndex, xmlNameExtension);
-			if (simulationData.isConverged()) {
-				writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
-						timePeriod);
-			}
-			Metadata metadata = new Metadata();
 
-			metadata = new Metadata();
+			Metadata metadata = new Metadata();
 			metadata.setTimestamp(getTimestamp());
 			if (version != null)
 				metadata.setVersion(version);
@@ -196,14 +211,12 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 					getOutputconfiguration(traditionalStaticAssignmentLinkOutputAdapter, timePeriod));
 			metadata.setSimulation(getSimulation(iterationIndex, csvFileName));
 			metadata.setColumns(getColumns());
-
-			createCsvFileForCurrentIteration(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
-					csvFileName);
 			XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, currentXmlOutputFileName);
 
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
+
 	}
 
 	/**
@@ -241,53 +254,66 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 					MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) linkSegmentIter.next();
 					int id = (int) linkSegment.getId();
 					double flow = modalNetworkSegmentFlows[id];
+					double travelTime = modalNetworkSegmentCosts[id];
 					if (flow > 0.0) {
-						double travelTime = modalNetworkSegmentCosts[id];
-						double length = linkSegment.getParentLink().getLength();
-						double speed = length / travelTime;
-						Node startNode = (Node) linkSegment.getUpstreamVertex();
-						Node endNode = (Node) linkSegment.getDownstreamVertex();
-						List<Object> row = new ArrayList<Object>();
-						for (Column column : columns) {
-							switch (column) {
-							case LINK_ID:
-								row.add(id);
-								break;
-							case MODE_ID:
-								row.add(mode.getExternalId());
-								break;
-							case SPEED:
-								row.add(speed);
-								break;
-							case DENSITY:
-								row.add(linkSegment.getLinkSegmentType().getMaximumDensityPerLane());
-								break;
-							case FLOW:
-								row.add(flow);
-								break;
-							case TRAVEL_TIME:
-								row.add(travelTime);
-								break;
-							case LENGTH:
-								row.add(length);
-								break;
-							case START_NODE_ID:
-								row.add(startNode.getExternalId());
-								break;
-							case END_NODE_ID:
-								row.add(endNode.getExternalId());
-								break;
-							}
-						}
-						csvIterationPrinter.printRecord(row);
+						csvIterationPrinter.printRecord(getRow(linkSegment, mode, id, flow, travelTime));
 					}
-
 				}
 			}
 			csvIterationPrinter.close();
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
+	}
+
+	/**
+	 * Return the row for the current link to be included in the CSV output file
+	 * 
+	 * @param linkSegment current link segment
+	 * @param mode        mode of travel
+	 * @param id          id of the current link segment
+	 * @param flow        flow through the current link segment
+	 * @param travelTime  travel time along the current link segment
+	 * @return
+	 */
+	private List<Object> getRow(MacroscopicLinkSegment linkSegment, Mode mode, int id, double flow, double travelTime) {
+		double length = linkSegment.getParentLink().getLength();
+		double speed = length / travelTime;
+		List<Object> row = new ArrayList<Object>();
+		for (Column column : columns) {
+			switch (column) {
+			case LINK_ID:
+				row.add(id);
+				break;
+			case MODE_ID:
+				row.add(mode.getExternalId());
+				break;
+			case SPEED:
+				row.add(speed);
+				break;
+			case DENSITY:
+				row.add(linkSegment.getLinkSegmentType().getMaximumDensityPerLane());
+				break;
+			case FLOW:
+				row.add(flow);
+				break;
+			case TRAVEL_TIME:
+				row.add(travelTime);
+				break;
+			case LENGTH:
+				row.add(length);
+				break;
+			case START_NODE_ID:
+				Node startNode = (Node) linkSegment.getUpstreamVertex();
+				row.add(startNode.getExternalId());
+				break;
+			case END_NODE_ID:
+				Node endNode = (Node) linkSegment.getDownstreamVertex();
+				row.add(endNode.getExternalId());
+				break;
+			}
+		}
+		return row;
 	}
 
 	/**
@@ -381,14 +407,14 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	private void writeResultsForCurrentTimePeriod(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
 			TraditionalStaticAssignmentSimulationData simulationData, Set<Mode> modes, TimePeriod timePeriod)
 			throws PlanItException {
-		TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
-		for (Mode mode : modes) {
-			// double[] modalNetworkSegmentCosts =
-			// outputAdapter.getModalNetworkSegmentCosts(mode);
-			double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
-			double[] modalNetworkSegmentFlows = outputAdapter.getModalNetworkSegmentFlows(mode);
-			writeResultsForCurrentModeAndTimePeriod(outputAdapter, mode, timePeriod, modalNetworkSegmentCosts,
-					modalNetworkSegmentFlows, transportNetwork);
+		if (simulationData.isConverged()) {
+			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
+			for (Mode mode : modes) {
+				double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
+				double[] modalNetworkSegmentFlows = simulationData.getModalNetworkSegmentFlows(mode);
+				writeResultsForCurrentModeAndTimePeriod(outputAdapter, mode, timePeriod, modalNetworkSegmentCosts,
+						modalNetworkSegmentFlows, transportNetwork);
+			}
 		}
 	}
 
@@ -444,11 +470,11 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 		currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
 		createOrOpenOutputDirectory(currentCsvOutputDirectory);
 
-		if (csvOutputFileName == null) {
-			int pos = createOrOpenOutputDirectory(csvOutputDirectory) + 1;
-			csvOutputFileName = generateOutputFileName(csvOutputDirectory, csvNameRoot, csvNameExtension, pos);
-		}
 		try {
+			if (csvOutputFileName == null) {
+				int pos = createOrOpenOutputDirectory(csvOutputDirectory) + 1;
+				csvOutputFileName = generateOutputFileName(csvOutputDirectory, csvNameRoot, csvNameExtension, pos);
+			}
 			csvPrinter = new CSVPrinter(new FileWriter(csvOutputFileName), CSVFormat.EXCEL);
 			csvPrinter.printRecord("Run Id", "Time Period Id", "Mode Id", "Start Node Id", "End Node Id", "Link Flow",
 					"Capacity", "Length", "Speed", "Link Cost", "Cost to End Node");
@@ -586,10 +612,20 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 		this.csvOutputFileName = csvOutputFileName;
 	}
 
+	/**
+	 * Set the String to be used in the <description> element in the output XML file
+	 * 
+	 * @param description description to be included
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 * Set the String to be used in the <version> element in the output XML file
+	 * 
+	 * @param version version to be included
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}

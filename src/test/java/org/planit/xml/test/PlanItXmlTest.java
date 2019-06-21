@@ -306,7 +306,7 @@ public class PlanItXmlTest {
 		// OUTPUT
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		outputConfiguration.setPersistOnlyFinalIteration(false); // option to only persist the final iteration
+		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		XMLOutputFormatter xmlOutputFormatter = (XMLOutputFormatter) project
 				.createAndRegisterOutputFormatter(XMLOutputFormatter.class.getCanonicalName());
 		if (clearOutputDirectories) {
@@ -324,7 +324,7 @@ public class PlanItXmlTest {
 		xmlOutputFormatter.addColumn(Column.FLOW);
 		xmlOutputFormatter.addColumn(Column.TRAVEL_TIME);
 		xmlOutputFormatter.setXmlNameRoot("PlanItXmlTest");
-		xmlOutputFormatter.setCsvNameRoot("updated_linkdata_i");
+		xmlOutputFormatter.setCsvNameRoot("PlanItXmlTest");
 		xmlOutputFormatter.setVersion(version);
 		xmlOutputFormatter.setDescription(description);
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);

@@ -11,6 +11,7 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
+import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.XMLOutputFormatter;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
@@ -37,7 +38,6 @@ public class PlanItXmlMain {
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
 
 	private String csvResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\results.csv";
-	private String xmlResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\results.xml";
 	private String zoningXmlFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\zones.xml";
 	private String demandXmlFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\demands.xml";
 	private String networkXmlFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\network.xml";
@@ -60,9 +60,9 @@ public class PlanItXmlMain {
 	}
 
 	/**
-	 * Top-level business method for the BasicCsvMain program.
+	 * Top-level business method for the PlanItXmlMain program.
 	 * 
-	 * This method instantiates the BasicCsvScan object to read the input files and
+	 * This method instantiates the PlanItXmlMain object to read the input files and
 	 * the PlanItProject object to run the assignment. The output results are
 	 * currently saved to a CSV file.
 	 * 
@@ -113,12 +113,13 @@ public class PlanItXmlMain {
 
 		// OUTPUT
 		assignment.activateOutput(OutputType.LINK);
+		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		XMLOutputFormatter xmlOutputFormatter = (XMLOutputFormatter) project
 				.createAndRegisterOutputFormatter(XMLOutputFormatter.class.getCanonicalName());
-		xmlOutputFormatter.setCsvOutputFileName(csvResultsFileLocation);
-		//xmlOutputFormatter.setXmlOutputFileName(xmlResultsFileLocation);
+		xmlOutputFormatter.resetXmlOutputDirectory();
+		xmlOutputFormatter.resetCsvOutputDirectory();
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
-		
 
 		// "USER" configuration
 		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
