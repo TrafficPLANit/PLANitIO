@@ -179,12 +179,8 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
 			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
 			TraditionalStaticAssignmentSimulationData simulationData) throws PlanItException {
-
-		//if (simulationData.isConverged()) {
-			writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
-					timePeriod);
-		//}
-
+		writeResultsForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
+				timePeriod);
 		int iterationIndex = simulationData.getIterationIndex();
 		String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNameRoot, csvNameExtension,
 				iterationIndex);
@@ -194,6 +190,15 @@ public class XMLOutputFormatter extends BaseOutputFormatter {
 				csvFileName);
 	}
 
+	/**
+	 * Create the XML output file for the current iteration
+	 *  
+	 * @param iteration index of the current iteration
+	 * @param traditionalStaticAssignmentLinkOutputAdapter output adapter
+	 * @param timePeriod the current time period
+	 * @param csvFileName the corresponding CSV output file name
+	 * @throws PlanItException thrown if there is an error writing the data to an XML file
+	 */
 	private void createXmlFileForCurrentIteration(int iterationIndex,
 			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
 			TimePeriod timePeriod, String csvFileName) throws PlanItException {
