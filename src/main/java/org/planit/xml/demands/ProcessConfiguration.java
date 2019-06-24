@@ -49,6 +49,7 @@ public class ProcessConfiguration {
 				: demandconfiguration.getTravellertypes();
 		if (travellertypes.getTravellertype().isEmpty()) {
 			travellertypes.getTravellertype().add(generateDefaultTravellerType());
+			demandconfiguration.setTravellertypes(travellertypes);
 		}
 		for (Travellertypes.Travellertype travellertype : travellertypes.getTravellertype()) {
 			TravelerType travellerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
@@ -82,6 +83,7 @@ public class ProcessConfiguration {
 			long travellerTypeId = (userclass.getTravellertyperef() == null)
 					? PlanItXml.DEFAULT_TRAVELER_TYPE_EXTERNAL_ID
 					: userclass.getTravellertyperef().longValue();
+			userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
 			TravelerType travellerType = TravelerType.getByExternalId(travellerTypeId);
 			UserClass userClass = new UserClass(userclass.getId().longValue(), userclass.getName(), modeId,
 					travellerType.getExternalId());

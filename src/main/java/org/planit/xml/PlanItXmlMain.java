@@ -12,7 +12,7 @@ import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.OutputConfiguration;
-import org.planit.output.formatter.XMLOutputFormatter;
+import org.planit.output.formatter.PlanItXMLOutputFormatter;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
@@ -115,8 +115,8 @@ public class PlanItXmlMain {
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
-		XMLOutputFormatter xmlOutputFormatter = (XMLOutputFormatter) project
-				.createAndRegisterOutputFormatter(XMLOutputFormatter.class.getCanonicalName());
+		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
+				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
 		xmlOutputFormatter.resetXmlOutputDirectory();
 		xmlOutputFormatter.resetCsvOutputDirectory();
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);

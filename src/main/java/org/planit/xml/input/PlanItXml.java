@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import org.planit.cost.physical.PhysicalCost;
+import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.event.listener.InputBuilderListener;
@@ -21,6 +23,7 @@ import org.planit.generated.Zones.Zone;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
+import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
@@ -138,6 +141,12 @@ public class PlanItXml implements InputBuilderListener {
 				populateZoning((Zoning) projectComponent);
 			} else if (projectComponent instanceof Demands) {
 				populateDemands((Demands) projectComponent);
+	        } else if (projectComponent instanceof PhysicalCost) {
+	        	populatePhysicalCost((PhysicalCost)  projectComponent);
+	        } else if (projectComponent instanceof VirtualCost) {
+	            populateVirtualCost((VirtualCost) projectComponent);
+	        } else if (projectComponent instanceof Smoothing) {
+	        	populateSmoothing((Smoothing) projectComponent);
 			} else {
 				LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
 						+ " which is not handled by BascCsvScan");
@@ -225,5 +234,20 @@ public class PlanItXml implements InputBuilderListener {
 			throw new PlanItException(e);
 		}
 	}
+	
+	public void populatePhysicalCost(@Nonnull PhysicalCost physicalCost) throws PlanItException {
+        //Populate Physical Cost - event generated but no more action required
+        LOGGER.info("Populating Physical Cost");
+	}
 
+	public void populateVirtualCost(@Nonnull VirtualCost virtualCost) throws PlanItException {
+        //Populate Virtual Cost - event generated but no more action required
+        LOGGER.info("Populating Virtual Cost ");     
+	}
+	public void populateSmoothing(@Nonnull  Smoothing smoothing)throws PlanItException {
+		//Populate Smoothing - event generated but no more action required
+		LOGGER.info("Populating Smoothing");
+	}
+	
+	
 }
