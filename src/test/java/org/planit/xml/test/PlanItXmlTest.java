@@ -59,9 +59,7 @@ public class PlanItXmlTest {
 	public void testBasic1() {
 		try {
 			runTest("src\\test\\resources\\basic\\xml\\test1\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test1\\zones.xml",
-					"src\\test\\resources\\basic\\xml\\test1\\demands.xml",
-					"src\\test\\resources\\basic\\xml\\test1\\network.xml", null, DEFAULT_VERSION, "testBasic1");
+					"src\\test\\resources\\basic\\xml\\test1", null, DEFAULT_VERSION, "testBasic1");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -72,9 +70,7 @@ public class PlanItXmlTest {
 	public void testBasic2() {
 		try {
 			runTest("src\\test\\resources\\basic\\xml\\test2\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test2\\zones.xml",
-					"src\\test\\resources\\basic\\xml\\test2\\demands.xml",
-					"src\\test\\resources\\basic\\xml\\test2\\network.xml", null, DEFAULT_VERSION, "testBasic2");
+					"src\\test\\resources\\basic\\xml\\test2", null, DEFAULT_VERSION, "testBasic2");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -85,9 +81,7 @@ public class PlanItXmlTest {
 	public void testBasic3() {
 		try {
 			runTest("src\\test\\resources\\basic\\xml\\test3\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test3\\zones.xml",
-					"src\\test\\resources\\basic\\xml\\test3\\demands.xml",
-					"src\\test\\resources\\basic\\xml\\test3\\network.xml", null, DEFAULT_VERSION, "testBasic3");
+					"src\\test\\resources\\basic\\xml\\test3", null, DEFAULT_VERSION, "testBasic3");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -98,9 +92,7 @@ public class PlanItXmlTest {
 	public void testBasic13() {
 		try {
 			runTest("src\\test\\resources\\basic\\xml\\test13\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test13\\zones.xml",
-					"src\\test\\resources\\basic\\xml\\test13\\demands.xml",
-					"src\\test\\resources\\basic\\xml\\test13\\network.xml", null, DEFAULT_VERSION, "testBasic13");
+					"src\\test\\resources\\basic\\xml\\test13", null, DEFAULT_VERSION, "testBasic13");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -111,9 +103,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice1() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test1\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test1\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test1\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test1\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test1", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice1");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -125,9 +115,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice2() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test2\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test2\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test2\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test2\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test2", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice2");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -139,9 +127,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice3() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test3\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test3\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test3\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test3\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test3", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice3");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,9 +139,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice4() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test4\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test4\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test4\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test4\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test4", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice4");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -167,9 +151,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice42() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test42\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test42\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test42\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test42\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test42", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice42");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -181,9 +163,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice4raw() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test4raw\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test4raw\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test4raw\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test4raw\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test4raw", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice4raw");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -195,9 +175,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice4raw2() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test4raw2\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test4raw2\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test4raw2\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test4raw2\\network.xml", 500, 0.0, null, DEFAULT_VERSION,
+					"src\\test\\resources\\route_choice\\xml\\test4raw2", 500, 0.0, null, DEFAULT_VERSION,
 					"testRouteChoice4raw2");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -209,9 +187,7 @@ public class PlanItXmlTest {
 	public void testRouteChoice5() {
 		try {
 			runTest("src\\test\\resources\\route_choice\\xml\\test5\\results.csv",
-					"src\\test\\resources\\route_choice\\xml\\test5\\zones.xml",
-					"src\\test\\resources\\route_choice\\xml\\test5\\demands.xml",
-					"src\\test\\resources\\route_choice\\xml\\test5\\network.xml", 500, 0.0,
+					"src\\test\\resources\\route_choice\\xml\\test5", 500, 0.0,
 					(physicalNetwork, bprLinkTravelTimeCost) -> {
 						MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 						MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
@@ -224,14 +200,31 @@ public class PlanItXmlTest {
 			fail(e.getMessage());
 		}
 	}
-
+/*	
 	private void runTest(String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String version, String description) throws Exception {
 		runTest(resultsFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, null, null,
 				setCostParameters, version, description);
 	}
+*/	
 
+	private void runTest(String resultsFileLocation, String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String version, String description) throws Exception {
+		IdGenerator.reset();
+		InputBuilderListener inputBuilderListener = new PlanItXml(projectPath);
+		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, null, null,
+				setCostParameters, version, description);
+	}
+	
+	private void runTest(String resultsFileLocation, String projectPath, int maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String version, String description) throws Exception {
+		IdGenerator.reset();
+		InputBuilderListener inputBuilderListener = new PlanItXml(projectPath);
+		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
+				setCostParameters, version, description);
+	}
+/*	
 	private void runTest(String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation, Integer maxIterations, Double epsilon,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String version, String description)
@@ -240,6 +233,15 @@ public class PlanItXmlTest {
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXml(zoningXmlFileLocation, demandXmlFileLocation,
 				networkXmlFileLocation);
+		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
+				setCostParameters, version, description);
+	}
+
+	private void runTest(String resultsFileLocation, String projectPath, Integer maxIterations, Double epsilon,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String version, String description)
+			throws Exception {
+		IdGenerator.reset();
+		InputBuilderListener inputBuilderListener = new PlanItXml(projectPath);
 		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
 				setCostParameters, version, description);
 	}
@@ -265,7 +267,7 @@ public class PlanItXmlTest {
 		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
 				setCostParameters, version, description);
 	}
-
+*/
 	private void runTestFromInputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String version, String description) throws PlanItException {
@@ -322,10 +324,12 @@ public class PlanItXmlTest {
 		xmlOutputFormatter.addColumn(Column.DENSITY);
 		xmlOutputFormatter.addColumn(Column.FLOW);
 		xmlOutputFormatter.addColumn(Column.TRAVEL_TIME);
-		xmlOutputFormatter.setXmlNameRoot("PlanItXmlTest");
-		xmlOutputFormatter.setCsvNameRoot("PlanItXmlTest");
+		xmlOutputFormatter.setXmlNamePrefix("PlanItXmlTest");
+		xmlOutputFormatter.setCsvNamePrefix("PlanItXmlTest");
 		xmlOutputFormatter.setVersion(version);
 		xmlOutputFormatter.setDescription(description);
+		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
+		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
 		// "USER" configuration

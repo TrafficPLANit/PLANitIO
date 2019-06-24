@@ -1,7 +1,9 @@
 package org.planit.xml.input;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -48,9 +50,11 @@ public class PlanItXml implements InputBuilderListener {
 	 */
 	private static final Logger LOGGER = Logger.getLogger(PlanItXml.class.getName());
 
-	private String zoningXmlFileLocation;
-	private String demandXmlFileLocation;
-	private String networkXmlFileLocation;
+	private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
+
+	private Macroscopicnetwork macroscopicnetwork;
+	private Macroscopicdemand macroscopicdemand;
+	private Macroscopiczoning macroscopiczoning;
 
 	private int noCentroids;
 	private Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap;
@@ -81,11 +85,21 @@ public class PlanItXml implements InputBuilderListener {
 	 * @param zoningXmlFileLocation  location of XML zones input file
 	 * @param demandXmlFileLocation  location of XML demands input file
 	 * @param networkXmlFileLocation location of XML network inputs file
+	 * @throws Exception
 	 */
-	public PlanItXml(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation) {
-		this.zoningXmlFileLocation = zoningXmlFileLocation;
-		this.demandXmlFileLocation = demandXmlFileLocation;
-		this.networkXmlFileLocation = networkXmlFileLocation;
+	public PlanItXml(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation)
+			throws PlanItException {
+		createGeneratedClassesFromXmlLocations(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
+	}
+
+	public PlanItXml(String projectPath) throws PlanItException {
+		this(projectPath, DEFAULT_XML_NAME_EXTENSION);
+	}
+
+	public PlanItXml(String projectPath, String xmlExtension) throws PlanItException {
+		macroscopiczoning = getZoningObjectFromProjectPath(projectPath, xmlExtension);
+		macroscopicdemand = getDemandObjectFromProjectPath(projectPath, xmlExtension);
+		macroscopicnetwork = getNeworkObjectFromProjectPath(projectPath, xmlExtension);
 	}
 
 	/**
@@ -106,7 +120,6 @@ public class PlanItXml implements InputBuilderListener {
 	public PlanItXml(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation,
 			String zoningXsdFileLocation, String demandXsdFileLocation, String networkXsdFileLocation)
 			throws PlanItException {
-		this(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
 		try {
 			if (zoningXsdFileLocation != null) {
 				XmlUtils.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
@@ -117,6 +130,21 @@ public class PlanItXml implements InputBuilderListener {
 			if (networkXsdFileLocation != null) {
 				XmlUtils.validateXml(networkXmlFileLocation, networkXsdFileLocation);
 			}
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+		createGeneratedClassesFromXmlLocations(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
+	}
+
+	private void createGeneratedClassesFromXmlLocations(String zoningXmlFileLocation, String demandXmlFileLocation,
+			String networkXmlFileLocation) throws PlanItException {
+		try {
+			macroscopiczoning = (Macroscopiczoning) XmlUtils.generateObjectFromXml(Macroscopiczoning.class,
+					zoningXmlFileLocation);
+			macroscopicdemand = (Macroscopicdemand) XmlUtils.generateObjectFromXml(Macroscopicdemand.class,
+					demandXmlFileLocation);
+			macroscopicnetwork = (Macroscopicnetwork) XmlUtils.generateObjectFromXml(Macroscopicnetwork.class,
+					networkXmlFileLocation);
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -141,12 +169,12 @@ public class PlanItXml implements InputBuilderListener {
 				populateZoning((Zoning) projectComponent);
 			} else if (projectComponent instanceof Demands) {
 				populateDemands((Demands) projectComponent);
-	        } else if (projectComponent instanceof PhysicalCost) {
-	        	populatePhysicalCost((PhysicalCost)  projectComponent);
-	        } else if (projectComponent instanceof VirtualCost) {
-	            populateVirtualCost((VirtualCost) projectComponent);
-	        } else if (projectComponent instanceof Smoothing) {
-	        	populateSmoothing((Smoothing) projectComponent);
+			} else if (projectComponent instanceof PhysicalCost) {
+				populatePhysicalCost((PhysicalCost) projectComponent);
+			} else if (projectComponent instanceof VirtualCost) {
+				populateVirtualCost((VirtualCost) projectComponent);
+			} else if (projectComponent instanceof Smoothing) {
+				populateSmoothing((Smoothing) projectComponent);
 			} else {
 				LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
 						+ " which is not handled by BascCsvScan");
@@ -168,8 +196,8 @@ public class PlanItXml implements InputBuilderListener {
 		LOGGER.info("Populating Network");
 
 		try {
-			Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) XmlUtils
-					.generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
+			// Macroscopicnetwork macroscopicnetwork = (Macroscopicnetwork) XmlUtils
+			// .generateObjectFromXml(Macroscopicnetwork.class, networkXmlFileLocation);
 			Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
 			linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration, modeMap);
@@ -196,8 +224,8 @@ public class PlanItXml implements InputBuilderListener {
 
 		// create and register zones, centroids and connectoids
 		try {
-			Macroscopiczoning macroscopiczoning = (Macroscopiczoning) XmlUtils
-					.generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
+			// Macroscopiczoning macroscopiczoning = (Macroscopiczoning) XmlUtils
+			// .generateObjectFromXml(Macroscopiczoning.class, zoningXmlFileLocation);
 			for (Zone zone : macroscopiczoning.getZones().getZone()) {
 				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
 				UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
@@ -205,7 +233,6 @@ public class PlanItXml implements InputBuilderListener {
 			}
 			zones = zoning.zones;
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new PlanItException(e);
 		}
 	}
@@ -221,8 +248,8 @@ public class PlanItXml implements InputBuilderListener {
 		if (noCentroids == 0)
 			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
 		try {
-			Macroscopicdemand macroscopicdemand = (Macroscopicdemand) XmlUtils
-					.generateObjectFromXml(Macroscopicdemand.class, demandXmlFileLocation);
+			// Macroscopicdemand macroscopicdemand = (Macroscopicdemand) XmlUtils
+			// .generateObjectFromXml(Macroscopicdemand.class, demandXmlFileLocation);
 			Demandconfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
 			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration
 					.generateAndStoreConfigurationData(demandconfiguration);
@@ -230,24 +257,59 @@ public class PlanItXml implements InputBuilderListener {
 					.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
 			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, modeMap, timePeriodMap, noCentroids, zones);
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new PlanItException(e);
 		}
 	}
-	
+
 	public void populatePhysicalCost(@Nonnull PhysicalCost physicalCost) throws PlanItException {
-        //Populate Physical Cost - event generated but no more action required
-        LOGGER.info("Populating Physical Cost");
+		// Populate Physical Cost - event generated but no more action required
+		LOGGER.info("Populating Physical Cost");
 	}
 
 	public void populateVirtualCost(@Nonnull VirtualCost virtualCost) throws PlanItException {
-        //Populate Virtual Cost - event generated but no more action required
-        LOGGER.info("Populating Virtual Cost ");     
+		// Populate Virtual Cost - event generated but no more action required
+		LOGGER.info("Populating Virtual Cost ");
 	}
-	public void populateSmoothing(@Nonnull  Smoothing smoothing)throws PlanItException {
-		//Populate Smoothing - event generated but no more action required
+
+	public void populateSmoothing(@Nonnull Smoothing smoothing) throws PlanItException {
+		// Populate Smoothing - event generated but no more action required
 		LOGGER.info("Populating Smoothing");
 	}
-	
-	
+
+	private Macroscopiczoning getZoningObjectFromProjectPath(String projectPath, String xmlNameExtension)
+			throws PlanItException {
+		return (Macroscopiczoning) getObjectFromProjectPath(projectPath, xmlNameExtension, Macroscopiczoning.class);
+	}
+
+	private Macroscopicdemand getDemandObjectFromProjectPath(String projectPath, String xmlNameExtension)
+			throws PlanItException {
+		return (Macroscopicdemand) getObjectFromProjectPath(projectPath, xmlNameExtension, Macroscopicdemand.class);
+	}
+
+	private Macroscopicnetwork getNeworkObjectFromProjectPath(String projectPath, String xmlNameExtension)
+			throws PlanItException {
+		return (Macroscopicnetwork) getObjectFromProjectPath(projectPath, xmlNameExtension, Macroscopicnetwork.class);
+	}
+
+	private Object getObjectFromProjectPath(String projectPath, String xmlNameExtension, Class<?> clazz)
+			throws PlanItException {
+		File xmlFilesDirectory = new File(projectPath);
+		if (!xmlFilesDirectory.isDirectory()) {
+			throw new PlanItException(projectPath + " is not a valid directory.");
+		}
+		String[] fileNames = xmlFilesDirectory.list((d, name) -> name.endsWith(xmlNameExtension));
+		if (fileNames.length == 0) {
+			throw new PlanItException("Directory " + projectPath + " contains no XML files.");
+		}
+		for (int i = 0; i < fileNames.length; i++) {
+			String xmlFileLocation = projectPath + "\\" + fileNames[i];
+			try {
+				return XmlUtils.generateObjectFromXml(clazz, xmlFileLocation);
+			} catch (Exception e) {
+			}
+		}
+		return null;
+
+	}
+
 }
