@@ -104,12 +104,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Description to be included in the XML file in the <description> element
 	 */
-	private String description;
+	//private String description;
 
 	/**
 	 * Version to be included in the XML file in the <version> element
 	 */
-	private String version;
+	//private String version;
 	
 	/**
 	 * Flag to indicate whether XML output directory should be cleared before the run
@@ -132,12 +132,11 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Base constructor
 	 */
-	public PlanItXMLOutputFormatter() {
-		//xmlRootOutputDirectory = DEFAULT_XML_ROOT_OUTPUT_DIRECTORY;
+	public PlanItXMLOutputFormatter() throws PlanItException {
+		super();
 		xmlOutputDirectory = null;
 		xmlNamePrefix = DEFAULT_XML_NAME_PREFIX;
 		xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
-		//csvRootOutputDirectory = DEFAULT_CSV_ROOT_OUTPUT_DIRECTORY;
 		csvOutputDirectory = null;
 		csvNamePrefix = DEFAULT_CSV_NAME_PREFIX;
 		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
@@ -711,24 +710,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void setCsvSummaryOutputFileName(String csvSummaryOutputFileName) {
 		this.csvSummaryOutputFileName = csvSummaryOutputFileName;
-	}
-
-	/**
-	 * Set the String to be used in the <description> element in the output XML file
-	 * 
-	 * @param description description to be included
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/**
-	 * Set the String to be used in the <version> element in the output XML file
-	 * 
-	 * @param version version to be included
-	 */
-	public void setVersion(String version) {
-		this.version = version;
 	}
 
 	/**

@@ -275,8 +275,6 @@ public class PlanItXmlTest {
 		xmlOutputFormatter.addColumn(Column.TRAVEL_TIME);
 		xmlOutputFormatter.setXmlNamePrefix("PlanItXmlTest");
 		xmlOutputFormatter.setCsvNamePrefix("PlanItXmlTest");
-		xmlOutputFormatter.setVersion(version);
-		xmlOutputFormatter.setDescription(description);
 		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
 		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
