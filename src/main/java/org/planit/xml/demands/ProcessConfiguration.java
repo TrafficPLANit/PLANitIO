@@ -14,7 +14,7 @@ import org.planit.generated.Userclasses;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
-import org.planit.xml.input.PlanItXml;
+import org.planit.input.PlanItXMLInputBuilder;
 
 /**
  * Methods to generate and store PLANit configuration objects from the
@@ -63,7 +63,8 @@ public class ProcessConfiguration {
 	 */
 	private static Travellertypes.Travellertype generateDefaultTravellerType() {
 		Travellertypes.Travellertype travellerType = new Travellertypes.Travellertype();
-		travellerType.setId(BigInteger.valueOf(PlanItXml.DEFAULT_TRAVELER_TYPE_EXTERNAL_ID));
+		//travellerType.setId(BigInteger.valueOf(PlanItXml.DEFAULT_TRAVELER_TYPE_EXTERNAL_ID));
+		travellerType.setId(BigInteger.valueOf(TravelerType.DEFAULT_EXTERNAL_ID));
 		travellerType.setName(TravelerType.DEFAULT_NAME);
 		return travellerType;
 	}
@@ -81,7 +82,8 @@ public class ProcessConfiguration {
 		for (Userclasses.Userclass userclass : userclasses.getUserclass()) {
 			int modeId = userclass.getModeref().intValue();
 			long travellerTypeId = (userclass.getTravellertyperef() == null)
-					? PlanItXml.DEFAULT_TRAVELER_TYPE_EXTERNAL_ID
+					//? PlanItXml.DEFAULT_TRAVELER_TYPE_EXTERNAL_ID
+					? TravelerType.DEFAULT_EXTERNAL_ID
 					: userclass.getTravellertyperef().longValue();
 			userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
 			TravelerType travellerType = TravelerType.getByExternalId(travellerTypeId);

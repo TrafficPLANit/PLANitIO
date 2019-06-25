@@ -20,15 +20,11 @@ import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
-import org.planit.xml.input.PlanItXml;
+import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.zoning.Zoning;
 
 /**
  * Test class to run XML input files.
- * 
- * During the development phase, this class will use a mixture of XML and CSV
- * inputs. As the XML input reading is developed, this will progressively
- * replace the CSV input.
  * 
  * @author gman6028
  *
@@ -38,9 +34,7 @@ public class PlanItXmlMain {
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
 
 	private String csvResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\results.csv";
-	private String zoningXmlFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\zones.xml";
-	private String demandXmlFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\demands.xml";
-	private String networkXmlFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\network.xml";
+	private String projectPath = "src\\test\\resources\\route_choice\\xml\\test5";
 	private int maxIterations = 500;
 	private double epsilon = 0.00;
 
@@ -75,8 +69,9 @@ public class PlanItXmlMain {
 
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(zoningXmlFileLocation, demandXmlFileLocation,
-				networkXmlFileLocation);
+		//InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(zoningXmlFileLocation, demandXmlFileLocation,
+		//		networkXmlFileLocation);
+		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 
 		// RAW INPUT START --------------------------------
@@ -119,6 +114,9 @@ public class PlanItXmlMain {
 				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
 		xmlOutputFormatter.resetXmlOutputDirectory();
 		xmlOutputFormatter.resetCsvOutputDirectory();
+		xmlOutputFormatter.setCsvSummaryOutputFileName(csvResultsFileLocation);
+		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
+		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
 		// "USER" configuration

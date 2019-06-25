@@ -30,7 +30,7 @@ public class PlanItSimpleProject extends PlanItProject {
     /**
      * Logger for this class
      */
-    private static final Logger LOGGER = Logger.getLogger(PlanItProject.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PlanItSimpleProject.class.getName());
     
     /**
      * Simple project registers native PLANitXML outputformatter by default which is stored in this reference
@@ -67,9 +67,10 @@ public class PlanItSimpleProject extends PlanItProject {
     /**
      * Base constructor for simple project which adopts the PlanItXML input/output format. It is assumed
      * all input files are in the current working directory
+     * @throws PlanItException 
      * 
      */
-    public PlanItSimpleProject() {  
+    public PlanItSimpleProject() throws PlanItException {  
         // use the default input builder with the current path as the project path
         super(new PlanItXMLInputBuilder(Paths.get(".").toAbsolutePath().toString()));
         LOGGER.info("Searching for input files in: "+Paths.get(".").toAbsolutePath().toString());
@@ -80,8 +81,9 @@ public class PlanItSimpleProject extends PlanItProject {
      * Base constructor for simple project which adopts the PlanItXML input/output format
      * 
      * @param projectPath to retrieve the files from
+     * @throws PlanItException 
      */
-    public PlanItSimpleProject(String projectPath) {
+    public PlanItSimpleProject(String projectPath) throws PlanItException {
         // use the default input builder
         super(new PlanItXMLInputBuilder(projectPath));
         LOGGER.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());

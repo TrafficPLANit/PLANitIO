@@ -17,7 +17,7 @@ import org.planit.generated.Odrawmatrix.Values;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
-import org.planit.xml.input.PlanItXml;
+import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.zoning.Zoning.Zones;
 
 /**
@@ -156,7 +156,7 @@ public class UpdateDemands {
 	 */
 	private static void updateDemandMatrixFromOdRowMatrix(Odrowmatrix odrowmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) {
-		String separator = (odrowmatrix.getDs() == null) ? PlanItXml.DEFAULT_SEPARATOR : odrowmatrix.getDs();
+		String separator = (odrowmatrix.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : odrowmatrix.getDs();
 		separator = escapeSeparator(separator);
 		List<Odrowmatrix.Odrow> odrow = odrowmatrix.getOdrow();
 		for (Odrowmatrix.Odrow originZone : odrow) {
@@ -181,9 +181,9 @@ public class UpdateDemands {
 	private static void updateDemandMatrixFromOdRawMatrix(Odrawmatrix odrawmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) throws Exception {
 		Values values = odrawmatrix.getValues();
-		String originSeparator = (values.getOs() == null) ? PlanItXml.DEFAULT_SEPARATOR : values.getOs();
+		String originSeparator = (values.getOs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : values.getOs();
 		originSeparator = escapeSeparator(originSeparator);
-		String destinationSeparator = (values.getDs() == null) ? PlanItXml.DEFAULT_SEPARATOR : values.getDs();
+		String destinationSeparator = (values.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : values.getDs();
 		destinationSeparator = escapeSeparator(destinationSeparator);
 		if (originSeparator.equals(destinationSeparator)) {
 			updateDemandMatrixForEqualSeparators(values, originSeparator, pcu, matrixDemand, zones);

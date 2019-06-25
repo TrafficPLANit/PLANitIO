@@ -34,7 +34,7 @@ import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
-import org.planit.xml.input.PlanItXml;
+import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.zoning.Zoning;
 
 public class PlanItXmlTest {
@@ -200,19 +200,11 @@ public class PlanItXmlTest {
 			fail(e.getMessage());
 		}
 	}
-/*	
-	private void runTest(String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String version, String description) throws Exception {
-		runTest(resultsFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation, null, null,
-				setCostParameters, version, description);
-	}
-*/	
 
 	private void runTest(String resultsFileLocation, String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String version, String description) throws Exception {
 		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(projectPath);
+		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
 		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, null, null,
 				setCostParameters, version, description);
 	}
@@ -220,54 +212,11 @@ public class PlanItXmlTest {
 	private void runTest(String resultsFileLocation, String projectPath, int maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String version, String description) throws Exception {
 		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(projectPath);
+		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
 		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
 				setCostParameters, version, description);
 	}
-/*	
-	private void runTest(String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String version, String description)
-			throws Exception {
-		// SET UP SCANNER AND PROJECT
-		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(zoningXmlFileLocation, demandXmlFileLocation,
-				networkXmlFileLocation);
-		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
-				setCostParameters, version, description);
-	}
-
-	private void runTest(String resultsFileLocation, String projectPath, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String version, String description)
-			throws Exception {
-		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(projectPath);
-		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
-				setCostParameters, version, description);
-	}
-
-	private void runTest(String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
-			String supplyXsdFileLocation, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String version, String description) throws Exception {
-		runTest(resultsFileLocation, zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation,
-				zoningXsdFileLocation, demandXsdFileLocation, supplyXsdFileLocation, null, null, setCostParameters,
-				version, description);
-	}
-
-	private void runTest(String resultsFileLocation, String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
-			String networkXsdFileLocation, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String version, String description)
-			throws Exception {
-		// SET UP SCANNER AND PROJECT
-		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXml(zoningXmlFileLocation, demandXmlFileLocation,
-				networkXmlFileLocation, zoningXsdFileLocation, demandXsdFileLocation, networkXsdFileLocation);
-		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
-				setCostParameters, version, description);
-	}
-*/
+	
 	private void runTestFromInputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String version, String description) throws PlanItException {
