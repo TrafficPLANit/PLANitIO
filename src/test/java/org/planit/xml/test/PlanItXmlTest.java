@@ -20,9 +20,10 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
+import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
-import org.planit.output.xml.Column;
+import org.planit.output.Column;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.BprResultDto;
@@ -256,28 +257,31 @@ public class PlanItXmlTest {
 		// OUTPUT
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
+		
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
 				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 		if (clearOutputDirectories) {
 			xmlOutputFormatter.resetXmlOutputDirectory();
 			xmlOutputFormatter.resetCsvOutputDirectory();
 			clearOutputDirectories = false;
 		}
 		xmlOutputFormatter.setCsvSummaryOutputFileName(CSV_TEST_RESULTS_LOCATION);
-		xmlOutputFormatter.addColumn(Column.LINK_ID);
-		xmlOutputFormatter.addColumn(Column.START_NODE_ID);
-		xmlOutputFormatter.addColumn(Column.END_NODE_ID);
-		xmlOutputFormatter.addColumn(Column.MODE_ID);
-		xmlOutputFormatter.addColumn(Column.SPEED);
-		xmlOutputFormatter.addColumn(Column.DENSITY);
-		xmlOutputFormatter.addColumn(Column.FLOW);
-		xmlOutputFormatter.addColumn(Column.TRAVEL_TIME);
+		linkOutputTypeConfiguration.addColumn(Column.LINK_ID);
+		linkOutputTypeConfiguration.addColumn(Column.START_NODE_ID);
+		linkOutputTypeConfiguration.addColumn(Column.END_NODE_ID);
+		linkOutputTypeConfiguration.addColumn(Column.MODE_ID);
+		linkOutputTypeConfiguration.addColumn(Column.SPEED);
+		linkOutputTypeConfiguration.addColumn(Column.DENSITY);
+		linkOutputTypeConfiguration.addColumn(Column.FLOW);
+		linkOutputTypeConfiguration.addColumn(Column.TRAVEL_TIME);
+		
 		xmlOutputFormatter.setXmlNamePrefix("PlanItXmlTest");
 		xmlOutputFormatter.setCsvNamePrefix("PlanItXmlTest");
-		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
-		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
-		taBuilder.registerOutputFormatter(xmlOutputFormatter);
+		linkOutputTypeConfiguration.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
+		linkOutputTypeConfiguration.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 
 		// "USER" configuration
 		if (maxIterations != null) {

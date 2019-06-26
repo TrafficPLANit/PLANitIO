@@ -21,6 +21,7 @@ import org.planit.data.SimulationData;
 import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Columns;
+import org.planit.generated.Datatypedescription;
 import org.planit.generated.Iteration;
 import org.planit.generated.Metadata;
 import org.planit.generated.Outputconfiguration;
@@ -37,7 +38,7 @@ import org.planit.output.formatter.BaseOutputFormatter;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.util.XmlUtils;
-import org.planit.output.xml.Column;
+import org.planit.output.Column;
 
 /**
  * The default output formatter of PlanIt
@@ -69,7 +70,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * The root directory to store the XML output files
 	 */
-	private String xmlOutputDirectory;
+	// private String xmlOutputDirectory;
 
 	/**
 	 * The directory of the XML output file for the current iteration
@@ -94,20 +95,17 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * The root directory of the CSV output files
 	 */
-	private String csvOutputDirectory;
+	// private String csvOutputDirectory;
 
 	/**
-	 * List of columns to be included in the CSV files
-	 */
-	private List<Column> columns;
-
-	/**
-	 * Flag to indicate whether XML output directory should be cleared before the run
+	 * Flag to indicate whether XML output directory should be cleared before the
+	 * run
 	 */
 	private boolean resetXmlOutputDirectory;
-	
+
 	/**
-	 * Flag to indicate whether the CSV output directory should be cleared before the run
+	 * Flag to indicate whether the CSV output directory should be cleared before
+	 * the run
 	 */
 	private boolean resetCsvOutputDirectory;
 
@@ -124,25 +122,15 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public PlanItXMLOutputFormatter() throws PlanItException {
 		super();
-		xmlOutputDirectory = null;
+		// xmlOutputDirectory = null;
 		xmlNamePrefix = DEFAULT_XML_NAME_PREFIX;
 		xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
-		csvOutputDirectory = null;
+		// csvOutputDirectory = null;
 		csvNamePrefix = DEFAULT_CSV_NAME_PREFIX;
 		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
 		csvSummaryOutputFileName = null;
-		columns = new ArrayList<Column>();
 		resetXmlOutputDirectory = false;
 		resetCsvOutputDirectory = false;
-	}
-
-	/**
-	 * Add a column to the output CSV files
-	 * 
-	 * @param column column to be included in the output files
-	 */
-	public void addColumn(Column column) {
-		columns.add(column);
 	}
 
 	/**
@@ -253,8 +241,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 *                         XML file
 	 */
 	private void createXmlFileForCurrentIteration(int iterationIndex,
-			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
-			TimePeriod timePeriod, String csvFileName) throws PlanItException {
+			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter, TimePeriod timePeriod, String csvFileName)
+			throws PlanItException {
 		try {
 			String currentXmlOutputFileName = generateOutputFileName(currentXmlOutputDirectory,
 					xmlNamePrefix + "_" + timePeriod.getDescription() + "_" + iterationIndex, xmlNameExtension);
@@ -265,10 +253,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				metadata.setVersion(version);
 			if (description != null)
 				metadata.setDescription(description);
-			metadata.setOutputconfiguration(
-					getOutputconfiguration(traditionalStaticAssignmentLinkOutputAdapter, timePeriod));
+			metadata.setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
 			metadata.setSimulation(getSimulation(iterationIndex, csvFileName));
-			metadata.setColumns(getColumns());
+			List<Column> columns = outputAdapter.getColumns();
+			metadata.setColumns(getGeneratedColumns(columns));
 			XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, currentXmlOutputFileName);
 
 		} catch (Exception e) {
@@ -297,6 +285,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		try {
 			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
 			List<String> titles = new ArrayList<String>();
+			List<Column> columns = outputAdapter.getColumns();
 			columns.forEach(column -> {
 				titles.add(Column.getName(column));
 			});
@@ -313,7 +302,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 					double flow = modalNetworkSegmentFlows[id];
 					if (flow > 0.0) {
 						double travelTime = modalNetworkSegmentCosts[id];
-						csvIterationPrinter.printRecord(getRow(linkSegment, mode, id, flow, travelTime));
+						csvIterationPrinter.printRecord(getRow(columns, linkSegment, mode, id, flow, travelTime));
 					}
 				}
 			}
@@ -333,7 +322,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param travelTime  travel time along the current link segment
 	 * @return
 	 */
-	private List<Object> getRow(MacroscopicLinkSegment linkSegment, Mode mode, int id, double flow, double travelTime) {
+	private List<Object> getRow(List<Column> columns, MacroscopicLinkSegment linkSegment, Mode mode, int id,
+			double flow, double travelTime) {
 		double length = linkSegment.getParentLink().getLength();
 		double speed = length / travelTime;
 		List<Object> row = new ArrayList<Object>();
@@ -392,13 +382,45 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @return generated Columns object
 	 */
-	private Columns getColumns() {
+	private Columns getGeneratedColumns(List<Column> columns) {
 		Columns generatedColumns = new Columns();
 		for (Column column : columns) {
 			org.planit.generated.Column generatedColumn = new org.planit.generated.Column();
 			generatedColumn.setName(Column.getName(column));
 			generatedColumn.setUnit(Column.getUnits(column));
-			generatedColumn.setType(Column.getType(column));
+			Datatypedescription outString = null;
+			switch (column) {
+			case LINK_ID:
+				outString = Datatypedescription.INTEGER;
+				break;
+			case MODE_ID:
+				outString = Datatypedescription.INTEGER;
+				break;
+			case SPEED:
+				outString = Datatypedescription.DOUBLE;
+				break;
+			case DENSITY:
+				outString = Datatypedescription.DOUBLE;
+				break;
+			case FLOW:
+				outString = Datatypedescription.DOUBLE;
+				break;
+			case TRAVEL_TIME:
+				outString = Datatypedescription.DOUBLE;
+				break;
+			case LENGTH:
+				outString = Datatypedescription.DOUBLE;
+				break;
+			case START_NODE_ID:
+				outString = Datatypedescription.INTEGER;
+				break;
+			case END_NODE_ID:
+				outString = Datatypedescription.INTEGER;
+				break;
+			}
+
+			// generatedColumn.setType(Column.getType(column));
+			generatedColumn.setType(outString);
 			generatedColumns.getColumn().add(generatedColumn);
 		}
 		return generatedColumns;
@@ -521,37 +543,49 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Create the output directories and open the CSV writers
 	 * 
-	 * @throws PlanItException thrown if there is an error or validation failure during set up of the output formatter
+	 * @param outputTypeConfiguration the output type configuration currently in use
+	 * @throws PlanItException thrown if there is an error or validation failure
+	 *                         during set up of the output formatter
 	 */
 	@Override
-	public void open() throws PlanItException {
+	public void open(OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
 
-		if (xmlOutputDirectory == null) {
-			throw new PlanItException("No XML output directory has been defined in the code.");
-		}
-		if (csvOutputDirectory == null) {
-			throw new PlanItException("No CSV output directory has been defined in the code.");
-		}
-		
-		if (resetXmlOutputDirectory) {
-			createOrOpenOutputDirectory(xmlOutputDirectory);
-			File directory = new File(xmlOutputDirectory);
-			purgeDirectory(directory);
-		}
-		
-		if (resetCsvOutputDirectory) {
-			createOrOpenOutputDirectory(csvOutputDirectory);
-			File directory = new File(csvOutputDirectory);
-			purgeDirectory(directory);
-		}
-		
-		directoryCounter++;
-		currentXmlOutputDirectory = xmlOutputDirectory + "\\" + directoryCounter;
-		createOrOpenOutputDirectory(currentXmlOutputDirectory);
+		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
+		if (outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter) {
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
+             String xmlOutputDirectory = traditionalStaticAssignmentLinkOutputAdapter.getXmlOutputDirectory();
+             String csvOutputDirectory = traditionalStaticAssignmentLinkOutputAdapter.getCsvOutputDirectory();
+			
+			if (xmlOutputDirectory == null) {
+				throw new PlanItException("No XML output directory has been defined in the code.");
+			}
+			if (csvOutputDirectory == null) {
+				throw new PlanItException("No CSV output directory has been defined in the code.");
+			}
 
-		currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
-		createOrOpenOutputDirectory(currentCsvOutputDirectory);
-		openCsvSummaryOutputFile();
+			if (resetXmlOutputDirectory) {
+				createOrOpenOutputDirectory(xmlOutputDirectory);
+				File directory = new File(xmlOutputDirectory);
+				purgeDirectory(directory);
+			}
+
+			if (resetCsvOutputDirectory) {
+				createOrOpenOutputDirectory(csvOutputDirectory);
+				File directory = new File(csvOutputDirectory);
+				purgeDirectory(directory);
+			}
+
+			directoryCounter++;
+			currentXmlOutputDirectory = xmlOutputDirectory + "\\" + directoryCounter;
+			createOrOpenOutputDirectory(currentXmlOutputDirectory);
+
+			currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
+			createOrOpenOutputDirectory(currentCsvOutputDirectory);
+			openCsvSummaryOutputFile(csvOutputDirectory);
+		} else {
+			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
+					+ " which has not been defined yet");
+		}
 	}
 
 	/**
@@ -560,7 +594,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException thrown if the CSV output file cannot be opened
 	 */
 //TODO - We only create the CSV Summary Output file to create CSV output files whose content can be compared to BasicCsv output.  We will remove this method when this functionality is no longer required.
-	private void openCsvSummaryOutputFile() throws PlanItException {
+	private void openCsvSummaryOutputFile(String csvOutputDirectory) throws PlanItException {
 		try {
 			if (csvSummaryOutputFileName == null) {
 				int pos = createOrOpenOutputDirectory(csvOutputDirectory) + 1;
@@ -577,9 +611,11 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 
 	/**
 	 * Close the CSV writer
+	 * @param outputTypeConfiguration the output type configuration currently in use
+	 * @throws PlanItException thrown if there is an error closing a resource
 	 */
 	@Override
-	public void close() throws PlanItException {
+	public void close(OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
 		try {
 			csvPrinter.close();
 		} catch (Exception e) {
@@ -611,7 +647,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @throws PlanItException
 	 */
-	public void resetXmlOutputDirectory() throws PlanItException {		
+	public void resetXmlOutputDirectory() throws PlanItException {
 		resetXmlOutputDirectory = true;
 	}
 
@@ -620,8 +656,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @throws PlanItException
 	 */
-	public void resetCsvOutputDirectory() throws PlanItException {	
-		resetCsvOutputDirectory = true;;
+	public void resetCsvOutputDirectory() throws PlanItException {
+		resetCsvOutputDirectory = true;
+		;
 	}
 
 	/**
@@ -635,15 +672,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				purgeDirectory(file);
 			file.delete();
 		}
-	}
-
-	/**
-	 * Sets the name of the XML output file directory
-	 * 
-	 * @param xmlRootOutputDirectory the name of the XML output file directory
-	 */
-	public void setXmlDirectory(String xmlOutputDirectory) {
-		this.xmlOutputDirectory = xmlOutputDirectory;
 	}
 
 	/**
@@ -662,15 +690,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void setXmlNamePrefix(String xmlNamePrefix) {
 		this.xmlNamePrefix = xmlNamePrefix;
-	}
-
-	/**
-	 * Sets the name of the CSV output file directory
-	 * 
-	 * @param csvRootOutputDirectory the name of the CSV output file directory
-	 */
-	public void setCsvDirectory(String csvOutputDirectory) {
-		this.csvOutputDirectory = csvOutputDirectory;
 	}
 
 	/**
@@ -694,7 +713,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Set the CSV summary output file name
 	 * 
-	 * If this method is not called during the setup phase, the CSV summary output file is not created.
+	 * If this method is not called during the setup phase, the CSV summary output
+	 * file is not created.
 	 * 
 	 * @param outputFileName the CSV output file name
 	 */
@@ -707,17 +727,17 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @param xmlOutputDirectory the XML output file root directory
 	 */
-	public void setXmlOutputDirectory(String xmlOutputDirectory) {
-		this.xmlOutputDirectory = xmlOutputDirectory;
-	}
+	// public void setXmlOutputDirectory(String xmlOutputDirectory) {
+	// this.xmlOutputDirectory = xmlOutputDirectory;
+	// }
 
 	/**
 	 * Set the CSV output file root directory
 	 * 
 	 * @param csvOutputDirectory the CSV output file root directory
 	 */
-	public void setCsvOutputDirectory(String csvOutputDirectory) {
-		this.csvOutputDirectory = csvOutputDirectory;
-	}
-	
+	// public void setCsvOutputDirectory(String csvOutputDirectory) {
+	// this.csvOutputDirectory = csvOutputDirectory;
+	// }
+
 }
