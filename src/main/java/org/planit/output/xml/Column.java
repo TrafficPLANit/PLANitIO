@@ -51,7 +51,7 @@ public enum Column {
 			break;
 			case FLOW: outString = "veh/h";
 			break;
-			case TRAVEL_TIME: outString = "hr";
+			case TRAVEL_TIME: outString = "h";
 			break;
 			case LENGTH: outString = "km";
 			break;
@@ -71,13 +71,13 @@ public enum Column {
 	        break;
 			case MODE_ID: outString = Datatypedescription.INTEGER;
 			break;
-			case SPEED: outString = Datatypedescription.FLOAT;
+			case SPEED: outString = Datatypedescription.DOUBLE;
 			break;
-			case DENSITY: outString = Datatypedescription.FLOAT;
+			case DENSITY: outString = Datatypedescription.DOUBLE;
 			break;
-			case FLOW: outString = Datatypedescription.FLOAT;
+			case FLOW: outString = Datatypedescription.DOUBLE;
 			break;
-			case TRAVEL_TIME: outString = Datatypedescription.FLOAT;
+			case TRAVEL_TIME: outString = Datatypedescription.DOUBLE;
 			break;
 			case LENGTH: outString = Datatypedescription.DOUBLE;
 			break;

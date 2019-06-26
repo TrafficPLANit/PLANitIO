@@ -102,16 +102,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private List<Column> columns;
 
 	/**
-	 * Description to be included in the XML file in the <description> element
-	 */
-	//private String description;
-
-	/**
-	 * Version to be included in the XML file in the <version> element
-	 */
-	//private String version;
-	
-	/**
 	 * Flag to indicate whether XML output directory should be cleared before the run
 	 */
 	private boolean resetXmlOutputDirectory;
@@ -586,7 +576,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Close the XML and CSV writers
+	 * Close the CSV writer
 	 */
 	@Override
 	public void close() throws PlanItException {

@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
-import javax.xml.bind.UnmarshalException;
 
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.virtual.VirtualCost;
@@ -54,12 +53,12 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * Generated object to store input network data
 	 */
 	private Macroscopicnetwork macroscopicnetwork;
-	
+
 	/**
 	 * Generated object to store demand input data
 	 */
 	private Macroscopicdemand macroscopicdemand;
-	
+
 	/**
 	 * Generated object to store zoning input data
 	 */
@@ -70,6 +69,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	private Map<Integer, Mode> modeMap;
 	private Nodes nodes;
 	private Zoning.Zones zones;
+	private String[] xmlFileNames;
 
 	/**
 	 * Default extension for XML input files
@@ -89,32 +89,38 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @param networkXmlFileLocation location of XML network inputs file
 	 * @throws Exception
 	 */
-	public PlanItXMLInputBuilder(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation)
-			throws PlanItException {
+	public PlanItXMLInputBuilder(String zoningXmlFileLocation, String demandXmlFileLocation,
+			String networkXmlFileLocation) throws PlanItException {
 		createGeneratedClassesFromXmlLocations(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
 	}
 
 	/**
-	 * Constructor which generates the input objects from files in a specified directory, using the default extension ".xml"
+	 * Constructor which generates the input objects from files in a specified
+	 * directory, using the default extension ".xml"
 	 * 
 	 * @param projectPath the location of the input file directory
-	 * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
+	 * @throws PlanItException thrown if one of the input required input files
+	 *                         cannot be found, or if there is an error reading one
+	 *                         of them
 	 */
 	public PlanItXMLInputBuilder(String projectPath) throws PlanItException {
 		this(projectPath, DEFAULT_XML_NAME_EXTENSION);
 	}
 
 	/**
-	 * Constructor which generates the input objects from files in a specified directory
+	 * Constructor which generates the input objects from files in a specified
+	 * directory
 	 * 
-	 * @param projectPath the location of the input file directory
-	 * @param xmlExtension the extension of the data files to be searched through
-	 * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
+	 * @param projectPath      the location of the input file directory
+	 * @param xmlNameExtension the extension of the data files to be searched
+	 *                         through
+	 * @throws PlanItException thrown if one of the input required input files
+	 *                         cannot be found, or if there is an error reading one
+	 *                         of them
 	 */
-	public PlanItXMLInputBuilder(String projectPath, String xmlExtension) throws PlanItException {
-		macroscopiczoning = (Macroscopiczoning) getInputObjectFromProjectPath(projectPath, xmlExtension, Macroscopiczoning.class);
-		macroscopicdemand =  (Macroscopicdemand) getInputObjectFromProjectPath(projectPath, xmlExtension, Macroscopicdemand.class);
-		macroscopicnetwork = (Macroscopicnetwork) getInputObjectFromProjectPath(projectPath, xmlExtension, Macroscopicnetwork.class);
+	public PlanItXMLInputBuilder(String projectPath, String xmlNameExtension) throws PlanItException {
+		xmlFileNames = getXmlFileNames(projectPath, xmlNameExtension);
+		setInputFiles(projectPath);
 	}
 
 	/**
@@ -132,9 +138,9 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @param networkXsdFileLocation location of XSD schema file for network
 	 * @throws PlanItException thrown if one of the input XML files is invalid
 	 */
-	public PlanItXMLInputBuilder(String zoningXmlFileLocation, String demandXmlFileLocation, String networkXmlFileLocation,
-			String zoningXsdFileLocation, String demandXsdFileLocation, String networkXsdFileLocation)
-			throws PlanItException {
+	public PlanItXMLInputBuilder(String zoningXmlFileLocation, String demandXmlFileLocation,
+			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
+			String networkXsdFileLocation) throws PlanItException {
 		try {
 			if (zoningXsdFileLocation != null) {
 				XmlUtils.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
@@ -154,8 +160,8 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	/**
 	 * Populate the input objects from specified XML files
 	 * 
-	 * @param zoningXmlFileLocation location of the zoning input XML file
-	 * @param demandXmlFileLocation location of the demand input XML file
+	 * @param zoningXmlFileLocation  location of the zoning input XML file
+	 * @param demandXmlFileLocation  location of the demand input XML file
 	 * @param networkXmlFileLocation location of the network input XML file
 	 * @throws PlanItException thrown if there is an error during reading the files
 	 */
@@ -325,35 +331,76 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	}
 
 	/**
-	 * Generate an input object of a specified type from the XML files in the project directory.
+	 * Return an array of the names of all the input files in the project path directory
 	 * 
-	 * @param projectPath name of the directory containing the input files
-	 * @param xmlNameExtension extension of the files to be searched through
-	 * @param clazz Class of the input object required
-	 * @return an input object of the required class
-	 * @throws PlanItException thrown if there is an error reading the file, or if no input file of the required type can be found
+	 * @param projectPath the project path directory
+	 * @param xmlNameExtension the extension of the files to search through
+	 * @return array of names of files in the directory with the specified extension
+	 * @throws PlanItException thrown if no files with the specified extension can be found
 	 */
-	private Object getInputObjectFromProjectPath(String projectPath, String xmlNameExtension, Class<?> clazz)
-			throws PlanItException {
+	private String[] getXmlFileNames(String projectPath, String xmlNameExtension) throws PlanItException {
 		File xmlFilesDirectory = new File(projectPath);
 		if (!xmlFilesDirectory.isDirectory()) {
 			throw new PlanItException(projectPath + " is not a valid directory.");
 		}
 		String[] fileNames = xmlFilesDirectory.list((d, name) -> name.endsWith(xmlNameExtension));
 		if (fileNames.length == 0) {
-			throw new PlanItException("Directory " + projectPath + " contains no XML files.");
+			throw new PlanItException("Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
 		}
-		for (int i = 0; i < fileNames.length; i++) {
-			String xmlFileLocation = projectPath + "\\" + fileNames[i];
-			try {
-				return XmlUtils.generateObjectFromXml(clazz, xmlFileLocation);
-			} catch (UnmarshalException ue) {
-				//Do nothing, UnmarshallException simply means the current file is not of the required type,  keep looping through the files
-			} catch (Exception e) {
-				throw new PlanItException(e);
+		for (int i=0; i < fileNames.length; i++ ) {
+			fileNames[i] = projectPath + "\\" + fileNames[i];
+		}
+		return fileNames;
+	}
+	
+	/**
+	 * Populate the generated input objects from the XML files
+	 * 
+	 * @param projectPath the name of the project path directory
+	 * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files in the project directory
+	 */
+	private void setInputFiles(String projectPath) throws PlanItException {
+		boolean foundZoningFile = false;
+		boolean foundNetworkFile = false;
+		boolean foundDemandFile = false;
+		for (int i=0; i < xmlFileNames.length; i++ ) {
+			if (foundZoningFile && foundDemandFile && foundNetworkFile) {
+				LOGGER.info("File " + xmlFileNames[i] + " exists but was not parsed.");
+			}
+			if (!foundZoningFile) {
+				try {
+					macroscopiczoning = (Macroscopiczoning) XmlUtils.generateObjectFromXml(Macroscopiczoning.class, xmlFileNames[i]);
+					LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");
+					foundZoningFile = true;
+					continue;
+				} catch (Exception e) {}
+			}
+			if (!foundNetworkFile) {
+				try {			
+					 macroscopicnetwork = (Macroscopicnetwork) XmlUtils.generateObjectFromXml(Macroscopicnetwork.class, xmlFileNames[i]);
+					 LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
+					 foundNetworkFile = true;
+					 continue;
+				}	catch (Exception e) {}				
+			}
+			if (!foundDemandFile) {
+				try {					
+					macroscopicdemand = (Macroscopicdemand) XmlUtils.generateObjectFromXml(Macroscopicdemand.class, xmlFileNames[i]);
+					LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");
+					foundDemandFile = true;
+					continue;
+				}	catch (Exception e) {}								
 			}
 		}
-		throw new PlanItException("Failed to find a file of type " + clazz.getCanonicalName() + " in directory " + projectPath);
+		if (!foundZoningFile) {
+			throw new PlanItException("Failed to find a valid zoning input file in the project directory " + projectPath);
+		}
+		if (!foundNetworkFile) {
+			throw new PlanItException("Failed to find a valid network input file in the project directory " + projectPath);
+		}
+		if (!foundDemandFile) {
+			throw new PlanItException("Failed to find a valid demand input file in the project directory " + projectPath);
+		}
 	}
 
 }
