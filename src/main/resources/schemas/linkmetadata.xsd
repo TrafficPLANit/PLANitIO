@@ -73,7 +73,7 @@
 	<xs:element name="simulation">
   		<xs:complexType>
   			<xs:sequence>
-  				<xs:element ref="iteration"/>
+  				<xs:element ref="iteration" minOccurs="1" maxOccurs="unbounded"/>
   			</xs:sequence>
   		</xs:complexType>
   	</xs:element>
