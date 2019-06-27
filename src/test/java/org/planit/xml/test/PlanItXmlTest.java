@@ -254,21 +254,11 @@ public class PlanItXmlTest {
 		// DEMAND SIDE
 		taBuilder.registerDemands(demands);
 
-		// OUTPUT
+		//DATA OUTPUT CONFIGURATION
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
-		
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
-		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
-				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
-		taBuilder.registerOutputFormatter(xmlOutputFormatter);
-		if (clearOutputDirectories) {
-			xmlOutputFormatter.resetXmlOutputDirectory();
-			xmlOutputFormatter.resetCsvOutputDirectory();
-			clearOutputDirectories = false;
-		}
-		xmlOutputFormatter.setCsvSummaryOutputFileName(CSV_TEST_RESULTS_LOCATION);
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
 		linkOutputTypeConfiguration.addColumn(Column.LINK_ID);
 		linkOutputTypeConfiguration.addColumn(Column.START_NODE_ID);
 		linkOutputTypeConfiguration.addColumn(Column.END_NODE_ID);
@@ -278,10 +268,19 @@ public class PlanItXmlTest {
 		linkOutputTypeConfiguration.addColumn(Column.FLOW);
 		linkOutputTypeConfiguration.addColumn(Column.TRAVEL_TIME);
 		
+		//OUTPUT FORMAT CONFIGURATION
+		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+		xmlOutputFormatter.setCsvSummaryOutputFileName(CSV_TEST_RESULTS_LOCATION);
+		if (clearOutputDirectories) {
+			xmlOutputFormatter.resetXmlOutputDirectory();
+			xmlOutputFormatter.resetCsvOutputDirectory();
+			clearOutputDirectories = false;
+		}
 		xmlOutputFormatter.setXmlNamePrefix("PlanItXmlTest");
 		xmlOutputFormatter.setCsvNamePrefix("PlanItXmlTest");
-		linkOutputTypeConfiguration.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
-		linkOutputTypeConfiguration.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
+		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
+		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
+		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
 		// "USER" configuration
 		if (maxIterations != null) {

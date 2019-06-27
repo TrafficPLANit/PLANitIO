@@ -2,12 +2,14 @@ package org.planit.output.formatter;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -48,14 +50,29 @@ import org.planit.output.Column;
  */
 public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 
-	private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
-	private static final String DEFAULT_XML_NAME_PREFIX = "XMLOutput";
-	private static final String DEFAULT_CSV_NAME_EXTENSION = ".csv";
-	private static final String DEFAULT_CSV_NAME_PREFIX = "CSVOutput";
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger LOGGER = Logger.getLogger(PlanItXMLOutputFormatter.class.getName());
+
+	private static final String DEFAULT_PROPERTIES_FILE_NAME = "application.properties";
+	private static final String DEFAULT_DESCRIPTION_PROPERTY_NAME = "planit.description";
+	private static final String DEFAULT_VERSION_PROPERTY_NAME = "planit.version";
+		
+	private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
+	private static final String DEFAULT_XML_NAME_PREFIX = "XMLOutput";
+	private static final String DEFAULT_CSV_NAME_EXTENSION = ".csv";
+	private static final String DEFAULT_CSV_NAME_PREFIX = "CSVOutput";
+
+	/**
+	 * The root directory to store the XML output files
+	 */
+	private String xmlOutputDirectory;
+
+	/**
+	 * The root directory of the CSV output files
+	 */
+	private String csvOutputDirectory;
 
 	/**
 	 * The extension of the XML output files
@@ -68,9 +85,19 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private String xmlNamePrefix;
 
 	/**
-	 * The root directory to store the XML output files
+	 * The extension of the CSV output files
 	 */
-	// private String xmlOutputDirectory;
+	private String csvNameExtension;
+
+	/**
+	 * The prefix name of the CSV output files
+	 */
+	private String csvNamePrefix;
+
+	// TODO - csvSummaryOutputFileName and csvPrinter only exist to create output
+	// CSV files which correspond to BasicCsv output. We can probably remove this
+	// later.
+	private String csvSummaryOutputFileName;
 
 	/**
 	 * The directory of the XML output file for the current iteration
@@ -81,21 +108,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * The directory of the CSV output file for the current iteration
 	 */
 	private String currentCsvOutputDirectory;
-
-	/**
-	 * The extension of the CSV output files
-	 */
-	private String csvNameExtension;
-
-	/**
-	 * The prefix name of the CSV output files
-	 */
-	private String csvNamePrefix;
-
-	/**
-	 * The root directory of the CSV output files
-	 */
-	// private String csvOutputDirectory;
 
 	/**
 	 * Flag to indicate whether XML output directory should be cleared before the
@@ -109,10 +121,19 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	private boolean resetCsvOutputDirectory;
 
-	// TODO - csvSummaryOutputFileName and csvPrinter only exist to create output
-	// CSV files which correspond to BasicCsv output. We can probably remove this
-	// later.
-	private String csvSummaryOutputFileName;
+	/**
+	 * Description property to be included in the output files
+	 */
+	private String description;
+
+	/**
+	 * Version property to be included in the output files
+	 */
+	private String version;
+
+	// TODO - csvPrinters only exist to create output CSV files which correspond to
+	// BasicCsv output. We can probably remove this later.
+
 	private CSVPrinter csvPrinter;
 
 	private static int directoryCounter = 0;
@@ -120,17 +141,86 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Base constructor
 	 */
+	/**
+	 * Constructor, uses default values for properties file name,  description property and version property
+	 */
 	public PlanItXMLOutputFormatter() throws PlanItException {
+		this(DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
+	}
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param propertiesFileName  the name of the application properties file
+	 * @param descriptionProperty the name of the description property
+	 * @param versionProperty     the name of the version property
+	 * @throws PlanItException thrown if the application properties file exists but
+	 *                         cannot be opened
+	 */
+	public PlanItXMLOutputFormatter(String propertiesFileName, String descriptionProperty, String versionProperty) throws PlanItException {
 		super();
-		// xmlOutputDirectory = null;
 		xmlNamePrefix = DEFAULT_XML_NAME_PREFIX;
 		xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
-		// csvOutputDirectory = null;
 		csvNamePrefix = DEFAULT_CSV_NAME_PREFIX;
 		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
-		csvSummaryOutputFileName = null;
 		resetXmlOutputDirectory = false;
 		resetCsvOutputDirectory = false;
+		xmlOutputDirectory = null;
+		csvOutputDirectory = null;
+		setVersionAndDescription(propertiesFileName, descriptionProperty, versionProperty);
+	}
+	
+	/**
+	 * Constructor, uses default values description property and version property
+	 * 
+	 * @param propertiesFileName the name of the application properties file
+	 * @throws PlanItException thrown if the application properties file exists but
+	 *                         cannot be opened
+	 */
+	public PlanItXMLOutputFormatter(String propertiesFileName) throws PlanItException {
+		this(propertiesFileName, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
+	}
+
+	/**
+	 * Set the values of the version and description properties from a properties file
+	 * 
+	 * @param propertiesFileName the name of the properties file
+	 * @param descriptionProperty the name of the description property used in the properties file
+	 * @param versionProperty the name of the version property used in the properties file
+	 * @throws PlanItException thrown if there is an error reading the properties file
+	 */
+	private void setVersionAndDescription(String propertiesFileName, String descriptionProperty, String versionProperty) throws PlanItException {
+		if (propertiesFileName == null) {
+			LOGGER.info(
+					"No application properties file specified, version and description properties must be set from the code or will not be recorded.");
+			return;
+		}
+		try (InputStream input = PlanItXMLOutputFormatter.class.getClassLoader().getResourceAsStream(propertiesFileName)) {
+
+			if (input == null) {
+				LOGGER.info("Application properties " + propertiesFileName
+						+ " could not be found, version and description properties must be set from the code or will not be recorded.");
+				return;
+			}
+
+			// load a properties file from class path, inside static method
+			Properties prop = new Properties();
+			prop.load(input);
+
+			description = prop.getProperty(descriptionProperty);
+			if (description == null) {
+				LOGGER.info("Description property could not be set from properties file " + propertiesFileName
+						+ ", this must be set from the code or will not be recorded.");
+			}
+			version = prop.getProperty(versionProperty);
+			if (version == null) {
+				LOGGER.info("Version property could not be set from properties file " + propertiesFileName
+						+ ", this must be set from the code or will not be recorded.");
+			}
+
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
 	}
 
 	/**
@@ -212,20 +302,19 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
-			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter,
+			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
 			TraditionalStaticAssignmentSimulationData simulationData) throws PlanItException {
 		// TODO - We only write output to the CSV summary output file for comparison
 		// with BasicCsv results. We can remove this call when this functionality is no
 		// longer required
-		writeResultsToCsvSummaryFileForCurrentTimePeriod(traditionalStaticAssignmentLinkOutputAdapter, simulationData,
-				modes, timePeriod);
+		if (csvSummaryOutputFileName != null) {
+			writeResultsToCsvSummaryFileForCurrentTimePeriod(outputAdapter, simulationData, modes, timePeriod);
+		}
 		int iterationIndex = simulationData.getIterationIndex();
 		String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNamePrefix, csvNameExtension,
 				iterationIndex);
-		createCsvFileForCurrentIteration(traditionalStaticAssignmentLinkOutputAdapter, simulationData, modes,
-				csvFileName);
-		createXmlFileForCurrentIteration(iterationIndex, traditionalStaticAssignmentLinkOutputAdapter, timePeriod,
-				csvFileName);
+		createCsvFileForCurrentIteration(outputAdapter, simulationData, modes, csvFileName);
+		createXmlFileForCurrentIteration(iterationIndex, outputAdapter, timePeriod, csvFileName);
 	}
 
 	/**
@@ -419,7 +508,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				break;
 			}
 
-			// generatedColumn.setType(Column.getType(column));
 			generatedColumn.setType(outString);
 			generatedColumns.getColumn().add(generatedColumn);
 		}
@@ -548,43 +636,35 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 *                         during set up of the output formatter
 	 */
 	@Override
-	public void open(OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
+	public void open() throws PlanItException {
 
-		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
-		if (outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter) {
-			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
-             String xmlOutputDirectory = traditionalStaticAssignmentLinkOutputAdapter.getXmlOutputDirectory();
-             String csvOutputDirectory = traditionalStaticAssignmentLinkOutputAdapter.getCsvOutputDirectory();
-			
-			if (xmlOutputDirectory == null) {
-				throw new PlanItException("No XML output directory has been defined in the code.");
-			}
-			if (csvOutputDirectory == null) {
-				throw new PlanItException("No CSV output directory has been defined in the code.");
-			}
+		if (xmlOutputDirectory == null) {
+			throw new PlanItException("No XML output directory has been defined in the code.");
+		}
+		if (csvOutputDirectory == null) {
+			throw new PlanItException("No CSV output directory has been defined in the code.");
+		}
 
-			if (resetXmlOutputDirectory) {
-				createOrOpenOutputDirectory(xmlOutputDirectory);
-				File directory = new File(xmlOutputDirectory);
-				purgeDirectory(directory);
-			}
+		if (resetXmlOutputDirectory) {
+			createOrOpenOutputDirectory(xmlOutputDirectory);
+			File directory = new File(xmlOutputDirectory);
+			purgeDirectory(directory);
+		}
 
-			if (resetCsvOutputDirectory) {
-				createOrOpenOutputDirectory(csvOutputDirectory);
-				File directory = new File(csvOutputDirectory);
-				purgeDirectory(directory);
-			}
+		if (resetCsvOutputDirectory) {
+			createOrOpenOutputDirectory(csvOutputDirectory);
+			File directory = new File(csvOutputDirectory);
+			purgeDirectory(directory);
+		}
 
-			directoryCounter++;
-			currentXmlOutputDirectory = xmlOutputDirectory + "\\" + directoryCounter;
-			createOrOpenOutputDirectory(currentXmlOutputDirectory);
+		directoryCounter++;
+		currentXmlOutputDirectory = xmlOutputDirectory + "\\" + directoryCounter;
+		createOrOpenOutputDirectory(currentXmlOutputDirectory);
 
-			currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
-			createOrOpenOutputDirectory(currentCsvOutputDirectory);
-			openCsvSummaryOutputFile(csvOutputDirectory);
-		} else {
-			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
-					+ " which has not been defined yet");
+		currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
+		createOrOpenOutputDirectory(currentCsvOutputDirectory);
+		if (csvSummaryOutputFileName != null) {
+			openCsvSummaryOutputFile();
 		}
 	}
 
@@ -594,13 +674,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException thrown if the CSV output file cannot be opened
 	 */
 //TODO - We only create the CSV Summary Output file to create CSV output files whose content can be compared to BasicCsv output.  We will remove this method when this functionality is no longer required.
-	private void openCsvSummaryOutputFile(String csvOutputDirectory) throws PlanItException {
+	private void openCsvSummaryOutputFile() throws PlanItException {
 		try {
-			if (csvSummaryOutputFileName == null) {
-				int pos = createOrOpenOutputDirectory(csvOutputDirectory) + 1;
-				csvSummaryOutputFileName = generateOutputFileName(csvOutputDirectory, csvNamePrefix, csvNameExtension,
-						pos);
-			}
 			csvPrinter = new CSVPrinter(new FileWriter(csvSummaryOutputFileName), CSVFormat.EXCEL);
 			csvPrinter.printRecord("Run Id", "Time Period Id", "Mode Id", "Start Node Id", "End Node Id", "Link Flow",
 					"Capacity", "Length", "Speed", "Link Cost", "Cost to End Node");
@@ -611,11 +686,14 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 
 	/**
 	 * Close the CSV writer
-	 * @param outputTypeConfiguration the output type configuration currently in use
+	 * 
 	 * @throws PlanItException thrown if there is an error closing a resource
 	 */
 	@Override
-	public void close(OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
+	public void close() throws PlanItException {
+		if (csvSummaryOutputFileName == null) {
+			return;
+		}
 		try {
 			csvPrinter.close();
 		} catch (Exception e) {
@@ -658,7 +736,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void resetCsvOutputDirectory() throws PlanItException {
 		resetCsvOutputDirectory = true;
-		;
 	}
 
 	/**
@@ -672,6 +749,26 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				purgeDirectory(file);
 			file.delete();
 		}
+	}
+
+	public void setXmlOutputDirectory(String xmlOutputDirectory) {
+		this.xmlOutputDirectory = xmlOutputDirectory;
+	}
+
+	public void setCsvOutputDirectory(String csvOutputDirectory) {
+		this.csvOutputDirectory = csvOutputDirectory;
+	}
+
+	/**
+	 * Set the CSV summary output file name
+	 * 
+	 * If this method is not called during the setup phase, the CSV summary output
+	 * file is not created.
+	 * 
+	 * @param outputFileName the CSV output file name
+	 */
+	public void setCsvSummaryOutputFileName(String csvSummaryOutputFileName) {
+		this.csvSummaryOutputFileName = csvSummaryOutputFileName;
 	}
 
 	/**
@@ -693,15 +790,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Sets the extension of the CSV output file
-	 * 
-	 * @param nameExtension the extension of the CSV output file
-	 */
-	public void setCsvNameExtension(String csvNameExtension) {
-		this.csvNameExtension = csvNameExtension;
-	}
-
-	/**
 	 * Sets the root name of the CSV output file
 	 * 
 	 * @param nameRoot root name of CSV output file
@@ -711,33 +799,30 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Set the CSV summary output file name
+	 * Sets the extension of the CSV output file
 	 * 
-	 * If this method is not called during the setup phase, the CSV summary output
-	 * file is not created.
-	 * 
-	 * @param outputFileName the CSV output file name
+	 * @param nameExtension the extension of the CSV output file
 	 */
-	public void setCsvSummaryOutputFileName(String csvSummaryOutputFileName) {
-		this.csvSummaryOutputFileName = csvSummaryOutputFileName;
+	public void setCsvNameExtension(String csvNameExtension) {
+		this.csvNameExtension = csvNameExtension;
 	}
 
 	/**
-	 * Set the XML output file root directory
+	 * Allows the developer to set the output description property
 	 * 
-	 * @param xmlOutputDirectory the XML output file root directory
+	 * @param description description to be included
 	 */
-	// public void setXmlOutputDirectory(String xmlOutputDirectory) {
-	// this.xmlOutputDirectory = xmlOutputDirectory;
-	// }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	/**
-	 * Set the CSV output file root directory
+	 * Allows the developer to set version output property
 	 * 
-	 * @param csvOutputDirectory the CSV output file root directory
+	 * @param version version to be included
 	 */
-	// public void setCsvOutputDirectory(String csvOutputDirectory) {
-	// this.csvOutputDirectory = csvOutputDirectory;
-	// }
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
 }

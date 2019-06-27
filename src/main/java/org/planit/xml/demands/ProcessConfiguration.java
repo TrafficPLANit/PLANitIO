@@ -14,7 +14,6 @@ import org.planit.generated.Userclasses;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
-import org.planit.input.PlanItXMLInputBuilder;
 
 /**
  * Methods to generate and store PLANit configuration objects from the

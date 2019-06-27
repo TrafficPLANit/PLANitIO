@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 

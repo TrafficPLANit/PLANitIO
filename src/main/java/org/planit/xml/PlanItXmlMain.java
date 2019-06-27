@@ -107,23 +107,20 @@ public class PlanItXmlMain {
 		// DEMAND SIDE
 		taBuilder.registerDemands(demands);
 
-		// OUTPUT
+		//DATA OUTPUT CONFIGURATION
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
-		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
-				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
+		
+		//OUTPUT FORMAT CONFIGURATION
+		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 		xmlOutputFormatter.resetXmlOutputDirectory();
 		xmlOutputFormatter.resetCsvOutputDirectory();
 		xmlOutputFormatter.setCsvSummaryOutputFileName(csvResultsFileLocation);
-		/*
 		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
 		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
-		*/
-		linkOutputTypeConfiguration.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
-		linkOutputTypeConfiguration.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 
 		// "USER" configuration
 		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
