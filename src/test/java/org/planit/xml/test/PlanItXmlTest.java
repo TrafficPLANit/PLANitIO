@@ -23,6 +23,15 @@ import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
+import org.planit.output.property.DensityOutputProperty;
+import org.planit.output.property.EndNodeIdOutputProperty;
+import org.planit.output.property.FlowOutputProperty;
+import org.planit.output.property.LinkIdOutputProperty;
+import org.planit.output.property.ModeIdOutputProperty;
+import org.planit.output.property.OutputProperty;
+import org.planit.output.property.SpeedOutputProperty;
+import org.planit.output.property.StartNodeIdOutputProperty;
+import org.planit.output.property.TravelTimeOutputProperty;
 import org.planit.output.Column;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
@@ -251,14 +260,8 @@ public class PlanItXmlTest {
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(false); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
-		linkOutputTypeConfiguration.addColumn(Column.LINK_ID);
-		linkOutputTypeConfiguration.addColumn(Column.START_NODE_ID);
-		linkOutputTypeConfiguration.addColumn(Column.END_NODE_ID);
-		linkOutputTypeConfiguration.addColumn(Column.MODE_ID);
-		linkOutputTypeConfiguration.addColumn(Column.SPEED);
-		linkOutputTypeConfiguration.addColumn(Column.DENSITY);
-		linkOutputTypeConfiguration.addColumn(Column.FLOW);
-		linkOutputTypeConfiguration.addColumn(Column.TRAVEL_TIME);
+		linkOutputTypeConfiguration.addAllProperties();
+		linkOutputTypeConfiguration.removeProperty(OutputProperty.TRAVEL_TIME);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());

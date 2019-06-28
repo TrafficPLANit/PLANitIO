@@ -37,6 +37,8 @@ import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.adapter.TraditionalStaticAssignmentLinkOutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
 import org.planit.output.formatter.BaseOutputFormatter;
+import org.planit.output.property.BaseOutputProperty;
+import org.planit.output.property.Type;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.util.XmlUtils;
@@ -100,16 +102,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private String csvSummaryOutputFileName;
 
 	/**
-	 * The directory of the XML output file for the current iteration
-	 */
-	//private String currentXmlOutputDirectory;
-
-	/**
-	 * The directory of the CSV output file for the current iteration
-	 */
-	private String currentCsvOutputDirectory;
-
-	/**
 	 * Flag to indicate whether XML output directory should be cleared before the
 	 * run
 	 */
@@ -140,17 +132,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	// BasicCsv output. We can probably remove this later.
 
 	private CSVPrinter csvPrinter;
-	
+
 	/**
 	 * Name of the XML output file
 	 */
 	private String xmlOutputFileName;
 
-	private static int directoryCounter = 0;
-
-	/**
-	 * Base constructor
-	 */
 	/**
 	 * Constructor, uses default values for properties file name, description
 	 * property and version property
@@ -251,10 +238,11 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @return the name of the output file
 	 * @throws PlanItException thrown if the output directory cannot be opened
 	 */
-	private String generateOutputFileName(String outputDirectory, String nameRoot, TimePeriod timePeriod, String nameExtension, int iteration)
-			throws PlanItException {
+	private String generateOutputFileName(String outputDirectory, String nameRoot, TimePeriod timePeriod,
+			String nameExtension, int iteration) throws PlanItException {
 		try {
-			String newFileName = outputDirectory + "\\" + nameRoot + "_" + timePeriod.getDescription() + "_" + iteration + nameExtension;
+			String newFileName = outputDirectory + "\\" + nameRoot + "_" + timePeriod.getDescription() + "_" + iteration
+					+ nameExtension;
 			return newFileName;
 		} catch (Exception e) {
 			throw new PlanItException(e);
@@ -282,9 +270,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		}
 		try {
 			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
-			boolean isNewTimePeriod  = ((metadata == null) || (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
+			boolean isNewTimePeriod = ((metadata == null)
+					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
 			if (isNewTimePeriod) {
-				if (metadata != null ) {
+				if (metadata != null) {
 					XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, xmlOutputFileName);
 				}
 				metadata = new Metadata();
@@ -296,7 +285,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes,
 					traditionalStaticAssignmentLinkOutputAdapter, traditionalStaticAssignmentSimulationData);
 			if (isNewTimePeriod) {
-				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription() + xmlNameExtension;
+				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
+						+ xmlNameExtension;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -327,7 +317,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			writeResultsToCsvSummaryFileForCurrentTimePeriod(outputAdapter, simulationData, modes, timePeriod);
 		}
 		int iterationIndex = simulationData.getIterationIndex();
-		String csvFileName = generateOutputFileName(currentCsvOutputDirectory, csvNamePrefix, timePeriod, csvNameExtension,
+		String csvFileName = generateOutputFileName(csvOutputDirectory, csvNamePrefix, timePeriod, csvNameExtension,
 				iterationIndex);
 		createCsvFileForCurrentIteration(outputAdapter, simulationData, modes, csvFileName);
 		updateGeneratedSimulationOutputForCurrentIteration(iterationIndex, csvFileName);
@@ -337,7 +327,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Update the generated simulation output object for the current iteration
 	 * 
 	 * @param iterationIndex index of the current iteration
-	 * @param csvFileName name of CSV file used to store data for the current iteration
+	 * @param csvFileName    name of CSV file used to store data for the current
+	 *                       iteration
 	 */
 	private void updateGeneratedSimulationOutputForCurrentIteration(int iterationIndex, String csvFileName) {
 		Iteration iteration = new Iteration();
@@ -366,9 +357,15 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		try {
 			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
 			List<String> titles = new ArrayList<String>();
+			/*
 			List<Column> columns = outputAdapter.getColumns();
 			columns.forEach(column -> {
 				titles.add(Column.getName(column));
+			});
+			*/
+			List<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
+			outputProperties.forEach(outputProperty -> {
+				titles.add(outputProperty.getName());
 			});
 			csvIterationPrinter.printRecord(titles);
 			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
@@ -383,67 +380,22 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 					double flow = modalNetworkSegmentFlows[id];
 					if (flow > 0.0) {
 						double travelTime = modalNetworkSegmentCosts[id];
-						csvIterationPrinter.printRecord(getRow(columns, linkSegment, mode, id, flow, travelTime));
+						//csvIterationPrinter.printRecord(getRow(columns, linkSegment, mode, id, flow, travelTime));
+						List<Object> row = new ArrayList<Object>();
+						outputProperties.forEach(outputProperty -> {
+							row.add(outputProperty.getOutputValue(linkSegment, mode, id, flow,travelTime));
+						});
+						csvIterationPrinter.printRecord(row);
 					}
 				}
 			}
 			csvIterationPrinter.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new PlanItException(e);
 		}
 	}
-
-	/**
-	 * Return the row for the current link to be included in the CSV output file
-	 * 
-	 * @param linkSegment current link segment
-	 * @param mode        mode of travel
-	 * @param id          id of the current link segment
-	 * @param flow        flow through the current link segment
-	 * @param travelTime  travel time along the current link segment
-	 * @return
-	 */
-	private List<Object> getRow(List<Column> columns, MacroscopicLinkSegment linkSegment, Mode mode, int id,
-			double flow, double travelTime) {
-		double length = linkSegment.getParentLink().getLength();
-		double speed = length / travelTime;
-		List<Object> row = new ArrayList<Object>();
-		for (Column column : columns) {
-			switch (column) {
-			case LINK_ID:
-				row.add(id);
-				break;
-			case MODE_ID:
-				row.add(mode.getExternalId());
-				break;
-			case SPEED:
-				row.add(speed);
-				break;
-			case DENSITY:
-				row.add(linkSegment.getLinkSegmentType().getMaximumDensityPerLane());
-				break;
-			case FLOW:
-				row.add(flow);
-				break;
-			case TRAVEL_TIME:
-				row.add(travelTime);
-				break;
-			case LENGTH:
-				row.add(length);
-				break;
-			case START_NODE_ID:
-				Node startNode = (Node) linkSegment.getUpstreamVertex();
-				row.add(startNode.getExternalId());
-				break;
-			case END_NODE_ID:
-				Node endNode = (Node) linkSegment.getDownstreamVertex();
-				row.add(endNode.getExternalId());
-				break;
-			}
-		}
-		return row;
-	}
-
+	
 	/**
 	 * Generate time stamp for the current date and time
 	 * 
@@ -504,6 +456,32 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			generatedColumns.getColumn().add(generatedColumn);
 		}
 		return generatedColumns;
+	}
+
+	private Columns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties) throws PlanItException {
+		Columns generatedColumns = new Columns();
+		for (BaseOutputProperty outputProperty : outputProperties) {
+			org.planit.generated.Column generatedColumn = new org.planit.generated.Column();
+			generatedColumn.setName(outputProperty.getName());
+			generatedColumn.setUnit(outputProperty.getUnits());
+			generatedColumn.setType(convertType(outputProperty.getType()));
+			generatedColumns.getColumn().add(generatedColumn);
+		}
+		return generatedColumns;
+	}
+
+	private Datatypedescription convertType(Type type) throws PlanItException {
+		switch (type) {
+		case DOUBLE:
+			return Datatypedescription.DOUBLE;
+		case FLOAT:
+			return Datatypedescription.FLOAT;
+		case INTEGER:
+			return Datatypedescription.INTEGER;
+		case BOOLEAN: return Datatypedescription.BOOLEAN;
+		default: throw new PlanItException("Data type " + type.value() + " has not been defined in the datatypedescription simple type in the output XSD file.");
+			
+		}
 	}
 
 	/**
@@ -631,24 +609,22 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			purgeDirectory(directory);
 		}
 
-		directoryCounter++;
-
-		currentCsvOutputDirectory = csvOutputDirectory + "\\" + directoryCounter;
-		createOrOpenOutputDirectory(currentCsvOutputDirectory);
+		createOrOpenOutputDirectory(csvOutputDirectory);
 		if (csvSummaryOutputFileName != null) {
 			openCsvSummaryOutputFile();
 		}
 	}
 
 	/**
-	 * Initialize the current metadata output object with data which is only written once per time period
+	 * Initialize the current metadata output object with data which is only written
+	 * once per time period
 	 * 
-	 * @param outputAdapter
-	 * @param timePeriod
-	 * @throws PlanItException
+	 * @param outputAdapter output adapter 
+	 * @param timePeriod current time period
+	 * @throws PlanItException thrown if there is an error writing the data to file
 	 */
-	private void initializeMetadataObject(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter, TimePeriod timePeriod)
-			throws PlanItException {
+	private void initializeMetadataObject(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
+			TimePeriod timePeriod) throws PlanItException {
 		try {
 			metadata.setTimestamp(getTimestamp());
 			if (version != null) {
@@ -658,8 +634,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				metadata.setDescription(description);
 			}
 			metadata.setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
-			List<Column> columns = outputAdapter.getColumns();
-			metadata.setColumns(getGeneratedColumns(columns));
+			List<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
+			metadata.setColumns(getGeneratedColumnsFromProperties(outputProperties));
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}

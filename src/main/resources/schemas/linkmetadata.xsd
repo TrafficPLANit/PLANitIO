@@ -12,6 +12,8 @@
 	    <xs:pattern value=".*\.csv"/>
 	  </xs:restriction>
 	</xs:simpleType>	
+	
+	<!--  The allowed values of the datatypedescription simpleType must match those in the Java enumeration  org.planit.output.property.Type (converted to lower case)  -->
 	<xs:simpleType name="datatypedescription"> 
     	<xs:restriction base="xs:string"> 
 			<xs:enumeration value="double"/>
