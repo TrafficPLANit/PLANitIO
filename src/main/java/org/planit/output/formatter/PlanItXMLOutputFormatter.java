@@ -42,7 +42,6 @@ import org.planit.output.property.Type;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.util.XmlUtils;
-import org.planit.output.Column;
 
 /**
  * The default output formatter of PlanIt
@@ -357,12 +356,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		try {
 			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
 			List<String> titles = new ArrayList<String>();
-			/*
-			List<Column> columns = outputAdapter.getColumns();
-			columns.forEach(column -> {
-				titles.add(Column.getName(column));
-			});
-			*/
 			List<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
 			outputProperties.forEach(outputProperty -> {
 				titles.add(outputProperty.getName());
@@ -380,7 +373,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 					double flow = modalNetworkSegmentFlows[id];
 					if (flow > 0.0) {
 						double travelTime = modalNetworkSegmentCosts[id];
-						//csvIterationPrinter.printRecord(getRow(columns, linkSegment, mode, id, flow, travelTime));
 						List<Object> row = new ArrayList<Object>();
 						outputProperties.forEach(outputProperty -> {
 							row.add(outputProperty.getOutputValue(linkSegment, mode, id, flow,travelTime));
@@ -413,51 +405,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Create generated Columns object to be used in the XML output, based on user
 	 * selections
 	 * 
+	 * @param outputProperties List of output properties to be included in the output
+	 * 
 	 * @return generated Columns object
 	 */
-	private Columns getGeneratedColumns(List<Column> columns) {
-		Columns generatedColumns = new Columns();
-		for (Column column : columns) {
-			org.planit.generated.Column generatedColumn = new org.planit.generated.Column();
-			generatedColumn.setName(Column.getName(column));
-			generatedColumn.setUnit(Column.getUnits(column));
-			Datatypedescription outString = null;
-			switch (column) {
-			case LINK_ID:
-				outString = Datatypedescription.INTEGER;
-				break;
-			case MODE_ID:
-				outString = Datatypedescription.INTEGER;
-				break;
-			case SPEED:
-				outString = Datatypedescription.DOUBLE;
-				break;
-			case DENSITY:
-				outString = Datatypedescription.DOUBLE;
-				break;
-			case FLOW:
-				outString = Datatypedescription.DOUBLE;
-				break;
-			case TRAVEL_TIME:
-				outString = Datatypedescription.DOUBLE;
-				break;
-			case LENGTH:
-				outString = Datatypedescription.DOUBLE;
-				break;
-			case START_NODE_ID:
-				outString = Datatypedescription.INTEGER;
-				break;
-			case END_NODE_ID:
-				outString = Datatypedescription.INTEGER;
-				break;
-			}
-
-			generatedColumn.setType(outString);
-			generatedColumns.getColumn().add(generatedColumn);
-		}
-		return generatedColumns;
-	}
-
 	private Columns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties) throws PlanItException {
 		Columns generatedColumns = new Columns();
 		for (BaseOutputProperty outputProperty : outputProperties) {
