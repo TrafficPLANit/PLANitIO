@@ -13,13 +13,25 @@
 	  </xs:restriction>
 	</xs:simpleType>	
 	
-	<!--  The allowed values of the datatypedescription simpleType must match those in the Java enumeration  org.planit.output.property.Type (converted to lower case)  -->
-	<xs:simpleType name="datatypedescription"> 
+	<!--  The allowed values of the typevalues simpleType must match those in the Java enumeration  org.planit.output.enums.Type (converted to lower case)  -->
+	<xs:simpleType name="typevalues"> 
     	<xs:restriction base="xs:string"> 
 			<xs:enumeration value="double"/>
         	<xs:enumeration value="float"/>
         	<xs:enumeration value="integer"/>
         	<xs:enumeration value="boolean"/> 
+      	</xs:restriction> 
+	</xs:simpleType> 
+
+	<!--  The allowed values of the unitsvalues simpleType must match those in the Java enumeration  org.planit.output.enums.Units (converted to lower case)  -->
+	<xs:simpleType name="unitsvalues"> 
+    	<xs:restriction base="xs:string"> 
+			<xs:enumeration value="veh/km"/>
+        	<xs:enumeration value="none"/>
+        	<xs:enumeration value="veh/h"/>
+        	<xs:enumeration value="km/h"/> 
+        	<xs:enumeration value="h"/> 
+        	<xs:enumeration value="km"/> 
       	</xs:restriction> 
 	</xs:simpleType> 
 
@@ -31,9 +43,9 @@
 	<xs:element name="name" type="xs:string"/>
 	<xs:element name="nr" type="xs:positiveInteger"/>
 	<xs:element name="physicalcost" type="xs:string"/>
-	<xs:element name="type" type="datatypedescription"/>
+	<xs:element name="type" type="typevalues"/>
 	<xs:element name="timestamp" type="xs:dateTime"/>
-	<xs:element name="unit" type="xs:string"/>
+	<xs:element name="units" type="unitsvalues"/>
 	<xs:element name="version" type="versiontype"/>
 	<xs:element name="virtualcost" type="xs:string"/>
 	<xs:element name="price" type="xs:decimal"/>
@@ -101,7 +113,7 @@
   		<xs:complexType>
   			<xs:sequence>
   				<xs:element ref="name"/>
-  				<xs:element ref="unit"/>
+  				<xs:element ref="units"/>
   				<xs:element ref="type"/>
   			</xs:sequence>
   		</xs:complexType>

@@ -22,8 +22,8 @@ import org.apache.commons.csv.CSVPrinter;
 import org.planit.data.SimulationData;
 import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
+import org.planit.generated.Column;
 import org.planit.generated.Columns;
-import org.planit.generated.Datatypedescription;
 import org.planit.generated.Iteration;
 import org.planit.generated.Metadata;
 import org.planit.generated.Outputconfiguration;
@@ -38,10 +38,10 @@ import org.planit.output.adapter.TraditionalStaticAssignmentLinkOutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
 import org.planit.output.formatter.BaseOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
-import org.planit.output.property.Type;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.util.XmlUtils;
+import org.planit.xml.converter.EnumConverter;
 
 /**
  * The default output formatter of PlanIt
@@ -375,7 +375,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 						double travelTime = modalNetworkSegmentCosts[id];
 						List<Object> row = new ArrayList<Object>();
 						outputProperties.forEach(outputProperty -> {
-							row.add(outputProperty.getOutputValue(linkSegment, mode, id, flow,travelTime));
+							row.add(outputProperty.getOutputValue(linkSegment, mode, id, flow, travelTime));
 						});
 						csvIterationPrinter.printRecord(row);
 					}
@@ -387,7 +387,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			throw new PlanItException(e);
 		}
 	}
-	
+
 	/**
 	 * Generate time stamp for the current date and time
 	 * 
@@ -405,34 +405,22 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Create generated Columns object to be used in the XML output, based on user
 	 * selections
 	 * 
-	 * @param outputProperties List of output properties to be included in the output
+	 * @param outputProperties List of output properties to be included in the
+	 *                         output
 	 * 
 	 * @return generated Columns object
 	 */
-	private Columns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties) throws PlanItException {
+	private Columns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties)
+			throws PlanItException {
 		Columns generatedColumns = new Columns();
 		for (BaseOutputProperty outputProperty : outputProperties) {
-			org.planit.generated.Column generatedColumn = new org.planit.generated.Column();
+			Column generatedColumn = new Column();
 			generatedColumn.setName(outputProperty.getName());
-			generatedColumn.setUnit(outputProperty.getUnits());
-			generatedColumn.setType(convertType(outputProperty.getType()));
+			generatedColumn.setUnits(EnumConverter.convertUnits(outputProperty.getUnits()));
+			generatedColumn.setType(EnumConverter.convertType(outputProperty.getType()));
 			generatedColumns.getColumn().add(generatedColumn);
 		}
 		return generatedColumns;
-	}
-
-	private Datatypedescription convertType(Type type) throws PlanItException {
-		switch (type) {
-		case DOUBLE:
-			return Datatypedescription.DOUBLE;
-		case FLOAT:
-			return Datatypedescription.FLOAT;
-		case INTEGER:
-			return Datatypedescription.INTEGER;
-		case BOOLEAN: return Datatypedescription.BOOLEAN;
-		default: throw new PlanItException("Data type " + type.value() + " has not been defined in the datatypedescription simple type in the output XSD file.");
-			
-		}
 	}
 
 	/**
@@ -570,8 +558,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Initialize the current metadata output object with data which is only written
 	 * once per time period
 	 * 
-	 * @param outputAdapter output adapter 
-	 * @param timePeriod current time period
+	 * @param outputAdapter output adapter
+	 * @param timePeriod    current time period
 	 * @throws PlanItException thrown if there is an error writing the data to file
 	 */
 	private void initializeMetadataObject(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,

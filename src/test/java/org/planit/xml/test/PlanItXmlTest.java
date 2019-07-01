@@ -16,6 +16,7 @@ import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
 import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
+import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -35,7 +36,6 @@ import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
-import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.zoning.Zoning;
 
 public class PlanItXmlTest {
