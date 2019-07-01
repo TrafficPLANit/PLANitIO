@@ -663,10 +663,20 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		}
 	}
 
+	/**
+	 * Set the output directory for XML output files
+	 * 
+	 * @param xmlOutputDirectory directory for XML output files
+	 */
 	public void setXmlOutputDirectory(String xmlOutputDirectory) {
 		this.xmlOutputDirectory = xmlOutputDirectory;
 	}
 
+	/**
+	 * Set the directory for CSV output files
+	 * 
+	 * @param csvOutputDirectory directory for CSV output files
+	 */
 	public void setCsvOutputDirectory(String csvOutputDirectory) {
 		this.csvOutputDirectory = csvOutputDirectory;
 	}

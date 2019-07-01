@@ -34,8 +34,8 @@ public class PlanItXmlMain {
 
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
 
-	private String csvResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test5\\results.csv";
-	private String projectPath = "src\\test\\resources\\route_choice\\xml\\test5";
+	private String csvResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test1\\results.csv";
+	private String projectPath = "src\\test\\resources\\route_choice\\xml\\test1";
 	private int maxIterations = 500;
 	private double epsilon = 0.00;
 
@@ -70,8 +70,6 @@ public class PlanItXmlMain {
 
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-		//InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(zoningXmlFileLocation, demandXmlFileLocation,
-		//		networkXmlFileLocation);
 		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
 		PlanItProject project = new PlanItProject(inputBuilderListener);
 
@@ -112,15 +110,18 @@ public class PlanItXmlMain {
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
+		linkOutputTypeConfiguration.addAllProperties();
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
-		xmlOutputFormatter.resetXmlOutputDirectory();
-		xmlOutputFormatter.resetCsvOutputDirectory();
-		xmlOutputFormatter.setCsvSummaryOutputFileName(csvResultsFileLocation);
 		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
 		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
+		xmlOutputFormatter.resetXmlOutputDirectory();
+		xmlOutputFormatter.resetCsvOutputDirectory();
+		//xmlOutputFormatter.setCsvSummaryOutputFileName(csvResultsFileLocation);
+		xmlOutputFormatter.setXmlNamePrefix("Route Choice Test 1");
+		xmlOutputFormatter.setCsvNamePrefix("Route Choice Test 1");
 
 		// "USER" configuration
 		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
