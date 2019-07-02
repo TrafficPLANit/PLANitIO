@@ -24,7 +24,6 @@ import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
-import org.planit.output.property.OutputProperty;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.BprResultDto;
@@ -252,7 +251,6 @@ public class PlanItXmlTest {
 		outputConfiguration.setPersistOnlyFinalIteration(false); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
 		linkOutputTypeConfiguration.addAllProperties();
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.TRAVEL_TIME);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());

@@ -7,7 +7,7 @@ import org.planit.output.enums.Type;
 import org.planit.output.enums.Units;
 
 /**
- * Utility methods to convert enumationss from the PLANit org.planit.output.enums package into enumerations generated from the output XSD file
+ * Utility methods to convert enumerations from the PLANit org.planit.output.enums package into enumerations generated from the output XSD file
  * 
  * @author gman6028
  *
@@ -21,7 +21,7 @@ public interface EnumConverter {
 	 * @return value of generated Typevalues enumeration
 	 * @throws PlanItException thrown if a value of Type enumeration is not included in the XSD enumeration definition
 	 */
-	public static Typevalues convertType(Type type) throws PlanItException {
+	public static Typevalues convertFromPlanItToXmlGeneratedType(Type type) throws PlanItException {
 		switch (type) {
 		case DOUBLE:
 			return Typevalues.DOUBLE;
@@ -44,7 +44,7 @@ public interface EnumConverter {
 	 * @return value of generated Unitsvalues enumeration
 	 * @throws PlanItException thrown if a value of Units enumeration is not included in the XSD enumeration definition
 	 */
-	public static Unitsvalues convertUnits(Units units) throws PlanItException {
+	public static Unitsvalues convertFromPlanItToXmlGeneratedUnits(Units units) throws PlanItException {
 		switch (units) {
 		case VEH_KM:
 			return Unitsvalues.VEH_KM;

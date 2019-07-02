@@ -19,7 +19,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.planit.data.SimulationData;
 import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Column;
@@ -39,6 +38,8 @@ import org.planit.output.configuration.OutputTypeConfiguration;
 import org.planit.output.formatter.BaseOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.time.TimePeriod;
+import org.planit.trafficassignment.TraditionalStaticAssignment;
+import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.userclass.Mode;
 import org.planit.xml.util.XmlUtils;
 import org.planit.xml.converter.EnumConverter;
@@ -100,6 +101,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	// later.
 	private String csvSummaryOutputFileName;
 
+	private CSVPrinter csvPrinter;
+
 	/**
 	 * Flag to indicate whether XML output directory should be cleared before the
 	 * run
@@ -126,11 +129,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Generated object for the <metadata> element in the output XML file
 	 */
 	private Metadata metadata;
-
-	// TODO - csvPrinters only exist to create output CSV files which correspond to
-	// BasicCsv output. We can probably remove this later.
-
-	private CSVPrinter csvPrinter;
 
 	/**
 	 * Name of the XML output file
@@ -256,12 +254,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param modes                   Set of modes for the assignment to be saved
 	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
 	 *                                be saved
-	 * @param simulationData          simulation data for the current iteration
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration,
-			SimulationData simulationData) throws PlanItException {
+	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
 		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
 		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
 			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
@@ -280,9 +276,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				metadata.setSimulation(simulation);
 				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
 			}
-			TraditionalStaticAssignmentSimulationData traditionalStaticAssignmentSimulationData = (TraditionalStaticAssignmentSimulationData) simulationData;
-			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes,
-					traditionalStaticAssignmentLinkOutputAdapter, traditionalStaticAssignmentSimulationData);
+			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes, traditionalStaticAssignmentLinkOutputAdapter);
 			if (isNewTimePeriod) {
 				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
 						+ xmlNameExtension;
@@ -302,23 +296,20 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param modes                                        Set of modes for the
 	 *                                                     assignment to be saved
 	 * @param traditionalStaticAssignmentLinkOutputAdapter output adapter
-	 * @param simulationData                               simulation data for the
-	 *                                                     current iteration
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
-			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			TraditionalStaticAssignmentSimulationData simulationData) throws PlanItException {
+			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter) throws PlanItException {
 		// TODO - We only write output to the CSV summary output file for comparison
 		// with BasicCsv results. We can remove this call when this functionality is no
 		// longer required
 		if (csvSummaryOutputFileName != null) {
-			writeResultsToCsvSummaryFileForCurrentTimePeriod(outputAdapter, simulationData, modes, timePeriod);
+			writeResultsToCsvSummaryFileForCurrentTimePeriod(outputAdapter, modes, timePeriod);
 		}
-		int iterationIndex = simulationData.getIterationIndex();
+		int iterationIndex = outputAdapter.getIterationIndex();
 		String csvFileName = generateOutputFileName(csvOutputDirectory, csvNamePrefix, timePeriod, csvNameExtension,
 				iterationIndex);
-		createCsvFileForCurrentIteration(outputAdapter, simulationData, modes, csvFileName);
+		createCsvFileForCurrentIteration(outputAdapter,modes, csvFileName);
 		updateGeneratedSimulationOutputForCurrentIteration(iterationIndex, csvFileName);
 	}
 
@@ -341,8 +332,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @param traditionalStaticAssignmentLinkOutputAdapter outputAdapter storing
 	 *                                                     network
-	 * @param traditionalStaticAssignmentSimulationData    simulation data for the
-	 *                                                     current iteration
 	 * @param csvFileName                                  name of the CSV output
 	 *                                                     file for the current
 	 *                                                     iteration
@@ -350,8 +339,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 *                         to
 	 */
 	private void createCsvFileForCurrentIteration(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			TraditionalStaticAssignmentSimulationData simulationData, Set<Mode> modes, String csvFileName)
-			throws PlanItException {
+			Set<Mode> modes, String csvFileName) throws PlanItException {
 
 		try {
 			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
@@ -365,17 +353,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
 
 			for (Mode mode : modes) {
-				double[] modalNetworkSegmentCosts = simulationData.getModalNetworkSegmentCosts(mode);
-				double[] modalNetworkSegmentFlows = simulationData.getModalNetworkSegmentFlows(mode);
 				while (linkSegmentIter.hasNext()) {
 					MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) linkSegmentIter.next();
-					int id = (int) linkSegment.getId();
-					double flow = modalNetworkSegmentFlows[id];
-					if (flow > 0.0) {
-						double travelTime = modalNetworkSegmentCosts[id];
+					if (outputAdapter.isFlowPositive(linkSegment, mode)) {
 						List<Object> row = new ArrayList<Object>();
 						outputProperties.forEach(outputProperty -> {
-							row.add(outputProperty.getOutputValue(linkSegment, mode, id, flow, travelTime));
+							row.add(outputAdapter.getPropertyValue(outputProperty, linkSegment, mode));
 						});
 						csvIterationPrinter.printRecord(row);
 					}
@@ -416,8 +399,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		for (BaseOutputProperty outputProperty : outputProperties) {
 			Column generatedColumn = new Column();
 			generatedColumn.setName(outputProperty.getName());
-			generatedColumn.setUnits(EnumConverter.convertUnits(outputProperty.getUnits()));
-			generatedColumn.setType(EnumConverter.convertType(outputProperty.getType()));
+			generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty.getUnits()));
+			generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getType()));
 			generatedColumns.getColumn().add(generatedColumn);
 		}
 		return generatedColumns;
@@ -464,9 +447,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private void writeResultsToCsvSummaryFileForCurrentTimePeriod(
-			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			TraditionalStaticAssignmentSimulationData simulationData, Set<Mode> modes, TimePeriod timePeriod)
+			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod)
 			throws PlanItException {
+		TrafficAssignment trafficAssignment = outputAdapter.getTrafficAssignment();
+		TraditionalStaticAssignment traditionalStaticAssignment = (TraditionalStaticAssignment) trafficAssignment;
+		TraditionalStaticAssignmentSimulationData simulationData = (TraditionalStaticAssignmentSimulationData) traditionalStaticAssignment
+				.getSimulationData();
 		if (simulationData.isConverged()) {
 			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
 			for (Mode mode : modes) {
