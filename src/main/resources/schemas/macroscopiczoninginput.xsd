@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
                     xmlns:gml="http://www.opengis.net/gml">
-<xs:include schemaLocation="PLANit.xsd" />
+<xs:include schemaLocation="planitlibrary.xsd" />
 <xs:import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" />
 	
 	<xs:element name="centroid">

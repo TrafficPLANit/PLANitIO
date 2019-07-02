@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- This XSD contains common definitions which are used by all the other XSD files -->
+
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	
 	<!-- simple PLANit attributes -->

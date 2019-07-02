@@ -7,4 +7,5 @@
 			<jaxb:package name="org.planit.generated"/>
 		</jaxb:schemaBindings>
 	</jaxb:bindings>
+
 </jaxb:bindings>
