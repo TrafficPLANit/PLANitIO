@@ -43,14 +43,14 @@
   				<xs:element ref="timestamp"/>
   				<xs:element ref="version"/>
   				<xs:element ref="description"/>
-  				<xs:element ref="configuration"/>
+  				<xs:element ref="outputconfiguration"/>
   				<xs:element ref="simulation"/>
   				<xs:element ref="columns"/>
   			</xs:sequence>
   		</xs:complexType>
   	</xs:element>
   	
-	<xs:element name="configuration">
+	<xs:element name="outputconfiguration">
   		<xs:complexType>
   			<xs:sequence>
   				<xs:element ref="assignment"/>

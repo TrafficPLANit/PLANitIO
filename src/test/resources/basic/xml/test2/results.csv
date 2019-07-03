@@ -1,0 +1,5 @@
+Run Id,Time Period Id,Mode Id,Start Node Id,End Node Id,Link Flow,Capacity,Length,Speed,Link Cost,Cost to End Node
+0,0,1,1,6,1.0,2000.0,10.0,1.0,10.0,10.0
+0,0,1,6,11,1.0,2000.0,12.0,1.0,12.0,22.0
+0,0,1,11,12,1.0,2000.0,8.0,1.0,8.0,30.0
+0,0,1,12,13,1.0,2000.0,47.0,1.0,47.0,77.0

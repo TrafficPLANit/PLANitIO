@@ -2,7 +2,7 @@
 <macroscopicnetwork
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xmlns:gml="http://www.opengis.net/gml"											
-	 xsi:noNamespaceSchemaLocation="../schema/macroscopicsupplyinput.xsd">						<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicnetworkinput.xsd">						<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
 	<configuration>																		<!-- optional, single linksegmenttype assumed when absent -->
 		<modes>																			<!-- if absent a single mode (car) with pcu 1 is assumed -->
 			<mode id="1">																<!-- mandatory attributes, for referencing -->
@@ -43,11 +43,11 @@
 			<link id="1" nodearef="1" nodebref="2">																<!-- optional since it can be derived from the two nodes -->
 				<name>Broadway</name>													<!-- optional -->
 				<linksegment id="1" dir="a_b" typeref="1">	<!-- mandatory attributes, except for id can be derived from direction, and typeref which if absent must mean there are no linksegmenttypes defined and we use default one-->
-					<noflanes>2</noflanes>												<!-- optional, has default -->
+					<numberoflanes>2</numberoflanes>												<!-- optional, has default -->
 					<maxspeed>50</maxspeed>												<!-- optional, has (deduced?) default (Q:do we make this part of link segmenttype or not?)-->						
 				</linksegment>
 				<linksegment id="2" dir="b_a" typeref="1">
-					<noflanes>1</noflanes>
+					<numberoflanes>1</numberoflanes>
 					<maxspeed>50</maxspeed>
 				</linksegment>					
 				<gml:LineString>														<!-- optional, indicating shape points on the link, in case the first and last coordinate do not match the node points, the node points are added to the string -->

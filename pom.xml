@@ -13,63 +13,76 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<geotools.version>19.2</geotools.version>
-		<ojalgo.version>46.3.0</ojalgo.version>
-		<maven.compiler.source>1.10</maven.compiler.source>
-		<maven.compiler.target>1.10</maven.compiler.target>
+		<maven.compiler.source>1.11</maven.compiler.source>
+		<maven.compiler.target>1.11</maven.compiler.target>
+		<!--  TODO:  A new release of the maven-jaxb2-plugin, 0.14.1, is expected soon.  Upgrade to the new release when it becomes available -->
+		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-referencing</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-geometry</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-epsg-hsql</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-xml</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-geojson</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
+ 
+	    <dependency>
+			<groupId>org.planit</groupId>
+			<artifactId>PlanIt</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+	    </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.13-beta-2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-csv</artifactId>
+		    <version>1.6</version>
+		</dependency> 
+		<dependency>
+		    <groupId>org.jvnet.jaxb2.maven2</groupId>
+		    <artifactId>maven-jaxb2-plugin</artifactId>
+		    <version>${maven.jaxb2.plugin.version}</version>
+		</dependency>
 	</dependencies>
+	
+	<build>
+	    <plugins>
+	        <plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-compiler-plugin</artifactId>
+			    <version>3.8.0</version>
+			    <configuration>
+			        <release>11</release>
+			    </configuration>	
+	        </plugin>
+	        
+	        <plugin>
+	            <groupId>org.jvnet.jaxb2.maven2</groupId>
+	            <artifactId>maven-jaxb2-plugin</artifactId>
+		        <version>${maven.jaxb2.plugin.version}</version>
+				<configuration>
+			         <args>
+			             <arg>-XautoNameResolution</arg>
+			         </args>
+			        <schemaDirectory>src/main/resources/schemas</schemaDirectory>
+			        <generateDirectory>src/main/java</generateDirectory>
+         		</configuration>	
+                <executions>
+	                <execution>
+	                    <id>generate</id>
+	                    <goals>
+	                        <goal>generate</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+	        </plugin>
+	    </plugins>
+	</build>	
+	
 	<repositories>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
 			<name>Java.net repository</name>
 			<url>http://download.java.net/maven/2</url>
-		</repository>
-		<repository>
-			<id>osgeo</id>
-			<name>Open Source Geospatial Foundation Repository</name>
-			<url>http://download.osgeo.org/webdav/geotools/</url>
-		</repository>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>boundless</id>
-			<name>Boundless Maven Repository</name>
-			<url>http://repo.boundlessgeo.com/main</url>
 		</repository>
 	</repositories>
 </project>

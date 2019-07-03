@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<macroscopicdemand xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                        xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopicdemandinput.xsd">
+      
+   <demandconfiguration>
+	    <userclasses>
+	    	<userclass id="1" moderef="1">
+	    		<name>1</name>
+	    	</userclass>
+	    </userclasses>
+	    <timeperiods>
+	    	<timeperiod id="0">
+	    		<name>Time Period 1</name>
+	    		<starttime>00:00:01</starttime>
+	    		<duration>28800</duration>
+	    	</timeperiod>
+	    	<timeperiod id="1">
+	    		<name>Time Period 2</name>
+	    		<starttime>08:00:01</starttime>
+	    		<duration>28800</duration>
+	    	</timeperiod>
+	    	<timeperiod id="2">
+	    		<name>Time Period 3</name>
+	    		<starttime>16:00:01</starttime>
+	    		<duration>28800</duration>
+	    	</timeperiod>
+	    </timeperiods> 
+   </demandconfiguration>
+       
+	<oddemands>
+		<odcellbycellmatrix timeperiodref="0" userclassref="1">
+			<o ref="1">																
+				<d ref="2">1</d> 
+			</o>
+		</odcellbycellmatrix>
+		<odcellbycellmatrix timeperiodref="1" userclassref="1">
+			<o ref="1">																
+				<d ref="3">1</d> 
+			</o>
+		</odcellbycellmatrix>
+		<odcellbycellmatrix timeperiodref="2" userclassref="1">
+			<o ref="1">																
+				<d ref="4">1</d> 
+			</o>
+		</odcellbycellmatrix>
+	</oddemands>
+</macroscopicdemand>
+
+

@@ -2,7 +2,7 @@
 <macroscopicnetwork
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xmlns:gml="http://www.opengis.net/gml"											
-	 xsi:noNamespaceSchemaLocation="../schema/macroscopicsupplyinput.xsd">						
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicnetworkinput.xsd">						
 	<infrastructure>												  
 		<nodes>
 			<node id="1"> 																
