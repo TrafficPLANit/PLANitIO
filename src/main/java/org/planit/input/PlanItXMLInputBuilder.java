@@ -337,6 +337,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @param projectPath      the project path directory
 	 * @param xmlNameExtension the extension of the files to search through
 	 * @return array of names of files in the directory with the specified extension
+
 	 * @throws PlanItException thrown if no files with the specified extension can
 	 *                         be found
 	 */
