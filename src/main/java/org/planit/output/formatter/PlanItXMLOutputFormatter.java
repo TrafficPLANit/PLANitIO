@@ -22,7 +22,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Column;
-import org.planit.generated.Columns;
+import org.planit.generated.GeneratedColumns;
 import org.planit.generated.Iteration;
 import org.planit.generated.Metadata;
 import org.planit.generated.Outputconfiguration;
@@ -393,9 +393,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @return generated Columns object
 	 */
-	private Columns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties)
+	private GeneratedColumns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties)
 			throws PlanItException {
-		Columns generatedColumns = new Columns();
+		GeneratedColumns generatedColumns = new GeneratedColumns();
 		for (BaseOutputProperty outputProperty : outputProperties) {
 			Column generatedColumn = new Column();
 			generatedColumn.setName(outputProperty.getName());
