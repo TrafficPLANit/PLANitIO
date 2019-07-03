@@ -4,13 +4,10 @@
 
 	<!-- Only refer to one input XSD file, JAXB looks through all XSD files 
 		in the directory with default namespace -->
-	<jaxb:bindings	schemaLocation="macroscopicinput.xsd">
+	<jaxb:bindings	schemaLocation="macroscopicdemandinput.xsd">
 		<jaxb:schemaBindings>
 			<jaxb:package name="org.planit.generated" />
 		</jaxb:schemaBindings>
-	</jaxb:bindings>
-	<jaxb:bindings schemaLocation="linkmetadata.xsd" node="//xs:element[@name='columns']">
-		<jaxb:class name="GeneratedColumns" />
 	</jaxb:bindings>
 
 </jaxb:bindings>

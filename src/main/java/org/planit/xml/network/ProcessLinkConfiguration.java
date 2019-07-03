@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.Linkconfiguration;
-import org.planit.generated.Linksegmenttypes;
-import org.planit.generated.Modes;
+import org.planit.generated.XMLElementLinkConfiguration;
+import org.planit.generated.XMLElementLinkSegmentTypes;
+import org.planit.generated.XMLElementModes;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.userclass.Mode;
@@ -32,9 +32,9 @@ public class ProcessLinkConfiguration {
 	 * @param linkconfiguration LinkConfiguration object populated with data from
 	 *                          XML file
 	 */
-	public static Map<Integer, Mode> getModeMap(Linkconfiguration linkconfiguration) throws PlanItException {
+	public static Map<Integer, Mode> getModeMap(XMLElementLinkConfiguration linkconfiguration) throws PlanItException {
 		Map<Integer, Mode> modeMap = new HashMap<Integer, Mode>();
-		for (Modes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
+		for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
 			int modeId = generatedMode.getId().intValue();
 			if (modeId == 0) {
 				throw new PlanItException("Found a Mode value of 0 in the modes definition file, this is prohibited");
@@ -57,10 +57,10 @@ public class ProcessLinkConfiguration {
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
 	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(
-			Linkconfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
+			XMLElementLinkConfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
 		MacroscopicLinkSegmentTypeXmlHelper.reset();
 		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
-		for (Linksegmenttypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
+		for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
 				.getLinksegmenttype()) {
 			int type = linkSegmentTypeGenerated.getId().intValue();
 			String name = linkSegmentTypeGenerated.getName();
@@ -70,7 +70,7 @@ public class ProcessLinkConfiguration {
 			double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null)
 					? MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE
 					: linkSegmentTypeGenerated.getMaxdensitylane();
-			for (Linksegmenttypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
+			for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
 				int modeId = mode.getRef().intValue();
 				double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED
 						: mode.getMaxspeed();

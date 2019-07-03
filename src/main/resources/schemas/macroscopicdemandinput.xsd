@@ -3,7 +3,7 @@
 <xs:include schemaLocation="planitlibrary.xsd" />
 
 	<!-- Complex types -->
-	<xs:complexType name="UnrestrictedDuration">
+	<xs:complexType name="unrestrictedduration">
 		<xs:annotation>
 			<xs:documentation>
 				Duration give as a positive integer in some unit in unrestricted from (no limitation on choice of integer)
@@ -127,7 +127,7 @@
 		</xs:annotation> 	
 		<xs:complexType>
 			<xs:simpleContent>
-		    	<xs:restriction base="UnrestrictedDuration">
+		    	<xs:restriction base="unrestrictedduration">
 	      			<xs:minInclusive value="1"/>
 	      			<xs:maxInclusive value="86400"/> 
 		    	</xs:restriction>

@@ -21,13 +21,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.Column;
-import org.planit.generated.GeneratedColumns;
-import org.planit.generated.Iteration;
-import org.planit.generated.Metadata;
-import org.planit.generated.Outputconfiguration;
-import org.planit.generated.Simulation;
-import org.planit.generated.Timeperiod;
+import org.planit.generated.XMLElementColumn;
+import org.planit.generated.XMLElementColumns;
+import org.planit.generated.XMLElementIteration;
+import org.planit.generated.XMLElementMetadata;
+import org.planit.generated.XMLElementOutputConfiguration;
+import org.planit.generated.XMLElementSimulation;
+import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.Node;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
@@ -128,7 +128,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Generated object for the <metadata> element in the output XML file
 	 */
-	private Metadata metadata;
+	private XMLElementMetadata metadata;
 
 	/**
 	 * Name of the XML output file
@@ -269,10 +269,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
 			if (isNewTimePeriod) {
 				if (metadata != null) {
-					XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, xmlOutputFileName);
+					XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
 				}
-				metadata = new Metadata();
-				Simulation simulation = new Simulation();
+				metadata = new XMLElementMetadata();
+				XMLElementSimulation simulation = new XMLElementSimulation();
 				metadata.setSimulation(simulation);
 				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
 			}
@@ -321,7 +321,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 *                       iteration
 	 */
 	private void updateGeneratedSimulationOutputForCurrentIteration(int iterationIndex, String csvFileName) {
-		Iteration iteration = new Iteration();
+		XMLElementIteration iteration = new XMLElementIteration();
 		iteration.setNr(BigInteger.valueOf(iterationIndex));
 		iteration.setCsvdata(csvFileName);
 		metadata.getSimulation().getIteration().add(iteration);
@@ -393,11 +393,11 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @return generated Columns object
 	 */
-	private GeneratedColumns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties)
+	private XMLElementColumns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties)
 			throws PlanItException {
-		GeneratedColumns generatedColumns = new GeneratedColumns();
+		XMLElementColumns generatedColumns = new XMLElementColumns();
 		for (BaseOutputProperty outputProperty : outputProperties) {
-			Column generatedColumn = new Column();
+			XMLElementColumn generatedColumn = new XMLElementColumn();
 			generatedColumn.setName(outputProperty.getName());
 			generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty.getUnits()));
 			generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getType()));
@@ -407,18 +407,18 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Create the generated Outputconfiguration object
+	 * Create the generated XMLElementOutputConfiguration object
 	 * 
 	 * @param outputAdapter the OutputAdapter containing the run information
 	 * @param timePeriod    the current time period
-	 * @return the Outputconfiguration object
+	 * @return the XMLElementOutputConfiguration object
 	 */
-	private Outputconfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
-		Outputconfiguration outputconfiguration = new Outputconfiguration();
+	private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
+		XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
 		outputconfiguration.setAssignment(getClassName(outputAdapter.getTrafficAssignment()));
 		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getPhysicalCost()));
 		outputconfiguration.setVirtualcost(getClassName(outputAdapter.getTrafficAssignment().getVirtualCost()));
-		Timeperiod timeperiod = new Timeperiod();
+		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
 		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
 		timeperiod.setName(timePeriod.getDescription());
 		outputconfiguration.setTimeperiod(timeperiod);
@@ -590,7 +590,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	@Override
 	public void close() throws PlanItException {
 		try {
-			XmlUtils.generateXmlFileFromObject(metadata, Metadata.class, xmlOutputFileName);
+			XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
 			if (csvSummaryOutputFileName != null) {
 				csvPrinter.close();
 			}

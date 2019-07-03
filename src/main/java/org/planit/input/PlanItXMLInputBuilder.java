@@ -13,14 +13,14 @@ import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.Demandconfiguration;
-import org.planit.generated.Infrastructure;
-import org.planit.generated.Linkconfiguration;
-import org.planit.generated.Macroscopicdemand;
-import org.planit.generated.Macroscopicnetwork;
-import org.planit.generated.Macroscopiczoning;
-import org.planit.generated.Odmatrix;
-import org.planit.generated.Zones.Zone;
+import org.planit.generated.XMLElementDemandConfiguration;
+import org.planit.generated.XMLElementInfrastructure;
+import org.planit.generated.XMLElementLinkConfiguration;
+import org.planit.generated.XMLElementMacroscopicDemand;
+import org.planit.generated.XMLElementMacroscopicNetwork;
+import org.planit.generated.XMLElementMacroscopicZoning;
+import org.planit.generated.XMLElementOdMatrix;
+import org.planit.generated.XMLElementZones.Zone;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
@@ -52,17 +52,17 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	/**
 	 * Generated object to store input network data
 	 */
-	private Macroscopicnetwork macroscopicnetwork;
+	private XMLElementMacroscopicNetwork macroscopicnetwork;
 
 	/**
 	 * Generated object to store demand input data
 	 */
-	private Macroscopicdemand macroscopicdemand;
+	private XMLElementMacroscopicDemand macroscopicdemand;
 
 	/**
 	 * Generated object to store zoning input data
 	 */
-	private Macroscopiczoning macroscopiczoning;
+	private XMLElementMacroscopicZoning macroscopiczoning;
 
 	private int noCentroids;
 	private Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap;
@@ -168,12 +168,12 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	private void createGeneratedClassesFromXmlLocations(String zoningXmlFileLocation, String demandXmlFileLocation,
 			String networkXmlFileLocation) throws PlanItException {
 		try {
-			macroscopiczoning = (Macroscopiczoning) XmlUtils.generateObjectFromXml(Macroscopiczoning.class,
-					zoningXmlFileLocation);
-			macroscopicdemand = (Macroscopicdemand) XmlUtils.generateObjectFromXml(Macroscopicdemand.class,
-					demandXmlFileLocation);
-			macroscopicnetwork = (Macroscopicnetwork) XmlUtils.generateObjectFromXml(Macroscopicnetwork.class,
-					networkXmlFileLocation);
+			macroscopiczoning = (XMLElementMacroscopicZoning) XmlUtils
+					.generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
+			macroscopicdemand = (XMLElementMacroscopicDemand) XmlUtils
+					.generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
+			macroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
+					.generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -225,10 +225,10 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		LOGGER.info("Populating Network");
 
 		try {
-			Linkconfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
+			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
 			linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration, modeMap);
-			Infrastructure infrastructure = macroscopicnetwork.getInfrastructure();
+			XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
 			ProcessInfrastructure.registerNodes(infrastructure, network);
 			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
 		} catch (Exception ex) {
@@ -273,10 +273,10 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		if (noCentroids == 0)
 			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
 		try {
-			Demandconfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
+			XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
 			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration
 					.generateAndStoreConfigurationData(demandconfiguration);
-			List<Odmatrix> oddemands = macroscopicdemand.getOddemands()
+			List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands()
 					.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
 			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, modeMap, timePeriodMap, noCentroids, zones);
 		} catch (Exception e) {
@@ -331,12 +331,14 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	}
 
 	/**
-	 * Return an array of the names of all the input files in the project path directory
+	 * Return an array of the names of all the input files in the project path
+	 * directory
 	 * 
-	 * @param projectPath the project path directory
+	 * @param projectPath      the project path directory
 	 * @param xmlNameExtension the extension of the files to search through
 	 * @return array of names of files in the directory with the specified extension
-	 * @throws PlanItException thrown if no files with the specified extension can be found
+	 * @throws PlanItException thrown if no files with the specified extension can
+	 *                         be found
 	 */
 	private String[] getXmlFileNames(String projectPath, String xmlNameExtension) throws PlanItException {
 		File xmlFilesDirectory = new File(projectPath);
@@ -345,61 +347,73 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		}
 		String[] fileNames = xmlFilesDirectory.list((d, name) -> name.endsWith(xmlNameExtension));
 		if (fileNames.length == 0) {
-			throw new PlanItException("Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
+			throw new PlanItException(
+					"Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
 		}
-		for (int i=0; i < fileNames.length; i++ ) {
+		for (int i = 0; i < fileNames.length; i++) {
 			fileNames[i] = projectPath + "\\" + fileNames[i];
 		}
 		return fileNames;
 	}
-	
+
 	/**
 	 * Populate the generated input objects from the XML files
 	 * 
 	 * @param projectPath the name of the project path directory
-	 * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files in the project directory
+	 * @throws PlanItException thrown if one or more of the input objects could not
+	 *                         be populated from the XML files in the project
+	 *                         directory
 	 */
 	private void setInputFiles(String projectPath) throws PlanItException {
 		boolean foundZoningFile = false;
 		boolean foundNetworkFile = false;
 		boolean foundDemandFile = false;
-		for (int i=0; i < xmlFileNames.length; i++ ) {
+		for (int i = 0; i < xmlFileNames.length; i++) {
 			if (foundZoningFile && foundDemandFile && foundNetworkFile) {
 				LOGGER.info("File " + xmlFileNames[i] + " exists but was not parsed.");
 			}
 			if (!foundZoningFile) {
 				try {
-					macroscopiczoning = (Macroscopiczoning) XmlUtils.generateObjectFromXml(Macroscopiczoning.class, xmlFileNames[i]);
+					macroscopiczoning = (XMLElementMacroscopicZoning) XmlUtils
+							.generateObjectFromXml(XMLElementMacroscopicZoning.class, xmlFileNames[i]);
 					LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");
 					foundZoningFile = true;
 					continue;
-				} catch (Exception e) {}
+				} catch (Exception e) {
+				}
 			}
 			if (!foundNetworkFile) {
-				try {			
-					 macroscopicnetwork = (Macroscopicnetwork) XmlUtils.generateObjectFromXml(Macroscopicnetwork.class, xmlFileNames[i]);
-					 LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
-					 foundNetworkFile = true;
-					 continue;
-				}	catch (Exception e) {}				
+				try {
+					macroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
+							.generateObjectFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames[i]);
+					LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
+					foundNetworkFile = true;
+					continue;
+				} catch (Exception e) {
+				}
 			}
 			if (!foundDemandFile) {
-				try {					
-					macroscopicdemand = (Macroscopicdemand) XmlUtils.generateObjectFromXml(Macroscopicdemand.class, xmlFileNames[i]);
+				try {
+					macroscopicdemand = (XMLElementMacroscopicDemand) XmlUtils
+							.generateObjectFromXml(XMLElementMacroscopicDemand.class, xmlFileNames[i]);
 					LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");
 					foundDemandFile = true;
 					continue;
-				}	catch (Exception e) {}								
+				} catch (Exception e) {
+				}
 			}
 		}
 		if (!foundZoningFile) {
-			throw new PlanItException("Failed to find a valid zoning input file in the project directory " + projectPath);
+			throw new PlanItException(
+					"Failed to find a valid zoning input file in the project directory " + projectPath);
 		}
 		if (!foundNetworkFile) {
-			throw new PlanItException("Failed to find a valid network input file in the project directory " + projectPath);
+			throw new PlanItException(
+					"Failed to find a valid network input file in the project directory " + projectPath);
 		}
 		if (!foundDemandFile) {
-			throw new PlanItException("Failed to find a valid demand input file in the project directory " + projectPath);
+			throw new PlanItException(
+					"Failed to find a valid demand input file in the project directory " + projectPath);
 		}
 	}
 

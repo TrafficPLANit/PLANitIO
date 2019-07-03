@@ -10,11 +10,12 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.constants.Default;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Direction;
-import org.planit.generated.Infrastructure;
+import org.planit.generated.XMLElementInfrastructure;
 import org.planit.generated.LengthUnit;
-import org.planit.generated.LinkLengthType;
-import org.planit.generated.Links;
-import org.planit.generated.Linksegment;
+import org.planit.generated.XMLElementLinkLengthType;
+import org.planit.generated.XMLElementLinks;
+import org.planit.generated.XMLElementLinkSegment;
+import org.planit.generated.XMLElementNodes;
 import org.planit.geo.PlanitGeoUtils;
 import org.planit.network.physical.Link;
 import org.planit.network.physical.LinkSegment;
@@ -57,8 +58,8 @@ public class ProcessInfrastructure {
 	 * @throws PlanItException thrown if there is an error in storing the GML Point
 	 *                         definition
 	 */
-	public static void registerNodes(Infrastructure infrastructure, MacroscopicNetwork network) throws PlanItException {
-		for (org.planit.generated.Nodes.Node generatedNode : infrastructure.getNodes().getNode()) {
+	public static void registerNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network) throws PlanItException {
+		for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
 			Node node = new Node();
 			node.setExternalId(generatedNode.getId().longValue());
@@ -81,9 +82,9 @@ public class ProcessInfrastructure {
 	 * @param linkSegmentTypeMap Map of link segment types
 	 * @throws PlanItException thrown if there is an error during processing
 	 */
-	public static void generateAndRegisterLinkSegments(Infrastructure infrastructure, MacroscopicNetwork network,
+	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure, MacroscopicNetwork network,
 			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap) throws PlanItException {
-		for (Links.Link generatedLink : infrastructure.getLinks().getLink()) {
+		for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
 			long startNodeId = generatedLink.getNodearef().longValue();
 			Node startNode = network.nodes.findNodeByExternalIdentifier(startNodeId);
 			long endNodeId = generatedLink.getNodebref().longValue();
@@ -97,7 +98,7 @@ public class ProcessInfrastructure {
 								+ startNodeId + " to node " + endNodeId);
 			}
 			Link link = network.links.registerNewLink(startNode, endNode, length);
-			for (Linksegment generatedLinkSegment : generatedLink.getLinksegment()) {
+			for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
 				int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
 						: generatedLinkSegment.getNumberoflanes().intValue();
 				int linkType = generatedLinkSegment.getTyperef().intValue();
@@ -123,8 +124,8 @@ public class ProcessInfrastructure {
 	 * @param generatedLink object storing link data from XML file
 	 * @return final length value
 	 */
-	private static double getLengthFromLength(double initLength, Links.Link generatedLink) {
-		LinkLengthType linkLengthType = generatedLink.getLength();
+	private static double getLengthFromLength(double initLength, XMLElementLinks.Link generatedLink) {
+		XMLElementLinkLengthType linkLengthType = generatedLink.getLength();
 		if (linkLengthType != null) {
 			double length = linkLengthType.getValue();
 			LengthUnit lengthUnit = linkLengthType.getUnit();
@@ -146,7 +147,7 @@ public class ProcessInfrastructure {
 	 * @throws PlanItException
 	 */
 //TODO  - Create some test cases for this, currently no test cases exist for it
-	private static double getLengthFromLineString(double initLength, Links.Link generatedLink) throws PlanItException {
+	private static double getLengthFromLineString(double initLength, XMLElementLinks.Link generatedLink) throws PlanItException {
 		LineStringType lineStringType = generatedLink.getLineString();
 		if (lineStringType != null) {
 			List<Double> posList = lineStringType.getPosList().getValue();
@@ -164,19 +165,6 @@ public class ProcessInfrastructure {
 		}
 		return initLength;
 	}
-
-	/**
-	 * Create GML position from generated PointType object
-	 * 
-	 * @param pointType PointType object storing the location, read in from an XML
-	 *                  input file
-	 * @return DirectPosition object storing the location
-	 * @throws PlanItException thrown if there is an error during processing
-	 */
-//	private static DirectPosition getDirectPositionFromPointType(PointType pointType) throws PlanItException {
-//		List<Double> value = pointType.getPos().getValue();
-//		return planitGeoUtils.getDirectPositionFromValues(value.get(0), value.get(1));
-//	}
 
 	/**
 	 * Registers a new link segment in the physical network
