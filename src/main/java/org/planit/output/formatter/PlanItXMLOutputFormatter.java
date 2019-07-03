@@ -57,6 +57,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	private static final Logger LOGGER = Logger.getLogger(PlanItXMLOutputFormatter.class.getName());
 
+	/**
+	 * properties taken from PLANit main project resources which pass on the Maven project properties. 
+	 */
 	private static final String DEFAULT_PROPERTIES_FILE_NAME = "application.properties";
 	private static final String DEFAULT_DESCRIPTION_PROPERTY_NAME = "planit.description";
 	private static final String DEFAULT_VERSION_PROPERTY_NAME = "planit.version";
