@@ -4,7 +4,7 @@
 
 	<!-- Only refer to one input XSD file, JAXB looks through all XSD files 
 		in the directory with default namespace -->
-	<jaxb:bindings	schemaLocation="macroscopicdemandinput.xsd">
+	<jaxb:bindings	schemaLocation="../xsd/macroscopicinput.xsd">
 		<jaxb:schemaBindings>
 			<jaxb:package name="org.planit.generated" />
 		</jaxb:schemaBindings>
