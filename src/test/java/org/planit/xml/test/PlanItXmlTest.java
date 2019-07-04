@@ -251,8 +251,8 @@ public class PlanItXmlTest {
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(false); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
-		linkOutputTypeConfiguration.addAllProperties();
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.SPEED);
+		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());

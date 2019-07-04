@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -344,7 +345,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		try {
 			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
 			List<String> titles = new ArrayList<String>();
-			List<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
+			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
 			outputProperties.forEach(outputProperty -> {
 				titles.add(outputProperty.getName());
 			});
@@ -388,12 +389,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Create generated Columns object to be used in the XML output, based on user
 	 * selections
 	 * 
-	 * @param outputProperties List of output properties to be included in the
+	 * @param outputProperties sorted set of output properties to be included in the
 	 *                         output
 	 * 
 	 * @return generated Columns object
 	 */
-	private XMLElementColumns getGeneratedColumnsFromProperties(List<BaseOutputProperty> outputProperties)
+	private XMLElementColumns getGeneratedColumnsFromProperties(SortedSet<BaseOutputProperty> outputProperties)
 			throws PlanItException {
 		XMLElementColumns generatedColumns = new XMLElementColumns();
 		for (BaseOutputProperty outputProperty : outputProperties) {
@@ -559,7 +560,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				metadata.setDescription(description);
 			}
 			metadata.setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
-			List<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
+			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
 			metadata.setColumns(getGeneratedColumnsFromProperties(outputProperties));
 		} catch (Exception e) {
 			throw new PlanItException(e);
