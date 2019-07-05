@@ -64,11 +64,30 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 */
 	private XMLElementMacroscopicZoning macroscopiczoning;
 
+	/**
+	 * Records the number of centroids, which is derived from the zoning input data
+	 * and then used when reading in the demands input
+	 */
 	private int noCentroids;
-	private Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap;
-	private Map<Integer, Mode> modeMap;
-	private Nodes nodes;
+
+	/**
+	 * Map of Mode by mode Id, which is read in from the network input and used by the demands input
+	 */
+    private Map<Integer, Mode> modeMap;
+    
+    /**
+     * Network nodes object, which is read in from the network input and used by the zoning input
+     */
+    private Nodes nodes;
+    
+    /**
+     * Zoning zones object, which is read in from the zoning input and used by the demands input
+     */
 	private Zoning.Zones zones;
+	
+	/**
+	 * Array of names of XML files in the project path directory
+	 */
 	private String[] xmlFileNames;
 
 	/**
@@ -227,7 +246,8 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		try {
 			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
-			linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration, modeMap);
+			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = ProcessLinkConfiguration
+					.createLinkSegmentTypeMap(linkconfiguration, modeMap);
 			XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
 			ProcessInfrastructure.registerNodes(infrastructure, network);
 			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
@@ -337,7 +357,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @param projectPath      the project path directory
 	 * @param xmlNameExtension the extension of the files to search through
 	 * @return array of names of files in the directory with the specified extension
-
+	 * 
 	 * @throws PlanItException thrown if no files with the specified extension can
 	 *                         be found
 	 */

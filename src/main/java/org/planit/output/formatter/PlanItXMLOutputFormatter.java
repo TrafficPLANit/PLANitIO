@@ -66,7 +66,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private static final String DEFAULT_XML_NAME_PREFIX = "XMLOutput";
 	private static final String DEFAULT_CSV_NAME_EXTENSION = ".csv";
 	private static final String DEFAULT_CSV_NAME_PREFIX = "CSVOutput";
-
+	
 	/**
 	 * The root directory to store the XML output files
 	 */
@@ -517,10 +517,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	public void open() throws PlanItException {
 
 		if (xmlOutputDirectory == null) {
-			throw new PlanItException("No XML output directory has been defined in the code.");
+			throw new PlanItException("No common output directory or XML output directory has been defined in the code.");
 		}
 		if (csvOutputDirectory == null) {
-			throw new PlanItException("No CSV output directory has been defined in the code.");
+			throw new PlanItException("No common output directory or CSV output directory has been defined in the code.");
 		}
 
 		if (resetXmlOutputDirectory) {
@@ -666,6 +666,16 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void setCsvOutputDirectory(String csvOutputDirectory) {
 		this.csvOutputDirectory = csvOutputDirectory;
+	}
+	
+	/**
+	 * Set the common directory
+	 * 
+	 * @param outputDirectory common output directory
+	 */
+	public void setOutputDirectory(String outputDirectory) {
+		csvOutputDirectory = outputDirectory;
+		xmlOutputDirectory = outputDirectory ;
 	}
 
 	/**

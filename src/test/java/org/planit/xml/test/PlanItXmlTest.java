@@ -25,7 +25,7 @@ import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
 import org.planit.output.property.OutputProperty;
-import org.planit.project.PlanItProject;
+import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.BprResultDto;
 import org.planit.test.CsvIoUtils;
@@ -213,7 +213,7 @@ public class PlanItXmlTest {
 	private void runTestFromInputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws PlanItException {
-		PlanItProject project = new PlanItProject(inputBuilderListener);
+		CustomPlanItProject project = new CustomPlanItProject(inputBuilderListener);
 
 		// RAW INPUT START --------------------------------
 		PhysicalNetwork physicalNetwork = project
@@ -253,7 +253,7 @@ public class PlanItXmlTest {
 		//DATA OUTPUT CONFIGURATION
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		outputConfiguration.setPersistOnlyFinalIteration(false); // option to only persist the final iteration
+		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
 		linkOutputTypeConfiguration.addAllProperties();
 		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
@@ -268,8 +268,7 @@ public class PlanItXmlTest {
 		}
 		xmlOutputFormatter.setXmlNamePrefix(description);
 		xmlOutputFormatter.setCsvNamePrefix(description);
-		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
-		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
+		xmlOutputFormatter.setOutputDirectory("C:\\Users\\Public\\PlanIt\\Common");
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
 		// "USER" configuration

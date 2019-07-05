@@ -15,7 +15,7 @@ import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
-import org.planit.project.PlanItProject;
+import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
@@ -71,7 +71,7 @@ public class PlanItXmlMain {
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
-		PlanItProject project = new PlanItProject(inputBuilderListener);
+		CustomPlanItProject project = new CustomPlanItProject(inputBuilderListener);
 
 		// RAW INPUT START --------------------------------
 		PhysicalNetwork physicalNetwork = project
