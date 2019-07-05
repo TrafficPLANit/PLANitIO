@@ -220,6 +220,9 @@ public class PlanItXmlTest {
 				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		Zoning zoning = project.createAndRegisterZoning();
 		Demands demands = project.createAndRegisterDemands();
+		//ArrayList<InitialLinkSegmentCost> list = project.createAndRegisterInitialLinkSegmentCosts(file1,file2,file3..);
+		//InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(file1);
+		//initialCost.setInitialLinkSegmentCost();
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
@@ -242,6 +245,7 @@ public class PlanItXmlTest {
 				.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 		// SUPPLY-DEMAND INTERFACE
 		taBuilder.registerZoning(zoning);
+		//taBuilder.registerInitialLinkSegmentCost(initialCost);
 
 		// DEMAND SIDE
 		taBuilder.registerDemands(demands);
@@ -251,8 +255,8 @@ public class PlanItXmlTest {
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(false); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
+		linkOutputTypeConfiguration.addAllProperties();
 		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
-		linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
