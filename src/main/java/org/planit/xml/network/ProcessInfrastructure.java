@@ -50,73 +50,6 @@ public class ProcessInfrastructure {
 	}
 
 	/**
-	 * Register nodes on the network
-	 * 
-	 * @param infrastructure Infrastructure object populated with data from XML file
-	 * @param network        network the physical network object to be populated
-	 *                       from the input data
-	 * @throws PlanItException thrown if there is an error in storing the GML Point
-	 *                         definition
-	 */
-	public static void registerNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network) throws PlanItException {
-		for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
-
-			Node node = new Node();
-			node.setExternalId(generatedNode.getId().longValue());
-			PointType pointType = generatedNode.getPoint();
-			if (pointType != null) {
-				DirectPosition centrePointGeometry = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
-				node.setCentrePointGeometry(centrePointGeometry);
-			}
-			network.nodes.registerNode(node);
-		}
-	}
-
-	/**
-	 * Generated and register link segments
-	 * 
-	 * @param infrastructure     Infrastructure object populated with data from XML
-	 *                           file
-	 * @param network            network the physical network object to be populated
-	 *                           from the input data
-	 * @param linkSegmentTypeMap Map of link segment types
-	 * @throws PlanItException thrown if there is an error during processing
-	 */
-	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure, MacroscopicNetwork network,
-			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap) throws PlanItException {
-		for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
-			long startNodeId = generatedLink.getNodearef().longValue();
-			Node startNode = network.nodes.findNodeByExternalIdentifier(startNodeId);
-			long endNodeId = generatedLink.getNodebref().longValue();
-			Node endNode = network.nodes.findNodeByExternalIdentifier(endNodeId);
-			double length = Double.MIN_VALUE;
-			length = getLengthFromLineString(length, generatedLink);
-			length = getLengthFromLength(length, generatedLink);
-			if (length == Double.MIN_VALUE) {
-				throw new PlanItException(
-						"Error in network XML file: Must define either a length or GML LineString for link from node "
-								+ startNodeId + " to node " + endNodeId);
-			}
-			Link link = network.links.registerNewLink(startNode, endNode, length);
-			for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
-				int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
-						: generatedLinkSegment.getNumberoflanes().intValue();
-				int linkType = generatedLinkSegment.getTyperef().intValue();
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
-				// TODO - We should be able to set the maximum speed for individual link
-				// segments in the network XML file. This is where we would update it. However
-				// we would then need to set it for
-				// every mode. We need to change the XSD file to specify how to do this.
-
-				MacroscopicLinkSegmentTypeModeProperties modeProperties = linkSegmentType
-						.getMacroscopicLinkSegmentTypeModeProperties();
-				boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
-				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, modeProperties);
-			}
-		}
-	}
-
-	/**
 	 * Get the link length from the <length> element in the XML file, if this has
 	 * been set
 	 * 
@@ -192,6 +125,73 @@ public class ProcessInfrastructure {
 		linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
 		network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
 
+	}
+
+	/**
+	 * Register nodes on the network
+	 * 
+	 * @param infrastructure Infrastructure object populated with data from XML file
+	 * @param network        network the physical network object to be populated
+	 *                       from the input data
+	 * @throws PlanItException thrown if there is an error in storing the GML Point
+	 *                         definition
+	 */
+	public static void registerNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network) throws PlanItException {
+		for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
+
+			Node node = new Node();
+			node.setExternalId(generatedNode.getId().longValue());
+			PointType pointType = generatedNode.getPoint();
+			if (pointType != null) {
+				DirectPosition centrePointGeometry = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
+				node.setCentrePointGeometry(centrePointGeometry);
+			}
+			network.nodes.registerNode(node);
+		}
+	}
+
+	/**
+	 * Generated and register link segments
+	 * 
+	 * @param infrastructure     Infrastructure object populated with data from XML
+	 *                           file
+	 * @param network            network the physical network object to be populated
+	 *                           from the input data
+	 * @param linkSegmentTypeMap Map of link segment types
+	 * @throws PlanItException thrown if there is an error during processing
+	 */
+	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure, MacroscopicNetwork network,
+			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap) throws PlanItException {
+		for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
+			long startNodeId = generatedLink.getNodearef().longValue();
+			Node startNode = network.nodes.findNodeByExternalIdentifier(startNodeId);
+			long endNodeId = generatedLink.getNodebref().longValue();
+			Node endNode = network.nodes.findNodeByExternalIdentifier(endNodeId);
+			double length = Double.MIN_VALUE;
+			length = getLengthFromLineString(length, generatedLink);
+			length = getLengthFromLength(length, generatedLink);
+			if (length == Double.MIN_VALUE) {
+				throw new PlanItException(
+						"Error in network XML file: Must define either a length or GML LineString for link from node "
+								+ startNodeId + " to node " + endNodeId);
+			}
+			Link link = network.links.registerNewLink(startNode, endNode, length);
+			for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
+				int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
+						: generatedLinkSegment.getNumberoflanes().intValue();
+				int linkType = generatedLinkSegment.getTyperef().intValue();
+				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
+				// TODO - We should be able to set the maximum speed for individual link
+				// segments in the network XML file. This is where we would update it. However
+				// we would then need to set it for
+				// every mode. We need to change the XSD file to specify how to do this.
+
+				MacroscopicLinkSegmentTypeModeProperties modeProperties = linkSegmentType
+						.getMacroscopicLinkSegmentTypeModeProperties();
+				boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
+				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, modeProperties);
+			}
+		}
 	}
 
 }

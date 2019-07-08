@@ -25,26 +25,15 @@ import org.planit.userclass.UserClass;
 public class ProcessConfiguration {
 
 	/**
-	 * Sets up all the configuration data from the XML demands file
+	 * Generate XMLElementTravellerTypes objects from generated configuration object
+	 * and store them
 	 * 
-	 * @param demandconfiguration the generated XMLElementDemandConfiguration object containing the data
-	 *                      from the XML input file
-	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
-	 */
-	public static Map<Integer, TimePeriod> generateAndStoreConfigurationData(XMLElementDemandConfiguration demandconfiguration) {
-		ProcessConfiguration.generateAndStoreTravellerTypes(demandconfiguration);
-		ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration);
-		return ProcessConfiguration.generateTimePeriodMap(demandconfiguration);
-	}
-
-	/**
-	 * Generate XMLElementTravellerTypes objects from generated configuration object and store
-	 * them
-	 * 
-	 * @param configuration generated XMLElementDemandConfiguration object from demand XML input
+	 * @param configuration generated XMLElementDemandConfiguration object from
+	 *                      demand XML input
 	 */
 	private static void generateAndStoreTravellerTypes(XMLElementDemandConfiguration demandconfiguration) {
-		XMLElementTravellerTypes travellertypes = (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes()
+		XMLElementTravellerTypes travellertypes = (demandconfiguration.getTravellertypes() == null)
+				? new XMLElementTravellerTypes()
 				: demandconfiguration.getTravellertypes();
 		if (travellertypes.getTravellertype().isEmpty()) {
 			travellertypes.getTravellertype().add(generateDefaultTravellerType());
@@ -52,6 +41,29 @@ public class ProcessConfiguration {
 		}
 		for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
 			TravelerType travellerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
+		}
+	}
+
+	/**
+	 * Generate XMLElementUserClasses objects from generated configuration object
+	 * and store them
+	 * 
+	 * @param configuration generated XMLElementDemandConfiguration object from
+	 *                      demand XML input
+	 */
+	private static void generateAndStoreUserClasses(XMLElementDemandConfiguration demandconfiguration) {
+		XMLElementUserClasses userclasses = demandconfiguration.getUserclasses();
+		if (userclasses.getUserclass().isEmpty()) {
+			userclasses.getUserclass().add(generateDefaultUserClass());
+		}
+		for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
+			int modeId = userclass.getModeref().intValue();
+			long travellerTypeId = (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID
+					: userclass.getTravellertyperef().longValue();
+			userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
+			TravelerType travellerType = TravelerType.getByExternalId(travellerTypeId);
+			UserClass userClass = new UserClass(userclass.getId().longValue(), userclass.getName(), modeId,
+					travellerType.getExternalId());
 		}
 	}
 
@@ -65,29 +77,6 @@ public class ProcessConfiguration {
 		travellerType.setId(BigInteger.valueOf(TravelerType.DEFAULT_EXTERNAL_ID));
 		travellerType.setName(TravelerType.DEFAULT_NAME);
 		return travellerType;
-	}
-
-	/**
-	 * Generate XMLElementUserClasses objects from generated configuration object and store them
-	 * 
-	 * @param configuration generated XMLElementDemandConfiguration object from demand XML input
-	 */
-	private static void generateAndStoreUserClasses(XMLElementDemandConfiguration demandconfiguration) {
-		XMLElementUserClasses userclasses = demandconfiguration.getUserclasses();
-		if (userclasses.getUserclass().isEmpty()) {
-			userclasses.getUserclass().add(generateDefaultUserClass());
-		}
-		for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
-			int modeId = userclass.getModeref().intValue();
-			long travellerTypeId = (userclass.getTravellertyperef() == null)
-					//? PlanItXml.DEFAULT_TRAVELER_TYPE_EXTERNAL_ID
-					? TravelerType.DEFAULT_EXTERNAL_ID
-					: userclass.getTravellertyperef().longValue();
-			userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
-			TravelerType travellerType = TravelerType.getByExternalId(travellerTypeId);
-			UserClass userClass = new UserClass(userclass.getId().longValue(), userclass.getName(), modeId,
-					travellerType.getExternalId());
-		}
 	}
 
 	/**
@@ -107,7 +96,8 @@ public class ProcessConfiguration {
 	/**
 	 * Generate a Map of TimePeriod objects from generated configuration object
 	 * 
-	 * @param configuration generated XMLElementDemandConfiguration object from demand XML input
+	 * @param configuration generated XMLElementDemandConfiguration object from
+	 *                      demand XML input
 	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
 	 */
 	private static Map<Integer, TimePeriod> generateTimePeriodMap(XMLElementDemandConfiguration demandconfiguration) {
@@ -129,11 +119,24 @@ public class ProcessConfiguration {
 			case S:
 				break;
 			}
-			//TimePeriod timePeriod = new TimePeriod("" + timePeriodId, startTime, duration);
 			TimePeriod timePeriod = new TimePeriod(timePeriodGenerated.getName(), startTime, duration);
 			timePeriodMap.put(timePeriodId, timePeriod);
 		}
 		return timePeriodMap;
+	}
+
+	/**
+	 * Sets up all the configuration data from the XML demands file
+	 * 
+	 * @param demandconfiguration the generated XMLElementDemandConfiguration object
+	 *                            containing the data from the XML input file
+	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
+	 */
+	public static Map<Integer, TimePeriod> generateAndStoreConfigurationData(
+			XMLElementDemandConfiguration demandconfiguration) {
+		ProcessConfiguration.generateAndStoreTravellerTypes(demandconfiguration);
+		ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration);
+		return ProcessConfiguration.generateTimePeriodMap(demandconfiguration);
 	}
 
 }

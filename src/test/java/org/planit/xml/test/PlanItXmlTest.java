@@ -194,7 +194,8 @@ public class PlanItXmlTest {
 			fail(e.getMessage());
 		}
 	}
-	
+
+/*
 	@Test
 	public void testValidateDemands() {
 		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\demands.xml", "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd"));
@@ -209,7 +210,7 @@ public class PlanItXmlTest {
 	public void testValidateNetwork() {
 		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\network.xml", "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd"));
 	}
-
+*/
 	private void runTest(String resultsFileLocation, String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
 		IdGenerator.reset();

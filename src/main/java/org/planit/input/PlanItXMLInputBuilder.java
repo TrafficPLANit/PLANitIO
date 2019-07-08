@@ -20,6 +20,7 @@ import org.planit.generated.XMLElementMacroscopicDemand;
 import org.planit.generated.XMLElementMacroscopicNetwork;
 import org.planit.generated.XMLElementMacroscopicZoning;
 import org.planit.generated.XMLElementOdMatrix;
+import org.planit.generated.XMLElementPLANit;
 import org.planit.generated.XMLElementZones.Zone;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -71,24 +72,22 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	private int noCentroids;
 
 	/**
-	 * Map of Mode by mode Id, which is read in from the network input and used by the demands input
+	 * Map of Mode by mode Id, which is read in from the network input and used by
+	 * the demands input
 	 */
-    private Map<Integer, Mode> modeMap;
-    
-    /**
-     * Network nodes object, which is read in from the network input and used by the zoning input
-     */
-    private Nodes nodes;
-    
-    /**
-     * Zoning zones object, which is read in from the zoning input and used by the demands input
-     */
-	private Zoning.Zones zones;
-	
+	private Map<Integer, Mode> modeMap;
+
 	/**
-	 * Array of names of XML files in the project path directory
+	 * Network nodes object, which is read in from the network input and used by the
+	 * zoning input
 	 */
-	private String[] xmlFileNames;
+	private Nodes nodes;
+
+	/**
+	 * Zoning zones object, which is read in from the zoning input and used by the
+	 * demands input
+	 */
+	private Zoning.Zones zones;
 
 	/**
 	 * Default extension for XML input files
@@ -99,19 +98,6 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * The default separator that is assumed when no separator is provided
 	 */
 	public static final String DEFAULT_SEPARATOR = ",";
-
-	/**
-	 * Constructor which reads in the XML input files
-	 * 
-	 * @param zoningXmlFileLocation  location of XML zones input file
-	 * @param demandXmlFileLocation  location of XML demands input file
-	 * @param networkXmlFileLocation location of XML network inputs file
-	 * @throws Exception
-	 */
-	public PlanItXMLInputBuilder(String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation) throws PlanItException {
-		createGeneratedClassesFromXmlLocations(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
-	}
 
 	/**
 	 * Constructor which generates the input objects from files in a specified
@@ -138,25 +124,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 *                         of them
 	 */
 	public PlanItXMLInputBuilder(String projectPath, String xmlNameExtension) throws PlanItException {
-		xmlFileNames = getXmlFileNames(projectPath, xmlNameExtension);
-		setInputFiles(projectPath);
-	}
-
-	/**
-	 * Validates an input XML file against an XSD file
-	 * 
-	 * @param xmlFileLocation input XML file
-	 * @param schemaFileLocation XSD file to validate XML file against
-	 * @return true if the file is valid, false otherwise
-	 */
-	public static boolean validateXmlInputFile(String xmlFileLocation, String schemaFileLocation) {
-		try {
-			XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
-			return true;
-		} catch (Exception e) {
-			LOGGER.info(e.getMessage());
-			return false;
-		}
+		setInputFiles(projectPath, xmlNameExtension);
 	}
 
 	/**
@@ -178,6 +146,40 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 					.generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
 		} catch (Exception e) {
 			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Read the input XML file(s)
+	 * 
+	 * This method first checks for a single file containing all three of network, demand and zoning inputs.  If
+	 * no single file is found, it then checks for three separate files, one for each type of input.
+	 * 
+	 * @param projectPath      the project path directory
+	 * @param xmlNameExtension the extension of the files to search through
+	 * @throws PlanItException thrown if not all of network, demand and zoning input data are available
+	 */
+	private void setInputFiles(String projectPath, String xmlNameExtension) throws PlanItException {
+		String[] xmlFileNames = getXmlFileNames(projectPath, xmlNameExtension);
+		if (!setInputFilesSingleFile(projectPath, xmlFileNames)) {
+			setInputFilesSeparateFiles(projectPath, xmlFileNames);
+		}
+	}
+
+	/**
+	 * Validates an input XML file against an XSD file
+	 * 
+	 * @param xmlFileLocation    input XML file
+	 * @param schemaFileLocation XSD file to validate XML file against
+	 * @return true if the file is valid, false otherwise
+	 */
+	public static boolean validateXmlInputFile(String xmlFileLocation, String schemaFileLocation) {
+		try {
+			XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
+			return true;
+		} catch (Exception e) {
+			LOGGER.info(e.getMessage());
+			return false;
 		}
 	}
 
@@ -361,14 +363,37 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	}
 
 	/**
-	 * Populate the generated input objects from the XML files
+	 * Checks if a single XML file containing all of network, demand and zoning inputs is available, and reads it if it is.
+	 * 
+	 * @param projectPath      the project path directory
+	 * @param xmlNameExtension the extension of the files to search through
+	 * @return true if a single file containing all the inputs has been found and read, false otherwise
+	 */
+	private boolean setInputFilesSingleFile(String projectPath, String[] xmlFileNames) {
+		for (int i = 0; i < xmlFileNames.length; i++) {
+			try {
+				XMLElementPLANit planit = (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class,
+						xmlFileNames[i]);
+				LOGGER.info("File " + xmlFileNames[i] + " provides the network, demands and zoning input data.");
+				macroscopiczoning = planit.getMacroscopiczoning();
+				macroscopicnetwork = planit.getMacroscopicnetwork();
+				macroscopicdemand = planit.getMacroscopicdemand();
+				return true;
+			} catch (Exception e) {
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Populate the generated input objects from three separate XML files
 	 * 
 	 * @param projectPath the name of the project path directory
 	 * @throws PlanItException thrown if one or more of the input objects could not
 	 *                         be populated from the XML files in the project
 	 *                         directory
 	 */
-	private void setInputFiles(String projectPath) throws PlanItException {
+	private void setInputFilesSeparateFiles(String projectPath, String[] xmlFileNames) throws PlanItException {
 		boolean foundZoningFile = false;
 		boolean foundNetworkFile = false;
 		boolean foundDemandFile = false;
@@ -419,6 +444,66 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 			throw new PlanItException(
 					"Failed to find a valid demand input file in the project directory " + projectPath);
 		}
+	}
+
+	/**
+	 * Populate the generated input objects from three separate XML files by validating the input files first.
+	 * 
+	 * This file does the same task as setInputFilesSeparateFiles(), it does it in a different way.  This
+	 * method runs much more slowly than setInputFilesSeparateFiles(), it takes about 60 times as 
+	 * long for the same input data sets.
+	 * 
+	 * @param projectPath the name of the project path directory
+	 * @throws PlanItException thrown if one or more of the input objects could not
+	 *                         be populated from the XML files in the project
+	 *                         directory
+	 */
+	private void setInputFilesSeparateFilesWithValidation(String projectPath, String[] xmlFileNames) throws PlanItException {
+		boolean foundZoningFile = false;
+		String zoningFileName = null;
+		boolean foundNetworkFile = false;
+		String networkFileName = null;
+		boolean foundDemandFile = false;
+		String demandFileName = null;
+		for (int i = 0; i < xmlFileNames.length; i++) {
+			if (foundZoningFile && foundDemandFile && foundNetworkFile) {
+				LOGGER.info("File " + xmlFileNames[i] + " exists but was not parsed.");
+			}
+			if (!foundZoningFile) {
+				foundZoningFile = validateXmlInputFile(xmlFileNames[i], "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd");
+				if (foundZoningFile) {
+					zoningFileName = xmlFileNames[i];
+					LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");
+				}
+			}
+			if (!foundNetworkFile) {
+				foundNetworkFile = validateXmlInputFile(xmlFileNames[i], "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd");
+				if (foundNetworkFile) {
+					networkFileName = xmlFileNames[i];
+					LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
+				}
+			}
+			if (!foundDemandFile) {
+				foundDemandFile = validateXmlInputFile(xmlFileNames[i], "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd");
+				if (foundDemandFile) {
+					demandFileName = xmlFileNames[i];
+					LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");
+				}
+			}
+		}
+		if (!foundZoningFile) {
+			throw new PlanItException(
+					"Failed to find a valid zoning input file in the project directory " + projectPath);
+		}
+		if (!foundNetworkFile) {
+			throw new PlanItException(
+					"Failed to find a valid network input file in the project directory " + projectPath);
+		}
+		if (!foundDemandFile) {
+			throw new PlanItException(
+					"Failed to find a valid demand input file in the project directory " + projectPath);
+		}
+		createGeneratedClassesFromXmlLocations(zoningFileName, demandFileName, networkFileName);
 	}
 
 }

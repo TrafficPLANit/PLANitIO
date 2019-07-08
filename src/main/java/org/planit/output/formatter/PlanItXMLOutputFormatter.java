@@ -145,7 +145,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Constructor
+	 * Constructor, takes values for properties file name, description and version property
 	 * 
 	 * @param propertiesFileName  the name of the application properties file
 	 * @param descriptionProperty the name of the description property
@@ -243,47 +243,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 					+ nameExtension;
 			return newFileName;
 		} catch (Exception e) {
-			throw new PlanItException(e);
-		}
-	}
-
-	/**
-	 * Persist the output data based on the passed in configuration and adapter
-	 * (contained in the configuration)
-	 * 
-	 * @param timePeriod              TimePeriod for the assignment to be saved
-	 * @param modes                   Set of modes for the assignment to be saved
-	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
-	 *                                be saved
-	 * @throws PlanItException thrown if there is an error
-	 */
-	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
-		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
-		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
-			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
-					+ " which has not been defined yet");
-		}
-		try {
-			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
-			boolean isNewTimePeriod = ((metadata == null)
-					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
-			if (isNewTimePeriod) {
-				if (metadata != null) {
-					XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
-				}
-				metadata = new XMLElementMetadata();
-				XMLElementSimulation simulation = new XMLElementSimulation();
-				metadata.setSimulation(simulation);
-				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
-			}
-			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes, traditionalStaticAssignmentLinkOutputAdapter);
-			if (isNewTimePeriod) {
-				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
-						+ xmlNameExtension;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
 			throw new PlanItException(e);
 		}
 	}
@@ -508,6 +467,105 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
+	 * Creates the output file directory if it does not already exist.
+	 * 
+	 * @param outputDirectory the output file directory
+	 * @return number of files in this directory
+	 * @throws PlanItException thrown if the directory cannot be opened or created
+	 */
+	private int createOrOpenOutputDirectory(String outputDirectory) throws PlanItException {
+		try {
+			File directory = new File(outputDirectory);
+			if (!directory.isDirectory()) {
+				Files.createDirectories(directory.toPath());
+			}
+			return directory.list().length;
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Initialize the current metadata output object with data which is only written
+	 * once per time period
+	 * 
+	 * @param outputAdapter output adapter
+	 * @param timePeriod    current time period
+	 * @throws PlanItException thrown if there is an error writing the data to file
+	 */
+	private void initializeMetadataObject(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
+			TimePeriod timePeriod) throws PlanItException {
+		try {
+			metadata.setTimestamp(getTimestamp());
+			if (version != null) {
+				metadata.setVersion(version);
+			}
+			if (description != null) {
+				metadata.setDescription(description);
+			}
+			metadata.setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
+			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
+			metadata.setColumns(getGeneratedColumnsFromProperties(outputProperties));
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Remove all files and sub-directories from a specified directory
+	 * 
+	 * @param directory directory to be cleared
+	 */
+	private void purgeDirectory(File directory) {
+		for (File file : directory.listFiles()) {
+			if (file.isDirectory())
+				purgeDirectory(file);
+			file.delete();
+		}
+	}
+
+	/**
+	 * Persist the output data based on the passed in configuration and adapter
+	 * (contained in the configuration)
+	 * 
+	 * @param timePeriod              TimePeriod for the assignment to be saved
+	 * @param modes                   Set of modes for the assignment to be saved
+	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
+	 *                                be saved
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
+		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
+		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
+			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
+					+ " which has not been defined yet");
+		}
+		try {
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
+			boolean isNewTimePeriod = ((metadata == null)
+					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
+			if (isNewTimePeriod) {
+				if (metadata != null) {
+					XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
+				}
+				metadata = new XMLElementMetadata();
+				XMLElementSimulation simulation = new XMLElementSimulation();
+				metadata.setSimulation(simulation);
+				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
+			}
+			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes, traditionalStaticAssignmentLinkOutputAdapter);
+			if (isNewTimePeriod) {
+				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
+						+ xmlNameExtension;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
 	 * Create the output directories and open the CSV writers
 	 * 
 	 * @throws PlanItException thrown if there is an error or validation failure
@@ -538,32 +596,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		createOrOpenOutputDirectory(csvOutputDirectory);
 		if (csvSummaryOutputFileName != null) {
 			openCsvSummaryOutputFile();
-		}
-	}
-
-	/**
-	 * Initialize the current metadata output object with data which is only written
-	 * once per time period
-	 * 
-	 * @param outputAdapter output adapter
-	 * @param timePeriod    current time period
-	 * @throws PlanItException thrown if there is an error writing the data to file
-	 */
-	private void initializeMetadataObject(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			TimePeriod timePeriod) throws PlanItException {
-		try {
-			metadata.setTimestamp(getTimestamp());
-			if (version != null) {
-				metadata.setVersion(version);
-			}
-			if (description != null) {
-				metadata.setDescription(description);
-			}
-			metadata.setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
-			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
-			metadata.setColumns(getGeneratedColumnsFromProperties(outputProperties));
-		} catch (Exception e) {
-			throw new PlanItException(e);
 		}
 	}
 
@@ -601,25 +633,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Creates the output file directory if it does not already exist.
-	 * 
-	 * @param outputDirectory the output file directory
-	 * @return number of files in this directory
-	 * @throws PlanItException thrown if the directory cannot be opened or created
-	 */
-	private int createOrOpenOutputDirectory(String outputDirectory) throws PlanItException {
-		try {
-			File directory = new File(outputDirectory);
-			if (!directory.isDirectory()) {
-				Files.createDirectories(directory.toPath());
-			}
-			return directory.list().length;
-		} catch (Exception e) {
-			throw new PlanItException(e);
-		}
-	}
-
-	/**
 	 * Call this method to delete all existing files in the XML output directory
 	 * 
 	 * @throws PlanItException
@@ -635,19 +648,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	public void resetCsvOutputDirectory() throws PlanItException {
 		resetCsvOutputDirectory = true;
-	}
-
-	/**
-	 * Remove all files and sub-directories from a specified directory
-	 * 
-	 * @param directory directory to be cleared
-	 */
-	private void purgeDirectory(File directory) {
-		for (File file : directory.listFiles()) {
-			if (file.isDirectory())
-				purgeDirectory(file);
-			file.delete();
-		}
 	}
 
 	/**
