@@ -143,37 +143,20 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	}
 
 	/**
-	 * Constructor which reads in the XML input files and XSD files to validate them
-	 * against
+	 * Validates an input XML file against an XSD file
 	 * 
-	 * If a null value is entered for the location of an XSD file, no validation is
-	 * carried out on the corresponding input XML file.
-	 * 
-	 * @param zoningXmlFileLocation  location of XML zones input file
-	 * @param demandXmlFileLocation  location of XML demands input file
-	 * @param networkXmlFileLocation location of XML network inputs file
-	 * @param zoningXsdFileLocation  location of XSD schema file for zones
-	 * @param demandXsdFileLocation  location of XSD schema file for demands
-	 * @param networkXsdFileLocation location of XSD schema file for network
-	 * @throws PlanItException thrown if one of the input XML files is invalid
+	 * @param xmlFileLocation input XML file
+	 * @param schemaFileLocation XSD file to validate XML file against
+	 * @return true if the file is valid, false otherwise
 	 */
-	public PlanItXMLInputBuilder(String zoningXmlFileLocation, String demandXmlFileLocation,
-			String networkXmlFileLocation, String zoningXsdFileLocation, String demandXsdFileLocation,
-			String networkXsdFileLocation) throws PlanItException {
+	public static boolean validateXmlInputFile(String xmlFileLocation, String schemaFileLocation) {
 		try {
-			if (zoningXsdFileLocation != null) {
-				XmlUtils.validateXml(zoningXmlFileLocation, zoningXsdFileLocation);
-			}
-			if (demandXsdFileLocation != null) {
-				XmlUtils.validateXml(demandXmlFileLocation, demandXsdFileLocation);
-			}
-			if (networkXsdFileLocation != null) {
-				XmlUtils.validateXml(networkXmlFileLocation, networkXsdFileLocation);
-			}
+			XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
+			return true;
 		} catch (Exception e) {
-			throw new PlanItException(e);
+			LOGGER.info(e.getMessage());
+			return false;
 		}
-		createGeneratedClassesFromXmlLocations(zoningXmlFileLocation, demandXmlFileLocation, networkXmlFileLocation);
 	}
 
 	/**

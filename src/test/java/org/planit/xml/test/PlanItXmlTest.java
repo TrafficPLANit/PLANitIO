@@ -1,5 +1,6 @@
 package org.planit.xml.test;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -192,6 +193,21 @@ public class PlanItXmlTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+	}
+	
+	@Test
+	public void testValidateDemands() {
+		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\demands.xml", "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd"));
+	}
+
+	@Test
+	public void testValidateZoning() {
+		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\zones.xml", "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd"));
+	}
+
+	@Test
+	public void testValidateNetwork() {
+		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\network.xml", "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd"));
 	}
 
 	private void runTest(String resultsFileLocation, String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
