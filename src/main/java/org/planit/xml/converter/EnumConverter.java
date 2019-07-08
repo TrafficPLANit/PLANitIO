@@ -31,6 +31,8 @@ public interface EnumConverter {
 			return Typevalues.INTEGER;
 		case BOOLEAN:
 			return Typevalues.BOOLEAN;
+		case SRSNAME:
+			return Typevalues.SRSNAME;
 		default:
 			throw new PlanItException("Data type " + type.value()
 					+ " has not been defined in the typevalues simple type in the output XSD file.");
@@ -58,6 +60,8 @@ public interface EnumConverter {
 			return Unitsvalues.H;
 		case KM:
 			return Unitsvalues.KM;
+		case SRS:
+			return Unitsvalues.SRS;
 		default:
 			throw new PlanItException("Units type " + units.value()
 					+ " has not been defined in the unitsvalues simple type in the output XSD file.");

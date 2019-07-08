@@ -14,46 +14,28 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for unitsvalues.
+ * <p>Java class for srsname.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType name="unitsvalues"&gt;
+ * &lt;simpleType name="srsname"&gt;
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string"&gt;
- *     &lt;enumeration value="veh/km"/&gt;
- *     &lt;enumeration value="none"/&gt;
- *     &lt;enumeration value="veh/h"/&gt;
- *     &lt;enumeration value="km/h"/&gt;
- *     &lt;enumeration value="h"/&gt;
- *     &lt;enumeration value="km"/&gt;
- *     &lt;enumeration value="srs"/&gt;
+ *     &lt;enumeration value="EPSG:4326"/&gt;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
  * 
  */
-@XmlType(name = "unitsvalues")
+@XmlType(name = "srsname")
 @XmlEnum
-public enum Unitsvalues {
+public enum Srsname {
 
-    @XmlEnumValue("veh/km")
-    VEH_KM("veh/km"),
-    @XmlEnumValue("none")
-    NONE("none"),
-    @XmlEnumValue("veh/h")
-    VEH_H("veh/h"),
-    @XmlEnumValue("km/h")
-    KM_H("km/h"),
-    @XmlEnumValue("h")
-    H("h"),
-    @XmlEnumValue("km")
-    KM("km"),
-    @XmlEnumValue("srs")
-    SRS("srs");
+    @XmlEnumValue("EPSG:4326")
+    EPSG_4326("EPSG:4326");
     private final String value;
 
-    Unitsvalues(String v) {
+    Srsname(String v) {
         value = v;
     }
 
@@ -61,8 +43,8 @@ public enum Unitsvalues {
         return value;
     }
 
-    public static Unitsvalues fromValue(String v) {
-        for (Unitsvalues c: Unitsvalues.values()) {
+    public static Srsname fromValue(String v) {
+        for (Srsname c: Srsname.values()) {
             if (c.value.equals(v)) {
                 return c;
             }

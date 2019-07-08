@@ -20,6 +20,7 @@
         	<xs:enumeration value="float"/>
         	<xs:enumeration value="integer"/>
         	<xs:enumeration value="boolean"/> 
+        	<xs:enumeration value="srsname"/>
       	</xs:restriction> 
 	</xs:simpleType> 
 
@@ -32,6 +33,7 @@
         	<xs:enumeration value="km/h"/> 
         	<xs:enumeration value="h"/> 
         	<xs:enumeration value="km"/> 
+        	<xs:enumeration value="srs"/>
       	</xs:restriction> 
 	</xs:simpleType> 
 
