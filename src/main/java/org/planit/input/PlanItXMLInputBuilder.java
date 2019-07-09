@@ -100,34 +100,6 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	public static final String DEFAULT_SEPARATOR = ",";
 
 	/**
-	 * Constructor which generates the input objects from files in a specified
-	 * directory, using the default extension ".xml"
-	 * 
-	 * @param projectPath the location of the input file directory
-	 * @throws PlanItException thrown if one of the input required input files
-	 *                         cannot be found, or if there is an error reading one
-	 *                         of them
-	 */
-	public PlanItXMLInputBuilder(String projectPath) throws PlanItException {
-		this(projectPath, DEFAULT_XML_NAME_EXTENSION);
-	}
-
-	/**
-	 * Constructor which generates the input objects from files in a specified
-	 * directory
-	 * 
-	 * @param projectPath      the location of the input file directory
-	 * @param xmlNameExtension the extension of the data files to be searched
-	 *                         through
-	 * @throws PlanItException thrown if one of the input required input files
-	 *                         cannot be found, or if there is an error reading one
-	 *                         of them
-	 */
-	public PlanItXMLInputBuilder(String projectPath, String xmlNameExtension) throws PlanItException {
-		setInputFiles(projectPath, xmlNameExtension);
-	}
-
-	/**
 	 * Populate the input objects from specified XML files
 	 * 
 	 * @param zoningXmlFileLocation  location of the zoning input XML file
@@ -164,175 +136,6 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		if (!setInputFilesSingleFile(projectPath, xmlFileNames)) {
 			setInputFilesSeparateFiles(projectPath, xmlFileNames);
 		}
-	}
-
-	/**
-	 * Validates an input XML file against an XSD file
-	 * 
-	 * @param xmlFileLocation    input XML file
-	 * @param schemaFileLocation XSD file to validate XML file against
-	 * @return true if the file is valid, false otherwise
-	 */
-	public static boolean validateXmlInputFile(String xmlFileLocation, String schemaFileLocation) {
-		try {
-			XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
-			return true;
-		} catch (Exception e) {
-			LOGGER.info(e.getMessage());
-			return false;
-		}
-	}
-
-	/**
-	 * Handles creation events for network, zones, demands and travel time
-	 * parameters
-	 * 
-	 * We only handle BPR travel time functions at this stage.
-	 * 
-	 * @param event object creation event
-	 * @throws PlanItException captures any exception thrown during creation events
-	 */
-	@Override
-	public void onCreateProjectComponent(CreatedProjectComponentEvent<?> event) throws PlanItException {
-		Object projectComponent = event.getProjectComponent();
-		try {
-			if (projectComponent instanceof MacroscopicNetwork) {
-				populateNetwork((MacroscopicNetwork) projectComponent);
-			} else if (projectComponent instanceof Zoning) {
-				populateZoning((Zoning) projectComponent);
-			} else if (projectComponent instanceof Demands) {
-				populateDemands((Demands) projectComponent);
-			} else if (projectComponent instanceof PhysicalCost) {
-				populatePhysicalCost((PhysicalCost) projectComponent);
-			} else if (projectComponent instanceof VirtualCost) {
-				populateVirtualCost((VirtualCost) projectComponent);
-			} else if (projectComponent instanceof Smoothing) {
-				populateSmoothing((Smoothing) projectComponent);
-			} else {
-				LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
-						+ " which is not handled by BascCsvScan");
-			}
-		} catch (PlanItException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Creates the physical network object from the data in the input file
-	 * 
-	 * @param network the physical network object to be populated from the input
-	 *                data
-	 * @throws PlanItException thrown if there is an error reading the input file
-	 */
-	public void populateNetwork(@Nonnull MacroscopicNetwork network) throws PlanItException {
-
-		LOGGER.info("Populating Network");
-
-		try {
-			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
-			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = ProcessLinkConfiguration
-					.createLinkSegmentTypeMap(linkconfiguration, modeMap);
-			XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
-			ProcessInfrastructure.registerNodes(infrastructure, network);
-			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
-		} catch (Exception ex) {
-			throw new PlanItException(ex);
-		}
-		nodes = network.nodes;
-	}
-
-	/**
-	 * Creates the Zoning object and connectoids from the data in the input file
-	 * 
-	 * @param zoning the Zoning object to be populated from the input data
-	 * @throws PlanItException thrown if there is an error reading the input file
-	 */
-	public void populateZoning(Zoning zoning) throws PlanItException {
-		LOGGER.info("Populating Zoning");
-		if (nodes.getNumberOfNodes() == 0)
-			throw new PlanItException("Cannot parse zoning input file before the network input file has been parsed.");
-		noCentroids = 0;
-
-		// create and register zones, centroids and connectoids
-		try {
-			for (Zone zone : macroscopiczoning.getZones().getZone()) {
-				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
-				UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
-				noCentroids++;
-			}
-			zones = zoning.zones;
-		} catch (Exception e) {
-			throw new PlanItException(e);
-		}
-	}
-
-	/**
-	 * Populates the Demands object from the input file
-	 * 
-	 * @param demands the Demands object to be populated from the input data
-	 * @throws PlanItException thrown if there is an error reading the input file
-	 */
-	public void populateDemands(@Nonnull Demands demands) throws PlanItException {
-		LOGGER.info("Populating Demands");
-		if (noCentroids == 0)
-			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
-		try {
-			XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
-			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration
-					.generateAndStoreConfigurationData(demandconfiguration);
-			List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands()
-					.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, modeMap, timePeriodMap, noCentroids, zones);
-		} catch (Exception e) {
-			throw new PlanItException(e);
-		}
-	}
-
-	/**
-	 * Handles events for populating the PhysicalCost object
-	 * 
-	 * At present the creation event is generated but no immediate action is
-	 * required to populate the PhysicalCost object. This is populated later by code
-	 * calls or system defaults, no file reading is required. If we later change to
-	 * reading in cost parameter values from a value, that would be done in this
-	 * method.
-	 * 
-	 * @param physicalCost the PhysicalCost object to be populated
-	 * @throws PlanItException thrown if there is an error.
-	 */
-	public void populatePhysicalCost(@Nonnull PhysicalCost physicalCost) throws PlanItException {
-		LOGGER.info("Populating Physical Cost");
-	}
-
-	/**
-	 * Handles events for populating the VirtualCost object
-	 * 
-	 * At present the creation event is generated but no immediate action is
-	 * required to populate the VirtualCost object. The VirtualCost implementation
-	 * currently uses a fixed parameter for speed. If we later change to reading in
-	 * parameter values from a value, that would be done in this method.
-	 * 
-	 * @param virtualCost the VirtualCost object to be populated
-	 * @throws PlanItException thrown if there is an error.
-	 */
-	public void populateVirtualCost(@Nonnull VirtualCost virtualCost) throws PlanItException {
-		LOGGER.info("Populating Virtual Cost ");
-	}
-
-	/**
-	 * Handles events for populating the Smoothing object
-	 * 
-	 * At present the creation event is generated but no immediate action is
-	 * required to populate the Smoothing object. The Smoothing implementation is
-	 * currently an algorithm which requires no parameters. If we later change to
-	 * reading in parameter values from a value, that would be done in this method.
-	 * 
-	 * @param smoothing the Smoothing object to be populated
-	 * @throws PlanItException thrown if there is an error.
-	 */
-	public void populateSmoothing(@Nonnull Smoothing smoothing) throws PlanItException {
-		LOGGER.info("Populating Smoothing");
 	}
 
 	/**
@@ -504,6 +307,203 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 					"Failed to find a valid demand input file in the project directory " + projectPath);
 		}
 		createGeneratedClassesFromXmlLocations(zoningFileName, demandFileName, networkFileName);
+	}
+
+	/**
+	 * Constructor which generates the input objects from files in a specified
+	 * directory, using the default extension ".xml"
+	 * 
+	 * @param projectPath the location of the input file directory
+	 * @throws PlanItException thrown if one of the input required input files
+	 *                         cannot be found, or if there is an error reading one
+	 *                         of them
+	 */
+	public PlanItXMLInputBuilder(String projectPath) throws PlanItException {
+		this(projectPath, DEFAULT_XML_NAME_EXTENSION);
+	}
+
+	/**
+	 * Constructor which generates the input objects from files in a specified
+	 * directory
+	 * 
+	 * @param projectPath      the location of the input file directory
+	 * @param xmlNameExtension the extension of the data files to be searched
+	 *                         through
+	 * @throws PlanItException thrown if one of the input required input files
+	 *                         cannot be found, or if there is an error reading one
+	 *                         of them
+	 */
+	public PlanItXMLInputBuilder(String projectPath, String xmlNameExtension) throws PlanItException {
+		setInputFiles(projectPath, xmlNameExtension);
+	}
+
+	/**
+	 * Validates an input XML file against an XSD file
+	 * 
+	 * @param xmlFileLocation    input XML file
+	 * @param schemaFileLocation XSD file to validate XML file against
+	 * @return true if the file is valid, false otherwise
+	 */
+	public static boolean validateXmlInputFile(String xmlFileLocation, String schemaFileLocation) {
+		try {
+			XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
+			return true;
+		} catch (Exception e) {
+			LOGGER.info(e.getMessage());
+			return false;
+		}
+	}
+
+	/**
+	 * Handles creation events for network, zones, demands and travel time
+	 * parameters
+	 * 
+	 * We only handle BPR travel time functions at this stage.
+	 * 
+	 * @param event object creation event
+	 * @throws PlanItException captures any exception thrown during creation events
+	 */
+	@Override
+	public void onCreateProjectComponent(CreatedProjectComponentEvent<?> event) throws PlanItException {
+		Object projectComponent = event.getProjectComponent();
+		try {
+			if (projectComponent instanceof MacroscopicNetwork) {
+				populateNetwork((MacroscopicNetwork) projectComponent);
+			} else if (projectComponent instanceof Zoning) {
+				populateZoning((Zoning) projectComponent);
+			} else if (projectComponent instanceof Demands) {
+				populateDemands((Demands) projectComponent);
+			} else if (projectComponent instanceof PhysicalCost) {
+				populatePhysicalCost((PhysicalCost) projectComponent);
+			} else if (projectComponent instanceof VirtualCost) {
+				populateVirtualCost((VirtualCost) projectComponent);
+			} else if (projectComponent instanceof Smoothing) {
+				populateSmoothing((Smoothing) projectComponent);
+			} else {
+				LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
+						+ " which is not handled by BascCsvScan");
+			}
+		} catch (PlanItException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Creates the physical network object from the data in the input file
+	 * 
+	 * @param network the physical network object to be populated from the input
+	 *                data
+	 * @throws PlanItException thrown if there is an error reading the input file
+	 */
+	public void populateNetwork(@Nonnull MacroscopicNetwork network) throws PlanItException {
+
+		LOGGER.info("Populating Network");
+
+		try {
+			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
+			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
+			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = ProcessLinkConfiguration
+					.createLinkSegmentTypeMap(linkconfiguration, modeMap);
+			XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
+			ProcessInfrastructure.registerNodes(infrastructure, network);
+			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
+		} catch (Exception ex) {
+			throw new PlanItException(ex);
+		}
+		nodes = network.nodes;
+	}
+
+	/**
+	 * Creates the Zoning object and connectoids from the data in the input file
+	 * 
+	 * @param zoning the Zoning object to be populated from the input data
+	 * @throws PlanItException thrown if there is an error reading the input file
+	 */
+	public void populateZoning(Zoning zoning) throws PlanItException {
+		LOGGER.info("Populating Zoning");
+		if (nodes.getNumberOfNodes() == 0)
+			throw new PlanItException("Cannot parse zoning input file before the network input file has been parsed.");
+		noCentroids = 0;
+
+		// create and register zones, centroids and connectoids
+		try {
+			for (Zone zone : macroscopiczoning.getZones().getZone()) {
+				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
+				UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
+				noCentroids++;
+			}
+			zones = zoning.zones;
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Populates the Demands object from the input file
+	 * 
+	 * @param demands the Demands object to be populated from the input data
+	 * @throws PlanItException thrown if there is an error reading the input file
+	 */
+	public void populateDemands(@Nonnull Demands demands) throws PlanItException {
+		LOGGER.info("Populating Demands");
+		if (noCentroids == 0)
+			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
+		try {
+			XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
+			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration
+					.generateAndStoreConfigurationData(demandconfiguration);
+			List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands()
+					.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
+			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, modeMap, timePeriodMap, noCentroids, zones);
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Handles events for populating the PhysicalCost object
+	 * 
+	 * At present the creation event is generated but no immediate action is
+	 * required to populate the PhysicalCost object. This is populated later by code
+	 * calls or system defaults, no file reading is required. If we later change to
+	 * reading in cost parameter values from a value, that would be done in this
+	 * method.
+	 * 
+	 * @param physicalCost the PhysicalCost object to be populated
+	 * @throws PlanItException thrown if there is an error.
+	 */
+	public void populatePhysicalCost(@Nonnull PhysicalCost physicalCost) throws PlanItException {
+		LOGGER.info("Populating Physical Cost");
+	}
+
+	/**
+	 * Handles events for populating the VirtualCost object
+	 * 
+	 * At present the creation event is generated but no immediate action is
+	 * required to populate the VirtualCost object. The VirtualCost implementation
+	 * currently uses a fixed parameter for speed. If we later change to reading in
+	 * parameter values from a value, that would be done in this method.
+	 * 
+	 * @param virtualCost the VirtualCost object to be populated
+	 * @throws PlanItException thrown if there is an error.
+	 */
+	public void populateVirtualCost(@Nonnull VirtualCost virtualCost) throws PlanItException {
+		LOGGER.info("Populating Virtual Cost ");
+	}
+
+	/**
+	 * Handles events for populating the Smoothing object
+	 * 
+	 * At present the creation event is generated but no immediate action is
+	 * required to populate the Smoothing object. The Smoothing implementation is
+	 * currently an algorithm which requires no parameters. If we later change to
+	 * reading in parameter values from a value, that would be done in this method.
+	 * 
+	 * @param smoothing the Smoothing object to be populated
+	 * @throws PlanItException thrown if there is an error.
+	 */
+	public void populateSmoothing(@Nonnull Smoothing smoothing) throws PlanItException {
+		LOGGER.info("Populating Smoothing");
 	}
 
 }

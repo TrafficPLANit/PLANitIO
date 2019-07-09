@@ -179,6 +179,97 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
+	 * Persist the output data based on the passed in configuration and adapter
+	 * (contained in the configuration)
+	 * 
+	 * @param timePeriod              TimePeriod for the assignment to be saved
+	 * @param modes                   Set of modes for the assignment to be saved
+	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
+	 *                                be saved
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
+		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
+		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
+			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
+					+ " which has not been defined yet");
+		}
+		try {
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
+			boolean isNewTimePeriod = ((metadata == null)
+					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
+			if (isNewTimePeriod) {
+				if (metadata != null) {
+					XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
+				}
+				metadata = new XMLElementMetadata();
+				XMLElementSimulation simulation = new XMLElementSimulation();
+				metadata.setSimulation(simulation);
+				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
+			}
+			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes, traditionalStaticAssignmentLinkOutputAdapter);
+			if (isNewTimePeriod) {
+				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
+						+ xmlNameExtension;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Create the output directories and open the CSV writers
+	 * 
+	 * @throws PlanItException thrown if there is an error or validation failure
+	 *                         during set up of the output formatter
+	 */
+	@Override
+	public void open() throws PlanItException {
+
+		if (xmlOutputDirectory == null) {
+			throw new PlanItException("No common output directory or XML output directory has been defined in the code.");
+		}
+		if (csvOutputDirectory == null) {
+			throw new PlanItException("No common output directory or CSV output directory has been defined in the code.");
+		}
+
+		if (resetXmlOutputDirectory) {
+			createOrOpenOutputDirectory(xmlOutputDirectory);
+			File directory = new File(xmlOutputDirectory);
+			purgeDirectory(directory);
+		}
+
+		if (resetCsvOutputDirectory) {
+			createOrOpenOutputDirectory(csvOutputDirectory);
+			File directory = new File(csvOutputDirectory);
+			purgeDirectory(directory);
+		}
+
+		createOrOpenOutputDirectory(csvOutputDirectory);
+		if (csvSummaryOutputFileName != null) {
+			openCsvSummaryOutputFile();
+		}
+	}
+
+	/**
+	 * Open the CSV Summary Output file and write its header line
+	 * 
+	 * @throws PlanItException thrown if the CSV output file cannot be opened
+	 */
+//TODO - We only create the CSV Summary Output file to create CSV output files whose content can be compared to BasicCsv output.  We will remove this method when this functionality is no longer required.
+	private void openCsvSummaryOutputFile() throws PlanItException {
+		try {
+			csvPrinter = new CSVPrinter(new FileWriter(csvSummaryOutputFileName), CSVFormat.EXCEL);
+			csvPrinter.printRecord("Run Id", "Time Period Id", "Mode Id", "Start Node Id", "End Node Id", "Link Flow",
+					"Capacity", "Length", "Speed", "Link Cost", "Cost to End Node");
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
 	 * Set the values of the version and description properties from a properties
 	 * file
 	 * 
@@ -521,97 +612,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			if (file.isDirectory())
 				purgeDirectory(file);
 			file.delete();
-		}
-	}
-
-	/**
-	 * Persist the output data based on the passed in configuration and adapter
-	 * (contained in the configuration)
-	 * 
-	 * @param timePeriod              TimePeriod for the assignment to be saved
-	 * @param modes                   Set of modes for the assignment to be saved
-	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
-	 *                                be saved
-	 * @throws PlanItException thrown if there is an error
-	 */
-	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
-		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
-		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
-			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
-					+ " which has not been defined yet");
-		}
-		try {
-			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
-			boolean isNewTimePeriod = ((metadata == null)
-					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
-			if (isNewTimePeriod) {
-				if (metadata != null) {
-					XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
-				}
-				metadata = new XMLElementMetadata();
-				XMLElementSimulation simulation = new XMLElementSimulation();
-				metadata.setSimulation(simulation);
-				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
-			}
-			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes, traditionalStaticAssignmentLinkOutputAdapter);
-			if (isNewTimePeriod) {
-				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
-						+ xmlNameExtension;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new PlanItException(e);
-		}
-	}
-
-	/**
-	 * Create the output directories and open the CSV writers
-	 * 
-	 * @throws PlanItException thrown if there is an error or validation failure
-	 *                         during set up of the output formatter
-	 */
-	@Override
-	public void open() throws PlanItException {
-
-		if (xmlOutputDirectory == null) {
-			throw new PlanItException("No common output directory or XML output directory has been defined in the code.");
-		}
-		if (csvOutputDirectory == null) {
-			throw new PlanItException("No common output directory or CSV output directory has been defined in the code.");
-		}
-
-		if (resetXmlOutputDirectory) {
-			createOrOpenOutputDirectory(xmlOutputDirectory);
-			File directory = new File(xmlOutputDirectory);
-			purgeDirectory(directory);
-		}
-
-		if (resetCsvOutputDirectory) {
-			createOrOpenOutputDirectory(csvOutputDirectory);
-			File directory = new File(csvOutputDirectory);
-			purgeDirectory(directory);
-		}
-
-		createOrOpenOutputDirectory(csvOutputDirectory);
-		if (csvSummaryOutputFileName != null) {
-			openCsvSummaryOutputFile();
-		}
-	}
-
-	/**
-	 * Open the CSV Summary Output file and write its header line
-	 * 
-	 * @throws PlanItException thrown if the CSV output file cannot be opened
-	 */
-//TODO - We only create the CSV Summary Output file to create CSV output files whose content can be compared to BasicCsv output.  We will remove this method when this functionality is no longer required.
-	private void openCsvSummaryOutputFile() throws PlanItException {
-		try {
-			csvPrinter = new CSVPrinter(new FileWriter(csvSummaryOutputFileName), CSVFormat.EXCEL);
-			csvPrinter.printRecord("Run Id", "Time Period Id", "Mode Id", "Start Node Id", "End Node Id", "Link Flow",
-					"Capacity", "Length", "Speed", "Link Cost", "Cost to End Node");
-		} catch (Exception e) {
-			throw new PlanItException(e);
 		}
 	}
 

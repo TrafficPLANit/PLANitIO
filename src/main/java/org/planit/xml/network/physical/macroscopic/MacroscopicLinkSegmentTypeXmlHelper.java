@@ -54,23 +54,6 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 	private static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> existingLinks;
 
 	/**
-	 * Constructor
-	 * 
-	 * @param name                  name of the link type
-	 * @param capacityPerLane       capacity per lane
-	 * @param maximumDensityPerLane maximum density per lane
-	 * @param externalId            external Id of the link segment type
-	 */
-	public MacroscopicLinkSegmentTypeXmlHelper(String name, double capacityPerLane, double maximumDensityPerLane,
-			int externalId) {
-		this.name = name;
-		this.capacityPerLane = capacityPerLane;
-		this.maximumDensityPerLane = maximumDensityPerLane;
-		this.externalId = externalId;
-		speedMap = new HashMap<Long, Double>();
-	}
-
-	/**
 	 * Update an existing XmlMacroscopicLinkSegmentType linkSegmentType
 	 * 
 	 * @param linkSegmentType XmlMacroscopicLinkSegmentType linkSegmentType object
@@ -101,12 +84,28 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param name                  name of the link type
+	 * @param capacityPerLane       capacity per lane
+	 * @param maximumDensityPerLane maximum density per lane
+	 * @param externalId            external Id of the link segment type
+	 */
+	public MacroscopicLinkSegmentTypeXmlHelper(String name, double capacityPerLane, double maximumDensityPerLane,
+			int externalId) {
+		this.name = name;
+		this.capacityPerLane = capacityPerLane;
+		this.maximumDensityPerLane = maximumDensityPerLane;
+		this.externalId = externalId;
+		speedMap = new HashMap<Long, Double>();
+	}
+
+	/**
 	 * Reset the store of existing links
 	 */
 	public static void reset() {
 		existingLinks = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 	}
-
 
 	/**
 	 * Create or update an XmlMacroscopicLinkSegmentType object using the input from
