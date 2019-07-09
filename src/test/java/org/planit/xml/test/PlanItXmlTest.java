@@ -3,6 +3,7 @@ package org.planit.xml.test;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.function.BiConsumer;
@@ -12,11 +13,10 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
+import org.planit.cost.physical.InitialLinkSegmentCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
-import org.planit.event.listener.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
-import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -25,7 +25,7 @@ import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.PlanItXMLOutputFormatter;
 import org.planit.output.property.OutputProperty;
-import org.planit.project.CustomPlanItProject;
+import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.BprResultDto;
 import org.planit.test.CsvIoUtils;
@@ -213,31 +213,38 @@ public class PlanItXmlTest {
 	private void runTest(String resultsFileLocation, String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
 		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
-		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, null, null,
-				setCostParameters, description);
+		//InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
+		//runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, null, null,
+		//		setCostParameters, description);
+		runTestFromInputBuilderListener(projectPath, resultsFileLocation, null, null, setCostParameters, description);
 	}
 	
 	private void runTest(String resultsFileLocation, String projectPath, int maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
 		IdGenerator.reset();
-		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
-		runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
-				setCostParameters, description);
+		//InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
+		//runTestFromInputBuilderListener(inputBuilderListener, resultsFileLocation, maxIterations, epsilon,
+		//		setCostParameters, description);
+		runTestFromInputBuilderListener(projectPath, resultsFileLocation, maxIterations, epsilon, setCostParameters, description);
 	}
 	
-	private void runTestFromInputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
+	//private void runTestFromInputBuilderListener(InputBuilderListener inputBuilderListener, String resultsFileLocation,
+	//		Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+	//		String description) throws PlanItException {
+	private void runTestFromInputBuilderListener(String projectPath, String resultsFileLocation,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws PlanItException {
-		CustomPlanItProject project = new CustomPlanItProject(inputBuilderListener);
+		PlanItProject project = new PlanItProject(projectPath);
 
 		// RAW INPUT START --------------------------------
 		PhysicalNetwork physicalNetwork = project
 				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		Zoning zoning = project.createAndRegisterZoning();
 		Demands demands = project.createAndRegisterDemands();
-		//ArrayList<InitialLinkSegmentCost> list = project.createAndRegisterInitialLinkSegmentCosts(file1,file2,file3..);
-		//InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(file1);
+		String initialLinkSegmentFileName1 = "fileName1";
+		String initialLinkSegmentFileName2 = "fileName2";
+		List<InitialLinkSegmentCost> list = project.createAndRegisterInitialLinkSegmentCosts(initialLinkSegmentFileName1, initialLinkSegmentFileName2);
+		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(initialLinkSegmentFileName1);
 		//initialCost.setInitialLinkSegmentCost();
 		// RAW INPUT END -----------------------------------
 

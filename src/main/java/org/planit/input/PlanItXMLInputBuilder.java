@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import org.planit.cost.physical.InitialLinkSegmentCost;
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
@@ -373,8 +374,10 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 				populateZoning((Zoning) projectComponent);
 			} else if (projectComponent instanceof Demands) {
 				populateDemands((Demands) projectComponent);
-			} else if (projectComponent instanceof PhysicalCost) {
-				populatePhysicalCost((PhysicalCost) projectComponent);
+			} else if (projectComponent instanceof InitialLinkSegmentCost) {
+				String fileName = (String) event.getParameter();
+				InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) projectComponent;
+				populateInitialLinkSegmentCost(initialLinkSegmentCost, fileName);
 			} else if (projectComponent instanceof VirtualCost) {
 				populateVirtualCost((VirtualCost) projectComponent);
 			} else if (projectComponent instanceof Smoothing) {
@@ -461,19 +464,13 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	}
 
 	/**
-	 * Handles events for populating the PhysicalCost object
+	 * Populate the initial link segment cost from a CSV file
 	 * 
-	 * At present the creation event is generated but no immediate action is
-	 * required to populate the PhysicalCost object. This is populated later by code
-	 * calls or system defaults, no file reading is required. If we later change to
-	 * reading in cost parameter values from a value, that would be done in this
-	 * method.
-	 * 
-	 * @param physicalCost the PhysicalCost object to be populated
-	 * @throws PlanItException thrown if there is an error.
+	 * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
+	 * @param fileName CSV file containing the initial link segment cost values
 	 */
-	public void populatePhysicalCost(@Nonnull PhysicalCost physicalCost) throws PlanItException {
-		LOGGER.info("Populating Physical Cost");
+	public void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, String fileName) {
+		LOGGER.info("Populating Initial Link Segment Cost - still in development, does nothing yet");
 	}
 
 	/**
