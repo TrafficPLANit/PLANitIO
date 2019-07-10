@@ -3,7 +3,7 @@ package org.planit.project;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.planit.cost.physical.InitialLinkSegmentCost;
+import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.PlanItXMLInputBuilder;
