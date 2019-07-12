@@ -80,7 +80,8 @@ public class ProcessInfrastructure {
 	 * @throws PlanItException
 	 */
 //TODO  - Create some test cases for this, currently no test cases exist for it
-	private static double getLengthFromLineString(double initLength, XMLElementLinks.Link generatedLink) throws PlanItException {
+	private static double getLengthFromLineString(double initLength, XMLElementLinks.Link generatedLink)
+			throws PlanItException {
 		LineStringType lineStringType = generatedLink.getLineString();
 		if (lineStringType != null) {
 			List<Double> posList = lineStringType.getPosList().getValue();
@@ -107,10 +108,11 @@ public class ProcessInfrastructure {
 	 * @param abDirection     direction of travel
 	 * @param linkSegmentType object storing the input values for this link
 	 * @param noLanes         the number of lanes in this link
+	 * @param externalId      the external Id of this link segment
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private static void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection,
-			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes,
+			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes, long externalId,
 			MacroscopicLinkSegmentTypeModeProperties modeProperties) throws PlanItException {
 
 		// create the link and store it in the network object
@@ -118,6 +120,7 @@ public class ProcessInfrastructure {
 				.createDirectionalLinkSegment(link, abDirection);
 		linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
 		linkSegment.setNumberOfLanes(noLanes);
+		linkSegment.setExternalId(externalId);
 		MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
 				.registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
 						linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties)
@@ -136,7 +139,8 @@ public class ProcessInfrastructure {
 	 * @throws PlanItException thrown if there is an error in storing the GML Point
 	 *                         definition
 	 */
-	public static void registerNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network) throws PlanItException {
+	public static void registerNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network)
+			throws PlanItException {
 		for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
 			Node node = new Node();
@@ -160,8 +164,9 @@ public class ProcessInfrastructure {
 	 * @param linkSegmentTypeMap Map of link segment types
 	 * @throws PlanItException thrown if there is an error during processing
 	 */
-	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure, MacroscopicNetwork network,
-			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap) throws PlanItException {
+	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
+			MacroscopicNetwork network, Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap)
+			throws PlanItException {
 		for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
 			long startNodeId = generatedLink.getNodearef().longValue();
 			Node startNode = network.nodes.findNodeByExternalIdentifier(startNodeId);
@@ -180,6 +185,7 @@ public class ProcessInfrastructure {
 				int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
 						: generatedLinkSegment.getNumberoflanes().intValue();
 				int linkType = generatedLinkSegment.getTyperef().intValue();
+				long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
 				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
 				// TODO - We should be able to set the maximum speed for individual link
 				// segments in the network XML file. This is where we would update it. However
@@ -189,7 +195,7 @@ public class ProcessInfrastructure {
 				MacroscopicLinkSegmentTypeModeProperties modeProperties = linkSegmentType
 						.getMacroscopicLinkSegmentTypeModeProperties();
 				boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
-				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, modeProperties);
+				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, linkSegmentExternalId, modeProperties);
 			}
 		}
 	}

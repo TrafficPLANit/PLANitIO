@@ -29,6 +29,7 @@ import org.planit.generated.XMLElementMacroscopicZoning;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
 import org.planit.generated.XMLElementZones.Zone;
+import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
@@ -103,6 +104,8 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 */
 	private Zoning.Zones zones;
 
+	private MacroscopicNetwork.LinkSegments linkSegments;
+	
 	/**
 	 * Default extension for XML input files
 	 */
@@ -149,9 +152,14 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 */
 	private void setInputFiles(String projectPath, String xmlNameExtension) throws PlanItException {
 		String[] xmlFileNames = getXmlFileNames(projectPath, xmlNameExtension);
-		if (!setInputFilesSingleFile(projectPath, xmlFileNames)) {
-			setInputFilesSeparateFiles(projectPath, xmlFileNames);
+		if (setInputFilesSingleFile(xmlFileNames)) {
+			return;
 		}
+		if (setInputFilesSeparateFiles(xmlFileNames)) {
+			return;
+		}
+		throw new PlanItException("The directory " + projectPath
+				+ " does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network.");
 	}
 
 	/**
@@ -185,12 +193,11 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * Checks if a single XML file containing all of network, demand and zoning
 	 * inputs is available, and reads it if it is.
 	 * 
-	 * @param projectPath      the project path directory
-	 * @param xmlNameExtension the extension of the files to search through
+	 * @param xmlFileNames array of names of XML files in the input directory
 	 * @return true if a single file containing all the inputs has been found and
 	 *         read, false otherwise
 	 */
-	private boolean setInputFilesSingleFile(String projectPath, String[] xmlFileNames) {
+	private boolean setInputFilesSingleFile(String[] xmlFileNames) {
 		for (int i = 0; i < xmlFileNames.length; i++) {
 			try {
 				XMLElementPLANit planit = (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class,
@@ -209,12 +216,11 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	/**
 	 * Populate the generated input objects from three separate XML files
 	 * 
-	 * @param projectPath the name of the project path directory
-	 * @throws PlanItException thrown if one or more of the input objects could not
-	 *                         be populated from the XML files in the project
-	 *                         directory
+	 * @param xmlFileNames array of names of XML files in the input directory
+	 * @return true if input demand, zoning and network file are found in
+	 *         xmlFileNames, false otherwise
 	 */
-	private void setInputFilesSeparateFiles(String projectPath, String[] xmlFileNames) throws PlanItException {
+	private boolean setInputFilesSeparateFiles(String[] xmlFileNames) {
 		boolean foundZoningFile = false;
 		boolean foundNetworkFile = false;
 		boolean foundDemandFile = false;
@@ -253,18 +259,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 				}
 			}
 		}
-		if (!foundZoningFile) {
-			throw new PlanItException(
-					"Failed to find a valid zoning input file in the project directory " + projectPath);
-		}
-		if (!foundNetworkFile) {
-			throw new PlanItException(
-					"Failed to find a valid network input file in the project directory " + projectPath);
-		}
-		if (!foundDemandFile) {
-			throw new PlanItException(
-					"Failed to find a valid demand input file in the project directory " + projectPath);
-		}
+		return (foundZoningFile && foundNetworkFile && foundDemandFile);
 	}
 
 	/**
@@ -416,6 +411,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 			throw new PlanItException(ex);
 		}
 		nodes = network.nodes;
+		linkSegments = network.linkSegments;
 	}
 
 	/**
@@ -473,7 +469,6 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 *                               cost values
 	 * @throws PlanItException
 	 */
-//TODO - At present link segments do not have external Ids, so the external Id method of identifying them will not work.
 	@SuppressWarnings("incomplete-switch")
 	private void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, String fileName)
 			throws PlanItException {
@@ -494,19 +489,25 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 			String downstreamNodeExternalIdHeader = (new DownstreamNodeExternalIdOutputProperty()).getName();
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
+				Mode mode = Mode.getByExternalId(modeExternalId);
 				double cost = Double.parseDouble(record.get(costHeader));
+				LinkSegment linkSegment = null;
 				switch (linkIdentificationMethod) {
 				case LINK_SEGMENT_ID:
 					long linkSegmentId = Long.parseLong(record.get(linkSegmentIdHeader));
+					linkSegment = linkSegments.getLinkSegment(linkSegmentId);
 					break;
 				case LINK_SEGMENT_EXTERNAL_ID:
 					long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
+					linkSegment = linkSegments.getLinkSegmentByExternalId(linkSegmentExternalId);
 					break;
 				case NODE_EXTERNAL_ID:
 					long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
-					long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
+					long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));					
+					linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
 					break;
 				}
+				initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
 			}
 
 		} catch (Exception ex) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.physical.PhysicalCost;
+import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
@@ -15,12 +15,12 @@ public class PlanItProject extends CustomPlanItProject {
     /**
      * Object factory for physical costs
      */
-    protected TrafficAssignmentComponentFactory<PhysicalCost> physicalCostFactory;
+    protected TrafficAssignmentComponentFactory<InitialPhysicalCost> initialPhysicalCostFactory;
     
 	public PlanItProject(String projectPath) throws PlanItException {
 		super(new PlanItXMLInputBuilder(projectPath));
-    	physicalCostFactory = new TrafficAssignmentComponentFactory<PhysicalCost>(PhysicalCost.class);
-        physicalCostFactory.setEventManager(eventManager);
+		initialPhysicalCostFactory = new TrafficAssignmentComponentFactory<InitialPhysicalCost>(InitialPhysicalCost.class);
+		initialPhysicalCostFactory.setEventManager(eventManager);
 	}
 	
 	public List<InitialLinkSegmentCost> createAndRegisterInitialLinkSegmentCosts(String ...fileName) throws PlanItException {
@@ -32,7 +32,7 @@ public class PlanItProject extends CustomPlanItProject {
 	}
 	
 	public InitialLinkSegmentCost createAndRegisterInitialLinkSegmentCost(String fileName) throws PlanItException {
-		InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) physicalCostFactory.create(InitialLinkSegmentCost.class.getCanonicalName(), fileName);
+		InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) initialPhysicalCostFactory.create(InitialLinkSegmentCost.class.getCanonicalName(), fileName);
 		return initialLinkSegmentCost;
 	}
 	

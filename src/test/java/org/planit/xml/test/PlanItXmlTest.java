@@ -1,7 +1,5 @@
 package org.planit.xml.test;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -15,7 +13,6 @@ import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
-import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -37,6 +34,9 @@ import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
 import org.planit.zoning.Zoning;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class PlanItXmlTest {
 
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlTest.class.getName());
@@ -57,8 +57,8 @@ public class PlanItXmlTest {
 	@Test
 	public void testBasic1() {
 		try {
-			runTest("src\\test\\resources\\basic\\xml\\test1\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test1", null, "testBasic1");
+			runTest("src\\test\\resources\\basic\\xml\\test1\\results.csv", "src\\test\\resources\\basic\\xml\\test1",
+					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv", null, "testBasic1");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -68,8 +68,8 @@ public class PlanItXmlTest {
 	@Test
 	public void testBasic2() {
 		try {
-			runTest("src\\test\\resources\\basic\\xml\\test2\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test2", null, "testBasic2");
+			runTest("src\\test\\resources\\basic\\xml\\test2\\results.csv", "src\\test\\resources\\basic\\xml\\test2",
+					null, "testBasic2");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -79,8 +79,8 @@ public class PlanItXmlTest {
 	@Test
 	public void testBasic3() {
 		try {
-			runTest("src\\test\\resources\\basic\\xml\\test3\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test3", null, "testBasic3");
+			runTest("src\\test\\resources\\basic\\xml\\test3\\results.csv", "src\\test\\resources\\basic\\xml\\test3",
+					null, "testBasic3");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -90,8 +90,8 @@ public class PlanItXmlTest {
 	@Test
 	public void testBasic13() {
 		try {
-			runTest("src\\test\\resources\\basic\\xml\\test13\\results.csv",
-					"src\\test\\resources\\basic\\xml\\test13", null, "testBasic13");
+			runTest("src\\test\\resources\\basic\\xml\\test13\\results.csv", "src\\test\\resources\\basic\\xml\\test13",
+					null, "testBasic13");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -192,38 +192,47 @@ public class PlanItXmlTest {
 			fail(e.getMessage());
 		}
 	}
-
 /*
 	@Test
-	public void testValidateDemands() {
-		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\demands.xml", "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd"));
+	public void testValidateInputs1() {
+		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
+				"src\\test\\resources\\basic\\xml\\test1\\macroscopicinput.xml",
+				"src\\main\\resources\\xsd\\macroscopicinput.xsd"));
 	}
 
 	@Test
-	public void testValidateZoning() {
-		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\zones.xml", "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd"));
+	public void testValidateInputs2() {
+		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
+				"src\\test\\resources\\basic\\xml\\test2\\macroscopicinput.xml",
+				"src\\main\\resources\\xsd\\macroscopicinput.xsd"));
 	}
 
 	@Test
-	public void testValidateNetwork() {
-		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile("src\\test\\resources\\basic\\xml\\test1\\network.xml", "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd"));
+	public void testValidateInputs3() {
+		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
+				"src\\test\\resources\\basic\\xml\\test3\\macroscopicinput.xml",
+				"src\\main\\resources\\xsd\\macroscopicinput.xsd"));
 	}
 */
-	private void runTest(String resultsFileLocation, String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
-		IdGenerator.reset();
-		runTestFromInputBuilderListener(projectPath, resultsFileLocation, null, null, setCostParameters, description);
+	private void runTest(String resultsFileLocation, String projectPath,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		runTest(resultsFileLocation, projectPath, null, null, null, setCostParameters, description);
 	}
-	
-	private void runTest(String resultsFileLocation, String projectPath, int maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
-		IdGenerator.reset();
-		runTestFromInputBuilderListener(projectPath, resultsFileLocation, maxIterations, epsilon, setCostParameters, description);
+
+	private void runTest(String resultsFileLocation, String projectPath, String initialCostsFileLocation,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		runTest(resultsFileLocation, projectPath, initialCostsFileLocation, null, null, setCostParameters, description);
 	}
-	
-	private void runTestFromInputBuilderListener(String projectPath, String resultsFileLocation,
+
+	private void runTest(String resultsFileLocation, String projectPath, Integer maxIterations, Double epsilon,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		runTest(resultsFileLocation, projectPath, null, maxIterations, epsilon, setCostParameters, description);
+	}
+
+	private void runTest(String resultsFileLocation, String projectPath, String initialCostsFileLocation,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws PlanItException {
+			String description) throws Exception {
+		IdGenerator.reset();
 		PlanItProject project = new PlanItProject(projectPath);
 
 		// RAW INPUT START --------------------------------
@@ -231,11 +240,10 @@ public class PlanItXmlTest {
 				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		Zoning zoning = project.createAndRegisterZoning();
 		Demands demands = project.createAndRegisterDemands();
-		String initialLinkSegmentFileName1 = "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv";
-		//String initialLinkSegmentFileName2 = "fileName2";
-		//List<InitialLinkSegmentCost> list = project.createAndRegisterInitialLinkSegmentCosts(initialLinkSegmentFileName1, initialLinkSegmentFileName2);
-		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(initialLinkSegmentFileName1);
-		//initialCost.setInitialLinkSegmentCost();
+		// List<InitialLinkSegmentCost> list =
+		// project.createAndRegisterInitialLinkSegmentCosts(initialLinkSegmentFileName1,
+		// initialLinkSegmentFileName2);
+		// initialCost.setInitialLinkSegmentCost();
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
@@ -249,6 +257,11 @@ public class PlanItXmlTest {
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+		if (initialCostsFileLocation != null) {
+			InitialLinkSegmentCost initialCost = project
+					.createAndRegisterInitialLinkSegmentCost(initialCostsFileLocation);
+			taBuilder.registerInitialLinkSegmentCost(initialCost);
+		}
 		if (setCostParameters != null) {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
@@ -258,21 +271,22 @@ public class PlanItXmlTest {
 				.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 		// SUPPLY-DEMAND INTERFACE
 		taBuilder.registerZoning(zoning);
-		taBuilder.registerInitialLinkSegmentCost(initialCost);
 
 		// DEMAND SIDE
 		taBuilder.registerDemands(demands);
 
-		//DATA OUTPUT CONFIGURATION
+		// DATA OUTPUT CONFIGURATION
 		assignment.activateOutput(OutputType.LINK);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);		
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration
+				.getOutputTypeConfiguration(OutputType.LINK);
 		linkOutputTypeConfiguration.addAllProperties();
 		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
-		
-		//OUTPUT FORMAT CONFIGURATION
-		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+
+		// OUTPUT FORMAT CONFIGURATION
+		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
+				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
 		xmlOutputFormatter.setCsvSummaryOutputFileName(CSV_TEST_RESULTS_LOCATION);
 		if (clearOutputDirectories) {
 			xmlOutputFormatter.resetXmlOutputDirectory();

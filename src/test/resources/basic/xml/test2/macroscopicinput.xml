@@ -2,32 +2,6 @@
 	xmlns:xml="http://www.w3.org/XML/1998/namespace"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopicinput.xsd">
-	<macroscopicdemand>
-
-		<demandconfiguration>
-			<userclasses>
-				<userclass id="1" moderef="1">
-					<name>1</name>
-				</userclass>
-			</userclasses>
-			<timeperiods>
-				<timeperiod id="0">
-					<name>Time Period 1</name>
-					<starttime>00:00:01</starttime>
-					<duration>86400</duration>
-				</timeperiod>
-			</timeperiods>
-		</demandconfiguration>
-
-		<oddemands>
-			<odcellbycellmatrix timeperiodref="0"
-				userclassref="1">
-				<o ref="1">
-					<d ref="2">1</d>
-				</o>
-			</odcellbycellmatrix>
-		</oddemands>
-	</macroscopicdemand>
 	<macroscopicnetwork>
 		<linkconfiguration>
 			<modes>
@@ -471,5 +445,29 @@
 			</zone>
 		</zones>
 	</macroscopiczoning>
+	<macroscopicdemand>
+		<demandconfiguration>
+			<userclasses>
+				<userclass id="1" moderef="1">
+					<name>1</name>
+				</userclass>
+			</userclasses>
+			<timeperiods>
+				<timeperiod id="0">
+					<name>Time Period 1</name>
+					<starttime>00:00:01</starttime>
+					<duration>86400</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
 
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0"
+				userclassref="1">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
 </PLANit>
