@@ -1,6 +1,7 @@
 package org.planit.xml.test;
 
 import java.io.File;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.function.BiConsumer;
@@ -59,6 +60,18 @@ public class PlanItXmlTest {
 		try {
 			runTest("src\\test\\resources\\basic\\xml\\test1\\results.csv", "src\\test\\resources\\basic\\xml\\test1",
 					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv", null, "testBasic1");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testBasic1TwoInitialCostFiles() {
+		try {
+			runTest("src\\test\\resources\\basic\\xml\\test1\\results.csv", "src\\test\\resources\\basic\\xml\\test1",
+					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
+					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, null, "testBasic1");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -192,46 +205,48 @@ public class PlanItXmlTest {
 			fail(e.getMessage());
 		}
 	}
-/*
-	@Test
-	public void testValidateInputs1() {
-		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
-				"src\\test\\resources\\basic\\xml\\test1\\macroscopicinput.xml",
-				"src\\main\\resources\\xsd\\macroscopicinput.xsd"));
-	}
 
-	@Test
-	public void testValidateInputs2() {
-		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
-				"src\\test\\resources\\basic\\xml\\test2\\macroscopicinput.xml",
-				"src\\main\\resources\\xsd\\macroscopicinput.xsd"));
-	}
-
-	@Test
-	public void testValidateInputs3() {
-		assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
-				"src\\test\\resources\\basic\\xml\\test3\\macroscopicinput.xml",
-				"src\\main\\resources\\xsd\\macroscopicinput.xsd"));
-	}
-*/
+	/*
+	 * @Test public void testValidateInputs1() {
+	 * assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
+	 * "src\\test\\resources\\basic\\xml\\test1\\macroscopicinput.xml",
+	 * "src\\main\\resources\\xsd\\macroscopicinput.xsd")); }
+	 * 
+	 * @Test public void testValidateInputs2() {
+	 * assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
+	 * "src\\test\\resources\\basic\\xml\\test2\\macroscopicinput.xml",
+	 * "src\\main\\resources\\xsd\\macroscopicinput.xsd")); }
+	 * 
+	 * @Test public void testValidateInputs3() {
+	 * assertTrue(PlanItXMLInputBuilder.validateXmlInputFile(
+	 * "src\\test\\resources\\basic\\xml\\test3\\macroscopicinput.xml",
+	 * "src\\main\\resources\\xsd\\macroscopicinput.xsd")); }
+	 */
 	private void runTest(String resultsFileLocation, String projectPath,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		runTest(resultsFileLocation, projectPath, null, null, null, setCostParameters, description);
+		runTest(resultsFileLocation, projectPath, null, null, 0, null, null, setCostParameters, description);
 	}
 
 	private void runTest(String resultsFileLocation, String projectPath, String initialCostsFileLocation,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		runTest(resultsFileLocation, projectPath, initialCostsFileLocation, null, null, setCostParameters, description);
+		runTest(resultsFileLocation, projectPath, initialCostsFileLocation, null, 0, null, null, setCostParameters,
+				description);
+	}
+
+	private void runTest(String resultsFileLocation, String projectPath, String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		runTest(resultsFileLocation, projectPath, initialCostsFileLocation1, initialCostsFileLocation2, initCostsFilePos, null, null, setCostParameters,
+				description);
 	}
 
 	private void runTest(String resultsFileLocation, String projectPath, Integer maxIterations, Double epsilon,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		runTest(resultsFileLocation, projectPath, null, maxIterations, epsilon, setCostParameters, description);
+		runTest(resultsFileLocation, projectPath, null, null, 0, maxIterations, epsilon, setCostParameters, description);
 	}
 
-	private void runTest(String resultsFileLocation, String projectPath, String initialCostsFileLocation,
-			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
+	private void runTest(String resultsFileLocation, String projectPath, String initialCostsFileLocation1,
+			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		IdGenerator.reset();
 		PlanItProject project = new PlanItProject(projectPath);
 
@@ -240,10 +255,6 @@ public class PlanItXmlTest {
 				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		Zoning zoning = project.createAndRegisterZoning();
 		Demands demands = project.createAndRegisterDemands();
-		// List<InitialLinkSegmentCost> list =
-		// project.createAndRegisterInitialLinkSegmentCosts(initialLinkSegmentFileName1,
-		// initialLinkSegmentFileName2);
-		// initialCost.setInitialLinkSegmentCost();
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
@@ -257,10 +268,16 @@ public class PlanItXmlTest {
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
-		if (initialCostsFileLocation != null) {
-			InitialLinkSegmentCost initialCost = project
-					.createAndRegisterInitialLinkSegmentCost(initialCostsFileLocation);
-			taBuilder.registerInitialLinkSegmentCost(initialCost);
+		if (initialCostsFileLocation1 != null) {
+			if (initialCostsFileLocation2 != null) {
+				List<InitialLinkSegmentCost> initialCosts = project
+						.createAndRegisterInitialLinkSegmentCosts(initialCostsFileLocation1, initialCostsFileLocation2);
+				taBuilder.registerInitialLinkSegmentCost(initialCosts.get(initCostsFilePos)); 
+			} else {
+				InitialLinkSegmentCost initialCost = project
+						.createAndRegisterInitialLinkSegmentCost(initialCostsFileLocation1);
+				taBuilder.registerInitialLinkSegmentCost(initialCost);
+			}
 		}
 		if (setCostParameters != null) {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);

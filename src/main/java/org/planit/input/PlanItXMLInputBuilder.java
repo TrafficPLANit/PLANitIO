@@ -104,8 +104,12 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 */
 	private Zoning.Zones zones;
 
+	/**
+	 * Link segments object, which is read in from the network input and used by the
+	 * initial costs input
+	 */
 	private MacroscopicNetwork.LinkSegments linkSegments;
-	
+
 	/**
 	 * Default extension for XML input files
 	 */
@@ -115,6 +119,13 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * The default separator that is assumed when no separator is provided
 	 */
 	public static final String DEFAULT_SEPARATOR = ",";
+
+	/**
+	 * Default XSD files used to validate input XML files against
+	 */
+	private static final String NETWORK_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd";
+	private static final String ZONING_XSD_FILE = "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd";
+	private static final String DEMAND_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd";
 
 	/**
 	 * Populate the input objects from specified XML files
@@ -289,24 +300,21 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 				LOGGER.info("File " + xmlFileNames[i] + " exists but was not parsed.");
 			}
 			if (!foundZoningFile) {
-				foundZoningFile = validateXmlInputFile(xmlFileNames[i],
-						"src\\main\\resources\\xsd\\macroscopiczoninginput.xsd");
+				foundZoningFile = validateXmlInputFile(xmlFileNames[i], ZONING_XSD_FILE);
 				if (foundZoningFile) {
 					zoningFileName = xmlFileNames[i];
 					LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");
 				}
 			}
 			if (!foundNetworkFile) {
-				foundNetworkFile = validateXmlInputFile(xmlFileNames[i],
-						"src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd");
+				foundNetworkFile = validateXmlInputFile(xmlFileNames[i], NETWORK_XSD_FILE);
 				if (foundNetworkFile) {
 					networkFileName = xmlFileNames[i];
 					LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
 				}
 			}
 			if (!foundDemandFile) {
-				foundDemandFile = validateXmlInputFile(xmlFileNames[i],
-						"src\\main\\resources\\xsd\\macroscopicdemandinput.xsd");
+				foundDemandFile = validateXmlInputFile(xmlFileNames[i], DEMAND_XSD_FILE);
 				if (foundDemandFile) {
 					demandFileName = xmlFileNames[i];
 					LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");
@@ -503,8 +511,9 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 					break;
 				case NODE_EXTERNAL_ID:
 					long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
-					long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));					
-					linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
+					long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
+					linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId,
+							downstreamNodeExternalId);
 					break;
 				}
 				initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
@@ -618,7 +627,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 			populateSmoothing((Smoothing) projectComponent);
 		} else {
 			LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
-					+ " which is not handled by BascCsvScan");
+					+ " which is not handled by PlanItXMLInputBuilder");
 		}
 	}
 }
