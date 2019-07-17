@@ -81,12 +81,14 @@ public interface XmlUtils {
 	 * @throws Exception thrown if the XML file is invalid or cannot be opened
 	 */
 	public static Object generateObjectFromXml(Class<?> clazz, String xmlFileLocation) throws Exception {
+		FileReader fileReader = new FileReader(xmlFileLocation);
+		XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+		XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(fileReader);
 		JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-		XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-		XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(new FileReader(xmlFileLocation));
 		Object obj = unmarshaller.unmarshal(xmlStreamReader);
 		xmlStreamReader.close();
+		fileReader.close();
 		return obj;
 	}
 
@@ -102,11 +104,12 @@ public interface XmlUtils {
 	 */
 	public static void generateXmlFileFromObject(Object object, Class<?> clazz, String xmlFileLocation)
 			throws Exception {
-		XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 		FileWriter fileWriter = new FileWriter(xmlFileLocation);
+		XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 		XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(fileWriter);
 		generateXmlFileFromObject(object, clazz, xmlStreamWriter);
 		xmlStreamWriter.close();
+		fileWriter.close();
 	}
 
 	/**

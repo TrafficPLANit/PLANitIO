@@ -190,7 +190,7 @@
 				<linksegment id="31" dir="a_b" typeref="1">
 					<numberoflanes>1</numberoflanes>
 				</linksegment>
-				<linksegment id="31" dir="b_a" typeref="1">
+				<linksegment id="32" dir="b_a" typeref="1">
 					<numberoflanes>1</numberoflanes>
 				</linksegment>
 				<length>40</length>

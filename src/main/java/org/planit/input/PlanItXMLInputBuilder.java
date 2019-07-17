@@ -44,6 +44,7 @@ import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXml
 import org.planit.xml.util.XmlUtils;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
+import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.CostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
@@ -481,6 +482,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	private void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, String fileName)
 			throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
+		initialLinkSegmentCost.setNoLinkSegments(linkSegments.getNumberOfLinkSegments());
 		try {
 			Reader in = new FileReader(fileName);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
@@ -489,12 +491,28 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 			if (linkIdentificationMethod == LinkIdentificationMethod.UNDEFINED) {
 				throw new PlanItException("The headers in file " + fileName + " are not valid.");
 			}
-			String modeHeader = (new ModeExternalIdOutputProperty()).getName();
-			String costHeader = (new CostOutputProperty()).getName();
-			String linkSegmentIdHeader = (new LinkSegmentIdOutputProperty()).getName();
-			String linkSegmentExternalIdHeader = (new LinkSegmentExternalIdOutputProperty()).getName();
-			String upstreamNodeExternalIdHeader = (new UpstreamNodeExternalIdOutputProperty()).getName();
-			String downstreamNodeExternalIdHeader = (new DownstreamNodeExternalIdOutputProperty()).getName();
+			String modeHeader = BaseOutputProperty.MODE_EXTERNAL_ID;
+			String costHeader =  BaseOutputProperty.COST;
+			String linkSegmentIdHeader = BaseOutputProperty.LINK_SEGMENT_ID;
+			String linkSegmentExternalIdHeader = BaseOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
+			String upstreamNodeExternalIdHeader = BaseOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
+			String downstreamNodeExternalIdHeader =  BaseOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
+			switch (linkIdentificationMethod) {
+			case LINK_SEGMENT_ID:
+				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.LINK_SEGMENT_ID,
+						parser.getHeaderMap().get(linkSegmentIdHeader));
+				break;
+			case LINK_SEGMENT_EXTERNAL_ID:
+				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
+						parser.getHeaderMap().get(linkSegmentExternalIdHeader));
+				break;
+			case NODE_EXTERNAL_ID:
+				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID,
+						parser.getHeaderMap().get(upstreamNodeExternalIdHeader));
+				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
+						parser.getHeaderMap().get(downstreamNodeExternalIdHeader));
+				break;
+			}
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);
