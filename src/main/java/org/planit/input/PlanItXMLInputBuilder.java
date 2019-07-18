@@ -536,7 +536,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 				}
 				initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
 			}
-
+			in.close();
 		} catch (Exception ex) {
 			throw new PlanItException(ex);
 		}
