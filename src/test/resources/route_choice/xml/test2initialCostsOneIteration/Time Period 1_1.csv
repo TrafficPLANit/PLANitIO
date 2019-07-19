@@ -1,5 +1,5 @@
 Link Segment Id,Mode External Id,Mode Id,Node Downstream External Id,Node Upstream External Id,Capacity per Lane,Downstream Node Location,Length,Upstream Node Location,Cost,Density,Flow,Speed
-0,1,0,1,11,1200.0,Not Specified,1.0,Not Specified,0.05,180.0,3600.0,20.0
-2,1,0,12,4,1200.0,Not Specified,1.0,Not Specified,0.05,180.0,3600.0,20.0
-3,1,0,2,1,1200.0,Not Specified,2.0,Not Specified,0.01,180.0,3600.0,200.0
-4,1,0,4,2,1200.0,Not Specified,2.0,Not Specified,0.01,180.0,3600.0,200.0
+0,1,0,1,11,1200.0000000,Not Specified,1.0000000,Not Specified,0.0500000,180.0000000,3600.0000000,20.0000000
+2,1,0,12,4,1200.0000000,Not Specified,1.0000000,Not Specified,0.0500000,180.0000000,3600.0000000,20.0000000
+3,1,0,2,1,1200.0000000,Not Specified,2.0000000,Not Specified,0.0100000,180.0000000,3600.0000000,200.0000000
+4,1,0,4,2,1200.0000000,Not Specified,2.0000000,Not Specified,0.0100000,180.0000000,3600.0000000,200.0000000

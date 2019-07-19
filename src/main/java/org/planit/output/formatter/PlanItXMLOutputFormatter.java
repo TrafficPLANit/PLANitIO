@@ -378,7 +378,13 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 					if (outputAdapter.isFlowPositive(linkSegment, mode)) {
 						List<Object> row = new ArrayList<Object>();
 						outputProperties.forEach(outputProperty -> {
-							row.add(outputAdapter.getPropertyValue(outputProperty, linkSegment, mode));
+							Object outValue = outputAdapter.getPropertyValue(outputProperty, linkSegment, mode);
+							if (outValue instanceof Double) {
+								double outDouble = (double) outValue;
+								outValue = String.format("%.7f", outDouble);
+							}
+							//row.add(outputAdapter.getPropertyValue(outputProperty, linkSegment, mode));
+							row.add(outValue);
 						});
 						csvIterationPrinter.printRecord(row);
 					}

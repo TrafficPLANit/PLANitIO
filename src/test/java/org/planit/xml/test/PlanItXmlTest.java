@@ -280,8 +280,8 @@ public class PlanItXmlTest {
 
 		project.executeAllTrafficAssignments();
 	}
-	
-	private void runAssertionsAndCleanUp(String projectPath, String description, String csvFileName, String xmlFileName) 
+
+	private void runAssertionsAndCleanUp(String projectPath, String description, String csvFileName, String xmlFileName)
 			throws Exception {
 		assertTrue(
 				compareFiles(projectPath + "\\" + csvFileName, projectPath + "\\" + description + "_" + csvFileName));
@@ -290,7 +290,7 @@ public class PlanItXmlTest {
 		deleteFile(projectPath, description, csvFileName);
 		deleteFile(projectPath, description, xmlFileName);
 	}
-	
+
 	@Test
 	public void testInitialCostValues() throws PlanItException {
 		String projectPath = "src\\test\\resources\\initial_costs\\xml\\test1";
@@ -311,13 +311,14 @@ public class PlanItXmlTest {
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = BaseOutputProperty.MODE_EXTERNAL_ID;
 			String linkSegmentExternalIdHeader = BaseOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
-			String costHeader =  BaseOutputProperty.COST;
+			String costHeader = BaseOutputProperty.COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);
 				double cost = Double.parseDouble(record.get(costHeader));
 				long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-				LinkSegment linkSegment = physicalNetwork.linkSegments.getLinkSegmentByExternalId(linkSegmentExternalId);
+				LinkSegment linkSegment = physicalNetwork.linkSegments
+						.getLinkSegmentByExternalId(linkSegmentExternalId);
 				assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
 			}
 			in.close();
@@ -346,21 +347,35 @@ public class PlanItXmlTest {
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = BaseOutputProperty.MODE_EXTERNAL_ID;
 			String upstreamNodeExternalIdHeader = BaseOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
-			String downstreamNodeExternalIdHeader =  BaseOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
-			String costHeader =  BaseOutputProperty.COST;
+			String downstreamNodeExternalIdHeader = BaseOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
+			String costHeader = BaseOutputProperty.COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);
 				double cost = Double.parseDouble(record.get(costHeader));
 				long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
 				long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
-				LinkSegment linkSegment = physicalNetwork.linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId,
-						downstreamNodeExternalId);
+				LinkSegment linkSegment = physicalNetwork.linkSegments
+						.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
 				assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
 			}
 			in.close();
 		} catch (Exception ex) {
 			throw new PlanItException(ex);
+		}
+	}
+
+	@Test
+	public void testInitialCostValuesMissingColumns() throws PlanItException {
+		try {
+			String projectPath = "src\\test\\resources\\initial_costs\\xml\\test2";
+			String description = "testBasic1";
+			runTest(projectPath,
+					"src\\test\\resources\\initial_costs\\xml\\test2\\initial_link_segment_costs_external_id.csv", null,
+					description);
+			fail("RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
+		} catch (Exception e) {
+			assertTrue(true);
 		}
 	}
 
@@ -484,7 +499,9 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice2initialCosts";
 			String csvFileName = "Time Period 1_1.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, "src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv", null, 0, 1, 0.0, null, description);
+			runTest(projectPath,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
+					null, 0, 1, 0.0, null, description);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -499,7 +516,9 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice2initialCosts";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, "src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv", null, 0, 500, 0.0, null, description);
+			runTest(projectPath,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
+					null, 0, 500, 0.0, null, description);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
