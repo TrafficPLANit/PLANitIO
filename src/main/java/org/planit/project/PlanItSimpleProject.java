@@ -4,9 +4,9 @@ import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 import org.planit.exceptions.PlanItException;
-import org.planit.input.PlanItXMLInputBuilder;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.output.formatter.PlanItXMLOutputFormatter;
+import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 
 /**

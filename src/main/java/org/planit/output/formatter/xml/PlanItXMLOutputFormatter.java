@@ -1,4 +1,4 @@
-package org.planit.output.formatter;
+package org.planit.output.formatter.xml;
 
 import java.io.File;
 import java.io.FileWriter;

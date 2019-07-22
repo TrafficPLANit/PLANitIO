@@ -14,10 +14,10 @@ import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementOdRawMatrix;
 import org.planit.generated.XMLElementOdRowMatrix;
 import org.planit.generated.XMLElementOdRawMatrix.Values;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
-import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.zoning.Zoning.Zones;
 
 /**

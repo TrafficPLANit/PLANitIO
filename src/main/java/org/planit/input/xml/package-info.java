@@ -4,4 +4,4 @@
  * @author markr
  *
  */
-package org.planit.input;
+package org.planit.input.xml;

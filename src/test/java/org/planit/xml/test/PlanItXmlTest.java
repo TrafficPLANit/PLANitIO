@@ -35,7 +35,7 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
-import org.planit.output.formatter.PlanItXMLOutputFormatter;
+import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.PlanItProject;

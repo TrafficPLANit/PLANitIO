@@ -1,4 +1,4 @@
-package org.planit.input;
+package org.planit.input.xml;
 
 import java.io.File;
 import java.io.FileReader;
@@ -18,7 +18,7 @@ import org.planit.cost.physical.initial.LinkIdentificationMethod;
 import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
-import org.planit.event.listener.InputBuilderListener;
+import org.planit.input.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementInfrastructure;
@@ -45,13 +45,7 @@ import org.planit.xml.util.XmlUtils;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
 import org.planit.output.property.BaseOutputProperty;
-import org.planit.output.property.CostOutputProperty;
-import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
-import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
-import org.planit.output.property.LinkSegmentIdOutputProperty;
-import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
-import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 
 /**
  * Class which reads inputs from XML input files

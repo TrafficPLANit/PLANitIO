@@ -5,16 +5,16 @@ import java.util.logging.Logger;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
-import org.planit.event.listener.InputBuilderListener;
+import org.planit.input.InputBuilderListener;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.exceptions.PlanItException;
-import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
-import org.planit.output.formatter.PlanItXMLOutputFormatter;
+import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
@@ -34,7 +34,6 @@ public class PlanItXmlMain {
 
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
 
-	private String csvResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test1\\results.csv";
 	private String projectPath = "src\\test\\resources\\route_choice\\xml\\test1";
 	private int maxIterations = 500;
 	private double epsilon = 0.00;

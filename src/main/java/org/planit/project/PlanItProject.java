@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.exceptions.PlanItException;
-import org.planit.input.PlanItXMLInputBuilder;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
 
 public class PlanItProject extends CustomPlanItProject {
