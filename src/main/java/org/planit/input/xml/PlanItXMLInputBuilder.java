@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.planit.cost.physical.DynamicPhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.LinkIdentificationMethod;
 import org.planit.cost.virtual.VirtualCost;
@@ -473,9 +474,10 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @throws PlanItException
 	 */
 	@SuppressWarnings("incomplete-switch")
-	private void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, String fileName)
+	private void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter)
 			throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
+		String fileName = (String) parameter;
 		initialLinkSegmentCost.setNoLinkSegments(linkSegments.getNumberOfLinkSegments());
 		try {
 			Reader in = new FileReader(fileName);
@@ -536,6 +538,21 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		}
 	}
 
+	/**
+	 * Handles events for populating Dynamic Physical Cost
+	 * 
+	 * At present we only use BPRLinkTravelTimeCost and its default parameters are set later using
+	 * its setDefaultParameters() methods, so no action is needed here.  If we later want to run
+	 * some actions on creation of the dynamic physical costs, they would be called in this method.
+	 * 
+	 * @param dynamicPhysicalCost the DynamicPhysicalCost object to be populated
+	 * @throws PlanItException thrown if there is an error
+	 */
+	private void populateDynamicPhysicalCost(@Nonnull DynamicPhysicalCost dynamicPhysicalCost) throws PlanItException {
+		LOGGER.info("Populating Dynamic Physical Cost");
+	}
+
+	
 	/**
 	 * Handles events for populating the VirtualCost object
 	 * 
@@ -615,8 +632,6 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * Handles creation events for network, zones, demands and travel time
 	 * parameters
 	 * 
-	 * We only handle BPR travel time functions at this stage.
-	 * 
 	 * @param event object creation event
 	 * @throws PlanItException captures any exception thrown during creation events
 	 */
@@ -630,15 +645,15 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		} else if (projectComponent instanceof Demands) {
 			populateDemands((Demands) projectComponent);
 		} else if (projectComponent instanceof InitialLinkSegmentCost) {
-			String fileName = (String) event.getParameter();
-			InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) projectComponent;
-			populateInitialLinkSegmentCost(initialLinkSegmentCost, fileName);
+			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter());
+		} else if (projectComponent instanceof DynamicPhysicalCost) {
+			populateDynamicPhysicalCost((DynamicPhysicalCost) projectComponent);
 		} else if (projectComponent instanceof VirtualCost) {
 			populateVirtualCost((VirtualCost) projectComponent);
 		} else if (projectComponent instanceof Smoothing) {
 			populateSmoothing((Smoothing) projectComponent);
 		} else {
-			LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
+			LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
 					+ " which is not handled by PlanItXMLInputBuilder");
 		}
 	}

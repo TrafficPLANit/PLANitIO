@@ -441,7 +441,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
 		XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
 		outputconfiguration.setAssignment(getClassName(outputAdapter.getTrafficAssignment()));
-		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getPhysicalCost()));
+		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getDynamicPhysicalCost()));
 		outputconfiguration.setVirtualcost(getClassName(outputAdapter.getTrafficAssignment().getVirtualCost()));
 		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
 		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));

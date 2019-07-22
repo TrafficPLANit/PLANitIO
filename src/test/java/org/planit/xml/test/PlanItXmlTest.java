@@ -223,7 +223,7 @@ public class PlanItXmlTest {
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+				.createAndRegisterDynamicPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
 		if (initialCostsFileLocation1 != null) {
 			if (initialCostsFileLocation2 != null) {
 				List<InitialLinkSegmentCost> initialCosts = project

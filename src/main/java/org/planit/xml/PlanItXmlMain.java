@@ -89,7 +89,7 @@ public class PlanItXmlMain {
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+				.createAndRegisterDynamicPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
 		MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 		MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
 				.findMacroscopicLinkSegmentTypeByExternalId(1);
