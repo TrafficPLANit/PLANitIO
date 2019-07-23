@@ -13,12 +13,10 @@ import javax.annotation.Nonnull;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.planit.cost.physical.DynamicPhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
+import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.cost.physical.initial.LinkIdentificationMethod;
-import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
-import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.input.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
@@ -31,10 +29,10 @@ import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
 import org.planit.generated.XMLElementZones.Zone;
 import org.planit.network.physical.LinkSegment;
+import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
-import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
@@ -54,7 +52,7 @@ import org.planit.output.property.OutputProperty;
  * @author gman6028
  *
  */
-public class PlanItXMLInputBuilder implements InputBuilderListener {
+public class PlanItXMLInputBuilder extends InputBuilderListener {
 
 	/**
 	 * Logger for this class
@@ -395,14 +393,15 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	/**
 	 * Creates the physical network object from the data in the input file
 	 * 
-	 * @param network the physical network object to be populated from the input
+	 * @param physicalNetwork the physical network object to be populated from the input
 	 *                data
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	private void populateNetwork(@Nonnull MacroscopicNetwork network) throws PlanItException {
+	protected void populatePhysicalNetwork(@Nonnull PhysicalNetwork physicalNetwork) throws PlanItException {
 
 		LOGGER.info("Populating Network");
 
+		MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
 		try {
 			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
 			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
@@ -424,7 +423,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @param zoning the Zoning object to be populated from the input data
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	private void populateZoning(Zoning zoning) throws PlanItException {
+	protected void populateZoning(Zoning zoning) throws PlanItException {
 		LOGGER.info("Populating Zoning");
 		if (nodes.getNumberOfNodes() == 0)
 			throw new PlanItException("Cannot parse zoning input file before the network input file has been parsed.");
@@ -449,7 +448,7 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @param demands the Demands object to be populated from the input data
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	private void populateDemands(@Nonnull Demands demands) throws PlanItException {
+	protected void populateDemands(@Nonnull Demands demands) throws PlanItException {
 		LOGGER.info("Populating Demands");
 		if (noCentroids == 0)
 			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
@@ -474,9 +473,9 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	 * @throws PlanItException
 	 */
 	@SuppressWarnings("incomplete-switch")
-	private void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter)
-			throws PlanItException {
+	protected void populateInitialPhysicalCost(InitialPhysicalCost projectComponent, Object parameter) throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
+		InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) projectComponent;
 		String fileName = (String) parameter;
 		initialLinkSegmentCost.setNoLinkSegments(linkSegments.getNumberOfLinkSegments());
 		try {
@@ -539,51 +538,6 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 	}
 
 	/**
-	 * Handles events for populating Dynamic Physical Cost
-	 * 
-	 * At present we only use BPRLinkTravelTimeCost and its default parameters are set later using
-	 * its setDefaultParameters() methods, so no action is needed here.  If we later want to run
-	 * some actions on creation of the dynamic physical costs, they would be called in this method.
-	 * 
-	 * @param dynamicPhysicalCost the DynamicPhysicalCost object to be populated
-	 * @throws PlanItException thrown if there is an error
-	 */
-	private void populateDynamicPhysicalCost(@Nonnull DynamicPhysicalCost dynamicPhysicalCost) throws PlanItException {
-		LOGGER.info("Populating Dynamic Physical Cost");
-	}
-
-	
-	/**
-	 * Handles events for populating the VirtualCost object
-	 * 
-	 * At present the creation event is generated but no immediate action is
-	 * required to populate the VirtualCost object. The VirtualCost implementation
-	 * currently uses a fixed parameter for speed. If we later change to reading in
-	 * parameter values from a value, that would be done in this method.
-	 * 
-	 * @param virtualCost the VirtualCost object to be populated
-	 * @throws PlanItException thrown if there is an error.
-	 */
-	private void populateVirtualCost(@Nonnull VirtualCost virtualCost) throws PlanItException {
-		LOGGER.info("Populating Virtual Cost ");
-	}
-
-	/**
-	 * Handles events for populating the Smoothing object
-	 * 
-	 * At present the creation event is generated but no immediate action is
-	 * required to populate the Smoothing object. The Smoothing implementation is
-	 * currently an algorithm which requires no parameters. If we later change to
-	 * reading in parameter values from a value, that would be done in this method.
-	 * 
-	 * @param smoothing the Smoothing object to be populated
-	 * @throws PlanItException thrown if there is an error.
-	 */
-	private void populateSmoothing(@Nonnull Smoothing smoothing) throws PlanItException {
-		LOGGER.info("Populating Smoothing");
-	}
-
-	/**
 	 * Constructor which generates the input objects from files in a specified
 	 * directory, using the default extension ".xml"
 	 * 
@@ -628,33 +582,4 @@ public class PlanItXMLInputBuilder implements InputBuilderListener {
 		}
 	}
 
-	/**
-	 * Handles creation events for network, zones, demands and travel time
-	 * parameters
-	 * 
-	 * @param event object creation event
-	 * @throws PlanItException captures any exception thrown during creation events
-	 */
-	@Override
-	public void onCreateProjectComponent(CreatedProjectComponentEvent<?> event) throws PlanItException {
-		Object projectComponent = event.getProjectComponent();
-		if (projectComponent instanceof MacroscopicNetwork) {
-			populateNetwork((MacroscopicNetwork) projectComponent);
-		} else if (projectComponent instanceof Zoning) {
-			populateZoning((Zoning) projectComponent);
-		} else if (projectComponent instanceof Demands) {
-			populateDemands((Demands) projectComponent);
-		} else if (projectComponent instanceof InitialLinkSegmentCost) {
-			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter());
-		} else if (projectComponent instanceof DynamicPhysicalCost) {
-			populateDynamicPhysicalCost((DynamicPhysicalCost) projectComponent);
-		} else if (projectComponent instanceof VirtualCost) {
-			populateVirtualCost((VirtualCost) projectComponent);
-		} else if (projectComponent instanceof Smoothing) {
-			populateSmoothing((Smoothing) projectComponent);
-		} else {
-			LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
-					+ " which is not handled by PlanItXMLInputBuilder");
-		}
-	}
 }
