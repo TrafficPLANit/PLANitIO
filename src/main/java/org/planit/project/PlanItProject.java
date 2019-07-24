@@ -2,7 +2,6 @@ package org.planit.project;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
@@ -18,16 +17,10 @@ public class PlanItProject extends CustomPlanItProject {
      */
     protected TrafficAssignmentComponentFactory<InitialPhysicalCost> initialPhysicalCostFactory;
   
-    /**
-     * Registered InitialLinkSegmentCost objects on this project
-     */
-    protected TreeMap<Long, InitialLinkSegmentCost> initialLinkSegmentCostMap;   
-    
 	public PlanItProject(String projectPath) throws PlanItException {
 		super(new PlanItXMLInputBuilder(projectPath));
 		initialPhysicalCostFactory = new TrafficAssignmentComponentFactory<InitialPhysicalCost>(InitialPhysicalCost.class);
 		initialPhysicalCostFactory.setEventManager(eventManager);
-		initialLinkSegmentCostMap = new TreeMap<Long, InitialLinkSegmentCost>();   
 	}
 	
 	/**
@@ -54,19 +47,7 @@ public class PlanItProject extends CustomPlanItProject {
 	 */
 	public InitialLinkSegmentCost createAndRegisterInitialLinkSegmentCost(String fileName) throws PlanItException {
 		InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) initialPhysicalCostFactory.create(InitialLinkSegmentCost.class.getCanonicalName(), fileName);
-		initialLinkSegmentCostMap.put(initialLinkSegmentCost.getId(), initialLinkSegmentCost );
         return initialLinkSegmentCost ;
 	}
 	
-    /**
-     * Retrieve a InitialLinkSegmentCost object given its id
-     * 
-     * @param id
-     *            the id of the InitialLinkSegmentCost object
-     * @return the retrieved InitialLinkSegmentCost object
-     */
-    public InitialLinkSegmentCost getInitialLinkSegmentCost(long id) {
-        return initialLinkSegmentCostMap.get(id);
-    }
-
 }

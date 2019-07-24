@@ -224,6 +224,10 @@ public class PlanItXmlTest {
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterDynamicPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+		if (setCostParameters != null) {
+			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
+		}
+		
 		if (initialCostsFileLocation1 != null) {
 			if (initialCostsFileLocation2 != null) {
 				List<InitialLinkSegmentCost> initialCosts = project
@@ -235,13 +239,8 @@ public class PlanItXmlTest {
 				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
 		}
-		if (setCostParameters != null) {
-			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
-		}
-		SpeedConnectoidTravelTimeCost speedConnectoidTravelTimeCost = (SpeedConnectoidTravelTimeCost) taBuilder
-				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
-		MSASmoothing msaSmoothing = (MSASmoothing) taBuilder
-				.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 		// SUPPLY-DEMAND INTERFACE
 		taBuilder.registerZoning(zoning);
 
