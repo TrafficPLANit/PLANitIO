@@ -42,7 +42,7 @@ public interface EnumConverter {
 	/**
 	 * Convert values from Units enumeration in PLANit project to generated Unitsvalues enumeration
 	 * 
-	 * @param type value of Units enumeration
+	 * @param units value of Units enumeration
 	 * @return value of generated Unitsvalues enumeration
 	 * @throws PlanItException thrown if a value of Units enumeration is not included in the XSD enumeration definition
 	 */

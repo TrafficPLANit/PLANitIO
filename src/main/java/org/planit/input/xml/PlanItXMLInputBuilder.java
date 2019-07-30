@@ -467,9 +467,8 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	/**
 	 * Populate the initial link segment cost from a CSV file
 	 * 
-	 * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
-	 * @param fileName               CSV file containing the initial link segment
-	 *                               cost values
+	 * @param projectComponent InitialLinkSegmentCost object to be populated
+	 * @param parameter CSV file containing the initial link segment cost values
 	 * @throws PlanItException
 	 */
 	@SuppressWarnings("incomplete-switch")

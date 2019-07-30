@@ -95,7 +95,7 @@ public interface XmlUtils {
 	/**
 	 * Creates an XML output file populated with data from an Object
 	 * 
-	 * @param Object          input object containing the data to be written to the
+	 * @param object          input object containing the data to be written to the
 	 *                        XML file
 	 * @param clazz           Class of the object containing the data
 	 * @param xmlFileLocation location of the output XML file
@@ -115,10 +115,10 @@ public interface XmlUtils {
 	/**
 	 * Creates an XML stream writer populated with data from an Object
 	 * 
-	 * @param Object          input object containing the data to be written to the
+	 * @param object          input object containing the data to be written to the
 	 *                        XML file
 	 * @param clazz           Class of the object containing the data
-	 * @param xmlStreamWriter XMLStreamWriter populated with data 
+	 * @param xmlStreamWriter XMLStreamWriter populated with data
 	 * @throws Exception thrown if the object is not of the correct class, or the
 	 *                   output file cannot be opened
 	 */

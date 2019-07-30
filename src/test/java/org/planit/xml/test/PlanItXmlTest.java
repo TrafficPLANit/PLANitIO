@@ -8,6 +8,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
@@ -35,11 +37,17 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
+import org.planit.output.formatter.MemoryOutputFormatter;
+import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
+import org.planit.test.BprResultDto;
+import org.planit.test.CsvIoUtils;
+import org.planit.test.TestHelper;
+import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
@@ -179,30 +187,31 @@ public class PlanItXmlTest {
 	}
 
 	private void runTest(String projectPath, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
-		runTest(projectPath, null, null, 0, null, null, setCostParameters, description);
+			String description, String resultsFileLocation) throws Exception {
+		runTest(projectPath, null, null, 0, null, null, setCostParameters, description, resultsFileLocation);
 	}
 
 	private void runTest(String projectPath, String initialCostsFileLocation,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		runTest(projectPath, initialCostsFileLocation, null, 0, null, null, setCostParameters, description);
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description, String resultsFileLocation) throws Exception {
+		runTest(projectPath, initialCostsFileLocation, null, 0, null, null, setCostParameters, description, resultsFileLocation);
 	}
 
 	private void runTest(String projectPath, String initialCostsFileLocation1, String initialCostsFileLocation2,
 			int initCostsFilePos, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
+			String description, String resultsFileLocation) throws Exception {
 		runTest(projectPath, initialCostsFileLocation1, initialCostsFileLocation2, initCostsFilePos, null, null,
-				setCostParameters, description);
+				setCostParameters, description, resultsFileLocation);
 	}
 
 	private void runTest(String projectPath, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		runTest(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters, description);
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description, String resultsFileLocation) throws Exception {
+		runTest(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters, description, resultsFileLocation);
 	}
 
 	private void runTest(String projectPath, String initialCostsFileLocation1, String initialCostsFileLocation2,
 			int initCostsFilePos, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description,
+			String resultsFileLocation) throws Exception {
 		IdGenerator.reset();
 		PlanItProject project = new PlanItProject(projectPath);
 
@@ -227,7 +236,7 @@ public class PlanItXmlTest {
 		if (setCostParameters != null) {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
-		
+
 		if (initialCostsFileLocation1 != null) {
 			if (initialCostsFileLocation2 != null) {
 				List<InitialLinkSegmentCost> initialCosts = project
@@ -239,7 +248,8 @@ public class PlanItXmlTest {
 				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
 		}
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		taBuilder
+				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 		// SUPPLY-DEMAND INTERFACE
 		taBuilder.registerZoning(zoning);
@@ -254,6 +264,7 @@ public class PlanItXmlTest {
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration
 				.getOutputTypeConfiguration(OutputType.LINK);
 		linkOutputTypeConfiguration.addAllProperties();
+		//linkOutputTypeConfiguration.removeProperty(OutputProperty.NUMBER_OF_LANES);
 		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
 
 		// OUTPUT FORMAT CONFIGURATION
@@ -269,6 +280,11 @@ public class PlanItXmlTest {
 		xmlOutputFormatter.setOutputDirectory(projectPath);
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
+		OutputFormatter outputFormatter = project
+				.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) outputFormatter;
+		taBuilder.registerOutputFormatter(memoryOutputFormatter);
+
 		// "USER" configuration
 		if (maxIterations != null) {
 			assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
@@ -278,6 +294,11 @@ public class PlanItXmlTest {
 		}
 
 		project.executeAllTrafficAssignments();
+		if (resultsFileLocation != null) {
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMapFromFile = CsvIoUtils
+					.createResultsMapFromCsvFile(resultsFileLocation);
+			TestHelper.compareResultsToMemoryOutputFormatter(memoryOutputFormatter, resultsMapFromFile);
+		}
 	}
 
 	private void runAssertionsAndCleanUp(String projectPath, String description, String csvFileName, String xmlFileName)
@@ -371,7 +392,7 @@ public class PlanItXmlTest {
 			String description = "testBasic1";
 			runTest(projectPath,
 					"src\\test\\resources\\initial_costs\\xml\\test2\\initial_link_segment_costs_external_id.csv", null,
-					description);
+					description, null);
 			fail("RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
 		} catch (Exception e) {
 			assertTrue(true);
@@ -386,7 +407,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			runTest(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", null,
-					description);
+					description, null);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -402,7 +423,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			runTest(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
-					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, null, description);
+					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, null, description, null);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -417,7 +438,7 @@ public class PlanItXmlTest {
 			String description = "testBasic2";
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, null, description);
+			runTest(projectPath, null, description, "src\\test\\resources\\basic\\xml\\test2\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -432,7 +453,7 @@ public class PlanItXmlTest {
 			String description = "testBasic3";
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, null, description);
+			runTest(projectPath, null, description, "src\\test\\resources\\basic\\xml\\test3\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -451,7 +472,7 @@ public class PlanItXmlTest {
 			String xmlFileName1 = "Time Period 1.xml";
 			String xmlFileName2 = "Time Period 2.xml";
 			String xmlFileName3 = "Time Period 3.xml";
-			runTest(projectPath, null, description);
+			runTest(projectPath, null, description, "src\\test\\resources\\basic\\xml\\test13\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
@@ -468,7 +489,7 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice1";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test1\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -483,7 +504,7 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice2";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test2\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -500,7 +521,7 @@ public class PlanItXmlTest {
 			String xmlFileName = "Time Period 1.xml";
 			runTest(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
-					null, 0, 1, 0.0, null, description);
+					null, 0, 1, 0.0, null, description, null);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -517,7 +538,7 @@ public class PlanItXmlTest {
 			String xmlFileName = "Time Period 1.xml";
 			runTest(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
-					null, 0, 500, 0.0, null, description);
+					null, 0, 500, 0.0, null, description, null);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -532,7 +553,7 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice3";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test3\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -547,7 +568,7 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice4";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test4\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -564,7 +585,7 @@ public class PlanItXmlTest {
 			String csvFileName2 = "Time Period 2_500.csv";
 			String xmlFileName1 = "Time Period 1.xml";
 			String xmlFileName2 = "Time Period 2.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test42\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 		} catch (Exception e) {
@@ -580,7 +601,7 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice4raw";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test4raw\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -595,7 +616,7 @@ public class PlanItXmlTest {
 			String description = "testRouteChoice4raw2";
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
-			runTest(projectPath, 500, 0.0, null, description);
+			runTest(projectPath, 500, 0.0, null, description, "src\\test\\resources\\route_choice\\xml\\test4raw2\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -616,7 +637,7 @@ public class PlanItXmlTest {
 						.findMacroscopicLinkSegmentTypeByExternalId(1);
 				Mode mode = Mode.getByExternalId(2);
 				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-			}, description);
+			}, description, "src\\test\\resources\\route_choice\\xml\\test5\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -28,7 +28,7 @@ public class ProcessConfiguration {
 	 * Generate XMLElementTravellerTypes objects from generated configuration object
 	 * and store them
 	 * 
-	 * @param configuration generated XMLElementDemandConfiguration object from
+	 * @param demandconfiguration generated XMLElementDemandConfiguration object from
 	 *                      demand XML input
 	 */
 	private static void generateAndStoreTravellerTypes(XMLElementDemandConfiguration demandconfiguration) {
@@ -48,7 +48,7 @@ public class ProcessConfiguration {
 	 * Generate XMLElementUserClasses objects from generated configuration object
 	 * and store them
 	 * 
-	 * @param configuration generated XMLElementDemandConfiguration object from
+	 * @param demandconfiguration generated XMLElementDemandConfiguration object from
 	 *                      demand XML input
 	 */
 	private static void generateAndStoreUserClasses(XMLElementDemandConfiguration demandconfiguration) {
@@ -96,7 +96,7 @@ public class ProcessConfiguration {
 	/**
 	 * Generate a Map of TimePeriod objects from generated configuration object
 	 * 
-	 * @param configuration generated XMLElementDemandConfiguration object from
+	 * @param demandconfiguration generated XMLElementDemandConfiguration object from
 	 *                      demand XML input
 	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
 	 */

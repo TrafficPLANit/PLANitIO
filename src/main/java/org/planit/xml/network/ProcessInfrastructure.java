@@ -50,7 +50,7 @@ public class ProcessInfrastructure {
 	}
 
 	/**
-	 * Get the link length from the <length> element in the XML file, if this has
+	 * Get the link length from the length element in the XML file, if this has
 	 * been set
 	 * 
 	 * @param initLength    initial length value
@@ -71,7 +71,7 @@ public class ProcessInfrastructure {
 	}
 
 	/**
-	 * Get the link length from the <gml:LineString> element in the XML file, if
+	 * Get the link length from the gml:LineString element in the XML file, if
 	 * this has been set
 	 * 
 	 * @param initLength    initial length value

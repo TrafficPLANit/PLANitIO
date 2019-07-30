@@ -116,7 +116,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private String version;
 
 	/**
-	 * Generated object for the <metadata> element in the output XML file
+	 * Generated object for the metadata element in the output XML file
 	 */
 	private XMLElementMetadata metadata;
 
@@ -317,11 +317,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Persist the data for the current iteration using
 	 * TraditionalStaticAssignmentLinkOutputAdapter
 	 * 
-	 * @param timePeriod                                   TimePeriod for the
-	 *                                                     assignment to be saved
-	 * @param modes                                        Set of modes for the
-	 *                                                     assignment to be saved
-	 * @param traditionalStaticAssignmentLinkOutputAdapter output adapter
+	 * @param timePeriod    TimePeriod for the assignment to be saved
+	 * @param modes         Set of modes for the assignment to be saved
+	 * @param outputAdapter output adapter
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
@@ -350,13 +348,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Create the CSV file for the current iteration
 	 * 
-	 * @param traditionalStaticAssignmentLinkOutputAdapter outputAdapter storing
-	 *                                                     network
-	 * @param csvFileName                                  name of the CSV output
-	 *                                                     file for the current
-	 *                                                     iteration
-	 * @throws PlanItException thrown if the CSV file cannot be created or written
-	 *                         to
+	 * @param outputAdapter outputAdapter storing network
+	 * @param csvFileName name of the CSV output file for the current iteration
+	 * @throws PlanItException thrown if the CSV file cannot be created or written to
 	 */
 	private void createCsvFileForCurrentIteration(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
 			Set<Mode> modes, String csvFileName) throws PlanItException {
@@ -383,7 +377,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 								double outDouble = (double) outValue;
 								outValue = String.format("%.7f", outDouble);
 							}
-							//row.add(outputAdapter.getPropertyValue(outputProperty, linkSegment, mode));
+							// row.add(outputAdapter.getPropertyValue(outputProperty, linkSegment, mode));
 							row.add(outValue);
 						});
 						csvIterationPrinter.printRecord(row);
@@ -441,7 +435,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
 		XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
 		outputconfiguration.setAssignment(getClassName(outputAdapter.getTrafficAssignment()));
-		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getDynamicPhysicalCost()));
+		outputconfiguration
+				.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getDynamicPhysicalCost()));
 		outputconfiguration.setVirtualcost(getClassName(outputAdapter.getTrafficAssignment().getVirtualCost()));
 		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
 		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
@@ -583,7 +578,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Sets the extension of the XML output file
 	 * 
-	 * @param nameExtension the extension of the XML output file
+	 * @param xmlNameExtension the extension of the XML output file
 	 */
 	public void setXmlNameExtension(String xmlNameExtension) {
 		this.xmlNameExtension = xmlNameExtension;
@@ -592,7 +587,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Sets the root name of the XML output file
 	 * 
-	 * @param nameRoot root name of XML output file
+	 * @param xmlNamePrefix root name of XML output file
 	 */
 	public void setXmlNamePrefix(String xmlNamePrefix) {
 		this.xmlNamePrefix = xmlNamePrefix;
@@ -601,7 +596,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Sets the root name of the CSV output file
 	 * 
-	 * @param nameRoot root name of CSV output file
+	 * @param csvNamePrefix root name of CSV output file
 	 */
 	public void setCsvNamePrefix(String csvNamePrefix) {
 		this.csvNamePrefix = csvNamePrefix;
@@ -610,7 +605,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Sets the extension of the CSV output file
 	 * 
-	 * @param nameExtension the extension of the CSV output file
+	 * @param csvNameExtension the extension of the CSV output file
 	 */
 	public void setCsvNameExtension(String csvNameExtension) {
 		this.csvNameExtension = csvNameExtension;
