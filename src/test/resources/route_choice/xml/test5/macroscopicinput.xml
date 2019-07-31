@@ -134,7 +134,7 @@
 			</links>
 		</infrastructure>
 	</macroscopicnetwork>
-		<macroscopiczoning>
+	<macroscopiczoning>
 		<zones>
 			<zone id="31">
 				<centroid>

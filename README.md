@@ -15,16 +15,17 @@ The src/main/resources directory contains the following files which are used by 
 
 |File|Purpose|
 |---| ---|
-|planitlibrary.xsd|Common XML definitions used by the other XSD file|
-|macroscopicdemandinput.xsd|XSD schema for demand input XML file|
-|macroscopiczoninginput.xsd|XSD schema for zoning input XML file|
-|macroscopicnetworkinput.xsd|XSD schema for network input XML file|
+|planitlibrary.xsd|Common XML definitions used by the other XSD files|
+|macroscopicinput.xsd|XSD schema defining the top-level <PLANit> element which contains the <macroscopicnetwork>, <macroscopicdemand> and <macroscopiczoning> elements
+|macroscopicdemandinput.xsd|XSD schema for demand input XML, defines the <macroscopicdemand> element|
+|macroscopiczoninginput.xsd|XSD schema for zoning input XML, defines the <macroscopiczoning> element|
+|macroscopicnetworkinput.xsd|XSD schema for network input XML, defines the <macroscopicnetwork> element|
 |linkmetadata.xsd|XSD schema used for XML output|
 |configuration.xjb|XJB file to define the package name for the generated Java classes which correspond to the definitions in the project's own XSD files|
-|macroscopicdemandinput.xjb|XJB file to define the names of the generated Java classes related to demand input
-|macroscopiczoninginput.xjb|XJB file to define the names of the generated Java classes related to zoning input
-|macroscopicnetworkinput.xjb|XJB file to define the names of the generated Java classes related to network input
-|linkmetadata.xjb|XJB file to define the names of the generated Java classes related to output    
+|macroscopicdemandinput.xjb|XJB file to define the names of the generated Java classes related to demand input|
+|macroscopiczoninginput.xjb|XJB file to define the names of the generated Java classes related to zoning input|
+|macroscopicnetworkinput.xjb|XJB file to define the names of the generated Java classes related to network input|
+|linkmetadata.xjb|XJB file to define the names of the generated Java classes related to output|    
 |gml-v_3_1_1.xjb|XJB file to resolve name clashes which appear when XJC is run on GML files|
 |xlink-v_1_0.xjb|XJB file to resolve name clashes which appear when XJC is run on GML files|                
 
@@ -80,3 +81,29 @@ The XmlUtils class contains the following methods for reading and writing XML fi
 The generated Java classes can be accessed in the code like any Java classes.  They only contain getter and setter methods which are used to hold data, they contain no business logic.  
 
 It is recommended that the generated Java classes only be used to populate PLANit's own business  objects (network, zoning etc) and they not be passed directly to any business logic.  Developers familiar with the concept of Data Transfer Objects will recognize how the generated classes fit this pattern.  The PlanItXMLInputBuilder performs this data transfer.
+
+## Input File Format
+
+The PLANitXML input file consists of the following elements:
+
+```
+<PLANit>
+	<macroscopicnetwork>
+		<linkconfiguration>
+		</linkconfiguration>
+		<infrastructure>
+		</infrastructure>
+	</macroscopicnetwork>
+	<macroscopicdemand>
+		<demandconfiguration>
+		</demandconfiguration>
+		<oddemands>
+		</oddemands>
+	</macroscopicdemand>
+	<macroscopiczoning>
+		<zones>
+		</zones>
+	</macroscopiczoning>
+</PLANit>
+```
+
