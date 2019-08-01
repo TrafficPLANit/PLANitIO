@@ -644,5 +644,20 @@ public class PlanItXmlTest {
 			fail(e.getMessage());
 		}
 	}
+	
+	@Test
+	public void testExplanatory() {
+		try {
+			String projectPath = "src\\test\\resources\\explanatory\\xml";
+			String description = "explanatory";
+			String csvFileName1 = "Time Period 1_2.csv";
+			String xmlFileName1 = "Time Period 1.xml";
+			runAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
 
 }

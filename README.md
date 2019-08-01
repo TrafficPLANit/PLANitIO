@@ -82,28 +82,116 @@ The generated Java classes can be accessed in the code like any Java classes.  T
 
 It is recommended that the generated Java classes only be used to populate PLANit's own business  objects (network, zoning etc) and they not be passed directly to any business logic.  Developers familiar with the concept of Data Transfer Objects will recognize how the generated classes fit this pattern.  The PlanItXMLInputBuilder performs this data transfer.
 
-## Input File Format
+## Basic PLANitXML Input File
 
-The PLANitXML input file consists of the following elements:
+The simplest possible example of a PLANitXML input file.  This example only has one user class and time period and one two-way link, from node 1 to node 2:
 
 ```
-<PLANit>
-	<macroscopicnetwork>
-		<linkconfiguration>
-		</linkconfiguration>
-		<infrastructure>
-		</infrastructure>
-	</macroscopicnetwork>
+<PLANit xmlns:gml="http://www.opengis.net/gml"	xmlns:xml="http://www.w3.org/XML/1998/namespace"	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopicinput.xsd">
+
+<!-- macroscopicdemand element defined macroscopicdemandinput.xsd file -->
+
 	<macroscopicdemand>
-		<demandconfiguration>
+		<demandconfiguration>        <!-- definition of time periods and user classes -->
+			<userclasses>                 
+				<userclass id="1" moderef="1">
+					<name>1</name>
+				</userclass>
+			</userclasses>
+			<timeperiods>
+				<timeperiod id="0">
+					<name>Time Period 1</name>
+					<starttime>00:00:01</starttime>
+					<duration>86400</duration>
+				</timeperiod>
+			</timeperiods>
 		</demandconfiguration>
-		<oddemands>
+		<oddemands>                            <!-- definition of origin-demand matrix, here defined cell by cell -->
+			<odcellbycellmatrix timeperiodref="0"	userclassref="1">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>
 		</oddemands>
 	</macroscopicdemand>
+	
+<!-- macroscopicnetwork element defined in the macroscopicnetworkinput.xsd file -->
+	
+	<macroscopicnetwork>
+		<linkconfiguration>
+			<modes>                                                <!-- definition of modes -->
+				<mode id="1">																
+					<name>Basic</name>														
+					<pcu>1</pcu>															
+				</mode>
+			</modes>
+			<linksegmenttypes>                              <!-- definition of types of link segment -->
+				<linksegmenttype id="1">
+					<name>Standard</name>													
+					<capacitylane>2000</capacitylane>										
+					<modes>
+						<mode ref="0">															
+							<maxspeed>1</maxspeed>												
+						</mode>
+					</modes>
+				</linksegmenttype>
+			</linksegmenttypes>
+		</linkconfiguration>
+		<infrastructure>
+			<nodes>                                                                          <!-- list of nodes, each must have an id number -->
+				<node id="1" />
+				<node id="2" />
+			</nodes>
+			<links>
+				<link nodearef="1" nodebref="2">                              <!-- nodearef and nodebref refer to nodes defined in the <nodes> element -->
+					<linksegment id="1" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<linksegment id="2" dir="b_a" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+	
+<!-- macroscopiczoning element defined in the macroscopiczoninginput.xsd file -->
+	
 	<macroscopiczoning>
-		<zones>
+		<zones>                                                                   <!-- definition of demand zones, including centroids and connectoids -->
+			<zone id="1"> 
+				<centroid>
+					<name>1</name>
+					<gml:Point>									
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="1">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>2</name>
+					<gml:Point>									
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="2">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
 		</zones>
 	</macroscopiczoning>
-</PLANit>
+</PLANit>	
 ```
-
+ This example runs to generate the following output:
+ 
+|Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Downstream Node Location|Length|Number of Lanes|Upstream Node Location|Cost	Density|Flow|Speed|
+|0	|1	|0	|2|1|2000|Not Specified|10|	1|	Not Specified|10|180|1|1|
+ 
