@@ -652,6 +652,7 @@ public class PlanItXmlTest {
 			String description = "explanatory";
 			String csvFileName1 = "Time Period 1_2.csv";
 			String xmlFileName1 = "Time Period 1.xml";
+			runTest(projectPath, null, description, "src\\test\\resources\\explanatory\\xml\\results.csv");
 			runAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 		} catch (Exception e) {
 			e.printStackTrace();
