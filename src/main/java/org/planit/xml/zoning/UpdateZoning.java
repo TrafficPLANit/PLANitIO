@@ -7,8 +7,9 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.Connectoid;
-import org.planit.generated.Zones.Zone;
+import org.planit.generated.XMLElementConnectoid;
+import org.planit.generated.XMLElementCentroid;
+import org.planit.generated.XMLElementZones.Zone;
 import org.planit.geo.PlanitGeoUtils;
 import org.planit.network.physical.Node;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
@@ -79,7 +80,7 @@ public class UpdateZoning {
  * @throws PlanItException      thrown if there is an error during processing
  */
 	public static void registerNewConnectoid(Zoning zoning, Nodes nodes, Zone zone, Centroid centroid) throws PlanItException {
-        Connectoid connectoid = zone.getConnectoids().getConnectoid().get(0);
+		XMLElementConnectoid connectoid = zone.getConnectoids().getConnectoid().get(0);
         long nodeExternalId = connectoid.getNoderef().longValue();
         Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
         DirectPosition nodePosition = node.getCentrePointGeometry();
@@ -89,7 +90,7 @@ public class UpdateZoning {
 //TODO  - need to create some test cases in which nodes have a GML location
         } else if (nodePosition != null){
         	//if node has a GML Point, get the GML Point from the centroid and calculate the length between them
-        	org.planit.generated.Centroid generatedCentroid = zone.getCentroid();
+        	XMLElementCentroid generatedCentroid = zone.getCentroid();
         	PointType pointType = generatedCentroid.getPoint();
         	DirectPosition centroidPosition = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
         	connectoidLength =  planitGeoUtils.getDistanceInMetres(centroidPosition, nodePosition);

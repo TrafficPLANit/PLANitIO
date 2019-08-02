@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This XSD contains common definitions which are used by all the other XSD files -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	
+	<!-- simple PLANit attributes -->
+	<xs:attribute name="srsname" type="srsname">
+		<xs:annotation>
+			<xs:documentation>
+				Global definition of the spatial reference system used for all gml elements. Should comply with the srs naming conventions of such a string
+			</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>	
+
+	<!-- Simple types -->
+	<xs:simpleType name="srsname">
+		<xs:annotation>
+			<xs:documentation>
+				Choice between h (hours), m (minutes), s (seconds)
+			</xs:documentation>
+		</xs:annotation>	
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="EPSG:4326"/>
+		</xs:restriction>
+	</xs:simpleType>	
+
+	
+	<xs:attribute name="ds" type="xs:string" default=",">
+		<xs:annotation>
+			<xs:documentation>
+				Destination separator, i.e., the separator after the end of each cell.
+			</xs:documentation>
+		</xs:annotation> 								
+	</xs:attribute>
+	
+	<xs:attribute name="os" type="xs:string" default=",">
+		<xs:annotation>
+			<xs:documentation>
+				Origin separator, i.e., the separator after the end of each row.
+			</xs:documentation>
+		</xs:annotation> 		      					
+	</xs:attribute>	
+	
+</xs:schema>

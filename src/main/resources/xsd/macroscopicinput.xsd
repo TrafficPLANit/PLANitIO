@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="macroscopicdemandinput.xsd" />
+	<xs:include schemaLocation="macroscopicnetworkinput.xsd" />
+	<xs:include schemaLocation="macroscopiczoninginput.xsd" />
+
+	<!-- root element -->
+	<xs:element name="PLANit">
+		<xs:complexType>
+			<xs:all>
+				<xs:element ref="macroscopicnetwork" minOccurs="1" maxOccurs="1" />
+				<xs:element ref="macroscopicdemand" minOccurs="1" maxOccurs="1" />
+				<xs:element ref="macroscopiczoning" minOccurs="1" 	maxOccurs="1" />
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+
+
+</xs:schema>

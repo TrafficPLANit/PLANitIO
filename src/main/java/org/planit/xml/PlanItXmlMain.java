@@ -5,17 +5,17 @@ import java.util.logging.Logger;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
-import org.planit.event.listener.InputBuilderListener;
+import org.planit.input.InputBuilderListener;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.exceptions.PlanItException;
-import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
-import org.planit.output.formatter.PlanItXMLOutputFormatter;
-import org.planit.project.PlanItProject;
+import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
+import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
@@ -34,7 +34,6 @@ public class PlanItXmlMain {
 
 	private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
 
-	private String csvResultsFileLocation = "src\\test\\resources\\route_choice\\xml\\test1\\results.csv";
 	private String projectPath = "src\\test\\resources\\route_choice\\xml\\test1";
 	private int maxIterations = 500;
 	private double epsilon = 0.00;
@@ -71,7 +70,7 @@ public class PlanItXmlMain {
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
 		InputBuilderListener inputBuilderListener = new PlanItXMLInputBuilder(projectPath);
-		PlanItProject project = new PlanItProject(inputBuilderListener);
+		CustomPlanItProject project = new CustomPlanItProject(inputBuilderListener);
 
 		// RAW INPUT START --------------------------------
 		PhysicalNetwork physicalNetwork = project
@@ -90,7 +89,7 @@ public class PlanItXmlMain {
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-				.createAndRegisterPhysicalTravelTimeCostFunction(BPRLinkTravelTimeCost.class.getCanonicalName());
+				.createAndRegisterDynamicPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
 		MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 		MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
 				.findMacroscopicLinkSegmentTypeByExternalId(1);

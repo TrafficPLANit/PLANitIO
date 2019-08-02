@@ -4,9 +4,9 @@ import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 import org.planit.exceptions.PlanItException;
-import org.planit.input.PlanItXMLInputBuilder;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.output.formatter.PlanItXMLOutputFormatter;
+import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 
 /**
@@ -24,7 +24,7 @@ import org.planit.trafficassignment.DeterministicTrafficAssignment;
  * @author markr
  *
  */
-public class PlanItSimpleProject extends PlanItProject {
+public class PlanItSimpleProject extends CustomPlanItProject {
     
     /**
      * Logger for this class
@@ -107,7 +107,7 @@ public class PlanItSimpleProject extends PlanItProject {
      * will be found quickly and are not hampered by long load times for parsing inputs. This is mainly useful for inexperienced users
      * who just want to run a single model. If one wants complete control of the process flow use @see org.planit.project.PlanItProject instead
      *  
-     * @see org.planit.project.PlanItProject#executeAllTrafficAssignments()
+     * @see org.planit.project.CustomPlanItProject#executeAllTrafficAssignments()
      */
     @Override
     public void executeAllTrafficAssignments() throws PlanItException {

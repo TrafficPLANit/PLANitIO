@@ -1,0 +1,66 @@
+<jaxb:bindings version="2.1"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='demandconfiguration']">
+		<jaxb:class name="XMLElementDemandConfiguration" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='macroscopicdemand']">
+		<jaxb:class name="XMLElementMacroscopicDemand" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='duration']">
+		<jaxb:class name="XMLElementDuration" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='odcellbycellmatrix']">
+		<jaxb:class name="XMLElementOdCellByCellMatrix" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='oddemands']">
+		<jaxb:class name="XMLElementOdDemands" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:complexType[@name='odmatrix']">
+		<jaxb:class name="XMLElementOdMatrix" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='odrawmatrix']">
+		<jaxb:class name="XMLElementOdRawMatrix" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='odrowmatrix']">
+		<jaxb:class name="XMLElementOdRowMatrix" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='timeperiods']">
+		<jaxb:class name="XMLElementTimePeriods" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='travellertypes']">
+		<jaxb:class name="XMLElementTravellerTypes" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:complexType[@name='unrestrictedduration']">
+		<jaxb:class name="XMLElementUnrestrictedDuration" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopicdemandinput.xsd"
+		node="//xs:element[@name='userclasses']">
+		<jaxb:class name="XMLElementUserClasses" />
+	</jaxb:bindings>
+
+</jaxb:bindings>

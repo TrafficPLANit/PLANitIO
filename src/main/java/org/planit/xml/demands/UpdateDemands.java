@@ -9,15 +9,15 @@ import java.util.logging.Logger;
 import org.planit.demand.Demands;
 import org.planit.demand.MatrixDemand;
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.Odcellbycellmatrix;
-import org.planit.generated.Odmatrix;
-import org.planit.generated.Odrawmatrix;
-import org.planit.generated.Odrowmatrix;
-import org.planit.generated.Odrawmatrix.Values;
+import org.planit.generated.XMLElementOdCellByCellMatrix;
+import org.planit.generated.XMLElementOdMatrix;
+import org.planit.generated.XMLElementOdRawMatrix;
+import org.planit.generated.XMLElementOdRowMatrix;
+import org.planit.generated.XMLElementOdRawMatrix.Values;
+import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
-import org.planit.input.PlanItXMLInputBuilder;
 import org.planit.zoning.Zoning.Zones;
 
 /**
@@ -52,37 +52,6 @@ public class UpdateDemands {
 	}
 
 	/**
-	 * Creates a MatrixDemand object from a List of Odmatrix objects read in from
-	 * the XML input file and registers it in the Demands object
-	 * 
-	 * @param demands       the PlanIt Demands object to be populated
-	 * @param oddemands     List of generated Odmatrix objects with data from the
-	 *                      XML input file
-	 * @param modeMap       Map of Mode objects
-	 * @param timePeriodMap Map of TimePeriod objects
-	 * @param noCentroids   the number of centroids in the current zoning
-	 * @param zones         zones in the current network
-	 * @throws Exception thrown if there is an error during processing
-	 */
-	public static void createAndRegisterDemandMatrix(Demands demands, List<Odmatrix> oddemands,
-			Map<Integer, Mode> modeMap, Map<Integer, TimePeriod> timePeriodMap, int noCentroids, Zones zones)
-			throws Exception {
-		Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(
-				timePeriodMap, modeMap, noCentroids);
-		for (Odmatrix odmatrix : oddemands) {
-			int timePeriodId = odmatrix.getTimeperiodref().intValue();
-			int userClassId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
-					: odmatrix.getUserclassref().intValue();
-			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
-			Mode mode = modeMap.get(externalId);
-			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
-			MatrixDemand demandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
-			updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), demandMatrix, zones);
-			demands.registerODDemand(timePeriod, mode, demandMatrix);
-		}
-	}
-
-	/**
 	 * Create the Map of demands for each time period and mode
 	 * 
 	 * @param timePeriodMap Map of time periods
@@ -114,14 +83,14 @@ public class UpdateDemands {
 	 * @param zones        zones in the current network
 	 * @throws Exception thrown if there is an error during processing
 	 */
-	private static void updateDemandMatrixFromOdMatrix(Odmatrix odmatrix, double pcu, MatrixDemand matrixDemand,
+	private static void updateDemandMatrixFromOdMatrix(XMLElementOdMatrix odmatrix, double pcu, MatrixDemand matrixDemand,
 			Zones zones) throws Exception {
-		if (odmatrix instanceof Odcellbycellmatrix) {
-			updateDemandMatrixFromCellByCellMatrix((Odcellbycellmatrix) odmatrix, pcu, matrixDemand, zones);
-		} else if (odmatrix instanceof Odrowmatrix) {
-			updateDemandMatrixFromOdRowMatrix((Odrowmatrix) odmatrix, pcu, matrixDemand, zones);
-		} else if (odmatrix instanceof Odrawmatrix) {
-			updateDemandMatrixFromOdRawMatrix((Odrawmatrix) odmatrix, pcu, matrixDemand, zones);
+		if (odmatrix instanceof XMLElementOdCellByCellMatrix) {
+			updateDemandMatrixFromCellByCellMatrix((XMLElementOdCellByCellMatrix) odmatrix, pcu, matrixDemand, zones);
+		} else if (odmatrix instanceof XMLElementOdRowMatrix) {
+			updateDemandMatrixFromOdRowMatrix((XMLElementOdRowMatrix) odmatrix, pcu, matrixDemand, zones);
+		} else if (odmatrix instanceof XMLElementOdRawMatrix) {
+			updateDemandMatrixFromOdRawMatrix((XMLElementOdRawMatrix) odmatrix, pcu, matrixDemand, zones);
 		}
 	}
 
@@ -134,12 +103,12 @@ public class UpdateDemands {
 	 * @param matrixDemand       MatrixDemand object to be updated
 	 * @param zones              zones in the current network
 	 */
-	private static void updateDemandMatrixFromCellByCellMatrix(Odcellbycellmatrix odcellbycellmatrix, double pcu,
+	private static void updateDemandMatrixFromCellByCellMatrix(XMLElementOdCellByCellMatrix odcellbycellmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) {
-		List<Odcellbycellmatrix.O> o = odcellbycellmatrix.getO();
-		for (Odcellbycellmatrix.O originZone : o) {
-			List<Odcellbycellmatrix.O.D> d = originZone.getD();
-			for (Odcellbycellmatrix.O.D demandZone : d) {
+		List<XMLElementOdCellByCellMatrix.O> o = odcellbycellmatrix.getO();
+		for (XMLElementOdCellByCellMatrix.O originZone : o) {
+			List<XMLElementOdCellByCellMatrix.O.D> d = originZone.getD();
+			for (XMLElementOdCellByCellMatrix.O.D demandZone : d) {
 				updateMatrixDemand(matrixDemand, originZone.getRef().intValue(), demandZone.getRef().intValue(), pcu,
 						demandZone.getValue(), zones);
 			}
@@ -154,12 +123,12 @@ public class UpdateDemands {
 	 * @param matrixDemand MatrixDemand object to be updated
 	 * @param zones        zones in the current network
 	 */
-	private static void updateDemandMatrixFromOdRowMatrix(Odrowmatrix odrowmatrix, double pcu,
+	private static void updateDemandMatrixFromOdRowMatrix(XMLElementOdRowMatrix odrowmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) {
 		String separator = (odrowmatrix.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : odrowmatrix.getDs();
 		separator = escapeSeparator(separator);
-		List<Odrowmatrix.Odrow> odrow = odrowmatrix.getOdrow();
-		for (Odrowmatrix.Odrow originZone : odrow) {
+		List<XMLElementOdRowMatrix.Odrow> odrow = odrowmatrix.getOdrow();
+		for (XMLElementOdRowMatrix.Odrow originZone : odrow) {
 			String[] rowValuesAsString = originZone.getValue().split(separator);
 			for (int i = 0; i < rowValuesAsString.length; i++) {
 				updateMatrixDemand(matrixDemand, originZone.getRef().intValue(), i + 1, pcu,
@@ -178,7 +147,7 @@ public class UpdateDemands {
 	 * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square
 	 *                   matrix
 	 */
-	private static void updateDemandMatrixFromOdRawMatrix(Odrawmatrix odrawmatrix, double pcu,
+	private static void updateDemandMatrixFromOdRawMatrix(XMLElementOdRawMatrix odrawmatrix, double pcu,
 			MatrixDemand matrixDemand, Zones zones) throws Exception {
 		Values values = odrawmatrix.getValues();
 		String originSeparator = (values.getOs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : values.getOs();
@@ -274,6 +243,37 @@ public class UpdateDemands {
 		long destinationZoneId = zones.getZoneByExternalId(colRef).getId();
 		double demand = demandValue * pcu;
 		matrixDemand.set(originZoneId, destinationZoneId, demand);
+	}
+
+	/**
+	 * Creates a MatrixDemand object from a List of Odmatrix objects read in from
+	 * the XML input file and registers it in the Demands object
+	 * 
+	 * @param demands       the PlanIt Demands object to be populated
+	 * @param oddemands     List of generated Odmatrix objects with data from the
+	 *                      XML input file
+	 * @param modeMap       Map of Mode objects
+	 * @param timePeriodMap Map of TimePeriod objects
+	 * @param noCentroids   the number of centroids in the current zoning
+	 * @param zones         zones in the current network
+	 * @throws Exception thrown if there is an error during processing
+	 */
+	public static void createAndRegisterDemandMatrix(Demands demands, List<XMLElementOdMatrix> oddemands,
+			Map<Integer, Mode> modeMap, Map<Integer, TimePeriod> timePeriodMap, int noCentroids, Zones zones)
+			throws Exception {
+		Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(
+				timePeriodMap, modeMap, noCentroids);
+		for (XMLElementOdMatrix odmatrix : oddemands) {
+			int timePeriodId = odmatrix.getTimeperiodref().intValue();
+			int userClassId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
+					: odmatrix.getUserclassref().intValue();
+			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
+			Mode mode = modeMap.get(externalId);
+			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
+			MatrixDemand demandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
+			updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), demandMatrix, zones);
+			demands.registerODDemand(timePeriod, mode, demandMatrix);
+		}
 	}
 
 }

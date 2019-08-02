@@ -1,0 +1,31 @@
+<jaxb:bindings version="2.1"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopiczoninginput.xsd"
+		node="//xs:element[@name='centroid']">
+		<jaxb:class name="XMLElementCentroid" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopiczoninginput.xsd"
+		node="//xs:element[@name='zones']">
+		<jaxb:class name="XMLElementZones" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopiczoninginput.xsd"
+		node="//xs:element[@name='connectoid']">
+		<jaxb:class name="XMLElementConnectoid" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopiczoninginput.xsd"
+		node="//xs:element[@name='connectoids']">
+		<jaxb:class name="XMLElementConnectoids" />
+	</jaxb:bindings>
+	<jaxb:bindings
+		schemaLocation="../xsd/macroscopiczoninginput.xsd"
+		node="//xs:element[@name='macroscopiczoning']">
+		<jaxb:class name="XMLElementMacroscopicZoning" />
+	</jaxb:bindings>
+
+</jaxb:bindings>
