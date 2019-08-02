@@ -364,9 +364,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 			});
 			csvIterationPrinter.printRecord(titles);
 			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
-			Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
 
 			for (Mode mode : modes) {
+				Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
 				while (linkSegmentIter.hasNext()) {
 					MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) linkSegmentIter.next();
 					if (outputAdapter.isFlowPositive(linkSegment, mode)) {
@@ -377,7 +377,6 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 								double outDouble = (double) outValue;
 								outValue = String.format("%.7f", outDouble);
 							}
-							// row.add(outputAdapter.getPropertyValue(outputProperty, linkSegment, mode));
 							row.add(outValue);
 						});
 						csvIterationPrinter.printRecord(row);
