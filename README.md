@@ -192,13 +192,14 @@ The simplest possible example of a PLANitXML input file.  This example only has 
 ```
  This example runs to generate the following output:
  
-|Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Downstream Node Location|Length|Number of Lanes|Upstream Node Location|Cost	Density|Flow|Speed|
+|Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Downstream Node Location|Length|Number of Lanes|Upstream Node Location|Cost|Density|Flow|Speed|
 |0	|1	|0	|2|1|2000|Not Specified|10|	1|	Not Specified|10|180|1|1|
 
 ## More Complicated PLANitXML Input File
 
 The following input file defines a more complicated test case:
 
+```
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xml="http://www.w3.org/XML/1998/namespace"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -578,4 +579,20 @@ The following input file defines a more complicated test case:
 		</zones>
 	</macroscopiczoning>
 </PLANit>
+ ```
+This example runs to generate the following output:
  
+|Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Downstream Node Location|Length|Number of Lanes|Upstream Node Location|Cost|Density|Flow|Speed|
+|0|1|0|1|11|1200|Not Specified|1	|3	|Not Specified|0.0370117|180|3000|27.0184697|
+|1|1|0|4|1|1200|Not Specified|1|1|Not Specified|0.0717191|180|1926|13.9432871|
+|2|1|0|12|4|1200|Not Specified|1|3|Not Specified|0.0370117|180|3000|27.0184697|
+|3	|1	|0	|2	|1|1200|Not Specified|2|1|Not Specified|0.0448544|180|6|44.5887278|
+|4	|1|0|4|2|1200|Not Specified|2|1|Not Specified|0.0448544|180|6|44.5887278|
+|5|1|0|3|1|1200|Not Specified	|1	|1|Not Specified|0.0360507|180|1068|27.7387072|
+|6|1|0|4|3|1200|Not Specified|1|1|Not Specified|0.0360507|180|1068|27.7387072|
+|0|2|1|1|11|1200|Not Specified|1|3|Not Specified|0.0636732|180|1500|15.705194|
+|2|2|1|12|4|1200|Not Specified|1|3|Not Specified|0.0636732|180|1500|15.705194|
+|3|2|1|2|1|1200|Not Specified|2|1|Not Specified|0.0611216|180|1086|32.721643|
+|4|2|1|4|2|1200|Not Specified|2|1|Not Specified|0.0611216|180|1086|32.721643|
+|5|2|1|3|1|1200|Not Specified|1|1|Not Specified|0.0610912|180|414|16.3689599|
+|6|2|1|4|3|1200|Not Specified|1|1|Not Specified|0.0610912|180|414|16.3689599|
