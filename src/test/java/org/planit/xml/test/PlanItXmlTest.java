@@ -162,8 +162,7 @@ public class PlanItXmlTest {
 				return false;
 			}
 		}
-		// Timestamps should be different, to show that the two files were created
-		// separately
+		// Time stamps should be different, to show that the two files were created separately
 		if (metadata1.getTimestamp().compare(metadata2.getTimestamp()) == DatatypeConstants.EQUAL) {
 			return false;
 		}

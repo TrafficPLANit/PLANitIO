@@ -194,4 +194,8 @@ The simplest possible example of a PLANitXML input file.  This example only has 
  
 |Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Downstream Node Location|Length|Number of Lanes|Upstream Node Location|Cost	Density|Flow|Speed|
 |0	|1	|0	|2|1|2000|Not Specified|10|	1|	Not Specified|10|180|1|1|
+
+## More Complicated PLANitXML Input File
+
+The following input file defines a more complicated test case
  
