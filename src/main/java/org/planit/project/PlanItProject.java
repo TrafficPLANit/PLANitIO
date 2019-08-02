@@ -35,7 +35,8 @@ public class PlanItProject extends CustomPlanItProject {
 	}
 	
 	/**
-	 * Create and register initial link segment costs from multiple files
+	 * Create and register initial link segment costs from multiple files which we assume are available in the native xml/csv output format
+	 * as provided in this project
 	 * 
 	 * @param fileName a series of files containing initial link segment cost values
 	 * @return a list of InitialLinkSegmentCost objects
@@ -50,7 +51,8 @@ public class PlanItProject extends CustomPlanItProject {
 	}
 	
 	/**
-	 * Create and register initial link segment costs from a (single) file
+	 * Create and register initial link segment costs from a (single) file which we assume are available in the native xml/csv output format
+     * as provided in this project
 	 * 
 	 * @param fileName file containing the initial link segment cost values
 	 * @return the InitialLinkSegmentCost object
