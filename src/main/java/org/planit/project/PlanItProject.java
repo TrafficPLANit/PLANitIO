@@ -9,6 +9,12 @@ import org.planit.exceptions.PlanItException;
 import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
 
+/**
+ * PLANit project as it is intended by default using the native XML format input files obtained from the passed in project path
+ * 
+ * @author markr, gman6028
+ *
+ */
 public class PlanItProject extends CustomPlanItProject {
 
    
@@ -17,6 +23,11 @@ public class PlanItProject extends CustomPlanItProject {
      */
     protected TrafficAssignmentComponentFactory<InitialPhysicalCost> initialPhysicalCostFactory;
   
+	/** Constructor taking project path where to find all project input files
+	 * 
+	 * @param projectPath
+	 * @throws PlanItException
+	 */
 	public PlanItProject(String projectPath) throws PlanItException {
 		super(new PlanItXMLInputBuilder(projectPath));
 		initialPhysicalCostFactory = new TrafficAssignmentComponentFactory<InitialPhysicalCost>(InitialPhysicalCost.class);
@@ -24,7 +35,8 @@ public class PlanItProject extends CustomPlanItProject {
 	}
 	
 	/**
-	 * Create and register initial link segment costs from multiple files
+	 * Create and register initial link segment costs from multiple files which we assume are available in the native xml/csv output format
+	 * as provided in this project
 	 * 
 	 * @param fileName a series of files containing initial link segment cost values
 	 * @return a list of InitialLinkSegmentCost objects
@@ -39,7 +51,8 @@ public class PlanItProject extends CustomPlanItProject {
 	}
 	
 	/**
-	 * Create and register initial link segment costs from a (single) file
+	 * Create and register initial link segment costs from a (single) file which we assume are available in the native xml/csv output format
+     * as provided in this project
 	 * 
 	 * @param fileName file containing the initial link segment cost values
 	 * @return the InitialLinkSegmentCost object
