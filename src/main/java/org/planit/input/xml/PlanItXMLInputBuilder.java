@@ -13,10 +13,13 @@ import javax.annotation.Nonnull;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.cost.physical.initial.LinkIdentificationMethod;
+import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
+import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.input.InputBuilderListener;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
@@ -34,6 +37,7 @@ import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
 import org.planit.time.TimePeriod;
+import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
 import org.planit.xml.demands.UpdateDemands;
@@ -45,6 +49,10 @@ import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.OutputProperty;
+import org.planit.sdinteraction.smoothing.Smoothing;
+import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
+import org.planit.supply.network.nodemodel.NodeModel;
+import org.planit.supply.networkloading.NetworkLoading;
 
 /**
  * Class which reads inputs from XML input files
@@ -581,4 +589,26 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 		}
 	}
 
+	/**
+	 * Whenever a project component is created this method will be invoked
+	 * 
+	 * @param event event containing the created (and empty) project component
+	 * @throws PlanItException thrown if there is an error
+	 */
+	public void onCreateProjectComponent(CreatedProjectComponentEvent<?> event) throws PlanItException {
+		Object projectComponent = event.getProjectComponent();
+		if (projectComponent instanceof PhysicalNetwork) {
+			populatePhysicalNetwork((PhysicalNetwork) projectComponent);
+		} else if (projectComponent instanceof Zoning) {
+			populateZoning((Zoning) projectComponent);
+		} else if (projectComponent instanceof Demands) {
+			populateDemands((Demands) projectComponent);
+		} else if (projectComponent instanceof InitialPhysicalCost) {
+			populateInitialPhysicalCost((InitialPhysicalCost) projectComponent, event.getParameter());
+		} else {
+			LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
+					+ " which is not handled by PlanItXMLInputBuilder.");
+		}
+	}
+	
 }
