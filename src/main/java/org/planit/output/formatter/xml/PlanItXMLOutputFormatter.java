@@ -349,8 +349,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Create the CSV file for the current iteration
 	 * 
 	 * @param outputAdapter outputAdapter storing network
-	 * @param csvFileName name of the CSV output file for the current iteration
-	 * @throws PlanItException thrown if the CSV file cannot be created or written to
+	 * @param csvFileName   name of the CSV output file for the current iteration
+	 * @throws PlanItException thrown if the CSV file cannot be created or written
+	 *                         to
 	 */
 	private void createCsvFileForCurrentIteration(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
 			Set<Mode> modes, String csvFileName) throws PlanItException {
@@ -434,8 +435,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
 		XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
 		outputconfiguration.setAssignment(getClassName(outputAdapter.getTrafficAssignment()));
-		outputconfiguration
-				.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getDynamicPhysicalCost()));
+		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getPhysicalCost()));
 		outputconfiguration.setVirtualcost(getClassName(outputAdapter.getTrafficAssignment().getVirtualCost()));
 		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
 		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
