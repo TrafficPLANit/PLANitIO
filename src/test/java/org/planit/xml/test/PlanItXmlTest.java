@@ -40,8 +40,12 @@ import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
-import org.planit.output.property.BaseOutputProperty;
+import org.planit.output.property.CostOutputProperty;
+import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
+import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
+import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.BprResultDto;
@@ -328,9 +332,9 @@ public class PlanItXmlTest {
 		try {
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			String modeHeader = BaseOutputProperty.MODE_EXTERNAL_ID;
-			String linkSegmentExternalIdHeader = BaseOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
-			String costHeader = BaseOutputProperty.COST;
+			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
+			String linkSegmentExternalIdHeader = LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
+			String costHeader = CostOutputProperty.COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);
@@ -364,10 +368,10 @@ public class PlanItXmlTest {
 		try {
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			String modeHeader = BaseOutputProperty.MODE_EXTERNAL_ID;
-			String upstreamNodeExternalIdHeader = BaseOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
-			String downstreamNodeExternalIdHeader = BaseOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
-			String costHeader = BaseOutputProperty.COST;
+			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
+			String upstreamNodeExternalIdHeader = UpstreamNodeExternalIdOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
+			String downstreamNodeExternalIdHeader = DownstreamNodeExternalIdOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
+			String costHeader = CostOutputProperty.COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);

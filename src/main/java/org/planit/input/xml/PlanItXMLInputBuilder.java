@@ -13,11 +13,8 @@ import javax.annotation.Nonnull;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
-import org.planit.cost.physical.initial.LinkIdentificationMethod;
-import org.planit.cost.virtual.VirtualCost;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.input.InputBuilderListener;
@@ -37,7 +34,6 @@ import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
 import org.planit.xml.demands.UpdateDemands;
@@ -47,12 +43,13 @@ import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXml
 import org.planit.xml.util.XmlUtils;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
-import org.planit.output.property.BaseOutputProperty;
+import org.planit.output.property.CostOutputProperty;
+import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentIdOutputProperty;
+import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
-import org.planit.sdinteraction.smoothing.Smoothing;
-import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
-import org.planit.supply.network.nodemodel.NodeModel;
-import org.planit.supply.networkloading.NetworkLoading;
+import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 
 /**
  * Class which reads inputs from XML input files
@@ -339,15 +336,15 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	}
 
 	/**
-	 * Get the identification method for links in the initial link cost input CSV
-	 * file
+	 * Get the output property representing the identification method for links in
+	 * the initial link cost input CSV file
 	 * 
 	 * @param headers set of headers used in the input file
 	 * @return the identification method identified
 	 * @throws PlanItException thrown if there is an error reading the file
 	 */
 	@SuppressWarnings("incomplete-switch")
-	private LinkIdentificationMethod getLinkIdentificationMethod(Set<String> headers) throws PlanItException {
+	private OutputProperty getLinkIdentificationMethod(Set<String> headers) throws PlanItException {
 		boolean linkSegmentExternalIdPresent = false;
 		boolean linkSegmentIdPresent = false;
 		boolean upstreamNodeExternalIdPresent = false;
@@ -377,32 +374,113 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 			}
 		}
 		if (!costPresent) {
-			LOGGER.severe("Cost column not present in initial link segment costs file");
-			return LinkIdentificationMethod.UNDEFINED;
+			throw new PlanItException("Cost column not present in initial link segment costs file");
 		}
 		if (!modeExternalIdPresent) {
-			LOGGER.severe("Mode External Id not present in initial link segment costs file");
-			return LinkIdentificationMethod.UNDEFINED;
+			throw new PlanItException("Mode External Id not present in initial link segment costs file");
 		}
-		boolean bothNodeIdsPresent = (upstreamNodeExternalIdPresent && downstreamNodeExternalIdPresent);
-		if (linkSegmentExternalIdPresent && !bothNodeIdsPresent) {
-			return LinkIdentificationMethod.LINK_SEGMENT_EXTERNAL_ID;
+		if (linkSegmentExternalIdPresent) {
+			return OutputProperty.LINK_SEGMENT_EXTERNAL_ID;
 		}
-		if (linkSegmentIdPresent && !bothNodeIdsPresent) {
-			return LinkIdentificationMethod.LINK_SEGMENT_ID;
+		if (linkSegmentIdPresent) {
+			return OutputProperty.LINK_SEGMENT_ID;
 		}
-		if (!linkSegmentExternalIdPresent && !linkSegmentIdPresent && bothNodeIdsPresent) {
-			return LinkIdentificationMethod.NODE_EXTERNAL_ID;
+		if (upstreamNodeExternalIdPresent && downstreamNodeExternalIdPresent) {
+			return OutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
 		}
-		LOGGER.severe("Links not correctly identified in initial link segment costs file");
-		return LinkIdentificationMethod.UNDEFINED;
+		throw new PlanItException("Links not correctly identified in initial link segment costs file");
+	}
+
+	/**
+	 * Get a link segment which has been identified by the id value in a specified
+	 * column in the CSV record
+	 * 
+	 * @param record CSVRecord in the initial segment cost input file
+	 * @param header header name specifying which column contains the id value
+	 * @return the specified link segment
+	 */
+	private LinkSegment getLinkSegmentFromHeader(CSVRecord record, String header) {
+		long linkSegmentId = Long.parseLong(record.get(header));
+		return linkSegments.getLinkSegment(linkSegmentId);
+	}
+
+	/**
+	 * Get a link segment which has been identified by the id values of the upstream
+	 * and downstream nodes in the CSV record
+	 * 
+	 * @param record                         CSVRecord in the initial segment cost
+	 *                                       input file
+	 * @param upstreamNodeExternalIdHeader   header name specifying which column
+	 *                                       contains the upstream node id value
+	 * @param downstreamNodeExternalIdHeader header name specifying which column
+	 *                                       contains the downstream node id value
+	 * @return the specified link segment
+	 */
+	private LinkSegment getLinkSegmentFromStartAndEndNodeExternalId(CSVRecord record,
+			String upstreamNodeExternalIdHeader, String downstreamNodeExternalIdHeader) throws PlanItException {
+		long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
+		long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
+		return linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
+	}
+
+	/**
+	 * Set the initial link segment cost for the specified link segment using values in the CSV initial segment costs file
+	 * 
+	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to store the cost value
+	 * @param record the record in the CSV input file to get the data value from
+	 * @param linkSegment the current link segment
+	 */
+	private void setInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVRecord record,
+			LinkSegment linkSegment) {
+		long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.MODE_EXTERNAL_ID));
+		Mode mode = Mode.getByExternalId(modeExternalId);
+		double cost = Double.parseDouble(record.get(CostOutputProperty.COST));
+		initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
+	}
+
+	/**
+	 * Update the initial link segment cost object using the data from the CSV input file for the current record
+	 * 
+	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
+	 * @param parser the CSVParser containing all CSV records
+	 * @param record the current CSVRecord
+	 * @param outputProperty the OutputProperty corresponding to the column to be read from
+	 * @param header the header specifying the column to be read from
+	 */
+	private void updateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser,
+			CSVRecord record, OutputProperty outputProperty, String header) {
+		initialLinkSegmentCost.setPropertyColumnIndex(outputProperty, parser.getHeaderMap().get(header));
+		LinkSegment linkSegment = getLinkSegmentFromHeader(record, header);
+		setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
+	}
+
+	/**
+	 * Update the initial link segment cost object using the data from the CSV input file for the current record specified by start and end node external Id
+	 * 
+	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
+	 * @param parser the CSVParser containing all CSV records
+	 * @param record the current CSVRecord
+	 * @param startOutputProperty the OutputProperty corresponding to the column to the start node
+	 * @param endOutputProperty the OutputProperty corresponding to the column to the end node
+	 * @param startHeader the header specifying the start node column
+	 * @param endHeader the header specifying the end node column
+	 * @throws PlanItException thrown if there is an error during searching for the link segment
+	 */			
+	private void updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(
+			InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser, CSVRecord record,
+			OutputProperty startOutputProperty, OutputProperty endOutputProperty, String startHeader, String endHeader) 
+			throws PlanItException {
+		initialLinkSegmentCost.setPropertyColumnIndex(startOutputProperty, parser.getHeaderMap().get(startHeader));
+		initialLinkSegmentCost.setPropertyColumnIndex(endOutputProperty, parser.getHeaderMap().get(endHeader));
+		LinkSegment linkSegment = getLinkSegmentFromStartAndEndNodeExternalId(record, startHeader, endHeader);
+		setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
 	}
 
 	/**
 	 * Creates the physical network object from the data in the input file
 	 * 
-	 * @param physicalNetwork the physical network object to be populated from the input
-	 *                data
+	 * @param physicalNetwork the physical network object to be populated from the
+	 *                        input data
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
 	protected void populatePhysicalNetwork(@Nonnull PhysicalNetwork physicalNetwork) throws PlanItException {
@@ -475,68 +553,40 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	/**
 	 * Populate the initial link segment cost from a CSV file
 	 * 
-	 * @param projectComponent InitialLinkSegmentCost object to be populated
-	 * @param parameter CSV file containing the initial link segment cost values
+	 * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
+	 * @param parameter              CSV file containing the initial link segment
+	 *                               cost values
 	 * @throws PlanItException
 	 */
 	@SuppressWarnings("incomplete-switch")
-	protected void populateInitialPhysicalCost(InitialPhysicalCost projectComponent, Object parameter) throws PlanItException {
+	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter)
+			throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
-		InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) projectComponent;
 		String fileName = (String) parameter;
 		initialLinkSegmentCost.setNoLinkSegments(linkSegments.getNumberOfLinkSegments());
 		try {
 			Reader in = new FileReader(fileName);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			Set<String> headers = parser.getHeaderMap().keySet();
-			LinkIdentificationMethod linkIdentificationMethod = getLinkIdentificationMethod(headers);
-			if (linkIdentificationMethod == LinkIdentificationMethod.UNDEFINED) {
-				throw new PlanItException("The headers in file " + fileName + " are not valid.");
-			}
-			String modeHeader = BaseOutputProperty.MODE_EXTERNAL_ID;
-			String costHeader =  BaseOutputProperty.COST;
-			String linkSegmentIdHeader = BaseOutputProperty.LINK_SEGMENT_ID;
-			String linkSegmentExternalIdHeader = BaseOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
-			String upstreamNodeExternalIdHeader = BaseOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
-			String downstreamNodeExternalIdHeader =  BaseOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
-			switch (linkIdentificationMethod) {
-			case LINK_SEGMENT_ID:
-				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.LINK_SEGMENT_ID,
-						parser.getHeaderMap().get(linkSegmentIdHeader));
-				break;
-			case LINK_SEGMENT_EXTERNAL_ID:
-				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
-						parser.getHeaderMap().get(linkSegmentExternalIdHeader));
-				break;
-			case NODE_EXTERNAL_ID:
-				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID,
-						parser.getHeaderMap().get(upstreamNodeExternalIdHeader));
-				initialLinkSegmentCost.setPropertyColumnIndex(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
-						parser.getHeaderMap().get(downstreamNodeExternalIdHeader));
-				break;
-			}
+			OutputProperty linkIdentificationMethod = getLinkIdentificationMethod(headers);
 			for (CSVRecord record : parser) {
-				long modeExternalId = Long.parseLong(record.get(modeHeader));
-				Mode mode = Mode.getByExternalId(modeExternalId);
-				double cost = Double.parseDouble(record.get(costHeader));
-				LinkSegment linkSegment = null;
 				switch (linkIdentificationMethod) {
 				case LINK_SEGMENT_ID:
-					long linkSegmentId = Long.parseLong(record.get(linkSegmentIdHeader));
-					linkSegment = linkSegments.getLinkSegment(linkSegmentId);
+					updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record, OutputProperty.LINK_SEGMENT_ID,
+							LinkSegmentIdOutputProperty.LINK_SEGMENT_ID);
 					break;
 				case LINK_SEGMENT_EXTERNAL_ID:
-					long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-					linkSegment = linkSegments.getLinkSegmentByExternalId(linkSegmentExternalId);
+					updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record,
+							OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
+							LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID);
 					break;
-				case NODE_EXTERNAL_ID:
-					long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
-					long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
-					linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId,
-							downstreamNodeExternalId);
+				case UPSTREAM_NODE_EXTERNAL_ID:
+					updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(initialLinkSegmentCost, parser, record,
+							OutputProperty.UPSTREAM_NODE_EXTERNAL_ID, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
+							UpstreamNodeExternalIdOutputProperty.UPSTREAM_NODE_EXTERNAL_ID,
+							DownstreamNodeExternalIdOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
 					break;
 				}
-				initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
 			}
 			in.close();
 		} catch (Exception ex) {
@@ -604,11 +654,11 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 		} else if (projectComponent instanceof Demands) {
 			populateDemands((Demands) projectComponent);
 		} else if (projectComponent instanceof InitialPhysicalCost) {
-			populateInitialPhysicalCost((InitialPhysicalCost) projectComponent, event.getParameter());
+			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter());
 		} else {
 			LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
 					+ " which is not handled by PlanItXMLInputBuilder.");
 		}
 	}
-	
+
 }
