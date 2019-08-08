@@ -533,6 +533,23 @@ public class PlanItXmlTest {
 	}
 
 	@Test
+	public void testRouteChoice2InitialCostsOneIterationExternalIds() {
+		try {
+			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds";
+			String description = "testRouteChoice2initialCosts";
+			String csvFileName = "Time Period 1_1.csv";
+			String xmlFileName = "Time Period 1.xml";
+			runTest(projectPath,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
+					null, 0, 1, 0.0, null, description, null);
+			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
 	public void testRouteChoice2InitialCosts500Iterations() {
 		try {
 			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations";
@@ -541,6 +558,23 @@ public class PlanItXmlTest {
 			String xmlFileName = "Time Period 1.xml";
 			runTest(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
+					null, 0, 500, 0.0, null, description, null);
+			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testRouteChoice2InitialCosts500IterationsExternalIds() {
+		try {
+			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds";
+			String description = "testRouteChoice2initialCosts";
+			String csvFileName = "Time Period 1_500.csv";
+			String xmlFileName = "Time Period 1.xml";
+			runTest(projectPath,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds\\initial_link_segment_costs.csv",
 					null, 0, 500, 0.0, null, description, null);
 			runAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {

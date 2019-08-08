@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.LongFunction;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -392,43 +393,14 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	}
 
 	/**
-	 * Get a link segment which has been identified by the id value in a specified
-	 * column in the CSV record
+	 * Set the initial link segment cost for the specified link segment using values
+	 * in the CSV initial segment costs file
 	 * 
-	 * @param record CSVRecord in the initial segment cost input file
-	 * @param header header name specifying which column contains the id value
-	 * @return the specified link segment
-	 */
-	private LinkSegment getLinkSegmentFromHeader(CSVRecord record, String header) {
-		long linkSegmentId = Long.parseLong(record.get(header));
-		return linkSegments.getLinkSegment(linkSegmentId);
-	}
-
-	/**
-	 * Get a link segment which has been identified by the id values of the upstream
-	 * and downstream nodes in the CSV record
-	 * 
-	 * @param record                         CSVRecord in the initial segment cost
-	 *                                       input file
-	 * @param upstreamNodeExternalIdHeader   header name specifying which column
-	 *                                       contains the upstream node id value
-	 * @param downstreamNodeExternalIdHeader header name specifying which column
-	 *                                       contains the downstream node id value
-	 * @return the specified link segment
-	 */
-	private LinkSegment getLinkSegmentFromStartAndEndNodeExternalId(CSVRecord record,
-			String upstreamNodeExternalIdHeader, String downstreamNodeExternalIdHeader) throws PlanItException {
-		long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
-		long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
-		return linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
-	}
-
-	/**
-	 * Set the initial link segment cost for the specified link segment using values in the CSV initial segment costs file
-	 * 
-	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to store the cost value
-	 * @param record the record in the CSV input file to get the data value from
-	 * @param linkSegment the current link segment
+	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to store the
+	 *                               cost value
+	 * @param record                 the record in the CSV input file to get the
+	 *                               data value from
+	 * @param linkSegment            the current link segment
 	 */
 	private void setInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVRecord record,
 			LinkSegment linkSegment) {
@@ -439,40 +411,60 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	}
 
 	/**
-	 * Update the initial link segment cost object using the data from the CSV input file for the current record
+	 * Update the initial link segment cost object using the data from the CSV input
+	 * file for the current record
 	 * 
 	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
-	 * @param parser the CSVParser containing all CSV records
-	 * @param record the current CSVRecord
-	 * @param outputProperty the OutputProperty corresponding to the column to be read from
-	 * @param header the header specifying the column to be read from
+	 * @param parser                 the CSVParser containing all CSV records
+	 * @param record                 the current CSVRecord
+	 * @param outputProperty         the OutputProperty corresponding to the column
+	 *                               to be read from
+	 * @param header                 the header specifying the column to be read
+	 *                               from
+	 * @param findLinkFunction       the function which finds the link segment for
+	 *                               the current header
+	 * @throws PlanItException thrown if no link segment is found
 	 */
 	private void updateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser,
-			CSVRecord record, OutputProperty outputProperty, String header) {
+			CSVRecord record, OutputProperty outputProperty, String header, LongFunction<LinkSegment> findLinkFunction)
+			throws PlanItException {
 		initialLinkSegmentCost.setPropertyColumnIndex(outputProperty, parser.getHeaderMap().get(header));
-		LinkSegment linkSegment = getLinkSegmentFromHeader(record, header);
+		long id = Long.parseLong(record.get(header));
+		LinkSegment linkSegment = findLinkFunction.apply(id);
+		if (linkSegment == null) {
+			throw new PlanItException("Failed to find link segment");
+		}
 		setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
 	}
 
 	/**
-	 * Update the initial link segment cost object using the data from the CSV input file for the current record specified by start and end node external Id
+	 * Update the initial link segment cost object using the data from the CSV input
+	 * file for the current record specified by start and end node external Id
 	 * 
 	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
-	 * @param parser the CSVParser containing all CSV records
-	 * @param record the current CSVRecord
-	 * @param startOutputProperty the OutputProperty corresponding to the column to the start node
-	 * @param endOutputProperty the OutputProperty corresponding to the column to the end node
-	 * @param startHeader the header specifying the start node column
-	 * @param endHeader the header specifying the end node column
-	 * @throws PlanItException thrown if there is an error during searching for the link segment
-	 */			
+	 * @param parser                 the CSVParser containing all CSV records
+	 * @param record                 the current CSVRecord
+	 * @param startOutputProperty    the OutputProperty corresponding to the column
+	 *                               to the start node
+	 * @param endOutputProperty      the OutputProperty corresponding to the column
+	 *                               to the end node
+	 * @param startHeader            the header specifying the start node column
+	 * @param endHeader              the header specifying the end node column
+	 * @throws PlanItException thrown if there is an error during searching for the
+	 *                         link segment
+	 */
 	private void updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(
 			InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser, CSVRecord record,
-			OutputProperty startOutputProperty, OutputProperty endOutputProperty, String startHeader, String endHeader) 
+			OutputProperty startOutputProperty, OutputProperty endOutputProperty, String startHeader, String endHeader)
 			throws PlanItException {
 		initialLinkSegmentCost.setPropertyColumnIndex(startOutputProperty, parser.getHeaderMap().get(startHeader));
 		initialLinkSegmentCost.setPropertyColumnIndex(endOutputProperty, parser.getHeaderMap().get(endHeader));
-		LinkSegment linkSegment = getLinkSegmentFromStartAndEndNodeExternalId(record, startHeader, endHeader);
+		long upstreamNodeExternalId = Long.parseLong(record.get(startHeader));
+		long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
+		LinkSegment linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
+		if (linkSegment == null) {
+			throw new PlanItException("Failed to find link segment");
+		}
 		setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
 	}
 
@@ -573,12 +565,16 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 				switch (linkIdentificationMethod) {
 				case LINK_SEGMENT_ID:
 					updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record, OutputProperty.LINK_SEGMENT_ID,
-							LinkSegmentIdOutputProperty.LINK_SEGMENT_ID);
+							LinkSegmentIdOutputProperty.LINK_SEGMENT_ID, (id) -> {
+								return linkSegments.getLinkSegment(id);
+							});
 					break;
 				case LINK_SEGMENT_EXTERNAL_ID:
 					updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record,
 							OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
-							LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID);
+							LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID, (id) -> {
+								return linkSegments.getLinkSegmentByExternalId(id);
+							});
 					break;
 				case UPSTREAM_NODE_EXTERNAL_ID:
 					updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(initialLinkSegmentCost, parser, record,
