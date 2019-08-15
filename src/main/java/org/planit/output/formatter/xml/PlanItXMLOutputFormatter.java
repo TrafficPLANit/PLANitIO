@@ -31,6 +31,7 @@ import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.transport.TransportNetwork;
+import org.planit.output.OutputType;
 import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.adapter.TraditionalStaticAssignmentLinkOutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
@@ -179,10 +180,11 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param modes                   Set of modes for the assignment to be saved
 	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
 	 *                                be saved
+	 * @param outputType OutputType for the current persistence
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration)
+	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration, OutputType outputType)
 			throws PlanItException {
 		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
 		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
