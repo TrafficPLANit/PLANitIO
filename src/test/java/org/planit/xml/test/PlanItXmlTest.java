@@ -276,6 +276,8 @@ public class PlanItXmlTest {
 		linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
 
 		// OUTPUT FORMAT CONFIGURATION
+		
+		//PlanItXMLOutputFormatter
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
 				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
 		if (clearOutputDirectories) {
@@ -288,17 +290,18 @@ public class PlanItXmlTest {
 		xmlOutputFormatter.setOutputDirectory(projectPath);
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
+		//BasicMemoryOutputFormatter
 		BasicMemoryOutputFormatter basicMemoryOutputFormatter = (BasicMemoryOutputFormatter) project
 				.createAndRegisterOutputFormatter(BasicMemoryOutputFormatter.class.getCanonicalName());
 		taBuilder.registerOutputFormatter(basicMemoryOutputFormatter);
 
+		//MemoryOutputFormatter
 		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
 				.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
 		memoryOutputFormatter.setOutputKeyProperties(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
 				OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
 		memoryOutputFormatter.setOutputValueProperties(OutputProperty.LENGTH, OutputProperty.FLOW,
 				OutputProperty.SPEED, OutputProperty.COST);
-
 		taBuilder.registerOutputFormatter(memoryOutputFormatter);
 
 		// "USER" configuration
