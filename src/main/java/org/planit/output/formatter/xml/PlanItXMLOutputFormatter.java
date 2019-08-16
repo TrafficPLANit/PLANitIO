@@ -180,11 +180,10 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param modes                   Set of modes for the assignment to be saved
 	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
 	 *                                be saved
-	 * @param outputType OutputType for the current persistence
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration, OutputType outputType)
+	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration)
 			throws PlanItException {
 		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
 		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
@@ -439,26 +438,14 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 */
 	private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
 		XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
-		outputconfiguration.setAssignment(getClassName(outputAdapter.getTrafficAssignment()));
-		outputconfiguration.setPhysicalcost(getClassName(outputAdapter.getTrafficAssignment().getPhysicalCost()));
-		outputconfiguration.setVirtualcost(getClassName(outputAdapter.getTrafficAssignment().getVirtualCost()));
+		outputconfiguration.setAssignment(outputAdapter.getAssignmentClassName());
+		outputconfiguration.setPhysicalcost(outputAdapter.getPhysicalCostClassName());
+		outputconfiguration.setVirtualcost(outputAdapter.getVirtualCostClassName());
 		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
 		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
 		timeperiod.setName(timePeriod.getDescription());
 		outputconfiguration.setTimeperiod(timeperiod);
 		return outputconfiguration;
-	}
-
-	/**
-	 * Return the name of a Java object class as a short string
-	 * 
-	 * @param object the Java object
-	 * @return the name of the object
-	 */
-	private String getClassName(Object object) {
-		String name = object.getClass().getCanonicalName();
-		String[] words = name.split("\\.");
-		return words[words.length - 1];
 	}
 
 	/**

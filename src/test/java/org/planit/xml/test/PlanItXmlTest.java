@@ -298,9 +298,9 @@ public class PlanItXmlTest {
 		//MemoryOutputFormatter
 		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
 				.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-		memoryOutputFormatter.setOutputKeyProperties(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
+		memoryOutputFormatter.setOutputKeyProperties(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
 				OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
-		memoryOutputFormatter.setOutputValueProperties(OutputProperty.LENGTH, OutputProperty.FLOW,
+		memoryOutputFormatter.setOutputValueProperties(OutputType.LINK, OutputProperty.LENGTH, OutputProperty.FLOW,
 				OutputProperty.SPEED, OutputProperty.COST);
 		taBuilder.registerOutputFormatter(memoryOutputFormatter);
 
