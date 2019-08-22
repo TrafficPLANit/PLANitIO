@@ -317,9 +317,6 @@ public class PlanItXmlTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<BprResultDto>>>> resultsMapFromFile = CsvIoUtils
 					.createResultsMapFromCsvFile(resultsFileLocation);
 			TestHelper.compareResultsToMemoryOutputFormatter(basicMemoryOutputFormatter, resultsMapFromFile);
-			if (maxIterations == null) {
-				maxIterations = memoryOutputFormatter.getLastIteration();
-			}
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
 					resultsMapFromFile);
 		}
