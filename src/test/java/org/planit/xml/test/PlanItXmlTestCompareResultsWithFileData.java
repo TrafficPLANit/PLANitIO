@@ -48,9 +48,9 @@ import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.test.ResultDto;
-import org.planit.test.CsvIoUtils;
-import org.planit.test.TestHelper;
+import org.planit.test.integration.CsvIoUtils;
+import org.planit.test.integration.LinkSegmentExpectedResultsDto;
+import org.planit.test.integration.TestHelper;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
@@ -314,7 +314,7 @@ public class PlanItXmlTestCompareResultsWithFileData {
 
 		project.executeAllTrafficAssignments();
 		if (resultsFileLocation != null) {
-			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<ResultDto>>>> resultsMapFromFile = CsvIoUtils
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMapFromFile = CsvIoUtils
 					.createResultsMapFromCsvFile(resultsFileLocation);
 			TestHelper.compareResultsToMemoryOutputFormatter(basicMemoryOutputFormatter, resultsMapFromFile);
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,

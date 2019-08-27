@@ -58,11 +58,11 @@ gml-v_3_1_1.xjb:
 
 ## Generated Java classes
 
-All Java classes generated from XSD code are placed in the "org.planit.generated" package and given names which begin with "XMLElement".  These names are set in the XJB files.
+The Maven build uses JAXB to generate Java classes from the XSD schema files described in the previous section.  These classes generated  are placed in package named "org.planit.generated".  The Java classes are all given names which begin with "XMLElement".  These names are set in the XJB files.
+
+The generated Java classes and org.planit.generated package are not stored in Git.  Do not directly edit their content or location.  These classes get rewritten every time you do a Maven build of the PLANitXML project.  They reflect the state of the XSD files.  If you need to make changes to the format of the XML input or output, change the relevant XSD and XJB files accordingly and re-run the Maven build.
 
 The build also creates several enumerations for input values, and a class "ObjectFactory" which JAXB uses internally.
-
-Do not edit the content or location of the generated Java classes.  These classes get rewritten every time you do a Maven build of the PLANitXML project.  They reflect the state of the XSD files.  If you need to make changes to the format of the XML input or output, change the relevant XSD and XJB files accordingly and re-run the Maven build.
 
 Due to the OCG Schemas project mentioned above, JAXB also creates several "extra" packages which you do not need, namely:
 
@@ -80,7 +80,7 @@ The XmlUtils class contains the following methods for reading and writing XML fi
 
 The generated Java classes can be accessed in the code like any Java classes.  They only contain getter and setter methods which are used to hold data, they contain no business logic.  
 
-It is recommended that the generated Java classes only be used to populate PLANit's own business  objects (network, zoning etc) and they not be passed directly to any business logic.  Developers familiar with the concept of Data Transfer Objects will recognize how the generated classes fit this pattern.  The PlanItXMLInputBuilder performs this data transfer.
+It is recommended that the generated Java classes only be used to populate PLANit's own business objects (network, zoning etc) and not be passed directly to any business logic.  Developers familiar with the concept of Data Transfer Objects will recognize how the generated classes fit this pattern.  The PlanItXMLInputBuilder performs this data transfer.
 
 ## Basic PLANitXML Input File
 
