@@ -313,6 +313,9 @@ public class PlanItXmlTest {
 	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
+	 * 
+	 * If the setCostParameters argument is null, the system default values for the cost
+	 * function parameters are used.
 	 */
 	private MemoryOutputFormatter runTest(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
