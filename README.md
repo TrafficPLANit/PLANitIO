@@ -584,7 +584,7 @@ This example runs to generate the following output:
  
 |Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Downstream Node Location|Length|Number of Lanes|Upstream Node Location|Cost|Density|Flow|Speed|
 |---------------------|------------------- ---| -----------| --------------------------------------| -----------------------------------| ------------------------| -----------------------------------| ---------| ----------------------| --------------------------------| -----| ----------| -----|--------|
-|0|1|0|1|11|1200|Not Specified|1	|3	|Not Specified|0.0370117|180|3000|27.0184697|
+|0|1|0|1|11|1200|Not Specified|1|3|Not Specified|0.0370117|180|3000|27.0184697|
 |1|1|0|4|1|1200|Not Specified|1|1|Not Specified|0.0717191|180|1926|13.9432871|
 |2|1|0|12|4|1200|Not Specified|1|3|Not Specified|0.0370117|180|3000|27.0184697|
 |3	|1	|0	|2	|1|1200|Not Specified|2|1|Not Specified|0.0448544|180|6|44.5887278|
