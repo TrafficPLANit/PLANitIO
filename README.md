@@ -193,7 +193,7 @@ The simplest possible example of a PLANitXML input file.  This example only has 
  This example runs to generate the following output:
  
 |Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Length|Number of Lanes|Cost|Density|Flow|Speed|
-|---------------------|------------------- ---| -----------| --------------------------------------| -----------------------------------| ------------------------| --------------------------------| -----| ----------| -----| --------|
+|---|---| ---| ---|---|---| ---|---|---|---|---|
 |0	|1	|0	|2|1|2000|10|1|10|180|1|1|
 
 ## More Complicated PLANitXML Input File
@@ -584,7 +584,7 @@ The following input file defines a more complicated test case:
 This example runs to generate the following output:
  
 |Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Length|Number of Lanes|Cost|Density|Flow|Speed|
-|---------------------|------------------- ---| -----------| --------------------------------------| -----------------------------------| ------------------------| --------------------------------| -----| ----------| -----| --------|
+|---|---| ---| ---|---|---| ---|---|---|---|---|
 |0|1|0|1|11|1200|1|3|0.0370117|180|3000|27.0184697|
 |1|1|0|4|1|1200|1|1|0.0717191|180|1926|13.9432871|
 |2|1|0|12|4|1200|1|3|0.0370117|180|3000|27.0184697|
