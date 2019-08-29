@@ -74,9 +74,12 @@ public class PlanItProject extends CustomPlanItProject {
 			initialLinkSegmentCosts.put(network, new ArrayList<InitialLinkSegmentCost>());
 		}
 		InitialLinkSegmentCost initialLinkSegmentCost = (InitialLinkSegmentCost) initialPhysicalCostFactory.create(InitialLinkSegmentCost.class.getCanonicalName(), fileName);
-		//initialLinkSegmentCost.setNoLinkSegments(network.linkSegments.getNumberOfLinkSegments());
 		initialLinkSegmentCosts.get(network).add(initialLinkSegmentCost);
         return initialLinkSegmentCost;
+	}
+	
+	public List<InitialLinkSegmentCost> getInitialLinkSegmentCost(PhysicalNetwork network) {
+		return initialLinkSegmentCosts.get(network);
 	}
 	
 }

@@ -460,7 +460,6 @@ public class PlanItXmlTest {
 				double cost = Double.parseDouble(record.get(costHeader));
 				long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
 				LinkSegment linkSegment = physicalNetwork.linkSegments	.getLinkSegmentByExternalId(linkSegmentExternalId);
-				//assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
 				assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
 			}
 			in.close();
@@ -504,7 +503,6 @@ public class PlanItXmlTest {
 				long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
 				LinkSegment linkSegment = physicalNetwork.linkSegments
 						.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
-				//assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
 				assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
 			}
 			in.close();
