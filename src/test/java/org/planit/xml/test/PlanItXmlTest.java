@@ -348,11 +348,11 @@ public class PlanItXmlTest {
 		if (initialCostsFileLocation1 != null) {
 			if (initialCostsFileLocation2 != null) {
 				List<InitialLinkSegmentCost> initialCosts = project
-						.createAndRegisterInitialLinkSegmentCosts(initialCostsFileLocation1, initialCostsFileLocation2);
+						.createAndRegisterInitialLinkSegmentCosts(physicalNetwork, initialCostsFileLocation1, initialCostsFileLocation2);
 				taBuilder.registerInitialLinkSegmentCost(initialCosts.get(initCostsFilePos));
 			} else {
 				InitialLinkSegmentCost initialCost = project
-						.createAndRegisterInitialLinkSegmentCost(initialCostsFileLocation1);
+						.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
 				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
 		}
@@ -447,7 +447,7 @@ public class PlanItXmlTest {
 		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
 				.getBuilder();
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
-		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(initialCostsFileLocation);
+		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
 		try {
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
@@ -460,7 +460,8 @@ public class PlanItXmlTest {
 				double cost = Double.parseDouble(record.get(costHeader));
 				long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
 				LinkSegment linkSegment = physicalNetwork.linkSegments	.getLinkSegmentByExternalId(linkSegmentExternalId);
-				assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
+				//assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
+				assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
 			}
 			in.close();
 		} catch (Exception ex) {
@@ -487,7 +488,7 @@ public class PlanItXmlTest {
 		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
 				.getBuilder();
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
-		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(initialCostsFileLocation);
+		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
 		try {
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
@@ -503,7 +504,8 @@ public class PlanItXmlTest {
 				long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
 				LinkSegment linkSegment = physicalNetwork.linkSegments
 						.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
-				assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
+				//assertEquals(cost, initialCost.getAllSegmentCostsPerMode(mode)[(int) linkSegment.getId()], 0.0001);
+				assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
 			}
 			in.close();
 		} catch (Exception ex) {
@@ -536,14 +538,14 @@ public class PlanItXmlTest {
 	 * Test that PlanItProject reads in the values of one initial costs file
 	 */
 	@Test
-	public void testBasic1InitialCostFile() {
+	public void testBasic1OneInitialCostFile() {
 		try {
 			String projectPath = "src\\test\\resources\\basic\\xml\\test1";
 			String description = "testBasic1";
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			runTest(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv",
+			runTest(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
 					maxIterations, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {

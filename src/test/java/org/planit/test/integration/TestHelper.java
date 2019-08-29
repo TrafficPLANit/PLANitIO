@@ -29,6 +29,8 @@ public class TestHelper {
      * Logger for this class
      */
     private static final Logger LOGGER = Logger.getLogger(TestHelper.class.getName());
+
+    private static final double epsilon = 0.00001;
         
 /**
   * Compares the contents of a results map for the current run with a results map from a previous run which had been stored in a file.  It generates a JUnit test failure if the results maps have different contents.
@@ -118,11 +120,11 @@ public class TestHelper {
 						double capacityPerLane = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.CAPACITY_PER_LANE);
 						int numberOfLanes = (Integer) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.NUMBER_OF_LANES);
 						double capacity = capacityPerLane * numberOfLanes;
-						assertEquals(flow, resultDto.getLinkFlow(), 0.00001);
-						assertEquals(length, resultDto.getLength(), 0.00001);
-						assertEquals(speed, resultDto.getSpeed(), 0.00001);
-						assertEquals(capacity, resultDto.getCapacity(), 0.00001);
-						assertEquals(cost, resultDto.getLinkCost(), 0.00001);
+						assertEquals(flow, resultDto.getLinkFlow(), epsilon);
+						assertEquals(length, resultDto.getLength(), epsilon);
+						assertEquals(speed, resultDto.getSpeed(), epsilon);
+						assertEquals(capacity, resultDto.getCapacity(), epsilon);
+						assertEquals(cost, resultDto.getLinkCost(), epsilon);
 					}					
 				}
 			}		
@@ -158,24 +160,24 @@ public class TestHelper {
 							switch (outputValueProperties[i]) {
 							case FLOW: 
 								double flow = (Double) multiKeyPlanItData.getRowValue(OutputProperty.FLOW,  keyValues);
-							    assertEquals(flow, resultDto.getLinkFlow(), 0.00001);
+							    assertEquals(flow, resultDto.getLinkFlow(), epsilon);
 							    break;
 							case LENGTH: 
 								double length = (Double) multiKeyPlanItData.getRowValue(OutputProperty.LENGTH,  keyValues);
-								assertEquals(length, resultDto.getLength(), 0.00001);
+								assertEquals(length, resultDto.getLength(), epsilon);
 								break;
 							case SPEED:
 								double speed = (Double) multiKeyPlanItData.getRowValue(OutputProperty.SPEED,  keyValues);
-								assertEquals(speed, resultDto.getSpeed(), 0.00001);
+								assertEquals(speed, resultDto.getSpeed(), epsilon);
 								break;
 							case COST:
 								double cost = (Double) multiKeyPlanItData.getRowValue(OutputProperty.COST,  keyValues);
-								assertEquals(cost, resultDto.getLinkCost(), 0.00001);
+								assertEquals(cost, resultDto.getLinkCost(), epsilon);
 								break;
 							case CAPACITY_PER_LANE:
 								double capacityPerLane = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CAPACITY_PER_LANE,  keyValues);
 								int numberOfLanes = (Integer) multiKeyPlanItData.getRowValue(OutputProperty.NUMBER_OF_LANES,  keyValues);
-								assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), 0.00001);
+								assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
 								break;
 								}
 						}

@@ -428,7 +428,6 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	private void updateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser,
 			CSVRecord record, OutputProperty outputProperty, String header, LongFunction<LinkSegment> findLinkFunction)
 			throws PlanItException {
-		initialLinkSegmentCost.setPropertyColumnIndex(outputProperty, parser.getHeaderMap().get(header));
 		long id = Long.parseLong(record.get(header));
 		LinkSegment linkSegment = findLinkFunction.apply(id);
 		if (linkSegment == null) {
@@ -457,8 +456,6 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 			InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser, CSVRecord record,
 			OutputProperty startOutputProperty, OutputProperty endOutputProperty, String startHeader, String endHeader)
 			throws PlanItException {
-		initialLinkSegmentCost.setPropertyColumnIndex(startOutputProperty, parser.getHeaderMap().get(startHeader));
-		initialLinkSegmentCost.setPropertyColumnIndex(endOutputProperty, parser.getHeaderMap().get(endHeader));
 		long upstreamNodeExternalId = Long.parseLong(record.get(startHeader));
 		long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
 		LinkSegment linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
@@ -555,7 +552,6 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 			throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
 		String fileName = (String) parameter;
-		initialLinkSegmentCost.setNoLinkSegments(linkSegments.getNumberOfLinkSegments());
 		try {
 			Reader in = new FileReader(fileName);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
