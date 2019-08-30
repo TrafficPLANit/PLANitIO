@@ -78,6 +78,12 @@ public class PlanItProject extends CustomPlanItProject {
         return initialLinkSegmentCost;
 	}
 	
+	/**
+	 * Return the initial link segment costs for a network
+	 * 
+	 * @param network the specified physical network
+	 * @return the initial link segment costs for the specified physical network
+	 */
 	public List<InitialLinkSegmentCost> getInitialLinkSegmentCost(PhysicalNetwork network) {
 		return initialLinkSegmentCosts.get(network);
 	}
