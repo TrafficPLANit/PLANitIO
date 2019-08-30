@@ -187,7 +187,10 @@ public class PlanItXmlTest {
 		for (int i = 0; i < size1; i++) {
 			XMLElementIteration iteration1 = iterations1.get(i);
 			XMLElementIteration iteration2 = iterations2.get(i);
-			if (!iteration1.getNr().equals(iteration2.getNr())) {
+			if (iteration1.getNr().intValue() !=  iteration2.getNr().intValue()) {
+				return false;
+			}
+			if (!iteration1.getCsvdata().equals(iteration2.getCsvdata())) {
 				return false;
 			}
 		}
@@ -835,7 +838,7 @@ public class PlanItXmlTest {
 	public void testBasicThreeTimePeriods() {
 		try {
 			String projectPath = "src\\test\\resources\\basic\\xml\\test13";
-			String description = "testBasic3";
+			String description = "testBasic13";
 			String csvFileName1 = "Time Period 1_2.csv";
 			String csvFileName2 = "Time Period 2_2.csv";
 			String csvFileName3 = "Time Period 3_2.csv";
@@ -1123,6 +1126,41 @@ public class PlanItXmlTest {
 		}
 	}
 
+	/**
+	 * This test runs the same network using one iteration with different initial
+	 * costs for each time, running the test for 500 iterations.
+	 */
+	@Test
+	public void testRouteChoice2InitialCosts500IterationsThreeTimePeriods() {
+		try {
+			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods";
+			String description = "test2initialCosts500IterationsThreeTimePeriods";
+			String csvFileName1 = "Time Period 1_500.csv";
+			String csvFileName2 = "Time Period 2_500.csv";
+			String csvFileName3 = "Time Period 3_500.csv";
+			String xmlFileName1 = "Time Period 1.xml";
+			String xmlFileName2 = "Time Period 2.xml";
+			String xmlFileName3 = "Time Period 3.xml";
+			Integer maxIterations = 500;
+			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod = new HashMap<Long, String>();
+			initialLinkSegmentLocationsPerTimePeriod.put((long) 0,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_1.csv");
+			initialLinkSegmentLocationsPerTimePeriod.put((long) 1,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_2.csv");
+			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
+					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
+
+			runTest(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
+			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
+			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
+			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	
 	/**
 	 * This test check that PlanItProject reads the initial costs from a file
 	 * correctly, and outputs them after 500 iterations.
@@ -1890,10 +1928,6 @@ public class PlanItXmlTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
-	}
-
-	@Test
-	public void testDifferentInitialCostsForDifferentTimePeriods() throws PlanItException {
 	}
 
 }

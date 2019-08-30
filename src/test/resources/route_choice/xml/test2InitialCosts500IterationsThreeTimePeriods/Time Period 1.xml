@@ -14,8 +14,8 @@
 	</outputconfiguration>
 	<simulation>
 		<iteration>
-			<nr>1</nr>
-			<csvdata>src\test\resources\route_choice\xml\test2initialCostsOneIteration\testRouteChoice2initialCosts_Time Period 1_1.csv</csvdata>
+			<nr>500</nr>
+			<csvdata>src\test\resources\route_choice\xml\test2initialCosts500IterationsThreeTimePeriods\test2initialCosts500IterationsThreeTimePeriods_Time Period 1_500.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

@@ -15,8 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>500</nr>
-			<csvdata>src\test\resources\route_choice\xml\test3\testRouteChoice3_Time
-				Period 1_500.csv</csvdata>
+			<csvdata>src\test\resources\route_choice\xml\test3\testRouteChoice3_Time Period 1_500.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

@@ -15,8 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>2</nr>
-			<csvdata>src\test\resources\explanatory\xml\explanatory_Time Period
-				1_2.csv</csvdata>
+			<csvdata>src\test\resources\explanatory\xml\explanatory_Time Period 1_2.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>
