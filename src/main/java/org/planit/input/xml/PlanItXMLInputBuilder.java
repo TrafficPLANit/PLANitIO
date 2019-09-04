@@ -44,6 +44,7 @@ import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXml
 import org.planit.xml.util.XmlUtils;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
+import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.CostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
@@ -458,7 +459,8 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 			throws PlanItException {
 		long upstreamNodeExternalId = Long.parseLong(record.get(startHeader));
 		long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
-		LinkSegment linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
+		LinkSegment linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId,
+				downstreamNodeExternalId);
 		if (linkSegment == null) {
 			throw new PlanItException("Failed to find link segment");
 		}
@@ -547,7 +549,6 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	 *                               cost values
 	 * @throws PlanItException
 	 */
-	@SuppressWarnings("incomplete-switch")
 	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter)
 			throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
@@ -578,6 +579,10 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 							UpstreamNodeExternalIdOutputProperty.UPSTREAM_NODE_EXTERNAL_ID,
 							DownstreamNodeExternalIdOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
 					break;
+				default:
+					throw new PlanItException("Invalid Output Property "
+							+ BaseOutputProperty.convertToBaseOutputProperty(linkIdentificationMethod).getName()
+							+ " found in header of Initial Link Segment Cost CSV file");
 				}
 			}
 			in.close();

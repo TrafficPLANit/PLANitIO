@@ -118,7 +118,6 @@ public class PlanItXmlMain {
 		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 		xmlOutputFormatter.resetXmlOutputDirectory();
 		xmlOutputFormatter.resetCsvOutputDirectory();
-		//xmlOutputFormatter.setCsvSummaryOutputFileName(csvResultsFileLocation);
 		xmlOutputFormatter.setXmlNamePrefix("Route Choice Test 1");
 		xmlOutputFormatter.setCsvNamePrefix("Route Choice Test 1");
 
