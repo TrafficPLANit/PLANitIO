@@ -1,70 +1,45 @@
-package org.planit.xml.test;
+package org.planit.test.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.logging.Logger;
-
-import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
-import org.planit.demand.Demands;
 import org.planit.exceptions.PlanItException;
-import org.planit.generated.XMLElementColumn;
-import org.planit.generated.XMLElementIteration;
-import org.planit.generated.XMLElementMetadata;
-import org.planit.generated.XMLElementOutputConfiguration;
-import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
-import org.planit.output.configuration.LinkOutputTypeConfiguration;
-import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.output.property.CostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
-import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.PlanItProject;
-import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.test.integration.LinkSegmentExpectedResultsDto;
-import org.planit.test.integration.TestHelper;
+import org.planit.test.util.TestHelper;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
-import org.planit.xml.util.XmlUtils;
-import org.planit.zoning.Zoning;
 
 /**
  * JUnit test case for TraditionalStaticAssignment
@@ -86,427 +61,9 @@ import org.planit.zoning.Zoning;
  * @author gman6028
  *
  */
-public class PlanItXmlTest {
+public class PlanItXmlIntegrationTest {
 
-	private static final Logger LOGGER = Logger.getLogger(PlanItXmlTest.class.getName());
-	private static boolean clearOutputDirectories;
-
-	/**
-	 * Compares the contents of two text files
-	 * 
-	 * In this test the text contents of the files must be exactly equal. This test
-	 * can be applied to any file type (CSV, XML etc)
-	 * 
-	 * @param file1 location of the first file to be compared
-	 * @param file2 location of the second file to be compared
-	 * @return true if the contents of the two files are exactly equal, false
-	 *         otherwise
-	 * @throws IOException thrown if there is an error opening one of the files
-	 */
-	private boolean compareFiles(String file1, String file2) throws IOException {
-		File f1 = new File(file1);
-		File f2 = new File(file2);
-
-		// return FileUtils.contentEqualsIgnoreEOL(f1, f2, "utf-8");
-		boolean result = FileUtils.contentEqualsIgnoreEOL(f1, f2, "utf-8");
-		return result;
-	}
-
-	/**
-	 * Tests whether two XML output files contain the same data contents but were
-	 * created at different times.
-	 * 
-	 * This test only works on XML output files. For the test to pass, the data
-	 * contents of the two files must be equal but their timestamps (the times they
-	 * were created) must be different
-	 * 
-	 * @param xmlFile1 location of the first XML file to be compared
-	 * @param xmlFile2 location of the second XML file to be compared
-	 * @return true if the test passes, false otherwise
-	 * @throws Exception thrown if the there is an error opening one of the files
-	 */
-	private boolean isXmlFileSameExceptForTimestamp(String xmlFile1, String xmlFile2) throws Exception {
-		XMLElementMetadata metadata1 = (XMLElementMetadata) XmlUtils.generateObjectFromXml(XMLElementMetadata.class,
-				xmlFile1);
-		XMLElementMetadata metadata2 = (XMLElementMetadata) XmlUtils.generateObjectFromXml(XMLElementMetadata.class,
-				xmlFile2);
-		if (!metadata1.getVersion().equals(metadata2.getVersion())) {
-			return false;
-		}
-		List<XMLElementColumn> elementColumns1 = metadata1.getColumns().getColumn();
-		List<XMLElementColumn> elementColumns2 = metadata1.getColumns().getColumn();
-		int size1 = elementColumns1.size();
-		int size2 = elementColumns2.size();
-		if (size1 != size2) {
-			return false;
-		}
-		for (int i = 0; i < size1; i++) {
-			XMLElementColumn elementColumn1 = elementColumns1.get(i);
-			XMLElementColumn elementColumn2 = elementColumns2.get(i);
-			if (!elementColumn1.getName().equals(elementColumn2.getName())) {
-				return false;
-			}
-			if (!elementColumn1.getUnits().equals(elementColumn2.getUnits())) {
-				return false;
-			}
-			if (!elementColumn1.getType().equals(elementColumn2.getType())) {
-				return false;
-			}
-		}
-		if (!metadata1.getDescription().equals(metadata2.getDescription())) {
-			return false;
-		}
-
-		XMLElementOutputConfiguration outputConfiguration1 = metadata1.getOutputconfiguration();
-		XMLElementOutputConfiguration outputConfiguration2 = metadata2.getOutputconfiguration();
-		if (!outputConfiguration1.getAssignment().equals(outputConfiguration2.getAssignment())) {
-			return false;
-		}
-		if (!outputConfiguration1.getPhysicalcost().equals(outputConfiguration2.getPhysicalcost())) {
-			return false;
-		}
-		if (!outputConfiguration1.getVirtualcost().equals(outputConfiguration2.getVirtualcost())) {
-			return false;
-		}
-		XMLElementOutputTimePeriod timeperiod1 = outputConfiguration1.getTimeperiod();
-		XMLElementOutputTimePeriod timeperiod2 = outputConfiguration2.getTimeperiod();
-		if (!timeperiod1.getId().equals(timeperiod2.getId())) {
-			return false;
-		}
-		if (!timeperiod1.getName().equals(timeperiod2.getName())) {
-			return false;
-		}
-		List<XMLElementIteration> iterations1 = metadata1.getSimulation().getIteration();
-		size1 = iterations1.size();
-		List<XMLElementIteration> iterations2 = metadata2.getSimulation().getIteration();
-		size2 = iterations2.size();
-		if (size1 != size2) {
-			return false;
-		}
-
-		for (int i = 0; i < size1; i++) {
-			XMLElementIteration iteration1 = iterations1.get(i);
-			XMLElementIteration iteration2 = iterations2.get(i);
-			if (iteration1.getNr().intValue() != iteration2.getNr().intValue()) {
-				return false;
-			}
-			if (!iteration1.getCsvdata().equals(iteration2.getCsvdata())) {
-				return false;
-			}
-		}
-		// Time stamps should be different, to show that the two files were created
-		// separately
-		if (metadata1.getTimestamp().compare(metadata2.getTimestamp()) == DatatypeConstants.EQUAL) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Deletes a file from the file system
-	 * 
-	 * @param filename location of the file to be deleted
-	 * @throws Exception thrown if there is an error deleting the file
-	 */
-	private void deleteFile(String filename) throws Exception {
-		String rootPath = System.getProperty("user.dir");
-		Path path = FileSystems.getDefault().getPath(rootPath + "\\" + filename);
-		Files.delete(path);
-	}
-
-	/**
-	 * Delete a file from the directory of test files
-	 * 
-	 * @param projectPath path to the test directory
-	 * @param description description part of the file name
-	 * @param fileName    other part of the file name
-	 * @throws Exception thrown if there is an error deleting the file
-	 */
-	private void deleteFile(String projectPath, String description, String fileName) throws Exception {
-		deleteFile(projectPath + "\\" + description + "_" + fileName);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (uses
-	 * maximum number of iterations)
-	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param maxIterations     the maximum number of iterations allowed in this
-	 *                          test run
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath, Integer maxIterations,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return runTest(projectPath, null, null, 0, maxIterations, null, setCostParameters, description);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (requires
-	 * assignment to converge, no maximum number of iterations)
-	 * 
-	 * @param projectPath              project directory containing the input files
-	 * @param initialCostsFileLocation location of initial costs file
-	 * @param setCostParameters        lambda function which sets parameters of cost
-	 *                                 function
-	 * @param description              description used in temporary output file
-	 *                                 names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath, String initialCostsFileLocation, Integer maxIterations,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return runTest(projectPath, initialCostsFileLocation, null, 0, maxIterations, null, setCostParameters,
-				description);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (uses
-	 * maximum number of iterations)
-	 * 
-	 * @param projectPath               project directory containing the input files
-	 * @param initialCostsFileLocation1 location of first initial costs file
-	 * @param initialCostsFileLocation2 location of second initial costs file
-	 * @param initCostsFilePos          identifies which initial costs file is to be
-	 *                                  used
-	 * @param maxIterations             the maximum number of iterations allowed in
-	 *                                  this test run
-	 * @param setCostParameters         lambda function which sets parameters of
-	 *                                  cost function
-	 * @param description               description used in temporary output file
-	 *                                  names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath, String initialCostsFileLocation1,
-			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return runTest(projectPath, initialCostsFileLocation1, initialCostsFileLocation2, initCostsFilePos,
-				maxIterations, null, setCostParameters, description);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (uses
-	 * maximum number of iterations)
-	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param maxIterations     the maximum number of iterations allowed in this
-	 *                          test run
-	 * @param epsilon           measure of how close successive iterations must be
-	 *                          to each other to accept convergence
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return runTest(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters, description);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (requires
-	 * assignment to converge, no maximum number of iterations)
-	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return runTest(projectPath, null, null, 0, null, null, setCostParameters, description);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter
-	 * 
-	 * @param projectPath          project directory containing the input files
-	 * @param registerInitialCosts lambda function to register initial costs on the
-	 *                             Traffic Assignment Builder
-	 * @param maxIterations        the maximum number of iterations allowed in this
-	 *                             test run
-	 * @param epsilon              measure of how close successive iterations must
-	 *                             be to each other to accept convergence
-	 * @param setCostParameters    lambda function which sets parameters of cost
-	 *                             function
-	 * @param description          description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath,
-			TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts,
-			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
-		IdGenerator.reset();
-		PlanItProject project = new PlanItProject(projectPath);
-
-		// RAW INPUT START --------------------------------
-		PhysicalNetwork physicalNetwork = project
-				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-		Zoning zoning = project.createAndRegisterZoning();
-		Demands demands = project.createAndRegisterDemands();
-		// RAW INPUT END -----------------------------------
-
-		// TRAFFIC ASSIGNMENT START------------------------
-		DeterministicTrafficAssignment assignment = project
-				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-				.getBuilder();
-
-		// SUPPLY SIDE
-		taBuilder.registerPhysicalNetwork(physicalNetwork);
-
-		// SUPPLY-DEMAND INTERACTIONS
-		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
-		if (setCostParameters != null) {
-			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
-		}
-
-		taBuilder
-				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
-		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-
-		// SUPPLY-DEMAND INTERFACE
-		taBuilder.registerZoning(zoning);
-
-		// DEMAND SIDE
-		taBuilder.registerDemands(demands);
-
-		// DATA OUTPUT CONFIGURATION
-		assignment.activateOutput(OutputType.LINK);
-		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		outputConfiguration.setPersistOnlyFinalIteration(true); // option to persist only the final iteration
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration
-				.getOutputTypeConfiguration(OutputType.LINK);
-		linkOutputTypeConfiguration.addAllProperties();
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
-
-		// OUTPUT FORMAT CONFIGURATION
-
-		// PlanItXMLOutputFormatter
-		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
-				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
-		if (clearOutputDirectories) {
-			xmlOutputFormatter.resetXmlOutputDirectory();
-			xmlOutputFormatter.resetCsvOutputDirectory();
-			clearOutputDirectories = false;
-		}
-		xmlOutputFormatter.setXmlNamePrefix(description);
-		xmlOutputFormatter.setCsvNamePrefix(description);
-		xmlOutputFormatter.setOutputDirectory(projectPath);
-		taBuilder.registerOutputFormatter(xmlOutputFormatter);
-
-		// MemoryOutputFormatter
-		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
-				.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-		memoryOutputFormatter.setPropertiesFromOutputTypeConfiguration(linkOutputTypeConfiguration);
-		taBuilder.registerOutputFormatter(memoryOutputFormatter);
-
-		// "USER" configuration
-		if (maxIterations != null) {
-			assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-		}
-		if (epsilon != null) {
-			assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
-		}
-
-		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
-
-		project.executeAllTrafficAssignments();
-		return memoryOutputFormatter;
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (uses
-	 * maximum number of iterations)
-	 * 
-	 * @param projectPath               project directory containing the input files
-	 * @param initialCostsFileLocation1 location of first initial costs file
-	 * @param initialCostsFileLocation2 location of second initial costs file
-	 * @param initCostsFilePos          identifies which initial costs file is to be
-	 *                                  used
-	 * @param maxIterations             the maximum number of iterations allowed in
-	 *                                  this test run
-	 * @param epsilon                   measure of how close successive iterations
-	 *                                  must be to each other to accept convergence
-	 * @param setCostParameters         lambda function which sets parameters of
-	 *                                  cost function
-	 * @param description               description used in temporary output file
-	 *                                  names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 * 
-	 *                   If the setCostParameters argument is null, the system
-	 *                   default values for the cost function parameters are used.
-	 */
-	private MemoryOutputFormatter runTest(String projectPath, String initialCostsFileLocation1,
-			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-
-		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
-				taBuilder, project, physicalNetwork) -> {
-			if (initialCostsFileLocation1 != null) {
-				if (initialCostsFileLocation2 != null) {
-					List<InitialLinkSegmentCost> initialCosts = project.createAndRegisterInitialLinkSegmentCosts(
-							physicalNetwork, initialCostsFileLocation1, initialCostsFileLocation2);
-					taBuilder.registerInitialLinkSegmentCost(initialCosts.get(initCostsFilePos));
-				} else {
-					InitialLinkSegmentCost initialCost = project
-							.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-					taBuilder.registerInitialLinkSegmentCost(initialCost);
-				}
-			}
-		};
-
-		return runTest(projectPath, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
-	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
-	 * of initial cost for each time period)
-	 * 
-	 * @param projectPath                              project directory containing
-	 *                                                 the input files
-	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects
-	 *                                                 for each time period
-	 * @param epsilon                                  measure of how close
-	 *                                                 successive iterations must be
-	 *                                                 to each other to accept
-	 *                                                 convergence
-	 * @param setCostParameters                        lambda function which sets
-	 *                                                 parameters of cost function
-	 * @param description                              description used in temporary
-	 *                                                 output file names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-	private MemoryOutputFormatter runTest(String projectPath,
-			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-
-		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
-				taBuilder, project, physicalNetwork) -> {
-					// register different initial costs for each time period
-					for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
-				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
-				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
-				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-						initialCostsFileLocation);
-				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
-			}
-				};
-
-		return runTest(projectPath, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
-	}
+	private static final Logger LOGGER = Logger.getLogger(PlanItXmlIntegrationTest.class.getName());
 
 	/**
 	 * Run assertions which confirm that results files contain the correct data, and
@@ -520,12 +77,10 @@ public class PlanItXmlTest {
 	 */
 	private void runFileEqualAssertionsAndCleanUp(String projectPath, String description, String csvFileName,
 			String xmlFileName) throws Exception {
-		assertTrue(
-				compareFiles(projectPath + "\\" + csvFileName, projectPath + "\\" + description + "_" + csvFileName));
-		assertTrue(isXmlFileSameExceptForTimestamp(projectPath + "\\" + xmlFileName,
-				projectPath + "\\" + description + "_" + xmlFileName));
-		deleteFile(projectPath, description, csvFileName);
-		deleteFile(projectPath, description, xmlFileName);
+		assertTrue(TestHelper.compareFiles(projectPath + "\\" + csvFileName, projectPath + "\\" + description + "_" + csvFileName));
+		assertTrue(TestHelper.isXmlFileSameExceptForTimestamp(projectPath + "\\" + xmlFileName,	projectPath + "\\" + description + "_" + xmlFileName));
+		TestHelper.deleteFile(projectPath, description, csvFileName);
+		TestHelper.deleteFile(projectPath, description, xmlFileName);
 	}
 
 	/**
@@ -629,7 +184,7 @@ public class PlanItXmlTest {
 			String projectPath = "src\\test\\resources\\initial_costs\\xml\\test2";
 			String description = "testBasic1";
 			Integer maxIterations = null;
-			runTest(projectPath,
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\initial_costs\\xml\\test2\\initial_link_segment_costs_external_id.csv",
 					maxIterations, null, description);
 			fail("RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
@@ -650,7 +205,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			runTest(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
+			TestHelper.setupAndExecuteAssignment(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
 					maxIterations, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
@@ -670,7 +225,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			runTest(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
+			TestHelper.setupAndExecuteAssignment(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
 					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, maxIterations, null,
 					description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -698,7 +253,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -741,7 +296,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -801,7 +356,7 @@ public class PlanItXmlTest {
 			String xmlFileName2 = "Time Period 2.xml";
 			String xmlFileName3 = "Time Period 3.xml";
 			Integer maxIterations = null;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -886,7 +441,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -940,7 +495,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -986,7 +541,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_1.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 1;
-			runTest(projectPath,
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -1021,7 +576,7 @@ public class PlanItXmlTest {
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
-			runTest(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
+			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
@@ -1046,7 +601,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_1.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 1;
-			runTest(projectPath,
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -1071,7 +626,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			runTest(projectPath,
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -1105,7 +660,7 @@ public class PlanItXmlTest {
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
-			runTest(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
+			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
@@ -1130,7 +685,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			runTest(projectPath,
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -1153,7 +708,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1202,7 +757,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1331,7 +886,7 @@ public class PlanItXmlTest {
 			String xmlFileName1 = "Time Period 1.xml";
 			String xmlFileName2 = "Time Period 2.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1553,7 +1108,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1678,7 +1233,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1802,7 +1357,7 @@ public class PlanItXmlTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, maxIterations, 0.0,
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0,
 					(physicalNetwork, bprLinkTravelTimeCost) -> {
 						MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 						MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
@@ -1865,7 +1420,7 @@ public class PlanItXmlTest {
 			String csvFileName1 = "Time Period 1_2.csv";
 			String xmlFileName1 = "Time Period 1.xml";
 			Integer maxIterations = null;
-			MemoryOutputFormatter memoryOutputFormatter = runTest(projectPath, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
