@@ -487,12 +487,6 @@ public class TestHelper {
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to persist only the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration
 				.getOutputTypeConfiguration(OutputType.LINK);
-		/*
-		 * linkOutputTypeConfiguration.addAllProperties();
-		 * linkOutputTypeConfiguration.removeProperty(OutputProperty.
-		 * LINK_SEGMENT_EXTERNAL_ID);
-		 * linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
-		 */
 		setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 
 		// OUTPUT FORMAT CONFIGURATION
