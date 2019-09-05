@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConstants;
@@ -60,23 +61,39 @@ import org.planit.zoning.Zoning;
  */
 public class TestHelper {
 
-    /**
-     * Logger for this class
-     */
-    private static final Logger LOGGER = Logger.getLogger(TestHelper.class.getName());
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger LOGGER = Logger.getLogger(TestHelper.class.getName());
 
-    private static final double epsilon = 0.00001;
-        
-/**
-  * Compares the contents of a results map for the current run with a results map from a previous run which had been stored in a file.  It generates a JUnit test failure if the results maps have different contents.
-  * 
-  * @param resultsMap                 Map storing result of the current test run
-  * @param resultsMapFromFile  Map storing results of a previous run which had been stored in a file
-  */
-	public static void compareResultsToCsvFileContents(SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap, 
-			                                                                                 SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMapFromFile) {
+	private static final double epsilon = 0.00001;
+
+	private static Consumer<LinkOutputTypeConfiguration> defaultSetOutputTypeConfigurationProperties = (
+			linkOutputTypeConfiguration) -> {
+		try {
+			linkOutputTypeConfiguration.addAllProperties();
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
+		} catch (PlanItException e) {
+			e.printStackTrace();
+		}
+	};
+
+	/**
+	 * Compares the contents of a results map for the current run with a results map
+	 * from a previous run which had been stored in a file. It generates a JUnit
+	 * test failure if the results maps have different contents.
+	 * 
+	 * @param resultsMap         Map storing result of the current test run
+	 * @param resultsMapFromFile Map storing results of a previous run which had
+	 *                           been stored in a file
+	 */
+	public static void compareResultsToCsvFileContents(
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap,
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMapFromFile) {
 		if (resultsMap.keySet().size() != resultsMapFromFile.keySet().size()) {
-			fail("Test case returned " + resultsMap.keySet().size() + " runs where the results file contains " + resultsMap.keySet().size() + ".");
+			fail("Test case returned " + resultsMap.keySet().size() + " runs where the results file contains "
+					+ resultsMap.keySet().size() + ".");
 			return;
 		}
 		for (Long runId : resultsMapFromFile.keySet()) {
@@ -94,7 +111,8 @@ public class TestHelper {
 							+ " is present in the results file but was not found in the test case results.");
 					return;
 				}
-				if (resultsMap.get(runId).get(timePeriod).keySet().size() != resultsMapFromFile.get(runId).get(timePeriod).keySet().size()) {
+				if (resultsMap.get(runId).get(timePeriod).keySet().size() != resultsMapFromFile.get(runId)
+						.get(timePeriod).keySet().size()) {
 					fail("Test case returned " + resultsMap.get(runId).get(timePeriod).keySet().size()
 							+ " modes for run " + runId + " and timePeriod " + timePeriod.getId()
 							+ " where the results file contains "
@@ -107,7 +125,8 @@ public class TestHelper {
 								+ " is present in the results file but was not found in the test case results.");
 						return;
 					}
-					if (resultsMap.get(runId).get(timePeriod).get(mode).size() != resultsMapFromFile.get(runId).get(timePeriod).get(mode).size()) {
+					if (resultsMap.get(runId).get(timePeriod).get(mode).size() != resultsMapFromFile.get(runId)
+							.get(timePeriod).get(mode).size()) {
 						fail("Test case returned " + resultsMap.get(runId).get(timePeriod).get(mode).size()
 								+ " results for run " + runId + ", timePeriod " + timePeriod.getId() + " and mode "
 								+ mode.getId() + " where the results file contains "
@@ -115,7 +134,8 @@ public class TestHelper {
 						return;
 					}
 					for (LinkSegmentExpectedResultsDto resultDto : resultsMap.get(runId).get(timePeriod).get(mode)) {
-						SortedSet<LinkSegmentExpectedResultsDto> resultsSetFromFile = resultsMapFromFile.get(runId).get(timePeriod).get(mode);
+						SortedSet<LinkSegmentExpectedResultsDto> resultsSetFromFile = resultsMapFromFile.get(runId)
+								.get(timePeriod).get(mode);
 						if (!resultsSetFromFile.contains(resultDto)) {
 							boolean passed = false;
 							Iterator<LinkSegmentExpectedResultsDto> iterator = resultsSetFromFile.iterator();
@@ -124,8 +144,8 @@ public class TestHelper {
 								passed = resultDto.equals(resultDtoFromFile);
 							}
 							if (!passed) {
-								fail("The result for runId " + runId + " time period " + timePeriod.getId()
-										+ " mode " + mode.getId() + " " + resultDto.toString()
+								fail("The result for runId " + runId + " time period " + timePeriod.getId() + " mode "
+										+ mode.getId() + " " + resultDto.toString()
 										+ " was not found in the results file.");
 							}
 						}
@@ -134,50 +154,75 @@ public class TestHelper {
 			}
 		}
 	}
-	
-/**
- * Compares the results from an assignment run stored in a BasicMemoryOutputFormatter object to known results stored in a Map.  It generates a JUnit test failure if the results maps have different contents.
- * 
- * @param basicMemoryOutputFormatter the BasicMemoryOuptutFormatter object which stores results from a test run
- * @param resultsMap Map storing standard test results which have been generated previously
- * @throws PlanItException thrown if one of the test output properties has not been saved
- */
-	public static void compareResultsToMemoryOutputFormatter(BasicMemoryOutputFormatter basicMemoryOutputFormatter, 
-			                                                                                                 SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap) throws PlanItException {
+
+	/**
+	 * Compares the results from an assignment run stored in a
+	 * BasicMemoryOutputFormatter object to known results stored in a Map. It
+	 * generates a JUnit test failure if the results maps have different contents.
+	 * 
+	 * @param basicMemoryOutputFormatter the BasicMemoryOuptutFormatter object which
+	 *                                   stores results from a test run
+	 * @param resultsMap                 Map storing standard test results which
+	 *                                   have been generated previously
+	 * @throws PlanItException thrown if one of the test output properties has not
+	 *                         been saved
+	 */
+	public static void compareResultsToMemoryOutputFormatter(BasicMemoryOutputFormatter basicMemoryOutputFormatter,
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap)
+			throws PlanItException {
 		for (Long runId : resultsMap.keySet()) {
 			for (TimePeriod timePeriod : resultsMap.get(runId).keySet()) {
 				for (Mode mode : resultsMap.get(runId).get(timePeriod).keySet()) {
 					for (LinkSegmentExpectedResultsDto resultDto : resultsMap.get(runId).get(timePeriod).get(mode)) {
-						double flow = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.FLOW);
-						double length = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.LENGTH);
-						double speed = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.SPEED);
-						double cost = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.COST);
-						double capacityPerLane = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.CAPACITY_PER_LANE);
-						int numberOfLanes = (Integer) basicMemoryOutputFormatter.getLinkSegmentOutput(runId, timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(), resultDto.getEndNodeId(), OutputProperty.NUMBER_OF_LANES);
+						double flow = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId,
+								timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(),
+								resultDto.getEndNodeId(), OutputProperty.FLOW);
+						double length = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId,
+								timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(),
+								resultDto.getEndNodeId(), OutputProperty.LENGTH);
+						double speed = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId,
+								timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(),
+								resultDto.getEndNodeId(), OutputProperty.SPEED);
+						double cost = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId,
+								timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(),
+								resultDto.getEndNodeId(), OutputProperty.COST);
+						double capacityPerLane = (Double) basicMemoryOutputFormatter.getLinkSegmentOutput(runId,
+								timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(),
+								resultDto.getEndNodeId(), OutputProperty.CAPACITY_PER_LANE);
+						int numberOfLanes = (Integer) basicMemoryOutputFormatter.getLinkSegmentOutput(runId,
+								timePeriod.getId(), mode.getExternalId(), resultDto.getStartNodeId(),
+								resultDto.getEndNodeId(), OutputProperty.NUMBER_OF_LANES);
 						double capacity = capacityPerLane * numberOfLanes;
 						assertEquals(flow, resultDto.getLinkFlow(), epsilon);
 						assertEquals(length, resultDto.getLength(), epsilon);
 						assertEquals(speed, resultDto.getSpeed(), epsilon);
 						assertEquals(capacity, resultDto.getCapacity(), epsilon);
 						assertEquals(cost, resultDto.getLinkCost(), epsilon);
-					}					
+					}
 				}
-			}		
-		}		
+			}
+		}
 	}
-	
-/**
- * Compares the results from an assignment run stored in a MemoryOutputFormatter object to known results stored in a Map.  It generates a JUnit test failure if the results maps have different contents.
- * 
- * @param outputType the current output type
- * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
- * @param iterationIndex the current iteration index
- * @param resultsMap Map storing standard test results which have been generated previously
- * @throws PlanItException thrown if one of the test output properties has not been saved
- */
-	public static void compareResultsToMemoryOutputFormatter(OutputType outputType, MemoryOutputFormatter memoryOutputFormatter, Integer iterationIndex,
-            SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap) throws PlanItException {
-		
+
+	/**
+	 * Compares the results from an assignment run stored in a MemoryOutputFormatter
+	 * object to known results stored in a Map. It generates a JUnit test failure if
+	 * the results maps have different contents.
+	 * 
+	 * @param outputType            the current output type
+	 * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
+	 *                              results from a test run
+	 * @param iterationIndex        the current iteration index
+	 * @param resultsMap            Map storing standard test results which have
+	 *                              been generated previously
+	 * @throws PlanItException thrown if one of the test output properties has not
+	 *                         been saved
+	 */
+	public static void compareResultsToMemoryOutputFormatter(OutputType outputType,
+			MemoryOutputFormatter memoryOutputFormatter, Integer iterationIndex,
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap)
+			throws PlanItException {
+
 		if (iterationIndex == null) {
 			iterationIndex = memoryOutputFormatter.getLastIteration();
 		}
@@ -186,40 +231,50 @@ public class TestHelper {
 				for (Mode mode : resultsMap.get(runId).get(timePeriod).keySet()) {
 					for (LinkSegmentExpectedResultsDto resultDto : resultsMap.get(runId).get(timePeriod).get(mode)) {
 						OutputProperty[] outputKeyProperties = memoryOutputFormatter.getOutputKeyProperties(outputType);
-						OutputProperty[] outputValueProperties = memoryOutputFormatter.getOutputValueProperties(outputType);
-						MultiKeyPlanItData multiKeyPlanItData = memoryOutputFormatter.getOutputData(mode, timePeriod, iterationIndex, outputType);
+						OutputProperty[] outputValueProperties = memoryOutputFormatter
+								.getOutputValueProperties(outputType);
+						MultiKeyPlanItData multiKeyPlanItData = memoryOutputFormatter.getOutputData(mode, timePeriod,
+								iterationIndex, outputType);
 						Object[] keyValues = new Object[outputKeyProperties.length];
-						keyValues[0] = Integer.valueOf((int) resultDto.getStartNodeId());
-						keyValues[1] = Integer.valueOf((int) resultDto.getEndNodeId());
-						for (int i=0; i<outputValueProperties.length; i++) {
+						if (keyValues.length == 2) {
+							keyValues[0] = Integer.valueOf((int) resultDto.getStartNodeId());
+							keyValues[1] = Integer.valueOf((int) resultDto.getEndNodeId());
+						}
+						if (keyValues.length == 1) {
+							keyValues[0] = Integer.valueOf((int) resultDto.getLinkSegmentId());
+						}
+						for (int i = 0; i < outputValueProperties.length; i++) {
 							switch (outputValueProperties[i]) {
-							case FLOW: 
-								double flow = (Double) multiKeyPlanItData.getRowValue(OutputProperty.FLOW,  keyValues);
-							    assertEquals(flow, resultDto.getLinkFlow(), epsilon);
-							    break;
-							case LENGTH: 
-								double length = (Double) multiKeyPlanItData.getRowValue(OutputProperty.LENGTH,  keyValues);
+							case FLOW:
+								double flow = (Double) multiKeyPlanItData.getRowValue(OutputProperty.FLOW, keyValues);
+								assertEquals(flow, resultDto.getLinkFlow(), epsilon);
+								break;
+							case LENGTH:
+								double length = (Double) multiKeyPlanItData.getRowValue(OutputProperty.LENGTH,
+										keyValues);
 								assertEquals(length, resultDto.getLength(), epsilon);
 								break;
 							case SPEED:
-								double speed = (Double) multiKeyPlanItData.getRowValue(OutputProperty.SPEED,  keyValues);
+								double speed = (Double) multiKeyPlanItData.getRowValue(OutputProperty.SPEED, keyValues);
 								assertEquals(speed, resultDto.getSpeed(), epsilon);
 								break;
 							case COST:
-								double cost = (Double) multiKeyPlanItData.getRowValue(OutputProperty.COST,  keyValues);
+								double cost = (Double) multiKeyPlanItData.getRowValue(OutputProperty.COST, keyValues);
 								assertEquals(cost, resultDto.getLinkCost(), epsilon);
 								break;
 							case CAPACITY_PER_LANE:
-								double capacityPerLane = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CAPACITY_PER_LANE,  keyValues);
-								int numberOfLanes = (Integer) multiKeyPlanItData.getRowValue(OutputProperty.NUMBER_OF_LANES,  keyValues);
+								double capacityPerLane = (Double) multiKeyPlanItData
+										.getRowValue(OutputProperty.CAPACITY_PER_LANE, keyValues);
+								int numberOfLanes = (Integer) multiKeyPlanItData
+										.getRowValue(OutputProperty.NUMBER_OF_LANES, keyValues);
 								assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
 								break;
-								}
+							}
 						}
-					}	
+					}
 				}
-			}		
-		}		
+			}
+		}
 	}
 
 	/**
@@ -235,9 +290,17 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, Integer maxIterations,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
+				maxIterations, null, setCostParameters, description);
+	}
+
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, null, setCostParameters, description);
+		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, null, setCostParameters,
+				description);
 	}
 
 	/**
@@ -253,10 +316,19 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation, Integer maxIterations,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation, null, 0, maxIterations, null, setCostParameters,
-				description);
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, String initialCostsFileLocation,
+			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation,
+				null, 0, maxIterations, null, setCostParameters, description);
+	}
+
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation,
+			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation, null, 0, maxIterations, null,
+				setCostParameters, description);
 	}
 
 	/**
@@ -277,11 +349,20 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
+			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation1,
+				initialCostsFileLocation2, initCostsFilePos, maxIterations, null, setCostParameters, description);
+	}
+
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation1, initialCostsFileLocation2, initCostsFilePos,
-				maxIterations, null, setCostParameters, description);
+		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation1, initialCostsFileLocation2,
+				initCostsFilePos, maxIterations, null, setCostParameters, description);
 	}
 
 	/**
@@ -299,9 +380,19 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters, description);
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, Integer maxIterations,
+			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
+			throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
+				maxIterations, epsilon, setCostParameters, description);
+	}
+
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations,
+			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
+			throws Exception {
+		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters,
+				description);
 	}
 
 	/**
@@ -316,6 +407,13 @@ public class TestHelper {
 	 * @throws Exception thrown if there is an error
 	 */
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0, null, null,
+				setCostParameters, description);
+	}
+
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description);
 	}
@@ -323,20 +421,27 @@ public class TestHelper {
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter
 	 * 
-	 * @param projectPath          project directory containing the input files
-	 * @param registerInitialCosts lambda function to register initial costs on the
-	 *                             Traffic Assignment Builder
-	 * @param maxIterations        the maximum number of iterations allowed in this
-	 *                             test run
-	 * @param epsilon              measure of how close successive iterations must
-	 *                             be to each other to accept convergence
-	 * @param setCostParameters    lambda function which sets parameters of cost
-	 *                             function
-	 * @param description          description used in temporary output file names
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             properties being used
+	 * @param registerInitialCosts                 lambda function to register
+	 *                                             initial costs on the Traffic
+	 *                                             Assignment Builder
+	 * @param maxIterations                        the maximum number of iterations
+	 *                                             allowed in this test run
+	 * @param epsilon                              measure of how close successive
+	 *                                             iterations must be to each other
+	 *                                             to accept convergence
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
 			TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
@@ -366,7 +471,8 @@ public class TestHelper {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
 
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		taBuilder
+				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// SUPPLY-DEMAND INTERFACE
@@ -381,9 +487,13 @@ public class TestHelper {
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to persist only the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration
 				.getOutputTypeConfiguration(OutputType.LINK);
-		linkOutputTypeConfiguration.addAllProperties();
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
+		/*
+		 * linkOutputTypeConfiguration.addAllProperties();
+		 * linkOutputTypeConfiguration.removeProperty(OutputProperty.
+		 * LINK_SEGMENT_EXTERNAL_ID);
+		 * linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
+		 */
+		setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 
 		// OUTPUT FORMAT CONFIGURATION
 
@@ -416,7 +526,7 @@ public class TestHelper {
 
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
-	 * maximum number of iterations)
+	 * maximum number of iterations and default link output properties)
 	 * 
 	 * @param projectPath               project directory containing the input files
 	 * @param initialCostsFileLocation1 location of first initial costs file
@@ -456,12 +566,110 @@ public class TestHelper {
 			}
 		};
 
-		return setupAndExecuteAssignment(projectPath, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
+		return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
+				maxIterations, epsilon, setCostParameters, description);
+	}
+
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (uses
+	 * maximum number of iterations)
+	 * 
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             type configuration output
+	 *                                             properties
+	 * @param initialCostsFileLocation1            location of first initial costs
+	 *                                             file
+	 * @param initialCostsFileLocation2            location of second initial costs
+	 *                                             file
+	 * @param initCostsFilePos                     identifies which initial costs
+	 *                                             file is to be used
+	 * @param maxIterations                        the maximum number of iterations
+	 *                                             allowed in this test run
+	 * @param epsilon                              measure of how close successive
+	 *                                             iterations must be to each other
+	 *                                             to accept convergence
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 * 
+	 *                   If the setCostParameters argument is null, the system
+	 *                   default values for the cost function parameters are used.
+	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
+			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+
+		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
+				taBuilder, project, physicalNetwork) -> {
+			if (initialCostsFileLocation1 != null) {
+				if (initialCostsFileLocation2 != null) {
+					List<InitialLinkSegmentCost> initialCosts = project.createAndRegisterInitialLinkSegmentCosts(
+							physicalNetwork, initialCostsFileLocation1, initialCostsFileLocation2);
+					taBuilder.registerInitialLinkSegmentCost(initialCosts.get(initCostsFilePos));
+				} else {
+					InitialLinkSegmentCost initialCost = project
+							.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+					taBuilder.registerInitialLinkSegmentCost(initialCost);
+				}
+			}
+		};
+
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
+				maxIterations, epsilon, setCostParameters, description);
 	}
 
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
 	 * of initial cost for each time period)
+	 * 
+	 * @param projectPath                              project directory containing
+	 *                                                 the input files
+	 * @param setOutputTypeConfigurationProperties     lambda function to set output
+	 *                                                 type configuration output
+	 *                                                 properties
+	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects
+	 *                                                 for each time period
+	 * @param epsilon                                  measure of how close
+	 *                                                 successive iterations must be
+	 *                                                 to each other to accept
+	 *                                                 convergence
+	 * @param setCostParameters                        lambda function which sets
+	 *                                                 parameters of cost function
+	 * @param description                              description used in temporary
+	 *                                                 output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, Integer maxIterations, Double epsilon,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+
+		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
+				taBuilder, project, physicalNetwork) -> {
+			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
+				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
+				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
+				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+						initialCostsFileLocation);
+				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
+			}
+		};
+
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
+				maxIterations, epsilon, setCostParameters, description);
+	}
+
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
+	 * of initial cost for each time period and default link output properties))
 	 * 
 	 * @param projectPath                              project directory containing
 	 *                                                 the input files
@@ -484,19 +692,18 @@ public class TestHelper {
 
 		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
 				taBuilder, project, physicalNetwork) -> {
-					// register different initial costs for each time period
-					for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
+			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
 				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
 				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
 				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
 						initialCostsFileLocation);
 				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
 			}
-				};
+		};
 
-		return setupAndExecuteAssignment(projectPath, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
+		return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
+				maxIterations, epsilon, setCostParameters, description);
 	}
-	
 
 	/**
 	 * Deletes a file from the file system

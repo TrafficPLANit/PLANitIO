@@ -12,12 +12,15 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
+import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.LinkSegment;
@@ -25,11 +28,13 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.OutputType;
+import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.CostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
+import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.PlanItProject;
 import org.planit.test.integration.LinkSegmentExpectedResultsDto;
@@ -184,7 +189,7 @@ public class PlanItXmlIntegrationTest {
 			String projectPath = "src\\test\\resources\\initial_costs\\xml\\test2";
 			String description = "testBasic1";
 			Integer maxIterations = null;
-			TestHelper.setupAndExecuteAssignment(projectPath,
+			TestHelper.setupAndExecuteAssignment(projectPath, 
 					"src\\test\\resources\\initial_costs\\xml\\test2\\initial_link_segment_costs_external_id.csv",
 					maxIterations, null, description);
 			fail("RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
@@ -205,6 +210,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
+			
 			TestHelper.setupAndExecuteAssignment(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
 					maxIterations, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -225,6 +231,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
+			
 			TestHelper.setupAndExecuteAssignment(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
 					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, maxIterations, null,
 					description);
@@ -253,6 +260,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
+			
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -296,6 +304,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
+			
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -356,6 +365,7 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName2 = "Time Period 2.xml";
 			String xmlFileName3 = "Time Period 3.xml";
 			Integer maxIterations = null;
+			
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -441,6 +451,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
+			
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -495,6 +506,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
+			
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -541,7 +553,8 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_1.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 1;
-			TestHelper.setupAndExecuteAssignment(projectPath,
+			
+			TestHelper.setupAndExecuteAssignment(projectPath, 
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -601,7 +614,8 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_1.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 1;
-			TestHelper.setupAndExecuteAssignment(projectPath,
+
+			TestHelper.setupAndExecuteAssignment(projectPath, 
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -626,7 +640,8 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			TestHelper.setupAndExecuteAssignment(projectPath,
+
+			TestHelper.setupAndExecuteAssignment(projectPath, 
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -685,7 +700,8 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			TestHelper.setupAndExecuteAssignment(projectPath,
+
+			TestHelper.setupAndExecuteAssignment(projectPath, 
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
@@ -708,6 +724,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
+
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -757,6 +774,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
+
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -886,6 +904,7 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName1 = "Time Period 1.xml";
 			String xmlFileName2 = "Time Period 2.xml";
 			Integer maxIterations = 500;
+
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -1108,6 +1127,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
+
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -1233,6 +1253,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
+
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
@@ -1357,14 +1378,18 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0,
+			
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = 
 					(physicalNetwork, bprLinkTravelTimeCost) -> {
-						MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
-						MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
-								.findMacroscopicLinkSegmentTypeByExternalId(1);
-						Mode mode = Mode.getByExternalId(2);
-						bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-					}, description);
+				MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
+				MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
+						.findMacroscopicLinkSegmentTypeByExternalId(1);
+				Mode mode = Mode.getByExternalId(2);
+				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+			};
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0,
+					setCostParameters, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1409,6 +1434,83 @@ public class PlanItXmlIntegrationTest {
 		}
 	}
 
+	@Test
+	public void testRouteChoiceCompareWithOmniTRANS5IdentifyLinksById() {
+		try {
+			String projectPath = "src\\test\\resources\\route_choice\\xml\\test5IdentifyLinksByLinkId";
+			String description = "testRouteChoice5";
+			String csvFileName = "Time Period 1_500.csv";
+			String xmlFileName = "Time Period 1.xml";
+			Integer maxIterations = 500;
+			
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = 
+					(physicalNetwork, bprLinkTravelTimeCost) -> {
+				MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
+				MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
+						.findMacroscopicLinkSegmentTypeByExternalId(1);
+				Mode mode = Mode.getByExternalId(2);
+				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+			};
+
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties = (
+					linkOutputTypeConfiguration) -> {
+				try {
+					linkOutputTypeConfiguration.addAllProperties();
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
+				} catch (PlanItException e) {
+					e.printStackTrace();
+				}
+			};			
+			
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0,
+					setCostParameters, description);
+			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
+			Long runId = Long.valueOf(0);
+			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
+			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
+			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(0, 3000,
+					0.0370117187500001, 111.03515625, 3600.0, 1.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 1926,
+					0.0717190999688149, 249.166142789938, 1200.0, 1.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(2, 3000,
+					0.0370117187500001, 360.201299039938, 3600.0, 1.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(3, 6,
+					0.0448543857828265, 360.470425354635, 1200.0, 2.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(4, 6,
+					0.0448543857828265, 360.739551669332, 1200.0, 2.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(5, 1068,
+					0.0360507068130539, 399.241706545674, 1200.0, 1.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 1068,
+					0.0360507068130539, 437.743861422015, 1200.0, 1.0, 60.0));
+			Mode mode2 = Mode.getByExternalId(Long.valueOf(2));
+			resultsMap.get(runId).get(timePeriod).put(mode2, new TreeSet<LinkSegmentExpectedResultsDto>());
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(0, 1500,
+					0.063673202685543, 95.5098040283147, 3600.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(2, 1500,
+					0.063673202685543, 191.019608056629, 3600.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(3, 1086,
+					0.0611216251945281, 257.397693017887, 1200.0, 2.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(4, 1086,
+					0.0611216251945281, 323.775777979144, 1200.0, 2.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(5, 414,
+					0.061091236386479, 349.067549843147, 1200.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(6, 414,
+					0.061091236386479, 374.359321707149, 1200.0, 1.0, 50.0));
+			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
+					resultsMap);
+			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
 	/**
 	 * Trivial test case which matches the description in the README.md file.
 	 */
@@ -1420,6 +1522,7 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName1 = "Time Period 1_2.csv";
 			String xmlFileName1 = "Time Period 1.xml";
 			Integer maxIterations = null;
+			
 			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
