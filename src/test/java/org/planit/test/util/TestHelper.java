@@ -281,12 +281,16 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param maxIterations     the maximum number of iterations allowed in this
-	 *                          test run
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             properties being used
+	 * @param maxIterations                        the maximum number of iterations
+	 *                                             allowed in this test run
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -297,10 +301,47 @@ public class TestHelper {
 				maxIterations, null, setCostParameters, description);
 	}
 
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (uses
+	 * maximum number of iterations)
+	 * 
+	 * @param projectPath       project directory containing the input files
+	 * @param maxIterations     the maximum number of iterations allowed in this
+	 *                          test run
+	 * @param setCostParameters lambda function which sets parameters of cost
+	 *                          function
+	 * @param description       description used in temporary output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 */
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, null, setCostParameters,
 				description);
+	}
+
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (requires
+	 * assignment to converge, no maximum number of iterations)
+	 * 
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             properties being used
+	 * @param initialCostsFileLocation             location of initial costs file
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, String initialCostsFileLocation,
+			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation,
+				null, 0, maxIterations, null, setCostParameters, description);
 	}
 
 	/**
@@ -316,19 +357,43 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
-			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, String initialCostsFileLocation,
-			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation,
-				null, 0, maxIterations, null, setCostParameters, description);
-	}
-
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation,
 			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation, null, 0, maxIterations, null,
 				setCostParameters, description);
+	}
+
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (uses
+	 * maximum number of iterations)
+	 * 
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             properties being used
+	 * @param initialCostsFileLocation1            location of first initial costs
+	 *                                             file
+	 * @param initialCostsFileLocation2            location of second initial costs
+	 *                                             file
+	 * @param initCostsFilePos                     identifies which initial costs
+	 *                                             file is to be used
+	 * @param maxIterations                        the maximum number of iterations
+	 *                                             allowed in this test run
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
+			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation1,
+				initialCostsFileLocation2, initCostsFilePos, maxIterations, null, setCostParameters, description);
 	}
 
 	/**
@@ -349,20 +414,39 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
-			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-			String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
-			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-			String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation1,
-				initialCostsFileLocation2, initCostsFilePos, maxIterations, null, setCostParameters, description);
-	}
-
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation1, initialCostsFileLocation2,
 				initCostsFilePos, maxIterations, null, setCostParameters, description);
+	}
+
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (uses
+	 * maximum number of iterations)
+	 * 
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             properties being used
+	 * @param maxIterations                        the maximum number of iterations
+	 *                                             allowed in this test run
+	 * @param epsilon                              measure of how close successive
+	 *                                             iterations must be to each other
+	 *                                             to accept convergence
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, Integer maxIterations,
+			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
+			throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
+				maxIterations, epsilon, setCostParameters, description);
 	}
 
 	/**
@@ -380,19 +464,33 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
-			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, Integer maxIterations,
-			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
-			throws Exception {
-		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
-				maxIterations, epsilon, setCostParameters, description);
-	}
-
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations,
 			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
 			throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters,
 				description);
+	}
+
+	/**
+	 * Run a test case and store the results in a MemoryOutputFormatter (requires
+	 * assignment to converge, no maximum number of iterations)
+	 * 
+	 * @param projectPath                          project directory containing the
+	 *                                             input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output
+	 *                                             properties being used
+	 * @param setCostParameters                    lambda function which sets
+	 *                                             parameters of cost function
+	 * @param description                          description used in temporary
+	 *                                             output file names
+	 * @return MemoryOutputFormatter containing results from the run
+	 * @throws Exception thrown if there is an error
+	 */
+	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0, null, null,
+				setCostParameters, description);
 	}
 
 	/**
@@ -406,13 +504,6 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
-			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0, null, null,
-				setCostParameters, description);
-	}
-
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description);
@@ -547,16 +638,21 @@ public class TestHelper {
 
 		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
 				taBuilder, project, physicalNetwork) -> {
+			InitialLinkSegmentCost initialCost = null;
 			if (initialCostsFileLocation1 != null) {
 				if (initialCostsFileLocation2 != null) {
-					List<InitialLinkSegmentCost> initialCosts = project.createAndRegisterInitialLinkSegmentCosts(
-							physicalNetwork, initialCostsFileLocation1, initialCostsFileLocation2);
-					taBuilder.registerInitialLinkSegmentCost(initialCosts.get(initCostsFilePos));
+					if (initCostsFilePos == 0) {
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+								initialCostsFileLocation1);
+					} else {
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+								initialCostsFileLocation2);
+					}
 				} else {
-					InitialLinkSegmentCost initialCost = project
-							.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-					taBuilder.registerInitialLinkSegmentCost(initialCost);
+					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+							initialCostsFileLocation1);
 				}
+				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
 		};
 
@@ -602,16 +698,21 @@ public class TestHelper {
 
 		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
 				taBuilder, project, physicalNetwork) -> {
+			InitialLinkSegmentCost initialCost = null;
 			if (initialCostsFileLocation1 != null) {
 				if (initialCostsFileLocation2 != null) {
-					List<InitialLinkSegmentCost> initialCosts = project.createAndRegisterInitialLinkSegmentCosts(
-							physicalNetwork, initialCostsFileLocation1, initialCostsFileLocation2);
-					taBuilder.registerInitialLinkSegmentCost(initialCosts.get(initCostsFilePos));
+					if (initCostsFilePos == 0) {
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+								initialCostsFileLocation1);
+					} else {
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+								initialCostsFileLocation2);
+					}
 				} else {
-					InitialLinkSegmentCost initialCost = project
-							.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-					taBuilder.registerInitialLinkSegmentCost(initialCost);
+					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+							initialCostsFileLocation1);
 				}
+				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
 		};
 

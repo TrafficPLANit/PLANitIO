@@ -549,10 +549,10 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	 *                               cost values
 	 * @throws PlanItException
 	 */
-	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter)
+	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter1)
 			throws PlanItException {
 		LOGGER.info("Populating Initial Link Segment Costs");
-		String fileName = (String) parameter;
+		String fileName = (String) parameter1;
 		try {
 			Reader in = new FileReader(fileName);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
@@ -651,7 +651,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 		} else if (projectComponent instanceof Demands) {
 			populateDemands((Demands) projectComponent);
 		} else if (projectComponent instanceof InitialPhysicalCost) {
-			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter());
+			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter1());
 		} else {
 			LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
 					+ " which is not handled by PlanItXMLInputBuilder.");
