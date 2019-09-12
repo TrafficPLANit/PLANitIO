@@ -198,7 +198,7 @@ public class PlanItXmlIntegrationTest {
 			assertTrue(true);
 		}
 	}
-
+	
 	/**
 	 * Test that PlanItProject reads in the values of one initial costs file
 	 */
@@ -265,7 +265,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -309,7 +309,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -370,7 +370,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod1 = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod1 = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod1, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod1).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -456,7 +456,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -511,7 +511,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -729,7 +729,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -779,7 +779,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -909,7 +909,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod1 = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod1 = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod1, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod1).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -1132,7 +1132,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -1258,7 +1258,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -1393,7 +1393,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -1434,6 +1434,13 @@ public class PlanItXmlIntegrationTest {
 		}
 	}
 
+	/**
+	 * Test of results for TraditionalStaticAssignment for simple test case using
+	 * the fifth route choice example from the Traditional Static Assignment Route
+	 * Choice Equilibration Test cases.docx document.
+	 * 
+	 * This test case identifies links using link Id (all other tests use link external Id).
+	 */
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS5IdentifyLinksById() {
 		try {
@@ -1465,12 +1472,11 @@ public class PlanItXmlIntegrationTest {
 				}
 			};			
 			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0,
-					setCostParameters, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -1527,7 +1533,7 @@ public class PlanItXmlIntegrationTest {
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
-			TimePeriod timePeriod = TimePeriod.getById(Long.valueOf(0));
+			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode, new TreeSet<LinkSegmentExpectedResultsDto>());
@@ -1541,5 +1547,4 @@ public class PlanItXmlIntegrationTest {
 			fail(e.getMessage());
 		}
 	}
-
 }

@@ -119,7 +119,7 @@ public class ProcessConfiguration {
 			case S:
 				break;
 			}
-			TimePeriod timePeriod = new TimePeriod(timePeriodGenerated.getName(), startTime, duration);
+			TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);
 			timePeriodMap.put(timePeriodId, timePeriod);
 		}
 		return timePeriodMap;

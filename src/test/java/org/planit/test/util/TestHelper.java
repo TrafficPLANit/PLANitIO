@@ -537,6 +537,7 @@ public class TestHelper {
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
 		IdGenerator.reset();
+
 		PlanItProject project = new PlanItProject(projectPath);
 
 		// RAW INPUT START --------------------------------

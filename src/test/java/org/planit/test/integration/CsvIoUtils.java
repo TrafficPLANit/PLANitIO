@@ -70,7 +70,7 @@ public class CsvIoUtils {
 					resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
 				}
 				long timePeriodId = Long.parseLong(record.get("Time Period Id"));
-				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
+				TimePeriod timePeriod = TimePeriod.getByExternalId(timePeriodId);
 				if (!resultsMap.get(runId).containsKey(timePeriod)) {
 					resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 				}
