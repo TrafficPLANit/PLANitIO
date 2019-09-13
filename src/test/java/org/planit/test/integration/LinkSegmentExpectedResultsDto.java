@@ -1,7 +1,5 @@
 package org.planit.test.integration;
 
-import java.util.logging.Logger;
-
 /**
  * DTO object containing extra fields specific to BPR function
  * 
@@ -11,11 +9,6 @@ import java.util.logging.Logger;
  *
  */
 public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpectedResultsDto> {
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(LinkSegmentExpectedResultsDto.class.getName());
 
 	/**
 	 * Link capacity

@@ -2,12 +2,9 @@ package org.planit.xml.network;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.planit.constants.Default;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Direction;
 import org.planit.generated.XMLElementInfrastructure;
@@ -38,15 +35,12 @@ import net.opengis.gml.PointType;
  */
 public class ProcessInfrastructure {
 
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(ProcessInfrastructure.class.getName());
 	private static PlanitGeoUtils planitGeoUtils;
 
 	static {
-		CoordinateReferenceSystem coordinateReferenceSystem = Default.COORDINATE_REFERENCE_SYSTEM;
-		planitGeoUtils = new PlanitGeoUtils(coordinateReferenceSystem);
+		//CoordinateReferenceSystem coordinateReferenceSystem = Default.COORDINATE_REFERENCE_SYSTEM;
+		//planitGeoUtils = new PlanitGeoUtils(coordinateReferenceSystem);
+		planitGeoUtils = new PlanitGeoUtils();
 	}
 
 	/**

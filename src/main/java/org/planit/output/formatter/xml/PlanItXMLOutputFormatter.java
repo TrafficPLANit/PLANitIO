@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -27,11 +26,11 @@ import org.planit.generated.XMLElementIteration;
 import org.planit.generated.XMLElementMetadata;
 import org.planit.generated.XMLElementOutputConfiguration;
 import org.planit.generated.XMLElementSimulation;
+import org.planit.logging.PlanItLogger;
 import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.transport.TransportNetwork;
-import org.planit.output.OutputType;
 import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.adapter.TraditionalStaticAssignmentLinkOutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
@@ -49,11 +48,6 @@ import org.planit.xml.converter.EnumConverter;
  *
  */
 public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(PlanItXMLOutputFormatter.class.getName());
 
 	/**
 	 * properties taken from PLANit main project resources which pass on the Maven project properties. 
@@ -263,7 +257,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private void setVersionAndDescription(String propertiesFileName, String descriptionProperty, String versionProperty)
 			throws PlanItException {
 		if (propertiesFileName == null) {
-			LOGGER.info(
+			PlanItLogger.info(
 					"No application properties file specified, version and description properties must be set from the code or will not be recorded.");
 			return;
 		}
@@ -271,7 +265,7 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 				.getResourceAsStream(propertiesFileName)) {
 
 			if (input == null) {
-				LOGGER.info("Application properties " + propertiesFileName
+				PlanItLogger.info("Application properties " + propertiesFileName
 						+ " could not be found, version and description properties must be set from the code or will not be recorded.");
 				return;
 			}
@@ -282,12 +276,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 
 			description = prop.getProperty(descriptionProperty);
 			if (description == null) {
-				LOGGER.info("Description property could not be set from properties file " + propertiesFileName
+				PlanItLogger.info("Description property could not be set from properties file " + propertiesFileName
 						+ ", this must be set from the code or will not be recorded.");
 			}
 			version = prop.getProperty(versionProperty);
 			if (version == null) {
-				LOGGER.info("Version property could not be set from properties file " + propertiesFileName
+				PlanItLogger.info("Version property could not be set from properties file " + propertiesFileName
 						+ ", this must be set from the code or will not be recorded.");
 			}
 

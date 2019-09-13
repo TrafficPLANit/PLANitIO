@@ -3,7 +3,6 @@ package org.planit.xml.util;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -20,6 +19,7 @@ import javax.xml.validation.Validator;
 import org.opengis.geometry.DirectPosition;
 import org.planit.exceptions.PlanItException;
 import org.planit.geo.PlanitGeoUtils;
+import org.planit.logging.PlanItLogger;
 
 import net.opengis.gml.PointType;
 
@@ -30,8 +30,6 @@ import net.opengis.gml.PointType;
  *
  */
 public interface XmlUtils {
-
-	public static final Logger LOGGER = Logger.getLogger(XmlUtils.class.getName());
 
 	/**
 	 * Create GML position from generated PointType object
@@ -57,7 +55,7 @@ public interface XmlUtils {
 	 * @throws Exception thrown if the input file fails the validation
 	 */
 	public static void validateXml(String xmlFileLocation, String schemaFileLocation) throws Exception {
-		LOGGER.info("Validating " + xmlFileLocation + " against " + schemaFileLocation);
+		PlanItLogger.info("Validating " + xmlFileLocation + " against " + schemaFileLocation);
 		String schemaLang = "http://www.w3.org/2001/XMLSchema";
 		SchemaFactory factory = SchemaFactory.newInstance(schemaLang);
 		Schema schema = factory.newSchema(new StreamSource(schemaFileLocation));

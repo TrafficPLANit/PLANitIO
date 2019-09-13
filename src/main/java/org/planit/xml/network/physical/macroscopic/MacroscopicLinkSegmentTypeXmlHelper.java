@@ -2,8 +2,8 @@ package org.planit.xml.network.physical.macroscopic;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
+import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
 import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.userclass.Mode;
@@ -15,11 +15,6 @@ import org.planit.userclass.Mode;
  *
  */
 public class MacroscopicLinkSegmentTypeXmlHelper {
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(MacroscopicLinkSegmentTypeXmlHelper.class.getName());
 
 	/**
 	 * External reference number of link type
@@ -69,7 +64,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 	private static void updateLinkSegmentType(MacroscopicLinkSegmentTypeXmlHelper linkSegmentType,
 			Map<Integer, Mode> modeMap, long modeExternalId, double maxSpeed, double critSpeed, int externalId) {
 		if ( maxSpeed < 0.0) {
-			LOGGER.warning("A negative maximum speed has been defined for Link Type " + linkSegmentType.getName()
+			PlanItLogger.warning("A negative maximum speed has been defined for Link Type " + linkSegmentType.getName()
 					+ " and Mode " + modeMap.get((int) modeExternalId).getName()
 					+ ".  Setting the speed to zero instead (which means vehicles of this type are forbidden in links of this type.)");
 			 maxSpeed = 0.0;
@@ -130,7 +125,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 		MacroscopicLinkSegmentTypeXmlHelper linkSegmentType;
 		if (!existingLinks.containsKey(externalId)) {
 			if (capacityPerLane == 0.0) {
-				LOGGER.warning(
+				PlanItLogger.warning(
 						"Link Type " + name + " initially defined without a capacity, being given a capacity of zero.");
 			}
 			linkSegmentType = new MacroscopicLinkSegmentTypeXmlHelper(name, capacityPerLane, maximumDensityPerLane,
@@ -138,14 +133,14 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 		} else {
 			linkSegmentType = existingLinks.get(externalId);
 			if (capacityPerLane != linkSegmentType.getCapacityPerLane()) {
-				LOGGER.warning("Different capacity per lane values for Link Type " + linkSegmentType.getName()
+				PlanItLogger.warning("Different capacity per lane values for Link Type " + linkSegmentType.getName()
 						+ ".  Will use the highest one.");
 			}
 			if (capacityPerLane > linkSegmentType.getCapacityPerLane()) {
 				linkSegmentType.setCapacityPerLane(capacityPerLane);
 			}
 			if (maximumDensityPerLane != linkSegmentType.getMaximumDensityPerLane()) {
-				LOGGER.warning("Different maximum density per lane values for link type " + linkSegmentType.getName()
+				PlanItLogger.warning("Different maximum density per lane values for link type " + linkSegmentType.getName()
 						+ ".  Will use the highest one.");
 			}
 			if (maximumDensityPerLane > linkSegmentType.getMaximumDensityPerLane()) {

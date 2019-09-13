@@ -2,12 +2,12 @@ package org.planit.xml.network;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementLinkConfiguration;
 import org.planit.generated.XMLElementLinkSegmentTypes;
 import org.planit.generated.XMLElementModes;
+import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.userclass.Mode;
@@ -20,11 +20,6 @@ import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXml
  *
  */
 public class ProcessLinkConfiguration {
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(ProcessLinkConfiguration.class.getName());
 
 	/**
 	 * Reads mode types from input file and stores them in a Map
@@ -89,7 +84,7 @@ public class ProcessLinkConfiguration {
 			for (Mode mode : modeMap.values()) {
 				long modeExternalId = mode.getExternalId();
 				if (!linkSegmentType.getSpeedMap().containsKey(modeExternalId)) {
-					LOGGER.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName()
+					PlanItLogger.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName()
 							+ ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
 					MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeNew = MacroscopicLinkSegmentTypeXmlHelper
 							.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0,

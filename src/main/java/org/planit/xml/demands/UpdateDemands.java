@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.planit.demand.Demands;
 import org.planit.demand.MatrixDemand;
@@ -29,7 +28,6 @@ import org.planit.zoning.Zoning.Zones;
  */
 public class UpdateDemands {
 
-	private static final Logger LOGGER = Logger.getLogger(UpdateDemands.class.getName());
 	private static List<String> RESERVED_CHARACTERS;
 
 	static {

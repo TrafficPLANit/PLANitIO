@@ -15,7 +15,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConstants;
 
@@ -60,11 +59,6 @@ import org.planit.zoning.Zoning;
  *
  */
 public class TestHelper {
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(TestHelper.class.getName());
 
 	private static final double epsilon = 0.00001;
 

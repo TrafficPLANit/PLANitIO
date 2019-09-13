@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.LongFunction;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -19,6 +18,7 @@ import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demand.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.input.InputBuilderListener;
+import org.planit.logging.PlanItLogger;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementInfrastructure;
@@ -60,11 +60,6 @@ import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
  *
  */
 public class PlanItXMLInputBuilder extends InputBuilderListener {
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger LOGGER = Logger.getLogger(PlanItXMLInputBuilder.class.getName());
 
 	/**
 	 * Generated object to store input network data
@@ -214,7 +209,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 			try {
 				XMLElementPLANit planit = (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class,
 						xmlFileNames[i]);
-				LOGGER.info("File " + xmlFileNames[i] + " provides the network, demands and zoning input data.");
+				PlanItLogger.info("File " + xmlFileNames[i] + " provides the network, demands and zoning input data.");
 				macroscopiczoning = planit.getMacroscopiczoning();
 				macroscopicnetwork = planit.getMacroscopicnetwork();
 				macroscopicdemand = planit.getMacroscopicdemand();
@@ -238,13 +233,13 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 		boolean foundDemandFile = false;
 		for (int i = 0; i < xmlFileNames.length; i++) {
 			if (foundZoningFile && foundDemandFile && foundNetworkFile) {
-				LOGGER.info("File " + xmlFileNames[i] + " exists but was not parsed.");
+				PlanItLogger.info("File " + xmlFileNames[i] + " exists but was not parsed.");
 			}
 			if (!foundZoningFile) {
 				try {
 					macroscopiczoning = (XMLElementMacroscopicZoning) XmlUtils
 							.generateObjectFromXml(XMLElementMacroscopicZoning.class, xmlFileNames[i]);
-					LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");
+					PlanItLogger.info("File " + xmlFileNames[i] + " provides the zoning input data.");
 					foundZoningFile = true;
 					continue;
 				} catch (Exception e) {
@@ -254,7 +249,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 				try {
 					macroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
 							.generateObjectFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames[i]);
-					LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
+					PlanItLogger.info("File " + xmlFileNames[i] + " provides the network input data.");
 					foundNetworkFile = true;
 					continue;
 				} catch (Exception e) {
@@ -264,7 +259,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 				try {
 					macroscopicdemand = (XMLElementMacroscopicDemand) XmlUtils
 							.generateObjectFromXml(XMLElementMacroscopicDemand.class, xmlFileNames[i]);
-					LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");
+					PlanItLogger.info("File " + xmlFileNames[i] + " provides the demand input data.");
 					foundDemandFile = true;
 					continue;
 				} catch (Exception e) {
@@ -298,27 +293,27 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 		String demandFileName = null;
 		for (int i = 0; i < xmlFileNames.length; i++) {
 			if (foundZoningFile && foundDemandFile && foundNetworkFile) {
-				LOGGER.info("File " + xmlFileNames[i] + " exists but was not parsed.");
+				PlanItLogger.info("File " + xmlFileNames[i] + " exists but was not parsed.");
 			}
 			if (!foundZoningFile) {
 				foundZoningFile = validateXmlInputFile(xmlFileNames[i], ZONING_XSD_FILE);
 				if (foundZoningFile) {
 					zoningFileName = xmlFileNames[i];
-					LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");
+					PlanItLogger.info("File " + xmlFileNames[i] + " provides the zoning input data.");
 				}
 			}
 			if (!foundNetworkFile) {
 				foundNetworkFile = validateXmlInputFile(xmlFileNames[i], NETWORK_XSD_FILE);
 				if (foundNetworkFile) {
 					networkFileName = xmlFileNames[i];
-					LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");
+					PlanItLogger.info("File " + xmlFileNames[i] + " provides the network input data.");
 				}
 			}
 			if (!foundDemandFile) {
 				foundDemandFile = validateXmlInputFile(xmlFileNames[i], DEMAND_XSD_FILE);
 				if (foundDemandFile) {
 					demandFileName = xmlFileNames[i];
-					LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");
+					PlanItLogger.info("File " + xmlFileNames[i] + " provides the demand input data.");
 				}
 			}
 		}
@@ -476,7 +471,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	 */
 	protected void populatePhysicalNetwork(@Nonnull PhysicalNetwork physicalNetwork) throws PlanItException {
 
-		LOGGER.info("Populating Network");
+		PlanItLogger.info("Populating Network");
 
 		MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
 		try {
@@ -501,7 +496,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
 	protected void populateZoning(Zoning zoning) throws PlanItException {
-		LOGGER.info("Populating Zoning");
+		PlanItLogger.info("Populating Zoning");
 		if (nodes.getNumberOfNodes() == 0)
 			throw new PlanItException("Cannot parse zoning input file before the network input file has been parsed.");
 		noCentroids = 0;
@@ -526,7 +521,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
 	protected void populateDemands(@Nonnull Demands demands) throws PlanItException {
-		LOGGER.info("Populating Demands");
+		PlanItLogger.info("Populating Demands");
 		if (noCentroids == 0)
 			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
 		try {
@@ -551,7 +546,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 	 */
 	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter1)
 			throws PlanItException {
-		LOGGER.info("Populating Initial Link Segment Costs");
+		PlanItLogger.info("Populating Initial Link Segment Costs");
 		String fileName = (String) parameter1;
 		try {
 			Reader in = new FileReader(fileName);
@@ -631,7 +626,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 			XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
 			return true;
 		} catch (Exception e) {
-			LOGGER.info(e.getMessage());
+			PlanItLogger.info(e.getMessage());
 			return false;
 		}
 	}
@@ -653,7 +648,7 @@ public class PlanItXMLInputBuilder extends InputBuilderListener {
 		} else if (projectComponent instanceof InitialPhysicalCost) {
 			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter1());
 		} else {
-			LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
+			PlanItLogger.info("Event component is " + projectComponent.getClass().getCanonicalName()
 					+ " which is not handled by PlanItXMLInputBuilder.");
 		}
 	}

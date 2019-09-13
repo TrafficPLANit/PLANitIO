@@ -14,15 +14,16 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
+import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
@@ -68,8 +69,6 @@ import org.planit.utils.IdGenerator;
  */
 public class PlanItXmlIntegrationTest {
 
-	private static final Logger LOGGER = Logger.getLogger(PlanItXmlIntegrationTest.class.getName());
-
 	/**
 	 * Run assertions which confirm that results files contain the correct data, and
 	 * then remove the results files
@@ -88,6 +87,12 @@ public class PlanItXmlIntegrationTest {
 		TestHelper.deleteFile(projectPath, description, xmlFileName);
 	}
 
+	@BeforeClass
+	public static void setUp() throws Exception {
+		PlanItLogger.setLogging("logs\\PlanItXmlIntegrationTest.log", PlanItXmlIntegrationTest.class);
+		//PlanItLogger.setLoggingToConsoleOnly(PlanItXmlIntegrationTest.class);
+	}
+	
 	/**
 	 * Test that the values of an initial costs file are read in by start and end
 	 * note and registered by PlanItProject and the stored values match the expected

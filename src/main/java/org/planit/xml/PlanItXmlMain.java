@@ -1,12 +1,13 @@
 package org.planit.xml;
 
-import java.util.logging.Logger;
+import java.io.IOException;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demand.Demands;
 import org.planit.input.InputBuilderListener;
 import org.planit.input.xml.PlanItXMLInputBuilder;
+import org.planit.logging.PlanItLogger;
 import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
@@ -32,8 +33,6 @@ import org.planit.zoning.Zoning;
  */
 public class PlanItXmlMain {
 
-	private static final Logger LOGGER = Logger.getLogger(PlanItXmlMain.class.getName());
-
 	private String projectPath = "src\\test\\resources\\route_choice\\xml\\test1";
 	private int maxIterations = 500;
 	private double epsilon = 0.00;
@@ -42,10 +41,13 @@ public class PlanItXmlMain {
 	 * Main method for the BasicCsvMain program. Only used to start the program
 	 * 
 	 * @param args main method args
+	 * @throws IOException 
+	 * @throws SecurityException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SecurityException, IOException {
 
 		try {
+			PlanItLogger.setLogging("logs\\PlanItXmlMain.log", PlanItXmlMain.class);
 			PlanItXmlMain planItXmlMain = new PlanItXmlMain();
 			planItXmlMain.execute();
 		} catch (Exception e) {

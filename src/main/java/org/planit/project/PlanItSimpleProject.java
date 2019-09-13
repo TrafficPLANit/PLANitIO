@@ -1,10 +1,10 @@
 package org.planit.project;
 
 import java.nio.file.Paths;
-import java.util.logging.Logger;
 
 import org.planit.exceptions.PlanItException;
 import org.planit.input.xml.PlanItXMLInputBuilder;
+import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
@@ -27,11 +27,6 @@ import org.planit.trafficassignment.DeterministicTrafficAssignment;
 public class PlanItSimpleProject extends CustomPlanItProject {
     
     /**
-     * Logger for this class
-     */
-    private static final Logger LOGGER = Logger.getLogger(PlanItSimpleProject.class.getName());
-    
-    /**
      * Simple project registers native PLANitXML outputformatter by default which is stored in this reference
      */
     private PlanItXMLOutputFormatter defaultOutputFormatter = null;
@@ -44,7 +39,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
             // register the default Output formatter as a formatter that is available
             defaultOutputFormatter = (PlanItXMLOutputFormatter) this.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
         } catch (PlanItException e) {
-            LOGGER.severe("Could not instantiate default settings for project");
+        	PlanItLogger.severe("Could not instantiate default settings for project");
         }
     }
     
@@ -72,7 +67,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     public PlanItSimpleProject() throws PlanItException {  
         // use the default input builder with the current path as the project path
         super(new PlanItXMLInputBuilder(Paths.get(".").toAbsolutePath().toString()));
-        LOGGER.info("Searching for input files in: "+Paths.get(".").toAbsolutePath().toString());
+        PlanItLogger.info("Searching for input files in: "+Paths.get(".").toAbsolutePath().toString());
         initialiseSimpleProject();
     }       
         
@@ -85,7 +80,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     public PlanItSimpleProject(String projectPath) throws PlanItException {
         // use the default input builder
         super(new PlanItXMLInputBuilder(projectPath));
-        LOGGER.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());
+        PlanItLogger.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());
         initialiseSimpleProject();
     }    
         

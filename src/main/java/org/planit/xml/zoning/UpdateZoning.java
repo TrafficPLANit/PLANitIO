@@ -1,11 +1,9 @@
 package org.planit.xml.zoning;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementConnectoid;
 import org.planit.generated.XMLElementCentroid;
@@ -15,7 +13,6 @@ import org.planit.network.physical.Node;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.virtual.Centroid;
 import org.planit.xml.util.XmlUtils;
-import org.planit.constants.Default;
 import org.planit.zoning.Zoning;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -29,14 +26,11 @@ import net.opengis.gml.PointType;
  *
  */
 public class UpdateZoning {
-	
-    private static final Logger LOGGER = Logger.getLogger(UpdateZoning.class.getName());
     
 	private static PlanitGeoUtils planitGeoUtils;
 	
 	static {
-		CoordinateReferenceSystem coordinateReferenceSystem = Default.COORDINATE_REFERENCE_SYSTEM;
-     	planitGeoUtils = new PlanitGeoUtils(coordinateReferenceSystem);
+		planitGeoUtils = new PlanitGeoUtils();
      }
 	
 /**
