@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
@@ -90,7 +91,11 @@ public class PlanItXmlIntegrationTest {
 	@BeforeClass
 	public static void setUp() throws Exception {
 		PlanItLogger.setLogging("logs\\PlanItXmlIntegrationTest.log", PlanItXmlIntegrationTest.class);
-		//PlanItLogger.setLoggingToConsoleOnly(PlanItXmlIntegrationTest.class);
+	}
+	
+	@AfterClass
+	public static void tearDown() {
+		PlanItLogger.close();
 	}
 	
 	/**

@@ -50,6 +50,7 @@ public class PlanItXmlMain {
 			PlanItLogger.setLogging("logs\\PlanItXmlMain.log", PlanItXmlMain.class);
 			PlanItXmlMain planItXmlMain = new PlanItXmlMain();
 			planItXmlMain.execute();
+			PlanItLogger.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
