@@ -87,7 +87,7 @@ public class UpdateZoning {
         	XMLElementCentroid generatedCentroid = zone.getCentroid();
         	PointType pointType = generatedCentroid.getPoint();
         	DirectPosition centroidPosition = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
-        	connectoidLength =  planitGeoUtils.getDistanceInMetres(centroidPosition, nodePosition);
+        	connectoidLength =  planitGeoUtils.getDistanceInKilometres(centroidPosition, nodePosition);
          } else {
         	connectoidLength = org.planit.network.virtual.Connectoid.DEFAULT_LENGTH;
         }

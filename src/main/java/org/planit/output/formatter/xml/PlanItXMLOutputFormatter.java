@@ -614,4 +614,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		this.version = version;
 	}
 
+	public String getXmlOutputFileName() {
+		return xmlOutputFileName;
+	}
+
 }

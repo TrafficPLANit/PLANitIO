@@ -1,4 +1,4 @@
-package org.planit.test.util;
+package org.planit.xml.test.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -41,7 +41,6 @@ import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
@@ -49,6 +48,7 @@ import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentB
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
 import org.planit.xml.test.TriConsumer;
+import org.planit.xml.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.xml.util.XmlUtils;
 import org.planit.zoning.Zoning;
 

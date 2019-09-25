@@ -38,8 +38,6 @@ public class ProcessInfrastructure {
 	private static PlanitGeoUtils planitGeoUtils;
 
 	static {
-		//CoordinateReferenceSystem coordinateReferenceSystem = Default.COORDINATE_REFERENCE_SYSTEM;
-		//planitGeoUtils = new PlanitGeoUtils(coordinateReferenceSystem);
 		planitGeoUtils = new PlanitGeoUtils();
 	}
 
@@ -79,17 +77,17 @@ public class ProcessInfrastructure {
 		LineStringType lineStringType = generatedLink.getLineString();
 		if (lineStringType != null) {
 			List<Double> posList = lineStringType.getPosList().getValue();
-			double distanceInMetres = 0.0;
+			double distance = 0.0;
 			Position startPosition = null;
 			Position endPosition = null;
 			for (int i = 0; i < posList.size(); i += 2) {
 				endPosition = planitGeoUtils.getDirectPositionFromValues(posList.get(i), posList.get(i + 1));
 				if (startPosition != null) {
-					distanceInMetres += planitGeoUtils.getDistanceInMetres(startPosition, endPosition);
+					distance += planitGeoUtils.getDistanceInKilometres(startPosition, endPosition);
 				}
 				startPosition = endPosition;
 			}
-			return distanceInMetres / 1000.0;
+			return distance;
 		}
 		return initLength;
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <metadata>
 	<timestamp>2019-07-17T15:24:39.627+10:00</timestamp>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<description>Description in PlanIt pom.xml</description>
 	<outputconfiguration>
 		<assignment>TraditionalStaticAssignment</assignment>

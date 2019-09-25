@@ -11,7 +11,7 @@ import org.planit.trafficassignment.DeterministicTrafficAssignment;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Only allows for a single assignment
- * within the project instead of full flexibility. Advanced users who want to utilise all the flexibility of PLANit should instead
+ * within the project instead of full flexibility. Advanced users who want to utilize all the flexibility of PLANit should instead
  * use PLANitProject in the PLANit core.
  * 
  * Default configuration for this type of project:
@@ -27,12 +27,12 @@ import org.planit.trafficassignment.DeterministicTrafficAssignment;
 public class PlanItSimpleProject extends CustomPlanItProject {
     
     /**
-     * Simple project registers native PLANitXML outputformatter by default which is stored in this reference
+     * Simple project registers native PLANitXML output formatter by default which is stored in this reference
      */
     private PlanItXMLOutputFormatter defaultOutputFormatter = null;
     
     /**
-     * Initialise this simple project with as many components as possible directly after its inception here
+     * Initialize this simple project with as many components as possible directly after its inception here
      */
     private void initialiseSimpleProject() {
         try {

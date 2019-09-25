@@ -1,4 +1,4 @@
-package org.planit.test.integration;
+package org.planit.xml.test.integration;
 
 import java.io.FileReader;
 import java.io.Reader;
@@ -11,9 +11,9 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.planit.exceptions.PlanItException;
-import org.planit.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
+import org.planit.xml.test.integration.LinkSegmentExpectedResultsDto;
 
 /**
  * Utility class containing methods for saving run results to a CSV file and

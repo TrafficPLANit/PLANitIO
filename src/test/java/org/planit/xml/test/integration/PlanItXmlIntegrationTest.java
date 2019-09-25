@@ -1,4 +1,4 @@
-package org.planit.test.integration;
+package org.planit.xml.test.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,14 +39,14 @@ import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.PlanItProject;
-import org.planit.test.integration.LinkSegmentExpectedResultsDto;
-import org.planit.test.util.TestHelper;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
+import org.planit.xml.test.integration.LinkSegmentExpectedResultsDto;
+import org.planit.xml.test.util.TestHelper;
 
 /**
  * JUnit test case for TraditionalStaticAssignment
@@ -82,8 +82,10 @@ public class PlanItXmlIntegrationTest {
 	 */
 	private void runFileEqualAssertionsAndCleanUp(String projectPath, String description, String csvFileName,
 			String xmlFileName) throws Exception {
-		assertTrue(TestHelper.compareFiles(projectPath + "\\" + csvFileName, projectPath + "\\" + description + "_" + csvFileName));
-		assertTrue(TestHelper.isXmlFileSameExceptForTimestamp(projectPath + "\\" + xmlFileName,	projectPath + "\\" + description + "_" + xmlFileName));
+		assertTrue(TestHelper.compareFiles(projectPath + "\\" + csvFileName,
+				projectPath + "\\" + description + "_" + csvFileName));
+		assertTrue(TestHelper.isXmlFileSameExceptForTimestamp(projectPath + "\\" + xmlFileName,
+				projectPath + "\\" + description + "_" + xmlFileName));
 		TestHelper.deleteFile(projectPath, description, csvFileName);
 		TestHelper.deleteFile(projectPath, description, xmlFileName);
 	}
@@ -92,36 +94,34 @@ public class PlanItXmlIntegrationTest {
 	public static void setUp() throws Exception {
 		PlanItLogger.setLogging("logs\\PlanItXmlIntegrationTest.log", PlanItXmlIntegrationTest.class);
 	}
-	
+
 	@AfterClass
 	public static void tearDown() {
 		PlanItLogger.close();
 	}
-	
+
 	/**
 	 * Test that the values of an initial costs file are read in by start and end
 	 * note and registered by PlanItProject and the stored values match the expected
 	 * ones by link external Id
-	 * 
-	 * @throws PlanItException
 	 */
 	@Test
-	public void testInitialCostValues() throws PlanItException {
+	public void testInitialCostValues() {
 		String projectPath = "src\\test\\resources\\initial_costs\\xml\\test1";
 		String initialCostsFileLocation = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
 		String initialCostsFileLocationExternalId = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs_external_id.csv";
-		IdGenerator.reset();
-		PlanItProject project = new PlanItProject(projectPath);
-		PhysicalNetwork physicalNetwork = project
-				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-		DeterministicTrafficAssignment assignment = project
-				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-				.getBuilder();
-		taBuilder.registerPhysicalNetwork(physicalNetwork);
-		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-				initialCostsFileLocation);
 		try {
+			IdGenerator.reset();
+			PlanItProject project = new PlanItProject(projectPath);
+			PhysicalNetwork physicalNetwork = project
+					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+			DeterministicTrafficAssignment assignment = project
+					.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
+					.getBuilder();
+			taBuilder.registerPhysicalNetwork(physicalNetwork);
+			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+					initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
@@ -138,33 +138,32 @@ public class PlanItXmlIntegrationTest {
 			}
 			in.close();
 		} catch (Exception ex) {
-			throw new PlanItException(ex);
+			PlanItLogger.severe(ex.getMessage());
+			fail(ex.getMessage());
 		}
 	}
 
 	/**
 	 * Test that the read in initial cost values match the expected ones when there
 	 * are some rows missing in the standard results file
-	 * 
-	 * @throws PlanItException
 	 */
 	@Test
-	public void testInitialCostMissingRows() throws PlanItException {
+	public void testInitialCostMissingRows() {
 		String projectPath = "src\\test\\resources\\initial_costs\\xml\\test1";
 		String initialCostsFileLocation = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
 		String initialCostsFileLocationExternalId = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs1.csv";
-		IdGenerator.reset();
-		PlanItProject project = new PlanItProject(projectPath);
-		PhysicalNetwork physicalNetwork = project
-				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-		DeterministicTrafficAssignment assignment = project
-				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-				.getBuilder();
-		taBuilder.registerPhysicalNetwork(physicalNetwork);
-		InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-				initialCostsFileLocation);
 		try {
+			IdGenerator.reset();
+			PlanItProject project = new PlanItProject(projectPath);
+			PhysicalNetwork physicalNetwork = project
+					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+			DeterministicTrafficAssignment assignment = project
+					.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
+					.getBuilder();
+			taBuilder.registerPhysicalNetwork(physicalNetwork);
+			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
+					initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
@@ -183,32 +182,31 @@ public class PlanItXmlIntegrationTest {
 			}
 			in.close();
 		} catch (Exception ex) {
-			throw new PlanItException(ex);
+			PlanItLogger.severe(ex.getMessage());
+			fail(ex.getMessage());
 		}
 	}
 
 	/**
 	 * Test that PlanItProject throws an exception when the initial costs file
 	 * references a link segment which has not been defined
-	 * 
-	 * @throws PlanItException
 	 */
 	@Test
-	public void testInitialCostValuesMissingColumns() throws PlanItException {
+	public void testInitialCostValuesMissingColumns() {
 		try {
 			String projectPath = "src\\test\\resources\\initial_costs\\xml\\test2";
 			String description = "testBasic1";
 			Integer maxIterations = null;
-			TestHelper.setupAndExecuteAssignment(projectPath, 
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\initial_costs\\xml\\test2\\initial_link_segment_costs_external_id.csv",
 					maxIterations, null, description);
 			fail("RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.info(e.getMessage());
 			assertTrue(true);
 		}
 	}
-	
+
 	/**
 	 * Test that PlanItProject reads in the values of one initial costs file
 	 */
@@ -220,12 +218,13 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			
-			TestHelper.setupAndExecuteAssignment(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
-					maxIterations, null, description);
+
+			TestHelper.setupAndExecuteAssignment(projectPath,
+					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv", maxIterations, null,
+					description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -241,13 +240,14 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			
-			TestHelper.setupAndExecuteAssignment(projectPath, "src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
+
+			TestHelper.setupAndExecuteAssignment(projectPath,
+					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
 					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, maxIterations, null,
 					description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -270,8 +270,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -291,7 +292,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -314,8 +315,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_2.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -345,7 +347,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -375,8 +377,9 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName2 = "Time Period 2.xml";
 			String xmlFileName3 = "Time Period 3.xml";
 			Integer maxIterations = null;
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -443,7 +446,7 @@ public class PlanItXmlIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -461,8 +464,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -498,7 +502,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -516,8 +520,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -543,7 +548,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -563,13 +568,13 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_1.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 1;
-			
-			TestHelper.setupAndExecuteAssignment(projectPath, 
+
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -599,12 +604,13 @@ public class PlanItXmlIntegrationTest {
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
-			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
+			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
+					0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -625,12 +631,12 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 1;
 
-			TestHelper.setupAndExecuteAssignment(projectPath, 
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -651,12 +657,12 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			TestHelper.setupAndExecuteAssignment(projectPath, 
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -685,12 +691,13 @@ public class PlanItXmlIntegrationTest {
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
-			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations, 0.0, null, description);
+			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
+					0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName3, xmlFileName3);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -711,12 +718,12 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			TestHelper.setupAndExecuteAssignment(projectPath, 
+			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -735,7 +742,8 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -763,7 +771,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -785,7 +793,8 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -889,7 +898,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -915,7 +924,8 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName2 = "Time Period 2.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1116,7 +1126,7 @@ public class PlanItXmlIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName2, xmlFileName2);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -1138,7 +1148,8 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1242,7 +1253,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -1264,7 +1275,8 @@ public class PlanItXmlIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, null, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1368,7 +1380,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -1388,9 +1400,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = 
-					(physicalNetwork, bprLinkTravelTimeCost) -> {
+
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = (physicalNetwork,
+					bprLinkTravelTimeCost) -> {
 				MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 				MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
 						.findMacroscopicLinkSegmentTypeByExternalId(1);
@@ -1398,8 +1410,8 @@ public class PlanItXmlIntegrationTest {
 				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 			};
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0,
-					setCostParameters, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					maxIterations, 0.0, setCostParameters, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1439,7 +1451,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -1449,7 +1461,8 @@ public class PlanItXmlIntegrationTest {
 	 * the fifth route choice example from the Traditional Static Assignment Route
 	 * Choice Equilibration Test cases.docx document.
 	 * 
-	 * This test case identifies links using link Id (all other tests use link external Id).
+	 * This test case identifies links using link Id (all other tests use link
+	 * external Id).
 	 */
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS5IdentifyLinksById() {
@@ -1459,9 +1472,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName = "Time Period 1_500.csv";
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
-			
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = 
-					(physicalNetwork, bprLinkTravelTimeCost) -> {
+
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = (physicalNetwork,
+					bprLinkTravelTimeCost) -> {
 				MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 				MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
 						.findMacroscopicLinkSegmentTypeByExternalId(1);
@@ -1478,11 +1491,12 @@ public class PlanItXmlIntegrationTest {
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
 				} catch (PlanItException e) {
-					e.printStackTrace();
+					PlanItLogger.severe(e.getMessage());
 				}
-			};			
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
+			};
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+					setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1490,39 +1504,39 @@ public class PlanItXmlIntegrationTest {
 			resultsMap.get(runId).put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(runId).get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
-			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(0, 3000,
-					0.0370117187500001, 111.03515625, 3600.0, 1.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(
+					new LinkSegmentExpectedResultsDto(0, 3000, 0.0370117187500001, 111.03515625, 3600.0, 1.0, 60.0));
 			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 1926,
 					0.0717190999688149, 249.166142789938, 1200.0, 1.0, 60.0));
 			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(2, 3000,
 					0.0370117187500001, 360.201299039938, 3600.0, 1.0, 60.0));
-			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(3, 6,
-					0.0448543857828265, 360.470425354635, 1200.0, 2.0, 60.0));
-			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(4, 6,
-					0.0448543857828265, 360.739551669332, 1200.0, 2.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(
+					new LinkSegmentExpectedResultsDto(3, 6, 0.0448543857828265, 360.470425354635, 1200.0, 2.0, 60.0));
+			resultsMap.get(runId).get(timePeriod).get(mode1).add(
+					new LinkSegmentExpectedResultsDto(4, 6, 0.0448543857828265, 360.739551669332, 1200.0, 2.0, 60.0));
 			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(5, 1068,
 					0.0360507068130539, 399.241706545674, 1200.0, 1.0, 60.0));
 			resultsMap.get(runId).get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 1068,
 					0.0360507068130539, 437.743861422015, 1200.0, 1.0, 60.0));
 			Mode mode2 = Mode.getByExternalId(Long.valueOf(2));
 			resultsMap.get(runId).get(timePeriod).put(mode2, new TreeSet<LinkSegmentExpectedResultsDto>());
-			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(0, 1500,
-					0.063673202685543, 95.5098040283147, 3600.0, 1.0, 50.0));
-			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(2, 1500,
-					0.063673202685543, 191.019608056629, 3600.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(
+					new LinkSegmentExpectedResultsDto(0, 1500, 0.063673202685543, 95.5098040283147, 3600.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(
+					new LinkSegmentExpectedResultsDto(2, 1500, 0.063673202685543, 191.019608056629, 3600.0, 1.0, 50.0));
 			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(3, 1086,
 					0.0611216251945281, 257.397693017887, 1200.0, 2.0, 50.0));
 			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(4, 1086,
 					0.0611216251945281, 323.775777979144, 1200.0, 2.0, 50.0));
-			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(5, 414,
-					0.061091236386479, 349.067549843147, 1200.0, 1.0, 50.0));
-			resultsMap.get(runId).get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(6, 414,
-					0.061091236386479, 374.359321707149, 1200.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(
+					new LinkSegmentExpectedResultsDto(5, 414, 0.061091236386479, 349.067549843147, 1200.0, 1.0, 50.0));
+			resultsMap.get(runId).get(timePeriod).get(mode2).add(
+					new LinkSegmentExpectedResultsDto(6, 414, 0.061091236386479, 374.359321707149, 1200.0, 1.0, 50.0));
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -1538,8 +1552,9 @@ public class PlanItXmlIntegrationTest {
 			String csvFileName1 = "Time Period 1_2.csv";
 			String xmlFileName1 = "Time Period 1.xml";
 			Integer maxIterations = null;
-			
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, null, description);
+
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, null,
+					description);
 			SortedMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>> resultsMap = new TreeMap<Long, SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>>();
 			Long runId = Long.valueOf(0);
 			resultsMap.put(runId, new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>());
@@ -1553,7 +1568,7 @@ public class PlanItXmlIntegrationTest {
 					resultsMap);
 			runFileEqualAssertionsAndCleanUp(projectPath, description, csvFileName1, xmlFileName1);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
