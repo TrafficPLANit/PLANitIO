@@ -1,4 +1,4 @@
-Node Upstream External Id,Node Downstream External Id,Cost,Mode External Id
+Start Node Id,End Node Id,Cost,Mode External Id
 1,2,33,1
 2,3,23,1
 3,4,10,1

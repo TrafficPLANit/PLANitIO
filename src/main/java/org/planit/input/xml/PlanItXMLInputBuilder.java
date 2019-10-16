@@ -15,10 +15,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
-import org.planit.demand.Demands;
+import org.planit.demands.Demands;
 import org.planit.event.CreatedProjectComponentEvent;
-import org.planit.input.InputBuilderListener;
-import org.planit.logging.PlanItLogger;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementInfrastructure;
@@ -29,11 +27,21 @@ import org.planit.generated.XMLElementMacroscopicZoning;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
 import org.planit.generated.XMLElementZones.Zone;
+import org.planit.input.InputBuilderListener;
+import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
+import org.planit.output.property.BaseOutputProperty;
+import org.planit.output.property.CostOutputProperty;
+import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentIdOutputProperty;
+import org.planit.output.property.ModeExternalIdOutputProperty;
+import org.planit.output.property.OutputProperty;
+import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.xml.demands.ProcessConfiguration;
@@ -44,14 +52,6 @@ import org.planit.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXml
 import org.planit.xml.util.XmlUtils;
 import org.planit.xml.zoning.UpdateZoning;
 import org.planit.zoning.Zoning;
-import org.planit.output.property.BaseOutputProperty;
-import org.planit.output.property.CostOutputProperty;
-import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
-import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
-import org.planit.output.property.LinkSegmentIdOutputProperty;
-import org.planit.output.property.ModeExternalIdOutputProperty;
-import org.planit.output.property.OutputProperty;
-import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 
 /**
  * Class which reads inputs from XML input files

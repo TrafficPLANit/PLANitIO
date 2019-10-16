@@ -7,11 +7,15 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -19,9 +23,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.planit.data.TraditionalStaticAssignmentSimulationData;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementColumn;
 import org.planit.generated.XMLElementColumns;
+import org.planit.generated.XMLElementCsvdata;
 import org.planit.generated.XMLElementIteration;
 import org.planit.generated.XMLElementMetadata;
 import org.planit.generated.XMLElementOutputConfiguration;
@@ -31,13 +37,20 @@ import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.network.transport.TransportNetwork;
+import org.planit.odmatrix.ODMatrixIterator;
+import org.planit.odmatrix.skim.ODSkimMatrix;
+import org.planit.output.OutputType;
 import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.adapter.TraditionalStaticAssignmentLinkOutputAdapter;
+import org.planit.output.adapter.TraditionalStaticAssignmentODOutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
-import org.planit.output.formatter.BaseOutputFormatter;
+import org.planit.output.formatter.CsvTextFileOutputFormatter;
+import org.planit.output.formatter.FileOutputFormatter;
+import org.planit.output.formatter.XmlTextFileOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
+import org.planit.utils.OutputUtils;
 import org.planit.xml.util.XmlUtils;
 import org.planit.xml.converter.EnumConverter;
 
@@ -47,10 +60,12 @@ import org.planit.xml.converter.EnumConverter;
  * @author markr
  *
  */
-public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
+public class PlanItXMLOutputFormatter extends FileOutputFormatter
+		implements CsvTextFileOutputFormatter, XmlTextFileOutputFormatter {
 
 	/**
-	 * properties taken from PLANit main project resources which pass on the Maven project properties. 
+	 * properties taken from PLANit main project resources which pass on the Maven
+	 * project properties.
 	 */
 	private static final String DEFAULT_PROPERTIES_FILE_NAME = "application.properties";
 	private static final String DEFAULT_DESCRIPTION_PROPERTY_NAME = "planit.description";
@@ -64,12 +79,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * The root directory to store the XML output files
 	 */
-	private String xmlOutputDirectory;
+	private String xmlDirectory;
 
 	/**
 	 * The root directory of the CSV output files
 	 */
-	private String csvOutputDirectory;
+	private String csvDirectory;
 
 	/**
 	 * The extension of the XML output files
@@ -77,9 +92,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private String xmlNameExtension;
 
 	/**
-	 * The prefix name of the XML output files
+	 * The root name of the XML output files
 	 */
-	private String xmlNamePrefix;
+	private String xmlNameRoot;
 
 	/**
 	 * The extension of the CSV output files
@@ -87,21 +102,30 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	private String csvNameExtension;
 
 	/**
-	 * The prefix name of the CSV output files
+	 * The root name of the CSV output files
 	 */
-	private String csvNamePrefix;
+	private String csvNameRoot;
 
+	/**
+	 * Map of CSV output file names for each OutputType
+	 */
+	private Map<OutputType, List<String>> csvFileNameMap;
+
+	/**
+	 * Map of XML output file names for each OutputType
+	 */
+	private Map<OutputType, String> xmlFileNameMap;
 	/**
 	 * Flag to indicate whether XML output directory should be cleared before the
 	 * run
 	 */
-	private boolean resetXmlOutputDirectory;
+	private boolean resetXmlDirectory;
 
 	/**
 	 * Flag to indicate whether the CSV output directory should be cleared before
 	 * the run
 	 */
-	private boolean resetCsvOutputDirectory;
+	private boolean resetCsvDirectory;
 
 	/**
 	 * Description property to be included in the output files
@@ -116,131 +140,12 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	/**
 	 * Generated object for the metadata element in the output XML file
 	 */
-	private XMLElementMetadata metadata;
+	private Map<OutputType, XMLElementMetadata> metadata;
 
 	/**
-	 * Name of the XML output file
+	 * The Id of the traffic assignment run being recorded
 	 */
-	private String xmlOutputFileName;
-
-	/**
-	 * Constructor, uses default values for properties file name, description
-	 * property and version property
-	 */
-	public PlanItXMLOutputFormatter() throws PlanItException {
-		this(DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
-	}
-
-	/**
-	 * Constructor, takes values for properties file name, description and version
-	 * property
-	 * 
-	 * @param propertiesFileName  the name of the application properties file
-	 * @param descriptionProperty the name of the description property
-	 * @param versionProperty     the name of the version property
-	 * @throws PlanItException thrown if the application properties file exists but
-	 *                         cannot be opened
-	 */
-	public PlanItXMLOutputFormatter(String propertiesFileName, String descriptionProperty, String versionProperty)
-			throws PlanItException {
-		super();
-		xmlNamePrefix = DEFAULT_XML_NAME_PREFIX;
-		xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
-		csvNamePrefix = DEFAULT_CSV_NAME_PREFIX;
-		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
-		resetXmlOutputDirectory = false;
-		resetCsvOutputDirectory = false;
-		xmlOutputDirectory = null;
-		csvOutputDirectory = null;
-		setVersionAndDescription(propertiesFileName, descriptionProperty, versionProperty);
-	}
-
-	/**
-	 * Constructor, uses default values description property and version property
-	 * 
-	 * @param propertiesFileName the name of the application properties file
-	 * @throws PlanItException thrown if the application properties file exists but
-	 *                         cannot be opened
-	 */
-	public PlanItXMLOutputFormatter(String propertiesFileName) throws PlanItException {
-		this(propertiesFileName, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
-	}
-
-	/**
-	 * Persist the output data based on the passed in configuration and adapter
-	 * (contained in the configuration)
-	 * 
-	 * @param timePeriod              TimePeriod for the assignment to be saved
-	 * @param modes                   Set of modes for the assignment to be saved
-	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
-	 *                                be saved
-	 * @throws PlanItException thrown if there is an error
-	 */
-	@Override
-	public void persist(TimePeriod timePeriod, Set<Mode> modes, OutputTypeConfiguration outputTypeConfiguration)
-			throws PlanItException {
-		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
-		if (!(outputAdapter instanceof TraditionalStaticAssignmentLinkOutputAdapter)) {
-			throw new PlanItException("OutputAdapter is of class " + outputAdapter.getClass().getCanonicalName()
-					+ " which has not been defined yet");
-		}
-		try {
-			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
-			boolean isNewTimePeriod = ((metadata == null)
-					|| (metadata.getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
-			if (isNewTimePeriod) {
-				if (metadata != null) {
-					XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
-				}
-				metadata = new XMLElementMetadata();
-				XMLElementSimulation simulation = new XMLElementSimulation();
-				metadata.setSimulation(simulation);
-				initializeMetadataObject(traditionalStaticAssignmentLinkOutputAdapter, timePeriod);
-			}
-			persistForTraditionalStaticAssignmentLinkOutputAdapter(timePeriod, modes,
-					traditionalStaticAssignmentLinkOutputAdapter);
-			if (isNewTimePeriod) {
-				xmlOutputFileName = xmlOutputDirectory + "\\" + xmlNamePrefix + "_" + timePeriod.getDescription()
-						+ xmlNameExtension;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new PlanItException(e);
-		}
-	}
-
-	/**
-	 * Create the output directories and open the CSV writers
-	 * 
-	 * @throws PlanItException thrown if there is an error or validation failure
-	 *                         during set up of the output formatter
-	 */
-	@Override
-	public void open() throws PlanItException {
-
-		if (xmlOutputDirectory == null) {
-			throw new PlanItException(
-					"No common output directory or XML output directory has been defined in the code.");
-		}
-		if (csvOutputDirectory == null) {
-			throw new PlanItException(
-					"No common output directory or CSV output directory has been defined in the code.");
-		}
-
-		if (resetXmlOutputDirectory) {
-			createOrOpenOutputDirectory(xmlOutputDirectory);
-			File directory = new File(xmlOutputDirectory);
-			purgeDirectory(directory);
-		}
-
-		if (resetCsvOutputDirectory) {
-			createOrOpenOutputDirectory(csvOutputDirectory);
-			File directory = new File(csvOutputDirectory);
-			purgeDirectory(directory);
-		}
-
-		createOrOpenOutputDirectory(csvOutputDirectory);
-	}
+	private long runId;
 
 	/**
 	 * Set the values of the version and description properties from a properties
@@ -291,102 +196,109 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
-	 * Generates the name of an output file.
+	 * Open the CSV output file and write the headers to it
 	 * 
-	 * @param outputDirectory location output files are to be written
-	 * @param nameRoot        root name of the output files
-	 * @param nameExtension   extension of the output files
-	 * @param iteration       current iteration
-	 * @return the name of the output file
-	 * @throws PlanItException thrown if the output directory cannot be opened
+	 * @param outputProperties the output properties to be included as columns in
+	 *                         the CSV file
+	 * @param csvFileName      the name of the CSV output file
+	 * @return the CSVPrinter object (output values will be written to this in
+	 *         subsequent rows)
+	 * @throws Exception thrown if there is an error opening the file
 	 */
-	private String generateOutputFileName(String outputDirectory, String nameRoot, TimePeriod timePeriod,
-			String nameExtension, int iteration) throws PlanItException {
-		try {
-			String newFileName = outputDirectory + "\\" + nameRoot + "_" + timePeriod.getDescription() + "_" + iteration
-					+ nameExtension;
-			return newFileName;
-		} catch (Exception e) {
-			throw new PlanItException(e);
-		}
+	private CSVPrinter openCsvFileAndWriterHeaders(OutputAdapter outputAdapter, String csvFileName) throws Exception {
+		CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
+		List<String> titles = outputAdapter.getOutputProperties().stream().map(BaseOutputProperty::getName)
+				.collect(Collectors.toList());
+		csvIterationPrinter.printRecord(titles);
+		return csvIterationPrinter;
 	}
 
 	/**
-	 * Persist the data for the current iteration using
-	 * TraditionalStaticAssignmentLinkOutputAdapter
-	 * 
-	 * @param timePeriod    TimePeriod for the assignment to be saved
-	 * @param modes         Set of modes for the assignment to be saved
-	 * @param outputAdapter output adapter
-	 * @throws PlanItException thrown if there is an error
-	 */
-	private void persistForTraditionalStaticAssignmentLinkOutputAdapter(TimePeriod timePeriod, Set<Mode> modes,
-			TraditionalStaticAssignmentLinkOutputAdapter outputAdapter) throws PlanItException {
-		int iterationIndex = outputAdapter.getIterationIndex();
-		String csvFileName = generateOutputFileName(csvOutputDirectory, csvNamePrefix, timePeriod, csvNameExtension,
-				iterationIndex);
-		createCsvFileForCurrentIteration(outputAdapter, modes, csvFileName);
-		updateGeneratedSimulationOutputForCurrentIteration(iterationIndex, csvFileName);
-	}
-
-	/**
-	 * Update the generated simulation output object for the current iteration
-	 * 
-	 * @param iterationIndex index of the current iteration
-	 * @param csvFileName    name of CSV file used to store data for the current
-	 *                       iteration
-	 */
-	private void updateGeneratedSimulationOutputForCurrentIteration(int iterationIndex, String csvFileName) {
-		XMLElementIteration iteration = new XMLElementIteration();
-		iteration.setNr(BigInteger.valueOf(iterationIndex));
-		iteration.setCsvdata(csvFileName);
-		metadata.getSimulation().getIteration().add(iteration);
-	}
-
-	/**
-	 * Create the CSV file for the current iteration
+	 * Create the Link CSV file for the current iteration
 	 * 
 	 * @param outputAdapter outputAdapter storing network
-	 * @param csvFileName   name of the CSV output file for the current iteration
-	 * @throws PlanItException thrown if the CSV file cannot be created or written
-	 *                         to
+	 * @param modes         Set of modes for the current assignment
+	 * @param timePeriod    the current time period
+	 * @param csvPrinter    CSVPrinter object to record results for this iteration
+	 * @return PlanItException thrown if the CSV file cannot be created or written to
 	 */
-	private void createCsvFileForCurrentIteration(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			Set<Mode> modes, String csvFileName) throws PlanItException {
-
+	private PlanItException createLinkCsvFileForCurrentIteration(OutputAdapter outputAdapter, Set<Mode> modes,
+			TimePeriod timePeriod, CSVPrinter csvIterationPrinter) {
 		try {
-			CSVPrinter csvIterationPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.EXCEL);
-			List<String> titles = new ArrayList<String>();
-			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
-			outputProperties.forEach(outputProperty -> {
-				titles.add(outputProperty.getName());
-			});
-			csvIterationPrinter.printRecord(titles);
+			TraditionalStaticAssignmentLinkOutputAdapter traditionalStaticAssignmentLinkOutputAdapter = (TraditionalStaticAssignmentLinkOutputAdapter) outputAdapter;
 			TransportNetwork transportNetwork = outputAdapter.getTransportNetwork();
-
+			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
 			for (Mode mode : modes) {
 				Iterator<LinkSegment> linkSegmentIter = transportNetwork.linkSegments.iterator();
 				while (linkSegmentIter.hasNext()) {
 					MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) linkSegmentIter.next();
-					if (outputAdapter.isFlowPositive(linkSegment, mode)) {
-						List<Object> row = new ArrayList<Object>();
-						outputProperties.forEach(outputProperty -> {
-							Object outValue = outputAdapter.getPropertyValue(outputProperty, linkSegment, mode);
-							if (outValue instanceof Double) {
-								double outDouble = (double) outValue;
-								outValue = String.format("%.7f", outDouble);
-							}
-							row.add(outValue);
-						});
-						csvIterationPrinter.printRecord(row);
+					if (traditionalStaticAssignmentLinkOutputAdapter.isFlowPositive(linkSegment, mode)) {
+						List<Object> rowValues = outputProperties.stream()
+								.map(outputProperty -> traditionalStaticAssignmentLinkOutputAdapter.getPropertyValue(outputProperty.getOutputProperty(), linkSegment, mode, timePeriod))
+								.map(outValue -> OutputUtils.formatObject(outValue))
+								.collect(Collectors.toList());
+						csvIterationPrinter.printRecord(rowValues);
 					}
 				}
 			}
-			csvIterationPrinter.close();
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new PlanItException(e);
+			return new PlanItException(e);
 		}
+		return null;
+	}
+
+	/**
+	 * Create the OD CSV file for the current iteration
+	 * 
+	 * @param outputAdapter outputAdapter storing network
+	 * @param modes         Set of modes for the current assignment
+	 * @param timePeriod    the current time period
+	 * @param csvPrinter    CSVPrinter object to record results for this iteration
+	 * @return PlanItException thrown if the CSV file cannot be created or written to
+	 */
+	private PlanItException createODCsvFileForCurrentIteration(OutputAdapter outputAdapter, Set<Mode> modes,
+			TimePeriod timePeriod, CSVPrinter csvIterationPrinter) {
+		try {
+			TraditionalStaticAssignmentODOutputAdapter traditionalStaticAssignmentODOutputAdapter = (TraditionalStaticAssignmentODOutputAdapter) outputAdapter;
+			TraditionalStaticAssignmentSimulationData traditionalStaticAssignmentSimulationData = (TraditionalStaticAssignmentSimulationData) traditionalStaticAssignmentODOutputAdapter
+					.getSimulationData();
+			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
+			for (Mode mode : modes) {
+				ODSkimMatrix odSkimMatrix = traditionalStaticAssignmentSimulationData.getODSkimMatrix(mode);
+				ODMatrixIterator odMatrixIterator = odSkimMatrix.iterator();
+				while (odMatrixIterator.hasNext()) {
+					odMatrixIterator.next();
+					List<Object> rowValues = outputProperties.stream()
+							.map(outputProperty -> traditionalStaticAssignmentODOutputAdapter.getOdPropertyValue(outputProperty, odMatrixIterator, mode, timePeriod))
+							.map(outValue -> OutputUtils.formatObject(outValue))
+							.collect(Collectors.toList());
+					csvIterationPrinter.printRecord(rowValues);
+				}
+			}
+		} catch (Exception e) {
+			return new PlanItException(e);
+		}
+		return null;
+	}
+
+	/**
+	 * Update the generated metadata simulation output object for the current
+	 * iteration
+	 * 
+	 * @param iterationIndex index of the current iteration
+	 * @param csvFileName    name of CSV file used to store data for the current
+	 *                       iteration
+	 * @param outputType     the output type of the data the CSV file is storing
+	 */
+	private void updateMetadataSimulationOutputForCurrentIteration(int iterationIndex, String csvFileName,
+			OutputType outputType) {
+		XMLElementIteration iteration = new XMLElementIteration();
+		iteration.setNr(BigInteger.valueOf(iterationIndex));
+		XMLElementCsvdata csvdata = new XMLElementCsvdata();
+		csvdata.setValue(csvFileName);
+		csvdata.setType(outputType.value());
+		iteration.getCsvdata().add(csvdata);
+		metadata.get(outputType).getSimulation().getIteration().add(iteration);
 	}
 
 	/**
@@ -446,16 +358,18 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * Creates the output file directory if it does not already exist.
 	 * 
 	 * @param outputDirectory the output file directory
-	 * @return number of files in this directory
+	 * @param resetDirectory  if true, directory will be purged of previous contents
 	 * @throws PlanItException thrown if the directory cannot be opened or created
 	 */
-	private int createOrOpenOutputDirectory(String outputDirectory) throws PlanItException {
+	private void createOrOpenOutputDirectory(String outputDirectory, boolean resetDirectory) throws PlanItException {
 		try {
 			File directory = new File(outputDirectory);
 			if (!directory.isDirectory()) {
 				Files.createDirectories(directory.toPath());
 			}
-			return directory.list().length;
+			if (resetDirectory) {
+				purgeDirectory(outputDirectory);
+			}
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -469,19 +383,20 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param timePeriod    current time period
 	 * @throws PlanItException thrown if there is an error writing the data to file
 	 */
-	private void initializeMetadataObject(TraditionalStaticAssignmentLinkOutputAdapter outputAdapter,
-			TimePeriod timePeriod) throws PlanItException {
+	private void initializeMetadataObject(OutputTypeConfiguration outputTypeConfiguration, TimePeriod timePeriod) throws PlanItException {
+		OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
+		OutputType outputType = outputTypeConfiguration.getOutputType();
 		try {
-			metadata.setTimestamp(getTimestamp());
+			metadata.get(outputType).setTimestamp(getTimestamp());
 			if (version != null) {
-				metadata.setVersion(version);
+				metadata.get(outputType).setVersion(version);
 			}
 			if (description != null) {
-				metadata.setDescription(description);
+				metadata.get(outputType).setDescription(description);
 			}
-			metadata.setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
+			metadata.get(outputType).setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
 			SortedSet<BaseOutputProperty> outputProperties = outputAdapter.getOutputProperties();
-			metadata.setColumns(getGeneratedColumnsFromProperties(outputProperties));
+			metadata.get(outputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -501,14 +416,215 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	}
 
 	/**
+	 * Remove all files and sub-directories from a specified directory
+	 * 
+	 * @param directoryName name of the directory to be cleared
+	 */
+	private void purgeDirectory(String directoryName) {
+		File directory = new File(directoryName);
+		purgeDirectory(directory);
+	}
+
+	/**
+	 * Write the results for the current mode and time period to file
+	 * 
+	 * @param outputTypeConfiguration          the current output type configuration being records
+	 * @param modes                            Set of modes
+	 * @param timePeriod                       the current time period
+	 * @param createCsvFileForCurrentIteration lambda function which records data
+	 *                                         specific to the CSV file for the
+	 *                                         current iteration
+	 * @throws PlanItException thrown if there is an error
+	 */
+	private void writeResultsForCurrentModeAndTimePeriod(OutputTypeConfiguration outputTypeConfiguration,
+			Set<Mode> modes, TimePeriod timePeriod,
+			Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
+		try {
+			OutputType outputType = outputTypeConfiguration.getOutputType();
+			OutputAdapter outputAdapter = outputTypeConfiguration.getOutputAdapter();
+			boolean isNewTimePeriod = ((!metadata.containsKey(outputType)) || (metadata.get(outputType).getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
+			if (isNewTimePeriod) {
+				if (metadata.containsKey(outputType)) {
+					XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class,	xmlFileNameMap.get(outputType));
+				}
+				metadata.put(outputType, new XMLElementMetadata());
+				XMLElementSimulation simulation = new XMLElementSimulation();
+				metadata.get(outputType).setSimulation(simulation);
+				initializeMetadataObject(outputTypeConfiguration, timePeriod);
+			}
+			int iterationIndex = outputAdapter.getIterationIndex();
+			String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod,	outputType, runId, iterationIndex);
+			CSVPrinter csvIterationPrinter = openCsvFileAndWriterHeaders(outputAdapter, csvFileName);
+			PlanItException ple = createCsvFileForCurrentIteration.apply(csvIterationPrinter);
+			if (ple != null) {
+				throw ple;
+			}
+			csvIterationPrinter.close();
+			updateMetadataSimulationOutputForCurrentIteration(iterationIndex, csvFileName, outputType);
+			addCsvFileNamePerOutputType(outputType, csvFileName);
+			if (isNewTimePeriod) {
+				xmlFileNameMap.put(outputType, generateOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, runId));
+			}
+		} catch (PlanItException pe) {
+			throw pe;
+		} catch (Exception e) {
+			throw new PlanItException(e);
+		}
+	}
+
+	/**
+	 * Write Simulation results for the current time period to the CSV file
+	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current
+	 *                                persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @throws PlanItException thrown if there is an error
+	 */
+	protected void writeSimulationResultsForCurrentModeAndTimePeriod(OutputTypeConfiguration outputTypeConfiguration,
+			Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		PlanItLogger.info("XML Output for OutputType SIMULATION has not been implemented yet.");
+	}
+
+	/**
+	 * Write General results for the current time period to the CSV file
+	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current
+	 *                                persistence
+	 * @param modes                   Set of current modes of travel
+	 * @param timePeriod              current time period
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	protected void writeGeneralResultsForCurrentModeAndTimePeriod(OutputTypeConfiguration outputTypeConfiguration,
+			Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		PlanItLogger.info("XML Output for OutputType GENERAL has not been implemented yet.");
+	}
+
+	/**
+	 * Write Origin-Destination results for the time period to the CSV file
+	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current
+	 *                                persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	protected void writeOdResultsForCurrentModeAndTimePeriod(OutputTypeConfiguration outputTypeConfiguration,
+			Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		writeResultsForCurrentModeAndTimePeriod(outputTypeConfiguration, modes, timePeriod, (csvPrinter) -> {
+			return createODCsvFileForCurrentIteration(outputTypeConfiguration.getOutputAdapter(), modes, timePeriod,
+					csvPrinter);
+		});
+	}
+
+	/**
+	 * Write link results for the current time period to the CSV file
+	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current
+	 *                                persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	protected void writeLinkResultsForCurrentModeAndTimePeriod(OutputTypeConfiguration outputTypeConfiguration,
+			Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		writeResultsForCurrentModeAndTimePeriod(outputTypeConfiguration, modes, timePeriod, (csvPrinter) -> {
+			return createLinkCsvFileForCurrentIteration(outputTypeConfiguration.getOutputAdapter(), modes, timePeriod,
+					csvPrinter);
+		});
+	}
+
+	/**
+	 * Constructor, uses default values for properties file name, description
+	 * property and version property
+	 */
+	public PlanItXMLOutputFormatter() throws PlanItException {
+		this(DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
+	}
+
+	/**
+	 * Constructor, takes values for properties file name, description and version
+	 * property
+	 * 
+	 * @param propertiesFileName  the name of the application properties file
+	 * @param descriptionProperty the name of the description property
+	 * @param versionProperty     the name of the version property
+	 * @throws PlanItException thrown if the application properties file exists but
+	 *                         cannot be opened
+	 */
+	public PlanItXMLOutputFormatter(String propertiesFileName, String descriptionProperty, String versionProperty)
+			throws PlanItException {
+		super();
+		xmlNameRoot = DEFAULT_XML_NAME_PREFIX;
+		xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
+		xmlFileNameMap = new HashMap<OutputType, String>();
+		resetXmlDirectory = false;
+		xmlDirectory = null;
+		csvNameRoot = DEFAULT_CSV_NAME_PREFIX;
+		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
+		csvFileNameMap = new HashMap<OutputType, List<String>>();
+		resetCsvDirectory = false;
+		csvDirectory = null;
+		metadata = new HashMap<OutputType, XMLElementMetadata>();
+		setVersionAndDescription(propertiesFileName, descriptionProperty, versionProperty);
+	}
+
+	/**
+	 * Constructor, uses default values description property and version property
+	 * 
+	 * @param propertiesFileName the name of the application properties file
+	 * @throws PlanItException thrown if the application properties file exists but
+	 *                         cannot be opened
+	 */
+	public PlanItXMLOutputFormatter(String propertiesFileName) throws PlanItException {
+		this(propertiesFileName, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
+	}
+
+	/**
+	 * Create the output directories and open the CSV writers
+	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
+	 *                                be saved
+	 * @param runId                   the id of the traffic assignment to be saved
+	 * @throws PlanItException thrown if there is an error or validation failure
+	 *                         during set up of the output formatter
+	 */
+	@Override
+	public void open(OutputTypeConfiguration outputTypeConfiguration, long runId) throws PlanItException {
+
+		this.runId = runId;
+		if (xmlDirectory == null) {
+			throw new PlanItException(
+					"No common output directory or XML output directory has been defined in the code.");
+		}
+		if (csvDirectory == null) {
+			throw new PlanItException(
+					"No common output directory or CSV output directory has been defined in the code.");
+		}
+
+		createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
+		createOrOpenOutputDirectory(csvDirectory, resetCsvDirectory);
+
+	}
+
+	/**
 	 * Close the CSV writer
 	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
+	 *                                be saved
 	 * @throws PlanItException thrown if there is an error closing a resource
 	 */
 	@Override
-	public void close() throws PlanItException {
+	public void close(OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
 		try {
-			XmlUtils.generateXmlFileFromObject(metadata, XMLElementMetadata.class, xmlOutputFileName);
+			OutputType outputType = outputTypeConfiguration.getOutputType();
+			if (xmlFileNameMap.containsKey(outputType)) {
+				String xmlFileName = xmlFileNameMap.get(outputType);
+				XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
+			}
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -519,8 +635,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @throws PlanItException
 	 */
-	public void resetXmlOutputDirectory() throws PlanItException {
-		resetXmlOutputDirectory = true;
+	public void resetXmlDirectory() throws PlanItException {
+		resetXmlDirectory = true;
 	}
 
 	/**
@@ -528,8 +644,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @throws PlanItException
 	 */
-	public void resetCsvOutputDirectory() throws PlanItException {
-		resetCsvOutputDirectory = true;
+	public void resetCsvDirectory() throws PlanItException {
+		resetCsvDirectory = true;
 	}
 
 	/**
@@ -537,8 +653,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @param xmlOutputDirectory directory for XML output files
 	 */
-	public void setXmlOutputDirectory(String xmlOutputDirectory) {
-		this.xmlOutputDirectory = xmlOutputDirectory;
+	public void setXmlDirectory(String xmlDirectory) {
+		this.xmlDirectory = xmlDirectory;
 	}
 
 	/**
@@ -546,8 +662,9 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @param csvOutputDirectory directory for CSV output files
 	 */
-	public void setCsvOutputDirectory(String csvOutputDirectory) {
-		this.csvOutputDirectory = csvOutputDirectory;
+	@Override
+	public void setCsvDirectory(String csvDirectory) {
+		this.csvDirectory = csvDirectory;
 	}
 
 	/**
@@ -556,8 +673,8 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * @param outputDirectory common output directory
 	 */
 	public void setOutputDirectory(String outputDirectory) {
-		csvOutputDirectory = outputDirectory;
-		xmlOutputDirectory = outputDirectory;
+		csvDirectory = outputDirectory;
+		xmlDirectory = outputDirectory;
 	}
 
 	/**
@@ -574,17 +691,18 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 	 * 
 	 * @param xmlNamePrefix root name of XML output file
 	 */
-	public void setXmlNamePrefix(String xmlNamePrefix) {
-		this.xmlNamePrefix = xmlNamePrefix;
+	public void setXmlNameRoot(String xmlNameRoot) {
+		this.xmlNameRoot = xmlNameRoot;
 	}
 
 	/**
 	 * Sets the root name of the CSV output file
 	 * 
-	 * @param csvNamePrefix root name of CSV output file
+	 * @param csvNameRoot root name of CSV output file
 	 */
-	public void setCsvNamePrefix(String csvNamePrefix) {
-		this.csvNamePrefix = csvNamePrefix;
+	@Override
+	public void setCsvNameRoot(String csvNameRoot) {
+		this.csvNameRoot = csvNameRoot;
 	}
 
 	/**
@@ -614,8 +732,65 @@ public class PlanItXMLOutputFormatter extends BaseOutputFormatter {
 		this.version = version;
 	}
 
-	public String getXmlOutputFileName() {
-		return xmlOutputFileName;
+	/**
+	 * Add a new CSV output file for a specified output type
+	 * 
+	 * @param outputType     the specified output type
+	 * @param outputFileName the name of the output file for the specified output
+	 *                       type
+	 */
+	public void addCsvFileNamePerOutputType(OutputType outputType, String csvFileName) {
+		if (!csvFileNameMap.containsKey(outputType)) {
+			csvFileNameMap.put(outputType, new ArrayList<String>());
+		}
+		csvFileNameMap.get(outputType).add(csvFileName);
+	}
+
+	/**
+	 * Returns the list of names of CSV output file for a specified output type
+	 * 
+	 * @param outputType the specified output type
+	 * @return the name of the output file
+	 */
+	public List<String> getCsvFileName(OutputType outputType) {
+		return csvFileNameMap.get(outputType);
+	}
+
+	/**
+	 * Flag to indicate whether an implementation can handle multiple iterations
+	 * 
+	 * If this returns false, acts as though
+	 * OutputConfiguration.setPersistOnlyFinalIteration() is set to true
+	 * 
+	 * @return flag to indicate whether the OutputFormatter can handle multiple
+	 *         iterations
+	 */
+	@Override
+	public boolean canHandleMultipleIterations() {
+		return true;
+	}
+
+	/**
+	 * Returns the XML output file name for a specified output type
+	 * 
+	 * @param outputType the specified output type
+	 * @return the name of the output file
+	 */
+	@Override
+	public String getXmlFileName(OutputType outputType) {
+		return xmlFileNameMap.get(outputType);
+	}
+
+	/**
+	 * Set the name of an XML output file for a specified output type
+	 * 
+	 * @param outputType  the specified output type
+	 * @param xmlFileName the name of the output file to be added for the specified
+	 *                    output type
+	 */
+	@Override
+	public void setXmlFileNamePerOutputType(OutputType outputType, String xmlFileName) {
+		xmlFileNameMap.put(outputType, xmlFileName);
 	}
 
 }

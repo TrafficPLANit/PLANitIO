@@ -50,3 +50,5 @@
 /src/main/java/org/planit/generated/XMLElementOutputTimePeriod.java
 /src/main/java/org/planit/generated/XMLElementPLANit.java
 /src/main/java/org/planit/generated/XMLElementSimulation.java
+/dependency-reduced-pom.xml
+/logs

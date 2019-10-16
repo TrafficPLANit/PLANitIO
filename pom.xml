@@ -5,7 +5,8 @@
 
 	<groupId>org.planit.XML</groupId>
 	<artifactId>PLANitXML</artifactId>
-	<version>0.0.1</version>
+	<description>PlanIt Code for XML input and output</description>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 
 	<name>PLANitXML</name>
@@ -26,7 +27,7 @@
 		<dependency>
 			<groupId>org.planit</groupId>
 			<artifactId>PlanIt</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 		</dependency>
 		
 		<dependency>

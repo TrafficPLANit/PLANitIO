@@ -11,6 +11,9 @@
 	<jaxb:bindings schemaLocation="../xsd/linkmetadata.xsd" node="//xs:element[@name='iteration']">
 		<jaxb:class name="XMLElementIteration" />
 	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/linkmetadata.xsd" node="//xs:element[@name='csvdata']">
+		<jaxb:class name="XMLElementCsvdata" />
+	</jaxb:bindings>
 	<jaxb:bindings schemaLocation="../xsd/linkmetadata.xsd" node="//xs:element[@name='metadata']">
 		<jaxb:class name="XMLElementMetadata" />
 	</jaxb:bindings>

@@ -1,0 +1,5 @@
+Destination Zone Id,Mode External Id,Origin Zone Id,Cost
+1,1,1,0.0000000
+2,1,1,10.0000000
+1,1,2,0.0000000
+2,1,2,0.0000000

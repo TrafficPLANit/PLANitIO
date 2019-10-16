@@ -1,123 +1,137 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<!--  definition of simple types -->
+	<!-- definition of simple types -->
 	<xs:simpleType name="versiontype">
-	  <xs:restriction base="xs:string">
-	    <xs:pattern value="[0-9]\.[0-9]\.[0-9]"/>
-	  </xs:restriction>
-	</xs:simpleType>	
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]\.[0-9]\.[0-9]" />
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="csvfile">
-	  <xs:restriction base="xs:string">
-	    <xs:pattern value=".*\.csv"/>
-	  </xs:restriction>
-	</xs:simpleType>	
-	
-	<!--  The allowed values of the typevalues simpleType must match those in the Java enumeration  org.planit.output.enums.Type (converted to lower case)  -->
-	<xs:simpleType name="typevalues"> 
-    	<xs:restriction base="xs:string"> 
-			<xs:enumeration value="double"/>
-        	<xs:enumeration value="float"/>
-        	<xs:enumeration value="integer"/>
-        	<xs:enumeration value="boolean"/> 
-        	<xs:enumeration value="srsname"/>
-      	</xs:restriction> 
-	</xs:simpleType> 
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".*\.csv" />
+		</xs:restriction>
+	</xs:simpleType>
 
-	<!--  The allowed values of the unitsvalues simpleType must match those in the Java enumeration  org.planit.output.enums.Units (converted to lower case)  -->
-	<xs:simpleType name="unitsvalues"> 
-    	<xs:restriction base="xs:string"> 
-			<xs:enumeration value="veh/km"/>
-        	<xs:enumeration value="none"/>
-        	<xs:enumeration value="veh/h"/>
-        	<xs:enumeration value="km/h"/> 
-        	<xs:enumeration value="h"/> 
-        	<xs:enumeration value="km"/> 
-        	<xs:enumeration value="srs"/>
-      	</xs:restriction> 
-	</xs:simpleType> 
+	<!-- The allowed values of the typevalues simpleType must match those in 
+		the Java enumeration org.planit.output.enums.Type (converted to lower case) -->
+	<xs:simpleType name="typevalues">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="double" />
+			<xs:enumeration value="float" />
+			<xs:enumeration value="integer" />
+			<xs:enumeration value="boolean" />
+			<xs:enumeration value="srsname" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The allowed values of the unitsvalues simpleType must match those in 
+		the Java enumeration org.planit.output.enums.Units (converted to lower case) -->
+	<xs:simpleType name="unitsvalues">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="veh/km" />
+			<xs:enumeration value="none" />
+			<xs:enumeration value="veh/h" />
+			<xs:enumeration value="km/h" />
+			<xs:enumeration value="h" />
+			<xs:enumeration value="km" />
+			<xs:enumeration value="srs" />
+		</xs:restriction>
+	</xs:simpleType>
 
 	<!-- definition of simple elements -->
-	<xs:element name="assignment" type="xs:string"/>
-	<xs:element name="csvdata" type="csvfile"/>
-	<xs:element name="description" type="xs:string"/>
-	<xs:element name="id" type="xs:positiveInteger"/>
-	<xs:element name="name" type="xs:string"/>
-	<xs:element name="nr" type="xs:positiveInteger"/>
-	<xs:element name="physicalcost" type="xs:string"/>
-	<xs:element name="type" type="typevalues"/>
-	<xs:element name="timestamp" type="xs:dateTime"/>
-	<xs:element name="units" type="unitsvalues"/>
-	<xs:element name="version" type="versiontype"/>
-	<xs:element name="virtualcost" type="xs:string"/>
-	<xs:element name="price" type="xs:decimal"/>
-	
+	<xs:element name="assignment" type="xs:string" />
+	<xs:element name="description" type="xs:string" />
+	<xs:element name="id" type="xs:positiveInteger" />
+	<xs:element name="name" type="xs:string" />
+	<xs:element name="nr" type="xs:positiveInteger" />
+	<xs:element name="physicalcost" type="xs:string" />
+	<xs:element name="type" type="typevalues" />
+	<xs:element name="timestamp" type="xs:dateTime" />
+	<xs:element name="units" type="unitsvalues" />
+	<xs:element name="version" type="versiontype" />
+	<xs:element name="virtualcost" type="xs:string" />
+	<xs:element name="price" type="xs:decimal" />
+
 	<!-- Root element -->
 	<xs:element name="metadata">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="timestamp"/>
-  				<xs:element ref="version"/>
-  				<xs:element ref="description"/>
-  				<xs:element ref="outputconfiguration"/>
-  				<xs:element ref="simulation"/>
-  				<xs:element ref="columns"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
-  	
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="timestamp" />
+				<xs:element ref="version" />
+				<xs:element ref="description" />
+				<xs:element ref="outputconfiguration" />
+				<xs:element ref="simulation" />
+				<xs:element ref="columns" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="outputconfiguration">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="assignment"/>
-  				<xs:element ref="physicalcost"/>
-  				<xs:element ref="virtualcost"/>
-  				<xs:element ref="timeperiod"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
-  	
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="assignment" />
+				<xs:element ref="physicalcost" />
+				<xs:element ref="virtualcost" />
+				<xs:element ref="timeperiod" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="timeperiod">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="id"/>
-  				<xs:element ref="name"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
-  	
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="id" />
+				<xs:element ref="name" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="simulation">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="iteration" minOccurs="1" maxOccurs="unbounded"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
-  	
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="iteration" minOccurs="1"
+					maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="csvdata">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="csvfile">
+					<xs:attribute name="type" type="xs:string"
+						use="required" />
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="iteration">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="nr"/>
-  				<xs:element ref="csvdata"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
-  	
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="nr" />
+				<xs:element ref="csvdata" minOccurs="1"
+					maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="columns">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="column" maxOccurs="unbounded"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
-  	
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="column" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="column">
-  		<xs:complexType>
-  			<xs:sequence>
-  				<xs:element ref="name"/>
-  				<xs:element ref="units"/>
-  				<xs:element ref="type"/>
-  			</xs:sequence>
-  		</xs:complexType>
-  	</xs:element>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="name" />
+				<xs:element ref="units" />
+				<xs:element ref="type" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

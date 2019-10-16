@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
-import org.planit.demand.Demands;
 import org.planit.input.InputBuilderListener;
 import org.planit.input.xml.PlanItXMLInputBuilder;
 import org.planit.logging.PlanItLogger;
@@ -12,10 +11,12 @@ import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.demands.Demands;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
+import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
@@ -113,16 +114,17 @@ public class PlanItXmlMain {
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
 		linkOutputTypeConfiguration.addAllProperties();
+		linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
-		taBuilder.registerOutputFormatter(xmlOutputFormatter);
-		xmlOutputFormatter.setXmlOutputDirectory("C:\\Users\\Public\\PlanIt\\Xml");
-		xmlOutputFormatter.setCsvOutputDirectory("C:\\Users\\Public\\PlanIt\\Csv");
-		xmlOutputFormatter.resetXmlOutputDirectory();
-		xmlOutputFormatter.resetCsvOutputDirectory();
-		xmlOutputFormatter.setXmlNamePrefix("Route Choice Test 1");
-		xmlOutputFormatter.setCsvNamePrefix("Route Choice Test 1");
+		taBuilder.registerOutputFormatter( xmlOutputFormatter);
+		xmlOutputFormatter.setXmlDirectory("C:\\Users\\Public\\PlanIt\\Xml");
+		xmlOutputFormatter.setCsvDirectory("C:\\Users\\Public\\PlanIt\\Csv");
+		xmlOutputFormatter.resetXmlDirectory();
+		xmlOutputFormatter.resetCsvDirectory();
+		xmlOutputFormatter.setXmlNameRoot("Route Choice Test 1");
+		xmlOutputFormatter.setCsvNameRoot("Route Choice Test 1");
 
 		// "USER" configuration
 		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);

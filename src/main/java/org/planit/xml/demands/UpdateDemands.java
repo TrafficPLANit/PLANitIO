@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.planit.demand.Demands;
-import org.planit.demand.MatrixDemand;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementOdCellByCellMatrix;
 import org.planit.generated.XMLElementOdMatrix;
@@ -14,6 +12,8 @@ import org.planit.generated.XMLElementOdRawMatrix;
 import org.planit.generated.XMLElementOdRowMatrix;
 import org.planit.generated.XMLElementOdRawMatrix.Values;
 import org.planit.input.xml.PlanItXMLInputBuilder;
+import org.planit.demands.Demands;
+import org.planit.odmatrix.demand.ODDemandMatrix;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
@@ -58,14 +58,14 @@ public class UpdateDemands {
 	 * @return empty Map of demands for each time period
 	 * @throws PlanItException thrown if there is an error
 	 */
-	private static Map<Mode, Map<TimePeriod, MatrixDemand>> initializeDemandsPerTimePeriodAndMode(
+	private static Map<Mode, Map<TimePeriod, ODDemandMatrix>> initializeDemandsPerTimePeriodAndMode(
 			Map<Integer, TimePeriod> timePeriodMap, Map<Integer, Mode> modeMap, int noCentroids)
 			throws PlanItException {
-		Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = new HashMap<Mode, Map<TimePeriod, MatrixDemand>>();
+		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
 		for (Mode mode : modeMap.values()) {
-			Map<TimePeriod, MatrixDemand> demandsPerTimePeriod = new HashMap<TimePeriod, MatrixDemand>();
+			Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
 			for (TimePeriod timePeriod : timePeriodMap.values()) {
-				demandsPerTimePeriod.put(timePeriod, new MatrixDemand(noCentroids));
+				demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(noCentroids));
 			}
 			demandsPerTimePeriodAndMode.put(mode, demandsPerTimePeriod);
 		}
@@ -77,12 +77,12 @@ public class UpdateDemands {
 	 * 
 	 * @param odmatrix     Odmatrix object generated from the input XML
 	 * @param pcu          number of PCUs for current mode of travel
-	 * @param matrixDemand MatrixDemand object to be updated
+	 * @param matrixDemand ODDemandMatrix object to be updated
 	 * @param zones        zones in the current network
 	 * @throws Exception thrown if there is an error during processing
 	 */
-	private static void updateDemandMatrixFromOdMatrix(XMLElementOdMatrix odmatrix, double pcu, MatrixDemand matrixDemand,
-			Zones zones) throws Exception {
+	private static void updateDemandMatrixFromOdMatrix(XMLElementOdMatrix odmatrix, double pcu,
+			ODDemandMatrix matrixDemand, Zones zones) throws Exception {
 		if (odmatrix instanceof XMLElementOdCellByCellMatrix) {
 			updateDemandMatrixFromCellByCellMatrix((XMLElementOdCellByCellMatrix) odmatrix, pcu, matrixDemand, zones);
 		} else if (odmatrix instanceof XMLElementOdRowMatrix) {
@@ -98,16 +98,16 @@ public class UpdateDemands {
 	 * @param odcellbycellmatrix Odcellbycellmatrix object generated from the input
 	 *                           XML
 	 * @param pcu                number of PCUs for current mode of travel
-	 * @param matrixDemand       MatrixDemand object to be updated
+	 * @param matrixDemand       ODDemandMatrix object to be updated
 	 * @param zones              zones in the current network
 	 */
-	private static void updateDemandMatrixFromCellByCellMatrix(XMLElementOdCellByCellMatrix odcellbycellmatrix, double pcu,
-			MatrixDemand matrixDemand, Zones zones) {
+	private static void updateDemandMatrixFromCellByCellMatrix(XMLElementOdCellByCellMatrix odcellbycellmatrix,
+			double pcu, ODDemandMatrix matrixDemand, Zones zones) {
 		List<XMLElementOdCellByCellMatrix.O> o = odcellbycellmatrix.getO();
 		for (XMLElementOdCellByCellMatrix.O originZone : o) {
 			List<XMLElementOdCellByCellMatrix.O.D> d = originZone.getD();
 			for (XMLElementOdCellByCellMatrix.O.D demandZone : d) {
-				updateMatrixDemand(matrixDemand, originZone.getRef().intValue(), demandZone.getRef().intValue(), pcu,
+				updateDemandMatrix(matrixDemand, originZone.getRef().intValue(), demandZone.getRef().intValue(), pcu,
 						demandZone.getValue(), zones);
 			}
 		}
@@ -122,14 +122,15 @@ public class UpdateDemands {
 	 * @param zones        zones in the current network
 	 */
 	private static void updateDemandMatrixFromOdRowMatrix(XMLElementOdRowMatrix odrowmatrix, double pcu,
-			MatrixDemand matrixDemand, Zones zones) {
-		String separator = (odrowmatrix.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : odrowmatrix.getDs();
+			ODDemandMatrix matrixDemand, Zones zones) {
+		String separator = (odrowmatrix.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR
+				: odrowmatrix.getDs();
 		separator = escapeSeparator(separator);
 		List<XMLElementOdRowMatrix.Odrow> odrow = odrowmatrix.getOdrow();
 		for (XMLElementOdRowMatrix.Odrow originZone : odrow) {
 			String[] rowValuesAsString = originZone.getValue().split(separator);
 			for (int i = 0; i < rowValuesAsString.length; i++) {
-				updateMatrixDemand(matrixDemand, originZone.getRef().intValue(), i + 1, pcu,
+				updateDemandMatrix(matrixDemand, originZone.getRef().intValue(), i + 1, pcu,
 						Double.parseDouble(rowValuesAsString[i]), zones);
 			}
 		}
@@ -140,17 +141,18 @@ public class UpdateDemands {
 	 * 
 	 * @param odrawmatrix  Odrawmatrix object generated from the input XML
 	 * @param pcu          number of PCUs for current mode of travel
-	 * @param matrixDemand MatrixDemand object to be updated
+	 * @param matrixDemand ODDemandMatrix object to be updated
 	 * @param zones        zones in the current network
 	 * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square
 	 *                   matrix
 	 */
 	private static void updateDemandMatrixFromOdRawMatrix(XMLElementOdRawMatrix odrawmatrix, double pcu,
-			MatrixDemand matrixDemand, Zones zones) throws Exception {
+			ODDemandMatrix matrixDemand, Zones zones) throws Exception {
 		Values values = odrawmatrix.getValues();
 		String originSeparator = (values.getOs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : values.getOs();
 		originSeparator = escapeSeparator(originSeparator);
-		String destinationSeparator = (values.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR : values.getDs();
+		String destinationSeparator = (values.getDs() == null) ? PlanItXMLInputBuilder.DEFAULT_SEPARATOR
+				: values.getDs();
 		destinationSeparator = escapeSeparator(destinationSeparator);
 		if (originSeparator.equals(destinationSeparator)) {
 			updateDemandMatrixForEqualSeparators(values, originSeparator, pcu, matrixDemand, zones);
@@ -168,13 +170,13 @@ public class UpdateDemands {
 	 * @param originSeparator      origin separator character
 	 * @param destinationSeparator destination separator character
 	 * @param pcu                  number of PCUs for current mode of travel
-	 * @param matrixDemand         MatrixDemand object to be updated
+	 * @param matrixDemand         ODDemandMatrix object to be updated
 	 * @param zones                zones in the current network
 	 * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square
 	 *                   matrix
 	 */
 	private static void updateDemandMatrixForDifferentSeparators(Values values, String originSeparator,
-			String destinationSeparator, double pcu, MatrixDemand matrixDemand, Zones zones) throws Exception {
+			String destinationSeparator, double pcu, ODDemandMatrix matrixDemand, Zones zones) throws Exception {
 		String[] originRows = values.getValue().split(originSeparator);
 		int noRows = originRows.length;
 		for (int i = 0; i < noRows; i++) {
@@ -185,7 +187,7 @@ public class UpdateDemands {
 						+ noCols + " values.");
 			}
 			for (int col = 0; col < noCols; col++) {
-				updateMatrixDemand(matrixDemand, i + 1, col + 1, pcu, Double.parseDouble(allValuesAsString[col]),
+				updateDemandMatrix(matrixDemand, i + 1, col + 1, pcu, Double.parseDouble(allValuesAsString[col]),
 						zones);
 			}
 		}
@@ -198,13 +200,13 @@ public class UpdateDemands {
 	 * @param values       Values object generated from the input XML
 	 * @param separator    separator character
 	 * @param pcu          number of PCUs for current mode of travel
-	 * @param matrixDemand MatrixDemand object to be updated
+	 * @param matrixDemand ODDemandMatrix object to be updated
 	 * @param zones        zones in the current network
 	 * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square
 	 *                   matrix
 	 */
 	private static void updateDemandMatrixForEqualSeparators(Values values, String separator, double pcu,
-			MatrixDemand matrixDemand, Zones zones) throws Exception {
+			ODDemandMatrix matrixDemand, Zones zones) throws Exception {
 		String[] allValuesAsString = values.getValue().split(separator);
 		int size = allValuesAsString.length;
 		int noRows = (int) Math.round(Math.sqrt(size));
@@ -216,7 +218,7 @@ public class UpdateDemands {
 		for (int i = 0; i < noRows; i++) {
 			int row = i * noRows;
 			for (int col = 0; col < noCols; col++) {
-				updateMatrixDemand(matrixDemand, i + 1, col + 1, pcu, Double.parseDouble(allValuesAsString[row + col]),
+				updateDemandMatrix(matrixDemand, i + 1, col + 1, pcu, Double.parseDouble(allValuesAsString[row + col]),
 						zones);
 			}
 		}
@@ -226,7 +228,7 @@ public class UpdateDemands {
 	 * Update the demand matrix object with the input value for the current row and
 	 * column
 	 * 
-	 * @param matrixDemand the MatrixDemand object to be updated
+	 * @param matrixDemand the ODDemandMatrix object to be updated
 	 * @param rowRef       reference to the row (origin) for the current demand
 	 *                     value
 	 * @param colRef       reference to the column (destination) for the current
@@ -235,7 +237,7 @@ public class UpdateDemands {
 	 * @param demandValue  current demand value (in PCU)
 	 * @param zones        zones in the current network
 	 */
-	private static void updateMatrixDemand(MatrixDemand matrixDemand, int rowRef, int colRef, double pcu,
+	private static void updateDemandMatrix(ODDemandMatrix matrixDemand, int rowRef, int colRef, double pcu,
 			double demandValue, Zones zones) {
 		long originZoneId = zones.getZoneByExternalId(rowRef).getId();
 		long destinationZoneId = zones.getZoneByExternalId(colRef).getId();
@@ -244,7 +246,7 @@ public class UpdateDemands {
 	}
 
 	/**
-	 * Creates a MatrixDemand object from a List of Odmatrix objects read in from
+	 * Creates a ODDemandMatrix object from a List of Odmatrix objects read in from
 	 * the XML input file and registers it in the Demands object
 	 * 
 	 * @param demands       the PlanIt Demands object to be populated
@@ -259,7 +261,7 @@ public class UpdateDemands {
 	public static void createAndRegisterDemandMatrix(Demands demands, List<XMLElementOdMatrix> oddemands,
 			Map<Integer, Mode> modeMap, Map<Integer, TimePeriod> timePeriodMap, int noCentroids, Zones zones)
 			throws Exception {
-		Map<Mode, Map<TimePeriod, MatrixDemand>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(
+		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(
 				timePeriodMap, modeMap, noCentroids);
 		for (XMLElementOdMatrix odmatrix : oddemands) {
 			int timePeriodId = odmatrix.getTimeperiodref().intValue();
@@ -268,7 +270,7 @@ public class UpdateDemands {
 			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
 			Mode mode = modeMap.get(externalId);
 			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
-			MatrixDemand demandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
+			ODDemandMatrix demandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
 			updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), demandMatrix, zones);
 			demands.registerODDemand(timePeriod, mode, demandMatrix);
 		}
