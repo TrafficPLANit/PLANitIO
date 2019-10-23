@@ -4,13 +4,13 @@ import java.io.IOException;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
+import org.planit.demands.Demands;
+import org.planit.exceptions.PlanItException;
 import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
-import org.planit.exceptions.PlanItException;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.demands.Demands;
 import org.planit.output.OutputType;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
@@ -49,8 +49,8 @@ public class PlanItMain {
 
 		try {
 			PlanItLogger.setLogging("logs\\PlanItXmlMain.log", PlanItMain.class);
-			PlanItMain planItXmlMain = new PlanItMain();
-			planItXmlMain.execute();
+			PlanItMain planItMain = new PlanItMain();
+			planItMain.execute();
 			PlanItLogger.close();
 		} catch (Exception e) {
 			e.printStackTrace();
