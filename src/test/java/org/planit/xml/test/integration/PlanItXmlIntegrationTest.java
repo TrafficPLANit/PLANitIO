@@ -38,7 +38,7 @@ import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
-import org.planit.project.PlanItProject;
+import org.planit.planitio.project.PlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
@@ -1497,10 +1497,14 @@ public class PlanItXmlIntegrationTest {
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 				} catch (PlanItException e) {
 					PlanItLogger.severe(e.getMessage());
+					fail(e.getMessage());
 				}
 			};
 
@@ -1573,6 +1577,7 @@ public class PlanItXmlIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
+			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}

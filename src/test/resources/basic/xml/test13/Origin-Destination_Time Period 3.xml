@@ -20,7 +20,7 @@
 	</simulation>
 	<columns>
 		<column>
-			<name>Destination Zone Id</name>
+			<name>Destination Zone External Id</name>
 			<units>none</units>
 			<type>integer</type>
 		</column>
@@ -30,7 +30,7 @@
 			<type>integer</type>
 		</column>
 		<column>
-			<name>Origin Zone Id</name>
+			<name>Origin Zone External Id</name>
 			<units>none</units>
 			<type>integer</type>
 		</column>

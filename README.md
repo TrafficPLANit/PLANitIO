@@ -1,5 +1,5 @@
-# PLANitXML
-XML data I/O format parsers for PLANit projects
+# PLANitIO
+Default PLANit IO project which uses XML input and generates XML and CSV output
 
 ## Maven JAXB2 Plugin
 

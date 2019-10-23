@@ -60,8 +60,8 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	/**
 	 * Constructor
 	 * 
-	 * @param startNodeId     external id of start node
 	 * @param endNodeId       external id of end node
+	 * @param startNodeId     external id of start node
 	 * @param linkFlow           flow through link
 	 * @param linkCost           cost (travel time) of link
 	 * @param totalCostToEndNode cumulative travel time from start of output path to
@@ -70,8 +70,7 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	 * @param length             length of the link
 	 * @param speed              travel speed of the link
 	 */
-	public LinkSegmentExpectedResultsDto(long startNodeId, long endNodeId, double linkFlow, double linkCost,
-			double totalCostToEndNode, double capacity, double length, double speed) {
+	public LinkSegmentExpectedResultsDto(long endNodeId, long startNodeId, double linkFlow, double linkCost, double totalCostToEndNode, double capacity, double length, double speed) {
 		this.startNodeId = startNodeId;
 		this.endNodeId = endNodeId;
 		this.linkSegmentId = -1;
@@ -163,7 +162,7 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	}
 
 	/**
-	 * Return the id of the start nonde
+	 * Return the id of the start node
 	 * 
 	 * @return id of start node
 	 */

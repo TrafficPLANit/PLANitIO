@@ -1,4 +1,4 @@
-Destination Zone Id,Mode External Id,Origin Zone Id,Cost
+Destination Zone External Id,Mode External Id,Origin Zone External Id,Cost
 1,1,1,0.0000000
 2,1,1,0.0000000
 3,1,1,0.0000000

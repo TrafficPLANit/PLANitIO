@@ -36,9 +36,10 @@ import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.output.formatter.xml.PlanItXMLOutputFormatter;
 import org.planit.output.property.OutputProperty;
-import org.planit.project.PlanItProject;
+import org.planit.planitio.output.formatter.PlanItOutputFormatter;
+import org.planit.planitio.project.PlanItProject;
+import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
@@ -46,9 +47,8 @@ import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
+import org.planit.utils.TriConsumer;
 import org.planit.xml.test.integration.LinkSegmentExpectedResultsDto;
-import org.planit.xml.util.TriConsumer;
-import org.planit.xml.util.XmlUtils;
 import org.planit.zoning.Zoning;
 
 /**
@@ -70,6 +70,9 @@ public class TestHelper {
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_ID);
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
@@ -110,11 +113,11 @@ public class TestHelper {
 								iterationIndex, outputType);
 						Object[] keyValues = new Object[outputKeyProperties.length];
 						if (keyValues.length == 2) {
-							keyValues[0] = Integer.valueOf((int) resultDto.getStartNodeId());
-							keyValues[1] = Integer.valueOf((int) resultDto.getEndNodeId());
+							keyValues[0] = Long.valueOf((int) resultDto.getStartNodeId());
+							keyValues[1] = Long.valueOf((int) resultDto.getEndNodeId());
 						}
 						if (keyValues.length == 1) {
-							keyValues[0] = Integer.valueOf((int) resultDto.getLinkSegmentId());
+							keyValues[0] = Long.valueOf((int) resultDto.getLinkSegmentId());
 						}
 						for (int i = 0; i < outputValueProperties.length; i++) {
 							switch (outputValueProperties[i]) {
@@ -451,18 +454,17 @@ public class TestHelper {
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
 		outputConfiguration.setPersistOnlyFinalIteration(true);
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration
-				.getOutputTypeConfiguration(OutputType.LINK);
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
 		setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
-		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
+		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 		
 		// OUTPUT FORMAT CONFIGURATION
 
 		// PlanItXMLOutputFormatter
-		PlanItXMLOutputFormatter xmlOutputFormatter = (PlanItXMLOutputFormatter) project
-				.createAndRegisterOutputFormatter(PlanItXMLOutputFormatter.class.getCanonicalName());
+		PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project
+				.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
 		xmlOutputFormatter.setXmlNameRoot(description);
 		xmlOutputFormatter.setCsvNameRoot(description);
 		xmlOutputFormatter.setOutputDirectory(projectPath);

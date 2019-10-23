@@ -73,8 +73,8 @@ public class CsvIoUtils {
 				if (!resultsMap.get(runId).get(timePeriod).containsKey(mode)) {
 					resultsMap.get(runId).get(timePeriod).put(mode, new TreeSet<LinkSegmentExpectedResultsDto>());
 				}
-				long startNodeId = Long.parseLong(record.get("Start Node Id"));
-				long endNodeId = Long.parseLong(record.get("End Node Id"));
+				long startNodeId = Long.parseLong(record.get("Upstream Node External Id"));
+				long endNodeId = Long.parseLong(record.get("Downstream Node External Id"));
 				double linkFlow = Double.parseDouble(record.get("Link Flow"));
 				double linkCost = Double.parseDouble(record.get("Link Cost"));
 				double totalCostToEndNode = Double.parseDouble(record.get("Cost to End Node"));
