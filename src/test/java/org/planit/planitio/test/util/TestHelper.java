@@ -1,4 +1,4 @@
-package org.planit.xml.test.util;
+package org.planit.planitio.test.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,6 +39,7 @@ import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.planitio.project.PlanItProject;
+import org.planit.planitio.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
@@ -48,7 +49,6 @@ import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentB
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
 import org.planit.utils.TriConsumer;
-import org.planit.xml.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.zoning.Zoning;
 
 /**

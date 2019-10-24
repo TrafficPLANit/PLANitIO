@@ -4,4 +4,4 @@
  * @author gman6028
  *
  */
-package org.planit.xml.test.integration;
+package org.planit.planitio.test.integration;

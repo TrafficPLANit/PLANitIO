@@ -1,4 +1,4 @@
-package org.planit.xml.test.integration;
+package org.planit.planitio.test.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,14 +39,14 @@ import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.planitio.project.PlanItProject;
+import org.planit.planitio.test.integration.LinkSegmentExpectedResultsDto;
+import org.planit.planitio.test.util.TestHelper;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
 import org.planit.utils.IdGenerator;
-import org.planit.xml.test.integration.LinkSegmentExpectedResultsDto;
-import org.planit.xml.test.util.TestHelper;
 
 /**
  * JUnit test case for TraditionalStaticAssignment
@@ -68,7 +68,7 @@ import org.planit.xml.test.util.TestHelper;
  * @author gman6028
  *
  */
-public class PlanItXmlIntegrationTest {
+public class PlanItIOIntegrationTest {
 
 	/**
 	 * Run assertions which confirm that results files contain the correct data, and
@@ -93,7 +93,7 @@ public class PlanItXmlIntegrationTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		PlanItLogger.setLogging("logs\\PlanItXmlIntegrationTest.log", PlanItXmlIntegrationTest.class);
+		PlanItLogger.setLogging("logs\\PlanItXmlIntegrationTest.log", PlanItIOIntegrationTest.class);
 	}
 
 	@AfterClass
@@ -1577,7 +1577,6 @@ public class PlanItXmlIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
-			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}
