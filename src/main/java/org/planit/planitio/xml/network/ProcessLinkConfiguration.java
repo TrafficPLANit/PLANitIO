@@ -24,11 +24,10 @@ public class ProcessLinkConfiguration {
 	/**
 	 * Reads mode types from input file and stores them in a Map
 	 * 
-	 * @param linkconfiguration LinkConfiguration object populated with data from
-	 *                          XML file
+	 * @param linkconfiguration LinkConfiguration object populated with data from XML file
+	 * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
 	 */
-	public static Map<Integer, Mode> getModeMap(XMLElementLinkConfiguration linkconfiguration) throws PlanItException {
-		Map<Integer, Mode> modeMap = new HashMap<Integer, Mode>();
+	public static void createModes(XMLElementLinkConfiguration linkconfiguration) throws PlanItException {
 		for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
 			int modeId = generatedMode.getId().intValue();
 			if (modeId == 0) {
@@ -37,22 +36,17 @@ public class ProcessLinkConfiguration {
 			String name = generatedMode.getName();
 			double pcu = generatedMode.getPcu();
 			Mode mode = new Mode(modeId, name, pcu);
-			modeMap.put(modeId, mode);
 		}
-		return modeMap;
 	}
-
+	
 	/**
 	 * Reads link type values from input file and stores them in a Map
 	 * 
-	 * @param linkconfiguration LinkConfiguration object populated with data from
-	 *                          XML file
-	 * @param modeMap           Map of Mode objects
+	 * @param linkconfiguration LinkConfiguration object populated with data from XML file
 	 * @return Map containing link type values
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(
-			XMLElementLinkConfiguration linkconfiguration, Map<Integer, Mode> modeMap) throws PlanItException {
+	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(XMLElementLinkConfiguration linkconfiguration) throws PlanItException {
 		MacroscopicLinkSegmentTypeXmlHelper.reset();
 		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 		for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
@@ -72,16 +66,14 @@ public class ProcessLinkConfiguration {
 				double critSpeed = (mode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED
 						: mode.getCritspeed();
 				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
-						.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, critSpeed, modeId,
-								modeMap, type);
+						.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, critSpeed, modeId,	type);
 				linkSegmentMap.put(type, linkSegmentType);
 			}
 		}
-		// If a mode is missing for a link type, set the speed to zero for vehicles of
-		// this type in this link type, meaning they are forbidden
+		// If a mode is missing for a link type, set the speed to zero for vehicles of this type in this link type, meaning they are forbidden
 		for (Integer linkType : linkSegmentMap.keySet()) {
 			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentMap.get(linkType);
-			for (Mode mode : modeMap.values()) {
+			for (Mode mode : Mode.getAllModes()) {
 				long modeExternalId = mode.getExternalId();
 				if (!linkSegmentType.getSpeedMap().containsKey(modeExternalId)) {
 					PlanItLogger.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName()
@@ -89,8 +81,7 @@ public class ProcessLinkConfiguration {
 					MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeNew = MacroscopicLinkSegmentTypeXmlHelper
 							.createOrUpdateLinkSegmentType(linkSegmentType.getName(), 0.0,
 									MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE,
-									MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED, 0.0, (int) modeExternalId,
-									modeMap, linkType);
+									MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED, 0.0, (int) modeExternalId, linkType);
 					linkSegmentMap.put(linkType, linkSegmentTypeNew);
 				}
 			}

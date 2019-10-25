@@ -93,7 +93,7 @@ public class PlanItIOIntegrationTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		PlanItLogger.setLogging("logs\\PlanItXmlIntegrationTest.log", PlanItIOIntegrationTest.class);
+		PlanItLogger.setLogging("logs\\PlanItIOIntegrationTest.log", PlanItIOIntegrationTest.class);
 	}
 
 	@AfterClass
@@ -114,15 +114,12 @@ public class PlanItIOIntegrationTest {
 		try {
 			IdGenerator.reset();
 			PlanItProject project = new PlanItProject(projectPath);
-			PhysicalNetwork physicalNetwork = project
-					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-			DeterministicTrafficAssignment assignment = project
-					.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+			PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+			DeterministicTrafficAssignment assignment = project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
 					.getBuilder();
 			taBuilder.registerPhysicalNetwork(physicalNetwork);
-			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-					initialCostsFileLocation);
+			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,	initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
@@ -133,8 +130,7 @@ public class PlanItIOIntegrationTest {
 				Mode mode = Mode.getByExternalId(modeExternalId);
 				double cost = Double.parseDouble(record.get(costHeader));
 				long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-				LinkSegment linkSegment = physicalNetwork.linkSegments
-						.getLinkSegmentByExternalId(linkSegmentExternalId);
+				LinkSegment linkSegment = physicalNetwork.linkSegments	.getLinkSegmentByExternalId(linkSegmentExternalId);
 				assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
 			}
 			in.close();
@@ -156,15 +152,11 @@ public class PlanItIOIntegrationTest {
 		try {
 			IdGenerator.reset();
 			PlanItProject project = new PlanItProject(projectPath);
-			PhysicalNetwork physicalNetwork = project
-					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-			DeterministicTrafficAssignment assignment = project
-					.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-					.getBuilder();
+			PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+			DeterministicTrafficAssignment assignment = project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment.getBuilder();
 			taBuilder.registerPhysicalNetwork(physicalNetwork);
-			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-					initialCostsFileLocation);
+			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;

@@ -416,10 +416,9 @@ public class TestHelper {
 		PlanItProject project = new PlanItProject(projectPath);
 
 		// RAW INPUT START --------------------------------
-		PhysicalNetwork physicalNetwork = project
-				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-		Zoning zoning = project.createAndRegisterZoning();
-		Demands demands = project.createAndRegisterDemands();
+		PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+		Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
+		Demands demands = project.createAndRegisterDemands(zoning);
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
@@ -522,15 +521,12 @@ public class TestHelper {
 			if (initialCostsFileLocation1 != null) {
 				if (initialCostsFileLocation2 != null) {
 					if (initCostsFilePos == 0) {
-						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-								initialCostsFileLocation1);
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
 					} else {
-						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-								initialCostsFileLocation2);
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
 					}
 				} else {
-					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-							initialCostsFileLocation1);
+					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
 				}
 				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
@@ -582,15 +578,12 @@ public class TestHelper {
 			if (initialCostsFileLocation1 != null) {
 				if (initialCostsFileLocation2 != null) {
 					if (initCostsFilePos == 0) {
-						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-								initialCostsFileLocation1);
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
 					} else {
-						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-								initialCostsFileLocation2);
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
 					}
 				} else {
-					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-							initialCostsFileLocation1);
+					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
 				}
 				taBuilder.registerInitialLinkSegmentCost(initialCost);
 			}
@@ -632,8 +625,7 @@ public class TestHelper {
 			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
 				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
 				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
-				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-						initialCostsFileLocation);
+				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,	initialCostsFileLocation);
 				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
 			}
 		};
@@ -670,8 +662,7 @@ public class TestHelper {
 			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
 				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
 				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
-				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-						initialCostsFileLocation);
+				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,	initialCostsFileLocation);
 				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
 			}
 		};

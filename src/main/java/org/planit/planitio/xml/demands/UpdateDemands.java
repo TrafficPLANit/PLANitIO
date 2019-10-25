@@ -54,16 +54,14 @@ public class UpdateDemands {
 	 * Create the Map of demands for each time period and mode
 	 * 
 	 * @param timePeriodMap Map of time periods
-	 * @param modeMap       Map of Mode objects
 	 * @param noCentroids   the number of centroids in the current zoning
 	 * @return empty Map of demands for each time period
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private static Map<Mode, Map<TimePeriod, ODDemandMatrix>> initializeDemandsPerTimePeriodAndMode(
-			Map<Integer, TimePeriod> timePeriodMap, Map<Integer, Mode> modeMap, Zones zones)
-			throws PlanItException {
+			Map<Integer, TimePeriod> timePeriodMap, Zones zones) 	throws PlanItException {
 		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
-		for (Mode mode : modeMap.values()) {
+		for (Mode mode : Mode.getAllModes()) {
 			Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
 			for (TimePeriod timePeriod : timePeriodMap.values()) {
 				demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
@@ -212,8 +210,7 @@ public class UpdateDemands {
 		int size = allValuesAsString.length;
 		int noRows = (int) Math.round(Math.sqrt(size));
 		if ((noRows * noRows) != size) {
-			throw new Exception(
-					"Element <odrawmatrix> contains a string of " + size + " values, which is not an exact square");
+			throw new Exception("Element <odrawmatrix> contains a string of " + size + " values, which is not an exact square");
 		}
 		int noCols = noRows;
 		for (int i = 0; i < noRows; i++) {
@@ -251,25 +248,21 @@ public class UpdateDemands {
 	 * the XML input file and registers it in the Demands object
 	 * 
 	 * @param demands       the PlanIt Demands object to be populated
-	 * @param oddemands     List of generated XMLElementOdMatrix objects with data from the
-	 *                      XML input file
-	 * @param modeMap       Map of Mode objects
+	 * @param oddemands     List of generated XMLElementOdMatrix objects with data from the XML input file
 	 * @param timePeriodMap Map of TimePeriod objects
-	 * @param noCentroids   the number of centroids in the current zoning
 	 * @param zones         zones in the current network
 	 * @throws Exception thrown if there is an error during processing
 	 */
 	public static void createAndRegisterDemandMatrix(Demands demands, List<XMLElementOdMatrix> oddemands,
-			Map<Integer, Mode> modeMap, Map<Integer, TimePeriod> timePeriodMap, int noCentroids, Zones zones)
-			throws Exception {
-		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(
-				timePeriodMap, modeMap, zones);
+			Map<Integer, TimePeriod> timePeriodMap, Zones zones) 	throws Exception {
+		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = 
+				initializeDemandsPerTimePeriodAndMode(timePeriodMap, zones);
 		for (XMLElementOdMatrix odmatrix : oddemands) {
 			int timePeriodId = odmatrix.getTimeperiodref().intValue();
 			int userClassId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
 					: odmatrix.getUserclassref().intValue();
 			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
-			Mode mode = modeMap.get(externalId);
+			Mode mode = Mode.getByExternalId(externalId);
 			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
 			ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
 			updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), odDemandMatrix, zones);

@@ -9,6 +9,7 @@ import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.trafficassignment.DeterministicTrafficAssignment;
+import org.planit.zoning.Zoning;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Only allows for a single assignment
@@ -50,11 +51,11 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      */
     private void processSimpleProjectInputData() throws PlanItException {
         // parse a macroscopic network representation
-        this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+        MacroscopicNetwork network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
         // parse the zoning system
-        this.createAndRegisterZoning();
+        Zoning zoning = this.createAndRegisterZoning(network);
         // parse the demands
-        this.createAndRegisterDemands();
+        this.createAndRegisterDemands(zoning);
     }       
     
     // Public

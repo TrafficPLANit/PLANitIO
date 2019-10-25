@@ -77,10 +77,9 @@ public class PlanItMain {
 		CustomPlanItProject project = new CustomPlanItProject(inputBuilderListener);
 
 		// RAW INPUT START --------------------------------
-		PhysicalNetwork physicalNetwork = project
-				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-		Zoning zoning = project.createAndRegisterZoning();
-		Demands demands = project.createAndRegisterDemands();
+		PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+		Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
+		Demands demands = project.createAndRegisterDemands(zoning);
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------

@@ -77,36 +77,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	private XMLElementMacroscopicZoning macroscopiczoning;
 
 	/**
-	 * Records the number of centroids, which is derived from the zoning input data
-	 * and then used when reading in the demands input
-	 */
-	private int noCentroids;
-
-	/**
-	 * Map of Mode by mode Id, which is read in from the network input and used by
-	 * the demands input
-	 */
-	private Map<Integer, Mode> modeMap;
-
-	/**
-	 * Network nodes object, which is read in from the network input and used by the
-	 * zoning input
-	 */
-	private Nodes nodes;
-
-	/**
-	 * Zoning zones object, which is read in from the zoning input and used by the
-	 * demands input
-	 */
-	private Zoning.Zones zones;
-
-	/**
-	 * Link segments object, which is read in from the network input and used by the
-	 * initial costs input
-	 */
-	private MacroscopicNetwork.LinkSegments linkSegments;
-
-	/**
 	 * Default extension for XML input files
 	 */
 	private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
@@ -176,7 +146,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * @param projectPath      the project path directory
 	 * @param xmlNameExtension the extension of the files to search through
 	 * @return array of names of files in the directory with the specified extension
-	 * 
 	 * @throws PlanItException thrown if no files with the specified extension can
 	 *                         be found
 	 */
@@ -207,8 +176,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	private boolean setInputFilesSingleFile(String[] xmlFileNames) {
 		for (int i = 0; i < xmlFileNames.length; i++) {
 			try {
-				XMLElementPLANit planit = (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class,
-						xmlFileNames[i]);
+				XMLElementPLANit planit = (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class,	xmlFileNames[i]);
 				PlanItLogger.info("File " + xmlFileNames[i] + " provides the network, demands and zoning input data.");
 				macroscopiczoning = planit.getMacroscopiczoning();
 				macroscopicnetwork = planit.getMacroscopicnetwork();
@@ -413,12 +381,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
 	 * @param parser                 the CSVParser containing all CSV records
 	 * @param record                 the current CSVRecord
-	 * @param outputProperty         the OutputProperty corresponding to the column
-	 *                               to be read from
-	 * @param header                 the header specifying the column to be read
-	 *                               from
-	 * @param findLinkFunction       the function which finds the link segment for
-	 *                               the current header
+	 * @param outputProperty   the OutputProperty corresponding to the column to be read from
+	 * @param header                 the header specifying the column to be read from
+	 * @param findLinkFunction       the function which finds the link segment for the current header
 	 * @throws PlanItException thrown if no link segment is found
 	 */
 	private void updateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser,
@@ -436,6 +401,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * Update the initial link segment cost object using the data from the CSV input
 	 * file for the current record specified by start and end node external Id
 	 * 
+	 * @param network the physical network
 	 * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
 	 * @param parser                 the CSVParser containing all CSV records
 	 * @param record                 the current CSVRecord
@@ -449,12 +415,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 *                         link segment
 	 */
 	private void updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(
+			PhysicalNetwork network,
 			InitialLinkSegmentCost initialLinkSegmentCost, CSVParser parser, CSVRecord record,
 			OutputProperty startOutputProperty, OutputProperty endOutputProperty, String startHeader, String endHeader)
 			throws PlanItException {
 		long upstreamNodeExternalId = Long.parseLong(record.get(startHeader));
 		long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
-		LinkSegment linkSegment = linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId,
+		LinkSegment linkSegment = network.linkSegments.getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId,
 				downstreamNodeExternalId);
 		if (linkSegment == null) {
 			throw new PlanItException("Failed to find link segment");
@@ -465,8 +432,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	/**
 	 * Creates the physical network object from the data in the input file
 	 * 
-	 * @param physicalNetwork the physical network object to be populated from the
-	 *                        input data
+	 * @param physicalNetwork the physical network object to be populated from the input data
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
 	protected void populatePhysicalNetwork(@Nonnull PhysicalNetwork physicalNetwork) throws PlanItException {
@@ -476,39 +442,34 @@ public class PlanItInputBuilder extends InputBuilderListener {
 		MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
 		try {
 			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-			modeMap = ProcessLinkConfiguration.getModeMap(linkconfiguration);
-			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = ProcessLinkConfiguration
-					.createLinkSegmentTypeMap(linkconfiguration, modeMap);
+			ProcessLinkConfiguration.createModes(linkconfiguration);
+			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration);
 			XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
 			ProcessInfrastructure.registerNodes(infrastructure, network);
 			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
 		} catch (Exception ex) {
 			throw new PlanItException(ex);
 		}
-		nodes = network.nodes;
-		linkSegments = network.linkSegments;
 	}
 
 	/**
 	 * Creates the Zoning object and connectoids from the data in the input file
 	 * 
 	 * @param zoning the Zoning object to be populated from the input data
+	 * @param parameter1 PhysicalNetwork object previously defined
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	protected void populateZoning(Zoning zoning) throws PlanItException {
+	protected void populateZoning(Zoning zoning, Object parameter1) throws PlanItException {
 		PlanItLogger.info("Populating Zoning");
-		if (nodes.getNumberOfNodes() == 0)
-			throw new PlanItException("Cannot parse zoning input file before the network input file has been parsed.");
-		noCentroids = 0;
+		PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter1;
+		Nodes nodes = physicalNetwork.nodes;
 
 		// create and register zones, centroids and connectoids
 		try {
 			for (Zone zone : macroscopiczoning.getZones().getZone()) {
 				Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
 				UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
-				noCentroids++;
 			}
-			zones = zoning.zones;
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -518,19 +479,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * Populates the Demands object from the input file
 	 * 
 	 * @param demands the Demands object to be populated from the input data
+	 * @param parameter1 Zoning object previously defined
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	protected void populateDemands(@Nonnull Demands demands) throws PlanItException {
+	protected void populateDemands(@Nonnull Demands demands, Object parameter1) throws PlanItException {
 		PlanItLogger.info("Populating Demands");
-		if (noCentroids == 0)
-			throw new PlanItException("Cannot parse demand input file before zones input file has been parsed.");
+		Zoning zoning = (Zoning) parameter1;
 		try {
 			XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
-			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration
-					.generateAndStoreConfigurationData(demandconfiguration);
-			List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands()
-					.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, modeMap, timePeriodMap, noCentroids, zones);
+			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration.generateAndStoreConfigurationData(demandconfiguration);
+			List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
+			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, timePeriodMap, zoning.zones);
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -540,14 +499,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * Populate the initial link segment cost from a CSV file
 	 * 
 	 * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
-	 * @param parameter              CSV file containing the initial link segment
-	 *                               cost values
+	 * @param parameter1 previously created network object
+	 * @param parameter2  CSV file containing the initial link segment cost values
 	 * @throws PlanItException
 	 */
-	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter1)
+	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter1, Object parameter2)
 			throws PlanItException {
 		PlanItLogger.info("Populating Initial Link Segment Costs");
-		String fileName = (String) parameter1;
+		PhysicalNetwork network = (PhysicalNetwork) parameter1;
+		String fileName = (String) parameter2;
 		try {
 			Reader in = new FileReader(fileName);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
@@ -558,18 +518,18 @@ public class PlanItInputBuilder extends InputBuilderListener {
 				case LINK_SEGMENT_ID:
 					updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record, OutputProperty.LINK_SEGMENT_ID,
 							LinkSegmentIdOutputProperty.LINK_SEGMENT_ID, (id) -> {
-								return linkSegments.getLinkSegment(id);
+								return network.linkSegments.getLinkSegment(id);
 							});
 					break;
 				case LINK_SEGMENT_EXTERNAL_ID:
 					updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record,
 							OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
 							LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID, (id) -> {
-								return linkSegments.getLinkSegmentByExternalId(id);
+								return network.linkSegments.getLinkSegmentByExternalId(id);
 							});
 					break;
 				case UPSTREAM_NODE_EXTERNAL_ID:
-					updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(initialLinkSegmentCost, parser, record,
+					updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(network, initialLinkSegmentCost, parser, record,
 							OutputProperty.UPSTREAM_NODE_EXTERNAL_ID, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
 							UpstreamNodeExternalIdOutputProperty.UPSTREAM_NODE_EXTERNAL_ID,
 							DownstreamNodeExternalIdOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
@@ -642,11 +602,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
 		if (projectComponent instanceof PhysicalNetwork) {
 			populatePhysicalNetwork((PhysicalNetwork) projectComponent);
 		} else if (projectComponent instanceof Zoning) {
-			populateZoning((Zoning) projectComponent);
+			populateZoning((Zoning) projectComponent, event.getParameter1());
 		} else if (projectComponent instanceof Demands) {
-			populateDemands((Demands) projectComponent);
+			populateDemands((Demands) projectComponent, event.getParameter1());
 		} else if (projectComponent instanceof InitialPhysicalCost) {
-			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter1());
+			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter1(), event.getParameter2());
 		} else {
 			PlanItLogger.info("Event component is " + projectComponent.getClass().getCanonicalName()
 					+ " which is not handled by PlanItXMLInputBuilder.");
