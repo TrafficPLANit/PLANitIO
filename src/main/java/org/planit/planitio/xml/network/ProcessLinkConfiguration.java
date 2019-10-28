@@ -28,6 +28,7 @@ public class ProcessLinkConfiguration {
 	 * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
 	 */
 	public static void createModes(XMLElementLinkConfiguration linkconfiguration) throws PlanItException {
+		Mode.reset();
 		for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
 			int modeId = generatedMode.getId().intValue();
 			if (modeId == 0) {

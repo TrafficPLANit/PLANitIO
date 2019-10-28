@@ -101,6 +101,7 @@ public class ProcessConfiguration {
 	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
 	 */
 	private static Map<Integer, TimePeriod> generateTimePeriodMap(XMLElementDemandConfiguration demandconfiguration) {
+		TimePeriod.reset();
 		XMLElementTimePeriods timeperiods = demandconfiguration.getTimeperiods();
 		Map<Integer, TimePeriod> timePeriodMap = new HashMap<Integer, TimePeriod>();
 		for (XMLElementTimePeriods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {

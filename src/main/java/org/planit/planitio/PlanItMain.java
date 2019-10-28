@@ -101,11 +101,9 @@ public class PlanItMain {
 		taBuilder
 				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-		// SUPPLY-DEMAND INTERFACE
-		taBuilder.registerZoning(zoning);
 
-		// DEMAND SIDE
-		taBuilder.registerDemands(demands);
+		// SUPPLY-DEMAND INTERFACE
+		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		//DATA OUTPUT CONFIGURATION
 		assignment.activateOutput(OutputType.LINK);

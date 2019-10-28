@@ -68,7 +68,7 @@ public class UpdateZoning {
  * Generates and registers a Connectoid object from the current Centroid and generated Zone object
  * 
  * @param zoning						Zoning object to be updated
- * @param zone                        current generated Zone object
+ * @param nodes                      current generated Nodes object
  * @param zone					    current generated Zone object
  * @param centroid                  current Centroid object
  * @throws PlanItException      thrown if there is an error during processing
