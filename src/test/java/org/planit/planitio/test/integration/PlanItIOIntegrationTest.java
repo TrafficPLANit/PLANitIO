@@ -1539,6 +1539,7 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}

@@ -34,7 +34,6 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
-import org.planit.output.enums.ODSkimOutputType;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
@@ -104,52 +103,48 @@ public class TestHelper {
 		if (iterationIndex == null) {
 			iterationIndex = memoryOutputFormatter.getLastIteration();
 		}
-			for (TimePeriod timePeriod : resultsMap.keySet()) {
-				for (Mode mode : resultsMap.get(timePeriod).keySet()) {
-					for (LinkSegmentExpectedResultsDto resultDto : resultsMap.get(timePeriod).get(mode)) {
-						OutputProperty[] outputKeyProperties = memoryOutputFormatter.getOutputKeyProperties(outputType);
-						OutputProperty[] outputValueProperties = memoryOutputFormatter
-								.getOutputValueProperties(outputType);
-						MultiKeyPlanItData multiKeyPlanItData = memoryOutputFormatter.getOutputData(mode, timePeriod,
+		for (TimePeriod timePeriod : resultsMap.keySet()) {
+			for (Mode mode : resultsMap.get(timePeriod).keySet()) {
+				for (LinkSegmentExpectedResultsDto resultDto : resultsMap.get(timePeriod).get(mode)) {
+					OutputProperty[] outputKeyProperties = memoryOutputFormatter.getOutputKeyProperties(outputType);
+					OutputProperty[] outputValueProperties = memoryOutputFormatter.getOutputValueProperties(outputType);
+					MultiKeyPlanItData multiKeyPlanItData = memoryOutputFormatter.getOutputData(mode, timePeriod,
 								iterationIndex, outputType);
-						Object[] keyValues = new Object[outputKeyProperties.length];
-						if (keyValues.length == 2) {
-							keyValues[0] = Long.valueOf((int) resultDto.getStartNodeId());
-							keyValues[1] = Long.valueOf((int) resultDto.getEndNodeId());
-						}
-						if (keyValues.length == 1) {
-							keyValues[0] = Long.valueOf((int) resultDto.getLinkSegmentId());
-						}
-						for (int i = 0; i < outputValueProperties.length; i++) {
-							switch (outputValueProperties[i]) {
-							case FLOW:
-								double flow = (Double) multiKeyPlanItData.getRowValue(OutputProperty.FLOW, keyValues);
-								assertEquals(flow, resultDto.getLinkFlow(), epsilon);
-								break;
-							case LENGTH:
-								double length = (Double) multiKeyPlanItData.getRowValue(OutputProperty.LENGTH,
-										keyValues);
-								assertEquals(length, resultDto.getLength(), epsilon);
-								break;
-							case CALCULATED_SPEED:
-								double speed = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CALCULATED_SPEED, keyValues);
-								assertEquals(speed, resultDto.getSpeed(), epsilon);
-								break;
-							case COST:
-								double cost = (Double) multiKeyPlanItData.getRowValue(OutputProperty.COST, keyValues);
-								assertEquals(cost, resultDto.getLinkCost(), epsilon);
-								break;
-							case CAPACITY_PER_LANE:
-								double capacityPerLane = (Double) multiKeyPlanItData
-										.getRowValue(OutputProperty.CAPACITY_PER_LANE, keyValues);
-								int numberOfLanes = (Integer) multiKeyPlanItData
-										.getRowValue(OutputProperty.NUMBER_OF_LANES, keyValues);
-								assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
-								break;
-							}
+					Object[] keyValues = new Object[outputKeyProperties.length];
+					if (keyValues.length == 2) {
+						keyValues[0] = Long.valueOf((int) resultDto.getStartNodeId());
+						keyValues[1] = Long.valueOf((int) resultDto.getEndNodeId());
+					}
+					if (keyValues.length == 1) {
+						keyValues[0] = Long.valueOf((int) resultDto.getLinkSegmentId());
+					}
+					for (int i = 0; i < outputValueProperties.length; i++) {
+						switch (outputValueProperties[i]) {
+						case FLOW:
+							double flow = (Double) multiKeyPlanItData.getRowValue(OutputProperty.FLOW, keyValues);
+							assertEquals(flow, resultDto.getLinkFlow(), epsilon);
+							break;
+						case LENGTH:
+							double length = (Double) multiKeyPlanItData.getRowValue(OutputProperty.LENGTH, keyValues);
+							assertEquals(length, resultDto.getLength(), epsilon);
+							break;
+						case CALCULATED_SPEED:
+							double speed = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CALCULATED_SPEED, keyValues);
+							assertEquals(speed, resultDto.getSpeed(), epsilon);
+							break;
+						case COST:
+							double cost = (Double) multiKeyPlanItData.getRowValue(OutputProperty.COST, keyValues);
+							assertEquals(cost, resultDto.getLinkCost(), epsilon);
+							break;
+						case CAPACITY_PER_LANE:
+							double capacityPerLane = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CAPACITY_PER_LANE, keyValues);
+							int numberOfLanes = (Integer) multiKeyPlanItData.getRowValue(OutputProperty.NUMBER_OF_LANES, keyValues);
+							assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
+							break;
 						}
 					}
 				}
+			}
 		}
 	}
 	
@@ -157,16 +152,11 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             properties being used
-	 * @param maxIterations                        the maximum number of iterations
-	 *                                             allowed in this test run
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -181,12 +171,10 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param maxIterations     the maximum number of iterations allowed in this
-	 *                          test run
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
+	 * @param projectPath project directory containing the input files
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -200,15 +188,11 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (requires
 	 * assignment to converge, no maximum number of iterations)
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             properties being used
-	 * @param initialCostsFileLocation             location of initial costs file
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
+	 * @param initialCostsFileLocation location of initial costs file
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -224,12 +208,10 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (requires
 	 * assignment to converge, no maximum number of iterations)
 	 * 
-	 * @param projectPath              project directory containing the input files
+	 * @param projectPath project directory containing the input files
 	 * @param initialCostsFileLocation location of initial costs file
-	 * @param setCostParameters        lambda function which sets parameters of cost
-	 *                                 function
-	 * @param description              description used in temporary output file
-	 *                                 names
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -244,22 +226,14 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             properties being used
-	 * @param initialCostsFileLocation1            location of first initial costs
-	 *                                             file
-	 * @param initialCostsFileLocation2            location of second initial costs
-	 *                                             file
-	 * @param initCostsFilePos                     identifies which initial costs
-	 *                                             file is to be used
-	 * @param maxIterations                        the maximum number of iterations
-	 *                                             allowed in this test run
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
+	 * @param initialCostsFileLocation1 location of first initial costs file
+	 * @param initialCostsFileLocation2 location of second initial costs file
+	 * @param initCostsFilePos identifies which initial costs file is to be used
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -276,17 +250,13 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath               project directory containing the input files
+	 * @param projectPath project directory containing the input files
 	 * @param initialCostsFileLocation1 location of first initial costs file
 	 * @param initialCostsFileLocation2 location of second initial costs file
-	 * @param initCostsFilePos          identifies which initial costs file is to be
-	 *                                  used
-	 * @param maxIterations             the maximum number of iterations allowed in
-	 *                                  this test run
-	 * @param setCostParameters         lambda function which sets parameters of
-	 *                                  cost function
-	 * @param description               description used in temporary output file
-	 *                                  names
+	 * @param initCostsFilePos identifies which initial costs file is to be used
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -301,19 +271,12 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             properties being used
-	 * @param maxIterations                        the maximum number of iterations
-	 *                                             allowed in this test run
-	 * @param epsilon                              measure of how close successive
-	 *                                             iterations must be to each other
-	 *                                             to accept convergence
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -329,14 +292,11 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param maxIterations     the maximum number of iterations allowed in this
-	 *                          test run
-	 * @param epsilon           measure of how close successive iterations must be
-	 *                          to each other to accept convergence
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
+	 * @param projectPath project directory containing the input files
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -351,14 +311,10 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (requires
 	 * assignment to converge, no maximum number of iterations)
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             properties being used
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -373,10 +329,9 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (requires
 	 * assignment to converge, no maximum number of iterations)
 	 * 
-	 * @param projectPath       project directory containing the input files
-	 * @param setCostParameters lambda function which sets parameters of cost
-	 *                          function
-	 * @param description       description used in temporary output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -388,22 +343,13 @@ public class TestHelper {
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             properties being used
-	 * @param registerInitialCosts                 lambda function to register
-	 *                                             initial costs on the Traffic
-	 *                                             Assignment Builder
-	 * @param maxIterations                        the maximum number of iterations
-	 *                                             allowed in this test run
-	 * @param epsilon                              measure of how close successive
-	 *                                             iterations must be to each other
-	 *                                             to accept convergence
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
+	 * @param registerInitialCosts lambda function to register initial costs on the Traffic Assignment Builder
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param epsilon measure of how close successive iterations must be to each other  to accept convergence
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -449,6 +395,7 @@ public class TestHelper {
 		assignment.activateOutput(OutputType.LINK);
 		assignment.activateOutput(OutputType.OD);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+		
 		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
 		outputConfiguration.setPersistOnlyFinalIteration(true);
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
@@ -490,24 +437,18 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations and default link output properties)
 	 * 
-	 * @param projectPath               project directory containing the input files
+	 * @param projectPath project directory containing the input files
 	 * @param initialCostsFileLocation1 location of first initial costs file
 	 * @param initialCostsFileLocation2 location of second initial costs file
-	 * @param initCostsFilePos          identifies which initial costs file is to be
-	 *                                  used
-	 * @param maxIterations             the maximum number of iterations allowed in
-	 *                                  this test run
-	 * @param epsilon                   measure of how close successive iterations
-	 *                                  must be to each other to accept convergence
-	 * @param setCostParameters         lambda function which sets parameters of
-	 *                                  cost function
-	 * @param description               description used in temporary output file
-	 *                                  names
+	 * @param initCostsFilePos identifies which initial costs file is to be used
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 * 
-	 *                   If the setCostParameters argument is null, the system
-	 *                   default values for the cost function parameters are used.
+	 * If the setCostParameters argument is null, the system default values for the cost function parameters are used.
 	 */
 	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
@@ -538,26 +479,17 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses
 	 * maximum number of iterations)
 	 * 
-	 * @param projectPath                          project directory containing the
-	 *                                             input files
+	 * @param projectPath project directory containing the input files
 	 * @param setOutputTypeConfigurationProperties lambda function to set output
-	 *                                             type configuration output
-	 *                                             properties
-	 * @param initialCostsFileLocation1            location of first initial costs
-	 *                                             file
-	 * @param initialCostsFileLocation2            location of second initial costs
-	 *                                             file
-	 * @param initCostsFilePos                     identifies which initial costs
-	 *                                             file is to be used
-	 * @param maxIterations                        the maximum number of iterations
-	 *                                             allowed in this test run
-	 * @param epsilon                              measure of how close successive
-	 *                                             iterations must be to each other
+	 *                                             type configuration output properties
+	 * @param initialCostsFileLocation1 location of first initial costs file
+	 * @param initialCostsFileLocation2 location of second initial costs file
+	 * @param initCostsFilePos identifies which initial costs file is to be used
+	 * @param maxIterations the maximum number of iterations allowed in this test run
+	 * @param epsilon measure of how close successive iterations must be to each other
 	 *                                             to accept convergence
-	 * @param setCostParameters                    lambda function which sets
-	 *                                             parameters of cost function
-	 * @param description                          description used in temporary
-	 *                                             output file names
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 * 
@@ -595,21 +527,12 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
 	 * of initial cost for each time period)
 	 * 
-	 * @param projectPath                              project directory containing
-	 *                                                 the input files
-	 * @param setOutputTypeConfigurationProperties     lambda function to set output
-	 *                                                 type configuration output
-	 *                                                 properties
-	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects
-	 *                                                 for each time period
-	 * @param epsilon                                  measure of how close
-	 *                                                 successive iterations must be
-	 *                                                 to each other to accept
-	 *                                                 convergence
-	 * @param setCostParameters                        lambda function which sets
-	 *                                                 parameters of cost function
-	 * @param description                              description used in temporary
-	 *                                                 output file names
+	 * @param projectPath project directory containing the input files
+	 * @param setOutputTypeConfigurationProperties lambda function to set output type configuration output properties
+	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects for each time period
+	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -636,18 +559,11 @@ public class TestHelper {
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
 	 * of initial cost for each time period and default link output properties))
 	 * 
-	 * @param projectPath                              project directory containing
-	 *                                                 the input files
-	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects
-	 *                                                 for each time period
-	 * @param epsilon                                  measure of how close
-	 *                                                 successive iterations must be
-	 *                                                 to each other to accept
-	 *                                                 convergence
-	 * @param setCostParameters                        lambda function which sets
-	 *                                                 parameters of cost function
-	 * @param description                              description used in temporary
-	 *                                                 output file names
+	 * @param projectPath project directory containing  the input files
+	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects for each time period
+	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
+	 * @param setCostParameters lambda function which sets parameters of cost function
+	 * @param description description used in temporary output file names
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
@@ -701,8 +617,7 @@ public class TestHelper {
 	 * 
 	 * @param file1 location of the first file to be compared
 	 * @param file2 location of the second file to be compared
-	 * @return true if the contents of the two files are exactly equal, false
-	 *         otherwise
+	 * @return true if the contents of the two files are exactly equal, false otherwise
 	 * @throws IOException thrown if there is an error opening one of the files
 	 */
 	public static boolean compareFiles(String file1, String file2) throws IOException {
