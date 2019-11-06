@@ -20,7 +20,6 @@ import org.apache.commons.io.FileUtils;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
-import org.planit.data.MultiKeyPlanItData;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementColumn;
@@ -76,6 +75,7 @@ public class TestHelper {
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
 		} catch (PlanItException e) {
 			e.printStackTrace();
 		}
@@ -108,8 +108,6 @@ public class TestHelper {
 				for (LinkSegmentExpectedResultsDto resultDto : resultsMap.get(timePeriod).get(mode)) {
 					OutputProperty[] outputKeyProperties = memoryOutputFormatter.getOutputKeyProperties(outputType);
 					OutputProperty[] outputValueProperties = memoryOutputFormatter.getOutputValueProperties(outputType);
-					MultiKeyPlanItData multiKeyPlanItData = memoryOutputFormatter.getOutputData(mode, timePeriod,
-								iterationIndex, outputType);
 					Object[] keyValues = new Object[outputKeyProperties.length];
 					if (keyValues.length == 2) {
 						keyValues[0] = Long.valueOf((int) resultDto.getStartNodeId());
@@ -121,24 +119,24 @@ public class TestHelper {
 					for (int i = 0; i < outputValueProperties.length; i++) {
 						switch (outputValueProperties[i]) {
 						case FLOW:
-							double flow = (Double) multiKeyPlanItData.getRowValue(OutputProperty.FLOW, keyValues);
+							double flow = (Double) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.FLOW, keyValues);
 							assertEquals(flow, resultDto.getLinkFlow(), epsilon);
 							break;
 						case LENGTH:
-							double length = (Double) multiKeyPlanItData.getRowValue(OutputProperty.LENGTH, keyValues);
+							double length = (Double) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.LENGTH, keyValues);
 							assertEquals(length, resultDto.getLength(), epsilon);
 							break;
 						case CALCULATED_SPEED:
-							double speed = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CALCULATED_SPEED, keyValues);
+							double speed = (Double) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.CALCULATED_SPEED, keyValues);
 							assertEquals(speed, resultDto.getSpeed(), epsilon);
 							break;
-						case COST:
-							double cost = (Double) multiKeyPlanItData.getRowValue(OutputProperty.COST, keyValues);
+						case LINK_COST:
+							double cost = (Double) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.LINK_COST, keyValues);
 							assertEquals(cost, resultDto.getLinkCost(), epsilon);
 							break;
 						case CAPACITY_PER_LANE:
-							double capacityPerLane = (Double) multiKeyPlanItData.getRowValue(OutputProperty.CAPACITY_PER_LANE, keyValues);
-							int numberOfLanes = (Integer) multiKeyPlanItData.getRowValue(OutputProperty.NUMBER_OF_LANES, keyValues);
+							double capacityPerLane = (Double) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.CAPACITY_PER_LANE, keyValues);
+							int numberOfLanes = (Integer) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.NUMBER_OF_LANES, keyValues);
 							assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
 							break;
 						}

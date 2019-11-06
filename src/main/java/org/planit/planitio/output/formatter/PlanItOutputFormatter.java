@@ -28,7 +28,7 @@ import org.planit.generated.XMLElementOutputConfiguration;
 import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.generated.XMLElementSimulation;
 import org.planit.logging.PlanItLogger;
-import org.planit.output.adapter.OutputTypeAdapter;
+import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.CsvFileOutputFormatter;
@@ -233,15 +233,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Create the generated XMLElementOutputConfiguration object
 	 * 
-	 * @param outputTypeAdapter the OutputTypeAdapter object containing the run information
+	 * @param outputAdapter the OutputAdapter object containing the run information
 	 * @param timePeriod    the current time period
 	 * @return the XMLElementOutputConfiguration object
 	 */
-	private XMLElementOutputConfiguration getOutputconfiguration(OutputTypeAdapter outputTypeAdapter, TimePeriod timePeriod) {
+	private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
 		XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
-		outputconfiguration.setAssignment(outputTypeAdapter.getAssignmentClassName());
-		outputconfiguration.setPhysicalcost(outputTypeAdapter.getPhysicalCostClassName());
-		outputconfiguration.setVirtualcost(outputTypeAdapter.getVirtualCostClassName());
+		outputconfiguration.setAssignment(outputAdapter.getAssignmentClassName());
+		outputconfiguration.setPhysicalcost(outputAdapter.getPhysicalCostClassName());
+		outputconfiguration.setVirtualcost(outputAdapter.getVirtualCostClassName());
 		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
 		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
 		timeperiod.setName(timePeriod.getDescription());
@@ -275,11 +275,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * once per time period
 	 * 
 	 * @param outputTypeConfiguration the OutputTypeConfiguration object containing the run information
-	 * @param outputTypeAdapter the OutputTypeAdapter object being used for the output
+	 * @param outputAdapter the OutputAdapter object being used for the output
 	 * @param timePeriod    current time period
 	 * @throws PlanItException thrown if there is an error writing the data to file
 	 */
-	private void initializeMetadataObject(OutputTypeConfiguration outputTypeConfiguration, OutputTypeAdapter outputTypeAdapter, TimePeriod timePeriod) throws PlanItException {
+	private void initializeMetadataObject(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, TimePeriod timePeriod) throws PlanItException {
 		OutputType outputType = outputTypeConfiguration.getOutputType();
 		try {
 			metadata.get(outputType).setTimestamp(getTimestamp());
@@ -289,7 +289,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			if (description != null) {
 				metadata.get(outputType).setDescription(description);
 			}
-			metadata.get(outputType).setOutputconfiguration(getOutputconfiguration(outputTypeAdapter, timePeriod));
+			metadata.get(outputType).setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
 			SortedSet<BaseOutputProperty> outputProperties =  outputTypeConfiguration.getOutputProperties();
 			metadata.get(outputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
 		} catch (Exception e) {
@@ -324,7 +324,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * Write the results for the current mode and time period to file
 	 * 
 	 * @param outputTypeConfiguration          the current output type configuration 
-	 * @param outputTypeAdapter  the current output type adapter
+	 * @param outputAdapter  the current output adapter
 	 * @param modes                            Set of modes
 	 * @param timePeriod                       the current time period
 	 * @param createCsvFileForCurrentIteration lambda function which records data
@@ -332,7 +332,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 *                                         current iteration
 	 * @throws PlanItException thrown if there is an error
 	 */
-	private void writeResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration,	OutputTypeAdapter outputTypeAdapter, TimePeriod timePeriod, Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
+	private void writeResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration,	OutputAdapter outputAdapter, TimePeriod timePeriod, Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
 		try {
 			OutputType outputType = outputTypeConfiguration.getOutputType();
 			boolean isNewTimePeriod = ((!metadata.containsKey(outputType)) || (metadata.get(outputType).getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
@@ -343,9 +343,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 				metadata.put(outputType, new XMLElementMetadata());
 				XMLElementSimulation simulation = new XMLElementSimulation();
 				metadata.get(outputType).setSimulation(simulation);
-				initializeMetadataObject(outputTypeConfiguration, outputTypeAdapter, timePeriod);
+				initializeMetadataObject(outputTypeConfiguration, outputAdapter, timePeriod);
 			}
-			int iterationIndex = outputTypeAdapter.getIterationIndex();
+			int iterationIndex = outputAdapter.getIterationIndex();
 			String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod,	outputType, runId, iterationIndex);
 			CSVPrinter csvIterationPrinter = openCsvFileAndWriteHeaders(outputTypeConfiguration, csvFileName);
 			PlanItException ple = createCsvFileForCurrentIteration.apply(csvIterationPrinter);
@@ -369,13 +369,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * Write Simulation results for the current time period to the CSV file
 	 * 
 	 * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
-	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param outputAdapter OutputTypeAdapter for current persistence
 	 * @param modes                   Set of modes of travel
 	 * @param timePeriod              current time period
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	protected void writeSimulationResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputTypeAdapter outputTypeAdapter,
+	protected void writeSimulationResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter,
 			Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
 		PlanItLogger.info("XML Output for OutputType SIMULATION has not been implemented yet.");
 	}
@@ -384,13 +384,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * Write General results for the current time period to the CSV file
 	 * 
 	 * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
-	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param outputAdapter OutputAdapter for current persistence
 	 * @param modes                   Set of current modes of travel
 	 * @param timePeriod              current time period
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	protected void writeGeneralResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputTypeAdapter outputTypeAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+	protected void writeGeneralResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
 		PlanItLogger.info("XML Output for OutputType GENERAL has not been implemented yet.");
 	}
 
@@ -398,15 +398,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * Write Origin-Destination results for the time period to the CSV file
 	 * 
 	 * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
-	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param outputAdapter OutputAdapter for current persistence
 	 * @param modes                   Set of modes of travel
 	 * @param timePeriod              current time period
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	protected void writeOdResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputTypeAdapter outputTypeAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
-		writeResultsForCurrentTimePeriod(outputTypeConfiguration, outputTypeAdapter, timePeriod, (csvPrinter) -> {
-			return writeOdResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, outputTypeAdapter, modes, timePeriod, csvPrinter);
+	protected void writeOdResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		writeResultsForCurrentTimePeriod(outputTypeConfiguration, outputAdapter, timePeriod, (csvPrinter) -> {
+			return writeOdResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, outputAdapter, modes, timePeriod, csvPrinter);
 		});
 	}
 
@@ -414,15 +414,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * Write link results for the current time period to the CSV file
 	 * 
 	 * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
-	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param outputAdapter OutputAdapter for current persistence
 	 * @param modes                   Set of modes of travel
 	 * @param timePeriod              current time period
 	 * @throws PlanItException thrown if there is an error
 	 */
 	@Override
-	protected void writeLinkResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputTypeAdapter outputTypeAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
-		writeResultsForCurrentTimePeriod(outputTypeConfiguration, outputTypeAdapter, timePeriod, (csvPrinter) -> {
-			return writeLinkResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, outputTypeAdapter, modes, timePeriod,	csvPrinter);
+	protected void writeLinkResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		writeResultsForCurrentTimePeriod(outputTypeConfiguration, outputAdapter, timePeriod, (csvPrinter) -> {
+			return writeLinkResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, outputAdapter, modes, timePeriod,	csvPrinter);
 		});
 	}
 

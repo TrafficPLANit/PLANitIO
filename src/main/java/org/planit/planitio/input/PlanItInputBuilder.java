@@ -35,7 +35,7 @@ import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Centroid;
 import org.planit.output.property.BaseOutputProperty;
-import org.planit.output.property.CostOutputProperty;
+import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentIdOutputProperty;
@@ -334,7 +334,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 			case DOWNSTREAM_NODE_EXTERNAL_ID:
 				downstreamNodeExternalIdPresent = true;
 				break;
-			case COST:
+			case LINK_COST:
 				costPresent = true;
 			}
 		}
@@ -366,11 +366,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 *                               data value from
 	 * @param linkSegment            the current link segment
 	 */
-	private void setInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVRecord record,
-			LinkSegment linkSegment) {
+	private void setInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVRecord record, LinkSegment linkSegment) {
 		long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.MODE_EXTERNAL_ID));
 		Mode mode = Mode.getByExternalId(modeExternalId);
-		double cost = Double.parseDouble(record.get(CostOutputProperty.COST));
+		double cost = Double.parseDouble(record.get(LinkCostOutputProperty.LINK_COST));
 		initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
 	}
 
@@ -461,6 +460,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 */
 	protected void populateZoning(Zoning zoning, Object parameter1) throws PlanItException {
 		PlanItLogger.info("Populating Zoning");
+		if (!(parameter1 instanceof PhysicalNetwork)) {
+			PlanItLogger.severe("Parameter of call to populateZoning() is not of class PhysicalNetwork");
+			throw new PlanItException("Parameter of call to populateZoning() is not of class PhysicalNetwork");
+		}
 		PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter1;
 		Nodes nodes = physicalNetwork.nodes;
 
@@ -484,6 +487,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 */
 	protected void populateDemands(@Nonnull Demands demands, Object parameter1) throws PlanItException {
 		PlanItLogger.info("Populating Demands");
+		if (!(parameter1 instanceof Zoning)) {
+			PlanItLogger.severe("Parameter of call to populateDemands() is not of class Zoning.");
+			throw new PlanItException("Parameter of call to populateDemands() is not of class Zoning.");
+		}
 		Zoning zoning = (Zoning) parameter1;
 		try {
 			XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
@@ -506,6 +513,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	protected void populateInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, Object parameter1, Object parameter2)
 			throws PlanItException {
 		PlanItLogger.info("Populating Initial Link Segment Costs");
+		if (!(parameter1 instanceof PhysicalNetwork)) {
+			PlanItLogger.severe("Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
+			throw new PlanItException("Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
+		}
+		if (!(parameter2 instanceof String)) {
+			PlanItLogger.severe("Parameter 2 of call to populateInitialLinkSegments() is not a file name");
+			throw new PlanItException("Parameter 2 of call to populateInitialLinkSegments() is not a file name");
+		}
 		PhysicalNetwork network = (PhysicalNetwork) parameter1;
 		String fileName = (String) parameter2;
 		try {

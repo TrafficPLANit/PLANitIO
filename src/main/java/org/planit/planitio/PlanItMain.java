@@ -112,6 +112,7 @@ public class PlanItMain {
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
 		linkOutputTypeConfiguration.addAllProperties();
 		linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
+		linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());

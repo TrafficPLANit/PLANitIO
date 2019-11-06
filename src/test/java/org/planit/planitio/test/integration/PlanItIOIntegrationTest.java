@@ -32,7 +32,7 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.output.property.CostOutputProperty;
+import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
@@ -123,7 +123,7 @@ public class PlanItIOIntegrationTest {
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
 			String linkSegmentExternalIdHeader = LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
-			String costHeader = CostOutputProperty.COST;
+			String costHeader = LinkCostOutputProperty.LINK_COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);
@@ -161,7 +161,7 @@ public class PlanItIOIntegrationTest {
 			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
 			String upstreamNodeExternalIdHeader = UpstreamNodeExternalIdOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
 			String downstreamNodeExternalIdHeader = DownstreamNodeExternalIdOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
-			String costHeader = CostOutputProperty.COST;
+			String costHeader = LinkCostOutputProperty.LINK_COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = Mode.getByExternalId(modeExternalId);
@@ -1493,6 +1493,7 @@ public class PlanItIOIntegrationTest {
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
 				} catch (PlanItException e) {
 					PlanItLogger.severe(e.getMessage());
 					fail(e.getMessage());
@@ -1539,7 +1540,6 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
-			e.printStackTrace();
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
