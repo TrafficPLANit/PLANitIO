@@ -337,6 +337,119 @@ public class TestHelper {
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description);
 	}
+	
+	public static MemoryOutputFormatter setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+		return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, null, 0, null, null, setCostParameters, description);
+	}
+	
+	public static MemoryOutputFormatter setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath, String initialCostsFileLocation1,
+			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
+			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+
+		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
+				taBuilder, project, physicalNetwork) -> {
+			InitialLinkSegmentCost initialCost = null;
+			if (initialCostsFileLocation1 != null) {
+				if (initialCostsFileLocation2 != null) {
+					if (initCostsFilePos == 0) {
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+					} else {
+						initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+					}
+				} else {
+					initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+				}
+				taBuilder.registerInitialLinkSegmentCost(initialCost);
+			}
+		};
+
+		return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
+				maxIterations, epsilon, setCostParameters, description);
+	}
+
+	
+	
+	public static MemoryOutputFormatter setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath,
+			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+			TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts,
+			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+			String description) throws Exception {
+		IdGenerator.reset();
+
+		PlanItProject project = new PlanItProject(projectPath);
+
+		// RAW INPUT START --------------------------------
+		PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+		Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
+		Demands demands = project.createAndRegisterDemands(zoning);
+		// RAW INPUT END -----------------------------------
+
+		// TRAFFIC ASSIGNMENT START------------------------
+		DeterministicTrafficAssignment assignment = project
+				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
+				.getBuilder();
+
+		// SUPPLY SIDE
+		taBuilder.registerPhysicalNetwork(physicalNetwork);
+
+		// SUPPLY-DEMAND INTERACTIONS
+		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
+				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+		if (setCostParameters != null) {
+			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
+		}
+
+		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+
+		// SUPPLY-DEMAND INTERFACE
+		taBuilder.registerDemandsAndZoning(demands, zoning);	
+
+		// DATA OUTPUT CONFIGURATION
+		assignment.activateOutput(OutputType.LINK);
+		assignment.activateOutput(OutputType.OD);
+		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+		
+		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
+		outputConfiguration.setPersistOnlyFinalIteration(true);
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
+		setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
+		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
+		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
+		
+		// OUTPUT FORMAT CONFIGURATION
+
+		// PlanItXMLOutputFormatter
+		PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+		xmlOutputFormatter.setXmlNameRoot(description);
+		xmlOutputFormatter.setCsvNameRoot(description);
+		xmlOutputFormatter.setOutputDirectory(projectPath);
+		taBuilder.registerOutputFormatter(xmlOutputFormatter);
+
+		// MemoryOutputFormatter
+		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+		taBuilder.registerOutputFormatter(memoryOutputFormatter);
+
+		// "USER" configuration
+		if (maxIterations != null) {
+			assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+		}
+		if (epsilon != null) {
+			assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+		}
+
+		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
+
+		project.executeAllTrafficAssignments();
+		linkOutputTypeConfiguration.addAllProperties();
+		project.executeAllTrafficAssignments();
+		return memoryOutputFormatter;
+	}
+
+
 
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter
@@ -382,8 +495,7 @@ public class TestHelper {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
 
-		taBuilder
-				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// SUPPLY-DEMAND INTERFACE
