@@ -226,6 +226,8 @@ public class PlanItIOIntegrationTest {
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -251,6 +253,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -294,6 +298,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -343,6 +349,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -436,6 +444,12 @@ public class PlanItIOIntegrationTest {
 					xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName3,
 					xmlFileName3);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName1,
+					xmlFileName1);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName2,
+					xmlFileName2);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName3,
+					xmlFileName3);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -490,6 +504,7 @@ public class PlanItIOIntegrationTest {
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -533,10 +548,9 @@ public class PlanItIOIntegrationTest {
 					new LinkSegmentExpectedResultsDto(3, 4, 1425.6, 0.0332658, 419.7548048, 1200, 1, 30.0609344));
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
 					resultsMap);
-			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,	xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -562,10 +576,9 @@ public class PlanItIOIntegrationTest {
 			TestHelper.setupAndExecuteAssignment(projectPath,
 					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
-			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,	xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -611,6 +624,12 @@ public class PlanItIOIntegrationTest {
 					xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName3,
 					xmlFileName3);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName1,
+					xmlFileName1);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName2,
+					xmlFileName2);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName3,
+					xmlFileName3);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -641,6 +660,8 @@ public class PlanItIOIntegrationTest {
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -669,6 +690,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -714,6 +737,12 @@ public class PlanItIOIntegrationTest {
 					xmlFileName2);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName3,
 					xmlFileName3);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName1,
+					xmlFileName1);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName2,
+					xmlFileName2);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName3,
+					xmlFileName3);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -742,6 +771,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 		    e.printStackTrace();
@@ -792,6 +823,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -920,6 +953,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -1152,6 +1187,10 @@ public class PlanItIOIntegrationTest {
 					xmlFileName1);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName2,
 					xmlFileName2);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName1,
+					xmlFileName1);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName2,
+					xmlFileName2);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -1279,6 +1318,8 @@ public class PlanItIOIntegrationTest {
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
@@ -1408,6 +1449,8 @@ public class PlanItIOIntegrationTest {
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -1439,8 +1482,7 @@ public class PlanItIOIntegrationTest {
 				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 			};
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
-					maxIterations, 0.0, setCostParameters, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description);
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
@@ -1461,12 +1503,10 @@ public class PlanItIOIntegrationTest {
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332, 323.775777979144, 1200.0, 2.0, 32.8228128));
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639, 349.067549843147, 1200.0, 1.0, 16.296231));
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639, 374.359321707149, 1200.0, 1.0, 16.296231));
-			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
-					resultsMap);
-			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
+			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
+			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
@@ -1516,6 +1556,7 @@ public class PlanItIOIntegrationTest {
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_PATH);
 				} catch (PlanItException e) {
 					PlanItLogger.severe(e.getMessage());
 					fail(e.getMessage());
@@ -1550,7 +1591,10 @@ public class PlanItIOIntegrationTest {
 					xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName,
+					xmlFileName);
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}
@@ -1575,12 +1619,10 @@ public class PlanItIOIntegrationTest {
 			Mode mode = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode).add(new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 10.0, 2000.0, 10.0, 1.0));
-			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
-					resultsMap);
-			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
+			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
+			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD_PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			PlanItLogger.severe(e.getMessage());
@@ -1588,6 +1630,9 @@ public class PlanItIOIntegrationTest {
 		}
 	}
 
+	/**
+	 * Test case in which an attempt is made to change a locked formatter
+	 */
 	@Test
 	public void testExplanatoryAttemptToChangeLockedFormatter() {
 		String projectPath = "src\\test\\resources\\explanatory\\xml";
@@ -1603,20 +1648,18 @@ public class PlanItIOIntegrationTest {
 			Mode mode = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode).add(new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 10.0, 2000.0, 10.0, 1.0));
-			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
-					resultsMap);
+			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
 			fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
 		} catch (Exception pe) {
 			PlanItLogger.info(pe.getMessage());
-			assertTrue(true);
 		}
 		
 		try {
-			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			assertTrue(true);
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlanItLogger.severe(e.getMessage());
 			fail(e.getMessage());
 		}

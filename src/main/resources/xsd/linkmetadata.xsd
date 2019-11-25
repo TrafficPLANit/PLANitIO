@@ -22,6 +22,7 @@
 			<xs:enumeration value="integer" />
 			<xs:enumeration value="boolean" />
 			<xs:enumeration value="srsname" />
+			<xs:enumeration value="string" />
 		</xs:restriction>
 	</xs:simpleType>
 

@@ -35,6 +35,8 @@ public interface EnumConverter {
 			return Typevalues.BOOLEAN;
 		case SRSNAME:
 			return Typevalues.SRSNAME;
+		case STRING:
+			return Typevalues.STRING;
 		default:
 			throw new PlanItException("Data type " + type.value()
 					+ " has not been defined in the typevalues simple type in the output XSD file.");

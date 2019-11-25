@@ -411,6 +411,22 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	}
 
 	/**
+	 * Write OD Path results for the time period to the CSV file
+	 * 
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
+	 * @param outputAdapter OutputAdapter for current persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @throws PlanItException thrown if there is an error
+	 */
+	@Override
+	protected void writeODPathResultsForCurrentTimePeriod(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod) throws PlanItException {
+		writeResultsForCurrentTimePeriod(outputTypeConfiguration, outputAdapter, timePeriod, (csvPrinter) -> {
+			return writeODPathResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, outputAdapter, modes, timePeriod, csvPrinter);
+		});
+	}
+
+	/**
 	 * Write link results for the current time period to the CSV file
 	 * 
 	 * @param outputTypeConfiguration OutputTypeConfiguration for current persistence

@@ -6,7 +6,7 @@
 	<groupId>org.planit.planitio</groupId>
 	<artifactId>PLANitIO</artifactId>
 	<description>PlanIt Code for default input and output</description>
-	<version>0.0.3-alpha</version>
+	<version>0.0.3-beta</version>
 	<packaging>jar</packaging>
 
 	<name>PLANitIO</name>
@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>org.planit</groupId>
 			<artifactId>PlanIt</artifactId>
-			<version>0.0.3-alpha</version>
+			<version>0.0.3-beta</version>
 		</dependency>
 		
 		<dependency>
