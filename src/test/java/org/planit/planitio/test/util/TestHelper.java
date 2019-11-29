@@ -76,7 +76,7 @@ public class TestHelper {
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_PATH);
+			linkOutputTypeConfiguration.removeProperty(OutputProperty.PATH);
 		} catch (PlanItException e) {
 			e.printStackTrace();
 		}
@@ -505,7 +505,7 @@ public class TestHelper {
 		// DATA OUTPUT CONFIGURATION
 		assignment.activateOutput(OutputType.LINK);
 		assignment.activateOutput(OutputType.OD);
-		assignment.activateOutput(OutputType.OD_PATH);
+		assignment.activateOutput(OutputType.PATH);
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		
 		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
@@ -519,16 +519,14 @@ public class TestHelper {
 		// OUTPUT FORMAT CONFIGURATION
 
 		// PlanItXMLOutputFormatter
-		PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project
-				.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+		PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
 		xmlOutputFormatter.setXmlNameRoot(description);
 		xmlOutputFormatter.setCsvNameRoot(description);
 		xmlOutputFormatter.setOutputDirectory(projectPath);
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
 		// MemoryOutputFormatter
-		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
-				.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+		MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
 		taBuilder.registerOutputFormatter(memoryOutputFormatter);
 
 		// "USER" configuration
