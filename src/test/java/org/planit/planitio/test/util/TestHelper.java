@@ -63,20 +63,10 @@ public class TestHelper {
 	private static Consumer<LinkOutputTypeConfiguration> defaultSetOutputTypeConfigurationProperties = (
 			linkOutputTypeConfiguration) -> {
 		try {
-			linkOutputTypeConfiguration.addAllProperties();
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_ID);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_ID);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
 			linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
-			linkOutputTypeConfiguration.removeProperty(OutputProperty.PATH);
 		} catch (PlanItException e) {
 			e.printStackTrace();
 		}
@@ -365,8 +355,7 @@ public class TestHelper {
 			}
 		};
 
-		return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
-				maxIterations, epsilon, setCostParameters, description);
+		return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
 	}
 
 	
@@ -416,7 +405,9 @@ public class TestHelper {
 		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
 		outputConfiguration.setPersistOnlyFinalIteration(true);
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
-		setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+		if (setOutputTypeConfigurationProperties != null) {
+			setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+		}
 		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
@@ -445,7 +436,25 @@ public class TestHelper {
 		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
 
 		project.executeAllTrafficAssignments();
-		linkOutputTypeConfiguration.addAllProperties();
+		linkOutputTypeConfiguration.removeAllProperties();
+		linkOutputTypeConfiguration.addProperty(OutputProperty.DENSITY);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_LOCATION);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_LOCATION);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.FLOW);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.CAPACITY_PER_LANE);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.NUMBER_OF_LANES);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.LENGTH);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.CALCULATED_SPEED);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_COST);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
+		linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);
 		project.executeAllTrafficAssignments();
 		return memoryOutputFormatter;
 	}
@@ -511,7 +520,9 @@ public class TestHelper {
 		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
 		outputConfiguration.setPersistOnlyFinalIteration(true);
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
-		setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+		if (setOutputTypeConfigurationProperties != null) {
+			setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+		}
 		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
@@ -581,8 +592,7 @@ public class TestHelper {
 			}
 		};
 
-		return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
-				maxIterations, epsilon, setCostParameters, description);
+		return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
 	}
 
 	/**
@@ -646,24 +656,24 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
-			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, Integer maxIterations, Double epsilon,
-			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
+//	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+//			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
+//			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, Integer maxIterations, Double epsilon,
+//			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 
-		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
-				taBuilder, project, physicalNetwork) -> {
-			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
-				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
-				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
-				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,	initialCostsFileLocation);
-				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
-			}
-		};
+//		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
+//				taBuilder, project, physicalNetwork) -> {
+//			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
+//				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
+//				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
+//				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,	initialCostsFileLocation);
+//				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
+//			}
+//		};
 
-		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
-				maxIterations, epsilon, setCostParameters, description);
-	}
+//		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
+//				maxIterations, epsilon, setCostParameters, description);
+//	}
 
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
@@ -691,8 +701,7 @@ public class TestHelper {
 			}
 		};
 
-		return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
-				maxIterations, epsilon, setCostParameters, description);
+		return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts, maxIterations, epsilon, setCostParameters, description);
 	}
 
 	/**

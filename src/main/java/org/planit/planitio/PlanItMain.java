@@ -14,7 +14,6 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.enums.OutputType;
-import org.planit.output.property.OutputProperty;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.project.CustomPlanItProject;
@@ -110,10 +109,6 @@ public class PlanItMain {
 		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
-		linkOutputTypeConfiguration.addAllProperties();
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
-		linkOutputTypeConfiguration.removeProperty(OutputProperty.PATH);
 		
 		//OUTPUT FORMAT CONFIGURATION
 		PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());

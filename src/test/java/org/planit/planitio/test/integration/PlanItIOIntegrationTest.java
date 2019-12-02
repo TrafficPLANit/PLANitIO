@@ -1542,29 +1542,18 @@ public class PlanItIOIntegrationTest {
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties = (
 					linkOutputTypeConfiguration) -> {
 				try {
-					linkOutputTypeConfiguration.addAllProperties();
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.LINK_SEGMENT_EXTERNAL_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.ITERATION_INDEX);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.OD_COST);
-					linkOutputTypeConfiguration.removeProperty(OutputProperty.PATH);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+					linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
 				} catch (PlanItException e) {
 					PlanItLogger.severe(e.getMessage());
 					fail(e.getMessage());
 				}
 			};
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
-					setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
+			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
@@ -1585,14 +1574,10 @@ public class PlanItIOIntegrationTest {
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(4, 1086, 0.0609332, 323.775777979144, 1200.0, 2.0, 32.8228128));
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(5, 414, 0.0613639, 349.067549843147, 1200.0, 1.0, 16.296231));
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(6, 414, 0.0613639, 374.359321707149, 1200.0, 1.0, 16.296231));
-			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
-					resultsMap);
-			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
-			runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
-					xmlFileName);
+			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
+			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,	xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
+			runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			PlanItLogger.severe(e.getMessage());
