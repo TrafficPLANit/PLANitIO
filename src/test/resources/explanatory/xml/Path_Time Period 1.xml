@@ -1,1 +1,53 @@
-<?xml version="1.0" ?><metadata><timestamp>2019-11-29T17:14:43.092+11:00</timestamp><version>0.0.3-beta</version><description>PlanIt common code for traffic assignment</description><outputconfiguration><assignment>TraditionalStaticAssignment</assignment><physicalcost>BPRLinkTravelTimeCost</physicalcost><virtualcost>SpeedConnectoidTravelTimeCost</virtualcost><timeperiod><id>0</id><name>Time Period 1</name></timeperiod></outputconfiguration><simulation><iteration><nr>2</nr><csvdata type="Path">src\test\resources\explanatory\xml\Path_RunId 0_explanatory_Time Period 1_2.csv</csvdata></iteration></simulation><columns><column><name>Destination Zone External Id</name><units>none</units><type>integer</type></column><column><name>Mode External Id</name><units>none</units><type>integer</type></column><column><name>Origin Zone External Id</name><units>none</units><type>integer</type></column><column><name>Run Id</name><units>none</units><type>integer</type></column><column><name>Time Period External Id</name><units>none</units><type>integer</type></column><column><name>OD Path</name><units>none</units><type>string</type></column></columns></metadata>
+<?xml version="1.0" ?>
+<metadata>
+	<timestamp>2019-11-29T17:14:43.092+11:00</timestamp>
+	<version>0.0.3-beta</version>
+	<description>PlanIt common code for traffic assignment</description>
+	<outputconfiguration>
+		<assignment>TraditionalStaticAssignment</assignment>
+		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
+		<virtualcost>SpeedConnectoidTravelTimeCost</virtualcost>
+		<timeperiod>
+			<id>0</id>
+			<name>Time Period 1</name>
+		</timeperiod>
+	</outputconfiguration>
+	<simulation>
+		<iteration>
+			<nr>2</nr>
+			<csvdata type="Path">src\test\resources\explanatory\xml\Path_RunId 0_explanatory_Time Period 1_2.csv</csvdata>
+		</iteration>
+	</simulation>
+	<columns>
+		<column>
+			<name>Destination Zone External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Mode External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Origin Zone External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Run Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Time Period External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Path</name>
+			<units>none</units>
+			<type>string</type>
+		</column>
+	</columns>
+</metadata>

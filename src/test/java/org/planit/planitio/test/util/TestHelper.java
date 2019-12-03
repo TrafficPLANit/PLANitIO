@@ -33,7 +33,9 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
+import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
+import org.planit.output.enums.PathOutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
@@ -523,10 +525,14 @@ public class TestHelper {
 		if (setOutputTypeConfigurationProperties != null) {
 			setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 		}
+		
 		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 		
+	    PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.PATH);
+	    pathOutputTypeConfiguration.setPathOutputType(PathOutputType.NODE_EXTERNAL_ID);
+
 		// OUTPUT FORMAT CONFIGURATION
 
 		// PlanItXMLOutputFormatter
