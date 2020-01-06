@@ -35,7 +35,7 @@ import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
-import org.planit.output.enums.PathOutputType;
+import org.planit.output.enums.PathIdType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
@@ -132,6 +132,8 @@ public class TestHelper {
 							int numberOfLanes = (Integer) memoryOutputFormatter.getOutputDataValue(mode, timePeriod, iterationIndex, outputType, OutputProperty.NUMBER_OF_LANES, keyValues);
 							assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
 							break;
+						default:
+                            throw new PlanItException("Output value property unknown");							
 						}
 					}
 				}
@@ -531,7 +533,7 @@ public class TestHelper {
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 		
 	    PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.PATH);
-	    pathOutputTypeConfiguration.setPathOutputType(PathOutputType.NODE_EXTERNAL_ID);
+	    pathOutputTypeConfiguration.setPathIdType(PathIdType.NODE_EXTERNAL_ID);
 
 		// OUTPUT FORMAT CONFIGURATION
 
