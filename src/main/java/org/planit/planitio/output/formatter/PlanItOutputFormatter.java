@@ -124,7 +124,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Generated object for the metadata element in the output XML file
 	 */
-	private Map<OutputType, XMLElementMetadata> metadata;
+	//private Map<OutputType, XMLElementMetadata> metadata;
+	private Map<OutputTypeEnum, XMLElementMetadata> metadata;
 
 	/**
 	 * The Id of the traffic assignment run being recorded
@@ -203,9 +204,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		}else if (currentOutputType instanceof SubOutputTypeEnum)
 		{
 		    //TODO: MARK 6-1-2020
-		    DOES NOT WORK YET
-            //csvdata.setType(((SubOutputTypeEnum)currentOutputType).value());           
-            //metadata.get((SubOutputTypeEnum)currentOutputType).getSimulation().getIteration().add(iteration);		    
+		    //DOES NOT WORK YET
+            csvdata.setType(((SubOutputTypeEnum)currentOutputType).value());           
+            metadata.get((SubOutputTypeEnum)currentOutputType).getSimulation().getIteration().add(iteration);		    
 		}else {
 		    throw new PlanItException("invalid output type provided when updating metadata simulation output for current iteration");
 		}
@@ -540,7 +541,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
 		resetCsvDirectory = false;
 		csvDirectory = null;
-		metadata = new HashMap<OutputType, XMLElementMetadata>();
+		//metadata = new HashMap<OutputType, XMLElementMetadata>();
+		metadata = new HashMap<OutputTypeEnum, XMLElementMetadata>();
 		setVersionAndDescription(propertiesFileName, descriptionProperty, versionProperty);
 	}
 
