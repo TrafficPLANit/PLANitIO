@@ -422,12 +422,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Write Simulation results for the current time period to the CSV file
 	 * 
-     * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
-     * @param currentOtuputType, the active outputtype of the configuration we are persisting for (can be a suboutputtype)
-     * @param outputTypeAdapter OutputTypeAdapter for current persistence
-     * @param modes                   Set of modes of travel
-     * @param timePeriod              current time period
-     * @param iterationIndex
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
+	 * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @param iterationIndex
      * @throws PlanItException thrown if there is an error
 	 */
 	@Override
@@ -439,12 +439,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Write General results for the current time period to the CSV file
 	 * 
-     * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
-     * @param currentOtuputType, the active outputtype of the configuration we are persisting for (can be a suboutputtype)
-     * @param outputTypeAdapter OutputTypeAdapter for current persistence
-     * @param modes                   Set of modes of travel
-     * @param timePeriod              current time period
-     * @param iterationIndex
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
+	 * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @param iterationIndex
      * @throws PlanItException thrown if there is an error
 	 */
 	@Override
@@ -456,12 +456,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Write Origin-Destination results for the time period to the CSV file
 	 * 
-     * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
-     * @param currentOtuputType, the active outputtype of the configuration we are persisting for (can be a suboutputtype)
-     * @param outputTypeAdapter OutputTypeAdapter for current persistence
-     * @param modes                   Set of modes of travel
-     * @param timePeriod              current time period
-     * @param iterationIndex
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
+	 * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @param iterationIndex
      * @throws PlanItException thrown if there is an error
 	 */
 	@Override
@@ -475,12 +475,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Write Path results for the time period to the CSV file
 	 * 
-     * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
-     * @param currentOtuputType, the active outputtype of the configuration we are persisting for (can be a suboutputtype)
-     * @param outputTypeAdapter OutputTypeAdapter for current persistence
-     * @param modes                   Set of modes of travel
-     * @param timePeriod              current time period
-     * @param iterationIndex
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
+	 * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @param iterationIndex
      * @throws PlanItException thrown if there is an error
 	 */
 	@Override
@@ -494,19 +494,19 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Write link results for the current time period to the CSV file
 	 * 
-     * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
-     * @param currentOtuputType, the active outputtype of the configuration we are persisting for (can be a suboutputtype)
-     * @param outputTypeAdapter OutputTypeAdapter for current persistence
-     * @param modes                   Set of modes of travel
-     * @param timePeriod              current time period
-     * @param iterationIndex
+	 * @param outputTypeConfiguration OutputTypeConfiguration for current  persistence
+	 * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+	 * @param outputTypeAdapter OutputTypeAdapter for current persistence
+	 * @param modes                   Set of modes of travel
+	 * @param timePeriod              current time period
+	 * @param iterationIndex
      * @throws PlanItException thrown if there is an error
 	 */
 	@Override
 	protected void writeLinkResultsForCurrentTimePeriod(
             OutputTypeConfiguration outputTypeConfiguration, OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod, int iterationIndex) throws PlanItException {
 		writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod, iterationIndex, (csvPrinter) -> {
-			return writeLinkResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, currentOutputType, outputAdapter, modes, timePeriod,	csvPrinter);
+			return writeLinkResultsForCurrentTimePeriodToCsvPrinter(outputTypeConfiguration, currentOutputType, outputAdapter, modes, timePeriod, csvPrinter);
 		});
 	}
 
