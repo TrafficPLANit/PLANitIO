@@ -133,7 +133,8 @@ public class TestHelper {
 							assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
 							break;
 						default:
-                            throw new PlanItException("Output value property unknown");							
+                            //throw new PlanItException("Output value property unknown");		
+							/* Do nothing - found an extra property which we are not testing against */
 						}
 					}
 				}
@@ -439,7 +440,12 @@ public class TestHelper {
 
 		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
 
-		project.executeAllTrafficAssignments();
+        Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
+        if (!exceptionMap.keySet().isEmpty()) {
+        	for (long id : exceptionMap.keySet() ) {
+        		throw exceptionMap.get(id);
+        	}
+        }
 		linkOutputTypeConfiguration.removeAllProperties();
 		linkOutputTypeConfiguration.addProperty(OutputProperty.DENSITY);
 		linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
@@ -459,7 +465,12 @@ public class TestHelper {
 		linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
 		linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
 		linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);
-		project.executeAllTrafficAssignments();
+        exceptionMap = project.executeAllTrafficAssignments();
+        if (!exceptionMap.keySet().isEmpty()) {
+        	for (long id : exceptionMap.keySet() ) {
+        		throw exceptionMap.get(id);
+        	}
+        }
 		return memoryOutputFormatter;
 	}
 
@@ -558,7 +569,12 @@ public class TestHelper {
 
 		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
 
-		project.executeAllTrafficAssignments();
+        Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
+        if (!exceptionMap.keySet().isEmpty()) {
+        	for (long id : exceptionMap.keySet() ) {
+        		throw exceptionMap.get(id);
+        	}
+        }
 		return memoryOutputFormatter;
 	}
 

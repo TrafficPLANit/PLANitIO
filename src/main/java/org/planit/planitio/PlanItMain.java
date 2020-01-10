@@ -1,6 +1,7 @@
 package org.planit.planitio;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
@@ -124,7 +125,12 @@ public class PlanItMain {
 		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
 		assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 
-		project.executeAllTrafficAssignments();
+        Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
+        if (!exceptionMap.keySet().isEmpty()) {
+        	for (long id : exceptionMap.keySet() ) {
+        		throw exceptionMap.get(id);
+        	}
+        }
 
 	}
 }

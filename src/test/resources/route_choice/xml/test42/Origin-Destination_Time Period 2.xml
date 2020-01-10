@@ -14,8 +14,8 @@
 	</outputconfiguration>
 	<simulation>
 		<iteration>
-			<nr>500</nr>
-			<csvdata type="Origin-Destination">src\test\resources\route_choice\xml\test42\Origin-Destination_RunId 0_testRouteChoice42_Time Period 2_500.csv</csvdata>
+			<nr>499</nr>
+			<csvdata type="Cost">src\test\resources\route_choice\xml\test42\Origin-Destination_RunId 0_testRouteChoice42_Time Period 2_499.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

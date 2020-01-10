@@ -29,7 +29,6 @@ import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.generated.XMLElementSimulation;
 import org.planit.logging.PlanItLogger;
 import org.planit.output.adapter.OutputAdapter;
-import org.planit.output.adapter.OutputTypeAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.enums.OutputTypeEnum;
@@ -296,19 +295,20 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * @param timePeriod    current time period
 	 * @throws PlanItException thrown if there is an error writing the data to file
 	 */
-	private void initializeMetadataObject(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, TimePeriod timePeriod) throws PlanItException {
-		OutputType outputType = outputTypeConfiguration.getOutputType();
+	//private void initializeMetadataObject(OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, TimePeriod timePeriod) throws PlanItException {
+	private void initializeMetadataObject(OutputTypeEnum currentOutputType, OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, TimePeriod timePeriod) throws PlanItException {
+		//OutputType outputType = outputTypeConfiguration.getOutputType();
 		try {
-			metadata.get(outputType).setTimestamp(getTimestamp());
+			metadata.get(currentOutputType).setTimestamp(getTimestamp());
 			if (version != null) {
-				metadata.get(outputType).setVersion(version);
+				metadata.get(currentOutputType).setVersion(version);
 			}
 			if (description != null) {
-				metadata.get(outputType).setDescription(description);
+				metadata.get(currentOutputType).setDescription(description);
 			}
-			metadata.get(outputType).setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
+			metadata.get(currentOutputType).setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
 			SortedSet<BaseOutputProperty> outputProperties =  outputTypeConfiguration.getOutputProperties();
-			metadata.get(outputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
+			metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
@@ -389,16 +389,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	        OutputTypeConfiguration outputTypeConfiguration, OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, TimePeriod timePeriod, int iterationIndex, Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
 		try {
 			OutputType outputType = outputTypeConfiguration.getOutputType();
-			OutputTypeAdapter outputTypeAdapter = outputAdapter.getOutputTypeAdapter(outputType);
-			boolean isNewTimePeriod = ((!metadata.containsKey(outputType)) || (metadata.get(outputType).getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
+			boolean isNewTimePeriod = ((!metadata.containsKey(currentOutputType)) || (metadata.get(currentOutputType).getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
 			if (isNewTimePeriod) {
-				if (metadata.containsKey(outputType)) {
-					XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileNameMap.get(outputType));
+				if (metadata.containsKey(currentOutputType)) {
+					XmlUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class, xmlFileNameMap.get(outputType));
 				}
-				metadata.put(outputType, new XMLElementMetadata());
+				metadata.put(currentOutputType, new XMLElementMetadata());
 				XMLElementSimulation simulation = new XMLElementSimulation();
-				metadata.get(outputType).setSimulation(simulation);
-				initializeMetadataObject(outputTypeConfiguration, outputAdapter, timePeriod);
+				metadata.get(currentOutputType).setSimulation(simulation);
+				initializeMetadataObject(currentOutputType, outputTypeConfiguration, outputAdapter, timePeriod);
 			}
 			
 			// MARK 6-1-2020 - refactored
@@ -596,7 +595,14 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			OutputType outputType = outputTypeConfiguration.getOutputType();
 			if (xmlFileNameMap.containsKey(outputType)) {
 				String xmlFileName = xmlFileNameMap.get(outputType);
-				XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
+				if (metadata.containsKey(outputType)) {
+					XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
+				} else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
+					Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
+					for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
+						XmlUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class, xmlFileName);
+					}
+				}
 			}
 		} catch (Exception e) {
 			throw new PlanItException(e);
