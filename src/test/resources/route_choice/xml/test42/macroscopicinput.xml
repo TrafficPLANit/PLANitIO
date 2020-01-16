@@ -345,7 +345,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid id="2" noderef="22">
+					<connectoid noderef="22">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
