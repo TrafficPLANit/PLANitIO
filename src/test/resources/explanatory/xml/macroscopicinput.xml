@@ -74,7 +74,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="1">
+					<connectoid id="1" noderef="1">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
@@ -87,7 +87,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="2">
+					<connectoid id="2" noderef="2">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>

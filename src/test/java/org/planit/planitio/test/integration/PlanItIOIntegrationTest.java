@@ -1216,6 +1216,7 @@ public class PlanItIOIntegrationTest {
 					xmlFileName2);
 		} catch (Exception e) {
 			PlanItLogger.severe(e.getMessage());
+			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}
@@ -1350,7 +1351,7 @@ public class PlanItIOIntegrationTest {
 			fail(e.getMessage());
 		}
 	}
-
+	
 	/**
 	 * Test of results for TraditionalStaticAssignment for simple test case using
 	 * the fourth route choice example from the Traditional Static Assignment Route

@@ -332,7 +332,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="21">
+					<connectoid id="1" noderef="21">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
@@ -345,7 +345,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="22">
+					<connectoid id="2" noderef="22">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
@@ -358,7 +358,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="23">
+					<connectoid id="3" noderef="23">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
@@ -371,7 +371,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="24">
+					<connectoid id="4" noderef="24">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>

@@ -58,7 +58,8 @@
 						Reference to the node that also acts as a connectoid for the zone.
 					</xs:documentation>
 				</xs:annotation>			
-			</xs:attribute>					
+			</xs:attribute>
+			<xs:attribute name="id" type="xs:positiveInteger" use="optional"/>					
 		</xs:complexType>				
 	</xs:element>
 

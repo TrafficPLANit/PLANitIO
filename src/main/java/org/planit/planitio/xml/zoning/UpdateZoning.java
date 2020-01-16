@@ -1,5 +1,6 @@
 package org.planit.planitio.xml.zoning;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.opengis.geometry.DirectPosition;
@@ -78,6 +79,7 @@ public class UpdateZoning {
         long nodeExternalId = connectoid.getNoderef().longValue();
         Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
         DirectPosition nodePosition = node.getCentrePointGeometry();
+        BigInteger externalId = connectoid.getId();
         double connectoidLength;
         if (connectoid.getLength() != null) {
         	connectoidLength = connectoid.getLength();
@@ -91,7 +93,7 @@ public class UpdateZoning {
          } else {
         	connectoidLength = org.planit.network.virtual.Connectoid.DEFAULT_LENGTH;
         }
-         zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
+         zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength, externalId);
 	}
 
 }
