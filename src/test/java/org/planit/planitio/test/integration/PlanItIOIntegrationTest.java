@@ -1619,7 +1619,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testExplanatory() {
 		try {
-			String projectPath = "src\\test\\resources\\examples\\explanatory\\xml";
+			String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml";
 			String description = "explanatory";
 			String csvFileName = "Time Period 1_2.csv";
 			String odCsvFileName = "Time Period 1_1.csv";
@@ -1649,7 +1649,7 @@ public class PlanItIOIntegrationTest {
 	 */
 	@Test
 	public void testExplanatoryAttemptToChangeLockedFormatter() {
-		String projectPath = "src\\test\\resources\\examples\\explanatory\\xml";
+		String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml";
 		String description = "explanatory";
 		String csvFileName = "Time Period 1_2.csv";
 		String odCsvFileName = "Time Period 1_1.csv";
