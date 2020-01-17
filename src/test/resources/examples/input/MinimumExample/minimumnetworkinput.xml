@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<macroscopicnetwork
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xmlns:gml="http://www.opengis.net/gml"											
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicnetworkinput.xsd">						
+	<infrastructure>												  
+		<nodes>
+			<node id="1"> 																
+                <gml:Point> 															
+                    <gml:pos>150.512796 -34.900145</gml:pos>
+                </gml:Point>														
+			</node>
+			<node id="2"> 
+				<name>Broadway intersection</name>
+				<gml:Point> 															
+                    <gml:pos>150.512527 -34.900319</gml:pos>
+                </gml:Point> 					
+			</node>				
+		</nodes>		
+		<links>
+			<link nodearef="1" nodebref="2">																
+				<linksegment id="1" dir="a_b" >
+					<maxspeed>60</maxspeed>
+				</linksegment>						
+				<linksegment id="2" dir="b_a" >
+					<maxspeed>50</maxspeed>
+				</linksegment>				
+				<length>1.33</length>																	
+			</link>
+		</links>
+	</infrastructure>
+</macroscopicnetwork>

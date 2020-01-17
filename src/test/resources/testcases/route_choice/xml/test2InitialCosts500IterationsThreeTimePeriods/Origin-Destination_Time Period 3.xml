@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <metadata>
-	<timestamp>2020-01-17T12:55:18.449+11:00</timestamp>
+	<timestamp>2020-01-10T12:34:46.230+11:00</timestamp>
 	<version>0.0.3-beta</version>
 	<description>PlanIt common code for traffic assignment</description>
 	<outputconfiguration>
@@ -8,14 +8,14 @@
 		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
 		<virtualcost>SpeedConnectoidTravelTimeCost</virtualcost>
 		<timeperiod>
-			<id>0</id>
-			<name>Time Period 1</name>
+			<id>2</id>
+			<name>Time Period 3</name>
 		</timeperiod>
 	</outputconfiguration>
 	<simulation>
 		<iteration>
-			<nr>1</nr>
-			<csvdata type="Cost">src\test\resources\explanatory\xml\Origin-Destination_RunId 0_explanatory_Time Period 1_1.csv</csvdata>
+			<nr>499</nr>
+			<csvdata type="Cost">src\test\resources\testcases\route_choice\xml\test2initialCosts500IterationsThreeTimePeriods\Origin-Destination_RunId 0_test2initialCosts500IterationsThreeTimePeriods_Time Period 3_499.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

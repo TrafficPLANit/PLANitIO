@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <metadata>
-	<timestamp>2020-01-17T12:55:18.449+11:00</timestamp>
+	<timestamp>2019-11-29T16:57:35.755+11:00</timestamp>
 	<version>0.0.3-beta</version>
 	<description>PlanIt common code for traffic assignment</description>
 	<outputconfiguration>
@@ -14,8 +14,8 @@
 	</outputconfiguration>
 	<simulation>
 		<iteration>
-			<nr>1</nr>
-			<csvdata type="Cost">src\test\resources\explanatory\xml\Origin-Destination_RunId 0_explanatory_Time Period 1_1.csv</csvdata>
+			<nr>500</nr>
+			<csvdata type="Path">src\test\resources\testcases\route_choice\xml\test4raw2\Path_RunId 0_testRouteChoice4raw2_Time Period 1_500.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>
@@ -35,9 +35,19 @@
 			<type>integer</type>
 		</column>
 		<column>
-			<name>Cost</name>
-			<units>h</units>
-			<type>double</type>
+			<name>Run Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Time Period External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Path</name>
+			<units>none</units>
+			<type>string</type>
 		</column>
 	</columns>
 </metadata>

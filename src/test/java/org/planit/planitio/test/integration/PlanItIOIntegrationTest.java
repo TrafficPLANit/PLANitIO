@@ -107,9 +107,9 @@ public class PlanItIOIntegrationTest {
 	 */
 	@Test
 	public void testInitialCostValues() {
-		String projectPath = "src\\test\\resources\\initial_costs\\xml\\test1";
-		String initialCostsFileLocation = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
-		String initialCostsFileLocationExternalId = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs_external_id.csv";
+		String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1";
+		String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
+		String initialCostsFileLocationExternalId = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs_external_id.csv";
 		try {
 			IdGenerator.reset();
 			PlanItProject project = new PlanItProject(projectPath);
@@ -149,9 +149,9 @@ public class PlanItIOIntegrationTest {
 	 */
 	@Test
 	public void testInitialCostMissingRows() {
-		String projectPath = "src\\test\\resources\\initial_costs\\xml\\test1";
-		String initialCostsFileLocation = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
-		String initialCostsFileLocationExternalId = "src\\test\\resources\\initial_costs\\xml\\test1\\initial_link_segment_costs1.csv";
+		String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1";
+		String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
+		String initialCostsFileLocationExternalId = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs1.csv";
 		try {
 			IdGenerator.reset();
 			PlanItProject project = new PlanItProject(projectPath);
@@ -194,7 +194,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testInitialCostValuesMissingColumns() {
 		try {
-			String projectPath = "src\\test\\resources\\initial_costs\\xml\\test2";
+			String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test2";
 			String description = "RunId 0_testBasic1";
 			Integer maxIterations = null;
 			TestHelper.setupAndExecuteAssignment(projectPath,
@@ -213,7 +213,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testBasic1OneInitialCostFile() {
 		try {
-			String projectPath = "src\\test\\resources\\basic\\xml\\test1";
+			String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test1";
 			String description = "testBasic1";
 			String csvFileName = "Time Period 1_2.csv";
 			String odCsvFileName = "Time Period 1_1.csv";
@@ -221,7 +221,7 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = null;
 
 			TestHelper.setupAndExecuteAssignment(projectPath,
-					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv", maxIterations, null,
+					"src\\test\\resources\\testcases\\basic\\xml\\test1\\initial_link_segment_costs.csv", maxIterations, null,
 					description);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
@@ -241,7 +241,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testBasic1TwoInitialCostFiles() {
 		try {
-			String projectPath = "src\\test\\resources\\basic\\xml\\test1";
+			String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test1";
 			String description = "testBasic1";
 			String csvFileName = "Time Period 1_2.csv";
 			String odCsvFileName = "Time Period 1_1.csv";
@@ -249,8 +249,8 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = null;
 
 			TestHelper.setupAndExecuteAssignment(projectPath,
-					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs.csv",
-					"src\\test\\resources\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, maxIterations, null,
+					"src\\test\\resources\\testcases\\basic\\xml\\test1\\initial_link_segment_costs.csv",
+					"src\\test\\resources\\testcases\\basic\\xml\\test1\\initial_link_segment_costs1.csv", 0, maxIterations, null,
 					description);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
@@ -277,7 +277,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testBasicShortestPathAlgorithmAtoC() {
 		try {
-			String projectPath = "src\\test\\resources\\basic\\xml\\test2";
+			String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test2";
 			String description = "testBasic2";
 			String csvFileName = "Time Period 1_2.csv";
 			String odCsvFileName = "Time Period 1_1.csv";
@@ -323,7 +323,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testBasicShortestPathAlgorithmAtoD() {
 		try {
-			String projectPath = "src\\test\\resources\\basic\\xml\\test3";
+			String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test3";
 			String description = "testBasic3";
 			String csvFileName = "Time Period 1_2.csv";
 			String odCsvFileName = "Time Period 1_1.csv";
@@ -378,7 +378,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testBasicThreeTimePeriods() {
 		try {
-			String projectPath = "src\\test\\resources\\basic\\xml\\test13";
+			String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test13";
 			String description = "testBasic13";
 			String csvFileName1 = "Time Period 1_2.csv";
 			String odCsvFileName1 = "Time Period 1_1.csv";
@@ -471,7 +471,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS1() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test1";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test1";
 			String description = "testRouteChoice1";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -527,7 +527,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS2() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2";
 			String description = "testRouteChoice2";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -576,7 +576,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoice2InitialCostsOneIteration() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIteration";
 			String description = "testRouteChoice2initialCosts";
 			String csvFileName = "Time Period 1_1.csv";
 			String odCsvFileName = "Time Period 1_0.csv";
@@ -584,7 +584,7 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = 1;
 
 			TestHelper.setupAndExecuteAssignment(projectPath,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIteration\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,	xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName, xmlFileName);
@@ -603,7 +603,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoice2InitialCostsOneIterationThreeTimePeriods() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods";
 			String description = "test2initialCostsOneIterationThreeTimePeriods";
 			String csvFileName1 = "Time Period 1_1.csv";
 			String odCsvFileName1 = "Time Period 1_0.csv";
@@ -617,11 +617,11 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = 1;
 			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod = new HashMap<Long, String>();
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 0,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_1.csv");
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_1.csv");
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 1,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_2.csv");
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_2.csv");
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
 			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
 					0.0, null, description);
@@ -660,7 +660,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoice2InitialCostsOneIterationExternalIds() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationExternalIds";
 			String description = "testRouteChoice2initialCosts";
 			String csvFileName = "Time Period 1_1.csv";
 			String odCsvFileName = "Time Period 1_0.csv";
@@ -668,7 +668,7 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = 1;
 
 			TestHelper.setupAndExecuteAssignment(projectPath,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
@@ -692,7 +692,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoice2InitialCosts500Iterations() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterations";
 			String description = "testRouteChoice2initialCosts";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -700,7 +700,7 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = 500;
 
 			TestHelper.setupAndExecuteAssignment(projectPath,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterations\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
@@ -721,7 +721,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoice2InitialCosts500IterationsThreeTimePeriods() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods";
 			String description = "test2initialCosts500IterationsThreeTimePeriods";
 			String csvFileName1 = "Time Period 1_500.csv";
 			String odCsvFileName1 = "Time Period 1_499.csv";
@@ -735,11 +735,11 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = 500;
 			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod = new HashMap<Long, String>();
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 0,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_1.csv");
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_1.csv");
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 1,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_2.csv");
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_2.csv");
 			initialLinkSegmentLocationsPerTimePeriod.put((long) 2,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
 			TestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
 					0.0, null, description);
@@ -777,7 +777,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoice2InitialCosts500IterationsExternalIds() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterationsExternalIds";
 			String description = "testRouteChoice2initialCosts";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -785,7 +785,7 @@ public class PlanItIOIntegrationTest {
 			Integer maxIterations = 500;
 
 			TestHelper.setupAndExecuteAssignment(projectPath,
-					"src\\test\\resources\\route_choice\\xml\\test2initialCosts500iterationsExternalIds\\initial_link_segment_costs.csv",
+					"src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterationsExternalIds\\initial_link_segment_costs.csv",
 					null, 0, maxIterations, 0.0, null, description);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
 					xmlFileName);
@@ -808,7 +808,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS3() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test3";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
 			String description = "testRouteChoice3";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -863,7 +863,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS4() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test4";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test4";
 			String description = "testRouteChoice4";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -996,7 +996,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS4UsingTwoTimePeriods() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test42";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test42";
 			String description = "testRouteChoice42";
 			String csvFileName1 = "Time Period 1_500.csv";
 			String odCsvFileName1 = "Time Period 1_499.csv";
@@ -1232,7 +1232,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS4UsingRawMatrixToSetODDemands() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test4raw";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test4raw";
 			String description = "testRouteChoice4raw";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -1363,7 +1363,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS4UsingRawMatrixWithPlusSignAsSeparatorToSetODDemands() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test4raw2";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test4raw2";
 			String description = "testRouteChoice4raw2";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -1493,7 +1493,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS5() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test5";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test5";
 			String description = "testRouteChoice5";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -1551,7 +1551,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testRouteChoiceCompareWithOmniTRANS5IdentifyLinksById() {
 		try {
-			String projectPath = "src\\test\\resources\\route_choice\\xml\\test5IdentifyLinksByLinkId";
+			String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test5IdentifyLinksByLinkId";
 			String description = "testRouteChoice5";
 			String csvFileName = "Time Period 1_500.csv";
 			String odCsvFileName = "Time Period 1_499.csv";
@@ -1619,7 +1619,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testExplanatory() {
 		try {
-			String projectPath = "src\\test\\resources\\explanatory\\xml";
+			String projectPath = "src\\test\\resources\\examples\\explanatory\\xml";
 			String description = "explanatory";
 			String csvFileName = "Time Period 1_2.csv";
 			String odCsvFileName = "Time Period 1_1.csv";
@@ -1649,7 +1649,7 @@ public class PlanItIOIntegrationTest {
 	 */
 	@Test
 	public void testExplanatoryAttemptToChangeLockedFormatter() {
-		String projectPath = "src\\test\\resources\\explanatory\\xml";
+		String projectPath = "src\\test\\resources\\examples\\explanatory\\xml";
 		String description = "explanatory";
 		String csvFileName = "Time Period 1_2.csv";
 		String odCsvFileName = "Time Period 1_1.csv";
