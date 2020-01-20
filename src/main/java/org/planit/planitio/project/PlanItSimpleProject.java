@@ -2,26 +2,31 @@ package org.planit.planitio.project;
 
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.TreeMap;
 
+import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.project.CustomPlanItProject;
-import org.planit.trafficassignment.DeterministicTrafficAssignment;
+import org.planit.trafficassignment.TrafficAssignment;
+import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 import org.planit.zoning.Zoning;
 
 /**
- * Wrapper around PLANitProject with most common defaults automatically activated. Only allows for a single assignment
- * within the project instead of full flexibility. Advanced users who want to utilize all the flexibility of PLANit should instead
- * use PLANitProject in the PLANit core.
+ * Wrapper around PLANitProject with most common defaults automatically activated. Limitations include:
+ * - Only allows for a single assignment
+ * - Only allows for a single zoning system, network and demands input
+ *
+ * Advanced users who want to utilize all the flexibility of PLANit should instead use PLANitProject in the PLANit core.
  * 
  * Default configuration for this type of project:
- *   (i)     Use the native output formatter (PLANitXML format),
+ *   (i)     Use the native output formatter (PLANitIO format),
  *   (ii)    Use a macroscopic network,
- *   (iii)   Use the native input parser (PLANitXML format) 
- *   (iv)    The assignment will by default persist link outputs
+ *   (iii)   Use the native input parser (PLANitIO format) 
+ *   (iv)    The assignment will by default persist link outputs and OD outputs (no paths)
  *   (v)     Parsing of the inputs occurs after configuration of all other components to quickly identify user configuration errors           
  * 
  * @author markr
@@ -47,16 +52,19 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     }
     
     /**
-     * Parse the input data for the project here
+     * Parse the input data for the project here and register it on the assignment
      * @throws PlanItException 
      */
-    private void processSimpleProjectInputData() throws PlanItException {
-        // parse a macroscopic network representation
+    private void processSimpleProjectInputData(TrafficAssignment trafficAssignment) throws PlanItException {
+        // parse a macroscopic network representation + register on assignment
         MacroscopicNetwork network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-        // parse the zoning system
+        trafficAssignment.setPhysicalNetwork(network);
+        // parse the zoning system + register on assignment
         Zoning zoning = this.createAndRegisterZoning(network);
-        // parse the demands
-        this.createAndRegisterDemands(zoning);
+        trafficAssignment.setZoning(zoning);
+        // parse the demands + register on assignment
+        Demands demands = this.createAndRegisterDemands(zoning);
+        trafficAssignment.setDemands(demands);
     }       
     
     // Public
@@ -93,7 +101,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      * @param trafficAssignmentType the traffic assignment type to be used
      */
     @Override
-    public DeterministicTrafficAssignment createAndRegisterDeterministicAssignment(String trafficAssignmentType)
+    public TrafficAssignmentBuilder createAndRegisterDeterministicAssignment(String trafficAssignmentType)
             throws PlanItException {
         if(super.hasRegisteredAssignments()) {
             throw new PlanItException("This type of PLANit project only allows a single assignment per project");
@@ -112,12 +120,19 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      */
     @Override
     public Map<Long, PlanItException> executeAllTrafficAssignments() throws PlanItException {
-        // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
-        processSimpleProjectInputData();
-        return super.executeAllTrafficAssignments();
+        Map<Long, PlanItException> exceptionMap = new TreeMap<Long, PlanItException>();
+        if(super.hasRegisteredAssignments()) {
+            // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
+            processSimpleProjectInputData(this.getFirstTrafficAssignment());
+            exceptionMap = super.executeAllTrafficAssignments();
+        }else
+        {
+            PlanItLogger.info("No traffic assignment has been registered yet, terminating execution");
+        }
+        return exceptionMap;
     }
     
-    /** Collect the default outputformatter for PLANit simple project which is the native XMLFormatter
+    /** Collect the default output formatter for PLANit simple project which is the native XMLFormatter
      * @return defaultOutputformatter
      */
     public PlanItOutputFormatter getDefaultOutputFormatter() {

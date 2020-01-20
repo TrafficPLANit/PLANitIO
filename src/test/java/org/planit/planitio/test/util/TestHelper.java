@@ -44,7 +44,6 @@ import org.planit.planitio.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
@@ -381,10 +380,8 @@ public class TestHelper {
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
-		DeterministicTrafficAssignment assignment = project
-				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-				.getBuilder();
+        CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
+                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
 		// SUPPLY SIDE
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
@@ -404,17 +401,17 @@ public class TestHelper {
 
 		// DATA OUTPUT CONFIGURATION
         //PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
-	    OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+	    OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
         outputConfiguration.setPersistOnlyFinalIteration(true);
         
         // LINK OUTPUT
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) assignment.activateOutput(OutputType.LINK);
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
         if (setOutputTypeConfigurationProperties != null) {
               setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
         }
         
         // OD OUTPUT
-        OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) assignment.activateOutput(OutputType.OD);
+        OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 		
@@ -433,10 +430,10 @@ public class TestHelper {
 
 		// "USER" configuration
 		if (maxIterations != null) {
-			assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+		    taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
 		}
 		if (epsilon != null) {
-			assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+		    taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 		}
 
 		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
@@ -506,10 +503,8 @@ public class TestHelper {
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
-		DeterministicTrafficAssignment assignment = project
-				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-				.getBuilder();
+        CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
+                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
 		// SUPPLY SIDE
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
@@ -528,23 +523,23 @@ public class TestHelper {
 		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		// DATA OUTPUT CONFIGURATION
-        OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+        OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
         //PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
         outputConfiguration.setPersistOnlyFinalIteration(true);
         
         // LINK OUTPUT CONFIGURATION
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) assignment.activateOutput(OutputType.LINK);
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
         if (setOutputTypeConfigurationProperties != null) {
             setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
         }
         
         // OD OUTPUT CONFIGURATION
-		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) assignment.activateOutput(OutputType.OD);
+		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
         originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
         originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
         
         // PATH OUTPUT CONFIGURATION
-		PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) assignment.activateOutput(OutputType.PATH);
+		PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
 	    pathOutputTypeConfiguration.setPathIdType(PathIdType.NODE_EXTERNAL_ID);
 
 		// OUTPUT FORMAT CONFIGURATION
@@ -562,10 +557,10 @@ public class TestHelper {
 
 		// "USER" configuration
 		if (maxIterations != null) {
-			assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+		    taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
 		}
 		if (epsilon != null) {
-			assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+		    taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 		}
 
 		registerInitialCosts.accept(taBuilder, project, physicalNetwork);

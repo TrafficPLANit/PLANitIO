@@ -41,7 +41,6 @@ import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.planitio.project.PlanItProject;
 import org.planit.planitio.test.util.TestHelper;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
@@ -113,12 +112,9 @@ public class PlanItIOIntegrationTest {
 		try {
 			IdGenerator.reset();
 			PlanItProject project = new PlanItProject(projectPath);
-			PhysicalNetwork physicalNetwork = project
-					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-			DeterministicTrafficAssignment assignment = project
-					.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-					.getBuilder();
+			PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+			CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
+	                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 			taBuilder.registerPhysicalNetwork(physicalNetwork);
 			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
 					initialCostsFileLocation);
@@ -157,10 +153,8 @@ public class PlanItIOIntegrationTest {
 			PlanItProject project = new PlanItProject(projectPath);
 			PhysicalNetwork physicalNetwork = project
 					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-			DeterministicTrafficAssignment assignment = project
-					.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-			CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-					.getBuilder();
+	        CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
+	                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 			taBuilder.registerPhysicalNetwork(physicalNetwork);
 			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
 					initialCostsFileLocation);

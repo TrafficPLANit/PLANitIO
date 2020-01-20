@@ -1,30 +1,22 @@
 package demo;
 
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
-import org.planit.exceptions.PlanItException;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
-import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.enums.PathIdType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
-import org.planit.planitio.PlanItMain;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.planitio.project.PlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.zoning.Zoning;
@@ -35,7 +27,7 @@ import org.planit.zoning.Zoning;
  * @author mraa2518
  *
  */
-public class Demos {
+public class PLANitProjectDemos {
 
 
     /**
@@ -71,8 +63,8 @@ public class Demos {
             MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());        
     
             // CHOOSE TRADITIONAL STATIC ASSIGNMENT --> COLLECT BUILDER
-            DeterministicTrafficAssignment assignment = project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-            CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment.getBuilder();
+            CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
+                    (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
     
             // CREATE/REGISTER ASSIGNMENT COMPONENTS
             // network
@@ -92,21 +84,21 @@ public class Demos {
             taBuilder.registerOutputFormatter(memoryOutputFormatter);
             
             // COMPONENT CONFIGURATION - INPUT 
-            assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-            assignment.getGapFunction().getStopCriterion().setEpsilon(gapEpsilon);
+            taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+            taBuilder.getGapFunction().getStopCriterion().setEpsilon(gapEpsilon);
       
             //COMPONENT CONFIGURATION - OUTPUT CONTENTS
             // General:       
-            assignment.getOutputConfiguration().setPersistOnlyFinalIteration(true);        
+            taBuilder.getOutputConfiguration().setPersistOnlyFinalIteration(true);        
             // link outputs:    ON + example configuration
-            LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) assignment.activateOutput(OutputType.LINK);
+            LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
             linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
             // OD outputs:      ON + example configuration
-            OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) assignment.activateOutput(OutputType.OD);
+            OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
             originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
             originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);        
             // PATH outputs:    ON + example configuration
-            PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) assignment.activateOutput(OutputType.PATH);
+            PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
             pathOutputTypeConfiguration.setPathIdType(PathIdType.NODE_EXTERNAL_ID);
             
             // COMPONENT CONFIGURATION - PLANitIO OUTPUT FORMAT

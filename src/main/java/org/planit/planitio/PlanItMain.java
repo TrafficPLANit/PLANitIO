@@ -12,14 +12,12 @@ import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.trafficassignment.DeterministicTrafficAssignment;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.userclass.Mode;
@@ -83,10 +81,8 @@ public class PlanItMain {
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
-		DeterministicTrafficAssignment assignment = project
-				.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-		CapacityRestrainedTrafficAssignmentBuilder taBuilder = (CapacityRestrainedTrafficAssignmentBuilder) assignment
-				.getBuilder();
+		CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
+                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
 		// SUPPLY SIDE
 		taBuilder.registerPhysicalNetwork(physicalNetwork);
@@ -106,8 +102,8 @@ public class PlanItMain {
 		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		//DATA OUTPUT CONFIGURATION
-		assignment.activateOutput(OutputType.LINK);
-		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+		taBuilder.activateOutput(OutputType.LINK);
+		OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 		
 		//OUTPUT FORMAT CONFIGURATION
@@ -121,8 +117,8 @@ public class PlanItMain {
 		xmlOutputFormatter.setCsvNameRoot("Route Choice Test 1");
 
 		// "USER" configuration
-		assignment.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-		assignment.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+		taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+		taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 
         Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
         if (!exceptionMap.keySet().isEmpty()) {

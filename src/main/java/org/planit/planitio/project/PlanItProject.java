@@ -5,7 +5,9 @@ import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.project.CustomPlanItProject;
 
 /**
- * PLANit project as it is intended by default using the native XML format input files obtained from the passed in project path
+ * 
+ * PLANit project which is nothing more than a CustomPlanItProject without any custom configuration pre-embedded. So, it allows
+ * maximum flexibility for users.
  * 
  * @author markr, gman6028
  *
