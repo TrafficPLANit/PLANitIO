@@ -403,17 +403,18 @@ public class TestHelper {
 		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		// DATA OUTPUT CONFIGURATION
-		assignment.activateOutput(OutputType.LINK);
-		assignment.activateOutput(OutputType.OD);
-		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		
-		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
-		outputConfiguration.setPersistOnlyFinalIteration(true);
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
-		if (setOutputTypeConfigurationProperties != null) {
-			setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
-		}
-		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
+        //PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
+	    OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+        outputConfiguration.setPersistOnlyFinalIteration(true);
+        
+        // LINK OUTPUT
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) assignment.activateOutput(OutputType.LINK);
+        if (setOutputTypeConfigurationProperties != null) {
+              setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+        }
+        
+        // OD OUTPUT
+        OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) assignment.activateOutput(OutputType.OD);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
 		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 		
@@ -527,23 +528,23 @@ public class TestHelper {
 		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		// DATA OUTPUT CONFIGURATION
-		assignment.activateOutput(OutputType.LINK);
-		assignment.activateOutput(OutputType.OD);
-		assignment.activateOutput(OutputType.PATH);
-		OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
-		
-		//PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
-		outputConfiguration.setPersistOnlyFinalIteration(true);
-		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.LINK);
-		if (setOutputTypeConfigurationProperties != null) {
-			setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
-		}
-		
-		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) outputConfiguration	.getOutputTypeConfiguration(OutputType.OD);
-		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
-		originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
-		
-	    PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.PATH);
+        OutputConfiguration outputConfiguration = assignment.getOutputConfiguration();
+        //PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
+        outputConfiguration.setPersistOnlyFinalIteration(true);
+        
+        // LINK OUTPUT CONFIGURATION
+		LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) assignment.activateOutput(OutputType.LINK);
+        if (setOutputTypeConfigurationProperties != null) {
+            setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
+        }
+        
+        // OD OUTPUT CONFIGURATION
+		OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OriginDestinationOutputTypeConfiguration) assignment.activateOutput(OutputType.OD);
+        originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
+        originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
+        
+        // PATH OUTPUT CONFIGURATION
+		PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) assignment.activateOutput(OutputType.PATH);
 	    pathOutputTypeConfiguration.setPathIdType(PathIdType.NODE_EXTERNAL_ID);
 
 		// OUTPUT FORMAT CONFIGURATION
