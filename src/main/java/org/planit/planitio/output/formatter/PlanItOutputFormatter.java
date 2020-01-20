@@ -557,8 +557,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 *                         during set up of the output formatter
 	 */
 	@Override
-	public void open(OutputTypeConfiguration outputTypeConfiguration, long runId) throws PlanItException {
-
+	public void initialiseBeforeSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations, long runId) throws PlanItException {
 		this.runId = runId;
 		if (xmlDirectory == null) {
 			throw new PlanItException(
@@ -576,25 +575,27 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	/**
 	 * Close the CSV writer
 	 * 
-	 * @param outputTypeConfiguration OutputTypeConfiguration for the assignment to
-	 *                                be saved
+	 * @param outputTypeConfigurations OutputTypeConfigurations for the assignment that have been activated
 	 * @throws PlanItException thrown if there is an error closing a resource
 	 */
 	@Override
-	public void close(OutputTypeConfiguration outputTypeConfiguration) throws PlanItException {
+	public void finaliseAfterSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations) throws PlanItException {
 		try {
-			OutputType outputType = outputTypeConfiguration.getOutputType();
-			if (xmlFileNameMap.containsKey(outputType)) {
-				String xmlFileName = xmlFileNameMap.get(outputType);
-				if (metadata.containsKey(outputType)) {
-					XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
-				} else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
-					Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
-					for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-						XmlUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class, xmlFileName);
-					}
-				}
-			}
+		    for(Map.Entry<OutputType, OutputTypeConfiguration> entry : outputTypeConfigurations.entrySet()) {
+	            OutputType outputType = entry.getKey();
+	            OutputTypeConfiguration outputTypeConfiguration = entry.getValue();
+	            if (xmlFileNameMap.containsKey(outputType)) {
+	                String xmlFileName = xmlFileNameMap.get(outputType);
+	                if (metadata.containsKey(outputType)) {
+	                    XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
+	                } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
+	                    Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
+	                    for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
+	                        XmlUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class, xmlFileName);
+	                    }
+	                }
+	            }		        
+		    }
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
