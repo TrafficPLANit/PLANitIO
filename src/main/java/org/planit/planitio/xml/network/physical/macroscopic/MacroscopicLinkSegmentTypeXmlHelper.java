@@ -39,7 +39,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 	/**
 	 * Map of maximum speed for each link type
 	 */
-	private Map<Long, Double> speedMap;
+	private Map<Mode, Double> speedMap;
 
 	/**
 	 * Link Segment Mode Properties (maximum speed and critical speed)
@@ -71,9 +71,9 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 					+ ".  Setting the speed to zero instead (which means vehicles of this type are forbidden in links of this type.)");
 			 maxSpeed = 0.0;
 		}
-		macroscopicLinkSegmentTypeXmlHelper.getSpeedMap().put(modeExternalId,  maxSpeed);
 		MacroscopicModeProperties macroscopicModeProperties = new MacroscopicModeProperties(maxSpeed, critSpeed);
 		Mode mode = Mode.getByExternalId(modeExternalId);
+		macroscopicLinkSegmentTypeXmlHelper.getSpeedMap().put(mode,  maxSpeed);
 		MacroscopicLinkSegmentTypeModeProperties macroscopicLinkSegmentTypeModeProperties = new MacroscopicLinkSegmentTypeModeProperties(
 				mode, macroscopicModeProperties);
 		macroscopicLinkSegmentTypeXmlHelper.setMacroscopicLinkSegmentTypeModeProperties(macroscopicLinkSegmentTypeModeProperties);
@@ -94,7 +94,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 		this.capacityPerLane = capacityPerLane;
 		this.maximumDensityPerLane = maximumDensityPerLane;
 		this.externalId = externalId;
-		speedMap = new HashMap<Long, Double>();
+		speedMap = new HashMap<Mode, Double>();
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
 		this.maximumDensityPerLane = maximumDensityPerLane;
 	}
 
-	public Map<Long, Double> getSpeedMap() {
+	public Map<Mode, Double> getSpeedMap() {
 		return speedMap;
 	}
 

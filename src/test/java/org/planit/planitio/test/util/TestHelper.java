@@ -665,38 +665,6 @@ public class TestHelper {
 
 	/**
 	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
-	 * of initial cost for each time period)
-	 * 
-	 * @param projectPath project directory containing the input files
-	 * @param setOutputTypeConfigurationProperties lambda function to set output type configuration output properties
-	 * @param initialLinkSegmentLocationsPerTimePeriod Map of initial cost objects for each time period
-	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
-	 * @param setCostParameters lambda function which sets parameters of cost function
-	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
-	 * @throws Exception thrown if there is an error
-	 */
-//	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
-//			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-//			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, Integer maxIterations, Double epsilon,
-//			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
-
-//		TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts = (
-//				taBuilder, project, physicalNetwork) -> {
-//			for (Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
-//				TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
-//				String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
-//				InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,	initialCostsFileLocation);
-//				taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
-//			}
-//		};
-
-//		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
-//				maxIterations, epsilon, setCostParameters, description);
-//	}
-
-	/**
-	 * Run a test case and store the results in a MemoryOutputFormatter (uses a Map
 	 * of initial cost for each time period and default link output properties))
 	 * 
 	 * @param projectPath project directory containing  the input files

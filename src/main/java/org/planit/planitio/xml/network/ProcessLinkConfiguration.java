@@ -76,7 +76,7 @@ public class ProcessLinkConfiguration {
 			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentMap.get(linkType);
 			for (Mode mode : Mode.getAllModes()) {
 				long modeExternalId = mode.getExternalId();
-				if (!linkSegmentType.getSpeedMap().containsKey(modeExternalId)) {
+				if (!linkSegmentType.getSpeedMap().containsKey(mode)) {
 					PlanItLogger.info("Mode " + mode.getName() + " not defined for Link Type " + linkSegmentType.getName()
 							+ ".  Will be given a speed zero, meaning vehicles of this type are not allowed in links of this type.");
 					MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeNew = MacroscopicLinkSegmentTypeXmlHelper
