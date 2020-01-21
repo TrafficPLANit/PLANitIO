@@ -15,3 +15,7 @@ First Release
 * Common approach to adding and removing output properties from output formatters
 * Some code refactored, particularly in BaseOutputFormatter and FileOutputFormatter to reuse common code for managing output between different output formatters
 * Updated standard results files in unit tests to match updated output property names
+
+## 0.0.3
+
+* Restructure resources directory to create easier to understand hierarchy (PLANIt JIRA Task #1)
