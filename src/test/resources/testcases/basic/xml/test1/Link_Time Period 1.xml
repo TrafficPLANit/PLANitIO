@@ -6,7 +6,7 @@
 	<outputconfiguration>
 		<assignment>TraditionalStaticAssignment</assignment>
 		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
-		<virtualcost>SpeedConnectoidTravelTimeCost</virtualcost>
+		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
 		<timeperiod>
 			<id>0</id>
 			<name>Time Period 1</name>

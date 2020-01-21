@@ -19,7 +19,7 @@ import javax.xml.datatype.DatatypeConstants;
 import org.apache.commons.io.FileUtils;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
+import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementColumn;
@@ -393,7 +393,9 @@ public class TestHelper {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
 
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
+		FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// SUPPLY-DEMAND INTERFACE
@@ -516,7 +518,9 @@ public class TestHelper {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
 
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
+		FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// SUPPLY-DEMAND INTERFACE

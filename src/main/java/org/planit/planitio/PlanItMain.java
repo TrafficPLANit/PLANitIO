@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
-import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
+import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.InputBuilderListener;
@@ -94,8 +94,9 @@ public class PlanItMain {
 				.findMacroscopicLinkSegmentTypeByExternalId(1);
 		Mode mode = Mode.getByExternalId(2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-		taBuilder
-				.createAndRegisterVirtualTravelTimeCostFunction(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+		int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
+		FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// SUPPLY-DEMAND INTERFACE
