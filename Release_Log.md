@@ -18,4 +18,4 @@ First Release
 
 ## 0.0.3
 
-* Restructure resources directory to create easier to understand hierarchy (PLANIt JIRA Task #1)
+* Restructure resources directory to create easier to understand hierarchy (PLANitIO JIRA Task #1)
