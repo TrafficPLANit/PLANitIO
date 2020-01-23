@@ -40,7 +40,7 @@ public class ProcessConfiguration {
 			demandconfiguration.setTravellertypes(travellertypes);
 		}
 		for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
-			TravelerType travellerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
+			new TravelerType(travellertype.getId().longValue(), travellertype.getName());
 		}
 	}
 
@@ -62,8 +62,7 @@ public class ProcessConfiguration {
 					: userclass.getTravellertyperef().longValue();
 			userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
 			TravelerType travellerType = TravelerType.getByExternalId(travellerTypeId);
-			UserClass userClass = new UserClass(userclass.getId().longValue(), userclass.getName(), modeId,
-					travellerType.getExternalId());
+			new UserClass(userclass.getId().longValue(), userclass.getName(), modeId, travellerType.getExternalId());
 		}
 	}
 

@@ -261,7 +261,7 @@ public class UpdateDemands {
 			int timePeriodId = odmatrix.getTimeperiodref().intValue();
 			int userClassId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
 					: odmatrix.getUserclassref().intValue();
-			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
+			int externalId = (int) UserClass.getByExternalId(userClassId).getModeExternalId();
 			Mode mode = Mode.getByExternalId(externalId);
 			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
 			ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
