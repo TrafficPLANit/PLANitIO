@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <metadata>
-	<timestamp>2019-10-23T11:19:41.948+11:00</timestamp>
-	<version>0.0.2</version>
+	<timestamp>2020-01-24T12:11:54.429+11:00</timestamp>
+	<version>0.0.3-beta</version>
 	<description>PlanIt common code for traffic assignment</description>
 	<outputconfiguration>
 		<assignment>TraditionalStaticAssignment</assignment>
@@ -26,6 +26,11 @@
 		</column>
 		<column>
 			<name>Downstream Node Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Link Segment External Id</name>
 			<units>none</units>
 			<type>integer</type>
 		</column>
