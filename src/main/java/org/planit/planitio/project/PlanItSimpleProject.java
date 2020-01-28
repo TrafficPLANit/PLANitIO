@@ -103,7 +103,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     @Override
     public TrafficAssignmentBuilder createAndRegisterDeterministicAssignment(String trafficAssignmentType)
             throws PlanItException {
-        if(super.hasRegisteredAssignments()) {
+        if(super.trafficAssignments.hasRegisteredAssignments()) {
             throw new PlanItException("This type of PLANit project only allows a single assignment per project");
         }
         return super.createAndRegisterDeterministicAssignment(trafficAssignmentType);
@@ -121,9 +121,9 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     @Override
     public Map<Long, PlanItException> executeAllTrafficAssignments() throws PlanItException {
         Map<Long, PlanItException> exceptionMap = new TreeMap<Long, PlanItException>();
-        if(super.hasRegisteredAssignments()) {
+        if(super.trafficAssignments.hasRegisteredAssignments()) {
             // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
-            processSimpleProjectInputData(this.getFirstTrafficAssignment());
+            processSimpleProjectInputData(this.trafficAssignments.getFirstTrafficAssignment());
             exceptionMap = super.executeAllTrafficAssignments();
         }else
         {

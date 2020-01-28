@@ -10,7 +10,6 @@ import org.planit.exceptions.PlanItException;
 import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.enums.OutputType;
@@ -20,8 +19,9 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
-import org.planit.userclass.Mode;
-import org.planit.utils.IdGenerator;
+import org.planit.utils.misc.IdGenerator;
+import org.planit.utils.network.physical.Mode;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.zoning.Zoning;
 
 /**
@@ -85,22 +85,19 @@ public class PlanItMain {
                 (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
 		// SUPPLY SIDE
-		taBuilder.registerPhysicalNetwork(physicalNetwork);
+		taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);	
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
 		MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 		MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
 				.findMacroscopicLinkSegmentTypeByExternalId(1);
-		Mode mode = Mode.getByExternalId(2);
+		Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 		int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
 		FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-
-		// SUPPLY-DEMAND INTERFACE
-		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		//DATA OUTPUT CONFIGURATION
 		taBuilder.activateOutput(OutputType.LINK);

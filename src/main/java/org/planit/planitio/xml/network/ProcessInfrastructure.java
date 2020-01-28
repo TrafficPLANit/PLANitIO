@@ -14,15 +14,16 @@ import org.planit.generated.XMLElementLinkSegment;
 import org.planit.generated.XMLElementLinks;
 import org.planit.generated.XMLElementNodes;
 import org.planit.geo.PlanitGeoUtils;
-import org.planit.network.physical.Link;
-import org.planit.network.physical.LinkSegment;
-import org.planit.network.physical.Node;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
+import org.planit.network.physical.NodeImpl;
+import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentImpl;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.planitio.xml.util.XmlUtils;
+import org.planit.utils.network.physical.Link;
+import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.Node;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
 
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
@@ -108,8 +109,7 @@ public class ProcessInfrastructure {
 			MacroscopicLinkSegmentTypeModeProperties modeProperties) throws PlanItException {
 
 		// create the link and store it in the network object
-		MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) network.linkSegments
-				.createDirectionalLinkSegment(link, abDirection);
+		MacroscopicLinkSegmentImpl linkSegment = (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
 		linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
 		linkSegment.setNumberOfLanes(noLanes);
 		linkSegment.setExternalId(externalId);
@@ -135,7 +135,7 @@ public class ProcessInfrastructure {
 			throws PlanItException {
 		for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
-			Node node = new Node();
+			NodeImpl node = (NodeImpl) network.nodes.registerNewNode();
 			node.setExternalId(generatedNode.getId().longValue());
 			PointType pointType = generatedNode.getPoint();
 			if (pointType != null) {

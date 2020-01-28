@@ -40,7 +40,7 @@ import org.planit.output.property.BaseOutputProperty;
 import org.planit.planitio.xml.converter.EnumConverter;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.time.TimePeriod;
-import org.planit.userclass.Mode;
+import org.planit.utils.network.physical.Mode;
 
 /**
  * The default output formatter of PlanIt
@@ -749,5 +749,4 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	public void setXmlFileNamePerOutputType(OutputType outputType, String xmlFileName) {
 		xmlFileNameMap.put(outputType, xmlFileName);
 	}
-
 }

@@ -28,6 +28,7 @@ import org.planit.generated.XMLElementIteration;
 import org.planit.generated.XMLElementMetadata;
 import org.planit.generated.XMLElementOutputConfiguration;
 import org.planit.generated.XMLElementOutputTimePeriod;
+import org.planit.network.physical.ModeImpl;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
@@ -46,8 +47,9 @@ import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
-import org.planit.userclass.Mode;
-import org.planit.utils.IdGenerator;
+import org.planit.utils.misc.IdGenerator;
+import org.planit.utils.misc.Pair;
+import org.planit.utils.network.physical.Mode;
 import org.planit.utils.TriConsumer;
 import org.planit.zoning.Zoning;
 
@@ -150,10 +152,10 @@ public class TestHelper {
 	 * @param maxIterations the maximum number of iterations allowed in this test run
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
@@ -168,10 +170,10 @@ public class TestHelper {
 	 * @param maxIterations the maximum number of iterations allowed in this test run
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, null, setCostParameters,
 				description);
@@ -186,10 +188,10 @@ public class TestHelper {
 	 * @param initialCostsFileLocation location of initial costs file
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, String initialCostsFileLocation,
 			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
@@ -205,10 +207,10 @@ public class TestHelper {
 	 * @param initialCostsFileLocation location of initial costs file
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation,
 			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
 			String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation, null, 0, maxIterations, null,
@@ -227,10 +229,10 @@ public class TestHelper {
 	 * @param maxIterations the maximum number of iterations allowed in this test run
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
 			String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
 			Integer maxIterations, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
@@ -250,10 +252,10 @@ public class TestHelper {
 	 * @param maxIterations the maximum number of iterations allowed in this test run
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, initialCostsFileLocation1, initialCostsFileLocation2,
@@ -270,10 +272,10 @@ public class TestHelper {
 	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, Integer maxIterations,
 			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
 			throws Exception {
@@ -290,10 +292,10 @@ public class TestHelper {
 	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, Integer maxIterations,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath, Integer maxIterations,
 			Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description)
 			throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters,
@@ -308,10 +310,10 @@ public class TestHelper {
 	 * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter abd project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0, null, null,
@@ -325,20 +327,20 @@ public class TestHelper {
 	 * @param projectPath project directory containing the input files
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description);
 	}
 	
-	public static MemoryOutputFormatter setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 		return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, null, 0, null, null, setCostParameters, description);
 	}
 	
-	public static MemoryOutputFormatter setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath, String initialCostsFileLocation1,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 
@@ -364,7 +366,7 @@ public class TestHelper {
 
 	
 	
-	public static MemoryOutputFormatter setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
 			TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
@@ -383,9 +385,7 @@ public class TestHelper {
         CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
                 (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
-		// SUPPLY SIDE
-		taBuilder.registerPhysicalNetwork(physicalNetwork);
-
+		taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);	
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
@@ -397,9 +397,6 @@ public class TestHelper {
 		FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-
-		// SUPPLY-DEMAND INTERFACE
-		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		// DATA OUTPUT CONFIGURATION
         //PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set to true - outputs will not match test data otherwise
@@ -471,7 +468,7 @@ public class TestHelper {
         		throw exceptionMap.get(id);
         	}
         }
-		return memoryOutputFormatter;
+		return new Pair<MemoryOutputFormatter, PlanItProject>(memoryOutputFormatter,project);
 	}
 
 
@@ -486,10 +483,10 @@ public class TestHelper {
 	 * @param epsilon measure of how close successive iterations must be to each other  to accept convergence
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
 			TriConsumer<CapacityRestrainedTrafficAssignmentBuilder, PlanItProject, PhysicalNetwork> registerInitialCosts,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
@@ -508,9 +505,7 @@ public class TestHelper {
         CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
                 (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
-		// SUPPLY SIDE
-		taBuilder.registerPhysicalNetwork(physicalNetwork);
-
+		taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);	
 		// SUPPLY-DEMAND INTERACTIONS
 		BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
@@ -522,9 +517,6 @@ public class TestHelper {
 		FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-
-		// SUPPLY-DEMAND INTERFACE
-		taBuilder.registerDemandsAndZoning(demands, zoning);	
 
 		// DATA OUTPUT CONFIGURATION
         OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
@@ -575,7 +567,7 @@ public class TestHelper {
         		throw exceptionMap.get(id);
         	}
         }
-		return memoryOutputFormatter;
+		return new Pair<MemoryOutputFormatter, PlanItProject>(memoryOutputFormatter,project);
 	}
 
 	/**
@@ -590,12 +582,12 @@ public class TestHelper {
 	 * @param epsilon measure of how close successive iterations must be to each other to accept convergence
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 * 
 	 * If the setCostParameters argument is null, the system default values for the cost function parameters are used.
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath, String initialCostsFileLocation1,
 			String initialCostsFileLocation2, int initCostsFilePos, Integer maxIterations, Double epsilon,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 
@@ -634,13 +626,13 @@ public class TestHelper {
 	 *                                             to accept convergence
 	 * @param setCostParameters lambda function which sets parameters of cost function
 	 * @param description description used in temporary output file names
-	 * @return MemoryOutputFormatter containing results from the run
+	 * @return MemoryOutputFormatter and project containing results from the run
 	 * @throws Exception thrown if there is an error
 	 * 
 	 *                   If the setCostParameters argument is null, the system
 	 *                   default values for the cost function parameters are used.
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
 			String initialCostsFileLocation1, String initialCostsFileLocation2, int initCostsFilePos,
 			Integer maxIterations, Double epsilon, BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
@@ -679,7 +671,7 @@ public class TestHelper {
 	 * @return MemoryOutputFormatter containing results from the run
 	 * @throws Exception thrown if there is an error
 	 */
-	public static MemoryOutputFormatter setupAndExecuteAssignment(String projectPath,
+	public static Pair<MemoryOutputFormatter, PlanItProject> setupAndExecuteAssignment(String projectPath,
 			Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, Integer maxIterations, Double epsilon,
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, String description) throws Exception {
 

@@ -15,8 +15,8 @@ import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.demands.Demands;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.time.TimePeriod;
-import org.planit.userclass.Mode;
 import org.planit.userclass.UserClass;
+import org.planit.utils.network.physical.Mode;
 import org.planit.zoning.Zone;
 import org.planit.zoning.Zoning.Zones;
 
@@ -54,14 +54,15 @@ public class UpdateDemands {
 	 * Create the Map of demands for each time period and mode
 	 * 
 	 * @param timePeriodMap Map of time periods
+	 * @param modesByExternalIdMap map of available modes by external id
 	 * @param noCentroids   the number of centroids in the current zoning
 	 * @return empty Map of demands for each time period
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private static Map<Mode, Map<TimePeriod, ODDemandMatrix>> initializeDemandsPerTimePeriodAndMode(
-			Map<Integer, TimePeriod> timePeriodMap, Zones zones) 	throws PlanItException {
+			Map<Integer, TimePeriod> timePeriodMap, Zones zones, Map<Long, Mode> modesByExternalIdMap) 	throws PlanItException {
 		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
-		for (Mode mode : Mode.getAllModes()) {
+		for (Mode mode : modesByExternalIdMap.values()) {
 			Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
 			for (TimePeriod timePeriod : timePeriodMap.values()) {
 				demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
@@ -251,18 +252,23 @@ public class UpdateDemands {
 	 * @param oddemands     List of generated XMLElementOdMatrix objects with data from the XML input file
 	 * @param timePeriodMap Map of TimePeriod objects
 	 * @param zones         zones in the current network
+	 * @param modesByExternalIdMap available modes by external id
 	 * @throws Exception thrown if there is an error during processing
 	 */
-	public static void createAndRegisterDemandMatrix(Demands demands, List<XMLElementOdMatrix> oddemands,
-			Map<Integer, TimePeriod> timePeriodMap, Zones zones) 	throws Exception {
+	public static void createAndRegisterDemandMatrix(
+			Demands demands, 
+			List<XMLElementOdMatrix> oddemands,
+			Map<Integer, TimePeriod> timePeriodMap, 
+			Zones zones, 
+			Map<Long, Mode> modesByExternalIdMap) 	throws Exception {
+		
 		Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = 
-				initializeDemandsPerTimePeriodAndMode(timePeriodMap, zones);
+				initializeDemandsPerTimePeriodAndMode(timePeriodMap, zones, modesByExternalIdMap);
 		for (XMLElementOdMatrix odmatrix : oddemands) {
 			int timePeriodId = odmatrix.getTimeperiodref().intValue();
 			int userClassId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
 					: odmatrix.getUserclassref().intValue();
-			int externalId = (int) UserClass.getById(userClassId).getModeExternalId();
-			Mode mode = Mode.getByExternalId(externalId);
+			Mode mode = UserClass.getById(userClassId).getMode();
 			TimePeriod timePeriod = timePeriodMap.get(timePeriodId);
 			ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
 			updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), odDemandMatrix, zones);

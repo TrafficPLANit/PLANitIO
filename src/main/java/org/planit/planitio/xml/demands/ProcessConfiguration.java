@@ -14,6 +14,7 @@ import org.planit.generated.XMLElementUserClasses;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
+import org.planit.utils.network.physical.Mode;
 
 /**
  * Methods to generate and store PLANit configuration objects from the
@@ -50,20 +51,27 @@ public class ProcessConfiguration {
 	 * 
 	 * @param demandconfiguration generated XMLElementDemandConfiguration object from
 	 *                      demand XML input
+	 * @param modesByExternalIdMap map with modes by their external ids
 	 */
-	private static void generateAndStoreUserClasses(XMLElementDemandConfiguration demandconfiguration) {
+	private static void generateAndStoreUserClasses(
+			XMLElementDemandConfiguration demandconfiguration, 
+			Map<Long, Mode> modesByExternalIdMap) {
 		XMLElementUserClasses userclasses = demandconfiguration.getUserclasses();
 		if (userclasses.getUserclass().isEmpty()) {
 			userclasses.getUserclass().add(generateDefaultUserClass());
 		}
 		for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
-			int modeId = userclass.getModeref().intValue();
-			long travellerTypeId = (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID
-					: userclass.getTravellertyperef().longValue();
+			Long externalModeId = userclass.getModeref().longValue();
+			Mode userClassMode = modesByExternalIdMap.get(externalModeId);
+			long travellerTypeId = 
+					(userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID : userclass.getTravellertyperef().longValue();
 			userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
 			TravelerType travellerType = TravelerType.getByExternalId(travellerTypeId);
-			UserClass userClass = new UserClass(userclass.getId().longValue(), userclass.getName(), modeId,
-					travellerType.getExternalId());
+			UserClass userClass = new UserClass(
+					userclass.getId().longValue(), 
+					userclass.getName(), 
+					userClassMode,
+					travellerType);
 		}
 	}
 
@@ -131,12 +139,13 @@ public class ProcessConfiguration {
 	 * 
 	 * @param demandconfiguration the generated XMLElementDemandConfiguration object
 	 *                            containing the data from the XML input file
+	 * @param modesByExternalIdMap map with parsed modes by their external ids
 	 * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
 	 */
 	public static Map<Integer, TimePeriod> generateAndStoreConfigurationData(
-			XMLElementDemandConfiguration demandconfiguration) {
+			XMLElementDemandConfiguration demandconfiguration, Map<Long, Mode> modesByExternalIdMap) {
 		ProcessConfiguration.generateAndStoreTravellerTypes(demandconfiguration);
-		ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration);
+		ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration, modesByExternalIdMap);
 		return ProcessConfiguration.generateTimePeriodMap(demandconfiguration);
 	}
 

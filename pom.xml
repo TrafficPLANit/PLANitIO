@@ -29,7 +29,7 @@
 			<artifactId>PlanIt</artifactId>
 			<version>0.0.3-beta</version>
 		</dependency>
-		
+			
 		<dependency>
 			<groupId>org.jvnet.jaxb2.maven2</groupId>
 			<artifactId>maven-jaxb2-plugin</artifactId>
@@ -163,7 +163,7 @@
 							<Class-Path>.</Class-Path>
 						</manifestEntries>
 					</archive>
-					<finalName>PlanItXml</finalName>
+					<finalName>PlanItIO</finalName>
 				</configuration>
 			</plugin>
 

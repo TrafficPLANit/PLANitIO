@@ -29,7 +29,6 @@ import org.planit.generated.XMLElementPLANit;
 import org.planit.generated.XMLElementZones.Zone;
 import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
-import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -50,7 +49,8 @@ import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegme
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.planitio.xml.zoning.UpdateZoning;
 import org.planit.time.TimePeriod;
-import org.planit.userclass.Mode;
+import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.Mode;
 import org.planit.zoning.Zoning;
 
 /**
@@ -61,6 +61,9 @@ import org.planit.zoning.Zoning;
  */
 public class PlanItInputBuilder extends InputBuilderListener {
 
+	// Convenience map to store the modes by their external id 
+	private Map<Long,Mode> modesByExternalIdMap;
+	
 	/**
 	 * Generated object to store input network data
 	 */
@@ -365,10 +368,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * @param record                 the record in the CSV input file to get the
 	 *                               data value from
 	 * @param linkSegment            the current link segment
+	 * @throws PlanItException 
 	 */
-	private void setInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVRecord record, LinkSegment linkSegment) {
+	private void setInitialLinkSegmentCost(InitialLinkSegmentCost initialLinkSegmentCost, CSVRecord record, LinkSegment linkSegment) throws PlanItException {
 		long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.MODE_EXTERNAL_ID));
-		Mode mode = Mode.getByExternalId(modeExternalId);
+		Mode mode = modesByExternalIdMap.get(modeExternalId);
+		if(mode == null){
+			throw new PlanItException("mode external id not available in configuration");
+		}
 		double cost = Double.parseDouble(record.get(LinkCostOutputProperty.LINK_COST));
 		initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
 	}
@@ -441,8 +448,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
 		MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
 		try {
 			XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-			ProcessLinkConfiguration.createModes(linkconfiguration);
-			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration);
+			modesByExternalIdMap = ProcessLinkConfiguration.createModes(physicalNetwork, linkconfiguration);
+			Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap = 
+					ProcessLinkConfiguration.createLinkSegmentTypeMap(linkconfiguration,modesByExternalIdMap);
 			XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
 			ProcessInfrastructure.registerNodes(infrastructure, network);
 			ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeMap);
@@ -494,9 +502,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
 		Zoning zoning = (Zoning) parameter1;
 		try {
 			XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
-			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration.generateAndStoreConfigurationData(demandconfiguration);
+			Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration.generateAndStoreConfigurationData(demandconfiguration, modesByExternalIdMap);
 			List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, timePeriodMap, zoning.zones);
+			UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, timePeriodMap, zoning.zones, modesByExternalIdMap);
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}

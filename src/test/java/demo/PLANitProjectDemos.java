@@ -16,13 +16,14 @@ import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.planitio.project.PlanItProject;
+import org.planit.planitio.project.PlanItSimpleProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
 import org.planit.zoning.Zoning;
 
 /**
- * Demo class. Showcasing how to setup a typical PLANit projects
+ * Demo class. Show casing how to setup a typical PLANit projects
  * 
  * @author mraa2518
  *
@@ -31,7 +32,27 @@ public class PLANitProjectDemos {
 
 
     /**
-     * Setup a stock standard traditional static assignment:
+     * Setup a stock standard traditional static assignment
+     */
+    public static void minimumExampleDemo(){
+        String projectPath =                "<insert the project path here>";
+
+        try{
+        	// Create a simple PLANit project with all the default settings
+        	PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
+        	        	
+        	project.createAndRegisterDeterministicAssignment(
+        			TraditionalStaticAssignment.class.getCanonicalName());
+        	
+            project.executeAllTrafficAssignments();
+        }catch (Exception e)
+        {
+            PlanItLogger.severe(e.getMessage());
+        }
+    }
+    
+    /**
+     * Setup a mininum configuration standard traditional static assignment:
      * -    Use the full fledged configuration objects, but
      * -    Explicitly set all defaults for demo purposes
      */
@@ -67,10 +88,8 @@ public class PLANitProjectDemos {
                     (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
     
             // CREATE/REGISTER ASSIGNMENT COMPONENTS
-            // network
-            taBuilder.registerPhysicalNetwork(physicalNetwork);
-            // OD: demands and zoning structure
-            taBuilder.registerDemandsAndZoning(demands, zoning);
+            // OD: demands and zoning structure and network
+            taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);
             // Initial (physical) link segment cost
             taBuilder.registerInitialLinkSegmentCost(initialCost);
             // physical links: BPR cost function
