@@ -32,10 +32,10 @@ import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Centroid;
+import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
-import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
@@ -51,7 +51,7 @@ import org.planit.planitio.xml.zoning.UpdateZoning;
 import org.planit.time.TimePeriod;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
-import org.planit.zoning.Zoning;
+import org.planit.utils.network.virtual.Centroid;
 
 /**
  * Class which reads inputs from XML input files

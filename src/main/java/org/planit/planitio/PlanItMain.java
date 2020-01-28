@@ -11,6 +11,7 @@ import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.planitio.input.PlanItInputBuilder;
@@ -22,7 +23,6 @@ import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentB
 import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.zoning.Zoning;
 
 /**
  * Test class to run XML input files.

@@ -5,20 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementOdCellByCellMatrix;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementOdRawMatrix;
-import org.planit.generated.XMLElementOdRowMatrix;
 import org.planit.generated.XMLElementOdRawMatrix.Values;
+import org.planit.network.virtual.Zoning.Zones;
+import org.planit.generated.XMLElementOdRowMatrix;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
-import org.planit.demands.Demands;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.UserClass;
 import org.planit.utils.network.physical.Mode;
-import org.planit.zoning.Zone;
-import org.planit.zoning.Zoning.Zones;
+import org.planit.utils.network.virtual.Zone;
 
 /**
  * This class contains methods to update the Demands object using input values

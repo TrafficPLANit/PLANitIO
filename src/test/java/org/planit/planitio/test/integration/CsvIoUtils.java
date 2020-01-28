@@ -1,21 +1,5 @@
 package org.planit.planitio.test.integration;
 
-import java.io.FileReader;
-import java.io.Reader;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.planit.exceptions.PlanItException;
-import org.planit.network.physical.ModeImpl;
-import org.planit.planitio.test.integration.LinkSegmentExpectedResultsDto;
-import org.planit.time.TimePeriod;
-import org.planit.utils.network.physical.Mode;
-
 /**
  * Utility class containing methods for saving run results to a CSV file and
  * reading previous run results from a CSV file.

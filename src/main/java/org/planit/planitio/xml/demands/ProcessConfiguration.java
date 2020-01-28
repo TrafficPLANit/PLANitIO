@@ -6,8 +6,8 @@ import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.Durationunit;
+import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementTimePeriods;
 import org.planit.generated.XMLElementTravellerTypes;
 import org.planit.generated.XMLElementUserClasses;

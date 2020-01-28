@@ -7,6 +7,7 @@ import org.planit.demands.Demands;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
@@ -20,7 +21,6 @@ import org.planit.planitio.project.PlanItSimpleProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
-import org.planit.zoning.Zoning;
 
 /**
  * Demo class. Show casing how to setup a typical PLANit projects

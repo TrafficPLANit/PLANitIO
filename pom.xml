@@ -29,6 +29,12 @@
 			<artifactId>PlanIt</artifactId>
 			<version>0.0.3-beta</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.planit.utils</groupId>
+			<artifactId>PLANItUtils</artifactId>
+			<version>0.0.3-beta</version>
+		</dependency>
 			
 		<dependency>
 			<groupId>org.jvnet.jaxb2.maven2</groupId>

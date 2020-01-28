@@ -8,12 +8,12 @@ import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.virtual.Zoning;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
-import org.planit.zoning.Zoning;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Limitations include:

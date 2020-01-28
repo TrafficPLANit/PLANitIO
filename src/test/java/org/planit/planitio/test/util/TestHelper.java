@@ -28,9 +28,9 @@ import org.planit.generated.XMLElementIteration;
 import org.planit.generated.XMLElementMetadata;
 import org.planit.generated.XMLElementOutputConfiguration;
 import org.planit.generated.XMLElementOutputTimePeriod;
-import org.planit.network.physical.ModeImpl;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
@@ -47,11 +47,10 @@ import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
+import org.planit.utils.TriConsumer;
 import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Mode;
-import org.planit.utils.TriConsumer;
-import org.planit.zoning.Zoning;
 
 /**
  * Helper class used by unit tests
