@@ -3,6 +3,7 @@ package org.planit.planitio.input;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,10 +14,10 @@ import javax.annotation.Nonnull;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.djutils.event.EventInterface;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
-import org.planit.event.CreatedProjectComponentEvent;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementInfrastructure;
@@ -49,6 +50,7 @@ import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegme
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.planitio.xml.zoning.UpdateZoning;
 import org.planit.time.TimePeriod;
+import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Centroid;
@@ -60,6 +62,9 @@ import org.planit.utils.network.virtual.Centroid;
  *
  */
 public class PlanItInputBuilder extends InputBuilderListener {
+
+	/** generated UID */
+	private static final long serialVersionUID = -8928911341112445424L;
 
 	// Convenience map to store the modes by their external id 
 	private Map<Long,Mode> modesByExternalIdMap;
@@ -620,19 +625,28 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 * @param event event containing the created (and empty) project component
 	 * @throws PlanItException thrown if there is an error
 	 */
-	public void onCreateProjectComponent(CreatedProjectComponentEvent<?> event) throws PlanItException {
-		Object projectComponent = event.getProjectComponent();
-		if (projectComponent instanceof PhysicalNetwork) {
-			populatePhysicalNetwork((PhysicalNetwork) projectComponent);
-		} else if (projectComponent instanceof Zoning) {
-			populateZoning((Zoning) projectComponent, event.getParameter1());
-		} else if (projectComponent instanceof Demands) {
-			populateDemands((Demands) projectComponent, event.getParameter1());
-		} else if (projectComponent instanceof InitialPhysicalCost) {
-			populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, event.getParameter1(), event.getParameter2());
-		} else {
-			PlanItLogger.info("Event component is " + projectComponent.getClass().getCanonicalName()
-					+ " which is not handled by PlanItXMLInputBuilder.");
+	@Override
+	public void notify(EventInterface event) throws RemoteException {
+		// registered for create notifications
+		if(event.getType() == TrafficAssignmentComponentFactory.TRAFFICCOMPONENT_CREATE){
+			Object[] content = (Object[])event.getContent();
+			Object projectComponent = content[0];
+			try {
+				if (projectComponent instanceof PhysicalNetwork) {
+					populatePhysicalNetwork((PhysicalNetwork) projectComponent);
+				} else if (projectComponent instanceof Zoning) {
+					populateZoning((Zoning) projectComponent, content[1]);
+				} else if (projectComponent instanceof Demands) {
+					populateDemands((Demands) projectComponent, content[1]);
+				} else if (projectComponent instanceof InitialPhysicalCost) {
+					populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, content[1], content[2]);
+				} else {
+					PlanItLogger.info("Event component is " + projectComponent.getClass().getCanonicalName()
+							+ " which is not handled by PlanItInputBuilder.");
+				}
+			}catch (PlanItException e) {
+				throw new RemoteException(e.toString());
+			}			
 		}
 	}
 

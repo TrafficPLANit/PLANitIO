@@ -32,7 +32,7 @@
 		
 		<dependency>
 			<groupId>org.planit.utils</groupId>
-			<artifactId>PLANItUtils</artifactId>
+			<artifactId>PLANitUtils</artifactId>
 			<version>0.0.3-beta</version>
 		</dependency>
 			

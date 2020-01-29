@@ -182,7 +182,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testInitialCostValuesMissingColumns() {
 		try {
-			String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test2";
+			String projectPath = "src\\test\\resources\\testcases\\testcases\\initial_costs\\xml\\test2";
 			String description = "RunId 0_testBasic1";
 			Integer maxIterations = null;
 			TestHelper.setupAndExecuteAssignment(projectPath,
