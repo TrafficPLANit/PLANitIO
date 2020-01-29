@@ -631,15 +631,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
 		if(event.getType() == TrafficAssignmentComponentFactory.TRAFFICCOMPONENT_CREATE){
 			Object[] content = (Object[])event.getContent();
 			Object projectComponent = content[0];
+			// the content consists of the actual traffic assignment component and an array of object parameters (second parameter)
+			Object[] parameters = (Object[]) content[1];
 			try {
 				if (projectComponent instanceof PhysicalNetwork) {
 					populatePhysicalNetwork((PhysicalNetwork) projectComponent);
 				} else if (projectComponent instanceof Zoning) {
-					populateZoning((Zoning) projectComponent, content[1]);
+					populateZoning((Zoning) projectComponent, parameters[0]);
 				} else if (projectComponent instanceof Demands) {
-					populateDemands((Demands) projectComponent, content[1]);
+					populateDemands((Demands) projectComponent, parameters[0]);
 				} else if (projectComponent instanceof InitialPhysicalCost) {
-					populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, content[1], content[2]);
+					populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, parameters[0], parameters[1]);
 				} else {
 					PlanItLogger.info("Event component is " + projectComponent.getClass().getCanonicalName()
 							+ " which is not handled by PlanItInputBuilder.");

@@ -172,7 +172,7 @@ public class ProcessInfrastructure {
 						"Error in network XML file: Must define either a length or GML LineString for link from node "
 								+ startNodeId + " to node " + endNodeId);
 			}
-			Link link = network.links.registerNewLink(startNode, endNode, length);
+			Link link = network.links.registerNewLink(startNode, endNode, length, "");
 			for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
 				int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
 						: generatedLinkSegment.getNumberoflanes().intValue();
