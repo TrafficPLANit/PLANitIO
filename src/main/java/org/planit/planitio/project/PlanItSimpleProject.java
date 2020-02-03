@@ -101,12 +101,12 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      * @param trafficAssignmentType the traffic assignment type to be used
      */
     @Override
-    public TrafficAssignmentBuilder createAndRegisterDeterministicAssignment(String trafficAssignmentType)
+    public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(String trafficAssignmentType)
             throws PlanItException {
         if(super.trafficAssignments.hasRegisteredAssignments()) {
             throw new PlanItException("This type of PLANit project only allows a single assignment per project");
         }
-        return super.createAndRegisterDeterministicAssignment(trafficAssignmentType);
+        return super.createAndRegisterTrafficAssignment(trafficAssignmentType);
     }    
     
     /** 
