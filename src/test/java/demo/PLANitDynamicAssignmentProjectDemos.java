@@ -80,12 +80,12 @@ public class PLANitDynamicAssignmentProjectDemos {
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
         	// stochastic route choice is a route choice type that requires a logit model and routes as input
-        	final StochasticRouteChoice routeChoice =
+        	final StochasticRouteChoice sueRouteChoice =
         			(StochasticRouteChoice) taBuilder.createAndRegisterRouteChoice(StochasticRouteChoice.class.getCanonicalName());
         	// MNL for route choice
-        	routeChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
-        	// register a fixed od rotue set
-        	routeChoice.RegisterFixedODRouteSet(project.odRouteSets.getFirstODRouteSets().getFirstODRouteSet());
+        	sueRouteChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
+        	// register a fixed od route set
+        	sueRouteChoice.RegisterODRouteMatrix(project.odRouteSets.getFirstODRouteSets().getFirstODRouteMatrix());
 
             // Output formatter: MEMORY
             taBuilder.registerOutputFormatter(memoryOutputFormatter);

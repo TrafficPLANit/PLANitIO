@@ -12,7 +12,7 @@ import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
-import org.planit.output.enums.PathIdType;
+import org.planit.output.enums.RoutIdType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
@@ -120,7 +120,7 @@ public class PLANitStaticAssignmentProjectDemos {
             originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
             // PATH outputs:    ON + example configuration
             final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
-            pathOutputTypeConfiguration.setPathIdType(PathIdType.NODE_EXTERNAL_ID);
+            pathOutputTypeConfiguration.setPathIdType(RoutIdType.NODE_EXTERNAL_ID);
 
             // COMPONENT CONFIGURATION - PLANitIO OUTPUT FORMAT
             xmlOutputFormatter.setXmlNameRoot(outputFileName);
