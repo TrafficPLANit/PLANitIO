@@ -10,6 +10,9 @@ import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.planitio.project.PlanItProject;
 import org.planit.planitio.project.PlanItSimpleProject;
+import org.planit.route.ODRouteSets;
+import org.planit.route.choice.StochasticRouteChoice;
+import org.planit.route.choice.logit.MultinomialLogit;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 
 /**
@@ -45,9 +48,7 @@ public class PLANitDynamicAssignmentProjectDemos {
     public static void maximumExampleDemo(){
         // CONFIGURATION INPUT
         final String projectPath =                "<insert the project path here>";
-        final String logFile =                    "<insert logFile including path and extension here>";
-        final String outputFileName =             "<insert base output file name without extension here>";
-        final String outputPath =                 "<insert path to output directory here>";
+        final String routeInputPath =             "<insert path to input path directory here>";
 
         try{
         	// Create a simple PLANit project with all the default settings
@@ -59,23 +60,35 @@ public class PLANitDynamicAssignmentProjectDemos {
             final Demands demands                             = project.createAndRegisterDemands(zoning);
             // INITIALISE OUTPUT FORMATTERS
             final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+            // route sets are defined on the project level and linked to a network, zoning combination
+            final ODRouteSets routeSets = project.createAndRegisterODRouteSets(physicalNetwork, zoning, routeInputPath);
 
+            //:TODO: to be implemented
+            // alternatively routes can be generated with a route generator
+//        	final RouteGenerator routeGenerator = project.createRouteGenerator(physicalNetwork);
+//        	final ODRouteSet routeSet = routeGenerator.generateODRouteSet(zoning);
+//        	project.registerODRouteSet(routeSet);
 
         	final ELTMTrafficAssignmentBuilder taBuilder =
         			(ELTMTrafficAssignmentBuilder) project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
 
-            // CREATE/REGISTER ASSIGNMENT COMPONENTS
+        	// CREATE/REGISTER ASSIGNMENT COMPONENTS
             // OD: demands and zoning structure and network
             taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);
-            // physical links: BPR cost function
-            //final CumulativeCost physicalCumulativeCost = (CumulativeCost) taBuilder.createAndRegisterPhysicalCost(CumulativeCost.class.getCanonicalName());
-            // virtual links: fixed cost function
-    		//final CumulativeCost virtualCumulativeCost = (CumulativeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(CumulativeCost.class.getCanonicalName());
+
             // iteration smoothing: MSA
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+
+        	// stochastic route choice is a route choice type that requires a logit model and routes as input
+        	final StochasticRouteChoice routeChoice =
+        			(StochasticRouteChoice) taBuilder.createAndRegisterRouteChoice(StochasticRouteChoice.class.getCanonicalName());
+        	// MNL for route choice
+        	routeChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
+        	// register a fixed od rotue set
+        	routeChoice.RegisterFixedODRouteSet(project.odRouteSets.getFirstODRouteSets().getFirstODRouteSet());
+
             // Output formatter: MEMORY
             taBuilder.registerOutputFormatter(memoryOutputFormatter);
-
 
             // EXECUTE ASSIGNMENTS
             project.executeAllTrafficAssignments();

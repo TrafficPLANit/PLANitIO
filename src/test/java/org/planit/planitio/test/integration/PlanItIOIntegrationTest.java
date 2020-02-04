@@ -1615,7 +1615,6 @@ public class PlanItIOIntegrationTest {
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
 				} catch (PlanItException e) {
-					PlanItLogger.severe(e.getMessage());
 					fail(e.getMessage());
 				}
 			};
