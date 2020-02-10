@@ -10,10 +10,10 @@ import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.planitio.project.PlanItProject;
 import org.planit.planitio.project.PlanItSimpleProject;
-import org.planit.route.ODRouteSets;
 import org.planit.route.choice.StochasticRouteChoice;
 import org.planit.route.choice.logit.MultinomialLogit;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
+import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
 
 /**
  * Demo class. Show casing how to setup typical dynamic assignment PLANit projects
@@ -61,7 +61,7 @@ public class PLANitDynamicAssignmentProjectDemos {
             // INITIALISE OUTPUT FORMATTERS
             final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
             // route sets are defined on the project level and linked to a network, zoning combination
-            final ODRouteSets routeSets = project.createAndRegisterODRouteSets(physicalNetwork, zoning, routeInputPath);
+            project.createAndRegisterODRouteSets(physicalNetwork, zoning, routeInputPath);
 
             //:TODO: to be implemented
             // alternatively routes can be generated with a route generator
@@ -69,12 +69,17 @@ public class PLANitDynamicAssignmentProjectDemos {
 //        	final ODRouteSet routeSet = routeGenerator.generateODRouteSet(zoning);
 //        	project.registerODRouteSet(routeSet);
 
+            // this saves an additional call AND will allow us to provide defaults such as using the
+            // triangular FD on eLTM because we already know the network (for example) in the constructor of the
+            // builder!
         	final ELTMTrafficAssignmentBuilder taBuilder =
-        			(ELTMTrafficAssignmentBuilder) project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
+        			(ELTMTrafficAssignmentBuilder) project.createAndRegisterTrafficAssignment(
+        					ELTM.class.getCanonicalName(), demands, zoning, physicalNetwork);
 
         	// CREATE/REGISTER ASSIGNMENT COMPONENTS
-            // OD: demands and zoning structure and network
-            taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);
+
+            // eLTM only supports a triangular fundamental diagram, but it still needs to be registered
+            taBuilder.createAndRegisterFundamentalDiagram(NewellFundamentalDiagram.class.getCanonicalName(), physicalNetwork);
 
             // iteration smoothing: MSA
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());

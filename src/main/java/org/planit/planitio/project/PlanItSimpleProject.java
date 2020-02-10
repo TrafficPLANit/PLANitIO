@@ -7,12 +7,12 @@ import java.util.TreeMap;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.logging.PlanItLogger;
+import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.output.formatter.PlanItOutputFormatter;
 import org.planit.project.CustomPlanItProject;
-import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 
 /**
@@ -51,22 +51,6 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         }
     }
 
-    /**
-     * Parse the input data for the project here and register it on the assignment
-     * @throws PlanItException
-     */
-    private void processSimpleProjectInputData(final TrafficAssignment trafficAssignment) throws PlanItException {
-        // parse a macroscopic network representation + register on assignment
-        final MacroscopicNetwork network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-        trafficAssignment.setPhysicalNetwork(network);
-        // parse the zoning system + register on assignment
-        final Zoning zoning = this.createAndRegisterZoning(network);
-        trafficAssignment.setZoning(zoning);
-        // parse the demands + register on assignment
-        final Demands demands = this.createAndRegisterDemands(zoning);
-        trafficAssignment.setDemands(demands);
-    }
-
     // Public
 
     /**
@@ -100,13 +84,39 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      *
      * @param trafficAssignmentType the traffic assignment type to be used
      */
-    @Override
     public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(final String trafficAssignmentType)
             throws PlanItException {
         if(super.trafficAssignments.hasRegisteredAssignments()) {
             throw new PlanItException("This type of PLANit project only allows a single assignment per project");
         }
-        return super.createAndRegisterTrafficAssignment(trafficAssignmentType);
+
+        // parse a macroscopic network representation + register on assignment
+        final MacroscopicNetwork network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+        // parse the zoning system + register on assignment
+        final Zoning zoning = this.createAndRegisterZoning(network);
+        // parse the demands + register on assignment
+        final Demands demands = this.createAndRegisterDemands(zoning);
+
+        return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
+    }
+
+    /**
+     * Disallow the use of the generic create and register traffic assignment because a simple project
+     * automatically determines its demands, zoning, and network
+     *
+     * @param trafficAssignmentType
+     * @param theDemands
+     * @param theZoning
+     * @param thePhysicalNetwork
+     */
+    @Override
+	public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(
+    		final String trafficAssignmentType,
+    		final Demands theDemands,
+    		final Zoning theZoning,
+    		final PhysicalNetwork thePhysicalNetwork)
+            throws PlanItException {
+    	throw new PlanItException("A simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");
     }
 
     /**
@@ -123,7 +133,6 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         Map<Long, PlanItException> exceptionMap = new TreeMap<Long, PlanItException>();
         if(super.trafficAssignments.hasRegisteredAssignments()) {
             // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
-            processSimpleProjectInputData(this.trafficAssignments.getFirstTrafficAssignment());
             exceptionMap = super.executeAllTrafficAssignments();
         }else
         {

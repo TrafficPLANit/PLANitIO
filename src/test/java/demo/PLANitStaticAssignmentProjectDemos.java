@@ -83,13 +83,10 @@ public class PLANitStaticAssignmentProjectDemos {
             final PlanItOutputFormatter xmlOutputFormatter    = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
             final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
 
-            // CHOOSE TRADITIONAL STATIC ASSIGNMENT --> COLLECT BUILDER
-            final TraditionalStaticAssignmentBuilder taBuilder =
-                    (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+    		final TraditionalStaticAssignmentBuilder taBuilder =
+                    (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
+                    		TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
 
-            // CREATE/REGISTER ASSIGNMENT COMPONENTS
-            // OD: demands and zoning structure and network
-            taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);
             // Initial (physical) link segment cost
             taBuilder.registerInitialLinkSegmentCost(initialCost);
             // physical links: BPR cost function

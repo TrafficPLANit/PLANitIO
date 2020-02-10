@@ -382,9 +382,9 @@ public class TestHelper {
 
 		// TRAFFIC ASSIGNMENT START------------------------
         final TraditionalStaticAssignmentBuilder taBuilder =
-                (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+                (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
+                		TraditionalStaticAssignment.class.getCanonicalName(),demands, zoning, physicalNetwork);
 
-		taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
 		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
@@ -502,9 +502,9 @@ public class TestHelper {
 
 		// TRAFFIC ASSIGNMENT START------------------------
         final TraditionalStaticAssignmentBuilder taBuilder =
-                (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(TraditionalStaticAssignment.class.getCanonicalName());
+                (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
+                		TraditionalStaticAssignment.class.getCanonicalName(),demands, zoning, physicalNetwork);
 
-		taBuilder.registerDemandZoningAndNetwork(demands, zoning, physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
 		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
