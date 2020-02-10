@@ -41,7 +41,7 @@ public class ProcessConfiguration {
 			demandconfiguration.setTravellertypes(travellertypes);
 		}
 		for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
-			TravelerType travellerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
+			new TravelerType(travellertype.getId().longValue(), travellertype.getName());
 		}
 	}
 

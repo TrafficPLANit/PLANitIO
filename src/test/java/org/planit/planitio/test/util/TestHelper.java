@@ -392,9 +392,7 @@ public class TestHelper {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
 
-		final int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
-		final FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
-		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
+		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// DATA OUTPUT CONFIGURATION
@@ -512,9 +510,7 @@ public class TestHelper {
 			setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
 		}
 
-		final int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
-		final FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
-		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
+		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		// DATA OUTPUT CONFIGURATION

@@ -35,7 +35,7 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	 * Id of link segment
 	 */
 	private long linkSegmentId;
-
+	
 	public long getLinkSegmentId() {
 		return linkSegmentId;
 	}
@@ -94,8 +94,7 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	 * @param length             length of the link
 	 * @param speed              travel speed of the link
 	 */
-	public LinkSegmentExpectedResultsDto(long linkSegmentId, double linkFlow, double linkCost,
-			double totalCostToEndNode, double capacity, double length, double speed) {
+	public LinkSegmentExpectedResultsDto(long linkSegmentId, double linkFlow, double linkCost, double totalCostToEndNode, double capacity, double length, double speed) {
 		this.startNodeId = -1;
 		this.endNodeId = -1;
 		this.linkSegmentId = linkSegmentId;

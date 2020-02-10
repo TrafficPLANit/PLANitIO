@@ -92,9 +92,7 @@ public class PLANitStaticAssignmentProjectDemos {
             // physical links: BPR cost function
             taBuilder.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
             // virtual links: fixed cost function
-    		final int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
-    		final FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
-    		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
+    		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
             // iteration smoothing: MSA
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
             // Output formatter: PLANitIO + MEMORY

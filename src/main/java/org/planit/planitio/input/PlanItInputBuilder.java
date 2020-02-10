@@ -259,6 +259,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 	 *                         be populated from the XML files in the project
 	 *                         directory
 	 */
+	@SuppressWarnings("unused")
 	private void setInputFilesSeparateFilesWithValidation(final String projectPath, final String[] xmlFileNames)
 			throws PlanItException {
 		boolean foundZoningFile = false;

@@ -92,9 +92,7 @@ public class PlanItMain {
 				.findMacroscopicLinkSegmentTypeByExternalId(1);
 		final Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-		final int numberOfConnectoidSegments = zoning.getVirtualNetwork().connectoids.toList().size() * 2;
-		final FixedConnectoidTravelTimeCost fixedConnectoidTravelTimeCost = (FixedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
-		fixedConnectoidTravelTimeCost.populateToZero(numberOfConnectoidSegments);
+		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		//DATA OUTPUT CONFIGURATION
