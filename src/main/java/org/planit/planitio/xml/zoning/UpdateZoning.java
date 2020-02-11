@@ -10,11 +10,12 @@ import org.planit.generated.XMLElementCentroid;
 import org.planit.generated.XMLElementConnectoid;
 import org.planit.generated.XMLElementZones.Zone;
 import org.planit.geo.PlanitGeoUtils;
-import org.planit.network.physical.Node;
+import org.planit.network.physical.NodeImpl;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
-import org.planit.network.virtual.Centroid;
+import org.planit.network.virtual.CentroidImpl;
+import org.planit.network.virtual.Zoning;
 import org.planit.planitio.xml.util.XmlUtils;
-import org.planit.zoning.Zoning;
+import org.planit.utils.network.virtual.Centroid;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -60,7 +61,7 @@ public class UpdateZoning {
 	public static Centroid createAndRegisterZoneAndCentroid(Zoning zoning, Zone zone) throws PlanItException {
 		DirectPosition centrePointGeometry = getCentrePointGeometry(zone);		
         long zoneExternalId = zone.getId().longValue();
-        Centroid centroid = zoning.zones.createAndRegisterNewZone(zoneExternalId).getCentroid();
+        CentroidImpl centroid = (CentroidImpl) zoning.zones.createAndRegisterNewZone(zoneExternalId).getCentroid();
         centroid.setCentrePointGeometry(centrePointGeometry);
         return centroid;
 	}
@@ -77,23 +78,29 @@ public class UpdateZoning {
 	public static void registerNewConnectoid(Zoning zoning, Nodes nodes, Zone zone, Centroid centroid) throws PlanItException {
 		XMLElementConnectoid connectoid = zone.getConnectoids().getConnectoid().get(0);
         long nodeExternalId = connectoid.getNoderef().longValue();
-        Node node = nodes.findNodeByExternalIdentifier(nodeExternalId);
+        NodeImpl node = (NodeImpl) nodes.findNodeByExternalIdentifier(nodeExternalId);
         DirectPosition nodePosition = node.getCentrePointGeometry();
         BigInteger externalId = connectoid.getId();
         double connectoidLength;
         if (connectoid.getLength() != null) {
         	connectoidLength = connectoid.getLength();
-//TODO  - need to create some test cases in which nodes have a GML location
-        } else if (nodePosition != null){
+        	//:TODO  - need to create some test cases in which nodes have a GML location
+        }else if (nodePosition != null){
         	//if node has a GML Point, get the GML Point from the centroid and calculate the length between them
         	XMLElementCentroid generatedCentroid = zone.getCentroid();
         	PointType pointType = generatedCentroid.getPoint();
         	DirectPosition centroidPosition = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
         	connectoidLength =  planitGeoUtils.getDistanceInKilometres(centroidPosition, nodePosition);
-         } else {
-        	connectoidLength = org.planit.network.virtual.Connectoid.DEFAULT_LENGTH;
+        }else {
+        	connectoidLength = org.planit.utils.network.virtual.Connectoid.DEFAULT_LENGTH_KM;
         }
-         zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength, externalId);
+        
+        if(externalId!=null) {
+            zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength, externalId.longValue());        	
+        }else {
+        	zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);      
+        }
+
 	}
 
 }

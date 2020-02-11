@@ -25,15 +25,13 @@ import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.logging.PlanItLogger;
-import org.planit.network.physical.LinkSegment;
 import org.planit.network.physical.PhysicalNetwork;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
@@ -41,10 +39,11 @@ import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.planitio.project.PlanItProject;
 import org.planit.planitio.test.util.TestHelper;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.TraditionalStaticAssignment;
-import org.planit.trafficassignment.builder.CapacityRestrainedTrafficAssignmentBuilder;
-import org.planit.userclass.Mode;
-import org.planit.utils.IdGenerator;
+import org.planit.utils.misc.IdGenerator;
+import org.planit.utils.misc.Pair;
+import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.Mode;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 
 /**
  * JUnit test case for TraditionalStaticAssignment
@@ -113,9 +112,7 @@ public class PlanItIOIntegrationTest {
 			IdGenerator.reset();
 			PlanItProject project = new PlanItProject(projectPath);
 			PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-			CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
-	                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-			taBuilder.registerPhysicalNetwork(physicalNetwork);
+
 			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
 					initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
@@ -125,11 +122,10 @@ public class PlanItIOIntegrationTest {
 			String costHeader = LinkCostOutputProperty.LINK_COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
-				Mode mode = Mode.getByExternalId(modeExternalId);
+				Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(modeExternalId);
 				double cost = Double.parseDouble(record.get(costHeader));
 				long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-				LinkSegment linkSegment = physicalNetwork.linkSegments
-						.getLinkSegmentByExternalId(linkSegmentExternalId);
+				LinkSegment linkSegment = physicalNetwork.linkSegments.getLinkSegmentByExternalId(linkSegmentExternalId);
 				assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
 			}
 			in.close();
@@ -153,9 +149,7 @@ public class PlanItIOIntegrationTest {
 			PlanItProject project = new PlanItProject(projectPath);
 			PhysicalNetwork physicalNetwork = project
 					.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-	        CapacityRestrainedTrafficAssignmentBuilder taBuilder = 
-	                (CapacityRestrainedTrafficAssignmentBuilder) project.createAndRegisterDeterministicAssignment(TraditionalStaticAssignment.class.getCanonicalName());
-			taBuilder.registerPhysicalNetwork(physicalNetwork);
+
 			InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
 					initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
@@ -166,7 +160,7 @@ public class PlanItIOIntegrationTest {
 			String costHeader = LinkCostOutputProperty.LINK_COST;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
-				Mode mode = Mode.getByExternalId(modeExternalId);
+				Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(modeExternalId);
 				double cost = Double.parseDouble(record.get(costHeader));
 				long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
 				long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
@@ -188,7 +182,7 @@ public class PlanItIOIntegrationTest {
 	@Test
 	public void testInitialCostValuesMissingColumns() {
 		try {
-			String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test2";
+			String projectPath = "src\\test\\resources\\testcases\\testcases\\initial_costs\\xml\\test2";
 			String description = "RunId 0_testBasic1";
 			Integer maxIterations = null;
 			TestHelper.setupAndExecuteAssignment(projectPath,
@@ -278,12 +272,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 10, 2000, 10, 1));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 22, 2000, 12, 1));
@@ -324,12 +323,16 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 10, 2000, 10, 1));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 22, 2000, 12, 1));
@@ -385,12 +388,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName3 = "Time Period 3.xml";
 			Integer maxIterations = null;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod1 = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod1, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod1).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(3, 4, 1, 10, 10, 2000, 10, 1));
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(4, 5, 1, 10, 20, 2000, 10, 1));
@@ -472,12 +480,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(2, 1, 2000, 0.015, 30, 2000, 1, 66.6666667));
@@ -528,12 +541,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(11, 1, 3600, 0.025, 90, 3600, 1, 40));
@@ -675,7 +693,7 @@ public class PlanItIOIntegrationTest {
 			fail(e.getMessage());
 		}
 	}
-
+	
 	/**
 	 * This test check that PlanItProject reads the initial costs from a file
 	 * correctly, and outputs them after 500 iterations.
@@ -809,12 +827,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(11, 1, 8000, 0.03, 240, 8000, 2, 66.6666667));
@@ -864,11 +887,15 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(12, 9, 0.6, 0.029, 0.0174, 1500, 2.9, 100));
@@ -1000,12 +1027,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName2 = "Time Period 2.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod1 = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod1, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod1).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod1).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(12, 9, 0.6, 0.029, 0.0174, 1500, 2.9, 100));
@@ -1233,12 +1265,16 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(12, 9, 0.6, 0.029, 0.0174, 1500, 2.9, 100));
@@ -1364,12 +1400,16 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = 500;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath,
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
 					maxIterations, 0.0, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1)
 					.add(new LinkSegmentExpectedResultsDto(12, 9, 0.6, 0.029, 0.0174, 1500, 2.9, 100));
@@ -1497,17 +1537,23 @@ public class PlanItIOIntegrationTest {
 			BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = (physicalNetwork,
 					bprLinkTravelTimeCost) -> {
 				MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
-				MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
-						.findMacroscopicLinkSegmentTypeByExternalId(1);
-				Mode mode = Mode.getByExternalId(2);
+				MacroscopicLinkSegmentType macroscopiclinkSegmentType = 
+						macroscopicNetwork.findMacroscopicLinkSegmentTypeByExternalId(1);
+				Mode mode = macroscopicNetwork.modes.findModeByExternalIdentifier(2);
 				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 			};
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description);
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			Mode mode2 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(2);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
+
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(11, 1, 3000, 0.0370117, 111.03515625, 3600.0, 1.0, 27.0184697));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 4, 1926, 0.0719659, 249.166142789938, 1200.0, 1.0, 13.8954751));
@@ -1516,7 +1562,6 @@ public class PlanItIOIntegrationTest {
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(2, 4, 6, 0.0447625, 360.739551669332, 1200.0, 2.0, 44.6802634));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 3, 1068, 0.0360526, 399.241706545674, 1200.0, 1.0, 27.7372551));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526, 437.743861422015, 1200.0, 1.0, 27.7372551));
-			Mode mode2 = Mode.getByExternalId(Long.valueOf(2));
 			resultsMap.get(timePeriod).put(mode2, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732, 95.5098040283147, 3600.0, 1.0, 15.705194));
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732, 191.019608056629, 3600.0, 1.0, 15.705194));
@@ -1557,7 +1602,7 @@ public class PlanItIOIntegrationTest {
 				MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
 				MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
 						.findMacroscopicLinkSegmentTypeByExternalId(1);
-				Mode mode = Mode.getByExternalId(2);
+				Mode mode = macroscopicNetwork.modes.findModeByExternalIdentifier(2);
 				bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 			};
 
@@ -1570,16 +1615,20 @@ public class PlanItIOIntegrationTest {
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
 					linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
 				} catch (PlanItException e) {
-					PlanItLogger.severe(e.getMessage());
 					fail(e.getMessage());
 				}
 			};
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			Mode mode2 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(2);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode1 = Mode.getByExternalId(Long.valueOf(1));
 			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(0, 3000, 0.0370117, 111.03515625, 3600.0, 1.0, 27.0184697));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 1926, 0.0719659, 249.166142789938, 1200.0, 1.0, 13.8954751));
@@ -1588,7 +1637,6 @@ public class PlanItIOIntegrationTest {
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(4, 6, 0.0447625, 360.739551669332, 1200.0, 2.0, 44.6802634));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(5, 1068, 0.0360526, 399.241706545674, 1200.0, 1.0, 27.7372551));
 			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 1068, 0.0360507068130539, 437.743861422015, 1200.0, 1.0, 27.7372551));
-			Mode mode2 = Mode.getByExternalId(Long.valueOf(2));
 			resultsMap.get(timePeriod).put(mode2, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(0, 1500, 0.0636732, 95.5098040283147, 3600.0, 1.0, 15.705194));
 			resultsMap.get(timePeriod).get(mode2).add(new LinkSegmentExpectedResultsDto(2, 1500, 0.0636732, 191.019608056629, 3600.0, 1.0, 15.705194));
@@ -1620,13 +1668,17 @@ public class PlanItIOIntegrationTest {
 			String xmlFileName = "Time Period 1.xml";
 			Integer maxIterations = null;
 
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignment(projectPath, null,	description);
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath, null,	description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode = Mode.getByExternalId(Long.valueOf(1));
-			resultsMap.get(timePeriod).put(mode, new TreeSet<LinkSegmentExpectedResultsDto>());
-			resultsMap.get(timePeriod).get(mode).add(new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 10.0, 2000.0, 10.0, 1.0));
+			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
+			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 10.0, 2000.0, 10.0, 1.0));
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
 			runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
 			runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName, xmlFileName);
@@ -1650,13 +1702,17 @@ public class PlanItIOIntegrationTest {
 		String xmlFileName = "Time Period 1.xml";
 		Integer maxIterations = null;
 		try {
-			MemoryOutputFormatter memoryOutputFormatter = TestHelper.setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description);
+			Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description);
+			MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
+			PlanItProject project = testOutput.getSecond();
+			
+			Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+			
 			SortedMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>> resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>>();
 			TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
 			resultsMap.put(timePeriod, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
-			Mode mode = Mode.getByExternalId(Long.valueOf(1));
-			resultsMap.get(timePeriod).put(mode, new TreeSet<LinkSegmentExpectedResultsDto>());
-			resultsMap.get(timePeriod).get(mode).add(new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 10.0, 2000.0, 10.0, 1.0));
+			resultsMap.get(timePeriod).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
+			resultsMap.get(timePeriod).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 10.0, 2000.0, 10.0, 1.0));
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations, resultsMap);
 			fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
 		} catch (Exception pe) {
@@ -1673,5 +1729,4 @@ public class PlanItIOIntegrationTest {
 			fail(e.getMessage());
 		}
 	}
-
 }

@@ -14,16 +14,17 @@ import org.planit.generated.XMLElementLinkSegment;
 import org.planit.generated.XMLElementLinks;
 import org.planit.generated.XMLElementNodes;
 import org.planit.geo.PlanitGeoUtils;
-import org.planit.network.physical.Link;
-import org.planit.network.physical.LinkSegment;
-import org.planit.network.physical.Node;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
+import org.planit.network.physical.NodeImpl;
+import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentImpl;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.planitio.xml.util.XmlUtils;
-
+import org.planit.utils.network.physical.Link;
+import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.Mode;
+import org.planit.utils.network.physical.Node;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
@@ -101,15 +102,15 @@ public class ProcessInfrastructure {
 	 * @param linkSegmentType object storing the input values for this link
 	 * @param noLanes         the number of lanes in this link
 	 * @param externalId      the external Id of this link segment
+	 * @param modeProperties properties of the link segment type for each mode
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private static void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection,
 			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes, long externalId,
-			MacroscopicLinkSegmentTypeModeProperties modeProperties) throws PlanItException {
+			Map<Mode, MacroscopicModeProperties> modeProperties) throws PlanItException {
 
 		// create the link and store it in the network object
-		MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) network.linkSegments
-				.createDirectionalLinkSegment(link, abDirection);
+		MacroscopicLinkSegmentImpl linkSegment = (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
 		linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
 		linkSegment.setNumberOfLanes(noLanes);
 		linkSegment.setExternalId(externalId);
@@ -135,7 +136,7 @@ public class ProcessInfrastructure {
 			throws PlanItException {
 		for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
-			Node node = new Node();
+			NodeImpl node = (NodeImpl) network.nodes.registerNewNode();
 			node.setExternalId(generatedNode.getId().longValue());
 			PointType pointType = generatedNode.getPoint();
 			if (pointType != null) {
@@ -153,11 +154,11 @@ public class ProcessInfrastructure {
 	 *                           file
 	 * @param network            network the physical network object to be populated
 	 *                           from the input data
-	 * @param linkSegmentTypeMap Map of link segment types
+	 * @param linkSegmentTypeHelperMap Map of MacroscopicLinkSegmentTypeXmlHelper objects
 	 * @throws PlanItException thrown if there is an error during processing
 	 */
 	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
-			MacroscopicNetwork network, Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap)
+			MacroscopicNetwork network, Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap)
 			throws PlanItException {
 		for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
 			long startNodeId = generatedLink.getNodearef().longValue();
@@ -172,22 +173,21 @@ public class ProcessInfrastructure {
 						"Error in network XML file: Must define either a length or GML LineString for link from node "
 								+ startNodeId + " to node " + endNodeId);
 			}
-			Link link = network.links.registerNewLink(startNode, endNode, length);
+			Link link = network.links.registerNewLink(startNode, endNode, length, "");
 			for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
 				int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
 						: generatedLinkSegment.getNumberoflanes().intValue();
 				int linkType = generatedLinkSegment.getTyperef().intValue();
 				long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
+				MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);
 				// TODO - We should be able to set the maximum speed for individual link
 				// segments in the network XML file. This is where we would update it. However
 				// we would then need to set it for
 				// every mode. We need to change the XSD file to specify how to do this.
 
-				MacroscopicLinkSegmentTypeModeProperties modeProperties = linkSegmentType
-						.getMacroscopicLinkSegmentTypeModeProperties();
+				Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
 				boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
-				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, linkSegmentExternalId, modeProperties);
+				generateAndRegisterLinkSegment(network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties);
 			}
 		}
 	}
