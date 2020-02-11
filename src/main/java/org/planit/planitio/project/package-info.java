@@ -1,7 +1,6 @@
 /**
+ * Simple implementations of CustomPlanItProject
  * 
- */
-/**
  * @author mraa2518
  *
  */
