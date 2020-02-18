@@ -117,9 +117,9 @@ public class PlanItIOIntegrationTest {
 					initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
-			String linkSegmentExternalIdHeader = LinkSegmentExternalIdOutputProperty.LINK_SEGMENT_EXTERNAL_ID;
-			String costHeader = LinkCostOutputProperty.LINK_COST;
+			String modeHeader = ModeExternalIdOutputProperty.NAME;
+			String linkSegmentExternalIdHeader = LinkSegmentExternalIdOutputProperty.NAME;
+			String costHeader = LinkCostOutputProperty.NAME;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(modeExternalId);
@@ -154,10 +154,10 @@ public class PlanItIOIntegrationTest {
 					initialCostsFileLocation);
 			Reader in = new FileReader(initialCostsFileLocationExternalId);
 			CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			String modeHeader = ModeExternalIdOutputProperty.MODE_EXTERNAL_ID;
-			String upstreamNodeExternalIdHeader = UpstreamNodeExternalIdOutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
-			String downstreamNodeExternalIdHeader = DownstreamNodeExternalIdOutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID;
-			String costHeader = LinkCostOutputProperty.LINK_COST;
+			String modeHeader = ModeExternalIdOutputProperty.NAME;
+			String upstreamNodeExternalIdHeader = UpstreamNodeExternalIdOutputProperty.NAME;
+			String downstreamNodeExternalIdHeader = DownstreamNodeExternalIdOutputProperty.NAME;
+			String costHeader = LinkCostOutputProperty.NAME;
 			for (CSVRecord record : parser) {
 				long modeExternalId = Long.parseLong(record.get(modeHeader));
 				Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(modeExternalId);
