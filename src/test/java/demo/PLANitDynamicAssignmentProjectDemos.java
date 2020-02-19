@@ -37,7 +37,6 @@ public class PLANitDynamicAssignmentProjectDemos {
         	//TODO: not great that we must register it separately as an option. Probably better to simply
         	//allow any implementation of the registered (meta)types and not bother with the actual implemented subclasses
         	project.registerEligibleTrafficComponentClass(ELTM.class);
-
         	project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
 
             project.executeAllTrafficAssignments();
