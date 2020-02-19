@@ -359,7 +359,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
             }
             csvIterationPrinter.close();
         } catch (Exception e)  {
-            throw new PlanItException(e);
+             throw new PlanItException(e);
         } 
         
         return csvFileName;

@@ -21,10 +21,10 @@ import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegme
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.utils.network.physical.Link;
 import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentTypeModeProperties;
-
+import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
@@ -102,11 +102,12 @@ public class ProcessInfrastructure {
 	 * @param linkSegmentType object storing the input values for this link
 	 * @param noLanes         the number of lanes in this link
 	 * @param externalId      the external Id of this link segment
+	 * @param modeProperties properties of the link segment type for each mode
 	 * @throws PlanItException thrown if there is an error
 	 */
 	private static void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection,
 			MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes, long externalId,
-			MacroscopicLinkSegmentTypeModeProperties modeProperties) throws PlanItException {
+			Map<Mode, MacroscopicModeProperties> modeProperties) throws PlanItException {
 
 		// create the link and store it in the network object
 		MacroscopicLinkSegmentImpl linkSegment = (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
@@ -153,11 +154,11 @@ public class ProcessInfrastructure {
 	 *                           file
 	 * @param network            network the physical network object to be populated
 	 *                           from the input data
-	 * @param linkSegmentTypeMap Map of link segment types
+	 * @param linkSegmentTypeHelperMap Map of MacroscopicLinkSegmentTypeXmlHelper objects
 	 * @throws PlanItException thrown if there is an error during processing
 	 */
 	public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
-			MacroscopicNetwork network, Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeMap)
+			MacroscopicNetwork network, Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap)
 			throws PlanItException {
 		for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
 			long startNodeId = generatedLink.getNodearef().longValue();
@@ -178,16 +179,15 @@ public class ProcessInfrastructure {
 						: generatedLinkSegment.getNumberoflanes().intValue();
 				int linkType = generatedLinkSegment.getTyperef().intValue();
 				long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = linkSegmentTypeMap.get(linkType);
+				MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);
 				// TODO - We should be able to set the maximum speed for individual link
 				// segments in the network XML file. This is where we would update it. However
 				// we would then need to set it for
 				// every mode. We need to change the XSD file to specify how to do this.
 
-				MacroscopicLinkSegmentTypeModeProperties modeProperties = linkSegmentType
-						.getMacroscopicLinkSegmentTypeModeProperties();
+				Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
 				boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
-				generateAndRegisterLinkSegment(network, link, abDirection, linkSegmentType, noLanes, linkSegmentExternalId, modeProperties);
+				generateAndRegisterLinkSegment(network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties);
 			}
 		}
 	}

@@ -44,20 +44,19 @@ public class ProcessLinkConfiguration {
 	}
 	
 	/**
-	 * Reads link type values from input file and stores them in a Map
+	 * Reads MacroscopicLinkSegmentTypeXmlHelper objects from input file and stores them in a Map
 	 * 
 	 * @param linkconfiguration LinkConfiguration object populated with data from XML file
 	 * @param modesByExternalIdMap identified modes by their external id
 	 * @return Map containing link type values
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
-	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeMap(
+	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeHelperMap(
 			XMLElementLinkConfiguration linkconfiguration, 
 			Map<Long, Mode> modesByExternalIdMap) throws PlanItException {
 		MacroscopicLinkSegmentTypeXmlHelper.reset();
-		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
-		for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
-				.getLinksegmenttype()) {
+		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> macroscopicLinkSegmentTypeXmlHelperMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
+		for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes().getLinksegmenttype()) {
 			int type = linkSegmentTypeGenerated.getId().intValue();
 			String name = linkSegmentTypeGenerated.getName();
 			double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null)
@@ -72,12 +71,12 @@ public class ProcessLinkConfiguration {
 						: mode.getMaxspeed();
 				double critSpeed = (mode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED
 						: mode.getCritspeed();
-				MacroscopicLinkSegmentTypeXmlHelper linkSegmentType = MacroscopicLinkSegmentTypeXmlHelper
-						.createOrUpdateLinkSegmentType(name, capacity, maximumDensity, maxSpeed, critSpeed, modeExternalId,	type, modesByExternalIdMap);
-				linkSegmentMap.put(type, linkSegmentType);
+				MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = MacroscopicLinkSegmentTypeXmlHelper
+						.createOrUpdateLinkSegmentTypeHelper(name, capacity, maximumDensity, maxSpeed, critSpeed, modeExternalId,	type, modesByExternalIdMap);
+				macroscopicLinkSegmentTypeXmlHelperMap.put(type, macroscopicLinkSegmentTypeXmlHelper);
 			}
 		}
-		return linkSegmentMap;
+		return macroscopicLinkSegmentTypeXmlHelperMap;
 	}
 
 }

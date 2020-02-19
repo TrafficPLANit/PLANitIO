@@ -556,12 +556,12 @@ public class TestHelper {
 
 		registerInitialCosts.accept(taBuilder, project, physicalNetwork);
 
-        final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
-        if (!exceptionMap.keySet().isEmpty()) {
-        	for (final long id : exceptionMap.keySet() ) {
-        		throw exceptionMap.get(id);
-        	}
-        }
+    final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
+    if (!exceptionMap.keySet().isEmpty()) {
+     	for (final long id : exceptionMap.keySet() ) {
+     		throw exceptionMap.get(id);
+    	}
+    }
 		return new Pair<MemoryOutputFormatter, PlanItProject>(memoryOutputFormatter,project);
 	}
 

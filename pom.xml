@@ -34,6 +34,12 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.planit.utils</groupId>
+			<artifactId>PLANitUtils</artifactId>
+			<version>${planitutils.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.planit.ltm</groupId>
 			<artifactId>PLANitLTM</artifactId>
 			<version>${planitltm.version}</version>
