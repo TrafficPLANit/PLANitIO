@@ -20,8 +20,9 @@
 			soon. Upgrade to the new release when it becomes available -->
 		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
 		<project.build.directory>target</project.build.directory>
-		<planit.version>0.0.3-beta</planit.version>
+		<planit.version>0.0.3-beta</planit.version>		
 		<planitltm.version>0.0.3-beta</planitltm.version>
+		<planitutils.version>0.0.3-beta</planitutils.version>
 	</properties>
 
 	<dependencies>
@@ -36,6 +37,12 @@
 			<groupId>org.planit.ltm</groupId>
 			<artifactId>PLANitLTM</artifactId>
 			<version>${planitltm.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.planit.utils</groupId>
+			<artifactId>PLANitUtils</artifactId>
+			<version>${planitutils.version}</version>
 		</dependency>
 			
 		<dependency>

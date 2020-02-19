@@ -32,6 +32,11 @@ public class PLANitDynamicAssignmentProjectDemos {
         try{
         	// Create a simple PLANit project with all the default settings
         	final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
+        	// register ELTM as eligible assignment
+        	
+        	//TODO: not great that we must register it separately as an option. Probably better to simply
+        	//allow any implementation of the registered (meta)types and not bother with the actual implemented subclasses
+        	project.registerEligibleTrafficComponentClass(ELTM.class);
 
         	project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
 
