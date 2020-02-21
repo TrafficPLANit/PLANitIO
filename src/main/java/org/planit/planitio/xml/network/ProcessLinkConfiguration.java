@@ -52,8 +52,7 @@ public class ProcessLinkConfiguration {
 	 * @throws PlanItException thrown if there is an error reading the input file
 	 */
 	public static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeHelperMap(
-			XMLElementLinkConfiguration linkconfiguration, 
-			Map<Long, Mode> modesByExternalIdMap) throws PlanItException {
+			XMLElementLinkConfiguration linkconfiguration, Map<Long, Mode> modesByExternalIdMap) throws PlanItException {
 		MacroscopicLinkSegmentTypeXmlHelper.reset();
 		Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> macroscopicLinkSegmentTypeXmlHelperMap = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
 		for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes().getLinksegmenttype()) {

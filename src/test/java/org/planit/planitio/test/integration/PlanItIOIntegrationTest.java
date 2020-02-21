@@ -404,11 +404,9 @@ public class PlanItIOIntegrationTest {
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(4, 5, 1, 10, 20, 2000, 10, 1));
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 30, 2000, 10, 1));
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(8, 3, 1, 8, 38, 2000, 8, 1));
-			resultsMap.get(timePeriod1).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(5, 10, 1, 10, 48, 2000, 10, 1));
+			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(5, 10, 1, 10, 48, 2000, 10, 1));
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 60, 2000, 12, 1));
-			resultsMap.get(timePeriod1).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 72, 2000, 12, 1));
+			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 72, 2000, 12, 1));
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 77, 2000, 5, 1));
 			resultsMap.get(timePeriod1).get(mode1).add(new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 85, 2000, 8, 1));
 
@@ -416,11 +414,9 @@ public class PlanItIOIntegrationTest {
 			resultsMap.put(timePeriod2, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
 			resultsMap.get(timePeriod2).put(mode1, new TreeSet<LinkSegmentExpectedResultsDto>());
 			resultsMap.get(timePeriod2).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 10, 2000, 10, 1));
-			resultsMap.get(timePeriod2).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 22, 2000, 12, 1));
+			resultsMap.get(timePeriod2).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 22, 2000, 12, 1));
 			resultsMap.get(timePeriod2).get(mode1).add(new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 30, 2000, 8, 1));
-			resultsMap.get(timePeriod2).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(12, 13, 1, 47, 77, 2000, 47, 1));
+			resultsMap.get(timePeriod2).get(mode1).add(new LinkSegmentExpectedResultsDto(12, 13, 1, 47, 77, 2000, 47, 1));
 
 			TimePeriod timePeriod3 = TimePeriod.getById(Long.valueOf(2));
 			resultsMap.put(timePeriod3, new TreeMap<Mode, SortedSet<LinkSegmentExpectedResultsDto>>());
@@ -428,16 +424,12 @@ public class PlanItIOIntegrationTest {
 			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 10, 2000, 10, 1));
 			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 22, 2000, 12, 1));
 			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(8, 9, 1, 20, 42, 2000, 20, 1));
-			resultsMap.get(timePeriod3).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 54, 2000, 12, 1));
+			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 54, 2000, 12, 1));
 			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 59, 2000, 5, 1));
-			resultsMap.get(timePeriod3).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(9, 14, 1, 10, 69, 2000, 10, 1));
+			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(9, 14, 1, 10, 69, 2000, 10, 1));
 			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 77, 2000, 8, 1));
-			resultsMap.get(timePeriod3).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(14, 15, 1, 10, 87, 2000, 10, 1));
-			resultsMap.get(timePeriod3).get(mode1)
-					.add(new LinkSegmentExpectedResultsDto(15, 20, 1, 21, 108, 2000, 21, 1));
+			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(14, 15, 1, 10, 87, 2000, 10, 1));
+			resultsMap.get(timePeriod3).get(mode1).add(new LinkSegmentExpectedResultsDto(15, 20, 1, 21, 108, 2000, 21, 1));
 
 			TestHelper.compareResultsToMemoryOutputFormatter(OutputType.LINK, memoryOutputFormatter, maxIterations,
 					resultsMap);

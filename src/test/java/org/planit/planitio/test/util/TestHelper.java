@@ -103,11 +103,14 @@ public class TestHelper {
 					final OutputProperty[] outputValueProperties = memoryOutputFormatter.getOutputValueProperties(outputType);
 					final Object[] keyValues = new Object[outputKeyProperties.length];
 					if (keyValues.length == 2) {
-						keyValues[0] = Long.valueOf((int) resultDto.getStartNodeId());
-						keyValues[1] = Long.valueOf((int) resultDto.getEndNodeId());
+	          final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iterationIndex, OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+	          final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iterationIndex, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+	          keyValues[downstreamNodeExternalIdPosition] = Long.valueOf((int) resultDto.getStartNodeId());
+	          keyValues[upstreamNodeExternalIdPosition] = Long.valueOf((int) resultDto.getEndNodeId());
 					}
 					if (keyValues.length == 1) {
-						keyValues[0] = Long.valueOf((int) resultDto.getLinkSegmentId());
+					  final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iterationIndex, OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
+					  keyValues[linkSegmentIdPosition] = Long.valueOf((int) resultDto.getLinkSegmentId());
 					}
 					for (int i = 0; i < outputValueProperties.length; i++) {
 						switch (outputValueProperties[i]) {

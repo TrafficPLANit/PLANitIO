@@ -88,8 +88,8 @@ public class PlanItMain {
 		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
 				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
 		final MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
-		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
-				.findMacroscopicLinkSegmentTypeByExternalId(1);
+		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = 
+		    macroscopicNetwork.findMacroscopicLinkSegmentTypeByExternalId(1);
 		final Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
@@ -114,12 +114,12 @@ public class PlanItMain {
 		taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
 		taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 
-        final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
-        if (!exceptionMap.keySet().isEmpty()) {
-        	for (final long id : exceptionMap.keySet() ) {
-        		throw exceptionMap.get(id);
-        	}
-        }
+    final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
+    if (!exceptionMap.keySet().isEmpty()) {
+    	for (final long id : exceptionMap.keySet() ) {
+     		throw exceptionMap.get(id);
+    	}
+    }
 
 	}
 }
