@@ -47,8 +47,8 @@ import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
-import org.planit.utils.FiveFunction;
 import org.planit.utils.TriConsumer;
+import org.planit.utils.TriFunction;
 import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Mode;
@@ -84,13 +84,15 @@ public class TestHelper {
    *          results from a test run
    * @param iteration the current iteration index
    * @param resultsMap Map containing the standard results for each time period and mode
-   * @param getResultDto function which generates the known result for each iteration
+   * @param getPositionKeys lambda function which generates the position of the key(s) in the key array
+   * @param getResultDto lambda function which generates the known result for each iteration
    * @throws PlanItException thrown if there is an error
    */
   private static void compareResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, ? extends SortedMap<Mode, ? extends Object>> resultsMap,
-      FiveFunction<Mode, TimePeriod, Integer, Object, Object[], Object> getResultDto) throws PlanItException {
+      TriFunction<Mode, TimePeriod, Integer, Object> getPositionKeys,
+      TriFunction<Pair<Integer, Integer>, Object, Object[], LinkSegmentExpectedResultsDto> getResultDto) throws PlanItException {
     final int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
     for (final TimePeriod timePeriod : resultsMap.keySet()) {
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
@@ -109,15 +111,16 @@ public class TestHelper {
             iteration, OutputType.LINK, OutputProperty.NUMBER_OF_LANES);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod,
             iteration, OutputType.LINK);
+        Object obj = getPositionKeys.apply(mode, timePeriod, iteration);
+        if (obj instanceof PlanItException) {
+          PlanItException pe = (PlanItException) obj;
+          throw pe;
+        }
+       
+        Pair<Integer, Integer> positionKeys = (Pair<Integer, Integer>) obj;
         while (memoryOutputIterator.hasNext()) {
           final Object[] keys = memoryOutputIterator.getKeys();
-          Object obj = getResultDto.apply(mode, timePeriod, iteration, innerMap, keys);
-          if (obj instanceof PlanItException) {
-            PlanItException pe = (PlanItException) obj;
-            throw pe;
-          }
-          LinkSegmentExpectedResultsDto resultDto = (LinkSegmentExpectedResultsDto) obj;
-
+          LinkSegmentExpectedResultsDto resultDto = getResultDto.apply(positionKeys, innerMap, keys);
           final Object[] results = memoryOutputIterator.getValues();
           final double flow = (Double) results[flowPosition];
           final double cost = (Double) results[costPosition];
@@ -134,7 +137,7 @@ public class TestHelper {
       }
     }
   }
-
+ 
   /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
    * object to known results stored in a Map. It generates a JUnit test failure if
@@ -155,23 +158,28 @@ public class TestHelper {
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap)
       throws PlanItException {
     compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
-        (mode, timePeriod, iteration, innerObj, keys) -> {
+        (mode, timePeriod, iteration) -> {
           try {
-            SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>> innerMap =
-                (SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>) innerObj;
-            final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
-                timePeriod, iteration, OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
-            final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
-                timePeriod, iteration, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
-            long upstreamNodeExternalId = (Long) keys[downstreamNodeExternalIdPosition];
-            long downstreamNodeExternalId = (Long) keys[upstreamNodeExternalIdPosition];
-            return innerMap.get(upstreamNodeExternalId).get(downstreamNodeExternalId);
+          final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
+              timePeriod, iteration, OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+          final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
+              timePeriod, iteration, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+          return new Pair<Integer, Integer>(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
           } catch (PlanItException pe) {
             return pe;
           }
+        },
+        (positionKeys, innerObj, keys) -> {
+          final SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>> innerMap =
+              (SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>) innerObj;
+          final int downstreamNodeExternalIdPosition = positionKeys.getFirst();
+          final int upstreamNodeExternalIdPosition = positionKeys.getSecond();
+          final long upstreamNodeExternalId = (Long) keys[downstreamNodeExternalIdPosition];
+          final long downstreamNodeExternalId = (Long) keys[upstreamNodeExternalIdPosition];
+          return innerMap.get(upstreamNodeExternalId).get(downstreamNodeExternalId);
         });
   }
-
+  
   /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
    * object to known results stored in a Map. It generates a JUnit test failure if
@@ -192,16 +200,20 @@ public class TestHelper {
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap)
       throws PlanItException {
     compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
-        (mode, timePeriod, iteration, innerObj, keys) -> {
+        (mode, timePeriod, iteration) -> {
           try {
-            SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
             final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod,
                 iteration, OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
-            long linkSegmentId = (Long) keys[linkSegmentIdPosition];
-            return innerMap.get(linkSegmentId);
+          return new Pair<Integer, Integer>(linkSegmentIdPosition, 0);
           } catch (PlanItException pe) {
             return pe;
           }
+        },
+        (positionKeys, innerObj, keys) -> {
+          final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
+          final int linkSegmentIdPosition = positionKeys.getFirst();
+          final long linkSegmentId = (Long) keys[linkSegmentIdPosition];
+          return innerMap.get(linkSegmentId);
         });
   }
 

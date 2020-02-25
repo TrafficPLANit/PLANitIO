@@ -3,7 +3,7 @@ package org.planit.planitio.test.integration;
 /**
  * DTO object containing extra fields specific to BPR function
  * 
- * The first
+ * February 2020:  At present only the speed, length, flow, cost and capacity properties are being used in testing.
  * 
  * @author gman6028
  *
@@ -36,10 +36,6 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	 */
 	private long linkSegmentId;
 	
-	public long getLinkSegmentId() {
-		return linkSegmentId;
-	}
-
 	/**
 	 * Link flow
 	 */
@@ -70,7 +66,7 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	 * @param length             length of the link
 	 * @param speed              travel speed of the link
 	 */
-	public LinkSegmentExpectedResultsDto(long endNodeId, long startNodeId, double linkFlow, double linkCost, double totalCostToEndNode, double capacity, double length, double speed) {
+	public LinkSegmentExpectedResultsDto(long startNodeId, long endNodeId, double linkFlow, double linkCost, double totalCostToEndNode, double capacity, double length, double speed) {
 		this.startNodeId = startNodeId;
 		this.endNodeId = endNodeId;
 		this.linkSegmentId = -1;
@@ -251,6 +247,15 @@ public class LinkSegmentExpectedResultsDto implements Comparable<LinkSegmentExpe
 	public void setTotalCost(double totalCostToEndNode) {
 		this.totalCostToEndNode = totalCostToEndNode;
 	}
+	
+	/**
+	 * Return the link segment Id
+	 * 
+	 * @return the link segment Id
+	 */
+  public long getLinkSegmentId() {
+    return linkSegmentId;
+  }
 
 	/**
 	 * Compare this DTO with another using cumulative travel time
