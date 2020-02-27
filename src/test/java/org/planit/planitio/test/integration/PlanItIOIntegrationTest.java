@@ -1870,31 +1870,31 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode1).put((long) 0, new LinkSegmentExpectedResultsDto(11, 1, 3000, 0.0370117,
           111.03515625, 3600.0, 1.0, 27.0184697));
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new LinkSegmentExpectedResultsDto(1, 2, 6, 0.0447625,
-          360.470425354635, 1200.0, 2.0, 44.6802634));
-      resultsMap.get(timePeriod).get(mode1).put((long) 5, new LinkSegmentExpectedResultsDto(1, 3, 1068, 0.0360526,
-          399.241706545674, 1200.0, 1.0, 27.7372551));
       resultsMap.get(timePeriod).get(mode1).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1926, 0.0719659,
           249.166142789938, 1200.0, 1.0, 13.8954751));
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new LinkSegmentExpectedResultsDto(2, 4, 6, 0.0447625,
-          360.739551669332, 1200.0, 2.0, 44.6802634));
-      resultsMap.get(timePeriod).get(mode1).put((long) 6, new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526,
-          437.743861422015, 1200.0, 1.0, 27.7372551));
       resultsMap.get(timePeriod).get(mode1).put((long) 2, new LinkSegmentExpectedResultsDto(4, 12, 3000, 0.0370117,
           360.201299039938, 3600.0, 1.0, 27.0184697));
+      resultsMap.get(timePeriod).get(mode1).put((long) 3, new LinkSegmentExpectedResultsDto(1, 2, 6, 0.0447625,
+          360.470425354635, 1200.0, 2.0, 44.6802634));
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new LinkSegmentExpectedResultsDto(2, 4, 6, 0.0447625,
+          360.739551669332, 1200.0, 2.0, 44.6802634));
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new LinkSegmentExpectedResultsDto(1, 3, 1068, 0.0360526,
+          399.241706545674, 1200.0, 1.0, 27.7372551));
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526,
+          437.743861422015, 1200.0, 1.0, 27.7372551));
       resultsMap.get(timePeriod).put(mode2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode2).put((long) 0, new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732,
           95.5098040283147, 3600.0, 1.0, 15.705194));
-      resultsMap.get(timePeriod).get(mode2).put((long) 3, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332,
-          257.397693017887, 1200.0, 2.0, 32.8228128));
-      resultsMap.get(timePeriod).get(mode2).put((long) 5, new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639,
-          349.067549843147, 1200.0, 1.0, 16.296231));
-      resultsMap.get(timePeriod).get(mode2).put((long) 4, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332,
-          323.775777979144, 1200.0, 2.0, 32.8228128));
-      resultsMap.get(timePeriod).get(mode2).put((long) 6, new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639,
-          374.359321707149, 1200.0, 1.0, 16.296231));
       resultsMap.get(timePeriod).get(mode2).put((long) 2, new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732,
           191.019608056629, 3600.0, 1.0, 15.705194));
+      resultsMap.get(timePeriod).get(mode2).put((long) 3, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332,
+          257.397693017887, 1200.0, 2.0, 32.8228128));
+      resultsMap.get(timePeriod).get(mode2).put((long) 4, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332,
+          323.775777979144, 1200.0, 2.0, 32.8228128));
+      resultsMap.get(timePeriod).get(mode2).put((long) 5, new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639,
+          349.067549843147, 1200.0, 1.0, 16.296231));
+      resultsMap.get(timePeriod).get(mode2).put((long) 6, new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639,
+          374.359321707149, 1200.0, 1.0, 16.296231));
       TestHelper.compareResultsToMemoryOutputFormatterUsingLinkSegmentId(memoryOutputFormatter, maxIterations,
           resultsMap);
 
