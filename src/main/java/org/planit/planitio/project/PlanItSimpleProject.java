@@ -95,7 +95,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         // parse the zoning system + register on assignment
         final Zoning zoning = this.createAndRegisterZoning(network);
         // parse the demands + register on assignment
-        final Demands demands = this.createAndRegisterDemands(zoning);
+        final Demands demands = this.createAndRegisterDemands(zoning, network);
 
         return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
     }
@@ -109,7 +109,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      * @param theZoning
      * @param thePhysicalNetwork
      */
-    @Override
+   @Override
 	public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(
     		final String trafficAssignmentType,
     		final Demands theDemands,

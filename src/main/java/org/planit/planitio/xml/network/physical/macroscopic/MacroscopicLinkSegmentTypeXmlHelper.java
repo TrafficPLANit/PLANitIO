@@ -1,8 +1,10 @@
 package org.planit.planitio.xml.network.physical.macroscopic;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicModePropertiesImpl;
 import org.planit.utils.network.physical.Mode;
@@ -19,7 +21,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
   /**
    * External reference number of link type
    */
-  private int externalId;
+  private Object externalId;
 
   /**
    * Name of link type
@@ -49,7 +51,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
   /**
    * Map of existing link types
    */
-  private static Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> existingLinkTypeHelpers;
+  private static Map<Object, MacroscopicLinkSegmentTypeXmlHelper> existingLinkTypeHelpers;
 
   /**
    * Update an existing MacroscopicLinkSegmentTypeXmlHelper
@@ -63,8 +65,9 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    *          type
    * @param externalId id number of the link type
    */
-  private static void updateLinkSegmentTypeHelper(MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper,
-      Mode mode, double maxSpeed, double critSpeed, int externalId) {
+  private static void updateLinkSegmentTypeHelper(
+      MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper,
+      Mode mode, double maxSpeed, double critSpeed, Object externalId) {
     if (maxSpeed < 0.0) {
       PlanItLogger.warning("A negative maximum speed has been defined for Link Type "
           + macroscopicLinkSegmentTypeXmlHelper.getName()
@@ -82,7 +85,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * Reset the store of existing links
    */
   public static void reset() {
-    existingLinkTypeHelpers = new HashMap<Integer, MacroscopicLinkSegmentTypeXmlHelper>();
+    existingLinkTypeHelpers = new HashMap<Object, MacroscopicLinkSegmentTypeXmlHelper>();
   }
 
   /**
@@ -98,21 +101,25 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * @param critSpeed critical speed
    * @param modeExternalId reference to the mode used in the XML input file
    * @param linkTypeExternalId id number of the link type
-   * @param modesByExternalIdMap available modes by external id
+   * @param modes list of registered modes 
+   * @param inputBuilderLister parser containing Map of modes by external Id
    * @return MacroscopicLinkSegmentTypeXmlHelper object, created or updated to include
    *         data from current row in the XML file
    */
-  public static MacroscopicLinkSegmentTypeXmlHelper createOrUpdateLinkSegmentTypeHelper(String name, double capacityPerLane,
-      double maximumDensityPerLane, double maxSpeed, double critSpeed, long modeExternalId, int linkTypeExternalId,
-      Map<Long, Mode> modesByExternalIdMap) {
+  public static MacroscopicLinkSegmentTypeXmlHelper createOrUpdateLinkSegmentTypeHelper(String name,
+      double capacityPerLane,
+      double maximumDensityPerLane, double maxSpeed, double critSpeed, long modeExternalId, Object linkTypeExternalId,
+      List<Mode> modes,
+      InputBuilderListener inputBuilderListener) {
+      //Map<Object, Mode> modesByExternalIdMap) {
     MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper;
     if (!existingLinkTypeHelpers.containsKey(linkTypeExternalId)) {
       if (capacityPerLane == 0.0) {
         PlanItLogger.warning(
             "Link Type " + name + " initially defined without a capacity, being given a capacity of zero.");
       }
-      macroscopicLinkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name, capacityPerLane,
-          maximumDensityPerLane, linkTypeExternalId);
+      macroscopicLinkSegmentTypeXmlHelper = 
+          new MacroscopicLinkSegmentTypeXmlHelper(name, capacityPerLane, maximumDensityPerLane, linkTypeExternalId);
     } else {
       macroscopicLinkSegmentTypeXmlHelper = existingLinkTypeHelpers.get(linkTypeExternalId);
       if (capacityPerLane != macroscopicLinkSegmentTypeXmlHelper.getCapacityPerLane()) {
@@ -133,12 +140,13 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
       }
     }
     if (modeExternalId == 0) {
-      modesByExternalIdMap.values().forEach(eachMode -> {
-        updateLinkSegmentTypeHelper(macroscopicLinkSegmentTypeXmlHelper, eachMode, maxSpeed, critSpeed, linkTypeExternalId);
+      modes.forEach(eachMode -> {
+        updateLinkSegmentTypeHelper(macroscopicLinkSegmentTypeXmlHelper, eachMode, maxSpeed, critSpeed,
+            linkTypeExternalId);
       });
     } else {
-      updateLinkSegmentTypeHelper(macroscopicLinkSegmentTypeXmlHelper, modesByExternalIdMap.get(modeExternalId), maxSpeed,
-          critSpeed, linkTypeExternalId);
+      Mode mode = inputBuilderListener.getModeByExternalId(modeExternalId);
+      updateLinkSegmentTypeHelper(macroscopicLinkSegmentTypeXmlHelper, mode, maxSpeed, critSpeed, linkTypeExternalId);
     }
     return macroscopicLinkSegmentTypeXmlHelper;
   }
@@ -152,7 +160,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * @param externalId external Id of the link segment type
    */
   public MacroscopicLinkSegmentTypeXmlHelper(String name, double capacityPerLane, double maximumDensityPerLane,
-      int externalId) {
+      Object externalId) {
     this.name = name;
     this.capacityPerLane = capacityPerLane;
     this.maximumDensityPerLane = maximumDensityPerLane;
@@ -185,7 +193,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
     return speedMap;
   }
 
-  public int getExternalId() {
+  public Object getExternalId() {
     return externalId;
   }
 
@@ -193,7 +201,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
     return macroscopicLinkSegmentTypeModeProperties;
   }
 
-  public  void addMacroscopicModeProperties(Mode mode, MacroscopicModeProperties macroscopicModeProperties) {
+  public void addMacroscopicModeProperties(Mode mode, MacroscopicModeProperties macroscopicModeProperties) {
     macroscopicLinkSegmentTypeModeProperties.put(mode, macroscopicModeProperties);
   }
 

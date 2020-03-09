@@ -7,7 +7,6 @@ import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
-import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -71,13 +70,14 @@ public class PlanItMain {
 
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-		final InputBuilderListener inputBuilderListener = new PlanItInputBuilder(projectPath);
-		final CustomPlanItProject project = new CustomPlanItProject(inputBuilderListener);
-
+    PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+    final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
+		
+		
 		// RAW INPUT START --------------------------------
 		final PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
-		final Demands demands = project.createAndRegisterDemands(zoning);
+		final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
@@ -85,12 +85,10 @@ public class PlanItMain {
                 (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
                 		TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
-		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
-		final MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
-		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = 
-		    macroscopicNetwork.findMacroscopicLinkSegmentTypeByExternalId(1);
-		final Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(2);
+		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = 
+		    (BPRLinkTravelTimeCost) taBuilder.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = planItInputBuilder.getLinkSegmentTypeByExternalId((long) 1);
+		final Mode mode = planItInputBuilder.getModeByExternalId((long) 2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
@@ -101,7 +99,8 @@ public class PlanItMain {
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 
 		//OUTPUT FORMAT CONFIGURATION
-		final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+		final PlanItOutputFormatter xmlOutputFormatter = 
+		    (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
 		taBuilder.registerOutputFormatter( xmlOutputFormatter);
 		xmlOutputFormatter.setXmlDirectory("C:\\Users\\Public\\PlanIt\\Xml");
 		xmlOutputFormatter.setCsvDirectory("C:\\Users\\Public\\PlanIt\\Csv");

@@ -15,6 +15,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.djutils.event.EventInterface;
+import org.opengis.geometry.DirectPosition;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
@@ -27,7 +28,6 @@ import org.planit.generated.XMLElementMacroscopicNetwork;
 import org.planit.generated.XMLElementMacroscopicZoning;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
-import org.planit.generated.XMLElementZones.Zone;
 import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
@@ -49,11 +49,11 @@ import org.planit.planitio.xml.network.ProcessLinkConfiguration;
 import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.planitio.xml.zoning.UpdateZoning;
-import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Centroid;
+import org.planit.utils.network.virtual.Zone;
 
 /**
  * Class which reads inputs from XML input files
@@ -65,9 +65,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
   /** generated UID */
   private static final long serialVersionUID = -8928911341112445424L;
-
-  // Convenience map to store the modes by their external id
-  private Map<Long, Mode> modesByExternalIdMap;
 
   /**
    * Generated object to store input network data
@@ -381,7 +378,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private void setInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
       final LinkSegment linkSegment) throws PlanItException {
     final long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.NAME));
-    final Mode mode = modesByExternalIdMap.get(modeExternalId);
+    final Mode mode = getModeByExternalId(modeExternalId);
     if (mode == null) {
       throw new PlanItException("mode external id not available in configuration");
     }
@@ -438,9 +435,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
       throws PlanItException {
     final long upstreamNodeExternalId = Long.parseLong(record.get(startHeader));
     final long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
-    final LinkSegment linkSegment = network.linkSegments.getLinkSegmentByStartAndEndNodeExternalId(
-        upstreamNodeExternalId,
-        downstreamNodeExternalId);
+    final long startId = getNodeByExternalId(upstreamNodeExternalId).getId();
+    final long endId = getNodeByExternalId(downstreamNodeExternalId).getId();
+    final LinkSegment linkSegment = network.linkSegments.getLinkSegmentByStartAndEndNodeId(startId, endId);
+
     if (linkSegment == null) {
       throw new PlanItException("Failed to find link segment");
     }
@@ -460,12 +458,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
     try {
       final XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-      modesByExternalIdMap = ProcessLinkConfiguration.createModes(physicalNetwork, linkconfiguration);
-      final Map<Integer, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap =
-          ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, modesByExternalIdMap);
+      ProcessLinkConfiguration.createModes(physicalNetwork, linkconfiguration, this);
+      final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = 
+          ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, physicalNetwork.modes.toList(), this);
       final XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
-      ProcessInfrastructure.registerNodes(infrastructure, network);
-      ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap);
+      ProcessInfrastructure.registerNodes(infrastructure, network, this);
+      ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this);
     } catch (final Exception ex) {
       throw new PlanItException(ex);
     }
@@ -488,11 +486,18 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
     // create and register zones, centroids and connectoids
     try {
-      for (final Zone zone : macroscopiczoning.getZones().getZone()) {
-        final Centroid centroid = UpdateZoning.createAndRegisterZoneAndCentroid(zoning, zone);
-        UpdateZoning.registerNewConnectoid(zoning, nodes, zone, centroid);
+      for (final org.planit.generated.XMLElementZones.Zone xmlZone : macroscopiczoning.getZones().getZone()) {
+        long zoneExternalId = xmlZone.getId().longValue();
+        Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
+        addZoneToExternalIdMap(zone.getExternalId(), zone);
+        Centroid centroid = zone.getCentroid();
+        DirectPosition centrePointGeometry = UpdateZoning.getCentrePointGeometry(xmlZone);
+        centroid.setCentrePointGeometry(centrePointGeometry);
+        UpdateZoning.registerNewConnectoid(zoning, nodes, xmlZone, centroid, this);
       }
-    } catch (final Exception e) {
+    } catch (PlanItException pe) {
+      throw pe;
+    } catch (Exception e) {
       throw new PlanItException(e);
     }
   }
@@ -502,9 +507,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *
    * @param demands the Demands object to be populated from the input data
    * @param parameter1 Zoning object previously defined
+   * @param parameter2 PhysicalNetwork object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateDemands(@Nonnull final Demands demands, final Object parameter1) throws PlanItException {
+  protected void populateDemands(@Nonnull final Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     PlanItLogger.info("Populating Demands");
     if (!(parameter1 instanceof Zoning)) {
       PlanItLogger.severeWithException("Parameter of call to populateDemands() is not of class Zoning.");
@@ -512,12 +518,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final Zoning zoning = (Zoning) parameter1;
     try {
       final XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
-      final Map<Integer, TimePeriod> timePeriodMap = ProcessConfiguration.generateAndStoreConfigurationData(
-          demandconfiguration, modesByExternalIdMap);
-      final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands()
-          .getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-      UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, timePeriodMap, zoning.zones,
-          modesByExternalIdMap);
+      ProcessConfiguration.generateAndStoreConfigurationData(demandconfiguration, this);
+      final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
+      UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
     } catch (final Exception e) {
       throw new PlanItException(e);
     }
@@ -560,8 +563,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
           case LINK_SEGMENT_EXTERNAL_ID:
             updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record,
                 OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
-                LinkSegmentExternalIdOutputProperty.NAME, (id) -> {
-                  return network.linkSegments.getLinkSegmentByExternalId(id);
+                LinkSegmentExternalIdOutputProperty.NAME, (externalId) -> {
+                  return getLinkSegmentByExternalId(externalId);
                 });
             break;
           case UPSTREAM_NODE_EXTERNAL_ID:
@@ -606,6 +609,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           of them
    */
   public PlanItInputBuilder(final String projectPath, final String xmlNameExtension) throws PlanItException {
+    super();
     setInputFiles(projectPath, xmlNameExtension);
   }
 
@@ -647,7 +651,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         } else if (projectComponent instanceof Zoning) {
           populateZoning((Zoning) projectComponent, parameters[0]);
         } else if (projectComponent instanceof Demands) {
-          populateDemands((Demands) projectComponent, parameters[0]);
+          populateDemands((Demands) projectComponent, parameters[0], parameters[1]);
         } else if (projectComponent instanceof InitialPhysicalCost) {
           populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, parameters[0], parameters[1]);
         } else {

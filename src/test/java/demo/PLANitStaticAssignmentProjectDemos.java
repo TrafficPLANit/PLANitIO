@@ -77,7 +77,7 @@ public class PLANitStaticAssignmentProjectDemos {
             // INITIALISE INPUTS
             final PhysicalNetwork physicalNetwork             = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
             final Zoning zoning                               = project.createAndRegisterZoning(physicalNetwork);
-            final Demands demands                             = project.createAndRegisterDemands(zoning);
+            final Demands demands                             = project.createAndRegisterDemands(zoning, physicalNetwork);
             final InitialLinkSegmentCost initialCost          = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCsvCostFilePath, demands.getRegisteredTimePeriods().first());
             // INITIALISE OUTPUT FORMATTERS
             final PlanItOutputFormatter xmlOutputFormatter    = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
