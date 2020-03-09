@@ -20,7 +20,7 @@ import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
  * - Only allows for a single assignment
  * - Only allows for a single zoning system, network and demands input
  *
- * Advanced users who want to utilize all the flexibility of PLANit should instead use PLANitProject in the PLANit core.
+ * Advanced users who want to utilize all the flexibility of PLANit should instead use CustomPLANitProject in the PLANit core.
  *
  * Default configuration for this type of project:
  *   (i)     Use the native output formatter (PLANitIO format),
@@ -54,9 +54,9 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     // Public
 
     /**
-     * Base constructor for simple project which adopts the PlanItXML input/output format. It is assumed
+     * Base constructor for simple project which adopts the PlanItIO input/output format. It is assumed
      * all input files are in the current working directory
-     * @throws PlanItException
+     * @throws PlanItException thrown in case the default input builder cannot be created
      *
      */
     public PlanItSimpleProject() throws PlanItException {
@@ -67,7 +67,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     }
 
     /**
-     * Base constructor for simple project which adopts the PlanItXML input/output format
+     * Base constructor for simple project which adopts the PlanItIO input/output format
      *
      * @param projectPath to retrieve the files from
      * @throws PlanItException
@@ -80,9 +80,11 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     }
 
     /** On a simple project we only allow a single assignment to be registered. This is verified here. If multiple assignments
-     * are required within the same project, then a simple project cannot be used
+     * are required within the same project, then a simple project cannot be used. Registration of a traffic assignment type
+     * also includes parsing the network, zoning, and demands that are registered alongside the chosen assignment method
      *
      * @param trafficAssignmentType the traffic assignment type to be used
+     * @return trafficAssignmentBuilder the builder to configure this traffic assignment instance
      */
     public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(final String trafficAssignmentType)
             throws PlanItException {
