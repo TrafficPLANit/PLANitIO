@@ -61,8 +61,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      */
     public PlanItSimpleProject() throws PlanItException {
         // use the default input builder with the current path as the project path
-        super(new PlanItInputBuilder(Paths.get(".").toAbsolutePath().toString()));
-        PlanItLogger.info("Searching for input files in: "+Paths.get(".").toAbsolutePath().toString());
+        super(new PlanItInputBuilder(System.getProperty("user.dir")));
         initialiseSimpleProject();
     }
 

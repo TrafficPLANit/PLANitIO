@@ -46,7 +46,7 @@ public class PlanItMain {
 	public static void main(final String[] args) throws SecurityException, IOException {
 
 		try {
-			PlanItLogger.setLogging("logs\\PlanItXmlMain.log", PlanItMain.class);
+			PlanItLogger.activateFileLogging("logs\\PlanItXmlMain.log", PlanItMain.class);
 			final PlanItMain planItMain = new PlanItMain();
 			planItMain.execute();
 			PlanItLogger.close();

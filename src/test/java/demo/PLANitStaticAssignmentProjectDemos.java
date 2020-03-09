@@ -72,7 +72,7 @@ public class PLANitStaticAssignmentProjectDemos {
         try{
             // INITIALISE PLANit PROJECT
             final PlanItProject project = new PlanItProject(projectPath);
-            PlanItLogger.setLogging(logFile, PlanItProject.class);
+            PlanItLogger.activateFileLogging(logFile, PlanItProject.class);
 
             // INITIALISE INPUTS
             final PhysicalNetwork physicalNetwork             = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());

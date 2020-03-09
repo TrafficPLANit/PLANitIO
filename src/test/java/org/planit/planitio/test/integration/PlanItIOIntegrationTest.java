@@ -88,7 +88,7 @@ public class PlanItIOIntegrationTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    PlanItLogger.setLogging("logs\\PlanItIOIntegrationTest.log", PlanItIOIntegrationTest.class);
+    PlanItLogger.activateFileLogging("logs\\PlanItIOIntegrationTest.log", PlanItIOIntegrationTest.class);
   }
 
   @AfterClass

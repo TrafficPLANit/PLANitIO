@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,11 +50,14 @@ import org.planit.planitio.xml.network.ProcessLinkConfiguration;
 import org.planit.planitio.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.planitio.xml.zoning.UpdateZoning;
+import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Centroid;
+
+import com.sun.xml.fastinfoset.util.StringArray;
 
 /**
  * Class which reads inputs from XML input files
@@ -65,7 +69,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
   /** generated UID */
   private static final long serialVersionUID = -8928911341112445424L;
-
+  
   // Convenience map to store the modes by their external id
   private Map<Long, Mode> modesByExternalIdMap;
 
@@ -185,14 +189,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private boolean setInputFilesSingleFile(final String[] xmlFileNames) {
     for (int i = 0; i < xmlFileNames.length; i++) {
       try {
-        final XMLElementPLANit planit = (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class,
-            xmlFileNames[i]);
+        final XMLElementPLANit planit = 
+            (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class, xmlFileNames[i]);
         PlanItLogger.info("File " + xmlFileNames[i] + " provides the network, demands and zoning input data.");
         macroscopiczoning = planit.getMacroscopiczoning();
         macroscopicnetwork = planit.getMacroscopicnetwork();
         macroscopicdemand = planit.getMacroscopicdemand();
         return true;
-      } catch (final Exception e) {
+      } catch (final Exception e) {            
       }
     }
     return false;
@@ -606,6 +610,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           of them
    */
   public PlanItInputBuilder(final String projectPath, final String xmlNameExtension) throws PlanItException {
+    if(!PlanItLogger.isLoggerRegistered()){
+      PlanItLogger.actiavteLoggingToConsole(PlanItInputBuilder.class);
+    }
+    PlanItLogger.info("Project path is set to: "+ projectPath);
     setInputFiles(projectPath, xmlNameExtension);
   }
 
