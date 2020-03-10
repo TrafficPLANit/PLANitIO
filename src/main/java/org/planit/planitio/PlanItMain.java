@@ -95,7 +95,7 @@ public class PlanItMain {
 		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = planItInputBuilder.getLinkSegmentTypeByExternalId((long) 1);
 		final Mode mode = planItInputBuilder.getModeByExternalId((long) 2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+		taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
 		//DATA OUTPUT CONFIGURATION
