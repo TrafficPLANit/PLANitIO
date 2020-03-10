@@ -6,7 +6,7 @@
 	<groupId>org.planit.planitio</groupId>
 	<artifactId>PLANitIO</artifactId>
 	<description>PlanIt Code for default input and output</description>
-	<version>0.0.3</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>PLANitIO</name>
@@ -20,8 +20,8 @@
 			soon. Upgrade to the new release when it becomes available -->
 		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
 		<project.build.directory>target</project.build.directory>
-		<planit.version>0.0.3</planit.version>		
-		<planitltm.version>0.0.3</planitltm.version>
+		<planit.version>0.0.4-SNAPSHOT</planit.version>		
+		<planitltm.version>0.0.4-SNAPSHOT</planitltm.version>
 	</properties>
 
 	<dependencies>

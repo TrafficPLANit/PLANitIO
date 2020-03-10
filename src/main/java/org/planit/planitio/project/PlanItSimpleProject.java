@@ -3,6 +3,7 @@ package org.planit.planitio.project;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
@@ -33,6 +34,9 @@ import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
  *
  */
 public class PlanItSimpleProject extends CustomPlanItProject {
+  
+    /** the logger */
+    private static final Logger LOGGER = PlanItLogger.createLogger(PlanItSimpleProject.class); 
 
     /**
      * Simple project registers native PLANitXML output formatter by default which is stored in this reference
@@ -47,7 +51,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
             // register the default Output formatter as a formatter that is available
             defaultOutputFormatter = (PlanItOutputFormatter) this.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
         } catch (final PlanItException e) {
-        	PlanItLogger.severe("Could not instantiate default settings for project");
+        	LOGGER.severe("Could not instantiate default settings for project");
         }
     }
 
@@ -74,7 +78,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     public PlanItSimpleProject(final String projectPath) throws PlanItException {
         // use the default input builder
         super(new PlanItInputBuilder(projectPath));
-        PlanItLogger.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());
+        LOGGER.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());
         initialiseSimpleProject();
     }
 
@@ -96,7 +100,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         // parse the zoning system + register on assignment
         final Zoning zoning = this.createAndRegisterZoning(network);
         // parse the demands + register on assignment
-        final Demands demands = this.createAndRegisterDemands(zoning);
+        final Demands demands = this.createAndRegisterDemands(zoning, network);
 
         return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
     }
@@ -110,7 +114,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      * @param theZoning
      * @param thePhysicalNetwork
      */
-    @Override
+   @Override
 	public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(
     		final String trafficAssignmentType,
     		final Demands theDemands,
@@ -137,7 +141,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
             exceptionMap = super.executeAllTrafficAssignments();
         }else
         {
-            PlanItLogger.info("No traffic assignment has been registered yet, terminating execution");
+          LOGGER.info("No traffic assignment has been registered yet, terminating execution");
         }
         return exceptionMap;
     }

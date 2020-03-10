@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
+import org.planit.input.InputBuilderListener;
 import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -34,11 +35,13 @@ import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
-import org.planit.planitio.project.PlanItProject;
+import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.test.util.TestHelper;
+import org.planit.planitio.test.util.TestOutputDto;
+import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
+import org.planit.utils.TriConsumer;
 import org.planit.utils.misc.IdGenerator;
-import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
@@ -64,6 +67,8 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
  *
  */
 public class PlanItIOIntegrationTest {
+  
+  private static final Logger LOGGER = PlanItLogger.createLogger(PlanItIOIntegrationTest.class);  
 
   /**
    * Run assertions which confirm that results files contain the correct data, and
@@ -88,7 +93,7 @@ public class PlanItIOIntegrationTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    PlanItLogger.activateFileLogging("logs\\PlanItIOIntegrationTest.log", PlanItIOIntegrationTest.class);
+    PlanItLogger.activateFileLogging("logs\\PlanItIOIntegrationTest.log");
   }
 
   @AfterClass
@@ -110,12 +115,13 @@ public class PlanItIOIntegrationTest {
         "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs_external_id.csv";
     try {
       IdGenerator.reset();
-      PlanItProject project = new PlanItProject(projectPath);
-      PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class
-          .getCanonicalName());
+      PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+      final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
+      PhysicalNetwork physicalNetwork = 
+          project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-          initialCostsFileLocation);
+      InitialLinkSegmentCost initialCost = 
+          project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationExternalId);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeExternalIdOutputProperty.NAME;
@@ -123,15 +129,15 @@ public class PlanItIOIntegrationTest {
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
         long modeExternalId = Long.parseLong(record.get(modeHeader));
-        Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(modeExternalId);
+        Mode mode = planItInputBuilder.getModeByExternalId(modeExternalId);
         double cost = Double.parseDouble(record.get(costHeader));
         long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-        LinkSegment linkSegment = physicalNetwork.linkSegments.getLinkSegmentByExternalId(linkSegmentExternalId);
+        LinkSegment linkSegment =  planItInputBuilder.getLinkSegmentByExternalId(linkSegmentExternalId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
     } catch (Exception ex) {
-      PlanItLogger.severe(ex.getMessage());
+      LOGGER.severe(ex.getMessage());
       fail(ex.getMessage());
     }
   }
@@ -143,18 +149,18 @@ public class PlanItIOIntegrationTest {
   @Test
   public void testInitialCostMissingRows() {
     String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1";
-    String initialCostsFileLocation =
-        "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
-    String initialCostsFileLocationExternalId =
-        "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs1.csv";
+    String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
+    String initialCostsFileLocationExternalId = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs1.csv";
     try {
       IdGenerator.reset();
-      PlanItProject project = new PlanItProject(projectPath);
-      PhysicalNetwork physicalNetwork = project
-          .createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+      PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+      final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
+      
+      PhysicalNetwork physicalNetwork = 
+          project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-          initialCostsFileLocation);
+      InitialLinkSegmentCost initialCost = 
+          project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationExternalId);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeExternalIdOutputProperty.NAME;
@@ -163,17 +169,18 @@ public class PlanItIOIntegrationTest {
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
         long modeExternalId = Long.parseLong(record.get(modeHeader));
-        Mode mode = physicalNetwork.modes.findModeByExternalIdentifier(modeExternalId);
+        Mode mode = planItInputBuilder.getModeByExternalId(modeExternalId);
         double cost = Double.parseDouble(record.get(costHeader));
         long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
         long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
-        LinkSegment linkSegment = physicalNetwork.linkSegments
-            .getLinkSegmentByStartAndEndNodeExternalId(upstreamNodeExternalId, downstreamNodeExternalId);
+         final long startId = planItInputBuilder.getNodeByExternalId(upstreamNodeExternalId).getId();
+        final long endId = planItInputBuilder.getNodeByExternalId(downstreamNodeExternalId).getId();
+        final LinkSegment linkSegment = physicalNetwork.linkSegments.getLinkSegmentByStartAndEndNodeId(startId, endId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
     } catch (Exception ex) {
-      PlanItLogger.severe(ex.getMessage());
+      LOGGER.severe(ex.getMessage());
       fail(ex.getMessage());
     }
   }
@@ -191,10 +198,9 @@ public class PlanItIOIntegrationTest {
       TestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\initial_costs\\xml\\test2\\initial_link_segment_costs_external_id.csv",
           maxIterations, null, description);
-      fail(
-          "RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
+      fail("RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
     } catch (Exception e) {
-      PlanItLogger.info(e.getMessage());
+      LOGGER.info(e.getMessage());
       assertTrue(true);
     }
   }
@@ -222,7 +228,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -251,7 +257,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -276,12 +282,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = null;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
+         maxIterations, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -308,7 +313,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -333,12 +338,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = null;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -380,7 +384,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -414,17 +418,15 @@ public class PlanItIOIntegrationTest {
       String xmlFileName3 = "Time Period 3.xml";
       Integer maxIterations = null;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
-
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      TimePeriod timePeriod1 = TimePeriod.getByExternalId(Long.valueOf(0));
-      resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      TimePeriod timePeriod1 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+       resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -454,7 +456,7 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod1).get(mode1).get((long) 12).put((long) 11, new LinkSegmentExpectedResultsDto(11, 12, 1,
           8, 85, 2000, 8, 1));
 
-      TimePeriod timePeriod2 = TimePeriod.getById(Long.valueOf(1));
+      TimePeriod timePeriod2 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 1);
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -470,7 +472,7 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod2).get(mode1).get((long) 13).put((long) 12, new LinkSegmentExpectedResultsDto(12, 13, 1,
           47, 77, 2000, 47, 1));
 
-      TimePeriod timePeriod3 = TimePeriod.getById(Long.valueOf(2));
+      TimePeriod timePeriod3 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 2);
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod3).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod3).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -523,7 +525,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
           xmlFileName3);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -543,13 +545,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      TestOutputDto testOutputDto = 
+          TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -598,7 +599,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -618,13 +619,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -659,7 +659,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -691,7 +691,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -746,7 +746,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
           xmlFileName3);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -762,8 +762,7 @@ public class PlanItIOIntegrationTest {
   @Test
   public void testRouteChoice2InitialCostsOneIterationExternalIds() {
     try {
-      String projectPath =
-          "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationExternalIds";
+      String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationExternalIds";
       String description = "testRouteChoice2initialCosts";
       String csvFileName = "Time Period 1_1.csv";
       String odCsvFileName = "Time Period 1_0.csv";
@@ -780,7 +779,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -812,7 +811,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -824,8 +823,7 @@ public class PlanItIOIntegrationTest {
   @Test
   public void testRouteChoice2InitialCosts500IterationsThreeTimePeriods() {
     try {
-      String projectPath =
-          "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods";
+      String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods";
       String description = "test2initialCosts500IterationsThreeTimePeriods";
       String csvFileName1 = "Time Period 1_500.csv";
       String odCsvFileName1 = "Time Period 1_499.csv";
@@ -866,7 +864,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
           xmlFileName3);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -881,8 +879,7 @@ public class PlanItIOIntegrationTest {
   @Test
   public void testRouteChoice2InitialCosts500IterationsExternalIds() {
     try {
-      String projectPath =
-          "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterationsExternalIds";
+      String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterationsExternalIds";
       String description = "testRouteChoice2initialCosts";
       String csvFileName = "Time Period 1_500.csv";
       String odCsvFileName = "Time Period 1_499.csv";
@@ -899,7 +896,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -919,13 +916,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -963,7 +959,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -986,13 +982,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
-
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1120,7 +1115,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1148,13 +1143,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName2 = "Time Period 2.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod1 = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod1 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1273,7 +1267,7 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod1).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 625.2462927, 10000, 1, 49.967441));
 
-      TimePeriod timePeriod2 = TimePeriod.getById(Long.valueOf(1));
+      TimePeriod timePeriod2 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 1);
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -1405,7 +1399,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName2,
           xmlFileName2);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1428,13 +1422,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1562,7 +1555,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1585,13 +1578,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1719,7 +1711,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1741,24 +1733,20 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = (physicalNetwork,
-          bprLinkTravelTimeCost) -> {
-        MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType =
-            macroscopicNetwork.findMacroscopicLinkSegmentTypeByExternalId(1);
-        Mode mode = macroscopicNetwork.modes.findModeByExternalIdentifier(2);
+      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
+          bprLinkTravelTimeCost, inputBuilderListener) -> {
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType =  inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
+        Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
         bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, setCostParameters, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+     TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      Mode mode2 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(2);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      Mode mode2 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
@@ -1810,7 +1798,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1833,12 +1821,9 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters = (physicalNetwork,
-          bprLinkTravelTimeCost) -> {
-        MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) physicalNetwork;
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = macroscopicNetwork
-            .findMacroscopicLinkSegmentTypeByExternalId(1);
-        Mode mode = macroscopicNetwork.modes.findModeByExternalIdentifier(2);
+      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork, bprLinkTravelTimeCost, inputBuilderListener) -> {
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType =  inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
+        Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
         bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
@@ -1855,14 +1840,13 @@ public class PlanItIOIntegrationTest {
         }
       };
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath,
+      TestOutputDto testOutputDto = TestHelper.setupAndExecuteAssignment(projectPath,
           setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      Mode mode2 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(2);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      Mode mode2 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>>();
@@ -1905,7 +1889,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1923,13 +1907,12 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = null;
 
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper.setupAndExecuteAssignment(projectPath, null,
-          description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      TestOutputDto testOutputDto = 
+          TestHelper.setupAndExecuteAssignment(projectPath, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1947,7 +1930,7 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
@@ -1964,13 +1947,12 @@ public class PlanItIOIntegrationTest {
     String xmlFileName = "Time Period 1.xml";
     Integer maxIterations = null;
     try {
-      Pair<MemoryOutputFormatter, PlanItProject> testOutput = TestHelper
+      TestOutputDto testOutputDto = TestHelper
           .setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutput.getFirst();
-      PlanItProject project = testOutput.getSecond();
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
 
-      Mode mode1 = project.physicalNetworks.getFirstNetwork().modes.findModeByExternalIdentifier(1);
-      TimePeriod timePeriod = TimePeriod.getByExternalId(Long.valueOf(0));
+      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1983,7 +1965,7 @@ public class PlanItIOIntegrationTest {
 
       fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
     } catch (Exception pe) {
-      PlanItLogger.info(pe.getMessage());
+      LOGGER.info(pe.getMessage());
     }
 
     try {
@@ -1993,8 +1975,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       assertTrue(true);
     } catch (Exception e) {
-      PlanItLogger.severe(e.getMessage());
+      LOGGER.severe(e.getMessage());
       fail(e.getMessage());
     }
   }
+
 }
