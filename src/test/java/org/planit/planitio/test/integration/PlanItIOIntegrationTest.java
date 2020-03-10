@@ -602,6 +602,125 @@ public class PlanItIOIntegrationTest {
   }
 
   /**
+   * Test that a duplicate external Id for a Link Segment Type is flagged as a error
+   */
+  @Test
+  public void testDuplicateLinkSegmentTypeExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentType";
+      String description = "testDuplicateLinkSegmentType";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate link segment type external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
+   * Test that a duplicate external Id for a Link Segment is flagged as a error
+   */
+  @Test
+  public void testDuplicateLinkSegmentExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegment";
+      String description = "testDuplicateLinkSegment";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate link segment external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
+   * Test that a duplicate external Id for a Node is flagged as a error
+   */
+  @Test
+  public void testDuplicateNodeExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateNode";
+      String description = "testDuplicateNode";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate node external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
+   * Test that a duplicate external Id for a Mode is flagged as a error
+   */
+  @Test
+  public void testDuplicateModeExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateMode";
+      String description = "testDuplicateMode";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate mode external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
+   * Test that a duplicate external Id for a Zone is flagged as a error
+   */
+  @Test
+  public void testDuplicateZoneExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateZone";
+      String description = "testDuplicateZone";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate zone external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
+   * Test that a duplicate external Id for a Time Period is flagged as a error
+   */
+  @Test
+  public void testDuplicateTimePeriodExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateTimePeriod";
+      String description = "testDuplicateTimePeriod";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate time period external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
+   * Test that a duplicate external Id for a Time Period is flagged as a error
+   */
+  @Test
+  public void testDuplicateUserClassExternalId() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateUserClass";
+      String description = "testDuplicateUserClass";
+      Integer maxIterations = 1;
+
+      TestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      fail("Exception for duplicate user class external Id was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
+
+  /**
    * Test of results for TraditionalStaticAssignment for simple test case using
    * the second route choice example from the Traditional Static Assignment Route
    * Choice Equilibration Test cases.docx document.

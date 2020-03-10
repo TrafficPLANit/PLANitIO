@@ -45,7 +45,10 @@ public class ProcessConfiguration {
     }
     for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
       TravelerType travelerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
-      inputBuilderListener.addTravelerTypeToExternalIdMap(travelerType.getExternalId(), travelerType);
+      final boolean duplicateTravelerTypeExternalId = inputBuilderListener.addTravelerTypeToExternalIdMap(travelerType.getExternalId(), travelerType);
+      if (duplicateTravelerTypeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
+        throw new PlanItException("Duplicate traveler type external id " + travelerType.getExternalId() + " found in network file.");
+      }
     }
   }
 
@@ -77,7 +80,10 @@ public class ProcessConfiguration {
           userclass.getName(),
           userClassMode,
           travellerType);
-      inputBuilderListener.addUserClassToExternalIdMap(userClass.getExternalId(), userClass);
+      final boolean duplicateUserClassExternalId = inputBuilderListener.addUserClassToExternalIdMap(userClass.getExternalId(), userClass);
+      if (duplicateUserClassExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
+        throw new PlanItException("Duplicate user class external id " + userClass.getExternalId() + " found in network file.");
+      }
     }
   }
 
@@ -136,8 +142,11 @@ public class ProcessConfiguration {
         case S:
           break;
       }
-      TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);
-      inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod.getExternalId(), timePeriod);
+      TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);     
+      final boolean duplicateTimePeriodExternalId = inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod.getExternalId(), timePeriod);
+      if (duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
+        throw new PlanItException("Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.");
+      }
     }
   }
 

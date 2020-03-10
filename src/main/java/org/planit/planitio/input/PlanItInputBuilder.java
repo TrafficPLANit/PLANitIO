@@ -458,12 +458,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
     try {
       final XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-      ProcessLinkConfiguration.createModes(physicalNetwork, linkconfiguration, this);
-      final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = 
-          ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, physicalNetwork.modes.toList(), this);
+      ProcessLinkConfiguration.createAndRegisterModes(physicalNetwork, linkconfiguration, this);
+      final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, this);  
       final XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
-      ProcessInfrastructure.registerNodes(infrastructure, network, this);
-      ProcessInfrastructure.generateAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this);
+      ProcessInfrastructure.createAndRegisterNodes(infrastructure, network, this);
+      ProcessInfrastructure.createAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this);
+    } catch (PlanItException pe) {
+      throw pe;
     } catch (final Exception ex) {
       throw new PlanItException(ex);
     }

@@ -1,7 +1,6 @@
 package org.planit.planitio.xml.network.physical.macroscopic;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.planit.input.InputBuilderListener;
@@ -101,7 +100,6 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * @param critSpeed critical speed
    * @param modeExternalId reference to the mode used in the XML input file
    * @param linkTypeExternalId id number of the link type
-   * @param modes list of registered modes 
    * @param inputBuilderLister parser containing Map of modes by external Id
    * @return MacroscopicLinkSegmentTypeXmlHelper object, created or updated to include
    *         data from current row in the XML file
@@ -109,9 +107,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
   public static MacroscopicLinkSegmentTypeXmlHelper createOrUpdateLinkSegmentTypeHelper(String name,
       double capacityPerLane,
       double maximumDensityPerLane, double maxSpeed, double critSpeed, long modeExternalId, Object linkTypeExternalId,
-      List<Mode> modes,
       InputBuilderListener inputBuilderListener) {
-      //Map<Object, Mode> modesByExternalIdMap) {
     MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper;
     if (!existingLinkTypeHelpers.containsKey(linkTypeExternalId)) {
       if (capacityPerLane == 0.0) {
@@ -140,7 +136,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
       }
     }
     if (modeExternalId == 0) {
-      modes.forEach(eachMode -> {
+      inputBuilderListener.getAllModes().forEach(eachMode -> {
         updateLinkSegmentTypeHelper(macroscopicLinkSegmentTypeXmlHelper, eachMode, maxSpeed, critSpeed,
             linkTypeExternalId);
       });

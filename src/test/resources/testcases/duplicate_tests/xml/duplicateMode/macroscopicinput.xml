@@ -1,0 +1,244 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xml="http://www.w3.org/XML/1998/namespace"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../../../main/resources/macroscopicinput.xsd">
+	<macroscopicdemand>
+
+		<demandconfiguration>
+			<userclasses>
+				<userclass id="1" moderef="1">
+					<name>1</name>
+				</userclass>
+			</userclasses>
+			<timeperiods>
+				<timeperiod id="0">
+					<name>Time Period 1</name>
+					<starttime>00:00:01</starttime>
+					<duration>86400</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0"
+				userclassref="1">
+				<o ref="3">
+					<d ref="4">1000</d>
+				</o>
+				<o ref="5">
+					<d ref="1">1000</d>
+				</o>
+				<o ref="2">
+					<d ref="6">1000</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
+	<macroscopicnetwork>
+		<linkconfiguration>
+			<modes>
+				<mode id="1">																<!-- mandatory attributes, for referencing -->
+					<name>Basic</name>														<!-- optional -->
+					<pcu>1</pcu>															<!-- optional, default available -->
+				</mode>
+				<mode id="1">													<!--  DUPLICATE MODE EXTERNAL ID -->
+					<name>ThisIsWrong</name>													
+					<pcu>1</pcu>														
+				</mode>
+			</modes>
+			<linksegmenttypes>
+				<linksegmenttype id="1">
+					<name>Standard</name>													<!-- optional -->
+					<capacitylane>2000</capacitylane>										<!-- optional, has default -->
+					<modes>
+						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
+								is assumed to be banned from the link segment -->
+							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						</mode>
+					</modes>
+				</linksegmenttype>
+				<linksegmenttype id="2">      
+					<name>Link 2</name>													<!-- optional -->
+					<capacitylane>1000</capacitylane>										<!-- optional, has default -->
+					<modes>
+						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
+								is assumed to be banned from the link segment -->
+							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						</mode>
+					</modes>
+				</linksegmenttype>
+			</linksegmenttypes>
+		</linkconfiguration>
+		<infrastructure>
+			<nodes>
+				<node id="1" />
+				<node id="2" />
+				<node id="3" />
+				<node id="4" />
+				<node id="5" />
+				<node id="6" />
+				<node id="11" />
+				<node id="12" />
+				<node id="13" />
+				<node id="14" />
+				<node id="15" />
+				<node id="16" />
+			</nodes>
+			<links>
+				<link nodearef="2" nodebref="1">
+					<linksegment id="1" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="1" nodebref="3">
+					<linksegment id="2" dir="a_b" typeref="2">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="3" nodebref="2">
+					<linksegment id="3" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="13" nodebref="4">
+					<linksegment id="4" dir="a_b" typeref="1">
+						<numberoflanes>10</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="4" nodebref="2">
+					<linksegment id="5" dir="a_b" typeref="1">     
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="6" nodebref="3">
+					<linksegment id="6" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="12" nodebref="6">
+					<linksegment id="7" dir="a_b" typeref="1">
+						<numberoflanes>10</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="15" nodebref="5">
+					<linksegment id="8" dir="a_b" typeref="1">
+						<numberoflanes>10</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="5" nodebref="1">
+					<linksegment id="9" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="2" nodebref="11">
+					<linksegment id="10" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="3" nodebref="14">
+					<linksegment id="11" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+				<link nodearef="1" nodebref="16">
+					<linksegment id="12" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>1</length>
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<centroid>
+					<name>1</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="11">
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>2</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="12">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="3">
+				<centroid>
+					<name>3</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="13">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="4">
+				<centroid>
+					<name>4</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="14">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="5">
+				<centroid>
+					<name>5</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="15">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="6">
+				<centroid>
+					<name>6</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="16">
+						<length>1.0</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+		</zones>
+	</macroscopiczoning>
+</PLANit>

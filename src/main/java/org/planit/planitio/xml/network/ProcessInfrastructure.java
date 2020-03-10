@@ -108,8 +108,9 @@ public class ProcessInfrastructure {
    * @param inputBuilderListeners parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error
    */
-  private static void generateAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection,
-      MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, int noLanes, long externalId,
+  private static void createAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection,
+      MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, 
+      int noLanes, long externalId,
       Map<Mode, MacroscopicModeProperties> modeProperties,
       InputBuilderListener inputBuilderListener) throws PlanItException {
 
@@ -123,26 +124,31 @@ public class ProcessInfrastructure {
         .registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
             linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties);
     MacroscopicLinkSegmentType macroscopicLinkSegmentType = linkSegmentTypePair.getFirst();
+
     boolean linkSegmentTypeAlreadyExists = linkSegmentTypePair.getSecond();
     if (!linkSegmentTypeAlreadyExists) {
       inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(), macroscopicLinkSegmentType);
     }   
+
     linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
     network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
     if (linkSegment.getExternalId() != null) {
-      inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
+      final boolean duplicateLinkSegmentExternalId = inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
+      if (duplicateLinkSegmentExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
+        throw new PlanItException("Duplicate link segment external id " + linkSegment.getExternalId() + " found in network file.");
+      }
     }
   }
-
+  
   /**
-   * Register nodes on the network
+   * Create and register nodes on the network
    * 
    * @param infrastructure Infrastructure object populated with data from XML file
    * @param network network the physical network object to be populated from the input data
    * @param inputBuilderListeners parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error in storing the GML Point  definition
    */
-  public static void registerNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network, InputBuilderListener inputBuilderListener) throws PlanItException {
+  public static void createAndRegisterNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network, InputBuilderListener inputBuilderListener) throws PlanItException {
     for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
       NodeImpl node = (NodeImpl) network.nodes.registerNewNode();
@@ -153,7 +159,10 @@ public class ProcessInfrastructure {
         node.setCentrePointGeometry(centrePointGeometry);
       }
       network.nodes.registerNode(node);
-      inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(), node);
+      boolean duplicateNodeExternalId = inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(), node);
+      if (duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
+        throw new PlanItException("Duplicate node external id " + generatedNode.getId().longValue() + " found in network file.");
+      }
     }
   }
 
@@ -166,8 +175,9 @@ public class ProcessInfrastructure {
    * @param inputBuilderListeners parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error during processing
    */
-  public static void generateAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
-      MacroscopicNetwork network, Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap,
+  public static void createAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
+      MacroscopicNetwork network, 
+      Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap,
       InputBuilderListener inputBuilderListener) throws PlanItException {
       
     for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
@@ -195,7 +205,7 @@ public class ProcessInfrastructure {
 
         Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
-        generateAndRegisterLinkSegment(network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties, inputBuilderListener);
+        createAndRegisterLinkSegment(network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties, inputBuilderListener);
       }
     }
   }

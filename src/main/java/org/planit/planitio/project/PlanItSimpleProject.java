@@ -133,11 +133,10 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     @Override
     public Map<Long, PlanItException> executeAllTrafficAssignments() throws PlanItException {
         Map<Long, PlanItException> exceptionMap = new TreeMap<Long, PlanItException>();
-        if(super.trafficAssignments.hasRegisteredAssignments()) {
+        if (super.trafficAssignments.hasRegisteredAssignments()) {
             // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
             exceptionMap = super.executeAllTrafficAssignments();
-        }else
-        {
+        } else  {
             PlanItLogger.info("No traffic assignment has been registered yet, terminating execution");
         }
         return exceptionMap;
