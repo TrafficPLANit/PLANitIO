@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -37,6 +38,7 @@ import org.planit.output.formatter.CsvFileOutputFormatter;
 import org.planit.output.formatter.CsvTextFileOutputFormatter;
 import org.planit.output.formatter.XmlTextFileOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
+import org.planit.planitio.PlanItMain;
 import org.planit.planitio.xml.converter.EnumConverter;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.time.TimePeriod;
@@ -51,6 +53,10 @@ import org.planit.utils.network.physical.Mode;
 public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		implements CsvTextFileOutputFormatter, XmlTextFileOutputFormatter {
 
+  
+  /** the logger */
+  private static final Logger LOGGER = PlanItLogger.createLogger(PlanItOutputFormatter.class); 
+  
 	/**
 	 * properties taken from PLANit main project resources which pass on the Maven
 	 * project properties.
@@ -145,16 +151,14 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	private void setVersionAndDescription(String propertiesFileName, String descriptionProperty, String versionProperty)
 			throws PlanItException {
 		if (propertiesFileName == null) {
-			PlanItLogger.info(
-					"No application properties file specified, version and description properties must be set from the code or will not be recorded.");
+			LOGGER.info("No application properties file specified, version and description properties must be set from the code or will not be recorded.");
 			return;
 		}
 		try (InputStream input = PlanItOutputFormatter.class.getClassLoader()
 				.getResourceAsStream(propertiesFileName)) {
 
 			if (input == null) {
-				PlanItLogger.info("Application properties " + propertiesFileName
-						+ " could not be found, version and description properties must be set from the code or will not be recorded.");
+			  LOGGER.info("Application properties " + propertiesFileName+ " could not be found, version and description properties must be set from the code or will not be recorded.");
 				return;
 			}
 
@@ -164,13 +168,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
 			description = prop.getProperty(descriptionProperty);
 			if (description == null) {
-				PlanItLogger.info("Description property could not be set from properties file " + propertiesFileName
-						+ ", this must be set from the code or will not be recorded.");
+			  LOGGER.info("Description property could not be set from properties file " + propertiesFileName + ", this must be set from the code or will not be recorded.");
 			}
 			version = prop.getProperty(versionProperty);
 			if (version == null) {
-				PlanItLogger.info("Version property could not be set from properties file " + propertiesFileName
-						+ ", this must be set from the code or will not be recorded.");
+			  LOGGER.info("Version property could not be set from properties file " + propertiesFileName + ", this must be set from the code or will not be recorded.");
 			}
 
 		} catch (Exception e) {
@@ -426,7 +428,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	@Override
 	protected void writeSimulationResultsForCurrentTimePeriod(
             OutputTypeConfiguration outputTypeConfiguration, OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod, int iterationIndex) throws PlanItException {
-		PlanItLogger.info("XML Output for OutputType SIMULATION has not been implemented yet.");
+	  LOGGER.info("XML Output for OutputType SIMULATION has not been implemented yet.");
 	}
 
 	/**
@@ -443,7 +445,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	@Override
 	protected void writeGeneralResultsForCurrentTimePeriod(
             OutputTypeConfiguration outputTypeConfiguration, OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod, int iterationIndex) throws PlanItException {
-		PlanItLogger.info("XML Output for OutputType GENERAL has not been implemented yet.");
+	  LOGGER.info("XML Output for OutputType GENERAL has not been implemented yet.");
 	}
 
 	/**

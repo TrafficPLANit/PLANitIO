@@ -1,5 +1,7 @@
 package demo;
 
+import java.util.logging.Logger;
+
 import org.planit.demands.Demands;
 import org.planit.logging.PlanItLogger;
 import org.planit.ltm.trafficassignment.ELTM;
@@ -22,6 +24,9 @@ import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
  *
  */
 public class PLANitDynamicAssignmentProjectDemos {
+  
+    /** the logger */
+    private static final Logger LOGGER = PlanItLogger.createLogger(PLANitDynamicAssignmentProjectDemos.class);   
 
     /**
      * Setup a stock standard eLTM assignment
@@ -42,7 +47,7 @@ public class PLANitDynamicAssignmentProjectDemos {
             project.executeAllTrafficAssignments();
         }catch (final Exception e)
         {
-            PlanItLogger.severe(e.getMessage());
+          LOGGER.severe(e.getMessage());
         }
     }
 
@@ -105,7 +110,7 @@ public class PLANitDynamicAssignmentProjectDemos {
             project.executeAllTrafficAssignments();
         }catch (final Exception e)
         {
-            PlanItLogger.severe(e.getMessage());
+          LOGGER.severe(e.getMessage());
         }
     }
 }

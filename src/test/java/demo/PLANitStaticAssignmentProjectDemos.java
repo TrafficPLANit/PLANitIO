@@ -1,5 +1,7 @@
 package demo;
 
+import java.util.logging.Logger;
+
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
@@ -30,6 +32,8 @@ import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
  */
 public class PLANitStaticAssignmentProjectDemos {
 
+  /** the logger */
+  private static final Logger LOGGER = PlanItLogger.createLogger(PLANitStaticAssignmentProjectDemos.class); 
 
     /**
      * Setup a stock standard traditional static assignment
@@ -47,7 +51,7 @@ public class PLANitStaticAssignmentProjectDemos {
             project.executeAllTrafficAssignments();
         }catch (final Exception e)
         {
-            PlanItLogger.severe(e.getMessage());
+          LOGGER.severe(e.getMessage());
         }
     }
 
@@ -59,7 +63,7 @@ public class PLANitStaticAssignmentProjectDemos {
     public static void maximumExampleDemo(){
         // CONFIGURATION INPUT
         final String projectPath =                "<insert the project path here>";
-        final String logFile =                    "<insert logFile including path and extension here>";
+        final String logFile =                    "<insert logFile including path and extension here>";       
         final String initialCsvCostFilePath =     "<insert the initial cost file path here>";
         final String outputFileName =             "<insert base output file name without extension here>";
         final String outputPath =                 "<insert path to output directory here>";
@@ -70,9 +74,9 @@ public class PLANitStaticAssignmentProjectDemos {
         //---------------------------------------------------------------------------------------------------------------------------------------
 
         try{
-            // INITIALISE PLANit PROJECT
+            PlanItLogger.activateFileLogging(logFile);
+            // INITIALISE PLANit PROJECT          
             final PlanItProject project = new PlanItProject(projectPath);
-            PlanItLogger.setLogging(logFile, PlanItProject.class);
 
             // INITIALISE INPUTS
             final PhysicalNetwork physicalNetwork             = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
@@ -92,7 +96,7 @@ public class PLANitStaticAssignmentProjectDemos {
             // physical links: BPR cost function
             taBuilder.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
             // virtual links: fixed cost function
-    		taBuilder.createAndRegisterVirtualTravelTimeCostFunction(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+    		taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
             // iteration smoothing: MSA
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
             // Output formatter: PLANitIO + MEMORY
@@ -126,7 +130,7 @@ public class PLANitStaticAssignmentProjectDemos {
             project.executeAllTrafficAssignments();
         }catch (final Exception e)
         {
-            PlanItLogger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
     }
 }
