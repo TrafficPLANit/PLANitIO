@@ -20,7 +20,6 @@ import javax.xml.validation.Validator;
 import org.opengis.geometry.DirectPosition;
 import org.planit.exceptions.PlanItException;
 import org.planit.geo.PlanitGeoUtils;
-import org.planit.logging.PlanItLogger;
 
 import net.opengis.gml.PointType;
 
@@ -33,8 +32,8 @@ import net.opengis.gml.PointType;
 public interface XmlUtils {
   
   /** the logger */
-  Logger LOGGER = PlanItLogger.createLogger(XmlUtils.class); 
-
+  public static final Logger LOGGER = Logger.getLogger(XmlUtils.class.getCanonicalName());   
+  
 	/**
 	 * Create GML position from generated PointType object
 	 * 

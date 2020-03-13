@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
@@ -23,7 +24,7 @@ import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.InputBuilderListener;
-import org.planit.logging.PlanItLogger;
+import org.planit.logging.Logging;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
@@ -68,7 +69,8 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
  */
 public class PlanItIOIntegrationTest {
   
-  private static final Logger LOGGER = PlanItLogger.createLogger(PlanItIOIntegrationTest.class);  
+  /** the logger */
+  private static Logger LOGGER;
 
   /**
    * Run assertions which confirm that results files contain the correct data, and
@@ -97,12 +99,14 @@ public class PlanItIOIntegrationTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    PlanItLogger.activateFileLogging("logs\\PlanItIOIntegrationTest.log");
+    if (LOGGER == null) {      
+      LOGGER = Logging.createLogger(PlanItIOIntegrationTest.class);
+    }
   }
 
   @AfterClass
   public static void tearDown() {
-    PlanItLogger.close();
+    Logging.closeLogger(LOGGER);
   }
 
   /**
@@ -140,8 +144,8 @@ public class PlanItIOIntegrationTest {
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
-    } catch (Exception ex) {
-      LOGGER.severe(ex.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
       fail(ex.getMessage());
     }
   }
@@ -183,8 +187,8 @@ public class PlanItIOIntegrationTest {
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
-    } catch (Exception ex) {
-      LOGGER.severe(ex.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
       fail(ex.getMessage());
     }
   }
@@ -231,9 +235,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -257,9 +261,9 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName, xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName, xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -313,9 +317,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -384,9 +388,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -525,9 +529,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName2);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
           xmlFileName3);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -599,9 +603,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -778,9 +782,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -810,9 +814,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -865,9 +869,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName2);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
           xmlFileName3);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -898,9 +902,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -930,9 +934,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -983,9 +987,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName2);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
           xmlFileName3);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1015,9 +1019,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1078,9 +1082,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1234,9 +1238,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1518,9 +1522,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName1);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName2,
           xmlFileName2);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1674,9 +1678,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1830,9 +1834,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -1917,9 +1921,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -2008,9 +2012,9 @@ public class PlanItIOIntegrationTest {
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -2046,9 +2050,9 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,xmlFileName);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 
@@ -2091,9 +2095,9 @@ public class PlanItIOIntegrationTest {
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
           xmlFileName);
       assertTrue(true);
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
     }
   }
 

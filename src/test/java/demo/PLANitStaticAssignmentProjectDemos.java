@@ -1,12 +1,12 @@
 package demo;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
-import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -33,7 +33,7 @@ import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 public class PLANitStaticAssignmentProjectDemos {
 
   /** the logger */
-  private static final Logger LOGGER = PlanItLogger.createLogger(PLANitStaticAssignmentProjectDemos.class); 
+  private static final Logger LOGGER = Logger.getLogger(PLANitStaticAssignmentProjectDemos.class.getCanonicalName());   
 
     /**
      * Setup a stock standard traditional static assignment
@@ -45,13 +45,11 @@ public class PLANitStaticAssignmentProjectDemos {
         	// Create a simple PLANit project with all the default settings
         	final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
 
-        	project.createAndRegisterTrafficAssignment(
-        			TraditionalStaticAssignment.class.getCanonicalName());
+        	project.createAndRegisterTrafficAssignment(TraditionalStaticAssignment.class.getCanonicalName());
 
-            project.executeAllTrafficAssignments();
-        }catch (final Exception e)
-        {
-          LOGGER.severe(e.getMessage());
+          project.executeAllTrafficAssignments();
+        } catch (final Exception e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -74,7 +72,6 @@ public class PLANitStaticAssignmentProjectDemos {
         //---------------------------------------------------------------------------------------------------------------------------------------
 
         try{
-            PlanItLogger.activateFileLogging(logFile);
             // INITIALISE PLANit PROJECT          
             final PlanItProject project = new PlanItProject(projectPath);
 
@@ -128,9 +125,8 @@ public class PLANitStaticAssignmentProjectDemos {
 
             // EXECUTE ASSIGNMENTS
             project.executeAllTrafficAssignments();
-        }catch (final Exception e)
-        {
-            LOGGER.severe(e.getMessage());
+        } catch (final Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 }

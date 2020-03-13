@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +30,6 @@ import org.planit.generated.XMLElementMacroscopicZoning;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
 import org.planit.input.InputBuilderListener;
-import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -44,7 +42,6 @@ import org.planit.output.property.LinkSegmentIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
-import org.planit.planitio.PlanItMain;
 import org.planit.planitio.xml.demands.ProcessConfiguration;
 import org.planit.planitio.xml.demands.UpdateDemands;
 import org.planit.planitio.xml.network.ProcessInfrastructure;
@@ -70,7 +67,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private static final long serialVersionUID = -8928911341112445424L;
   
   /** the logger */
-  private static final Logger LOGGER = PlanItLogger.createLogger(PlanItMain.class);  
+  private static final Logger LOGGER = Logger.getLogger(PlanItInputBuilder.class.getCanonicalName());   
   
   /**
    * Generated object to store input network data

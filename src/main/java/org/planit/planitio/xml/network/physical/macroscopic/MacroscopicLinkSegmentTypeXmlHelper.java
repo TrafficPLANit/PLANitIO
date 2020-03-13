@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.planit.input.InputBuilderListener;
-import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.macroscopic.MacroscopicModePropertiesImpl;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
@@ -19,8 +18,8 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 public class MacroscopicLinkSegmentTypeXmlHelper {
   
   /** the logger */
-  private static final Logger LOGGER = PlanItLogger.createLogger(MacroscopicLinkSegmentTypeXmlHelper.class); 
-
+  private static final Logger LOGGER = Logger.getLogger(MacroscopicLinkSegmentTypeXmlHelper.class.getCanonicalName());   
+  
   /**
    * External reference number of link type
    */

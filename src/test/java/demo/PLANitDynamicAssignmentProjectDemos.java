@@ -1,9 +1,9 @@
 package demo;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
-import org.planit.logging.PlanItLogger;
 import org.planit.ltm.trafficassignment.ELTM;
 import org.planit.ltm.trafficassignment.ELTMTrafficAssignmentBuilder;
 import org.planit.network.physical.PhysicalNetwork;
@@ -26,7 +26,7 @@ import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
 public class PLANitDynamicAssignmentProjectDemos {
   
     /** the logger */
-    private static final Logger LOGGER = PlanItLogger.createLogger(PLANitDynamicAssignmentProjectDemos.class);   
+    private static final Logger LOGGER = Logger.getLogger(PLANitDynamicAssignmentProjectDemos.class.getCanonicalName());   
 
     /**
      * Setup a stock standard eLTM assignment
@@ -45,9 +45,8 @@ public class PLANitDynamicAssignmentProjectDemos {
         	project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
 
             project.executeAllTrafficAssignments();
-        }catch (final Exception e)
-        {
-          LOGGER.severe(e.getMessage());
+        } catch (final Exception e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -108,9 +107,8 @@ public class PLANitDynamicAssignmentProjectDemos {
             project.executeAllTrafficAssignments();
 
             project.executeAllTrafficAssignments();
-        }catch (final Exception e)
-        {
-          LOGGER.severe(e.getMessage());
+        } catch (final Exception e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 }

@@ -2,14 +2,14 @@ package org.planit.planitio;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
-import org.planit.graph.EdgeImpl;
-import org.planit.logging.PlanItLogger;
+import org.planit.logging.Logging;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -34,9 +34,13 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 public class PlanItMain {
   
   /** the logger */
-  private static final Logger LOGGER = PlanItLogger.createLogger(PlanItMain.class); 
-
-	private final String projectPath = "src\\test\\resources\\route_choice\\xml\\test1";
+  private static Logger LOGGER;
+  
+  static {
+      LOGGER = Logging.createLogger(PlanItMain.class);
+  }
+  
+	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test1";
 	private final int maxIterations = 500;
 	private final double epsilon = 0.00;
 
@@ -50,12 +54,12 @@ public class PlanItMain {
 	public static void main(final String[] args) throws SecurityException, IOException {
 
 		try {
-			PlanItLogger.activateFileLogging("logs\\PlanItXmlMain.log");
 			final PlanItMain planItMain = new PlanItMain();
 			planItMain.execute();
-			PlanItLogger.close();
 		} catch (final Exception e) {
-			e.printStackTrace();
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+	    Logging.closeLogger(LOGGER);
 		}
 	}
 

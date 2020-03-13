@@ -28,7 +28,6 @@ import org.planit.generated.XMLElementMetadata;
 import org.planit.generated.XMLElementOutputConfiguration;
 import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.generated.XMLElementSimulation;
-import org.planit.logging.PlanItLogger;
 import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.configuration.OutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
@@ -38,7 +37,6 @@ import org.planit.output.formatter.CsvFileOutputFormatter;
 import org.planit.output.formatter.CsvTextFileOutputFormatter;
 import org.planit.output.formatter.XmlTextFileOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
-import org.planit.planitio.PlanItMain;
 import org.planit.planitio.xml.converter.EnumConverter;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.time.TimePeriod;
@@ -55,8 +53,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
   
   /** the logger */
-  private static final Logger LOGGER = PlanItLogger.createLogger(PlanItOutputFormatter.class); 
-  
+  private static final Logger LOGGER = Logger.getLogger(PlanItOutputFormatter.class.getCanonicalName());   
+   
 	/**
 	 * properties taken from PLANit main project resources which pass on the Maven
 	 * project properties.

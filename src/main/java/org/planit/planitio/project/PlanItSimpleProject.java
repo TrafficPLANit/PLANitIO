@@ -3,11 +3,11 @@ package org.planit.planitio.project;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
-import org.planit.logging.PlanItLogger;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -36,7 +36,7 @@ import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 public class PlanItSimpleProject extends CustomPlanItProject {
   
     /** the logger */
-    private static final Logger LOGGER = PlanItLogger.createLogger(PlanItSimpleProject.class); 
+    private static final Logger LOGGER = Logger.getLogger(PlanItSimpleProject.class.getCanonicalName());   
 
     /**
      * Simple project registers native PLANitXML output formatter by default which is stored in this reference
@@ -65,7 +65,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
             // parse the demands + register on assignment
             demands = this.createAndRegisterDemands(zoning, network);            
         } catch (final PlanItException e) {
-        	LOGGER.severe("Could not instantiate default settings for project");
+        	LOGGER.log(Level.SEVERE, "Could not instantiate default settings for project", e);
         }
     }
 
