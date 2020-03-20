@@ -46,6 +46,7 @@ import org.planit.planitio.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.planitio.xml.util.XmlUtils;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
+import org.planit.test.util.TestOutputDto;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
@@ -513,8 +514,8 @@ public class TestHelper {
     outputConfiguration.setPersistOnlyFinalIteration(true);
 
     // LINK OUTPUT
-    final LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taBuilder
-        .activateOutput(OutputType.LINK);
+    final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
+        (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
     if (setOutputTypeConfigurationProperties != null) {
       setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
     }
@@ -528,8 +529,8 @@ public class TestHelper {
     // OUTPUT FORMAT CONFIGURATION
 
     // PlanItXMLOutputFormatter
-    final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(
-        PlanItOutputFormatter.class.getCanonicalName());
+    final PlanItOutputFormatter xmlOutputFormatter = 
+        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
     xmlOutputFormatter.setXmlNameRoot(description);
     xmlOutputFormatter.setCsvNameRoot(description);
     xmlOutputFormatter.setOutputDirectory(projectPath);
@@ -608,13 +609,14 @@ public class TestHelper {
       final String description) throws Exception {
     IdGenerator.reset();
 
-    PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+    final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
     // RAW INPUT START --------------------------------
     final PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
     final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
     final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
+    
     // RAW INPUT END -----------------------------------
 
     // TRAFFIC ASSIGNMENT START------------------------
@@ -639,8 +641,8 @@ public class TestHelper {
     outputConfiguration.setPersistOnlyFinalIteration(true);
 
     // LINK OUTPUT CONFIGURATION
-    final LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taBuilder
-        .activateOutput(OutputType.LINK);
+    final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
+        (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
     if (setOutputTypeConfigurationProperties != null) {
       setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
     }
@@ -652,15 +654,15 @@ public class TestHelper {
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
     // PATH OUTPUT CONFIGURATION
-    final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taBuilder
-        .activateOutput(OutputType.PATH);
+    final PathOutputTypeConfiguration pathOutputTypeConfiguration = 
+        (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
     pathOutputTypeConfiguration.setPathIdType(RouteIdType.NODE_EXTERNAL_ID);
 
     // OUTPUT FORMAT CONFIGURATION
 
     // PlanItXMLOutputFormatter
-    final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(
-        PlanItOutputFormatter.class.getCanonicalName());
+    final PlanItOutputFormatter xmlOutputFormatter = 
+        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
     xmlOutputFormatter.setXmlNameRoot(description);
     xmlOutputFormatter.setCsvNameRoot(description);
     xmlOutputFormatter.setOutputDirectory(projectPath);
@@ -687,7 +689,7 @@ public class TestHelper {
         throw exceptionMap.get(id);
       }
     }
-    TestOutputDto testOutputDto = new TestOutputDto(memoryOutputFormatter, project,planItInputBuilder);
+    TestOutputDto testOutputDto = new TestOutputDto(memoryOutputFormatter, project, planItInputBuilder);
     return testOutputDto;
   }
 

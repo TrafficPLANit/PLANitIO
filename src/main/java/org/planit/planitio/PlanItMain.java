@@ -37,15 +37,19 @@ public class PlanItMain {
   private static Logger LOGGER;
   
   static {
+    try {
       LOGGER = Logging.createLogger(PlanItMain.class);
+    } catch (PlanItException e) {
+      e.printStackTrace();
+    }
   }
   
-	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test1";
+	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
 	private final int maxIterations = 500;
 	private final double epsilon = 0.00;
 
 	/**
-	 * Main method for the BasicCsvMain program. Only used to start the program
+	 * Main method for the PLANitIO program. Only used to start the program
 	 *
 	 * @param args main method args
 	 * @throws IOException

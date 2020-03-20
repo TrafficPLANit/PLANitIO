@@ -96,6 +96,12 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         initialiseSimpleProject();
     }
 
+    public PlanItSimpleProject(final PlanItInputBuilder planItInputBuilder) {
+      super(planItInputBuilder);
+      initialiseSimpleProject();
+    }
+    
+    
     /** On a simple project we only allow a single assignment to be registered. This is verified here. If multiple assignments
      * are required within the same project, then a simple project cannot be used. Registration of a traffic assignment type
      * also includes parsing the network, zoning, and demands that are registered alongside the chosen assignment method

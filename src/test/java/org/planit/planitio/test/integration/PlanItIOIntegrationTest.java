@@ -38,7 +38,7 @@ import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.planitio.input.PlanItInputBuilder;
 import org.planit.planitio.test.util.TestHelper;
-import org.planit.planitio.test.util.TestOutputDto;
+import org.planit.test.util.TestOutputDto;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.utils.TriConsumer;
