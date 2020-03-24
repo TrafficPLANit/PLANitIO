@@ -1,6 +1,7 @@
 package org.planit.planitio.test.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -977,6 +978,32 @@ public class TestHelper {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Run assertions which confirm that results files contain the correct data, and
+   * then remove the results files
+   * 
+   * @param projectPath project directory containing the input files
+   * @param description description used in temporary output file names
+   * @param csvFileName name of CSV file containing run results
+   * @param xmlFileName name of XML file containing run results
+   * @throws Exception thrown if there is an error
+   */
+ 
+  public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
+      String csvFileName, String xmlFileName) throws Exception {
+    
+    String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
+    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + csvFileName;
+    
+    assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription));
+    deleteFile(outputType, projectPath, description, csvFileName);
+    
+    String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
+    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + xmlFileName;
+    assertTrue(isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription, fullXmlFileNameWithDescription));
+    deleteFile(outputType, projectPath, description, xmlFileName);
   }
 
 }
