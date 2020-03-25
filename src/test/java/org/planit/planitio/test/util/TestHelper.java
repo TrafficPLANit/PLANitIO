@@ -36,6 +36,7 @@ import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
+import org.planit.output.enums.ODSkimSubOutputType;
 import org.planit.output.enums.OutputType;
 import org.planit.output.enums.RouteIdType;
 import org.planit.output.formatter.MemoryOutputFormatter;
@@ -651,6 +652,7 @@ public class TestHelper {
     // OD OUTPUT CONFIGURATION
     final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
         (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
+    originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
