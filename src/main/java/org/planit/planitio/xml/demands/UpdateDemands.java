@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
@@ -32,6 +33,9 @@ public class UpdateDemands {
 
   private static List<String> RESERVED_CHARACTERS;
 
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(UpdateDemands.class.getCanonicalName());   
+  
   static {
     final String[] reservedCharacters = {"+", "*", "^"};
     RESERVED_CHARACTERS = Arrays.asList(reservedCharacters);
@@ -62,7 +66,7 @@ public class UpdateDemands {
   private static Map<Mode, Map<TimePeriod, ODDemandMatrix>> initializeDemandsPerTimePeriodAndMode(
       final Zones zones, 
       final InputBuilderListener inputBuilderListener) throws PlanItException {
-    final Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode =
+    Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode =
         new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
     for (final Mode mode : inputBuilderListener.getAllModes()) {
       final Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
@@ -84,7 +88,7 @@ public class UpdateDemands {
    * @throws Exception thrown if there is an error during processing
    */
   private static void updateDemandMatrixFromOdMatrix(final XMLElementOdMatrix odmatrix, final double pcu,
-      final ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
+      ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
     if (odmatrix instanceof XMLElementOdCellByCellMatrix) {
       updateDemandMatrixFromCellByCellMatrix((XMLElementOdCellByCellMatrix) odmatrix, pcu, odDemandMatrix,
           inputBuilderListener);
@@ -105,7 +109,7 @@ public class UpdateDemands {
    * @param inputBuilderListener InputBuilderListener containing zones by external Id
    */
   private static void updateDemandMatrixFromCellByCellMatrix(final XMLElementOdCellByCellMatrix odcellbycellmatrix,
-      final double pcu, final ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) {
+      final double pcu, ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) {
     final List<XMLElementOdCellByCellMatrix.O> o = odcellbycellmatrix.getO();
     for (final XMLElementOdCellByCellMatrix.O originZone : o) {
       final List<XMLElementOdCellByCellMatrix.O.D> d = originZone.getD();
@@ -125,7 +129,7 @@ public class UpdateDemands {
    * @param inputBuilderListener InputBuilderListener containing zones by external Id
    */
   private static void updateDemandMatrixFromOdRowMatrix(final XMLElementOdRowMatrix odrowmatrix, final double pcu,
-      final ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) {
+      ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) {
     String separator = (odrowmatrix.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR
         : odrowmatrix.getDs();
     separator = escapeSeparator(separator);
@@ -149,7 +153,7 @@ public class UpdateDemands {
    * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square matrix
    */
   private static void updateDemandMatrixFromOdRawMatrix(final XMLElementOdRawMatrix odrawmatrix, final double pcu,
-      final ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
+      ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
     final Values values = odrawmatrix.getValues();
     String originSeparator = (values.getOs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR : values.getOs();
     originSeparator = escapeSeparator(originSeparator);
@@ -178,7 +182,7 @@ public class UpdateDemands {
    *           matrix
    */
   private static void updateDemandMatrixForDifferentSeparators(final Values values, final String originSeparator,
-      final String destinationSeparator, final double pcu, final ODDemandMatrix odDemandMatrix,
+      final String destinationSeparator, final double pcu, ODDemandMatrix odDemandMatrix,
       final InputBuilderListener inputBuilderListener) throws Exception {
     final String[] originRows = values.getValue().split(originSeparator);
     final int noRows = originRows.length;
@@ -210,7 +214,7 @@ public class UpdateDemands {
    */
   private static void updateDemandMatrixForEqualSeparators(final Values values, final String separator,
       final double pcu,
-      final ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
+      ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
     final String[] allValuesAsString = values.getValue().split(separator);
     final int size = allValuesAsString.length;
     final int noRows = (int) Math.round(Math.sqrt(size));
@@ -274,7 +278,7 @@ public class UpdateDemands {
       final UserClass userClass = inputBuilderListener.getUserClassByExternalId((long) userClassExternalId);
       final Mode mode = userClass.getMode();
       final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByExternalId(timePeriodId);
-      final ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
+      ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
       updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), odDemandMatrix, inputBuilderListener);
       demands.registerODDemand(timePeriod, mode, odDemandMatrix);
     }
