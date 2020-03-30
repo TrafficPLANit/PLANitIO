@@ -79,7 +79,7 @@ public class TestHelper {
       e.printStackTrace();
     }
   };
-
+  
   /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
    * object to known results stored in a Map. It generates a JUnit test failure if
@@ -447,8 +447,9 @@ public class TestHelper {
   }
 
   public static TestOutputDto setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-      final String projectPath, final String initialCostsFileLocation1,
-      final String initialCostsFileLocation2, final int initCostsFilePos, final Integer maxIterations,
+      final String projectPath, 
+      final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
+      final Integer maxIterations,
       final Double epsilon,
       final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description)
       throws Exception {
@@ -645,9 +646,7 @@ public class TestHelper {
     // LINK OUTPUT CONFIGURATION
     final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
         (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
-    if (setOutputTypeConfigurationProperties != null) {
-      setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
-    }
+    setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 
     // OD OUTPUT CONFIGURATION
     final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
@@ -716,8 +715,8 @@ public class TestHelper {
    *           function parameters are used.
    */
   public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
-      final String initialCostsFileLocation1,
-      final String initialCostsFileLocation2, final int initCostsFilePos, final Integer maxIterations,
+      final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
+      final Integer maxIterations,
       final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
       final String description)
