@@ -50,6 +50,7 @@ import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
+import org.planit.userclass.TravelerType;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Centroid;
@@ -514,7 +515,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param parameter2 PhysicalNetwork object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateDemands(@Nonnull final Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
+  protected void populateDemands(@Nonnull Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.info("Populating Demands");
     if (!(parameter1 instanceof Zoning)) {
       throw new PlanItException("Parameter of call to populateDemands() is not of class Zoning.");
@@ -525,6 +526,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
       ProcessConfiguration.generateAndStoreConfigurationData(demandconfiguration, this);
       final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
       UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
+      for (TravelerType travelerType : travelerTypeExternalIdToTravelerTypeMap.values()) {
+    	  demands.registerTravelerType(travelerType);
+      }
     } catch (final Exception e) {
       throw new PlanItException(e);
     }

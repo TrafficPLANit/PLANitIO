@@ -276,6 +276,7 @@ public class UpdateDemands {
       final int userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
           : odmatrix.getUserclassref().intValue();
       final UserClass userClass = inputBuilderListener.getUserClassByExternalId((long) userClassExternalId);
+      demands.registerUserClass(userClass);
       final Mode mode = userClass.getMode();
       final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByExternalId(timePeriodId);
       ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);

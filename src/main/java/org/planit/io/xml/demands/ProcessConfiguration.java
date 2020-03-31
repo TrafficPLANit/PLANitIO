@@ -122,7 +122,8 @@ public class ProcessConfiguration {
    * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
    * @throws PlanItException thrown if a duplicate external Id is found
    */
-  private static void generateTimePeriodMap(XMLElementDemandConfiguration demandconfiguration,
+  private static void generateTimePeriodMap(
+	  XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
     TimePeriod.reset();
     XMLElementTimePeriods timeperiods = demandconfiguration.getTimeperiods();
@@ -142,7 +143,7 @@ public class ProcessConfiguration {
         case S:
           break;
       }
-      TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);     
+      TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);  
       final boolean duplicateTimePeriodExternalId = inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod.getExternalId(), timePeriod);
       if (duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         throw new PlanItException("Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.");
