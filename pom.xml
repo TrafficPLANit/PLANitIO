@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.planit.planitio</groupId>
+	<groupId>org.planit.io</groupId>
 	<artifactId>PLANitIO</artifactId>
 	<description>PlanIt Code for default input and output</description>
 	<version>0.0.4-SNAPSHOT</version>
@@ -200,7 +200,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>org.planit.planitio.PlanItMain</mainClass>
+									<mainClass>org.planit.io.PlanItMain</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>

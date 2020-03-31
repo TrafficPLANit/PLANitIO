@@ -4,14 +4,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
+import org.planit.io.project.PlanItProject;
+import org.planit.io.project.PlanItSimpleProject;
 import org.planit.ltm.trafficassignment.ELTM;
 import org.planit.ltm.trafficassignment.ELTMTrafficAssignmentBuilder;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.planitio.project.PlanItProject;
-import org.planit.planitio.project.PlanItSimpleProject;
 import org.planit.route.choice.StochasticRouteChoice;
 import org.planit.route.choice.logit.MultinomialLogit;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
