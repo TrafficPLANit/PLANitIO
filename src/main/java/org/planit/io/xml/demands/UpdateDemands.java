@@ -64,13 +64,15 @@ public class UpdateDemands {
    * @throws PlanItException thrown if there is an error
    */
   private static Map<Mode, Map<TimePeriod, ODDemandMatrix>> initializeDemandsPerTimePeriodAndMode(
+	  Demands demands,
       final Zones zones, 
       final InputBuilderListener inputBuilderListener) throws PlanItException {
     Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode =
         new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
     for (final Mode mode : inputBuilderListener.getAllModes()) {
       final Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
-      for (final TimePeriod timePeriod : TimePeriod.getAllTimePeriods()) {
+      //for (final TimePeriod timePeriod : TimePeriod.getAllTimePeriods()) {
+      for (final TimePeriod timePeriod : demands.timePeriods.getRegisteredTimePeriods()) {
         demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
       }
       demandsPerTimePeriodAndMode.put(mode, demandsPerTimePeriod);
@@ -270,7 +272,7 @@ public class UpdateDemands {
       final InputBuilderListener inputBuilderListener) throws Exception {
  
     final Map<Mode, Map<TimePeriod, ODDemandMatrix>> 
-    demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(zones, inputBuilderListener);
+    demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
     for (final XMLElementOdMatrix odmatrix : oddemands) {
       final long timePeriodId = odmatrix.getTimeperiodref().longValue();
       final int userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID

@@ -52,6 +52,7 @@ import org.planit.test.util.TestOutputDto;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
+import org.planit.utils.QuadConsumer;
 import org.planit.utils.TriConsumer;
 import org.planit.utils.TriFunction;
 import org.planit.utils.misc.IdGenerator;
@@ -606,7 +607,7 @@ public class TestHelper {
    */
   public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
+      final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
       final String description) throws Exception {
@@ -683,7 +684,7 @@ public class TestHelper {
       taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
-    registerInitialCosts.accept(taBuilder, project, physicalNetwork);
+    registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
 
     final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
     if (!exceptionMap.keySet().isEmpty()) {
@@ -722,8 +723,8 @@ public class TestHelper {
       final String description)
       throws Exception {
 
-    final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        taBuilder, project, physicalNetwork) -> {
+    final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
+        demands, taBuilder, project, physicalNetwork) -> {
       InitialLinkSegmentCost initialCost = null;
       if (initialCostsFileLocation1 != null) {
         if (initialCostsFileLocation2 != null) {
@@ -771,8 +772,8 @@ public class TestHelper {
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
       final String description) throws Exception {
 
-    final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        taBuilder, project, physicalNetwork) -> {
+    final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
+        demands, taBuilder, project, physicalNetwork) -> {
       InitialLinkSegmentCost initialCost = null;
       if (initialCostsFileLocation1 != null) {
         if (initialCostsFileLocation2 != null) {
@@ -806,17 +807,18 @@ public class TestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto setupAndExecuteAssignment(
+	  final String projectPath,
       final Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, final Integer maxIterations,
       final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
       final String description)
       throws Exception {
 
-    final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        taBuilder, project, physicalNetwork) -> {
+    final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
+        demands, taBuilder, project, physicalNetwork) -> {
       for (final Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
-        final TimePeriod timePeriod = TimePeriod.getById(timePeriodId);
+    	final TimePeriod timePeriod = demands.timePeriods.getTimePeriodById(timePeriodId);
         final String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
         final InitialLinkSegmentCost initialCost = 
             project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);

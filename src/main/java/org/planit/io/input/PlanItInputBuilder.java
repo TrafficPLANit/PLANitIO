@@ -523,7 +523,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final Zoning zoning = (Zoning) parameter1;
     try {
       final XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
-      ProcessConfiguration.generateAndStoreConfigurationData(demandconfiguration, this);
+      ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, this);
       final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
       UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
       for (TravelerType travelerType : travelerTypeExternalIdToTravelerTypeMap.values()) {
@@ -668,7 +668,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
               + " which is not handled by PlanItInputBuilder.");
         }
       } catch (final PlanItException e) {
-        throw new RemoteException(e.toString());
+    	e.printStackTrace(); 
+        throw new RemoteException(e.getMessage(), e);
       }
     }
   }

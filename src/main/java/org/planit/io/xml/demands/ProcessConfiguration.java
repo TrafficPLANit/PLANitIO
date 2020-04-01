@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Durationunit;
 import org.planit.generated.XMLElementDemandConfiguration;
@@ -116,6 +117,7 @@ public class ProcessConfiguration {
   /**
    * Generate a Map of TimePeriod objects from generated configuration object
    * 
+   * @param demands the Demands object
    * @param demandconfiguration generated XMLElementDemandConfiguration object from
    *          demand XML input
    * @param inputBuilderListener parser to be updated
@@ -123,9 +125,9 @@ public class ProcessConfiguration {
    * @throws PlanItException thrown if a duplicate external Id is found
    */
   private static void generateTimePeriodMap(
+	  Demands demands,
 	  XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-    TimePeriod.reset();
     XMLElementTimePeriods timeperiods = demandconfiguration.getTimeperiods();
     for (XMLElementTimePeriods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {
       long timePeriodId = timePeriodGenerated.getId().longValue();
@@ -148,12 +150,14 @@ public class ProcessConfiguration {
       if (duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         throw new PlanItException("Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.");
       }
+      demands.timePeriods.registerTimePeriod(timePeriod);
     }
   }
 
   /**
    * Sets up all the configuration data from the XML demands file
    * 
+   * @param demands the Demands object
    * @param demandconfiguration the generated XMLElementDemandConfiguration object
    *          containing the data from the XML input file
    * @param inputBuilderListener parser to be updated
@@ -161,11 +165,12 @@ public class ProcessConfiguration {
    * @throws PlanItException thrown if there is a duplicate external Id found for any component
    */
   public static void generateAndStoreConfigurationData(
+	  Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
     ProcessConfiguration.generateAndStoreTravelerTypes(demandconfiguration, inputBuilderListener);
     ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration, inputBuilderListener);
-    ProcessConfiguration.generateTimePeriodMap(demandconfiguration, inputBuilderListener);
+    ProcessConfiguration.generateTimePeriodMap(demands, demandconfiguration, inputBuilderListener);
   }
 
 }
