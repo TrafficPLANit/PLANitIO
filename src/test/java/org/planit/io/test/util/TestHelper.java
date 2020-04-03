@@ -486,7 +486,7 @@ public class TestHelper {
       final String description) throws Exception {
     IdGenerator.reset();
 
-    PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+    final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
     // RAW INPUT START --------------------------------

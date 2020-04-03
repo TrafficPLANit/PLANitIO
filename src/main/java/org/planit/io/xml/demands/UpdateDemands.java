@@ -71,7 +71,6 @@ public class UpdateDemands {
         new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
     for (final Mode mode : inputBuilderListener.getAllModes()) {
       final Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
-      //for (final TimePeriod timePeriod : TimePeriod.getAllTimePeriods()) {
       for (final TimePeriod timePeriod : demands.timePeriods.getRegisteredTimePeriods()) {
         demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
       }
@@ -271,8 +270,8 @@ public class UpdateDemands {
       final Zones zones,
       final InputBuilderListener inputBuilderListener) throws Exception {
  
-    final Map<Mode, Map<TimePeriod, ODDemandMatrix>> 
-    demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
+    final Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = 
+    		initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
     for (final XMLElementOdMatrix odmatrix : oddemands) {
       final long timePeriodId = odmatrix.getTimeperiodref().longValue();
       final int userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID

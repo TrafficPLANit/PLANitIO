@@ -56,8 +56,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     private void initialiseSimpleProject() {
         try {
             // register the default Output formatter as a formatter that is available
-            defaultOutputFormatter = (PlanItOutputFormatter) this.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
-            
+            defaultOutputFormatter = (PlanItOutputFormatter) this.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());            
             // parse a macroscopic network representation + register on assignment
             network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
             // parse the zoning system + register on assignment
@@ -96,7 +95,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         initialiseSimpleProject();
     }
 
-    public PlanItSimpleProject(final PlanItInputBuilder planItInputBuilder) {
+	public PlanItSimpleProject(final PlanItInputBuilder planItInputBuilder) {
       super(planItInputBuilder);
       initialiseSimpleProject();
     }
@@ -164,5 +163,17 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     public PlanItOutputFormatter getDefaultOutputFormatter() {
         return this.defaultOutputFormatter;
     }
+
+    public MacroscopicNetwork getNetwork() {
+		return network;
+	}
+
+	public Zoning getZoning() {
+		return zoning;
+	}
+
+	public Demands getDemands() {
+		return demands;
+	}
 
 }
