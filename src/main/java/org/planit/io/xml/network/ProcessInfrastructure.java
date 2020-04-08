@@ -2,6 +2,7 @@ package org.planit.io.xml.network;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
@@ -37,6 +38,9 @@ import net.opengis.gml.PointType;
  *
  */
 public class ProcessInfrastructure {
+
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(ProcessInfrastructure.class.getCanonicalName());   
 
   private static PlanitGeoUtils planitGeoUtils;
 
@@ -135,7 +139,9 @@ public class ProcessInfrastructure {
     if (linkSegment.getExternalId() != null) {
       final boolean duplicateLinkSegmentExternalId = inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
       if (duplicateLinkSegmentExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate link segment external id " + linkSegment.getExternalId() + " found in network file.");
+        String errorMessage = "Duplicate link segment external id " + linkSegment.getExternalId() + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
     }
   }
@@ -161,7 +167,9 @@ public class ProcessInfrastructure {
       network.nodes.registerNode(node);
       boolean duplicateNodeExternalId = inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(), node);
       if (duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate node external id " + generatedNode.getId().longValue() + " found in network file.");
+        String errorMessage = "Duplicate node external id " + generatedNode.getId().longValue() + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
     }
   }

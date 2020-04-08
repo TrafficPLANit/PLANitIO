@@ -145,8 +145,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
     if (setInputFilesSeparateFiles(xmlFileNames)) {
       return;
     }
-    throw new PlanItException("The directory " + projectPath
-        + " does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network.");
+    String errorMessage = "The directory " + projectPath
+        + " does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network.";
+    LOGGER.severe(errorMessage);
+    throw new PlanItException(errorMessage);
   }
 
   /**
@@ -351,10 +353,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
       }
     }
     if (!costPresent) {
-      throw new PlanItException("Cost column not present in initial link segment costs file");
+      String errorMessage = "Cost column not present in initial link segment costs file";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     if (!modeExternalIdPresent) {
-      throw new PlanItException("Mode External Id not present in initial link segment costs file");
+      String errorMessage = "Mode External Id not present in initial link segment costs file";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     if (linkSegmentExternalIdPresent) {
       return OutputProperty.LINK_SEGMENT_EXTERNAL_ID;
@@ -365,7 +371,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     if (upstreamNodeExternalIdPresent && downstreamNodeExternalIdPresent) {
       return OutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
     }
-    throw new PlanItException("Links not correctly identified in initial link segment costs file");
+    String errorMessage = "Links not correctly identified in initial link segment costs file";
+    LOGGER.severe(errorMessage);
+    throw new PlanItException(errorMessage);
   }
 
   /**
@@ -384,7 +392,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.NAME));
     final Mode mode = getModeByExternalId(modeExternalId);
     if (mode == null) {
-      throw new PlanItException("mode external id not available in configuration");
+      String errorMessage = "mode external id not available in configuration";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     final double cost = Double.parseDouble(record.get(LinkCostOutputProperty.NAME));
     initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
@@ -409,8 +419,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final long id = Long.parseLong(record.get(header));
     final LinkSegment linkSegment = findLinkFunction.apply(id);
     if (linkSegment == null) {
-      throw new PlanItException("Failed to find link segment");
-    }
+      String errorMessage = "Failed to find link segment";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
+   }
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
   }
 
@@ -444,7 +456,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final LinkSegment linkSegment = network.linkSegments.getLinkSegmentByStartAndEndNodeId(startId, endId);
 
     if (linkSegment == null) {
-      throw new PlanItException("Failed to find link segment");
+      String errorMessage = "Failed to find link segment";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
   }
@@ -484,7 +498,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateZoning(final Zoning zoning, final Object parameter1) throws PlanItException {
     LOGGER.info("Populating Zoning");
     if (!(parameter1 instanceof PhysicalNetwork)) {
-      throw new PlanItException("Parameter of call to populateZoning() is not of class PhysicalNetwork");
+      String errorMessage = "Parameter of call to populateZoning() is not of class PhysicalNetwork";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     final PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter1;
     final Nodes nodes = physicalNetwork.nodes;
@@ -518,7 +534,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateDemands(@Nonnull Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.info("Populating Demands");
     if (!(parameter1 instanceof Zoning)) {
-      throw new PlanItException("Parameter of call to populateDemands() is not of class Zoning.");
+      String errorMessage = "Parameter of call to populateDemands() is not of class Zoning.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     final Zoning zoning = (Zoning) parameter1;
     try {
@@ -551,7 +569,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
           "Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
     }
     if (!(parameter2 instanceof String)) {
-      throw new PlanItException("Parameter 2 of call to populateInitialLinkSegments() is not a file name");
+      String errorMessage = "Parameter 2 of call to populateInitialLinkSegments() is not a file name";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     final PhysicalNetwork network = (PhysicalNetwork) parameter1;
     final String fileName = (String) parameter2;
@@ -581,10 +601,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
                 UpstreamNodeExternalIdOutputProperty.NAME, DownstreamNodeExternalIdOutputProperty.NAME);
             break;
           default:
-            throw new PlanItException("Invalid Output Property "
+            String errorMessage = "Invalid Output Property "
                 + BaseOutputProperty.convertToBaseOutputProperty(linkIdentificationMethod).getName()
-                + " found in header of Initial Link Segment Cost CSV file");
-        }
+                + " found in header of Initial Link Segment Cost CSV file";
+            LOGGER.severe(errorMessage);
+            throw new PlanItException(errorMessage);
+       }
       }
       in.close();
     } catch (final Exception ex) {

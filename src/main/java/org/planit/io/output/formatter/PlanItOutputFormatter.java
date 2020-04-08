@@ -202,7 +202,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
             csvdata.setType(((SubOutputTypeEnum)currentOutputType).value());           
             metadata.get((SubOutputTypeEnum)currentOutputType).getSimulation().getIteration().add(iteration);		    
 		} else {
-		    throw new PlanItException("invalid output type provided when updating metadata simulation output for current iteration");
+		    String errorMessage = "invalid output type provided when updating metadata simulation output for current iteration";
+	      LOGGER.severe(errorMessage);
+	      throw new PlanItException(errorMessage);
 		}
 		    
 	}

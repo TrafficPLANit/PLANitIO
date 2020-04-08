@@ -1,6 +1,7 @@
 package org.planit.io.xml.demands;
 
 import java.math.BigInteger;
+import java.util.logging.Logger;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -25,6 +26,9 @@ import org.planit.utils.network.physical.Mode;
  *
  */
 public class ProcessConfiguration {
+  
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(ProcessConfiguration.class.getCanonicalName());   
 
   /**
    * Generate TravelerType objects from generated configuration object
@@ -48,7 +52,9 @@ public class ProcessConfiguration {
       TravelerType travelerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
       final boolean duplicateTravelerTypeExternalId = inputBuilderListener.addTravelerTypeToExternalIdMap(travelerType.getExternalId(), travelerType);
       if (duplicateTravelerTypeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate traveler type external id " + travelerType.getExternalId() + " found in network file.");
+        String errorMessage = "Duplicate traveler type external id " + travelerType.getExternalId() + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
     }
   }
@@ -83,7 +89,9 @@ public class ProcessConfiguration {
           travellerType);
       final boolean duplicateUserClassExternalId = inputBuilderListener.addUserClassToExternalIdMap(userClass.getExternalId(), userClass);
       if (duplicateUserClassExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate user class external id " + userClass.getExternalId() + " found in network file.");
+        String errorMessage = "Duplicate user class external id " + userClass.getExternalId() + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
     }
   }
@@ -148,7 +156,9 @@ public class ProcessConfiguration {
       TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);  
       final boolean duplicateTimePeriodExternalId = inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod.getExternalId(), timePeriod);
       if (duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.");
+        String errorMessage = "Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
       demands.timePeriods.registerTimePeriod(timePeriod);
     }

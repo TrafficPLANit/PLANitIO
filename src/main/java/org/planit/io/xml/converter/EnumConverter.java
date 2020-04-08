@@ -1,5 +1,7 @@
 package org.planit.io.xml.converter;
 
+import java.util.logging.Logger;
+
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.Typevalues;
 import org.planit.generated.Unitsvalues;
@@ -13,6 +15,10 @@ import org.planit.output.enums.Units;
  *
  */
 public interface EnumConverter {
+  
+  
+  /** the logger */
+  public static final Logger LOGGER = Logger.getLogger(EnumConverter.class.getCanonicalName());   
 
 	/**
 	 * Convert values from Type enumeration in PLANit project to generated Typevalues enumeration
@@ -38,8 +44,10 @@ public interface EnumConverter {
 		case STRING:
 			return Typevalues.STRING;
 		default:
-			throw new PlanItException("Data type " + type.value()
-					+ " has not been defined in the typevalues simple type in the output XSD file.");
+			String errorMessage = "Data type " + type.value()
+					+ " has not been defined in the typevalues simple type in the output XSD file.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
 		}
 	}
 
@@ -67,8 +75,10 @@ public interface EnumConverter {
 		case SRS:
 			return Unitsvalues.SRS;
 		default:
-			throw new PlanItException("Units type " + units.value()
-					+ " has not been defined in the unitsvalues simple type in the output XSD file.");
+			String errorMessage = "Units type " + units.value()
+					+ " has not been defined in the unitsvalues simple type in the output XSD file.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
 		}
 	}
 

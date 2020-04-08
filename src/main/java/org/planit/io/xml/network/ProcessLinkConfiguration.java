@@ -2,6 +2,7 @@ package org.planit.io.xml.network;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementLinkConfiguration;
@@ -22,6 +23,9 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
  */
 public class ProcessLinkConfiguration {
 
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(ProcessLinkConfiguration.class.getCanonicalName());   
+
   /**
    * Reads mode types from input file and stores them in a Map
    * 
@@ -34,14 +38,18 @@ public class ProcessLinkConfiguration {
     for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
       long externalModeId = generatedMode.getId().longValue();
       if (externalModeId == 0) {
-        throw new PlanItException("Found a Mode value of 0 in the modes definition file, this is prohibited");
+        String errorMessage = "Found a Mode value of 0 in the modes definition file, this is prohibited";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
       String name = generatedMode.getName();
       double pcu = generatedMode.getPcu();
       Mode mode = physicalNetwork.modes.registerNewMode(externalModeId, name, pcu);
       final boolean duplicateModeExternalId = inputBuilderListener.addModeToExternalIdMap(mode.getExternalId(), mode);
       if (duplicateModeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate mode external id " + mode.getExternalId() + " found in network file.");
+        String errorMessage = "Duplicate mode external id " + mode.getExternalId() + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
     }
   }
@@ -64,7 +72,9 @@ public class ProcessLinkConfiguration {
         .getLinksegmenttype()) {
       long externalId = linkSegmentTypeGenerated.getId().longValue();
       if (macroscopicLinkSegmentTypeXmlHelperMap.containsKey(externalId) && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        throw new PlanItException("Duplicate link segment type external id " + externalId + " found in network file.");
+        String errorMessage = "Duplicate link segment type external id " + externalId + " found in network file.";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
       }
       String name = linkSegmentTypeGenerated.getName();
       double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : linkSegmentTypeGenerated.getCapacitylane();
