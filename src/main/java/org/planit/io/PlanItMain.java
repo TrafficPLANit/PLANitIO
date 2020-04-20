@@ -36,14 +36,6 @@ public class PlanItMain {
   /** the logger */
   private static Logger LOGGER;
   
-  static {
-    try {
-      LOGGER = Logging.createLogger(PlanItMain.class);
-    } catch (PlanItException e) {
-      e.printStackTrace();
-    }
-  }
-  
 	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
 	private final int maxIterations = 500;
 	private final double epsilon = 0.00;
@@ -58,13 +50,13 @@ public class PlanItMain {
 	public static void main(final String[] args) throws SecurityException, IOException {
 
 		try {
+		  LOGGER = Logging.createLogger(PlanItMain.class);
 			final PlanItMain planItMain = new PlanItMain();
 			planItMain.execute();
+      Logging.closeLogger(LOGGER);
 		} catch (final Exception e) {
-      LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-	    Logging.closeLogger(LOGGER);
-		}
+      e.printStackTrace();
+		} 
 	}
 
 	/**

@@ -629,6 +629,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	public void setXmlDirectory(String xmlDirectory) {
 		this.xmlDirectory = xmlDirectory;
 	}
+	
+	/**
+	 * Returns whether the xml directory has been set
+	 * 
+	 * @return true if the xml directory has been set, false otherwise
+	 */
+	public boolean isXmlDirectorySet() {
+	  return xmlDirectory != null;
+	}
 
 	/**
 	 * Set the directory for CSV output files
