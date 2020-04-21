@@ -1,6 +1,7 @@
 package org.planit.io.project;
 
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -14,6 +15,7 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.project.CustomPlanItProject;
+import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 
 /**
@@ -179,5 +181,12 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 	public Demands getDemands() {
 		return demands;
 	}
-
+	
+	public TimePeriod getTimePeriodByExternalId(Object externalId)	{
+	  return inputBuilderListener.getTimePeriodByExternalId(externalId);
+	}
+	
+	public List<Object> getTimePeriodExternalIds() {
+	  return inputBuilderListener.getTimePeriodExternalIds();
+	}
 }
