@@ -1,4 +1,4 @@
-package org.planit.io.test.integration;
+package org.planit.io.test.util;
 
 /**
  * DTO object containing extra fields specific to BPR function

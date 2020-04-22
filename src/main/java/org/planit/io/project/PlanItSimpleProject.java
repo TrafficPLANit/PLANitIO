@@ -3,6 +3,7 @@ package org.planit.io.project;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,12 +12,17 @@ import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
+import org.planit.io.test.util.LinkSegmentExpectedResultsDto;
+import org.planit.io.test.util.TestHelper;
+import org.planit.network.physical.ModeImpl;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
+import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
+import org.planit.utils.network.physical.Mode;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Limitations include:
@@ -170,23 +176,99 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         return this.defaultOutputFormatter;
     }
 
+    /**
+     * Return the current network object
+     * 
+     * @return the current network
+     */
     public MacroscopicNetwork getNetwork() {
 		return network;
 	}
 
+    /**
+     * Return the current Zoning object
+     * 
+     * @return the current zoning object
+     */
 	public Zoning getZoning() {
 		return zoning;
 	}
 
+	/**
+	 * Return the current Demands object
+	 * 
+	 * @return the current demands
+	 */
 	public Demands getDemands() {
 		return demands;
 	}
 	
+	/**
+	 * Retrieve a time period by its external Id
+	 * 
+	 * @param externalId the external Id to search on
+	 * @return the retrieved time period
+	 */
 	public TimePeriod getTimePeriodByExternalId(Object externalId)	{
 	  return inputBuilderListener.getTimePeriodByExternalId(externalId);
 	}
 	
+	/**
+	 * Retrieve a mode by its external Id
+	 * 
+	 * @param externalId the external Id to search on
+	 * @return the retrieved mode
+	 */
+	public Mode getModeByExternalId(Object externalId) {
+    return inputBuilderListener.getModeByExternalId(externalId);
+	}
+	
+	/**
+	 * Retrieve a list of the external Ids of all registered time periods 
+	 * 
+	 * @return List of all registered time periods
+	 */
 	public List<Object> getTimePeriodExternalIds() {
 	  return inputBuilderListener.getTimePeriodExternalIds();
 	}
+	
+	/**
+	 * Method to compare results in the MemoryOutputFormatter to standard results
+	 * 
+	 * Used by the Python interface
+	 * 
+	 * @param memoryOutputFormatter MemoryOutputFormatter storing results from an earlier run
+	 * @param iterationIndex the current iteration index
+	 * @param resultsMap Map of standard results
+	 * @return true if the results in the MemoryOutputFormatter match those in the results map, false otherwise
+	 * @throws PlanItException thrown if there is an error reading the MemoryOutputFormatter
+	 */
+	public boolean compareResultsToMemoryOutputFormatterUsingNodesExternalId(
+      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
+      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap)
+      throws PlanItException {	  
+    return TestHelper.compareResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+        iterationIndex, resultsMap);
+	}
+	
+	/**
+	 * Create Map of test results to be used by the Python interface when testing the memory output
+	 * 
+	 * The results are only applicable to the "textExplanatory" unit test. 
+	 * 
+	 * @return Map of results to be used for testing
+	 */
+	public SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>  createResultsForExplanatoryTest() {
+    SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+        new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+    TimePeriod timePeriod = getTimePeriodByExternalId(0L);
+    Mode mode1 = getModeByExternalId(1L);
+    resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+    resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+    resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+    resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,
+        10.0, 2000.0, 10.0, 1.0));
+    return resultsMap;
+	}
+
 }

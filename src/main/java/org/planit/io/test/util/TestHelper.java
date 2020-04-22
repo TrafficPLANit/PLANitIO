@@ -31,7 +31,6 @@ import org.planit.generated.XMLElementOutputTimePeriod;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
-import org.planit.io.test.integration.LinkSegmentExpectedResultsDto;
 import org.planit.io.xml.util.XmlUtils;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -92,13 +91,15 @@ public class TestHelper {
    * @param resultsMap Map containing the standard results for each time period and mode
    * @param getPositionKeys lambda function which generates the position of the key(s) in the key array
    * @param getResultDto lambda function which generates the known result for each iteration
+   * @return true if all the tests have passed, false otherwise
    * @throws PlanItException thrown if there is an error
    */
-  private static void compareResultsToMemoryOutputFormatter(
+  private static boolean compareResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, ? extends SortedMap<Mode, ? extends Object>> resultsMap,
       TriFunction<Mode, TimePeriod, Integer, Object> getPositionKeys,
       TriFunction<Pair<Integer, Integer>, Object, Object[], LinkSegmentExpectedResultsDto> getResultDto) throws PlanItException {
+    boolean pass = true;
     final int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
     for (final TimePeriod timePeriod : resultsMap.keySet()) {
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
@@ -135,13 +136,18 @@ public class TestHelper {
           final double capacityPerLane = (Double) results[capacityPosition];
           final int numberOfLanes = (Integer) results[numberOfLanesPosition];
           assertEquals(flow, resultDto.getLinkFlow(), epsilon);
+          pass = pass && (Math.abs(flow - resultDto.getLinkFlow()) < epsilon);
           assertEquals(length, resultDto.getLength(), epsilon);
+          pass = pass && (Math.abs(speed - resultDto.getSpeed()) < epsilon);
           assertEquals(speed, resultDto.getSpeed(), epsilon);
+          pass = pass && (Math.abs(cost - resultDto.getLinkCost()) < epsilon);
           assertEquals(cost, resultDto.getLinkCost(), epsilon);
+          pass = pass && (Math.abs(numberOfLanes *  capacityPerLane - resultDto.getCapacity()) < epsilon);
           assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
         }
       }
     }
+    return pass;
   }
  
   /**
@@ -156,14 +162,15 @@ public class TestHelper {
    * @param iterationIndex the current iteration index
    * @param resultsMap Map storing standard test results which have been generated previously,
    *          identified by start and end node external Ids
+   * @return true if all the tests pass, false otherwise
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
-  public static void compareResultsToMemoryOutputFormatterUsingNodesExternalId(
+  public static boolean compareResultsToMemoryOutputFormatterUsingNodesExternalId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap)
       throws PlanItException {
-    compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
+    return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
           final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
@@ -198,14 +205,15 @@ public class TestHelper {
    * @param iterationIndex the current iteration index
    * @param resultsMap Map storing standard test results which have been generated previously,
    *          identified link segment Id
+   * @return true if all the tests pass, false otherwise
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
-  public static void compareResultsToMemoryOutputFormatterUsingLinkSegmentId(
+  public static boolean compareResultsToMemoryOutputFormatterUsingLinkSegmentId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap)
       throws PlanItException {
-    compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
+    return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
             final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod,

@@ -25,6 +25,7 @@ import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.input.PlanItInputBuilder;
+import org.planit.io.test.util.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.TestHelper;
 import org.planit.logging.Logging;
 import org.planit.network.physical.PhysicalNetwork;
@@ -1870,7 +1871,7 @@ public class PlanItIOIntegrationTest {
       Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
       Mode mode2 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 2);
       TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
-       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());

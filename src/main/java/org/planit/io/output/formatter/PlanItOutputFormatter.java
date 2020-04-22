@@ -562,12 +562,14 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	public void initialiseBeforeSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations, long runId) throws PlanItException {
 		this.runId = runId;
 		if (xmlDirectory == null) {
-			throw new PlanItException(
-					"No common output directory or XML output directory has been defined in the code.");
+      String errorMessage = "No common output directory or XML output directory has been defined in the code.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
 		}
 		if (csvDirectory == null) {
-			throw new PlanItException(
-					"No common output directory or CSV output directory has been defined in the code.");
+		  String errorMessage = "No common output directory or CSV output directory has been defined in the code.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
 		}
 
 		createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
