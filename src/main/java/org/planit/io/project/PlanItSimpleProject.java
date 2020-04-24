@@ -14,7 +14,6 @@ import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.io.test.util.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.TestHelper;
-import org.planit.network.physical.ModeImpl;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -209,8 +208,8 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 	 * @param externalId the external Id to search on
 	 * @return the retrieved time period
 	 */
-	public TimePeriod getTimePeriodByExternalId(Object externalId)	{
-	  return inputBuilderListener.getTimePeriodByExternalId(externalId);
+	public TimePeriod getTimePeriodByExternalId(int externalId)	{
+	  return inputBuilderListener.getTimePeriodByExternalId((long) externalId);
 	}
 	
 	/**
@@ -219,8 +218,8 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 	 * @param externalId the external Id to search on
 	 * @return the retrieved mode
 	 */
-	public Mode getModeByExternalId(Object externalId) {
-    return inputBuilderListener.getModeByExternalId(externalId);
+	public Mode getModeByExternalId(int externalId) {
+    return inputBuilderListener.getModeByExternalId((long) externalId);
 	}
 	
 	/**
@@ -261,8 +260,8 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 	public SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>  createResultsForExplanatoryTest() {
     SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
         new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-    TimePeriod timePeriod = getTimePeriodByExternalId(0L);
-    Mode mode1 = getModeByExternalId(1L);
+    TimePeriod timePeriod = getTimePeriodByExternalId(0);
+    Mode mode1 = getModeByExternalId(1);
     resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
     resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
     resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
