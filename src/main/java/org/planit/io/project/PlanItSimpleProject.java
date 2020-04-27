@@ -231,43 +231,4 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 	  return inputBuilderListener.getTimePeriodExternalIds();
 	}
 	
-	/**
-	 * Method to compare results in the MemoryOutputFormatter to standard results
-	 * 
-	 * Used by the Python interface
-	 * 
-	 * @param memoryOutputFormatter MemoryOutputFormatter storing results from an earlier run
-	 * @param iterationIndex the current iteration index
-	 * @param resultsMap Map of standard results
-	 * @return true if the results in the MemoryOutputFormatter match those in the results map, false otherwise
-	 * @throws PlanItException thrown if there is an error reading the MemoryOutputFormatter
-	 */
-	public boolean compareResultsToMemoryOutputFormatterUsingNodesExternalId(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
-      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap)
-      throws PlanItException {	  
-    return TestHelper.compareResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
-        iterationIndex, resultsMap);
-	}
-	
-	/**
-	 * Create Map of test results to be used by the Python interface when testing the memory output
-	 * 
-	 * The results are only applicable to the "textExplanatory" unit test. 
-	 * 
-	 * @return Map of results to be used for testing
-	 */
-	public SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>  createResultsForExplanatoryTest() {
-    SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-        new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-    TimePeriod timePeriod = getTimePeriodByExternalId(0);
-    Mode mode1 = getModeByExternalId(1);
-    resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-    resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-    resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-    resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,
-        10.0, 2000.0, 10.0, 1.0));
-    return resultsMap;
-	}
-
 }
