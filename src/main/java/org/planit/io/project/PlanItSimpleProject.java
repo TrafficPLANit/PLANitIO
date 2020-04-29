@@ -203,26 +203,6 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 	}
 	
 	/**
-	 * Retrieve a time period by its external Id
-	 * 
-	 * @param externalId the external Id to search on
-	 * @return the retrieved time period
-	 */
-	public TimePeriod getTimePeriodByExternalId(int externalId)	{
-	  return inputBuilderListener.getTimePeriodByExternalId((long) externalId);
-	}
-	
-	/**
-	 * Retrieve a mode by its external Id
-	 * 
-	 * @param externalId the external Id to search on
-	 * @return the retrieved mode
-	 */
-	public Mode getModeByExternalId(int externalId) {
-    return inputBuilderListener.getModeByExternalId((long) externalId);
-	}
-	
-	/**
 	 * Retrieve a list of the external Ids of all registered time periods 
 	 * 
 	 * @return List of all registered time periods
