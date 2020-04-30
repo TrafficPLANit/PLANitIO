@@ -3,7 +3,6 @@ package org.planit.io.project;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,16 +11,11 @@ import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
-import org.planit.io.test.util.LinkSegmentExpectedResultsDto;
-import org.planit.io.test.util.TestHelper;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
-import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
-import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
-import org.planit.utils.network.physical.Mode;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Limitations include:
