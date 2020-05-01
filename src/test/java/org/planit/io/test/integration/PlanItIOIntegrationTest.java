@@ -42,7 +42,7 @@ import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.test.util.TestOutputDto;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
-import org.planit.utils.TriConsumer;
+import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
