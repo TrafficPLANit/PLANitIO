@@ -27,6 +27,7 @@ import org.planit.input.InputBuilderListener;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
+import org.planit.utils.test.TestOutputDto;
 import org.planit.logging.Logging;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -39,7 +40,6 @@ import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
-import org.planit.test.util.TestOutputDto;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.utils.functionalinterface.TriConsumer;
@@ -288,11 +288,10 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = null;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-         maxIterations, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -344,11 +343,10 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = null;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -424,14 +422,13 @@ public class PlanItIOIntegrationTest {
       String xmlFileName3 = "Time Period 3.xml";
       Integer maxIterations = null;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      TimePeriod timePeriod1 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
        resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -462,7 +459,7 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod1).get(mode1).get((long) 12).put((long) 11, new LinkSegmentExpectedResultsDto(11, 12, 1,
           8, 85, 2000, 8, 1));
 
-      TimePeriod timePeriod2 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 1);
+      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByExternalId((long) 1);
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -478,7 +475,7 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod2).get(mode1).get((long) 13).put((long) 12, new LinkSegmentExpectedResultsDto(12, 13, 1,
           47, 77, 2000, 47, 1));
 
-      TimePeriod timePeriod3 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 2);
+      TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodByExternalId((long) 2);
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod3).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod3).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -551,12 +548,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = 
-          PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -744,12 +740,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1041,12 +1036,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1107,12 +1101,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1268,12 +1261,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName2 = "Time Period 2.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod1 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1392,7 +1384,7 @@ public class PlanItIOIntegrationTest {
       resultsMap.get(timePeriod1).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 625.2462927, 10000, 1, 49.967441));
 
-      TimePeriod timePeriod2 = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 1);
+      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByExternalId((long) 1);
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -1547,12 +1539,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1703,12 +1694,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = 500;
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          maxIterations, 0.0, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1865,12 +1855,12 @@ public class PlanItIOIntegrationTest {
         bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
-     TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      Mode mode2 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 2);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1965,13 +1955,12 @@ public class PlanItIOIntegrationTest {
         }
       };
 
-      TestOutputDto testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0, setCostParameters, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      Mode mode2 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 2);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>>();
@@ -2032,12 +2021,11 @@ public class PlanItIOIntegrationTest {
       String xmlFileName = "Time Period 1.xml";
       Integer maxIterations = null;
 
-      TestOutputDto testOutputDto = 
-          PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -2069,12 +2057,11 @@ public class PlanItIOIntegrationTest {
     String xmlFileName = "Time Period 1.xml";
     Integer maxIterations = null;
     try {
-      TestOutputDto testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getMemoryOutputFormatter();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>  testOutputDto = PlanItIOTestHelper.setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getInputBuilderListener().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getInputBuilderListener().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());

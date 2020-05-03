@@ -47,7 +47,6 @@ import org.planit.output.formatter.MemoryOutputIterator;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.test.util.TestOutputDto;
 import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
@@ -58,6 +57,7 @@ import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
+import org.planit.utils.test.TestOutputDto;
 
 /**
  * Helper class used by unit tests
@@ -244,7 +244,8 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  //public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
       final String description)
@@ -264,7 +265,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
       final String description)
@@ -285,7 +286,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation,
       final Integer maxIterations, 
@@ -306,7 +307,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation,
       final Integer maxIterations, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
@@ -330,7 +331,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, 
@@ -354,7 +355,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation1,
       final String initialCostsFileLocation2, final int initCostsFilePos, final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
@@ -378,7 +379,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final Double epsilon, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
@@ -401,7 +402,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
       final Double epsilon, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
@@ -422,7 +423,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
       final String description)
@@ -441,23 +442,44 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
       final String description)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description);
   }
 
-  public static TestOutputDto setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-      final String projectPath,
+ /**
+  * Runs a test case which attempts to change a locked formatter
+  * 
+   * @param projectPath project directory containing the input files
+   * @param setCostParameters lambda function which sets parameters of cost function
+   * @param description description used in temporary output file names
+   * @return TestOutputDto containing results, builder and project from the run
+   * @throws Exception thrown if there is an error
+  */
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
       final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description)
       throws Exception {
     return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, null, 0, null, null,
         setCostParameters, description);
   }
 
-  public static TestOutputDto setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-      final String projectPath, 
+  /**
+   * Runs a test case which attempts to change a locked formatter
+   * 
+   * @param projectPath project directory containing the input files
+   * @param initialCostsFileLocation1
+   * @param initialCostsFileLocation2
+   * @param initCostsFilePos
+   * @param maxIterations
+   * @param epsilon
+   * @param setCostParameters lambda function which sets parameters of cost function
+   * @param description description used in temporary output file names
+   * @return TestOutputDto containing results, builder and project from the run
+   * @throws Exception
+   */
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath, 
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
@@ -486,8 +508,20 @@ public class PlanItIOTestHelper {
         description);
   }
 
-  public static TestOutputDto setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-      final String projectPath,
+  /**
+   * Runs a test case which attempts to change a locked formatter
+   * 
+   * @param projectPath project directory containing the input files
+   * @param setOutputTypeConfigurationProperties
+   * @param registerInitialCosts
+   * @param maxIterations
+   * @param epsilon
+   * @param setCostParameters lambda function which sets parameters of cost function
+   * @param description description used in temporary output file names
+   * @return TestOutputDto containing results, builder and project from the run
+   * @throws Exception
+   */
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
@@ -595,8 +629,8 @@ public class PlanItIOTestHelper {
         throw exceptionMap.get(id);
       }
     }
-    TestOutputDto testOutputDto = new TestOutputDto(memoryOutputFormatter, project, planItInputBuilder);
-    return testOutputDto;
+    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDtoX = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
+    return testOutputDtoX;
   }
 
   /**
@@ -614,7 +648,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
@@ -701,8 +735,8 @@ public class PlanItIOTestHelper {
         throw exceptionMap.get(id);
       }
     }
-    TestOutputDto testOutputDto = new TestOutputDto(memoryOutputFormatter, project, planItInputBuilder);
-    return testOutputDto;
+    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDtoX = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
+    return testOutputDtoX;
   }
 
   /**
@@ -724,7 +758,7 @@ public class PlanItIOTestHelper {
    *           If the setCostParameters argument is null, the system default values for the cost
    *           function parameters are used.
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
@@ -774,7 +808,7 @@ public class PlanItIOTestHelper {
    *           If the setCostParameters argument is null, the system
    *           default values for the cost function parameters are used.
    */
-  public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, final Double epsilon,
@@ -816,8 +850,7 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public static TestOutputDto setupAndExecuteAssignment(
-	  final String projectPath,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, final Integer maxIterations,
       final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
