@@ -57,6 +57,7 @@ import org.planit.utils.functionalinterface.TriFunction;
 import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Mode;
+import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 
 /**
  * Helper class used by unit tests
@@ -64,7 +65,7 @@ import org.planit.utils.network.physical.Mode;
  * @author gman6028
  *
  */
-public class TestHelper {
+public class PlanItIOTestHelper {
 
   private static final double epsilon = 0.00001;
 
