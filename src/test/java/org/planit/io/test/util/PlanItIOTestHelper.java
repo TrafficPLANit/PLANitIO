@@ -95,7 +95,7 @@ public class PlanItIOTestHelper {
    * @return true if all the tests have passed, false otherwise
    * @throws PlanItException thrown if there is an error
    */
-  private static boolean compareResultsToMemoryOutputFormatter(
+  private static boolean compareLinkResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, ? extends SortedMap<Mode, ? extends Object>> resultsMap,
       TriFunction<Mode, TimePeriod, Integer, Object> getPositionKeys,
@@ -167,11 +167,11 @@ public class PlanItIOTestHelper {
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
-  public static boolean compareResultsToMemoryOutputFormatterUsingNodesExternalId(
+  public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap)
       throws PlanItException {
-    return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
+    return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
           final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
@@ -210,11 +210,11 @@ public class PlanItIOTestHelper {
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
-  public static boolean compareResultsToMemoryOutputFormatterUsingLinkSegmentId(
+  public static boolean compareLinkResultsToMemoryOutputFormatterUsingLinkSegmentId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap)
       throws PlanItException {
-    return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
+    return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
             final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod,
@@ -233,6 +233,45 @@ public class PlanItIOTestHelper {
   }
 
   /**
+   * Compares the Path values stored in the MemoryOutputFormatter with the expected results
+   * 
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
+   *          results from a test run
+   * @param iterationIndex the current iteration index
+   * @param pathMap Map of expected paths by time period, mode, origin zone external Id and destination zone external Id
+   * @return true if all the tests pass, false otherwise
+   * @throws PlanItException thrown if one of the test output properties has not
+   *           been saved
+   */
+  public static boolean comparePathResultsToMemoryOutputFormatter(
+      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap) throws PlanItException {
+    boolean pass = true;
+    final int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
+    for (TimePeriod timePeriod : pathMap.keySet()) {
+      Map<Mode, Map<Long, Map<Long, String>>> pathMapPerTimePeriod = pathMap.get(timePeriod);
+      for (Mode mode : pathMapPerTimePeriod.keySet()) {
+        Map<Long, Map<Long, String>> pathMapPerTimePeriodAndMode = pathMapPerTimePeriod.get(mode);
+        final int pathPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
+            iteration, OutputType.PATH, OutputProperty.PATH_STRING);
+        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.PATH, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
+        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.PATH, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
+        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.PATH);
+        while (memoryOutputIterator.hasNext()) {
+          final Object[] keys = memoryOutputIterator.getKeys();
+          final Object[] results = memoryOutputIterator.getValues();
+          Long originZoneExternalId = (Long) keys[originZonePosition];
+          Long destinationZoneExternalId = (Long) keys[destinationZonePosition];
+          String expectedPath = pathMapPerTimePeriodAndMode.get(originZoneExternalId).get(destinationZoneExternalId);
+          String pathFromMemoryOutputFormatter = (String) results[pathPosition];
+          assertEquals(expectedPath, pathFromMemoryOutputFormatter);
+          pass = pass && (expectedPath.equals(pathFromMemoryOutputFormatter));
+        }
+      }
+    }
+    return pass;
+  }
+  
+  /**
    * Run a test case and store the results in a MemoryOutputFormatter (uses
    * maximum number of iterations)
    *
@@ -244,7 +283,6 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  //public static TestOutputDto setupAndExecuteAssignment(final String projectPath,
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
@@ -629,8 +667,8 @@ public class PlanItIOTestHelper {
         throw exceptionMap.get(id);
       }
     }
-    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDtoX = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
-    return testOutputDtoX;
+    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
+    return testOutputDto;
   }
 
   /**
@@ -706,7 +744,7 @@ public class PlanItIOTestHelper {
 
     // OUTPUT FORMAT CONFIGURATION
 
-    // PlanItXMLOutputFormatter
+    // PlanItOutputFormatter
     final PlanItOutputFormatter xmlOutputFormatter = 
         (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
     xmlOutputFormatter.setXmlNameRoot(description);
