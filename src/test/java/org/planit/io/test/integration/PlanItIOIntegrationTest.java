@@ -153,7 +153,19 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
-
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+ 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
@@ -205,6 +217,18 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
       
       fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
     } catch (Exception pe) {
@@ -576,6 +600,18 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
       
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(77.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
@@ -658,6 +694,18 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(108.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
@@ -763,7 +811,33 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 3,"");
       pathMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
-  
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod1, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod1).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod1).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 2,Double.valueOf(85.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+ 
       TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByExternalId((long) 1);
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
@@ -804,6 +878,31 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 3,"");
       pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      odMap = new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod2, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod2).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 3,Double.valueOf(77.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodByExternalId((long) 2);
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -862,6 +961,31 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 3,"");
       pathMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      odMap = new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod3, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod3).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod3).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod3).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 1).put((long) 4,Double.valueOf(108.0));
+      odMap.get(timePeriod3).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod3).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod3).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName1,
           xmlFileName1);
@@ -997,6 +1121,54 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 6,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
 
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 6,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 5,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 6,Double.valueOf(0.060625));
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.135625));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 5,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 6,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 5,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 6,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 1,Double.valueOf(0.135625));
+      odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 5,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 6,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 4,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 5,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 6,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
@@ -1070,6 +1242,18 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
 
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.1164169));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
@@ -1384,6 +1568,18 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(2.8673689));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
@@ -1566,6 +1762,32 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
       pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
@@ -1893,6 +2115,54 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
 
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod1, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod1).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod1).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
+      odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
+      odMap.get(timePeriod1).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
+      odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
+      odMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
+      odMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
+      odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      odMap.put(timePeriod2, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod2).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
+      odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
+      odMap.get(timePeriod2).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
+      odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
+      odMap.get(timePeriod2).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
+      odMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
+      odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName1,
           xmlFileName1);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName2,
@@ -2080,6 +2350,32 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
       pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
@@ -2262,6 +2558,32 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
       pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
+      odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
@@ -2370,6 +2692,29 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,"[11,1,2,4,12]");
       pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, Double>>());
+      
+      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,Double.valueOf(0.1457425));
+      odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,Double.valueOf(0.249072));
+      odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);
@@ -2483,6 +2828,29 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,"[11,1,2,4,12]");
       pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, Double>>());
+      
+      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,Double.valueOf(0.1457425));
+      odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,Double.valueOf(0.249072));
+      odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
           xmlFileName);

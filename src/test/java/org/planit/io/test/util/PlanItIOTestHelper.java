@@ -272,6 +272,46 @@ public class PlanItIOTestHelper {
   }
   
   /**
+   * Compares the Origin-Destination cost values stored in the MemoryOutputFormatter with the expected results
+   * 
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
+   *          results from a test run
+   * @param iterationIndex the current iteration index
+   * @param odMap Map of expected OD costs by time period, mode, origin zone external Id and destination zone external Id
+   * @return true if all the tests pass, false otherwise
+   * @throws PlanItException thrown if one of the test output properties has not
+   *           been saved
+   */
+  public static boolean compareOriginDestinationResultsToMemoryOutputFormatter(
+      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap) throws PlanItException {
+    boolean pass = true;
+    int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
+    iteration--;
+    for (TimePeriod timePeriod : odMap.keySet()) {
+      Map<Mode, Map<Long, Map<Long, Double>>> odMapPerTimePeriod = odMap.get(timePeriod);
+      for (Mode mode : odMapPerTimePeriod.keySet()) {
+        Map<Long, Map<Long, Double>> odMapPerTimePeriodAndMode = odMapPerTimePeriod.get(mode);
+        final int odCostPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
+            iteration, OutputType.OD, OutputProperty.OD_COST);
+        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.OD, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
+        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.OD, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
+        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.OD);
+        while (memoryOutputIterator.hasNext()) {
+          final Object[] keys = memoryOutputIterator.getKeys();
+          final Object[] results = memoryOutputIterator.getValues();
+          Long originZoneExternalId = (Long) keys[originZonePosition];
+          Long destinationZoneExternalId = (Long) keys[destinationZonePosition];
+          Double expectedCost = odMapPerTimePeriodAndMode.get(originZoneExternalId).get(destinationZoneExternalId);
+          Double costFromMemoryOutputFormatter = (Double) results[odCostPosition];
+          assertEquals(expectedCost, costFromMemoryOutputFormatter, epsilon);
+          pass = pass && (Math.abs(expectedCost -costFromMemoryOutputFormatter) < epsilon);
+       }
+      }
+    }
+    return pass;
+  }
+  
+  /**
    * Run a test case and store the results in a MemoryOutputFormatter (uses
    * maximum number of iterations)
    *
