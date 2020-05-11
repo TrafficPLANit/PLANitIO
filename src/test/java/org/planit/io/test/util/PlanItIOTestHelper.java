@@ -74,7 +74,6 @@ public class PlanItIOTestHelper {
     try {
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
-      linkOutputTypeConfiguration.removeProperty(OutputProperty.TOTAL_COST_TO_END_NODE);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
     } catch (final PlanItException e) {
       e.printStackTrace();

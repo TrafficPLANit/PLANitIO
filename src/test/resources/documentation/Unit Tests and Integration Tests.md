@@ -153,7 +153,7 @@ This test corresponds to the basic example included in the ReadMe.Md file for th
 
 ***Description:***
 
-![A close up of a logo  Description automatically generated](file:///C:/Users/gman6028/AppData/Local/Temp/msohtmlclip1/01/clip_image002.png)
+![A close up of a logo  Description automatically generated](file:./clip_image002.png)
 
 The link has a demand of 10 units from Node 1 to Node 2. The road is single-lane, one-way from Node 1 to Node 2. The capacity of the link is 2000.
 

@@ -61,7 +61,7 @@
 		</column>
 		<column>
 			<name>Capacity per Lane</name>
-			<units>veh/km</units>
+			<units>veh/h</units>
 			<type>double</type>
 		</column>
 		<column>
