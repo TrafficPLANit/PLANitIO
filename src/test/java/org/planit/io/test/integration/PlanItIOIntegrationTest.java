@@ -1474,11 +1474,11 @@ public class PlanItIOIntegrationTest {
   }
 
   /**
-   * This test check that PlanItProject reads the initial costs from a file
+   * This test checks that PlanItProject reads the initial costs from a file
    * correctly, and outputs them after 500 iterations.
    * 
    * The test input initial costs file uses Link Segment External Id to identify
-   * link segments
+   * link segments.
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids() {

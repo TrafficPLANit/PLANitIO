@@ -419,6 +419,8 @@ And the following link costs:-
 
 ***Purpose:*** 
 
+This test runs the same network using one iteration with different initial costs for each time, checking that the results are different for each time period.
+   
 ***Description:***
 
 This test uses the same network as 3.5.2.
@@ -446,6 +448,9 @@ This test uses the same network as 3.5.2.
 #### 3.5.5 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_using_link_segment_external_ids
 
 ***Purpose:*** 
+
+This test checks that PlanItProject reads the initial costs from a file correctly, and outputs the expected results after the first iteration.
+
 ***Description:***
 
 This test uses the same network as 3.5.2.
@@ -459,6 +464,8 @@ This test uses the same network as 3.5.2.
 #### 3.5.6 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations
 
 ***Purpose:*** 
+
+This test checks that PlanItProject reads the initial costs from a file correctly, and can then generate the expected results after 500 iterations.
 ***Description:***
 
 This test uses the same network as 3.5.2.
@@ -485,6 +492,11 @@ This test uses the same network as 3.5.2.
 #### 3.5.8 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids
 
 ***Purpose:*** 
+
+This test checks that PlanItProject reads the initial costs from a file correctly, and outputs them after 500 iterations.
+
+The test input initial costs file uses Link Segment External Id to identify link segments.
+
 ***Description:***
 
 This test uses the same network as 3.5.2.
@@ -498,15 +510,15 @@ This test uses the same network as 3.5.2.
 #### 3.5.9 3_MIMO_route_choice_single_mode
 
 ***Purpose:*** 
+
+This verifies that the results calculated by PLANit match those previously calculated by OmniTRANS for a network with different capacities on each link.
+
 ***Description:***
 
 ![alt text](./images/Route_choice_3_network_cropped.jpg "Route Choice 3 Network")
 
 All links have a length of 2 km.
-
-BPR:All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
-
-Link properties: 
+All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
 All links have a maximum speed of 100 km/h.
 
 Capacity per lane:
@@ -525,11 +537,11 @@ Simulation time period is 1 h.
 
 The equilibrium results after 500 iterations using yield the following link flow rates:-
 
-![alt text](./images/Route_choice_3_flows_cropped.jpg "Route Choice 4 Flows")
+![alt text](./images/Route_choice_3_flows_cropped.jpg "Route Choice 3 Flows")
 
 And the following link costs:-
 
-![alt text](./images/Route_choice_3_costs_cropped.jpg "Route Choice 4 Costs")
+![alt text](./images/Route_choice_3_costs_cropped.jpg "Route Choice 3 Costs")
 
 ***Location:***
 
@@ -604,6 +616,8 @@ As well as checking that the traffic assignment gives the expected flows and cos
 
 ***Purpose:*** 
 
+This test case uses two time periods.  It verifies that the <odrowmatrix> input method for OD demands works for more than one time period.
+
 ***Description:***
 
 This uses the same network as Test 3.5.11.
@@ -619,6 +633,9 @@ This test has two time periods.  It uses the <odrowmatrix> method in the macrosc
 #### 3.5.12 4_bi_directional_links_route_choice_single_mode_using_odrawmatrix
 
 ***Purpose:*** 
+
+This test verifies that OD demands can be read in using the <odrawmatrix> element.
+
 ***Description:***
 
 This uses the same network as Test 3.5.11.  It uses the <odrawmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
