@@ -1,15 +1,6 @@
-#    PLANitIO Unit Tests and Integration Tests
+# PLANitIO Unit Tests and Integration Tests
 
- 
-
-[TOC]
-
-
-
-
-## 1.  Unit Tests and Integration Tests
-
- 
+## 1. Unit Tests and Integration Tests
 
 *Unit tests* confirm that individual methods generate the correct result from a known set of input values. They are used to confirm that methods or classes are working correctly, rather than the whole application. If code changes cause a unit test to fail, the developer can immediately review the changes to see what caused the failure.
 
@@ -21,21 +12,13 @@ We have not written unit tests at the method or class level for the PlanIt appli
 
 All tests described in the rest of this document are integration tests.
 
+## 2 Integration Tests
 
-
- 
-
-## 2    Integration Tests
-
-### 2.1	Overview
-
- 
+### 2.1 Overview
 
 This section begins with a general description of how the integration tests work, which is applicable to all test cases. It then goes into more detail about the contents of the input and output files which are used in the tests.
 
 ### 2.2	General Structure of Integration Tests
-
- 
 
 Integration tests must use standard input files which define the network, demands and zoning for the test case. In the case of PLANitIO all of these are defined in one XML input file (usually named macroscopicinput.xml).
 
@@ -79,13 +62,9 @@ The class PlanItIOIntegrationTest contains the individual test cases described i
 
 ### 2.3	Input File Formats
 
- 
-
 Each test case has an XML input file called macroscopicinput.xml which contains its input data in the standard XML format (using the <macroscopicdemand>, <macroscopicnetwork> and <macroscopiczoning> elements.
 
 ### 2.4	Standard Results Files – Naming Convention
-
- 
 
 CSV standard results files use the naming convention:
 
@@ -109,11 +88,9 @@ If a test case has more than one time period it will produce more than one set o
 
 ### 2.5	Storing Expected Results in Memory – Link Output
 
- 
-
 Tests of the contents of the MemoryOutputFormatter use data transfer objects (DTOs). These objects are populated with expected result values in the Java code, and then stored in Java Maps. After the traffic assignment run has finished, the values stored in the MemoryOutputFormatter can be compared to these standard results in the code.
 
-Expected results for link output are stored in ResultDto objects. A ResultDto object is populated by its constructor call, which has the following arguments:
+Expected results for link output are stored in ResultDto objects. A ResultDto object is populated by its constructor call, which has the following arguments:-
 
 - *startNodeId*		   external id of start node (used to define the link segment);
 - *endNodeId*			external id of end node (used to define the link segment);
@@ -129,31 +106,41 @@ The fifth argument in the ResultDto constructor, total cost to end node, is not 
 
 ### 2.6	Storing Expected Results in Memory – Path Output
 
- 
+Tests of the contents of the MemoryOutputFormatter for path and origin-destination cost also use a Java Map to store standard results to be compared to the outputs from the traffic assignment run.  But the content of the data stored in this Map is simpler than for links, since there is only one output value to be compared to the standard results.
+
+Path output maps use two values as keys:-
+
+- mode;
+- time period;
+- iteration number;
+- origin zone external Id;
+- destination zone external Id.
+
+Expected paths are stored as a String, which consists of a series of values representing the nodes in the path surrounded by square brackets e.g. "[11,1,2,4,12]".
+
+The Java code gets an iterator through rows of the MemoryOuptutFormatter for the columns corresponding to the keys above for the “PATH_STRING” output property type.  This gives an output path corresponding to each origin zone and destination zone (identified by external Id).  The path value in each row of the MemoryOutputFormatter is compared to the standard path from the Java Map.  If the paths do not agree for a given pair of origin and destination zones, the test fails.
 
 ### 2.7	Storing Expected Results in Memory – Origin-Destination Output
 
+Tests of Origin-Destination costs stored in the MemoryOutputFormatter are done in an almost identical manner to tests of the path described in the previous section.  Values are stored in a Java Map by the external Ids of origin and destination zones, and these are used to identify rows in the MemoryOutputFormatter results which are iterated through.
+The only difference is that origin-destination costs are stored as doubles whereas paths are stored as strings.  The code simply compares the expected cost with the calculated cost, issuing a test failure if they do not match.
+It was noted in Section 2.4 that Origin-Destination output files use an iteration number one lower than those for paths and links.  This applies to the MemoryOutputFormatter also.  The code to run the tests for Origin-Destination must decrement the iteration counter by one to identify the correct position in the MemoryOutputFormatter. 
 
-
- 
-
-## 3  Test Cases
-
- 
+## 3 Test Cases
 
 ### 3.1	Explanatory Test
 
- 
+The test in Section 3.1 use the the basic example included in the ReadMe.Md file for the PLANitIO project. This illustrates the input and output files for the simplest possible network, one link with a demand of one unit across it. This allows modellers to relate the introductory example in the documentation to a real test case.
 
-#### 3.1.1  test_explanatory
+#### 3.1.1 explanatory
 
- ***Purpose:***       
+***Purpose:***       
 
-This test corresponds to the basic example included in the ReadMe.Md file for the PLANitIO project. This illustrates the input and output files for the simplest possible network, one link with a demand of one unit across it. This allows modellers to relate the introductory example in the documentation to a real test case.
+This test corresponds to running the Explanatory network in the normal way.  It is the simplest possible test case which can generate a result.
 
 ***Description:***
 
-![A close up of a logo  Description automatically generated](file:./clip_image002.png)
+![alt text](./images/test_explanatory_network.jpg "Explanatory Network")
 
 The link has a demand of 10 units from Node 1 to Node 2. The road is single-lane, one-way from Node 1 to Node 2. The capacity of the link is 2000.
 
@@ -167,13 +154,11 @@ All input and output files are in this directory.
 
 This test has turned out to be very useful *because* it is so trivial. If you make a code change which causes this test to fail, you know you have made a mistake or mistype in your code changes to cause the failure. And it is usually easy to trace back to the coding error which causes a wrong result in this case.
 
- 
+#### 3.1.2  explanatory_attempt_to_change_locked_formatter
 
-#### 3.1.2  test_explanatory_attempt_to_change_locked_formatter
+***Purpose:***
 
- ***Purpose:***
-
- This test validates that PLANit’s formatter locking validation is working.
+This test validates that PLANit’s formatter locking validation is working.
 
 When PLANit runs a traffic assignment execution, it locks the setup of all its output type configurations. Any attempt to add properties to or remove properties from an output type configuration after this should throw an exception. This test includes code to add properties to the link output type configuration after the traffic assignment has been run, which should generate an exception.
 
@@ -185,10 +170,551 @@ As “test_explanatory” above
 
 `src\test\resources\testcases\explanatory\xml`
 
+
 All input and output files are in this directory.
 
-*Notes:*
+***Notes:***
 
 If this test works correctly, it should run the traffic assignment once and then throw an exception. This first run will generate output files which should match “test_explanatory” above, but it should throw the exception without writing any results to the MemoryOutputFormatter.
 
+### 3.2 Tests for Duplicate External Ids 
+
+***Purpose:***
  
+ These tests check that PLANit's input validation catches duplicate external Id values on input.
+ 
+***Description:***
+ 
+ All these tests have a duplicate external Id in their input.  The unit tests pass if the code throws an appropriate exception.  
+ 
+***Location:***
+ 
+`src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegment`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegmentType`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateMode`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateTimePeriod`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateUserClass`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateZone`
+ 
+***Notes:*** 
+ 
+No standard results files are used in these tests, each test is expected to throw an exception before getting to the point of writing any output.
+
+### 3.3 Tests for Reading Initial Cost Values
+
+These tests verify the that initial cost files are read in correctly and their values are correctly stored in link segment objects.  They do not run the traffic assignment.
+These tests use the same input network as the “Basic Shortest Path” test cases, but they do not run the traffic assignment anyway.  The network files are only included to allow the CustomPlanItProject object to be instantiated.
+
+#### 3.3.1 reading_initial_cost_values
+
+***Purpose:*** 
+
+Tests that the values of an initial costs file are read in by start and end node and registered by PlanItProject, and that the stored values match the expected ones by link external id.
+
+***Description:***
+
+This test does not run the traffic assignment.  It reads a files of initial cost values which identifies links by the external ids of upstream and downstream nodes into PlanIt.  It then tests that these values match those in another file which contains in another file which identifies links by link segment external id.
+
+***Location:***
+
+`src\test\resources\testcases\initial_costs\xml\test1`
+
+***Notes:***
+
+Only the initial costs file which identifies links by their start and end node is actually read into PLANit.  The other file provides values to verify that it PLANit has stored the data correctly.
+
+#### 3.3.2 reading_initial_cost_values_with_missing_rows
+
+***Purpose:*** 
+
+Tests that the read in initial costs values match the expected ones when there are some rows missing in the standard results files.
+
+***Description:***
+
+This test reads in a file of initial costs, and compares the stored results to those in a standard results file.  The standard results file does not have values for all the link segments, but the test should successfully match those values it does have to corresponding values which have been stored.
+
+***Location:***
+
+`src\test\resources\testcases\initial_costs\xml\test1`
+
+***Notes:***
+
+#### 3.3.3 reading_initial_cost_values_with_missing_columns
+
+***Purpose:*** 
+
+Tests that PlanItProject throws an exception when the initial costs file references a link segment which has not been defined
+
+***Description:***
+
+Tests that PlanItProject throws an exception when the initial costs file references are link segment which has not been defined
+
+***Location:***
+
+`src\test\resources\testcases\initial_costs\xml\test2`
+
+***Notes:***
+
+### 3.4 Tests using the Basic Network
+
+These tests use the basic network used in the Strategic Transport Planning course (page 122 of the 2019 course presentation slides).  This is illustrated in Section 3.4.1.
+
+This is a simple network for which the lowest cost paths can easily by calculated by hand.  All of these test use only one iteration, that is enough to allocate flows to this simple network.
+
+These tests allow modellers to check the results from PLANit against examples which can easily be calculated by hand.
+
+Some of these test cases use initial cost files, to test that the methods for reading initial costs work with one or two initial cost files.  The contents of the initial cost files are the same as the network link costs, so they do not affect the results.
+
+#### 3.4.1 basic_shortest_path_algorithm_a_to_b_one_initial_cost_file
+
+***Purpose:***
+
+Test that PlanItProject reads in the values of one initial costs file.
+ 
+***Description:***
+
+![alt text](./images/Diagram_for_Basic_Test_Cases.jpg "Basic Network")
+
+This test has a demand of 1 unit, with Node A in the diagram being the origin.  It calcuates the lowest cost path to Node B.  It can be found from hand calculation that the lowest cost path has a total cost of 85. 
+
+***Location:***
+
+`src\test\resources\testcases\basic\xml\test1`
+
+***Notes:***
+
+#### 3.4.2 basic_shortest_path_algorithm_a_to_b_two_initial_cost_files
+
+***Purpose:*** 
+
+Test that PlanItProject reads in the values of two initial costs files
+ 
+***Description:***
+
+This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to B, with a path cost of 85.
+
+***Location:***
+
+`src\test\resources\testcases\basic\xml\test1`
+
+***Notes:***
+
+#### 3.4.3 basic_shortest_path_algorithm_a_to_b_three_time_periods
+
+***Purpose:*** 
+
+Tests of results for a simple test case using three time periods.
+
+***Description:***
+
+This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to B, with a path cost of 85.
+
+Time Period 1 uses route A to B in the example, which has a total route cost of 85 (the fifth argument in the ResultDto constructor). Time Period 2 uses route A to C in the example, which has a total route cost of 77. Time Period 3 uses route A to D in the example, which has a total route cost of 108.
+
+***Location:***
+
+`src\test\resources\testcases\basic\xml\test13`
+
+***Notes:***
+
+#### 3.4.4 basic_shortest_path_algorithm_a_to_c
+
+***Purpose:*** 
+
+Confirms that the output from a PLANit traffic assignment for the basic network matches a standard result which can be calculated by hand.
+ 
+***Description:***
+
+This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to C, with a path cost of 77.
+
+***Location:***
+
+`src\test\resources\testcases\basic\xml\test2`
+
+***Notes:***
+
+#### 3.4.5 basic_shortest_path_algorithm_a_to_d
+
+***Purpose:*** 
+
+Confirms that the output from a PLANit traffic assignment for the basic network matches a standard result which can be calculated by hand.
+ 
+***Description:***
+
+This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to D, with a path cost of 108.
+
+***Location:***
+
+`src\test\resources\testcases\basic\xml\test3`
+
+***Notes:***
+
+### 3.5 Route Choice Tests
+
+Tests in Section 3.5 use more complicated networks.  The networks have previously been run on OmniTRANS.
+
+#### 3.5.1 1_no_route_choice_single_mode
+
+***Purpose:*** 
+
+This test the traffic assignment for a non-trivial network using one mode.
+
+***Description:***
+
+![alt text](./images/Route_choice_1_network_cropped.jpg "Route Choice 1 Network")
+
+All links have a length of 1 km.
+All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+All links have a maximum speed of 100 km/h and a capacity of 2000 veh/h/lane, except for link 2 which has a capacity of only 1000/veh/h/lane.
+All links have 1 lane, except links 4,7 and 8 which have 10 lanes.
+Travel demand is only non-zero on Origin-Destinations (3 to 4), (5 to 1) and (2 to 6). and 5,1 and 2,6. These have a demand of 1000 veh/h
+Simulation time period is 1 h.
+
+The resulting flows are:-
+
+![alt text](./images/Route_choice_1_flows_cropped.jpg "Route Choice 1 Flows")
+
+And the link costs are:-
+
+![alt text](./images/Route_choice_1_costs_cropped.jpg "Route Choice 1 Costs")
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test1`
+
+***Notes:***
+
+#### 3.5.2 2_SIMO_MISO_route_choice_single_mode
+
+***Purpose:*** 
+
+This test the traffic assignment for a non-trivial network using one mode.
+
+***Description:***
+
+![alt text](./images/Route_choice_2_network_cropped.jpg "Route Choice 2 Network")
+
+All links have a length of 1 km, except for links 4 and 5 which are 2 km in length.
+All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+All links have a maximum speed of 60 km/h and a capacity of 1200 veh/h/lane. 
+All links have 1 lane, except for links 1 and 3 who have 3 lanes.
+The travel demand from 1 from 2 is 3600 veh/h.
+Simulation time is 1 h.
+
+The equilibrium result after 500 iterations using regular MSA smoothing yields the following link flow rates:-
+
+![alt text](./images/Route_choice_2_flows_cropped.jpg "Route Choice 2 Flows")
+
+And the following link costs:-
+
+![alt text](./images/Route_choice_2_costs_cropped.jpg "Route Choice 2 Costs")
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2`
+
+***Notes:***
+
+#### 3.5.3 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration
+
+***Purpose:*** 
+
+***Description:***
+
+This test uses the same network as 3.5.2.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2initialCostsOneIteration`
+
+***Notes:***
+
+#### 3.5.4 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_and_three_time_periods
+
+***Purpose:*** 
+
+***Description:***
+
+This test uses the same network as 3.5.2.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2initialCostsOneIterationThreeTimePeriods`
+
+***Notes:***
+
+#### 3.5.5 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_using_link_segment_external_ids
+
+***Purpose:*** 
+***Description:***
+
+This test uses the same network as 3.5.2.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2initialCostsOneIterationExternalIds`
+
+***Notes:***
+
+#### 3.5.6 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations
+
+***Purpose:*** 
+***Description:***
+
+This test uses the same network as 3.5.2.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2initialCosts500iterations`
+
+***Notes:***
+
+#### 3.5.7 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_and_three_time_periods
+
+***Purpose:*** 
+***Description:***
+
+This test uses the same network as 3.5.2.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2initialCosts500IterationsThreeTimePeriods`
+
+***Notes:***
+
+#### 3.5.8 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids
+
+***Purpose:*** 
+***Description:***
+
+This test uses the same network as 3.5.2.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test2initialCosts500iterationsExternalIds`
+
+***Notes:***
+
+#### 3.5.9 3_MIMO_route_choice_single_mode
+
+***Purpose:*** 
+***Description:***
+
+![alt text](./images/Route_choice_3_network_cropped.jpg "Route Choice 3 Network")
+
+All links have a length of 2 km.
+
+BPR:All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+
+Link properties: 
+All links have a maximum speed of 100 km/h.
+
+Capacity per lane:
+- Link 1: 4 lanes, 2000 veh/h/lane (8000)
+- Link 2: 2 lanes, 1500 veh/lane (3000)
+- Link 3: 2 lanes, 2500 veh/lane (5000)
+- Link 4: 2 lanes, 2000 veh/lane (4000)
+- Link 5: 1 lane, 2000 veh/lane (2000)
+- Link 6: 2 lanes, 1500 veh/lane (3000)
+- Link 7: 1 lane, 2000 veh/lane (2000)
+- Link 8: 1 lane, 2000 veh/lane (2000)
+
+The travel demand from 1 to 2 is set to 8000 veh/h.
+
+Simulation time period is 1 h.
+
+The equilibrium results after 500 iterations using yield the following link flow rates:-
+
+![alt text](./images/Route_choice_3_flows_cropped.jpg "Route Choice 4 Flows")
+
+And the following link costs:-
+
+![alt text](./images/Route_choice_3_costs_cropped.jpg "Route Choice 4 Costs")
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test3`
+
+***Notes:***
+
+#### 3.5.10 4_bi_directional_links_route_choice_single_mode
+
+***Purpose:*** 
+
+This test case uses the <odrowmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
+
+***Description:***
+
+![alt text](./images/Route_choice_4_network_cropped.jpg "Route Choice 4 Network")
+
+Length: 
+All links have a length of 1 km except for
+- Links 1 and 2 have a length of 0.9 km
+- Links 11 and 12 have a length of 3 km
+- Link 9 and 10 have a length of 2.9 km
+
+BPR: 
+All links use a BPR cost function with alpha = 0.5 and beta = 4.0
+
+Link properties: 
+All links are bi-directional.
+
+Regular (blue) links:
+- Maximum speed: 100 km/h 
+- Capacity: 1500 veh/h/lane
+- Have 1 lane
+
+Connector links (dashed red):
+- Maximum speed: 50 km/h
+- Capacity: 1000 veh/h/lane
+- Have 10 lanes
+
+Demand:
+The origin – destination travel demands are given in the table below
+Table 1: OD travel demands for the simulation duration
+
+|From/to|1 |2 |3 |4 |
+|-------|--|--|--|--|
+|1|100.000|200.000|300.000|400.000|
+|2|200.000|400.000|600.000|800.000|
+|3|300.000|600.000|900.000|1200.000|
+|4|400.000|800.000|1200.000|1600.000|
+
+
+Simulation time period is 1 h.
+The run uses 500 iterations.
+
+Link flow results are shown below per link direction:-
+
+![alt text](./images/Route_choice_4_flows_cropped.jpg "Route Choice 4 Flows")
+
+The generalised link costs associated with each link (direction) are shown below in travel time (h):-
+
+![alt text](./images/Route_choice_4_costs_cropped.jpg "Route Choice 4 Costs")
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test4`
+
+***Notes:***
+
+As well as checking that the traffic assignment gives the expected flows and costs, this test verifies that the demand matrix can be read in using the <odrowmatrix> element in the input XML file.
+
+#### 3.5.11 4_bi_directional_links_route_choice_single_mode_with_two_time_periods
+
+***Purpose:*** 
+
+***Description:***
+
+This uses the same network as Test 3.5.11.
+
+This test has two time periods.  It uses the <odrowmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test42`
+
+***Notes:***
+
+#### 3.5.12 4_bi_directional_links_route_choice_single_mode_using_odrawmatrix
+
+***Purpose:*** 
+***Description:***
+
+This uses the same network as Test 3.5.11.  It uses the <odrawmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test4raw`
+
+***Notes:***
+
+#### 3.5.13 4_bi_directional_links_route_choice_single_mode_with_plus_sign_separator
+
+***Purpose:*** 
+
+This test verifies that the plus sign can be used as a separator for the values in the <odrawmatrix> input element.
+
+***Description:***
+
+This uses the same network as Test 3.5.11.   It uses the <odrawmatrix> method with the plus sign as separator in the macroscopicinput.xml file to define the OD demands input matrix.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test4raw2`
+
+***Notes:***
+
+#### 3.5.14 5_SIMO_MISO_route_choice_two_modes
+
+***Purpose:*** 
+
+This is a testcase for multi-modal assignment using two modes ("Car" and "Truck").  One link does not allow vehicles of mode "Truck".
+This case tests that the input XML file can be used to specify that a link can be used for some modes but not others.  It also verifies that there is zero flow for a mode across a link on which it is banned.
+
+***Description:***
+
+Trucks are allowed on all but the middle link (which represents an inner city of some sort. Hence, the network looks like the following:
+
+![alt text](./images/Test_case_5_route_cropped_with_lorry.jpg "5_SIMO_MISO_route_choice_two_modes")
+
+All links have a length of 1 km, except for links 4 and 5 which are 2 km in length
+
+There are two Modes:-
+- Car:		PCU = 1, Maximum speed = 60 km/h 
+- Truck:	PCU = 2.5, Maximum speed = 50 km/h 
+
+Trucks are not allowed on Link 2.
+
+All links use a BPR cost function with:- 
+- Car:   alpha = 0.5 and beta = 4.0 for all links, 
+- Truck: alpha = 0.8 and beta = 4.5 for all links except Link 2.
+
+All links have a capacity of 1200 veh/h/lane. 
+All links have 1 lane, except for Links 1 and 3 which have 3 lanes.
+
+The travel demand from 1 to 2 is set to:- 
+- Cars:		3000 veh/h
+- Trucks:	600 trucks/h
+
+Simulation time period is 1 h.
+
+The result after 500 iterations using regular MSA smoothing yield the following (mode specific) link flow rate:
+
+|Car Flows|Truck Flows|
+|-------------------------|-------------------------|
+|![alt text](./images/Route_choice_5_car_flows_500_iterations_cropped.jpg "Car Flows after 500 iterations")|![alt text](./images/Route_choice_5_truck_flows_500_iterations_cropped.jpg "Truck Flows after 500 iterations")|
+
+and link costs:
+
+|Car Costs|Truck Costs|
+|-------------------------|-------------------------|
+|![alt text](./images/Route_choice_5_car_costs_500_iterations_cropped.jpg "Car Costs after 500 iterations")|![alt text](./images/Route_choice_5_truck_costs_500_iterations_cropped.jpg "Truck Costs after 500 iterations")|
+
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test5`
+
+***Notes:***
+
+This test identifies links by the external ids of their upstream and downstream nodes.
+
+#### 3.5.15 5_SIMO_MISO_route_choice_two_modes_identify_links_by_id
+
+***Purpose:*** 
+
+This test verifies that links can be identified by link id (all other tests use link external id).
+
+***Description:***
+
+This uses the same network as Test 3.5.14.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\test5IdentifyLinksByLinkId`
+
+***Notes:***
+
+The network and results for this test are the same as those for 3.5.14.  The only difference is that links are identified by link id in both the CSV output file and MemoryOutputFormatter.
+This is the only one of the tests which identifies links by link id.  All other test cases use link external id.  The code should allow either.

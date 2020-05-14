@@ -117,7 +117,7 @@ public class PlanItIOIntegrationTest {
    * Trivial test case which matches the description in the README.md file.
    */
   @Test
-  public void testExplanatory() {
+  public void test_explanatory() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml";
       String description = "explanatory";
@@ -182,7 +182,7 @@ public class PlanItIOIntegrationTest {
    * Test case in which an attempt is made to change a locked formatter
    */
   @Test
-  public void testExplanatoryAttemptToChangeLockedFormatter() {
+  public void test_explanatory_attempt_to_change_locked_formatter() {
     String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml";
     String description = "explanatory";
     String csvFileName = "Time Period 1_2.csv";
@@ -251,7 +251,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Link Segment Type is flagged as a error
    */
   @Test
-  public void testDuplicateLinkSegmentTypeExternalId() {
+  public void test_duplicate_link_segment_type_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentType";
       String description = "testDuplicateLinkSegmentType";
@@ -268,7 +268,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Link Segment is flagged as a error
    */
   @Test
-  public void testDuplicateLinkSegmentExternalId() {
+  public void test_duplicate_link_segment_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegment";
       String description = "testDuplicateLinkSegment";
@@ -285,7 +285,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Node is flagged as a error
    */
   @Test
-  public void testDuplicateNodeExternalId() {
+  public void test_duplicate_node_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateNode";
       String description = "testDuplicateNode";
@@ -302,7 +302,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Mode is flagged as a error
    */
   @Test
-  public void testDuplicateModeExternalId() {
+  public void test_duplicate_mode_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateMode";
       String description = "testDuplicateMode";
@@ -319,7 +319,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Zone is flagged as a error
    */
   @Test
-  public void testDuplicateZoneExternalId() {
+  public void test_duplicate_zone_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateZone";
       String description = "testDuplicateZone";
@@ -336,7 +336,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Time Period is flagged as a error
    */
   @Test
-  public void testDuplicateTimePeriodExternalId() {
+  public void test_duplicate_time_period_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateTimePeriod";
       String description = "testDuplicateTimePeriod";
@@ -353,7 +353,7 @@ public class PlanItIOIntegrationTest {
    * Test that a duplicate external Id for a Time Period is flagged as a error
    */
   @Test
-  public void testDuplicateUserClassExternalId() {
+  public void test_duplicate_user_class_external_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateUserClass";
       String description = "testDuplicateUserClass";
@@ -372,7 +372,7 @@ public class PlanItIOIntegrationTest {
    * ones by link external Id
    */
   @Test
-  public void testInitialCostValues() {
+  public void test_reading_initial_cost_values() {
     String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1";
     String initialCostsFileLocation =
         "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
@@ -386,7 +386,7 @@ public class PlanItIOIntegrationTest {
           project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       InitialLinkSegmentCost initialCost =
-          project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
+         project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationExternalId);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeExternalIdOutputProperty.NAME;
@@ -412,11 +412,11 @@ public class PlanItIOIntegrationTest {
    * are some rows missing in the standard results file
    */
   @Test
-  public void testInitialCostMissingRows() {
+  public void test_reading_initial_cost_values_with_missing_rows() {
     String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\test1";
     String initialCostsFileLocation =
         "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs.csv";
-    String initialCostsFileLocationExternalId =
+    String initialCostsFileLocationMissingRows =
         "src\\test\\resources\\testcases\\initial_costs\\xml\\test1\\initial_link_segment_costs1.csv";
     try {
       IdGenerator.reset();
@@ -428,7 +428,7 @@ public class PlanItIOIntegrationTest {
 
       InitialLinkSegmentCost initialCost =
           project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
-      Reader in = new FileReader(initialCostsFileLocationExternalId);
+      Reader in = new FileReader(initialCostsFileLocationMissingRows);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeExternalIdOutputProperty.NAME;
       String upstreamNodeExternalIdHeader = UpstreamNodeExternalIdOutputProperty.NAME;
@@ -457,7 +457,7 @@ public class PlanItIOIntegrationTest {
    * references a link segment which has not been defined
    */
   @Test
-  public void testInitialCostValuesMissingColumns() {
+  public void test_reading_initial_cost_values_with_missing_columns() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\testcases\\initial_costs\\xml\\test2";
       String description = "RunId 0_testBasic1";
@@ -484,7 +484,7 @@ public class PlanItIOIntegrationTest {
    * of 85 (the fifth argument in the ResultDto constructor).
    */
   @Test
-  public void testBasicShortestPathAlgorithmAtoBOneInitialCostFile() {
+  public void test_basic_shortest_path_algorithm_a_to_b_one_initial_cost_file() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test1";
       String description = "testBasic1";
@@ -519,7 +519,7 @@ public class PlanItIOIntegrationTest {
    * of 85 (the fifth argument in the ResultDto constructor).
    */
   @Test
-  public void testBasicShortestPathAlgorithmAtoBTwoInitialCostFiles() {
+  public void test_basic_shortest_path_algorithm_a_to_b_two_initial_cost_files() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test1";
       String description = "testBasic1";
@@ -555,7 +555,7 @@ public class PlanItIOIntegrationTest {
    * of 77 (the fifth argument in the ResultDto constructor).
    */
   @Test
-  public void testBasicShortestPathAlgorithmAtoC() {
+  public void test_basic_shortest_path_algorithm_a_to_c() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test2";
       String description = "testBasic2";
@@ -635,7 +635,7 @@ public class PlanItIOIntegrationTest {
    * of 108 (the fifth argument in the ResultDto constructor).
    */
   @Test
-  public void testBasicShortestPathAlgorithmAtoD() {
+  public void test_basic_shortest_path_algorithm_a_to_d() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test3";
       String description = "testBasic3";
@@ -733,7 +733,7 @@ public class PlanItIOIntegrationTest {
    * 3 uses route A to D in the example, which has a total route cost of 108.
    */
   @Test
-  public void testBasicShortestPathAlgorithmAtoBThreeTimePeriods() {
+  public void test_basic_shortest_path_algorithm_a_to_b_three_time_periods() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test13";
       String description = "testBasic13";
@@ -1017,7 +1017,7 @@ public class PlanItIOIntegrationTest {
    * Choice Equilibration Test cases.docx document.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS1() {
+  public void test_1_no_route_choice_single_mode() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test1";
       String description = "testRouteChoice1";
@@ -1188,7 +1188,7 @@ public class PlanItIOIntegrationTest {
    * Choice Equilibration Test cases.docx document.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS2() {
+  public void test_2_SIMO_MISO_route_choice_single_mode() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2";
       String description = "testRouteChoice2";
@@ -1274,7 +1274,7 @@ public class PlanItIOIntegrationTest {
    * segments
    */
   @Test
-  public void testRouteChoice2InitialCostsOneIteration() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIteration";
       String description = "testRouteChoice2initialCosts";
@@ -1304,7 +1304,7 @@ public class PlanItIOIntegrationTest {
    * period.
    */
   @Test
-  public void testRouteChoice2InitialCostsOneIterationThreeTimePeriods() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_and_three_time_periods() {
     try {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationThreeTimePeriods";
@@ -1362,7 +1362,7 @@ public class PlanItIOIntegrationTest {
    *
    */
   @Test
-  public void testRouteChoice2InitialCostsOneIterationExternalIds() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_using_link_segment_external_ids() {
     try {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCostsOneIterationExternalIds";
@@ -1395,7 +1395,7 @@ public class PlanItIOIntegrationTest {
    * segments
    */
   @Test
-  public void testRouteChoice2InitialCosts500Iterations() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterations";
       String description = "testRouteChoice2initialCosts";
@@ -1424,7 +1424,7 @@ public class PlanItIOIntegrationTest {
    * costs for each, running the test for 500 iterations.
    */
   @Test
-  public void testRouteChoice2InitialCosts500IterationsThreeTimePeriods() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_and_three_time_periods() {
     try {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500IterationsThreeTimePeriods";
@@ -1481,7 +1481,7 @@ public class PlanItIOIntegrationTest {
    * link segments
    */
   @Test
-  public void testRouteChoice2InitialCosts500IterationsExternalIds() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids() {
     try {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\test2initialCosts500iterationsExternalIds";
@@ -1512,7 +1512,7 @@ public class PlanItIOIntegrationTest {
    * Choice Equilibration Test cases.docx document.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS3() {
+  public void test_3_MIMO_route_choice_single_mode() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
       String description = "testRouteChoice3";
@@ -1602,7 +1602,7 @@ public class PlanItIOIntegrationTest {
    * to define the OD demands input matrix.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS4() {
+  public void test_4_bi_directional_links_route_choice_single_mode() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test4";
       String description = "testRouteChoice4";
@@ -1812,7 +1812,7 @@ public class PlanItIOIntegrationTest {
    * to define the OD demands input matrix.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS4UsingTwoTimePeriods() {
+  public void test_4_bi_directional_links_route_choice_single_mode_with_two_time_periods() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test42";
       String description = "testRouteChoice42";
@@ -2190,7 +2190,7 @@ public class PlanItIOIntegrationTest {
    * to define the OD demands input matrix.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS4UsingRawMatrixToSetODDemands() {
+  public void test_4_bi_directional_links_route_choice_single_mode_using_odrawmatrix() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test4raw";
       String description = "testRouteChoice4raw";
@@ -2398,7 +2398,7 @@ public class PlanItIOIntegrationTest {
    * in the macroscopicinput.xml file to define the OD demands input matrix.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS4UsingRawMatrixWithPlusSignAsSeparatorToSetODDemands() {
+  public void test_4_bi_directional_links_route_choice_single_mode_with_plus_sign_separator() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test4raw2";
       String description = "testRouteChoice4raw2";
@@ -2605,7 +2605,7 @@ public class PlanItIOIntegrationTest {
    * This test case uses two modes and some modes are not allowed on some links.
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS5() {
+  public void test_5_SIMO_MISO_route_choice_two_modes() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test5";
       String description = "testRouteChoice5";
@@ -2737,7 +2737,7 @@ public class PlanItIOIntegrationTest {
    * external Id).
    */
   @Test
-  public void testRouteChoiceCompareWithOmniTRANS5IdentifyLinksById() {
+  public void test_5_SIMO_MISO_route_choice_two_modes_identify_links_by_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test5IdentifyLinksByLinkId";
       String description = "testRouteChoice5";
