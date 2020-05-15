@@ -68,15 +68,15 @@ Each test case has an XML input file called macroscopicinput.xml which contains 
 
 CSV standard results files use the naming convention:
 
-<OutputType>_Time Period <Time period number>_<Number of Iterations>.csv
+\<OutputType\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.csv
 
 Where:
 
-<OutputType> is one of “Link”, “Path” or “Origin-Destination”
+\<OutputType\> is one of “Link”, “Path” or “Origin-Destination”
 
-<Time period number> is the appropriate time period number for the assignment execution
+\<Time period number\> is the appropriate time period number for the assignment execution
 
-<Number of iterations> is whatever was defined as the maximum number of iterations in the test (for most tests this is either 1 or 500).
+\<Number of iterations\> is whatever was defined as the maximum number of iterations in the test (for most tests this is either 1 or 500).
 
 Note that Origin-Destination results files use an iteration number one below those for links and paths.  This is because link costs are recalculated at the start of each iteration, using flows from the previous iteration.
 
@@ -108,7 +108,7 @@ The fifth argument in the ResultDto constructor, total cost to end node, is not 
 
 Tests of the contents of the MemoryOutputFormatter for path and origin-destination cost also use a Java Map to store standard results to be compared to the outputs from the traffic assignment run.  But the content of the data stored in this Map is simpler than for links, since there is only one output value to be compared to the standard results.
 
-Path output maps use two values as keys:-
+Path output maps use five values as keys:-
 
 - mode;
 - time period;
@@ -180,24 +180,24 @@ If this test works correctly, it should run the traffic assignment once and then
 ### 3.2 Tests for Duplicate External Ids 
 
 ***Purpose:***
- 
+
  These tests check that PLANit's input validation catches duplicate external Id values on input.
- 
+
 ***Description:***
- 
+
  All these tests have a duplicate external Id in their input.  The unit tests pass if the code throws an appropriate exception.  
- 
+
 ***Location:***
- 
+
 `src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegment`
 `src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegmentType`
 `src\test\resources\testcases\duplicate_tests\xml\duplicateMode`
 `src\test\resources\testcases\duplicate_tests\xml\duplicateTimePeriod`
 `src\test\resources\testcases\duplicate_tests\xml\duplicateUserClass`
 `src\test\resources\testcases\duplicate_tests\xml\duplicateZone`
- 
+
 ***Notes:*** 
- 
+
 No standard results files are used in these tests, each test is expected to throw an exception before getting to the point of writing any output.
 
 ### 3.3 Tests for Reading Initial Cost Values
@@ -270,7 +270,7 @@ Some of these test cases use initial cost files, to test that the methods for re
 ***Purpose:***
 
 Test that PlanItProject reads in the values of one initial costs file.
- 
+
 ***Description:***
 
 ![alt text](./images/Diagram_for_Basic_Test_Cases.jpg "Basic Network")
@@ -288,7 +288,7 @@ This test has a demand of 1 unit, with Node A in the diagram being the origin.  
 ***Purpose:*** 
 
 Test that PlanItProject reads in the values of two initial costs files
- 
+
 ***Description:***
 
 This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to B, with a path cost of 85.
@@ -322,7 +322,7 @@ Time Period 1 uses route A to B in the example, which has a total route cost of 
 ***Purpose:*** 
 
 Confirms that the output from a PLANit traffic assignment for the basic network matches a standard result which can be calculated by hand.
- 
+
 ***Description:***
 
 This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to C, with a path cost of 77.
@@ -338,7 +338,7 @@ This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from N
 ***Purpose:*** 
 
 Confirms that the output from a PLANit traffic assignment for the basic network matches a standard result which can be calculated by hand.
- 
+
 ***Description:***
 
 This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to D, with a path cost of 108.
@@ -420,7 +420,7 @@ And the following link costs:-
 ***Purpose:*** 
 
 This test runs the same network using one iteration with different initial costs for each time, checking that the results are different for each time period.
-   
+
 ***Description:***
 
 This test uses the same network as 3.5.2.

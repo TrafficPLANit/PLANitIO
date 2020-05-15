@@ -126,6 +126,7 @@ public class PlanItIOTestHelper {
        
         Pair<Integer, Integer> positionKeys = (Pair<Integer, Integer>) obj;
         while (memoryOutputIterator.hasNext()) {
+          memoryOutputIterator.next();
           final Object[] keys = memoryOutputIterator.getKeys();
           LinkSegmentExpectedResultsDto resultDto = getResultDto.apply(positionKeys, innerMap, keys);
           final Object[] results = memoryOutputIterator.getValues();
@@ -180,6 +181,7 @@ public class PlanItIOTestHelper {
         final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, outputType, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, outputType);
         while (memoryOutputIterator.hasNext()) {
+          memoryOutputIterator.next();
           final Object[] keys = memoryOutputIterator.getKeys();
           final Object[] results = memoryOutputIterator.getValues();
           Long originZoneExternalId = (Long) keys[originZonePosition];
