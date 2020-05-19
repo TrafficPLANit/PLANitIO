@@ -1,0 +1,66 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xml="http://www.w3.org/XML/1998/namespace"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
+	<!-- Demand component -->
+	<macroscopicdemand>
+		<demandconfiguration>
+			<timeperiods>
+				<timeperiod id="0">
+					<duration>3600</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
+
+	<!-- Physical network component -->
+	<macroscopicnetwork>
+		<infrastructure>
+			<nodes>
+				<node id="1" />
+				<node id="2" />
+			</nodes>
+			<links>
+				<link nodearef="1" nodebref="2">
+					<linksegment id="1" dir="a_b" />
+					<linksegment id="2" dir="b_a" />
+					<length>10</length>
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+
+	<!-- zoning structure component -->
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<centroid>
+					<gml:Point>
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="1" />
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>2</name>
+					<gml:Point>
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="2" />
+				</connectoids>
+			</zone>
+		</zones>
+	</macroscopiczoning>
+</PLANit>

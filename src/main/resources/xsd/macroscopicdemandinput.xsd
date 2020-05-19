@@ -289,7 +289,10 @@
   				<xs:element name="timeperiod" maxOccurs="unbounded">
   					<xs:complexType>
 			  			<xs:sequence>
+			  			<!-- 
 			  				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
+			  			-->
+			  			    <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  				<xs:element ref="starttime" minOccurs="0"/>
 			  				<xs:element ref="duration"/>
 			  			</xs:sequence>  					
@@ -306,7 +309,10 @@
 			  	<xs:element name="travellertype" maxOccurs="unbounded">
 			  		<xs:complexType>
 			  			<xs:sequence>
+			  			<!-- 
 			  				<xs:element name="name" type="xs:string" default=""/>
+			  			-->
+			  				<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  			</xs:sequence>
 						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>	  			
 			  		</xs:complexType> 		
@@ -321,7 +327,10 @@
   				<xs:element name="userclass" maxOccurs="unbounded">
   					<xs:complexType>
 			  			<xs:sequence>
+			  			<!-- 
 			  				<xs:element name="name" type="xs:string" default=""/>
+			  			-->
+			  				<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  			</xs:sequence>  					
 						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>
 						<xs:attribute name="moderef" type="xs:positiveInteger" use="optional"/>

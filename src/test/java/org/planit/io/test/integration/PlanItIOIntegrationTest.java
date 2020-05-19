@@ -117,9 +117,9 @@ public class PlanItIOIntegrationTest {
    * Trivial test case which matches the description in the README.md file.
    */
   @Test
-  public void test_explanatory() {
+  public void test_explanatory_original() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml";
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
       String description = "explanatory";
       String csvFileName = "Time Period 1_2.csv";
       String odCsvFileName = "Time Period 1_1.csv";
@@ -179,11 +179,76 @@ public class PlanItIOIntegrationTest {
   }
 
   /**
-   * Test case in which an attempt is made to change a locked formatter
+   * Trivial test case which matches the description in the README.md file.
    */
   @Test
+  public void test_explanatory_defaults() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\defaults";
+      String description = "explanatory";
+      String csvFileName = "_2.csv";
+      String odCsvFileName = "_1.csv";
+      String xmlFileName = ".xml";
+      Integer maxIterations = null;
+
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
+          .setupAndExecuteAssignment(projectPath, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.125,
+          1800.0, 10.0, 80.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+          maxIterations, resultsMap);
+
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[1,2]");
+      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(0.125));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+ 
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
+    }
+  }
+
+  /**
+   * Test case in which an attempt is made to change a locked formatter
+   */
+  //@test
   public void test_explanatory_attempt_to_change_locked_formatter() {
-    String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml";
+    String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
     String description = "explanatory";
     String csvFileName = "Time Period 1_2.csv";
     String odCsvFileName = "Time Period 1_1.csv";

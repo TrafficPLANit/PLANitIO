@@ -3,6 +3,7 @@ package org.planit.io.input;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,11 @@ import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementInfrastructure;
 import org.planit.generated.XMLElementLinkConfiguration;
+import org.planit.generated.XMLElementLinkSegmentTypes;
 import org.planit.generated.XMLElementMacroscopicDemand;
 import org.planit.generated.XMLElementMacroscopicNetwork;
 import org.planit.generated.XMLElementMacroscopicZoning;
+import org.planit.generated.XMLElementModes;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
 import org.planit.input.InputBuilderListener;
@@ -89,11 +92,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Default extension for XML input files
    */
   private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
-
+  
   /**
-   * The default separator that is assumed when no separator is provided
+   * Default PCU value for modes 
    */
-  public static final String DEFAULT_SEPARATOR = ",";
+  private static final float DEFAULT_PCU_VALUE = 1.0f;
+  
+  /**
+   * Default external Id value
+   */
+  private static final long DEFAULT_EXTERNAL_ID = 1;
 
   /**
    * Default XSD files used to validate input XML files against
@@ -101,6 +109,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private static final String NETWORK_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd";
   private static final String ZONING_XSD_FILE = "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd";
   private static final String DEMAND_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd";
+
+  /**
+   * The default separator that is assumed when no separator is provided
+   */
+  public static final String DEFAULT_SEPARATOR = ",";
 
   /**
    * Populate the input objects from specified XML files
@@ -475,12 +488,42 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
     final MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
     try {
+      if (macroscopicnetwork.getLinkconfiguration() == null) {
+        macroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
+      }
+      if (macroscopicnetwork.getLinkconfiguration().getModes() == null) {
+        macroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
+      }
+      if (macroscopicnetwork.getLinkconfiguration().getModes().getMode().isEmpty()) {
+        XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
+        xmlElementMode.setPcu(DEFAULT_PCU_VALUE);
+        xmlElementMode.setName("");
+        xmlElementMode.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
+        macroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
+      }
+      if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
+        macroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
+      }
+      if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().isEmpty()) {
+        XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
+        xmlLinkSegmentType.setName("");
+        xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
+        xmlLinkSegmentType.setModes(new XMLElementLinkSegmentTypes.Linksegmenttype.Modes());
+        macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
+      }
+      for (XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType : macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype()) {
+        if (xmlLinkSegmentType.getModes().getMode().isEmpty()) {
+          XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode();
+          mode.setRef(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
+          xmlLinkSegmentType.getModes().getMode().add(mode);
+        }
+      }
       final XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
       ProcessLinkConfiguration.createAndRegisterModes(physicalNetwork, linkconfiguration, this);
       final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, this);  
       final XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
       ProcessInfrastructure.createAndRegisterNodes(infrastructure, network, this);
-      ProcessInfrastructure.createAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this);
+      ProcessInfrastructure.createAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this, DEFAULT_EXTERNAL_ID);
     } catch (PlanItException pe) {
       throw pe;
     } catch (final Exception ex) {
@@ -690,7 +733,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
               + " which is not handled by PlanItInputBuilder.");
         }
       } catch (final PlanItException e) {
-    	e.printStackTrace(); 
+        e.printStackTrace(); 
         throw new RemoteException(e.getMessage(), e);
       }
     }

@@ -335,7 +335,10 @@
 							</xs:documentation>
 						</xs:annotation>				  		
 			  			<xs:sequence>
+			  			<!-- 
 			  				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
+			  			-->
+			  				<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  				<xs:element ref="pcu" minOccurs="0" />
 			  			</xs:sequence>
 			  			<xs:attribute name="id" type="xs:positiveInteger" use="required"/>  			
@@ -356,7 +359,10 @@
   				<xs:element name="node" maxOccurs="unbounded">
   					<xs:complexType>
   						<xs:sequence>
+  						<!-- 
   							<xs:element name="name" type="xs:string" default="" minOccurs="0" maxOccurs="1"/>
+  						-->
+  							<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
   							<xs:element ref="gml:Point" minOccurs="0" maxOccurs="1">
   								<xs:annotation>
 									<xs:documentation>

@@ -9,13 +9,13 @@
 		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
 		<timeperiod>
 			<id>0</id>
-			<name>Time Period 1</name>
+			<name/>
 		</timeperiod>
 	</outputconfiguration>
 	<simulation>
 		<iteration>
 			<nr>1</nr>
-			<csvdata type="Cost">src\test\resources\testcases\explanatory\xml\Origin-Destination_RunId 0_explanatory_Time Period 1_1.csv</csvdata>
+			<csvdata type="Cost">src\test\resources\testcases\explanatory\xml\defaults\Origin-Destination_RunId 0_explanatory__1.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

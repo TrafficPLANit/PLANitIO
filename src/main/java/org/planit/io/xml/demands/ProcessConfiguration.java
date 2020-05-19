@@ -1,8 +1,13 @@
 package org.planit.io.xml.demands;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.planit.demands.Demands;
@@ -41,9 +46,7 @@ public class ProcessConfiguration {
    */
   private static void generateAndStoreTravelerTypes(XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-    XMLElementTravellerTypes travellertypes = (demandconfiguration.getTravellertypes() == null)
-        ? new XMLElementTravellerTypes()
-        : demandconfiguration.getTravellertypes();
+    XMLElementTravellerTypes travellertypes = (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes() : demandconfiguration.getTravellertypes();
     if (travellertypes.getTravellertype().isEmpty()) {
       travellertypes.getTravellertype().add(generateDefaultTravellerType());
       demandconfiguration.setTravellertypes(travellertypes);
@@ -70,7 +73,7 @@ public class ProcessConfiguration {
   private static void generateAndStoreUserClasses(
       XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-    XMLElementUserClasses userclasses = demandconfiguration.getUserclasses();
+    XMLElementUserClasses userclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses () : demandconfiguration.getUserclasses();
     if (userclasses.getUserclass().isEmpty()) {
       userclasses.getUserclass().add(generateDefaultUserClass());
     }
@@ -130,19 +133,31 @@ public class ProcessConfiguration {
    *          demand XML input
    * @param inputBuilderListener parser to be updated
    * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
-   * @throws PlanItException thrown if a duplicate external Id is found
+   * @throws PlanItException thrown if a duplicate external Id is found, or if there is an 
    */
   private static void generateTimePeriodMap(
 	  Demands demands,
 	  XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
     XMLElementTimePeriods timeperiods = demandconfiguration.getTimeperiods();
+    
+    XMLGregorianCalendar defaultStartTime;
+    
+    try {
+      LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
+      defaultStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(localDateTime.format(DateTimeFormatter.ISO_DATE_TIME));
+    } catch (DatatypeConfigurationException e) {
+      throw new PlanItException(e);
+    }
     for (XMLElementTimePeriods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {
       long timePeriodId = timePeriodGenerated.getId().longValue();
-      XMLGregorianCalendar time = timePeriodGenerated.getStarttime();
+      XMLGregorianCalendar time = (timePeriodGenerated.getStarttime() == null) ? defaultStartTime: timePeriodGenerated.getStarttime();
       int startTime = 3600 * time.getHour() + 60 * time.getMinute() + time.getSecond();
       int duration = timePeriodGenerated.getDuration().getValue().intValue();
       Durationunit durationUnit = timePeriodGenerated.getDuration().getUnit();
+      if (timePeriodGenerated.getName() == null) {
+        timePeriodGenerated.setName("");
+      }
       switch (durationUnit) {
         case H:
           duration *= 3600;

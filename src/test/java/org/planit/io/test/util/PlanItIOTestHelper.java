@@ -759,6 +759,7 @@ public class PlanItIOTestHelper {
     // SUPPLY-DEMAND INTERACTIONS
     final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
         .createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+    
     if (setCostParameters != null) {
       setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost, planItInputBuilder);
     }
@@ -812,7 +813,7 @@ public class PlanItIOTestHelper {
       taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
-    registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
+   registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
 
     final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
     if (!exceptionMap.keySet().isEmpty()) {

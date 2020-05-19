@@ -1,5 +1,6 @@
 package org.planit.io.xml.network;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -181,12 +182,14 @@ public class ProcessInfrastructure {
    * @param network network the physical network object to be populated from the input data
    * @param linkSegmentTypeHelperMap Map of MacroscopicLinkSegmentTypeXmlHelper objects
    * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param defaultLinkSegmentTypeRef default value for link segment type reference if this has not been defined in the input file
    * @throws PlanItException thrown if there is an error during processing
    */
   public static void createAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
       MacroscopicNetwork network, 
       Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap,
-      InputBuilderListener inputBuilderListener) throws PlanItException {
+      InputBuilderListener inputBuilderListener,
+      long defaultLinkSegmentTypeRef) throws PlanItException {
       
     for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
       Node startNode = inputBuilderListener.getNodeByExternalId(generatedLink.getNodearef().longValue());
@@ -203,6 +206,9 @@ public class ProcessInfrastructure {
       for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
         int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
             : generatedLinkSegment.getNumberoflanes().intValue();
+        if (generatedLinkSegment.getTyperef() == null) {
+          generatedLinkSegment.setTyperef(BigInteger.valueOf(defaultLinkSegmentTypeRef));
+        }
         long linkType = generatedLinkSegment.getTyperef().longValue();
         long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
         MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);

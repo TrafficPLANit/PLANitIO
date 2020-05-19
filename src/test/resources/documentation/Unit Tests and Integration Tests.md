@@ -66,11 +66,11 @@ Each test case has an XML input file called macroscopicinput.xml which contains 
 
 ### 2.4	Standard Results Files – Naming Convention
 
-CSV standard results files use the naming convention:
+CSV standard results files use the naming convention:-
 
 \<OutputType\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.csv
 
-Where:
+Where:-
 
 \<OutputType\> is one of “Link”, “Path” or “Origin-Destination”
 
@@ -86,7 +86,29 @@ XML output files follow a similar naming convention but do not include the numbe
 
 If a test case has more than one time period it will produce more than one set of output files. Several tests have three time periods; for these tests the generated results for all time periods are checked.
 
-### 2.5	Storing Expected Results in Memory – Link Output
+### 2.5 Results Files Generated During Tests
+
+The unit tests create temporary CSV and XML output files whose contents are compared to the standard output files.  These temporary output files follow a similar naming convention to the standard results files.  The CSV files are named:-
+
+\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.csv
+
+"RunId 0" is part of the file name, and \<Description\> is an appropriate name for the test e.g. "explanatory".
+
+Similarly, XML temporary files are named:-
+
+\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.xml
+
+So example names of temporary results files include `Link_RunId0_explanatory_Time Period 1_2.csv` and `Link_RunId0_explanatory_Time Period 1.xml`.
+
+For all the contents of the CSV files and *most* of the contents of the XML files, the values in the temporary files should match those in the standard results files.  The one exception to this is the \<timestamp\> element in the XML output file.  This gives the time of the run.  The timestamp value in the temporary results file must be *different* from that in the standard results file, to confirm the two files are from different runs.
+
+Assuming all contents of the temporary results files match or differ from the standard results as expected, the test passes and the temporary results files are deleted.  This ensures the tests do not leave any old files to clutter up directories.
+
+If a developer makes a code change which cause a test to fail, the temporary results file may not be deleted (depending upon which part of the test the failure occurred in).  This can help developers compare the actual results with what was expected.  In this case the developer must delete the temporary files manually before running the tests again.
+
+Most modellers do not need to worry about the contents of the temporary results files since they are deleted.  
+
+### 2.6	Storing Expected Results in Memory – Link Output
 
 Tests of the contents of the MemoryOutputFormatter use data transfer objects (DTOs). These objects are populated with expected result values in the Java code, and then stored in Java Maps. After the traffic assignment run has finished, the values stored in the MemoryOutputFormatter can be compared to these standard results in the code.
 
@@ -104,7 +126,7 @@ ResultDto objects are stored in a Java Map whose keys are run id, time period an
 
 The fifth argument in the ResultDto constructor, total cost to end node, is not currently used. This was originally included to provide a sort order for the ResultDto objects in the Map which stores them. This is quite helpful for human inspection of CSV output files but is not required for computerized testing.
 
-### 2.6	Storing Expected Results in Memory – Path Output
+### 2.7	Storing Expected Results in Memory – Path Output
 
 Tests of the contents of the MemoryOutputFormatter for path and origin-destination cost also use a Java Map to store standard results to be compared to the outputs from the traffic assignment run.  But the content of the data stored in this Map is simpler than for links, since there is only one output value to be compared to the standard results.
 
@@ -120,7 +142,7 @@ Expected paths are stored as a String, which consists of a series of values repr
 
 The Java code gets an iterator through rows of the MemoryOuptutFormatter for the columns corresponding to the keys above for the “PATH_STRING” output property type.  This gives an output path corresponding to each origin zone and destination zone (identified by external Id).  The path value in each row of the MemoryOutputFormatter is compared to the standard path from the Java Map.  If the paths do not agree for a given pair of origin and destination zones, the test fails.
 
-### 2.7	Storing Expected Results in Memory – Origin-Destination Output
+### 2.8	Storing Expected Results in Memory – Origin-Destination Output
 
 Tests of Origin-Destination costs stored in the MemoryOutputFormatter are done in an almost identical manner to tests of the path described in the previous section.  Values are stored in a Java Map by the external Ids of origin and destination zones, and these are used to identify rows in the MemoryOutputFormatter results which are iterated through.
 The only difference is that origin-destination costs are stored as doubles whereas paths are stored as strings.  The code simply compares the expected cost with the calculated cost, issuing a test failure if they do not match.
