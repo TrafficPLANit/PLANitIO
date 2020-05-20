@@ -103,6 +103,7 @@ public class ProcessInfrastructure {
   /**
    * Registers a new link segment in the physical network
    * 
+   * @param maxSpeed the value of the <maxspeed> element within the <linksegment> element in the input file, null if this element omitted for this link segment
    * @param network the physical network object
    * @param link the link from which the link segment will be created
    * @param abDirection direction of travel
@@ -113,7 +114,7 @@ public class ProcessInfrastructure {
    * @param inputBuilderListeners parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error
    */
-  private static void createAndRegisterLinkSegment(MacroscopicNetwork network, Link link, boolean abDirection,
+  private static void createAndRegisterLinkSegment(Float maxSpeed, MacroscopicNetwork network, Link link, boolean abDirection,
       MacroscopicLinkSegmentTypeXmlHelper linkSegmentType, 
       int noLanes, long externalId,
       Map<Mode, MacroscopicModeProperties> modeProperties,
@@ -122,6 +123,14 @@ public class ProcessInfrastructure {
     // create the link and store it in the network object
     MacroscopicLinkSegmentImpl linkSegment = 
         (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
+    if (maxSpeed != null) {
+       double maxSpeedDouble = (double) maxSpeed;
+      for (Mode mode : linkSegmentType.getSpeedMap().keySet()) {
+        if (linkSegmentType.getSpeedMap().get(mode) > maxSpeedDouble) {
+          linkSegmentType.getSpeedMap().put(mode, maxSpeedDouble);
+        }
+      }      
+    }
     linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
@@ -211,6 +220,7 @@ public class ProcessInfrastructure {
         }
         long linkType = generatedLinkSegment.getTyperef().longValue();
         long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
+        Float maxSpeed = generatedLinkSegment.getMaxspeed();
         MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);
         // TODO - We should be able to set the maximum speed for individual link
         // segments in the network XML file. This is where we would update it. However
@@ -219,7 +229,7 @@ public class ProcessInfrastructure {
 
         Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
-        createAndRegisterLinkSegment(network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties, inputBuilderListener);
+        createAndRegisterLinkSegment(maxSpeed, network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties, inputBuilderListener);
       }
     }
   }

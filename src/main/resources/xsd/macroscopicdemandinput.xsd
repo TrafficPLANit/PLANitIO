@@ -206,10 +206,6 @@
     		</xs:sequence>	
     		</xs:extension>
     		</xs:complexContent>
-  <!-- 	
-			<xs:attribute ref="timeperiodref" use="required"/>
-			<xs:attribute ref="userclassref" use="optional"/>
--->
   		</xs:complexType>  		
   	</xs:element> 
   	
@@ -236,10 +232,6 @@
     		</xs:sequence>		
     		</xs:extension>
     		</xs:complexContent>
-  <!-- 	
-			<xs:attribute ref="timeperiodref" use="required"/>
-			<xs:attribute ref="userclassref" use="optional"/>
--->
  		</xs:complexType>  		
   	</xs:element> 
   	
@@ -273,10 +265,6 @@
 					</xs:complexType>	      				
       			</xs:element>
     		</xs:sequence>		
-  <!-- 	
-			<xs:attribute ref="timeperiodref" use="required"/>
-			<xs:attribute ref="userclassref" use="optional"/>
--->
 			<xs:attribute ref="ds" use="optional"/>		
     		</xs:extension>
     		</xs:complexContent>
@@ -289,9 +277,6 @@
   				<xs:element name="timeperiod" maxOccurs="unbounded">
   					<xs:complexType>
 			  			<xs:sequence>
-			  			<!-- 
-			  				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
-			  			-->
 			  			    <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  				<xs:element ref="starttime" minOccurs="0"/>
 			  				<xs:element ref="duration"/>
@@ -309,9 +294,6 @@
 			  	<xs:element name="travellertype" maxOccurs="unbounded">
 			  		<xs:complexType>
 			  			<xs:sequence>
-			  			<!-- 
-			  				<xs:element name="name" type="xs:string" default=""/>
-			  			-->
 			  				<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  			</xs:sequence>
 						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>	  			
@@ -327,9 +309,6 @@
   				<xs:element name="userclass" maxOccurs="unbounded">
   					<xs:complexType>
 			  			<xs:sequence>
-			  			<!-- 
-			  				<xs:element name="name" type="xs:string" default=""/>
-			  			-->
 			  				<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  			</xs:sequence>  					
 						<xs:attribute name="id" type="xs:positiveInteger" use="required"/>

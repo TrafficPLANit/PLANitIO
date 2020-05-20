@@ -11,7 +11,7 @@
 	      		<xs:attribute name="unit" type="lengthUnit" default="km" use="optional">
 		    		<xs:annotation>
 						<xs:documentation>
-							Default length unit is assumed to be kilometres (km))
+							Default length unit is assumed to be kilometres (km)
 						</xs:documentation>
 					</xs:annotation>	 
 				</xs:attribute>
@@ -115,7 +115,7 @@
 					<xs:annotation>
 						<xs:documentation>
 							Link segment types define the different types of link segment properties that can be attributed to links. Note
-							that it is allowed to not define this element. In that case all link(segments) are assumed to be of the same default
+							that it is allowed not to define this element. In that case all link(segments) are assumed to be of the same default
 							link segment type. 
 						</xs:documentation>
 					</xs:annotation>	  	
@@ -335,9 +335,6 @@
 							</xs:documentation>
 						</xs:annotation>				  		
 			  			<xs:sequence>
-			  			<!-- 
-			  				<xs:element name="name" type="xs:string" default="" minOccurs="0"/>
-			  			-->
 			  				<xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			  				<xs:element ref="pcu" minOccurs="0" />
 			  			</xs:sequence>

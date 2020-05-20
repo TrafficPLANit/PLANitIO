@@ -246,7 +246,7 @@ public class PlanItIOIntegrationTest {
   /**
    * Test case in which an attempt is made to change a locked formatter
    */
-  //@test
+  @Test
   public void test_explanatory_attempt_to_change_locked_formatter() {
     String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
     String description = "explanatory";

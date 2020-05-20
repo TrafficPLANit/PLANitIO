@@ -102,6 +102,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Default external Id value
    */
   private static final long DEFAULT_EXTERNAL_ID = 1;
+  
+  private static final float DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0f;
+  
+  private static final float DEFAULT_MAXIMUM_DENSITY_PER_LANE = 180.0f;
 
   /**
    * Default XSD files used to validate input XML files against
@@ -475,6 +479,44 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
   }
+  
+  /**
+   * Update the XML macroscopic network element to include default values for any properties not included in the input file
+   */
+  private void addDefaultValuesToXmlMacroscopicNetwork() {
+    if (macroscopicnetwork.getLinkconfiguration() == null) {
+      macroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
+    }
+    
+    if (macroscopicnetwork.getLinkconfiguration().getModes() == null) {
+      macroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
+      XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
+      xmlElementMode.setPcu(DEFAULT_PCU_VALUE);
+      xmlElementMode.setName("");
+      xmlElementMode.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
+      macroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
+    }
+    
+    if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
+      macroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
+      XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
+      xmlLinkSegmentType.setName("");
+      xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
+      xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
+      xmlLinkSegmentType.setMaxdensitylane(DEFAULT_MAXIMUM_DENSITY_PER_LANE);
+      macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
+    }
+    
+    for (XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType : macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype()) {
+      if (xmlLinkSegmentType.getModes() == null) {
+        XMLElementLinkSegmentTypes.Linksegmenttype.Modes xmlLinkSegmentModes = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes();
+        XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode xmlLinkSegmentMode = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode();
+        xmlLinkSegmentMode.setRef(BigInteger.valueOf(0));
+        xmlLinkSegmentModes.getMode().add(xmlLinkSegmentMode);
+        xmlLinkSegmentType.setModes(xmlLinkSegmentModes);
+      }
+    }
+  }
 
   /**
    * Creates the physical network object from the data in the input file
@@ -488,36 +530,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
     final MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
     try {
-      if (macroscopicnetwork.getLinkconfiguration() == null) {
-        macroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
-      }
-      if (macroscopicnetwork.getLinkconfiguration().getModes() == null) {
-        macroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
-      }
-      if (macroscopicnetwork.getLinkconfiguration().getModes().getMode().isEmpty()) {
-        XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
-        xmlElementMode.setPcu(DEFAULT_PCU_VALUE);
-        xmlElementMode.setName("");
-        xmlElementMode.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
-        macroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
-      }
-      if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
-        macroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
-      }
-      if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().isEmpty()) {
-        XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
-        xmlLinkSegmentType.setName("");
-        xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
-        xmlLinkSegmentType.setModes(new XMLElementLinkSegmentTypes.Linksegmenttype.Modes());
-        macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
-      }
-      for (XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType : macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype()) {
-        if (xmlLinkSegmentType.getModes().getMode().isEmpty()) {
-          XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode();
-          mode.setRef(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
-          xmlLinkSegmentType.getModes().getMode().add(mode);
-        }
-      }
+      addDefaultValuesToXmlMacroscopicNetwork();
       final XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
       ProcessLinkConfiguration.createAndRegisterModes(physicalNetwork, linkconfiguration, this);
       final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, this);  

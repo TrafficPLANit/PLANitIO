@@ -35,31 +35,29 @@
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
-		<linkconfiguration>
-			<modes>
-				<mode id="1">																<!-- mandatory attributes, for referencing -->
-					<name>Basic</name>														<!-- optional -->
-					<pcu>1</pcu>															<!-- optional, default available -->
+		<linkconfiguration>                                                                    <!-- optional, if absent assume a single link segment type for the entire simulation and a simple Cartesian coordinate system with top-left (0,0) -->
+			<modes>                                                                                 <!-- optional, if absent a single 'virtual' mode is created to represent all modes -->
+				<mode id="1">																    <!-- mandatory, for referencing -->
+					<name>Basic</name>													<!-- optional -->
+					<pcu>1</pcu>															        <!-- optional, default available -->
 				</mode>
 			</modes>
-			<linksegmenttypes>
-				<linksegmenttype id="1">
-					<name>Standard</name>													<!-- optional -->
-					<capacitylane>2000</capacitylane>										<!-- optional, has default -->
-					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+			<linksegmenttypes>                                                                <!-- optional, if omitted all link segments are assumed to be of the same default 	link segment type -->
+				<linksegmenttype id="1">                                                  <!-- mandatory, for referencing -->
+					<name>Standard</name>												<!-- optional -->
+					<capacitylane>2000</capacitylane>								<!-- optional, has default -->
+					<modes>                                                                         <!-- optional, if omitted all modes are assumed to be allowed based on their default properties 	(possibly dynamically capped by the physical link properties) -->
+						<mode ref="1">															<!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
+							<maxspeed>100</maxspeed>								<!-- optional, should be lower or equal than link max speed when present -->
 						</mode>
 					</modes>
 				</linksegmenttype>
 				<linksegmenttype id="2">
 					<name>Link 2</name>													<!-- optional -->
-					<capacitylane>1000</capacitylane>										<!-- optional, has default -->
-					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+					<capacitylane>1000</capacitylane>								<!-- optional, has default -->
+					<modes>					                                                        <!-- optional, if omitted all modes are assumed to be allowed based on their default properties (possibly dynamically capped by the physical link properties) -->
+						<mode ref="1">															<!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
+							<maxspeed>100</maxspeed>								<!-- optional, should be lower or equal than link max speed when present -->
 						</mode>
 					</modes>
 				</linksegmenttype>
