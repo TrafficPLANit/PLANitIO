@@ -798,7 +798,7 @@ public class PlanItIOIntegrationTest {
    * 3 uses route A to D in the example, which has a total route cost of 108.
    */
   @Test
-  public void test_basic_shortest_path_algorithm_a_to_b_three_time_periods() {
+  public void test_basic_shortest_path_algorithm_three_time_periods() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test13";
       String description = "testBasic13";

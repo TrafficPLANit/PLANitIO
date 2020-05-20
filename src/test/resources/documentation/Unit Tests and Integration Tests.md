@@ -154,7 +154,7 @@ It was noted in Section 2.4 that Origin-Destination output files use an iteratio
 
 The test in Section 3.1 use the the basic example included in the ReadMe.Md file for the PLANitIO project. This illustrates the input and output files for the simplest possible network, one link with a demand of one unit across it. This allows modellers to relate the introductory example in the documentation to a real test case.
 
-#### 3.1.1 explanatory
+#### 3.1.1 explanatory_original
 
 ***Purpose:***       
 
@@ -168,7 +168,7 @@ The link has a demand of 10 units from Node 1 to Node 2. The road is single-lane
 
 ***Location:***
 
-`src\test\resources\testcases\explanatory\xml`
+`src\test\resources\testcases\explanatory\xml\original`
 
 All input and output files are in this directory.
 
@@ -176,7 +176,27 @@ All input and output files are in this directory.
 
 This test has turned out to be very useful *because* it is so trivial. If you make a code change which causes this test to fail, you know you have made a mistake or mistype in your code changes to cause the failure. And it is usually easy to trace back to the coding error which causes a wrong result in this case.
 
-#### 3.1.2  explanatory_attempt_to_change_locked_formatter
+#### 3.1.2 explanatory_defaults 
+
+***Purpose:*** 
+
+This test validates that PLANit inserts the correct default values when optional elements are omitted from the input file.
+
+***Description:***
+
+As “test_explanatory” above
+
+***Location:***
+
+`src\test\resources\testcases\explanatory\xml\defaults`
+
+All input and output files are in this directory.
+
+***Notes:***
+
+This test uses a stripped-down version of the input XML file for the explanatory test case, with all the optional elements omitted.  This tests confirms that PLANit handles these omissions correctly, creating objects with default values.  
+
+#### 3.1.3 explanatory_attempt_to_change_locked_formatter
 
 ***Purpose:***
 
@@ -190,8 +210,7 @@ As “test_explanatory” above
 
 ***Location:***
 
-`src\test\resources\testcases\explanatory\xml`
-
+`src\test\resources\testcases\explanatory\xml\original`
 
 All input and output files are in this directory.
 
@@ -269,7 +288,7 @@ Tests that PlanItProject throws an exception when the initial costs file referen
 
 ***Description:***
 
-Tests that PlanItProject throws an exception when the initial costs file references are link segment which has not been defined
+Tests that PlanItProject throws an exception when the initial costs file references a link segment which has not been defined
 
 ***Location:***
 
@@ -305,6 +324,8 @@ This test has a demand of 1 unit, with Node A in the diagram being the origin.  
 
 ***Notes:***
 
+This test was written just to test that the reading of initial costs from one file works without error.  The values of the initial costs do not affect the result.
+
 #### 3.4.2 basic_shortest_path_algorithm_a_to_b_two_initial_cost_files
 
 ***Purpose:*** 
@@ -321,7 +342,9 @@ This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from N
 
 ***Notes:***
 
-#### 3.4.3 basic_shortest_path_algorithm_a_to_b_three_time_periods
+This test was written just to test that the reading of initial costs from two files works without error.  The values of the initial costs do not affect the result.
+
+#### 3.4.3 basic_shortest_path_algorithm_three_time_periods
 
 ***Purpose:*** 
 
@@ -329,7 +352,7 @@ Tests of results for a simple test case using three time periods.
 
 ***Description:***
 
-This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to B, with a path cost of 85.
+This uses the same network as illustrated in 3.4.1.
 
 Time Period 1 uses route A to B in the example, which has a total route cost of 85 (the fifth argument in the ResultDto constructor). Time Period 2 uses route A to C in the example, which has a total route cost of 77. Time Period 3 uses route A to D in the example, which has a total route cost of 108.
 
@@ -338,6 +361,8 @@ Time Period 1 uses route A to B in the example, which has a total route cost of 
 `src\test\resources\testcases\basic\xml\test13`
 
 ***Notes:***
+
+This tests checks that the results from one time period do not interfere with the results from another.
 
 #### 3.4.4 basic_shortest_path_algorithm_a_to_c
 
@@ -389,7 +414,7 @@ All links have a length of 1 km.
 All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
 All links have a maximum speed of 100 km/h and a capacity of 2000 veh/h/lane, except for link 2 which has a capacity of only 1000/veh/h/lane.
 All links have 1 lane, except links 4,7 and 8 which have 10 lanes.
-Travel demand is only non-zero on Origin-Destinations (3 to 4), (5 to 1) and (2 to 6). and 5,1 and 2,6. These have a demand of 1000 veh/h
+Travel demand is only non-zero on Origin-Destinations (3 to 4), (5 to 1) and (2 to 6). and 5,1 and 2,6. These have a demand of 1000 veh/h.
 Simulation time period is 1 h.
 
 The resulting flows are:-
@@ -488,6 +513,7 @@ This test uses the same network as 3.5.2.
 ***Purpose:*** 
 
 This test checks that PlanItProject reads the initial costs from a file correctly, and can then generate the expected results after 500 iterations.
+
 ***Description:***
 
 This test uses the same network as 3.5.2.
@@ -501,6 +527,9 @@ This test uses the same network as 3.5.2.
 #### 3.5.7 2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_and_three_time_periods
 
 ***Purpose:*** 
+
+This test runs the network with three time periods with different initial costs for each, running the test for 500 iterations.
+
 ***Description:***
 
 This test uses the same network as 3.5.2.
