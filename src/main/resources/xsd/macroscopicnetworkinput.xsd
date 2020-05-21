@@ -271,7 +271,7 @@
   							<xs:element name="length" minOccurs="0" maxOccurs="1" type="linkLengthType">
 								<xs:annotation>
 									<xs:documentation>
-										Optional length property which overrides any geo spatial length which is deduced from the coordinate system
+										Optional length in km property which overrides any geo-spatial length which is deduced from the coordinate system
 									</xs:documentation>
 								</xs:annotation>	  							
   							</xs:element> 							
