@@ -618,6 +618,89 @@ public class PlanItIOIntegrationTest {
    * 
    * This test case uses route A to C in the example, which has a total route cost
    * of 77 (the fifth argument in the ResultDto constructor).
+   * 
+   * This test sets the maximum speed (1) on each link segment.  The link segment type maximum speed is set to a value 
+   * which is too high (2).  The code should take the lower of these values for each link, giving the correct result.
+   */
+ @Test
+  public void test_basic_shortest_path_algorithm_a_to_c_with_link_segment_maximum_speed() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\basic\\xml\\test2LinkSegmentMaximumSpeed";
+      String description = "testBasic2";
+      String csvFileName = "Time Period 1_2.csv";
+      String odCsvFileName = "Time Period 1_1.csv";
+      String xmlFileName = "Time Period 1.xml";
+      Integer maxIterations = null;
+
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
+          .setupAndExecuteAssignment(projectPath, maxIterations, null, description);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 1, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,
+          2000, 10, 1));
+      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 11).put((long) 6, new LinkSegmentExpectedResultsDto(6, 11, 1, 12,
+          2000, 12, 1));
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 12).put((long) 11, new LinkSegmentExpectedResultsDto(11, 12, 1,
+          8, 2000, 8, 1));
+      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 13).put((long) 12, new LinkSegmentExpectedResultsDto(12, 13, 1,
+          47, 2000, 47, 1));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+          maxIterations, resultsMap);
+
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[1,6,11,12,13]");
+      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(77.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
+    }
+  }
+  
+  /**
+   * Test of results for TraditionalStaticAssignment for simple test case.
+   * 
+   * This test case uses the example from the course notes of ITLS6102 Strategic
+   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
+   * course notes.
+   * 
+   * This test case uses route A to C in the example, which has a total route cost
+   * of 77 (the fifth argument in the ResultDto constructor).
    */
   @Test
   public void test_basic_shortest_path_algorithm_a_to_c() {

@@ -124,7 +124,7 @@ public class ProcessInfrastructure {
     MacroscopicLinkSegmentImpl linkSegment = 
         (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
     if (maxSpeed != null) {
-       double maxSpeedDouble = (double) maxSpeed;
+      double maxSpeedDouble = (double) maxSpeed;
       for (Mode mode : linkSegmentType.getSpeedMap().keySet()) {
         if (linkSegmentType.getSpeedMap().get(mode) > maxSpeedDouble) {
           linkSegmentType.getSpeedMap().put(mode, maxSpeedDouble);
