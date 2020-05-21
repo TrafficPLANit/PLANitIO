@@ -212,6 +212,8 @@ public class ProcessInfrastructure {
                 + generatedLink.getNodearef().longValue() + " to node " + generatedLink.getNodebref().longValue());
       }
       Link link = network.links.registerNewLink(startNode, endNode, length, "");
+      boolean isFirstLinkSegment = true;
+      boolean firstLinkDirection = true;
       for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
         int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
             : generatedLinkSegment.getNumberoflanes().intValue();
@@ -229,7 +231,14 @@ public class ProcessInfrastructure {
 
         Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
+        if (!isFirstLinkSegment) {
+          if (abDirection == firstLinkDirection) {
+            throw new PlanItException("Both link segments for the same link are in the same direction.  Link segment external Id is " + linkSegmentExternalId);
+          }
+        }
         createAndRegisterLinkSegment(maxSpeed, network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes, linkSegmentExternalId, modeProperties, inputBuilderListener);
+        isFirstLinkSegment = false;
+        firstLinkDirection = abDirection;
       }
     }
   }

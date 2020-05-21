@@ -179,6 +179,22 @@ public class PlanItIOIntegrationTest {
   }
 
   /**
+   * Test case which checks that an exception is thrown if two link segments in the same link are in the same direction.
+   */
+  @Test
+  public void test_explanatory_link_segment_in_same_direction() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\linkSegmentsInSameDirection";
+      String description = "explanatory";
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description);
+      fail("Exception for link segment in same direction was not thrown");
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+    }
+  
+  
+  /**
    * Trivial test case which matches the description in the README.md file.
    */
   @Test

@@ -218,6 +218,24 @@ All input and output files are in this directory.
 
 If this test works correctly, it should run the traffic assignment once and then throw an exception. This first run will generate output files which should match “test_explanatory” above, but it should throw the exception without writing any results to the MemoryOutputFormatter.
 
+#### 3.1.4 explanatory_link_segment_in_same_direction
+
+***Purpose:*** 
+
+This test confirms that the code throws an exception if two link segments in the same link are in the same direction.
+
+***Description:***
+
+As “test_explanatory” above.  The two <linksegment> elements in the <link> are deliberately in the same direction, which should generate an exception.
+
+***Location:***
+
+`src\test\resources\testcases\explanatory\xml\linkSegmentsInSameDirection`
+
+***Notes:***
+
+This test does not generate any results.  It is expected to throw the exception before the traffic assignment is ever run.
+
 ### 3.2 Tests for Duplicate External Ids 
 
 ***Purpose:***
@@ -306,6 +324,8 @@ These tests allow modellers to check the results from PLANit against examples wh
 
 Some of these test cases use initial cost files, to test that the methods for reading initial costs work with one or two initial cost files.  The contents of the initial cost files are the same as the network link costs, so they do not affect the results.
 
+Unless otherwise stated, these the input files for these tests use the <maxspeed> element under <node> to define the maximum speed along a link.
+
 #### 3.4.1 basic_shortest_path_algorithm_a_to_b_one_initial_cost_file
 
 ***Purpose:***
@@ -380,7 +400,29 @@ This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from N
 
 ***Notes:***
 
-#### 3.4.5 basic_shortest_path_algorithm_a_to_d
+#### 3.4.5 test_basic_shortest_path_algorithm_a_to_c_with_link_segment_maximum_speed
+
+***Purpose:*** 
+
+This test verifies that PLANitIO reads the correct value of <maxspeed> when there the <linksegment> and <mode>
+
+***Description:***
+
+This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to C, with a path cost of 77.
+
+The input XML file differs from that in 3.4.4 in the way maximum link speeds are configured.  The value of the <maxspeed> element in the <mode> element is 2, but an element <maxspeed> with value 1 is included in every <linksegment> element.
+The code is written to take the lower of these two when they are different for a given link-mode combination.
+
+***Location:***
+
+`src\\test\\resources\\testcases\\basic\\xml\\test2LinkSegmentMaximumSpeed`
+
+***Notes:***
+
+Setting the maximum speed along link segments to 1, which is lower than the maximum speed for link segment types of 2, means that the maximum speeds should come out as 1 for every link (the lower of the two alternatives).
+This means the code should create a network the same as for 3.4.4, and so should give the same results.  
+
+#### 3.4.6 basic_shortest_path_algorithm_a_to_d
 
 ***Purpose:*** 
 
