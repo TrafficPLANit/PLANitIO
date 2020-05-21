@@ -1,6 +1,7 @@
 package org.planit.io.xml.network;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -123,15 +124,14 @@ public class ProcessInfrastructure {
     // create the link and store it in the network object
     MacroscopicLinkSegmentImpl linkSegment = 
         (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
-    if (maxSpeed != null) {
-       double maxSpeedDouble = (double) maxSpeed;
-      for (Mode mode : linkSegmentType.getSpeedMap().keySet()) {
-        if (linkSegmentType.getSpeedMap().get(mode) > maxSpeedDouble) {
-          linkSegmentType.getSpeedMap().put(mode, maxSpeedDouble);
-        }
-      }      
+    
+    double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed; 
+    Map<Mode, Double> linkSegmentSpeedMap = new HashMap<Mode, Double>(); 
+    for (Mode mode : linkSegmentType.getSpeedMap().keySet()) {
+      linkSegmentSpeedMap.put(mode, Math.min(maxSpeedDouble, linkSegmentType.getSpeedMap().get(mode)));
     }
-    linkSegment.setMaximumSpeedMap(linkSegmentType.getSpeedMap());
+    
+    linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
     Pair<MacroscopicLinkSegmentType, Boolean> linkSegmentTypePair = network
