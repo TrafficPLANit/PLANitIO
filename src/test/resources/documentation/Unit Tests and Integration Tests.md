@@ -165,7 +165,8 @@ The test in Section 3.1 use the the basic example included in the ReadMe.Md file
 
 ***Purpose:***       
 
-This test corresponds to running the Explanatory network in the normal way.  It is the simplest possible test case which can generate a result.
+This test corresponds to running the Explanatory network.  It is the simplest possible test case which can generate a result.  
+The input file specifies values for all link and mode parameters, no default values are used.
 
 ***Description:***
 
@@ -193,7 +194,10 @@ This test validates that PLANit inserts the correct default values when optional
 
 ***Description:***
 
-As “test_explanatory” above
+- As “test_explanatory” above
+- The link has a demand of 10 units from Node 1 to Node 2. 
+- The road is single-lane, one-way from Node 1 to Node 2. 
+- The capacity of the link is 2000.
 
 ***Location:***
 
@@ -215,7 +219,10 @@ When PLANit runs a traffic assignment execution, it locks the setup of all its o
 
 ***Description:***
 
-- As “test_explanatory” above
+- As “test_explanatory_original” above
+- The link has a demand of 10 units from Node 1 to Node 2. 
+- The road is single-lane, one-way from Node 1 to Node 2. 
+- The capacity of the link is 2000.
 
 ***Location:***
 
@@ -235,7 +242,10 @@ This test confirms that the code throws an exception if two link segments in the
 
 ***Description:***
 
-- As “test_explanatory” above.  
+- As “test_explanatory_original” above.
+- The link has a demand of 10 units from Node 1 to Node 2. 
+- The road is single-lane, one-way from Node 1 to Node 2. 
+- The capacity of the link is 2000.  
 - The two <linksegment> elements in the <link> are deliberately in the same direction, which should generate an exception.
 
 ***Location:***
@@ -269,72 +279,7 @@ This test does not generate any results.  It is expected to throw the exception 
 
 No standard results files are used in these tests, each test is expected to throw an exception before getting to the point of writing any output.
 
-### 3.3 Tests for Reading Initial Cost Values
-
-These tests verify the that initial cost files are read in correctly and their values are correctly stored in link segment objects.  They do not run the traffic assignment.
-These tests use the same input network as the “Basic Shortest Path” test cases, but they do not run the traffic assignment anyway.  The network files are only included to allow the CustomPlanItProject object to be instantiated.
-
-** Test Configuration **
-
-- Traditional Static Assignment
-- MSA Smoothing Method
-- Link Based Relative Duality Gap Function
-- BPR Cost Function
-
-#### 3.3.1 reading_initial_cost_values
-
-***Purpose:*** 
-
-Tests that the values of an initial costs file are read in by start and end node and registered by PlanItProject, and that the stored values match the expected ones by link external id.
-
-***Description:***
-
-This test does not run the traffic assignment.  It reads a files of initial cost values which identifies links by the external ids of upstream and downstream nodes into PlanIt.  It then tests that these values match those in another file which contains in another file which identifies links by link segment external id.
-
-***Location:***
-
-`src\test\resources\testcases\initial_costs\xml\readingInitialCostValues`
-
-***Notes:***
-
-Only the initial costs file which identifies links by their start and end node is actually read into PLANit.  The other file provides values to verify that it PLANit has stored the data correctly.
-
-#### 3.3.2 reading_initial_cost_values_with_missing_rows
-
-***Purpose:*** 
-
-Tests that the read in initial costs values match the expected ones when there are some rows missing in the standard results files.
-
-***Description:***
-
-- This test reads in a file of initial costs, and compares the stored results to those in a standard results file.
-- The standard results file does not have values for all the link segments, but the test should successfully match those values it does have to corresponding values which have been stored.
-
-***Location:***
-
-`src\test\resources\testcases\initial_costs\xml\readingInitialCostValues`
-
-***Notes:***
-
-#### 3.3.3 test_reading_initial_cost_values_with_missing_rows_in_input_file
-
-***Purpose:*** 
-
-Tests that PlanItProject throws an exception when the input XML is missing some link segments which are included in the initial costs file.
-
-***Description:***
-
-Tests that PlanItProject throws an exception when the initial costs file references a link segment which has not been defined
-
-***Location:***
-
-`src\test\resources\testcases\initial_costs\xml\readingInitialCostValuesWithLinkSegmentsMissingInputFile`
-
-***Notes:***
-
-### 3.4 Tests using the Basic Network
-
-These tests use the basic network used in the Strategic Transport Planning course (page 122 of the 2019 course presentation slides).  This is illustrated in Section 3.4.1.
+### 3.3 Tests using the Basic Network
 
 This is a simple network for which the lowest cost paths can easily by calculated by hand.  All of these test use only one iteration, that is enough to allocate flows to this simple network.
 
@@ -351,7 +296,7 @@ Unless otherwise stated, these the input files for these tests use the <maxspeed
 - Link Based Relative Duality Gap Function
 - BPR Cost Function
 
-#### 3.4.1 basic_shortest_path_algorithm_a_to_b_one_initial_cost_file
+#### 3.3.1 basic_shortest_path_algorithm_a_to_b_one_initial_cost_file
 
 ***Purpose:***
 
@@ -372,7 +317,7 @@ Test that PlanItProject reads in the values of one initial costs file.
 
 This test was written just to test that the reading of initial costs from one file works without error.  The values of the initial costs do not affect the result.
 
-#### 3.4.2 basic_shortest_path_algorithm_a_to_b_two_initial_cost_files
+#### 3.3.2 basic_shortest_path_algorithm_a_to_b_two_initial_cost_files
 
 ***Purpose:*** 
 
@@ -380,7 +325,8 @@ Test that PlanItProject reads in the values of two initial costs files
 
 ***Description:***
 
-This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from Node A to B, with a path cost of 85.
+- This uses the same network as illustrated in 3.4.1.  
+- The demand is 1 unit from Node A to B, with a path cost of 85.
 
 ***Location:***
 
@@ -390,7 +336,7 @@ This uses the same network as illustrated in 3.4.1.  The demand is 1 unit from N
 
 This test was written just to test that the reading of initial costs from two files works without error.  The values of the initial costs do not affect the result.
 
-#### 3.4.3 basic_shortest_path_algorithm_three_time_periods
+#### 3.3.3 basic_shortest_path_algorithm_three_time_periods
 
 ***Purpose:*** 
 
@@ -398,8 +344,7 @@ Tests of results for a simple test case using three time periods.
 
 ***Description:***
 
-This uses the same network as illustrated in 3.4.1.
-
+- This uses the same network as illustrated in 3.4.1.
 - Time Period 1 uses route A to B in the example, which has a total route cost of 85 (the fifth argument in the ResultDto constructor). 
 - Time Period 2 uses route A to C in the example, which has a total route cost of 77. 
 - Time Period 3 uses route A to D in the example, which has a total route cost of 108.
@@ -412,7 +357,7 @@ This uses the same network as illustrated in 3.4.1.
 
 This tests checks that the results from one time period do not interfere with the results from another.
 
-#### 3.4.4 basic_shortest_path_algorithm_a_to_c
+#### 3.3.4 basic_shortest_path_algorithm_a_to_c
 
 ***Purpose:*** 
 
@@ -429,7 +374,7 @@ Confirms that the output from a PLANit traffic assignment for the basic network 
 
 ***Notes:***
 
-#### 3.4.5 test_basic_shortest_path_algorithm_a_to_c_with_link_segment_maximum_speed
+#### 3.3.5 test_basic_shortest_path_algorithm_a_to_c_with_link_segment_maximum_speed
 
 ***Purpose:*** 
 
@@ -452,7 +397,7 @@ The code is written to take the lower of these two when they are different for a
 Setting the maximum speed along link segments to 1, which is lower than the maximum speed for link segment types of 2, means that the maximum speeds should come out as 1 for every link (the lower of the two alternatives).
 This means the code should create a network the same as for 3.4.4, and so should give the same results.  
 
-#### 3.4.6 basic_shortest_path_algorithm_a_to_d
+#### 3.3.6 basic_shortest_path_algorithm_a_to_d
 
 ***Purpose:*** 
 
@@ -469,6 +414,69 @@ Confirms that the output from a PLANit traffic assignment for the basic network 
 
 ***Notes:***
 
+### 3.4 Tests for Reading Initial Cost Values
+
+These tests verify the that initial cost files are read in correctly and their values are correctly stored in link segment objects.  They do not run the traffic assignment.
+These tests use the same input network as the “Tests using the Basic Network” test cases in Section 3.4, but they do not run the traffic assignment.  The network files are only included to allow the CustomPlanItProject object to be instantiated.
+
+** Test Configuration **
+
+- Traditional Static Assignment
+- MSA Smoothing Method
+- Link Based Relative Duality Gap Function
+- BPR Cost Function
+
+#### 3.4.1 reading_initial_cost_values
+
+***Purpose:*** 
+
+Tests that the values of an initial costs file are read in by start and end node and registered by PlanItProject, and that the stored values match the expected ones by link external id.
+
+***Description:***
+
+This test does not run the traffic assignment.  It reads a files of initial cost values which identifies links by the external ids of upstream and downstream nodes into PlanIt.  It then tests that these values match those in another file which contains in another file which identifies links by link segment external id.
+
+***Location:***
+
+`src\test\resources\testcases\initial_costs\xml\readingInitialCostValues`
+
+***Notes:***
+
+Only the initial costs file which identifies links by their start and end node is actually read into PLANit.  The other file provides values to verify that it PLANit has stored the data correctly.
+
+#### 3.4.2 reading_initial_cost_values_with_missing_rows
+
+***Purpose:*** 
+
+Tests that the read in initial costs values match the expected ones when there are some rows missing in the standard results files.
+
+***Description:***
+
+- This test reads in a file of initial costs, and compares the stored results to those in a standard results file.
+- The standard results file does not have values for all the link segments, but the test should successfully match those values it does have to corresponding values which have been stored.
+
+***Location:***
+
+`src\test\resources\testcases\initial_costs\xml\readingInitialCostValues`
+
+***Notes:***
+
+#### 3.4.3 test_reading_initial_cost_values_with_missing_rows_in_input_file
+
+***Purpose:*** 
+
+Tests that PlanItProject throws an exception when the input XML is missing some link segments which are included in the initial costs file.
+
+***Description:***
+
+Tests that PlanItProject throws an exception when the initial costs file references a link segment which has not been defined
+
+***Location:***
+
+`src\test\resources\testcases\initial_costs\xml\readingInitialCostValuesWithLinkSegmentsMissingInputFile`
+
+***Notes:***
+
 ### 3.5 Route Choice Tests
 
 Tests in Section 3.5 use more complicated networks.  The networks have previously been run on OmniTRANS.
@@ -479,6 +487,16 @@ Tests in Section 3.5 use more complicated networks.  The networks have previousl
 - MSA Smoothing Method
 - Link Based Relative Duality Gap Function
 - BPR Cost Function
+
+** Naming Convention **
+
+The names of the test cases in this section use the following abbreviations:-
+
+- SIMO: Single-In-Multi-Out
+- MISO: Multi-In-Single-Out
+- MIMO: Multi-In-Multi-Out
+
+These refer to the types of nodes in the network.  So if the name include SIMO, it means at least one of its nodes has one link coming in and at least two links going out.
 
 #### 3.5.1 1_no_route_choice_single_mode
 
@@ -511,11 +529,13 @@ And the link costs are:-
 
 ***Notes:***
 
+Due to the one-way natures of its link segments, all the traffic in this network flows in a clockwise direction.
+
 #### 3.5.2 2_SIMO_MISO_route_choice_single_mode
 
 ***Purpose:*** 
 
-This test the traffic assignment for a non-trivial network using one mode.
+This test the traffic assignment for a non-trivial network using one mode.  The network has one SIMO node (Node 1) and one MISO node (Node 4). 
 
 ***Description:***
 
@@ -546,7 +566,8 @@ And the following link costs:-
 
 ***Purpose:*** 
 
-This test runs the same network using one iteration with different initial costs for each time, checking that the results are different for each time period.
+This test checks that PlanItProject reads the initial costs from a file correctly, and outputs them after the first iteration.
+The test input initial costs file uses Link Segment Id to identify link segments.
 
 ***Description:***
 
@@ -566,7 +587,13 @@ This test runs the same network using one iteration with different initial costs
 
 ***Description:***
 
-This test uses the same network as 3.5.2.
+- This test uses the same network as 3.5.2.
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length.
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+- All links have a maximum speed of 60 km/h and a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for links 1 and 3 who have 3 lanes.
+- The travel demand from 1 from 2 is 3600 veh/h.
+- Simulation time is 1 h.
 
 ***Location:***
 
@@ -579,10 +606,17 @@ This test uses the same network as 3.5.2.
 ***Purpose:*** 
 
 This test checks that PlanItProject reads the initial costs from a file correctly, and outputs the expected results after the first iteration.
+The test input initial costs file uses Link Segment External Id to identify link segments.
 
 ***Description:***
 
 This test uses the same network as 3.5.2.
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length.
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+- All links have a maximum speed of 60 km/h and a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for links 1 and 3 who have 3 lanes.
+- The travel demand from 1 from 2 is 3600 veh/h.
+- Simulation time is 1 h.
 
 ***Location:***
 
@@ -595,10 +629,17 @@ This test uses the same network as 3.5.2.
 ***Purpose:*** 
 
 This test checks that PlanItProject reads the initial costs from a file correctly, and can then generate the expected results after 500 iterations.
+The test input initial costs file uses Link Segment Id to identify link segments.
 
 ***Description:***
 
-This test uses the same network as 3.5.2.
+- This test uses the same network as 3.5.2.
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length.
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+- All links have a maximum speed of 60 km/h and a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for links 1 and 3 who have 3 lanes.
+- The travel demand from 1 from 2 is 3600 veh/h.
+- Simulation time is 1 h.
 
 ***Location:***
 
@@ -614,7 +655,14 @@ This test runs the network with three time periods with different initial costs 
 
 ***Description:***
 
-This test uses the same network as 3.5.2.
+- This test uses the same network as 3.5.2.
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length.
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+- All links have a maximum speed of 60 km/h and a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for links 1 and 3 who have 3 lanes.
+- The travel demand from 1 from 2 is 3600 veh/h.
+- Simulation time is 1 h.
+
 
 ***Location:***
 
@@ -627,24 +675,29 @@ This test uses the same network as 3.5.2.
 ***Purpose:*** 
 
 This test checks that PlanItProject reads the initial costs from a file correctly, and outputs them after 500 iterations.
-
 The test input initial costs file uses Link Segment External Id to identify link segments.
 
 ***Description:***
 
 This test uses the same network as 3.5.2.
-
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length.
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0.
+- All links have a maximum speed of 60 km/h and a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for links 1 and 3 who have 3 lanes.
+- The travel demand from 1 from 2 is 3600 veh/h.
+- Simulation time is 1 h.
 ***Location:***
 
 `src\test\resources\testcases\route_choice\xml\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds`
 
 ***Notes:***
 
-#### 3.5.9 3_MIMO_route_choice_single_mode
+#### 3.5.9 3_SIMO_MIMO_MISO_route_choice_single_mode
 
 ***Purpose:*** 
 
 This verifies that the results calculated by PLANit match those previously calculated by OmniTRANS for a network with different capacities on each link.
+This network has one MIMO node (Node 3), one SIMO node (Node 1) and one MISO node (Node 5).
 
 ***Description:***
 
@@ -663,9 +716,7 @@ Capacity per lane:
 - Link 6: 2 lanes, 1500 veh/lane (3000)
 - Link 7: 1 lane, 2000 veh/lane (2000)
 - Link 8: 1 lane, 2000 veh/lane (2000)
-
 - The travel demand from 1 to 2 is set to 8000 veh/h.
-
 - Simulation time period is 1 h.
 
 The equilibrium results after 500 iterations using yield the following link flow rates:-
@@ -692,7 +743,8 @@ This test case uses the <odrowmatrix> method in the macroscopicinput.xml file to
 
 ![alt text](./images/Route_choice_4_network_cropped.jpg "Route Choice 4 Network")
 
-Length: 
+All links are bi-directional.
+
 All links have a length of 1 km except for
 - Links 1 and 2 have a length of 0.9 km
 - Links 11 and 12 have a length of 3 km
@@ -739,6 +791,7 @@ The generalised link costs associated with each link (direction) are shown below
 ***Notes:***
 
 As well as checking that the traffic assignment gives the expected flows and costs, this test verifies that the demand matrix can be read in using the <odrowmatrix> element in the input XML file.
+This network is the only one in Section 3.5 to use bi-directional links.  So every <link> element in the input XML file contains two <linksegment> elements.
 
 #### 3.5.11 4_bi_directional_links_route_choice_single_mode_with_two_time_periods
 
@@ -748,7 +801,38 @@ This test case uses two time periods.  It verifies that the <odrowmatrix> input 
 
 ***Description:***
 
-- This uses the same network as Test 3.5.11.
+- This uses the same network as Test 3.5.10.
+All links have a length of 1 km except for
+- Links 1 and 2 have a length of 0.9 km
+- Links 11 and 12 have a length of 3 km
+- Link 9 and 10 have a length of 2.9 km
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0
+- All links are bi-directional.
+
+Regular (blue) links:
+- Maximum speed: 100 km/h 
+- Capacity: 1500 veh/h/lane
+- Have 1 lane
+
+Connector links (dashed red):
+- Maximum speed: 50 km/h
+- Capacity: 1000 veh/h/lane
+- Have 10 lanes
+
+Demand:
+The origin – destination travel demands are given in the table below:-
+
+|From/to|1 |2 |3 |4 |
+|-------|--|--|--|--|
+|1|100.000|200.000|300.000|400.000|
+|2|200.000|400.000|600.000|800.000|
+|3|300.000|600.000|900.000|1200.000|
+|4|400.000|800.000|1200.000|1600.000|
+
+
+- Simulation time period is 1 h.
+- The run uses 500 iterations.
+
 - This test has two time periods.  It uses the <odrowmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
 
 ***Location:***
@@ -765,7 +849,39 @@ This test verifies that OD demands can be read in using the <odrawmatrix> elemen
 
 ***Description:***
 
-This uses the same network as Test 3.5.11.  It uses the <odrawmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
+This uses the same network as Test 3.5.11. 
+All links have a length of 1 km except for
+- Links 1 and 2 have a length of 0.9 km
+- Links 11 and 12 have a length of 3 km
+- Link 9 and 10 have a length of 2.9 km
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0
+- All links are bi-directional.
+
+Regular (blue) links:
+- Maximum speed: 100 km/h 
+- Capacity: 1500 veh/h/lane
+- Have 1 lane
+
+Connector links (dashed red):
+- Maximum speed: 50 km/h
+- Capacity: 1000 veh/h/lane
+- Have 10 lanes
+
+Demand:
+The origin – destination travel demands are given in the table below:-
+
+|From/to|1 |2 |3 |4 |
+|-------|--|--|--|--|
+|1|100.000|200.000|300.000|400.000|
+|2|200.000|400.000|600.000|800.000|
+|3|300.000|600.000|900.000|1200.000|
+|4|400.000|800.000|1200.000|1600.000|
+
+
+- Simulation time period is 1 h.
+- The run uses 500 iterations.
+ 
+It uses the <odrawmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
 
 ***Location:***
 
@@ -781,7 +897,39 @@ This test verifies that the plus sign can be used as a separator for the values 
 
 ***Description:***
 
-This uses the same network as Test 3.5.11.   It uses the <odrawmatrix> method with the plus sign as separator in the macroscopicinput.xml file to define the OD demands input matrix.
+This uses the same network as Test 3.5.11.  
+All links have a length of 1 km except for
+- Links 1 and 2 have a length of 0.9 km
+- Links 11 and 12 have a length of 3 km
+- Link 9 and 10 have a length of 2.9 km
+- All links use a BPR cost function with alpha = 0.5 and beta = 4.0
+- All links are bi-directional.
+
+Regular (blue) links:
+- Maximum speed: 100 km/h 
+- Capacity: 1500 veh/h/lane
+- Have 1 lane
+
+Connector links (dashed red):
+- Maximum speed: 50 km/h
+- Capacity: 1000 veh/h/lane
+- Have 10 lanes
+
+Demand:
+The origin – destination travel demands are given in the table below:-
+
+|From/to|1 |2 |3 |4 |
+|-------|--|--|--|--|
+|1|100.000|200.000|300.000|400.000|
+|2|200.000|400.000|600.000|800.000|
+|3|300.000|600.000|900.000|1200.000|
+|4|400.000|800.000|1200.000|1600.000|
+
+
+- Simulation time period is 1 h.
+- The run uses 500 iterations.
+ 
+It uses the <odrawmatrix> method with the plus sign as separator in the macroscopicinput.xml file to define the OD demands input matrix.
 
 ***Location:***
 
@@ -795,6 +943,7 @@ This uses the same network as Test 3.5.11.   It uses the <odrawmatrix> method wi
 
 This is a testcase for multi-modal assignment using two modes ("Car" and "Truck").  One link does not allow vehicles of mode "Truck".
 This case tests that the input XML file can be used to specify that a link can be used for some modes but not others.  It also verifies that there is zero flow for a mode across a link on which it is banned.
+The network has one SIMO node (Node 1) and one MISO node (Node 4). 
 
 ***Description:***
 
@@ -802,26 +951,24 @@ Trucks are allowed on all but the middle link (which represents an inner city of
 
 ![alt text](./images/Test_case_5_route_cropped_with_lorry.jpg "5_SIMO_MISO_route_choice_two_modes")
 
-All links have a length of 1 km, except for links 4 and 5 which are 2 km in length
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length
 
 There are two Modes:-
 - Car:		PCU = 1, Maximum speed = 60 km/h 
 - Truck:	PCU = 2.5, Maximum speed = 50 km/h 
-
-Trucks are not allowed on Link 2.
+- Trucks are not allowed on Link 2.
 
 All links use a BPR cost function with:- 
 - Car:   alpha = 0.5 and beta = 4.0 for all links, 
 - Truck: alpha = 0.8 and beta = 4.5 for all links except Link 2.
-
-All links have a capacity of 1200 veh/h/lane. 
-All links have 1 lane, except for Links 1 and 3 which have 3 lanes.
+- All links have a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for Links 1 and 3 which have 3 lanes.
 
 The travel demand from 1 to 2 is set to:- 
 - Cars:		3000 veh/h
 - Trucks:	600 trucks/h
 
-Simulation time period is 1 h.
+- Simulation time period is 1 h.
 
 The result after 500 iterations using regular MSA smoothing yield the following (mode specific) link flow rate:
 
@@ -853,6 +1000,36 @@ This test verifies that links can be identified by link id (all other tests use 
 ***Description:***
 
 This uses the same network as Test 3.5.14.
+- All links have a length of 1 km, except for links 4 and 5 which are 2 km in length
+
+There are two Modes:-
+- Car:		PCU = 1, Maximum speed = 60 km/h 
+- Truck:	PCU = 2.5, Maximum speed = 50 km/h 
+- Trucks are not allowed on Link 2.
+
+All links use a BPR cost function with:- 
+- Car:   alpha = 0.5 and beta = 4.0 for all links, 
+- Truck: alpha = 0.8 and beta = 4.5 for all links except Link 2.
+- All links have a capacity of 1200 veh/h/lane. 
+- All links have 1 lane, except for Links 1 and 3 which have 3 lanes.
+
+The travel demand from 1 to 2 is set to:- 
+- Cars:		3000 veh/h
+- Trucks:	600 trucks/h
+
+- Simulation time period is 1 h.
+
+The result after 500 iterations using regular MSA smoothing yield the following (mode specific) link flow rate:
+
+|Car Flows|Truck Flows|
+|-------------------------|-------------------------|
+|![alt text](./images/Route_choice_5_car_flows_500_iterations_cropped.jpg "Car Flows after 500 iterations")|![alt text](./images/Route_choice_5_truck_flows_500_iterations_cropped.jpg "Truck Flows after 500 iterations")|
+
+and link costs:
+
+|Car Costs|Truck Costs|
+|-------------------------|-------------------------|
+|![alt text](./images/Route_choice_5_car_costs_500_iterations_cropped.jpg "Car Costs after 500 iterations")|![alt text](./images/Route_choice_5_truck_costs_500_iterations_cropped.jpg "Truck Costs after 500 iterations")|
 
 ***Location:***
 

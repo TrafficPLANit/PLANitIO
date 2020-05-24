@@ -1674,7 +1674,7 @@ public class PlanItIOIntegrationTest {
    * Choice Equilibration Test cases.docx document.
    */
   @Test
-  public void test_3_MIMO_route_choice_single_mode() {
+  public void test_3_SIMO_MIMO_MISO_route_choice_single_mode() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\MIMOrouteChoiceSingleMode";
       String description = "testRouteChoice3";
