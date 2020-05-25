@@ -7,6 +7,13 @@ This project uses JAXB to generate Java classes from XSD files.  JAXB is run usi
 
 The Maven JAXB2 Plugin is run by running Maven with goals "clean install" on the code.
 
+## Testing Documentation ##
+
+The "docs" directory contains the documents:- 
+
+- *Unit Tests and Integration Tests.md*, which describes the test suite which has been written to PLANitIO;
+- *Generating JavaDoc for a Java Project in Eclipse.md*, which explains how to create the documentation for the Java code.
+
 ## XSD and XJB Files
 
 XJB files are used by JAXB to configure how JAXB creates Java files and to resolve naming clashes.
@@ -191,7 +198,7 @@ The simplest possible example of a PLANitXML input file.  This example only has 
 </PLANit>	
 ```
  This example runs to generate the following output:
- 
+
 |Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Length|Number of Lanes|Cost|Density|Flow|Speed|
 |---|---|---|---|---|---|---|---|---|---|---|---|
 |0	|1|0|2|1|2000|10|1|10|180|1|1|
@@ -580,7 +587,7 @@ The following input file defines a more complicated test case:
 		</zones>
 	</macroscopiczoning>
 </PLANit>
- ```
+```
 This example runs to generate the following output:
 
 |Link Segment Id|Mode External Id|Mode Id|Node Downstream External Id|Node Upstream External Id|Capacity per Lane|Length|Number of Lanes|Cost|Density|Flow|Speed|
