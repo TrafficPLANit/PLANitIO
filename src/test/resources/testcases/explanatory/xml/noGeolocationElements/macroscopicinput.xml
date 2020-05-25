@@ -68,30 +68,18 @@
 			<zone id="1">
 				<centroid>
 					<name>1</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
-						<gml:pos>45.256 -110.45</gml:pos>
-					</gml:Point>
 				</centroid>
 				<connectoids>
 					<connectoid noderef="1">
-					<!-- 
-						<length>1.0</length>
-					-->
 					</connectoid>
 				</connectoids>
 			</zone>
 			<zone id="2">
 				<centroid>
 					<name>2</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
-						<gml:pos>45.256 -110.45</gml:pos>
-					</gml:Point>
 				</centroid>
 				<connectoids>
 					<connectoid noderef="2">
-					<!-- 
-						<length>1.0</length>
-					-->
 					</connectoid>
 				</connectoids>
 			</zone>

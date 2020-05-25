@@ -568,8 +568,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
         Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
         addZoneToExternalIdMap(zone.getExternalId(), zone);
         Centroid centroid = zone.getCentroid();
-        DirectPosition centrePointGeometry = UpdateZoning.getCentrePointGeometry(xmlZone);
-        centroid.setCentrePointGeometry(centrePointGeometry);
+        if (xmlZone.getCentroid().getPoint() != null) {
+          DirectPosition centrePointGeometry = UpdateZoning.getCentrePointGeometry(xmlZone);
+          centroid.setCentrePointGeometry(centrePointGeometry);
+        }
         UpdateZoning.registerNewConnectoid(zoning, nodes, xmlZone, centroid, this);
       }
     } catch (PlanItException pe) {

@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
+import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
 import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementColumn;
@@ -327,16 +328,18 @@ public class PlanItIOTestHelper {
    * @param maxIterations the maximum number of iterations allowed in this test run
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
-        maxIterations, null, setCostParameters, description);
+        maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -347,16 +350,18 @@ public class PlanItIOTestHelper {
    * @param maxIterations the maximum number of iterations allowed in this test run
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, null, setCostParameters,
-        description);
+        description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -368,6 +373,7 @@ public class PlanItIOTestHelper {
    * @param initialCostsFileLocation location of initial costs file
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -376,9 +382,10 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation,
       final Integer maxIterations, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description) throws Exception {
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost) throws Exception {
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation,
-        null, 0, maxIterations, null, setCostParameters, description);
+        null, 0, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -389,6 +396,7 @@ public class PlanItIOTestHelper {
    * @param initialCostsFileLocation location of initial costs file
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -396,9 +404,10 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation,
       final Integer maxIterations, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description) throws Exception {
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost) throws Exception {
     return setupAndExecuteAssignment(projectPath, initialCostsFileLocation, null, 0, maxIterations, null,
-        setCostParameters, description);
+        setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -413,6 +422,7 @@ public class PlanItIOTestHelper {
    * @param maxIterations the maximum number of iterations allowed in this test run
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -421,9 +431,10 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description) throws Exception {
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost) throws Exception {
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation1,
-        initialCostsFileLocation2, initCostsFilePos, maxIterations, null, setCostParameters, description);
+        initialCostsFileLocation2, initCostsFilePos, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -437,6 +448,7 @@ public class PlanItIOTestHelper {
    * @param maxIterations the maximum number of iterations allowed in this test run
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -444,10 +456,11 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1,
       final String initialCostsFileLocation2, final int initCostsFilePos, final Integer maxIterations,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, initialCostsFileLocation1, initialCostsFileLocation2,
-        initCostsFilePos, maxIterations, null, setCostParameters, description);
+        initCostsFilePos, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -461,6 +474,7 @@ public class PlanItIOTestHelper {
    *          convergence
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -468,10 +482,11 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final Double epsilon, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
-        maxIterations, epsilon, setCostParameters, description);
+        maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -484,6 +499,7 @@ public class PlanItIOTestHelper {
    *          convergence
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -491,10 +507,11 @@ public class PlanItIOTestHelper {
       final Integer maxIterations,
       final Double epsilon, 
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters,
-        description);
+        description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -505,16 +522,18 @@ public class PlanItIOTestHelper {
    * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0, null, null,
-        setCostParameters, description);
+        setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -524,14 +543,16 @@ public class PlanItIOTestHelper {
    * @param projectPath project directory containing the input files
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description);
+    return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
  /**
@@ -540,14 +561,16 @@ public class PlanItIOTestHelper {
    * @param projectPath project directory containing the input files
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
   */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
-      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description)
+      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
     return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, null, 0, null, null,
-        setCostParameters, description);
+        setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -561,6 +584,7 @@ public class PlanItIOTestHelper {
    * @param epsilon
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception
    */
@@ -568,7 +592,8 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
-      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description)
+      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description,
+      final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
 
     final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
@@ -590,7 +615,7 @@ public class PlanItIOTestHelper {
 
     return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath,
         defaultSetOutputTypeConfigurationProperties, registerInitialCosts, maxIterations, epsilon, setCostParameters,
-        description);
+        description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -603,6 +628,7 @@ public class PlanItIOTestHelper {
    * @param epsilon
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception
    */
@@ -611,7 +637,8 @@ public class PlanItIOTestHelper {
       final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
       final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
-      final String description) throws Exception {
+      final String description,
+      final boolean useFixedConnectoidTravelTimeCost) throws Exception {
     IdGenerator.reset();
 
     final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
@@ -636,7 +663,11 @@ public class PlanItIOTestHelper {
       setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
     }
 
-    taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+    if (useFixedConnectoidTravelTimeCost) {
+      taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+    } else {
+      taBuilder.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+    }
     taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
     // DATA OUTPUT CONFIGURATION
@@ -717,7 +748,7 @@ public class PlanItIOTestHelper {
     TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
     return testOutputDto;
   }
-
+  
   /**
    * Run a test case and store the results in a MemoryOutputFormatter
    *
@@ -730,6 +761,7 @@ public class PlanItIOTestHelper {
    *          convergence
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
@@ -738,7 +770,8 @@ public class PlanItIOTestHelper {
       final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
-      final String description) throws Exception {
+      final String description,
+      boolean useFixedConnectoidTravelTimeCost) throws Exception {
     IdGenerator.reset();
 
     final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
@@ -764,7 +797,11 @@ public class PlanItIOTestHelper {
       setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost, planItInputBuilder);
     }
 
-    taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+    if (useFixedConnectoidTravelTimeCost) {
+      taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+    } else {
+      taBuilder.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+    }
     taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
     // DATA OUTPUT CONFIGURATION
@@ -838,6 +875,7 @@ public class PlanItIOTestHelper {
    *          convergence
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    *
@@ -849,7 +887,8 @@ public class PlanItIOTestHelper {
       final Integer maxIterations,
       final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
 
     final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
@@ -870,7 +909,7 @@ public class PlanItIOTestHelper {
     };
 
     return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
-        maxIterations, epsilon, setCostParameters, description);
+        maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -888,6 +927,7 @@ public class PlanItIOTestHelper {
    *          to accept convergence
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
+   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    *
@@ -899,7 +939,8 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description) throws Exception {
+      final String description,
+      boolean useFixedConnectoidTravelTimeCost) throws Exception {
 
     final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
         demands, taBuilder, project, physicalNetwork) -> {
@@ -919,7 +960,7 @@ public class PlanItIOTestHelper {
     };
 
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
-        maxIterations, epsilon, setCostParameters, description);
+        maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -940,7 +981,8 @@ public class PlanItIOTestHelper {
       final Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, final Integer maxIterations,
       final Double epsilon,
       final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
-      final String description)
+      final String description,
+      boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
 
     final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
@@ -955,7 +997,7 @@ public class PlanItIOTestHelper {
     };
 
     return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
-        maxIterations, epsilon, setCostParameters, description);
+        maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost);
   }
 
   /**
