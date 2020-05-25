@@ -71,10 +71,10 @@
 		</xs:annotation>	
   		<xs:complexType>
   			<xs:sequence>
-  				<xs:element ref="demandconfiguration" minOccurs="0">
+  				<xs:element ref="demandconfiguration" minOccurs="1">
 					<xs:annotation>
 						<xs:documentation>
-							In case the configuration is absent it must have been part of another demand input file that has already been parsed
+							Configuration of the demands, specifically, user classes and time periods
 						</xs:documentation>
 					</xs:annotation>	  				
   				</xs:element>

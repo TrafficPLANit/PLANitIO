@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <macroscopicdemand
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"								
-	 xsi:noNamespaceSchemaLocation="../schema/macroscopicdemandinput.xsd">			<!-- use xs:import to import the gml namespace into the xsd to specify the reused elements -->
-	<configuration>																	<!-- optional -> if not present we assume it aligns with earlier demand inputs on the project -->	
+	 xsi:noNamespaceSchemaLocation="../schema/macroscopicdemandinput.xsd">			
+	<demandconfiguration>															<!-- optional -> if not present we assume it aligns with earlier demand inputs on the project -->	
 		<travellertypes>															<!-- optional, if not present, single default traveller type assumed -->
 			<travellertype id="1">
 				<name>default</name>
@@ -20,7 +20,7 @@
 				<duration unit="s">7200</duration>									<!-- duration in seconds -->
 			</timeperiod>
 		</timeperiods>
-	</configuration>
+	</demandconfiguration>
 	<oddemands>																		<!-- different formats supported -->
 		<odmatrix timeperiodref="1" userclassref="1">								<!-- odmatrix is a potentially square matrix with all origin zones and destination zones, so id references not needed (but optionally available)-->
 			<o ref="1">																<!-- in case some elements are not present, it is assumed they are zero, i.e., it can cater for sparse matrices as well -->
