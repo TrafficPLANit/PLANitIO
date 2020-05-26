@@ -179,6 +179,119 @@ public class PlanItIOIntegrationTest {
   }
   
   /**
+   * <userclass> but no <travellertype> included in input file.
+   */
+  @Test
+  public void test_explanatory_traveller_type_ref_missing_from_user_class() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypeMissingFromUserClass";
+      String description = "explanatory";
+      String csvFileName = "Time Period 1_2.csv";
+      String odCsvFileName = "Time Period 1_1.csv";
+      String xmlFileName = "Time Period 1.xml";
+      Integer maxIterations = null;
+
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
+          .setupAndExecuteAssignment(projectPath, null, description, true);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,
+          2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+          maxIterations, resultsMap);
+
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[1,2]");
+      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+ 
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
+    }
+  }
+  
+  /**
+   * <travellertype> is defined in the <demandconfiguration> but no <userclass> defined, this should throw an exception.
+   */
+  @Test
+  public void test_explanatory_traveller_types_but_no_userclasses() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypesButNoUserClasses";
+      String description = "explanatory";
+
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
+     } catch (final Exception ex) {
+      assertTrue(true);
+    }
+  }
+  
+  /**
+   * More than one <travellertype> is defined in the <demandconfiguration> but <userclass> does not specify which it is using.
+   */
+  @Test
+  public void test_explanatory_not_specified_which_traveller_type_being_used() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\notSpecifiedWhichTravellerTypeBeingUsed";
+      String description = "explanatory";
+
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
+     } catch (final Exception ex) {
+      assertTrue(true);
+    }
+  }
+ 
+  /**
+   * No <travellertype> defined but <userclass> refers to it, this should throw an exception.
+   */
+  @Test
+  public void test_explanatory_reference_to_missing_traveller_type() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\referenceToMissingTravellerType";
+      String description = "explanatory";
+
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      fail("Test should throw an exception due to reference to missing traveller type but it did not.");
+     } catch (final Exception ex) {
+      assertTrue(true);
+    }
+  }
+
+  /**
    * Test case which uses the defaults for connectiod length and SpeedConnectoidTravelTimeCost
    */
   @Test

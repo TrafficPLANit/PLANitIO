@@ -181,12 +181,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private String[] getXmlFileNames(final String projectPath, final String xmlNameExtension) throws PlanItException {
     final File xmlFilesDirectory = new File(projectPath);
     if (!xmlFilesDirectory.isDirectory()) {
-      throw new PlanItException(projectPath + " is not a valid directory.");
+      String errorMessage = projectPath + " is not a valid directory.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     final String[] fileNames = xmlFilesDirectory.list((d, name) -> name.endsWith(xmlNameExtension));
     if (fileNames.length == 0) {
-      throw new PlanItException(
-          "Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
+      String errorMessage = "Directory " + projectPath + " contains no files with extension " + xmlNameExtension;
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     for (int i = 0; i < fileNames.length; i++) {
       fileNames[i] = projectPath + "\\" + fileNames[i];
@@ -317,16 +320,19 @@ public class PlanItInputBuilder extends InputBuilderListener {
       }
     }
     if (!foundZoningFile) {
-      throw new PlanItException(
-          "Failed to find a valid zoning input file in the project directory " + projectPath);
+      String errorMessage = "Failed to find a valid zoning input file in the project directory " + projectPath;
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     if (!foundNetworkFile) {
-      throw new PlanItException(
-          "Failed to find a valid network input file in the project directory " + projectPath);
+      String errorMessage = "Failed to find a valid network input file in the project directory " + projectPath;
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     if (!foundDemandFile) {
-      throw new PlanItException(
-          "Failed to find a valid demand input file in the project directory " + projectPath);
+      String errorMessage = "Failed to find a valid demand input file in the project directory " + projectPath;
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
     }
     createGeneratedClassesFromXmlLocations(zoningFileName, demandFileName, networkFileName);
   }
