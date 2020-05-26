@@ -110,7 +110,7 @@
 					<xs:annotation>
 						<xs:documentation>
 							Time periods determine how the travel demand in the origin-destination matrices is to be interpreted. As many time periods as one wishes can be defined and each
-							od-matrix can be related to at most a single time period.
+							od-matrices can be related to at most a single time period.
 						</xs:documentation>
 					</xs:annotation>    				
   				</xs:element>
@@ -139,8 +139,7 @@
 		<xs:annotation>
 			<xs:documentation>
 				Origin destination travel demands can be provided in various formats depending on what the user prefers. Either very readable but bloated (in terms of space)
-				or more efficient but less human readable. Multiple matrices can be defined here, or they can be spread across multiple files if this is preferred in terms
-				of file size
+				or more efficient but less human readable. Multiple matrices can be defined here.
 			</xs:documentation>
 		</xs:annotation>
   		<xs:complexType>

@@ -96,7 +96,7 @@ The unit tests create temporary CSV and XML output files whose contents are comp
 
 Similarly, XML temporary files are named:-
 
-\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.xml
+\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>.xml
 
 So example names of temporary results files include `Link_RunId0_explanatory_Time Period 1_2.csv` and `Link_RunId0_explanatory_Time Period 1.xml`.
 
