@@ -96,11 +96,11 @@ The unit tests create temporary CSV and XML output files whose contents are comp
 
 Similarly, XML temporary files are named:-
 
-\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.xml
+\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>.xml
 
 So example names of temporary results files include `Link_RunId0_explanatory_Time Period 1_2.csv` and `Link_RunId0_explanatory_Time Period 1.xml`.
 
-For all the contents of the CSV files and *most* of the contents of the XML files, the values in the temporary files should match those in the standard results files.  The one exception to this is the \<timestamp\> element in the XML output file.  This gives the time of the run.  The timestamp value in the temporary results file must be *different* from that in the standard results file, to confirm the two files are from different runs.
+For all the contents of the CSV files and *most* of the contents of the XML files, the values in the temporary files should match those in the standard results files.  The one exception to this is the \<timestamp\> element in the XML output file.  This gives the time of the run.  The time stamp value in the temporary results file must be *different* from that in the standard results file, to confirm the two files are from different runs.
 
 Assuming all contents of the temporary results files match or differ from the standard results as expected, the test passes and the temporary results files are deleted.  This ensures the tests do not leave any old files to clutter up directories.
 
