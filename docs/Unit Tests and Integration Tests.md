@@ -194,7 +194,7 @@ This test validates that PLANit inserts the correct default values when optional
 
 ***Description:***
 
-- As “test_explanatory” above
+- As “explanatory_original” above
 - The link has a demand of 10 units from Node 1 to Node 2. 
 - The road is single-lane, one-way from Node 1 to Node 2. 
 - The capacity of the link is 2000.
@@ -242,7 +242,7 @@ This test confirms that the code throws an exception if two link segments in the
 
 ***Description:***
 
-- As “test_explanatory_original” above.
+- As “explanatory_original” above.
 - The link has a demand of 10 units from Node 1 to Node 2. 
 - The road is single-lane, one-way from Node 1 to Node 2. 
 - The capacity of the link is 2000.  
@@ -255,6 +255,48 @@ This test confirms that the code throws an exception if two link segments in the
 ***Notes:***
 
 This test does not generate any results.  It is expected to throw the exception before the traffic assignment is ever run.
+
+#### 3.1.5 explanatory_no_geolocation_elements
+
+***Purpose:***
+
+This test confirms that the default values of connectoid length are inserted when no length or geolocation elements are included in the <connectoid> elements.
+
+***Description:***
+
+- As “explanatory_original” above.
+- The <connectoid> elements in the input XML file do not contain <length> or <gml:Point> elements.
+- This test uses the SpeedConnectoidTravelTimeCost method for setting connectiod travel times. 
+- The results are the same as for "explanatory_original" above.
+
+***Location:***
+
+`src\test\resources\testcases\explanatory\xml\noGeolocationElements`
+
+***Notes:***
+
+The default behaviour for connectoids, if both <length> and <gml:Point> elements are missing, is to assume a default connectoid length of zero.  This gives a zero travel cost.
+
+#### 3.1.6 explanatory_no_geolocation_elements_with_length_1
+
+***Purpose:***
+
+This test checks that the SpeedConnectoidTravelTimeCost method generates a positive connectoid travel time if the length of a connectoid is greater than zero.
+
+***Description:***
+
+- As “explanatory_original” above.
+- The <connectoid> elements in the input XML file each have a <length> with value 1.
+- This test uses the SpeedConnectoidTravelTimeCost method for setting connectiod travel times. 
+
+***Location:***
+
+`src\test\resources\testcases\explanatory\xml\noGeolocationElementsWithLength1`
+
+***Notes:***
+
+The origin-destination cost for this test case is 10.08, compared to 10.0 for all the other explanatory test cases.  
+This is because the connectoids have a length 1 and use the default speed of 25.  So each connectoid adds 1/25 = 0.04 to the travel time, and there are two of them.
 
 ### 3.2 Tests for Duplicate External Ids 
 
@@ -295,6 +337,7 @@ Unless otherwise stated, these the input files for these tests use the <maxspeed
 - MSA Smoothing Method
 - Link Based Relative Duality Gap Function
 - BPR Cost Function
+- FixedConnectoidTravelTimeCost, with connectoid travel time zero
 
 #### 3.3.1 basic_shortest_path_algorithm_a_to_b_one_initial_cost_file
 
@@ -425,6 +468,7 @@ These tests use the same input network as the “Tests using the Basic Network�
 - MSA Smoothing Method
 - Link Based Relative Duality Gap Function
 - BPR Cost Function
+- FixedConnectoidTravelTimeCost, with connectoid travel time zero
 
 #### 3.4.1 reading_initial_cost_values
 
@@ -487,8 +531,9 @@ Tests in Section 3.5 use more complicated networks.  The networks have previousl
 - MSA Smoothing Method
 - Link Based Relative Duality Gap Function
 - BPR Cost Function
+- FixedConnectoidTravelTimeCost, with connectoid travel time zero
 
-** Naming Convention **
+**Naming Convention**
 
 The names of the test cases in this section use the following abbreviations:-
 
