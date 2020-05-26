@@ -74,9 +74,6 @@
 				</centroid>
 				<connectoids>
 					<connectoid noderef="1">
-					<!-- 
-						<length>1.0</length>
-					-->
 					</connectoid>
 				</connectoids>
 			</zone>
@@ -89,9 +86,6 @@
 				</centroid>
 				<connectoids>
 					<connectoid noderef="2">
-					<!-- 
-						<length>1.0</length>
-					-->
 					</connectoid>
 				</connectoids>
 			</zone>
