@@ -835,6 +835,9 @@ public class PlanItIOTestHelper {
     xmlOutputFormatter.setXmlNameRoot(description);
     xmlOutputFormatter.setCsvNameRoot(description);
     xmlOutputFormatter.setOutputDirectory(projectPath);
+    
+    //Illustration of how to set <description> element in output XML file below
+    //xmlOutputFormatter.setDescription("Some other description");
     taBuilder.registerOutputFormatter(xmlOutputFormatter);
 
     // MemoryOutputFormatter

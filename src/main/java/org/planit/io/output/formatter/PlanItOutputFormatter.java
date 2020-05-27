@@ -178,7 +178,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		}
 	}
 
-	/**
+	public String getDescription() {
+    return description;
+  }
+
+  /**
 	 * Update the generated metadata simulation output object for the current
 	 * iteration
 	 * 
@@ -256,7 +260,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		outputconfiguration.setPhysicalcost(outputAdapter.getPhysicalCostClassName());
 		outputconfiguration.setVirtualcost(outputAdapter.getVirtualCostClassName());
 		XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
-		timeperiod.setId(BigInteger.valueOf(timePeriod.getId()));
+	  long externalId = (long) timePeriod.getExternalId();
+		timeperiod.setId(BigInteger.valueOf(externalId));
 		timeperiod.setName(timePeriod.getDescription());
 		outputconfiguration.setTimeperiod(timeperiod);
 		return outputconfiguration;

@@ -598,14 +598,20 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateDemands(@Nonnull Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.info("Populating Demands");
     if (!(parameter1 instanceof Zoning)) {
-      String errorMessage = "Parameter of call to populateDemands() is not of class Zoning.";
+      String errorMessage = "Parameter 1 of call to populateDemands() is not of class Zoning.";
+      LOGGER.severe(errorMessage);
+      throw new PlanItException(errorMessage);
+    }
+    if (!(parameter2 instanceof PhysicalNetwork)) {
+      String errorMessage = "Parameter 2 of call to populateDemands() is not of class PhysicalNetwork";
       LOGGER.severe(errorMessage);
       throw new PlanItException(errorMessage);
     }
     final Zoning zoning = (Zoning) parameter1;
+    final PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter2;
     try {
       final XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
-      ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, this);
+      ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, physicalNetwork, this);
       final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
       UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
       for (TravelerType travelerType : travelerTypeExternalIdToTravelerTypeMap.values()) {

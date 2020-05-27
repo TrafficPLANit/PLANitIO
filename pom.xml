@@ -22,7 +22,8 @@
 		<project.build.directory>target</project.build.directory>
 		<planit.version>0.0.4-SNAPSHOT</planit.version>
 		<planitltm.version>0.0.4-SNAPSHOT</planitltm.version>
-		<!-- Change the property below to match the path of your PLANitPy2J rsc directory -->
+		<!-- Change the property below to match the path of your PLANitPy2J rsc 
+			directory -->
 		<py2j.resource.directory>..\..\springsource\PLANitPy2J\rsc</py2j.resource.directory>
 	</properties>
 
@@ -39,13 +40,13 @@
 			<artifactId>PLANit</artifactId>
 			<version>${planit.version}</version>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>org.planit.ltm</groupId>
 			<artifactId>PLANitLTM</artifactId>
 			<version>${planitltm.version}</version>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>org.jvnet.jaxb2.maven2</groupId>
 			<artifactId>maven-jaxb2-plugin</artifactId>

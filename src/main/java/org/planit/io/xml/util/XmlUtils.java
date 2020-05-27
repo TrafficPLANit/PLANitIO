@@ -1,7 +1,7 @@
 package org.planit.io.xml.util;
 
+import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -9,9 +9,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -30,6 +28,8 @@ import net.opengis.gml.PointType;
  *
  */
 public interface XmlUtils {
+  
+  static final String PATH_TO_XSD_FILE = "../../../../../../main/resources/xsd/metadata.xsd";
   
   /** the logger */
   public static final Logger LOGGER = Logger.getLogger(XmlUtils.class.getCanonicalName());   
@@ -96,41 +96,23 @@ public interface XmlUtils {
 	/**
 	 * Creates an XML output file populated with data from an Object
 	 * 
-	 * @param object          input object containing the data to be written to the
-	 *                        XML file
-	 * @param clazz           Class of the object containing the data
+	 * @param object input object containing the data to be written to the XML file
+	 * @param clazz Class of the object containing the data
 	 * @param xmlFileLocation location of the output XML file
 	 * @throws Exception thrown if the object is not of the correct class, or the
 	 *                   output file cannot be opened
 	 */
 	public static void generateXmlFileFromObject(Object object, Class<?> clazz, String xmlFileLocation)
 			throws Exception {
-		FileWriter fileWriter = new FileWriter(xmlFileLocation);
-		XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-		XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(fileWriter);
-		generateXmlFileFromObject(object, clazz, xmlStreamWriter);
-		xmlStreamWriter.close();
-		fileWriter.close();
+	  File file = new File(xmlFileLocation);
+    if (!clazz.isInstance(object)) {
+      throw new Exception("Trying to convert an object to XML which is not of class " + clazz.getName());
+    }
+    JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+    Marshaller marshaller = jaxbContext.createMarshaller();
+    marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, PATH_TO_XSD_FILE);
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+    marshaller.marshal(object,file);
 	}
-
-	/**
-	 * Creates an XML stream writer populated with data from an Object
-	 * 
-	 * @param object          input object containing the data to be written to the
-	 *                        XML file
-	 * @param clazz           Class of the object containing the data
-	 * @param xmlStreamWriter XMLStreamWriter populated with data
-	 * @throws Exception thrown if the object is not of the correct class, or the
-	 *                   output file cannot be opened
-	 */
-	public static void generateXmlFileFromObject(Object object, Class<?> clazz, XMLStreamWriter xmlStreamWriter)
-			throws Exception {
-		if (!clazz.isInstance(object)) {
-			throw new Exception("Trying to convert an object to XML which is not of class " + clazz.getName());
-		}
-		JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-		Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.marshal(object, xmlStreamWriter);
-	}
-
+	
 }

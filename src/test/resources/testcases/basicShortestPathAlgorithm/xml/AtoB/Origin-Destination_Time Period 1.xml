@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<metadata>
+<metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/metadata.xsd">
 	<timestamp>2019-10-15T13:31:27.386+11:00</timestamp>
 	<version>0.0.1</version>
 	<description>Description in PlanIt pom.xml</description>

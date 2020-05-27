@@ -1,0 +1,30 @@
+<jaxb:bindings version="2.1"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='columns']">
+		<jaxb:class name="XMLElementColumns" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='column']">
+		<jaxb:class name="XMLElementColumn" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='iteration']">
+		<jaxb:class name="XMLElementIteration" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='csvdata']">
+		<jaxb:class name="XMLElementCsvdata" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='metadata']">
+		<jaxb:class name="XMLElementMetadata" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='outputconfiguration']">
+		<jaxb:class name="XMLElementOutputConfiguration" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='simulation']">
+		<jaxb:class name="XMLElementSimulation" />
+	</jaxb:bindings>
+	<jaxb:bindings schemaLocation="../xsd/metadata.xsd" node="//xs:element[@name='timeperiod']">
+		<jaxb:class name="XMLElementOutputTimePeriod" />
+	</jaxb:bindings>
+	
+</jaxb:bindings>

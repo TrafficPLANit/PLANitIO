@@ -20,6 +20,7 @@ import org.planit.generated.XMLElementTimePeriods;
 import org.planit.generated.XMLElementTravellerTypes;
 import org.planit.generated.XMLElementUserClasses;
 import org.planit.input.InputBuilderListener;
+import org.planit.network.physical.PhysicalNetwork;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
@@ -77,15 +78,17 @@ public class ProcessConfiguration {
    * and store them
    * 
    * @param demandconfiguration generated XMLElementDemandConfiguration object from demand XML input
-   * @param inputBuilderListener parser to be updated
    * @param travellerTypeIdSet Set of id values of traveller types
+   * @param physicalNetwork the physical network
+   * @param inputBuilderListener parser to be updated
    * @return the number of user classes
    * @throws PlanItException thrown if a duplicate external Id key is found
    */
   private static int generateAndStoreUserClasses(
       XMLElementDemandConfiguration demandconfiguration,
-      InputBuilderListener inputBuilderListener,
-      Set<BigInteger> travellerTypeIdSet) throws PlanItException {
+      Set<BigInteger> travellerTypeIdSet,
+      PhysicalNetwork physicalNetwork,
+      InputBuilderListener inputBuilderListener) throws PlanItException {
     XMLElementUserClasses userclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses()
         : demandconfiguration.getUserclasses();
     if (userclasses.getUserclass().isEmpty()) {
@@ -99,19 +102,39 @@ public class ProcessConfiguration {
       userclasses.getUserclass().add(userClass);
     }
     for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
-      if ((userclass.getTravellertyperef() != null) && (!travellerTypeIdSet.contains(userclass.getTravellertyperef()))) {
+      
+      if ((userclass.getTravellertyperef() != null) && (!travellerTypeIdSet.contains(userclass
+          .getTravellertyperef()))) {
         String errorMessage = "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()
             + " referenced by user class " + userclass.getName() + " but not defined";
         LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
+      
       if ((userclass.getTravellertyperef() == null) && (travellerTypeIdSet.size() > 1)) {
-        String errorMessage = "User class " + userclass.getId() + " has no traveller type specified, but more than one traveller type possible";
+        String errorMessage = "User class " + userclass.getId()
+            + " has no traveller type specified, but more than one traveller type possible";
         LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
+      
+      if (userclass.getModeref() == null) {
+        if (physicalNetwork.modes.getNumberOfModes() > 1) {
+          String errorMessage = "User class " + userclass.getId() + " has no mode specified, but more than one mode possible.";
+          LOGGER.severe(errorMessage);
+          throw new PlanItException(errorMessage);
+        }
+        Mode mode = physicalNetwork.modes.toList().get(0);
+        long modeExternalId = (long) mode.getExternalId();
+        userclass.setModeref(BigInteger.valueOf(modeExternalId));
+      }
       Long externalModeId = userclass.getModeref().longValue();
       Mode userClassMode = inputBuilderListener.getModeByExternalId(externalModeId);
+      if (userClassMode == null) {
+        String errorMessage = "User class " + userclass.getId() + " refers to mode " + externalModeId + " which has not been defined";
+        LOGGER.severe(errorMessage);
+        throw new PlanItException(errorMessage);
+      }
       long travellerTypeId =
           (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID : userclass.getTravellertyperef()
               .longValue();
@@ -224,6 +247,7 @@ public class ProcessConfiguration {
    * @param demands the Demands object
    * @param demandconfiguration the generated XMLElementDemandConfiguration object
    *          containing the data from the XML input file
+   * @param physicalNetwork the physical network
    * @param inputBuilderListener parser to be updated
    * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
    * @throws PlanItException thrown if there is a duplicate external Id found for any component
@@ -231,10 +255,12 @@ public class ProcessConfiguration {
   public static void generateAndStoreConfigurationData(
       Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
+      PhysicalNetwork physicalNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
     Set<BigInteger> travellerTypes = ProcessConfiguration.generateAndStoreTravelerTypes(demandconfiguration,
         inputBuilderListener);
-    ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration, inputBuilderListener, travellerTypes);
+    ProcessConfiguration.generateAndStoreUserClasses(demandconfiguration, travellerTypes, physicalNetwork,
+        inputBuilderListener);
     ProcessConfiguration.generateTimePeriodMap(demands, demandconfiguration, inputBuilderListener);
   }
 
