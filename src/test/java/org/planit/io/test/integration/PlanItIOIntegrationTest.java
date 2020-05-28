@@ -179,7 +179,7 @@ public class PlanItIOIntegrationTest {
   }
   
   /**
-   * Trivial test case which matches the description in the README.md file.
+   * Test case in which the time period external Id values do not match the internally generated Id values
    */
   @Test
   public void test_explanatory_time_period_external_id_test() {
@@ -312,7 +312,7 @@ public class PlanItIOIntegrationTest {
    * <travellertype> is defined in the <demandconfiguration> but no <userclass> defined, this should throw an exception.
    */
   @Test
-  public void test_explanatory_traveller_types_but_no_userclasses() {
+  public void test_explanatory_traveller_types_but_no_user_classes() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypesButNoUserClasses";
       String description = "explanatory";

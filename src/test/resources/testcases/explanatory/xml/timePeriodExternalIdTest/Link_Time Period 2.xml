@@ -8,14 +8,14 @@
 		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
 		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
 		<timeperiod>
-			<id>0</id>
-			<name>Time Period 1</name>
+			<id>2</id>
+			<name>Time Period 2</name>
 		</timeperiod>
 	</outputconfiguration>
 	<simulation>
 		<iteration>
 			<nr>2</nr>
-			<csvdata type="Link">src\test\resources\testcases\explanatory\xml\travellerTypesButNoUserClasses\Link_RunId 0_explanatory_Time Period 1_2.csv</csvdata>
+			<csvdata type="Link">src\test\resources\testcases\explanatory\xml\timePeriodExternalIdTest\Link_RunId 0_explanatory_Time Period 2_2.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

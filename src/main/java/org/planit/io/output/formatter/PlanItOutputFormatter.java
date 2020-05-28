@@ -713,15 +713,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	}
 
 	/**
-	 * Allows the developer to set version output property
-	 * 
-	 * @param version version to be included
-	 */
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	/**
 	 * Returns the list of names of CSV output file for a specified output type
 	 * 
 	 * @param outputType the specified output type

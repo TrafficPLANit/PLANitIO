@@ -246,7 +246,7 @@ This test confirms that the code throws an exception if two link segments in the
 - The link has a demand of 10 units from Node 1 to Node 2. 
 - The road is single-lane, one-way from Node 1 to Node 2. 
 - The capacity of the link is 2000.  
-- The two <linksegment> elements in the <link> are deliberately in the same direction, which should generate an exception.
+- The two \<linksegment\> elements in the \<link\> are deliberately in the same direction, which should generate an exception.
 
 ***Location:***
 
@@ -260,12 +260,12 @@ This test does not generate any results.  It is expected to throw the exception 
 
 ***Purpose:***
 
-This test confirms that the default values of connectoid length are inserted when no length or geolocation elements are included in the <connectoid> elements.
+This test confirms that the default values of connectoid length are inserted when no length or geolocation elements are included in the \<connectoid\> elements.
 
 ***Description:***
 
 - As “explanatory_original” above.
-- The <connectoid> elements in the input XML file do not contain <length> or <gml:Point> elements.
+- The \<connectoid\> elements in the input XML file do not contain \<length\> or \<gml:Point\> elements.
 - This test uses the SpeedConnectoidTravelTimeCost method for setting connectiod travel times. 
 - The results are the same as for "explanatory_original" above.
 
@@ -286,7 +286,7 @@ This test checks that the SpeedConnectoidTravelTimeCost method generates a posit
 ***Description:***
 
 - As “explanatory_original” above.
-- The <connectoid> elements in the input XML file each have a <length> with value 1.
+- The \<connectoid\> elements in the input XML file each have a \<length\> with value 1.
 - This test uses the SpeedConnectoidTravelTimeCost method for setting connectiod travel times. 
 
 ***Location:***
@@ -297,6 +297,105 @@ This test checks that the SpeedConnectoidTravelTimeCost method generates a posit
 
 The origin-destination cost for this test case is 10.08, compared to 10.0 for all the other explanatory test cases.  
 This is because the connectoids have a length 1 and use the default speed of 25.  So each connectoid adds 1/25 = 0.04 to the travel time, and there are two of them.
+
+#### 3.1.7 explanatory_not_specified_which_traveller_type_being_used
+
+***Purpose***
+
+This test checks that the code throws an exception when the \<userclass\> type does not specify which \<travellertype\> element it is using, when there is more than one \<travellertype\> available.
+
+***Description***
+
+- As “explanatory_original” above.
+- The input file defines two <travellertype> elements with different ids.  There is only one \<userclass\> element which has no "travellertyperef" attribute.
+
+***Location***
+
+`src\test\resources\testcases\explanatory\xml\notSpecifiedWhichTravellerTypeBeingUsed`
+
+***Notes***
+
+This test is expected to throw an exception before any results are generated, so there are no standard results files in the directory.  
+The "travellertyperef" attribute can only be omitted from the \<userclass\> element when there is only one traveller type.  If there is more than one traveller type, each user class must specify which traveller type it uses.
+
+#### 3.1.8 explanatory_reference_to_missing_traveller_type
+
+***Purpose***
+
+This test confirms that PLANitIO throws an exception when \<userclass\> refers to a \<travellertype\> which has not been defined.
+
+***Description***
+
+- As “explanatory_original” above.
+- The \<userclass\> element has a "travellertyperef" attribute with a value of 2, but no \<travellertype\> element with this id has been defined.
+
+***Location***
+
+`src\test\resources\testcases\explanatory\xml\referenceToMissingTravellerType`
+
+***Notes***
+
+This test is expected to throw an exception before any results are generated, so there are no standard results files in the directory.  
+
+#### 3.1.9 explanatory_traveller_type_ref_missing_from_user_class
+
+***Purpose***
+
+This test confirms that the \<userclass\> uses the default traveller type when no \<travellertype\> element is included in the input file.
+
+***Description***
+
+- As “explanatory_original” above.
+- No \<travellertype\> element is included, and the \<userclass\> element does not include a "travellertyperef" attribute.
+
+***Location***
+
+`src\test\resources\testcases\explanatory\xml\travellerTypeMissingFromUserClass`
+
+***Notes***
+
+PLANitIO should create a default traveller type when none is defined explicitly.  Since there is only one traveller type, every user class must use it, so omitting the "travellertyperef" attribute from the \<userclass\> element is acceptable in this circumstance.
+
+#### 3.1.10 explanatory_traveller_types_but_no_user_classes
+
+***Purpose***
+
+This test confirms that PLANitIO throws an exception when the default user class refers to a traveller type which has not been defined.
+
+***Description***
+
+- As “explanatory_original” above.
+- Two \<travellertype\> elements are included in the input file, but no \<userclass\> element.  The traveller types have id values of 2 and 3, so neither matches the default value of 1 which is generated when no \<userclass\> element is defined.
+
+***Location***
+
+`src\test\resources\testcases\explanatory\xml\travellerTypesButNoUserClasses`
+
+***Notes***
+
+This test is expected to throw an exception before any results are generated, so there are no standard results files in the directory. 
+When the \<userclass\> element is omitted, PLANitIO creates a single default user class, which is assumed to use a traveller type with an id of 1. 
+But in this case the traveller types have been explicitly defined and none have an id of 1, so an exception should be thrown.
+
+#### 3.1.11 explanatory_time_period_external_id_test
+
+***Purpose***
+
+Test case in which the time period external Id values do not match the internally generated Id values.
+
+***Description***
+
+- As “explanatory_original” above.
+- The only difference from the explanatory_original test case is that the <timeperiod> element has an id value of 2 and a name of "Time Period 2".  This value is correctly reference in the <odcellbycellmatrix> element's "timeperiodref" atrribute.
+
+***Location***
+
+`src\test\resources\testcases\explanatory\xml\timePeriodExternalIdTest`
+
+***Notes***
+
+This test case gives the same result as the explanatory_original test case. It just so happens that most of the test cases use an external Id value for time period which is the same as the internally generated id.
+In general these values are not the same and the input file should use the external Id.  In this test the external Id is deliberately different, to check that the external Id is the one being used.
 
 ### 3.2 Tests for Duplicate External Ids 
 

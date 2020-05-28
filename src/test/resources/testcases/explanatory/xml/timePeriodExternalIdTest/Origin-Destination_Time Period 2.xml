@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/metadata.xsd">
-	<timestamp>2019-11-29T17:14:43.092+11:00</timestamp>
+	<timestamp>2020-01-17T12:55:18.449+11:00</timestamp>
 	<version>0.0.3-beta</version>
 	<description>PlanIt common code for traffic assignment</description>
 	<outputconfiguration>
@@ -8,14 +8,14 @@
 		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
 		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
 		<timeperiod>
-			<id>0</id>
-			<name>Time Period 1</name>
+			<id>2</id>
+			<name>Time Period 2</name>
 		</timeperiod>
 	</outputconfiguration>
 	<simulation>
 		<iteration>
-			<nr>2</nr>
-			<csvdata type="Path">src\test\resources\testcases\explanatory\xml\travellerTypesButNoUserClasses\Path_RunId 0_explanatory_Time Period 1_2.csv</csvdata>
+			<nr>1</nr>
+			<csvdata type="Cost">src\test\resources\testcases\explanatory\xml\timePeriodExternalIdTest\Origin-Destination_RunId 0_explanatory_Time Period 2_1.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>
@@ -35,19 +35,9 @@
 			<type>integer</type>
 		</column>
 		<column>
-			<name>Run Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Time Period External Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Path</name>
-			<units>none</units>
-			<type>string</type>
+			<name>Cost</name>
+			<units>h</units>
+			<type>double</type>
 		</column>
 	</columns>
 </metadata>
