@@ -46,6 +46,7 @@ import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.misc.IdGenerator;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 
 /**
@@ -113,6 +114,88 @@ public class PlanItIOIntegrationTest {
     Logging.closeLogger(LOGGER);
   }
 
+  /**
+   * Trivial test case which matches the description in the README.md file.
+   */
+  @Test
+  public void test_mode_test() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\modeTest\\xml\\simple";
+      String description = "modeTest";
+      String csvFileName = "Time Period 1_2.csv";
+      String odCsvFileName = "Time Period 1_1.csv";
+      String xmlFileName = "Time Period 1.xml";
+      Integer maxIterations = 2;
+
+      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
+          bprLinkTravelTimeCost, inputBuilderListener) -> {
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
+            (long) 1);
+        Mode mode = inputBuilderListener.getModeByExternalId((long) 1);
+        bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+        MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByExternalId((long) 3);
+        bprLinkTravelTimeCost.setParameters(linkSegment, mode, 1.0, 5.0);
+      };
+
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 1.0, 2000.0, 10.0, 10.0));
+      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 1, 0.5, 2000.0, 10.0, 20.0));
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 1, 1.0, 2000.0, 10.0, 10.0));
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4, new LinkSegmentExpectedResultsDto(4, 5, 1, 0.5, 2000.0, 10.0, 20.0));
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 5, new LinkSegmentExpectedResultsDto(5, 6, 1, 1.0, 2000.0, 10.0, 10.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+          maxIterations, resultsMap);
+
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[1,2,3,4,5,6]");
+      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(4.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+ 
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+          xmlFileName);
+    } catch (final Exception ex) {
+      LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+      fail(ex.getMessage());
+    }
+  }
+  
   /**
    * Trivial test case which matches the description in the README.md file.
    */

@@ -1,0 +1,121 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
+	<macroscopicdemand>
+		<demandconfiguration>
+			<userclasses>
+				<userclass id="1" moderef="1">
+					<name>1</name>
+				</userclass>
+			</userclasses>
+			<timeperiods>
+				<timeperiod id="0">
+					<name>Time Period 1</name>
+					<starttime>00:00:01</starttime>
+					<duration>86400</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0"	userclassref="1">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
+	<macroscopicnetwork>
+		<linkconfiguration>                                                                        <!-- optional, if absent assume a single link segment type for the entire simulation and a simple Cartesian coordinate system with top-left (0,0) -->
+			<modes>                                                                                     <!-- optional, if absent a single 'virtual' mode is created to represent all modes -->
+				<mode id="1">																        <!-- mandatory, for referencing -->
+					<name>Basic</name>														<!-- optional -->
+					<pcu>1</pcu>															            <!-- optional, default available -->
+				</mode>
+			</modes>
+			<linksegmenttypes>                                                                    <!-- optional, if omitted all link segments are assumed to be of the same default 	link segment type -->
+				<linksegmenttype id="1">                                                       <!-- mandatory, for referencing -->
+					<name>Slow</name>													<!-- optional -->
+					<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+					<modes>                                                                             <!-- optional, if omitted all modes are assumed to be allowed based on their default properties (possibly dynamically capped by the physical link properties) -->
+						<mode ref="0">															    <!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
+							<maxspeed>10</maxspeed>										<!-- optional, should be lower or equal than link max speed when present -->
+						</mode>
+					</modes>
+				</linksegmenttype>
+				<linksegmenttype id="2">                                                       <!-- mandatory, for referencing -->
+					<name>Fast</name>													<!-- optional -->
+					<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+					<modes>                                                                             <!-- optional, if omitted all modes are assumed to be allowed based on their default properties (possibly dynamically capped by the physical link properties) -->
+						<mode ref="0">															    <!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
+							<maxspeed>20</maxspeed>										<!-- optional, should be lower or equal than link max speed when present -->
+						</mode>
+					</modes>
+				</linksegmenttype>
+			</linksegmenttypes>
+		</linkconfiguration>
+		<infrastructure>
+			<nodes>
+				<node id="1" />
+				<node id="2" />
+				<node id="3" />
+				<node id="4" />
+				<node id="5" />
+				<node id="6" />
+			</nodes>
+			<links>
+				<link nodearef="1" nodebref="2">
+					<linksegment id="1" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+				<link nodearef="2" nodebref="3">
+					<linksegment id="2" dir="a_b" typeref="2">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+				<link nodearef="3" nodebref="4">
+					<linksegment id="3" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+				<link nodearef="4" nodebref="5">
+					<linksegment id="4" dir="a_b" typeref="2">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+				<link nodearef="5" nodebref="6">
+					<linksegment id="5" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<centroid>
+					<name>Start Zone</name>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="1">
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>Finish Zone</name>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="6">
+					</connectoid>
+				</connectoids>
+			</zone>
+		</zones>
+	</macroscopiczoning>
+</PLANit>
