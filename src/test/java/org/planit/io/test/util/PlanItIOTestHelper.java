@@ -657,10 +657,8 @@ public class PlanItIOTestHelper {
             TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
 
     // SUPPLY-DEMAND INTERACTIONS
-    final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-        .createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
     if (setCostParameters != null) {
-      setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost);
+      setCostParameters.accept(physicalNetwork, (BPRLinkTravelTimeCost)taBuilder.getPhysicalCost());
     }
 
     if (useFixedConnectoidTravelTimeCost) {
