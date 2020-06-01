@@ -24,7 +24,7 @@
 		<planitltm.version>0.0.4-SNAPSHOT</planitltm.version>
 		<!-- Change the property below to match the path of your PLANitPy2J rsc 
 			directory -->
-		<py2j.resource.directory>..\..\springsource\PLANitPy2J\rsc</py2j.resource.directory>
+		<py2j.resource.directory>..\PLANitPy2J\rsc</py2j.resource.directory>
 	</properties>
 
 	<dependencies>

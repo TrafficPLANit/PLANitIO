@@ -134,6 +134,7 @@ public class ProcessInfrastructure {
     linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
+    
     Pair<MacroscopicLinkSegmentType, Boolean> linkSegmentTypePair = network
         .registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
             linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties);

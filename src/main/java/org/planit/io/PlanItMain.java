@@ -31,10 +31,10 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
  *
  */
 public class PlanItMain {
-  
-  /** the logger */
-  private static Logger LOGGER;
-  
+
+	/** the logger */
+	private static Logger LOGGER = null;
+
 	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
 	private final int maxIterations = 500;
 	private final double epsilon = 0.00;
@@ -49,13 +49,13 @@ public class PlanItMain {
 	public static void main(final String[] args) throws SecurityException, IOException {
 
 		try {
-		  LOGGER = Logging.createLogger(PlanItMain.class);
+			LOGGER = Logging.createLogger(PlanItMain.class);
 			final PlanItMain planItMain = new PlanItMain();
 			planItMain.execute();
-      Logging.closeLogger(LOGGER);
+			Logging.closeLogger(LOGGER);
 		} catch (final Exception e) {
-      e.printStackTrace();
-		} 
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -74,38 +74,39 @@ public class PlanItMain {
 
 		// SET UP SCANNER AND PROJECT
 		IdGenerator.reset();
-    PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
-    final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-		
-		
+		PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+		final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
+
 		// RAW INPUT START --------------------------------
-		final PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+		final PhysicalNetwork physicalNetwork = project
+				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
 		final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
-		final TraditionalStaticAssignmentBuilder taBuilder =
-                (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
-                		TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
+		final TraditionalStaticAssignmentBuilder taBuilder = (TraditionalStaticAssignmentBuilder) project
+				.createAndRegisterTrafficAssignment(TraditionalStaticAssignment.class.getCanonicalName(), demands,
+						zoning, physicalNetwork);
 		// SUPPLY-DEMAND INTERACTIONS
-		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = 
-		    (BPRLinkTravelTimeCost) taBuilder.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
-		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = planItInputBuilder.getLinkSegmentTypeByExternalId((long) 1);
+		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
+				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = planItInputBuilder
+				.getLinkSegmentTypeByExternalId((long) 1);
 		final Mode mode = planItInputBuilder.getModeByExternalId((long) 2);
 		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 		taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
 		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
-		//DATA OUTPUT CONFIGURATION
+		// DATA OUTPUT CONFIGURATION
 		taBuilder.activateOutput(OutputType.LINK);
 		final OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
 		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 
-		//OUTPUT FORMAT CONFIGURATION
-		final PlanItOutputFormatter xmlOutputFormatter = 
-		    (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
-		taBuilder.registerOutputFormatter( xmlOutputFormatter);
+		// OUTPUT FORMAT CONFIGURATION
+		final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project
+				.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 		xmlOutputFormatter.setXmlDirectory("C:\\Users\\Public\\PlanIt\\Xml");
 		xmlOutputFormatter.setCsvDirectory("C:\\Users\\Public\\PlanIt\\Csv");
 		xmlOutputFormatter.resetXmlDirectory();
@@ -117,12 +118,12 @@ public class PlanItMain {
 		taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
 		taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
 
-    final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
-    if (!exceptionMap.keySet().isEmpty()) {
-    	for (final long id : exceptionMap.keySet() ) {
-     		throw exceptionMap.get(id);
-    	}
-    }
+		final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
+		if (!exceptionMap.keySet().isEmpty()) {
+			for (final long id : exceptionMap.keySet()) {
+				throw exceptionMap.get(id);
+			}
+		}
 
 	}
 }

@@ -72,7 +72,7 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 public class PlanItIOIntegrationTest {
 
   /** the logger */
-  private static Logger LOGGER = Logger.getLogger(PlanItIOIntegrationTest.class.getCanonicalName());
+  private static Logger LOGGER = null;
 
   /**
    * Run assertions which confirm that results files contain the correct data, and
