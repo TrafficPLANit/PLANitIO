@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
 import org.planit.exceptions.PlanItException;
@@ -134,17 +136,17 @@ public class ProcessInfrastructure {
     linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
-    
+  
     Pair<MacroscopicLinkSegmentType, Boolean> linkSegmentTypePair = network
-        .registerNewLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-            linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties);
+        .registerNewMacroscopicLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
+            linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties, inputBuilderListener);
     MacroscopicLinkSegmentType macroscopicLinkSegmentType = linkSegmentTypePair.getFirst();
 
     boolean linkSegmentTypeAlreadyExists = linkSegmentTypePair.getSecond();
     if (!linkSegmentTypeAlreadyExists) {
       inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(), macroscopicLinkSegmentType);
     }   
-
+    
     linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
     network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
     if (linkSegment.getExternalId() != null) {
