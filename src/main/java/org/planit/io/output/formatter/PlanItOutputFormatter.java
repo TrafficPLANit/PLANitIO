@@ -637,6 +637,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
 		createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
 		createOrOpenOutputDirectory(csvDirectory, resetCsvDirectory);
+		
+		logOutputInformation();
 	}
 
 	/**
@@ -666,7 +668,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		} catch (Exception e) {
 			throw new PlanItException(e);
 		}
-		logOutputInformation();
 	}
 
 	/**

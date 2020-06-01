@@ -96,6 +96,10 @@ public class PlanItSimpleProject extends CustomPlanItProject {
         initialiseSimpleProject();
     }
 
+    /**
+     * Default constructor without explicit project path (use default)
+     * @param planItInputBuilder
+     */
 	public PlanItSimpleProject(final PlanItInputBuilder planItInputBuilder) {
       super(planItInputBuilder);
       initialiseSimpleProject();
