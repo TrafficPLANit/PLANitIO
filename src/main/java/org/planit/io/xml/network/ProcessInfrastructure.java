@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
-
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
 import org.planit.exceptions.PlanItException;
@@ -25,7 +23,6 @@ import org.planit.io.xml.util.XmlUtils;
 import org.planit.network.physical.NodeImpl;
 import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentImpl;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Link;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
@@ -136,18 +133,18 @@ public class ProcessInfrastructure {
     linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
-  
-    Pair<MacroscopicLinkSegmentType, Boolean> linkSegmentTypePair = network
-        .registerNewMacroscopicLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-            linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties, inputBuilderListener);
-    MacroscopicLinkSegmentType macroscopicLinkSegmentType = linkSegmentTypePair.getFirst();
-
-    boolean linkSegmentTypeAlreadyExists = linkSegmentTypePair.getSecond();
-    if (!linkSegmentTypeAlreadyExists) {
+    MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
+        .createNewMacroscopicLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
+            linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties);
+    MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(macroscopicLinkSegmentType.getExternalId());
+    if (existingLinkSegmentType == null) {
+      network.registerLinkSegmentType(macroscopicLinkSegmentType);
       inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(), macroscopicLinkSegmentType);
-    }   
-    
-    linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
+      linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
+    } else {
+      linkSegment.setLinkSegmentType(existingLinkSegmentType);
+    }
+       
     network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
     if (linkSegment.getExternalId() != null) {
       final boolean duplicateLinkSegmentExternalId = inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
