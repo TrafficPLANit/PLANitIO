@@ -534,7 +534,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
     LOGGER.info("Populating Network");
 
-    final MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
+    MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
     try {
       addDefaultValuesToXmlMacroscopicNetwork();
       final XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
