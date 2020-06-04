@@ -6,7 +6,7 @@
 	<groupId>org.planit.io</groupId>
 	<artifactId>PLANitIO</artifactId>
 	<description>PlanIt Code for default input and output</description>
-	<version>0.0.4a1</version>
+	<version>0.0.4a3</version>
 	<packaging>jar</packaging>
 
 	<name>PLANitIO</name>
@@ -26,11 +26,11 @@
 		-->
 		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
 		<project.build.directory>target</project.build.directory>
-		<planit.version>0.0.4a1</planit.version>
-		<planitltm.version>0.0.4a1</planitltm.version>
+		<planit.version>0.0.4a3</planit.version>
+		<planitltm.version>0.0.4a3</planitltm.version>
 		<!-- Change the property below to match the path of your PLANitPy2J rsc 
 			directory -->
-		<py2j.resource.directory>..\PLANitPy2J\rsc</py2j.resource.directory>
+		<py2j.resource.directory>..\PLANitPy2J\share\planit</py2j.resource.directory>
 	</properties>
 
 	<dependencies>
@@ -41,12 +41,6 @@
 			<version>${planit.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.planit</groupId>
-			<artifactId>PLANit</artifactId>
-			<version>${planit.version}</version>
-		</dependency>
- 
 		<dependency>
 			<groupId>org.planit.ltm</groupId>
 			<artifactId>PLANitLTM</artifactId>
@@ -95,12 +89,6 @@
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
 			<version>3.2.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sf.py4j</groupId>
-			<artifactId>py4j</artifactId>
-			<version>0.10.8.1</version>
 		</dependency>
 
 	</dependencies>
