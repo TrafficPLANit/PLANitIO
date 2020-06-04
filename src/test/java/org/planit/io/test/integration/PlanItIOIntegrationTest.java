@@ -120,8 +120,8 @@ public class PlanItIOIntegrationTest {
   @Test
   public void test_mode_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\modeTest\\xml\\simple";
-      String description = "modeTest";
+      String projectPath = "src\\test\\resources\\testcases\\mode_test\\xml\\simple";
+      String description = "mode_test";
       String csvFileName = "Time Period 1_2.csv";
       String odCsvFileName = "Time Period 1_1.csv";
       String xmlFileName = "Time Period 1.xml";
