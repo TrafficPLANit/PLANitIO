@@ -122,9 +122,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\mode_test\\xml\\simple";
       String description = "mode_test";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
 
       TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
@@ -184,11 +184,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -204,9 +204,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
       String description = "explanatory";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -249,11 +249,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -269,9 +269,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\timePeriodExternalIdTest";
       String description = "explanatory";
-      String csvFileName = "Time Period 2_2.csv";
-      String odCsvFileName = "Time Period 2_1.csv";
-      String xmlFileName = "Time Period 2.xml";
+      String csvFileName = "Time_Period_2_2.csv";
+      String odCsvFileName = "Time_Period_2_1.csv";
+      String xmlFileName = "Time_Period_2.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -314,11 +314,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -334,9 +334,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypeMissingFromUserClass";
       String description = "explanatory";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -379,11 +379,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -447,9 +447,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\noGeolocationElements";
       String description = "explanatory";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -492,11 +492,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -512,9 +512,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\noGeolocationElementsWithLength1";
       String description = "explanatory";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -557,11 +557,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -638,11 +638,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -657,9 +657,9 @@ public class PlanItIOIntegrationTest {
   public void test_explanatory_attempt_to_change_locked_formatter() {
     String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
     String description = "explanatory";
-    String csvFileName = "Time Period 1_2.csv";
-    String odCsvFileName = "Time Period 1_1.csv";
-    String xmlFileName = "Time Period 1.xml";
+    String csvFileName = "Time_Period_1_2.csv";
+    String odCsvFileName = "Time_Period_1_1.csv";
+    String xmlFileName = "Time_Period_1.xml";
     Integer maxIterations = null;
     try {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -708,9 +708,9 @@ public class PlanItIOIntegrationTest {
     }
 
     try {
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
       assertTrue(true);
     } catch (final Exception ex) {
@@ -951,7 +951,7 @@ public class PlanItIOIntegrationTest {
    * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
    * course notes.
    * 
-   * Time Period 1 uses route A to B in the example, which has a total route cost
+   * Time_Period_1 uses route A to B in the example, which has a total route cost
    * of 85 (the fifth argument in the ResultDto constructor).
    */
   @Test
@@ -959,19 +959,19 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB";
       String description = "testBasic1";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv", maxIterations, null,
           description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -986,7 +986,7 @@ public class PlanItIOIntegrationTest {
    * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
    * course notes.
    * 
-   * Time Period 1 uses route A to B in the example, which has a total route cost
+   * Time_Period_1 uses route A to B in the example, which has a total route cost
    * of 85 (the fifth argument in the ResultDto constructor).
    */
   @Test
@@ -994,20 +994,20 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB";
       String description = "testBasic1";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv",
           "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs1.csv", 0, maxIterations, null,
           description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1033,9 +1033,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoCLinkSegmentMaximumSpeed";
       String description = "testBasic2";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1086,11 +1086,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
       
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1113,9 +1113,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoC";
       String description = "testBasic2";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1166,11 +1166,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
       
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1193,9 +1193,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoD";
       String description = "testBasic3";
-      String csvFileName = "Time Period 1_2.csv";
-      String odCsvFileName = "Time Period 1_1.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1261,11 +1261,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1281,7 +1281,7 @@ public class PlanItIOIntegrationTest {
    * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
    * course notes.
    * 
-   * Time Period 1 uses route A to B in the example, which has a total route cost
+   * Time_Period_1 uses route A to B in the example, which has a total route cost
    * of 85 (the fifth argument in the ResultDto constructor). Time Period 2 uses
    * route A to C in the example, which has a total route cost of 77. Time Period
    * 3 uses route A to D in the example, which has a total route cost of 108.
@@ -1291,15 +1291,15 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\ThreeTimePeriods";
       String description = "testBasic13";
-      String csvFileName1 = "Time Period 1_2.csv";
-      String odCsvFileName1 = "Time Period 1_1.csv";
-      String csvFileName2 = "Time Period 2_2.csv";
-      String odCsvFileName2 = "Time Period 2_1.csv";
-      String csvFileName3 = "Time Period 3_2.csv";
-      String odCsvFileName3 = "Time Period 3_1.csv";
-      String xmlFileName1 = "Time Period 1.xml";
-      String xmlFileName2 = "Time Period 2.xml";
-      String xmlFileName3 = "Time Period 3.xml";
+      String csvFileName1 = "Time_Period_1_2.csv";
+      String odCsvFileName1 = "Time_Period_1_1.csv";
+      String csvFileName2 = "Time_Period_2_2.csv";
+      String odCsvFileName2 = "Time_Period_2_1.csv";
+      String csvFileName3 = "Time_Period_3_2.csv";
+      String odCsvFileName3 = "Time_Period_3_1.csv";
+      String xmlFileName1 = "Time_Period_1.xml";
+      String xmlFileName2 = "Time_Period_2.xml";
+      String xmlFileName3 = "Time_Period_3.xml";
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1541,23 +1541,23 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod3).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName3,
           xmlFileName3);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1575,9 +1575,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\noRouteChoiceSingleMode";
       String description = "testRouteChoice1";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1723,11 +1723,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 6,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1746,9 +1746,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleMode";
       String description = "testRouteChoice2";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1808,11 +1808,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
       
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1832,19 +1832,19 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeInitialCostsOneIteration";
       String description = "testRouteChoice2initialCosts";
-      String csvFileName = "Time Period 1_1.csv";
-      String odCsvFileName = "Time Period 1_0.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_1.csv";
+      String odCsvFileName = "Time_Period_1_0.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 1;
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeInitialCostsOneIteration\\initial_link_segment_costs.csv",
           null, 0, maxIterations, 0.0, null, description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1863,15 +1863,15 @@ public class PlanItIOIntegrationTest {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceInitialCostsOneIterationThreeTimePeriods";
       String description = "test2initialCostsOneIterationThreeTimePeriods";
-      String csvFileName1 = "Time Period 1_1.csv";
-      String odCsvFileName1 = "Time Period 1_0.csv";
-      String csvFileName2 = "Time Period 2_1.csv";
-      String odCsvFileName2 = "Time Period 2_0.csv";
-      String csvFileName3 = "Time Period 3_1.csv";
-      String odCsvFileName3 = "Time Period 3_0.csv";
-      String xmlFileName1 = "Time Period 1.xml";
-      String xmlFileName2 = "Time Period 2.xml";
-      String xmlFileName3 = "Time Period 3.xml";
+      String csvFileName1 = "Time_Period_1_1.csv";
+      String odCsvFileName1 = "Time_Period_1_0.csv";
+      String csvFileName2 = "Time_Period_2_1.csv";
+      String odCsvFileName2 = "Time_Period_2_0.csv";
+      String csvFileName3 = "Time_Period_3_1.csv";
+      String odCsvFileName3 = "Time_Period_3_0.csv";
+      String xmlFileName1 = "Time_Period_1.xml";
+      String xmlFileName2 = "Time_Period_2.xml";
+      String xmlFileName3 = "Time_Period_3.xml";
       Integer maxIterations = 1;
       Map<Long, String> initialLinkSegmentLocationsPerTimePeriod = new HashMap<Long, String>();
       initialLinkSegmentLocationsPerTimePeriod.put((long) 0,
@@ -1883,23 +1883,23 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
           0.0, null, description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName3,
           xmlFileName3);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1920,19 +1920,19 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceInitialCostsOneIterationExternalIds";
       String description = "testRouteChoice2initialCosts";
-      String csvFileName = "Time Period 1_1.csv";
-      String odCsvFileName = "Time Period 1_0.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_1.csv";
+      String odCsvFileName = "Time_Period_1_0.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 1;
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceInitialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
           null, 0, maxIterations, 0.0, null, description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1952,19 +1952,19 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500Iterations";
       String description = "testRouteChoice2initialCosts";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500Iterations\\initial_link_segment_costs.csv",
           null, 0, maxIterations, 0.0, null, description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1982,15 +1982,15 @@ public class PlanItIOIntegrationTest {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsThreeTimePeriods";
       String description = "test2initialCosts500IterationsThreeTimePeriods";
-      String csvFileName1 = "Time Period 1_500.csv";
-      String odCsvFileName1 = "Time Period 1_499.csv";
-      String csvFileName2 = "Time Period 2_500.csv";
-      String odCsvFileName2 = "Time Period 2_499.csv";
-      String csvFileName3 = "Time Period 3_500.csv";
-      String odCsvFileName3 = "Time Period 3_499.csv";
-      String xmlFileName1 = "Time Period 1.xml";
-      String xmlFileName2 = "Time Period 2.xml";
-      String xmlFileName3 = "Time Period 3.xml";
+      String csvFileName1 = "Time_Period_1_500.csv";
+      String odCsvFileName1 = "Time_Period_1_499.csv";
+      String csvFileName2 = "Time_Period_2_500.csv";
+      String odCsvFileName2 = "Time_Period_2_499.csv";
+      String csvFileName3 = "Time_Period_3_500.csv";
+      String odCsvFileName3 = "Time_Period_3_499.csv";
+      String xmlFileName1 = "Time_Period_1.xml";
+      String xmlFileName2 = "Time_Period_2.xml";
+      String xmlFileName3 = "Time_Period_3.xml";
       Integer maxIterations = 500;
       Map<Long, String> initialLinkSegmentLocationsPerTimePeriod = new HashMap<Long, String>();
       initialLinkSegmentLocationsPerTimePeriod.put((long) 0,
@@ -2002,23 +2002,23 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
           0.0, null, description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName3,
           xmlFileName3);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName3,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2039,19 +2039,19 @@ public class PlanItIOIntegrationTest {
       String projectPath =
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds";
       String description = "testRouteChoice2initialCosts";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds\\initial_link_segment_costs.csv",
           null, 0, maxIterations, 0.0, null, description, true);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2069,9 +2069,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\MIMOrouteChoiceSingleMode";
       String description = "testRouteChoice3";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -2134,11 +2134,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2159,9 +2159,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\biDirectionalLinksRouteChoiceSingleMode";
       String description = "testRouteChoice4";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -2342,11 +2342,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2369,12 +2369,12 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\biDirectionalLinksRouteChoiceSingleModeWithTwoTimePeriods";
       String description = "testRouteChoice42";
-      String csvFileName1 = "Time Period 1_500.csv";
-      String odCsvFileName1 = "Time Period 1_499.csv";
-      String csvFileName2 = "Time Period 2_500.csv";
-      String odCsvFileName2 = "Time Period 2_499.csv";
-      String xmlFileName1 = "Time Period 1.xml";
-      String xmlFileName2 = "Time Period 2.xml";
+      String csvFileName1 = "Time_Period_1_500.csv";
+      String odCsvFileName1 = "Time_Period_1_499.csv";
+      String csvFileName2 = "Time_Period_2_500.csv";
+      String odCsvFileName2 = "Time_Period_2_499.csv";
+      String xmlFileName1 = "Time_Period_1.xml";
+      String xmlFileName2 = "Time_Period_2.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -2716,17 +2716,17 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName2,
           xmlFileName2);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName1,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName2,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2747,9 +2747,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\biDirectionalLinksRouteChoiceSingleModeUsingOdRawMatrix";
       String description = "testRouteChoice4raw";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -2930,11 +2930,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2955,9 +2955,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\biDirectionalLinksRouteChoiceSingleModeWithPlusSignSeparator";
       String description = "testRouteChoice4raw2";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -3138,11 +3138,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -3162,9 +3162,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceTwoModes";
       String description = "testRouteChoice5";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
@@ -3269,11 +3269,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -3294,9 +3294,9 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceTwoModesIdentifyLinksById";
       String description = "testRouteChoice5";
-      String csvFileName = "Time Period 1_500.csv";
-      String odCsvFileName = "Time Period 1_499.csv";
-      String xmlFileName = "Time Period 1.xml";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
       TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
@@ -3404,11 +3404,11 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId 0_" + description, odCsvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
           xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId 0_" + description, csvFileName,
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);

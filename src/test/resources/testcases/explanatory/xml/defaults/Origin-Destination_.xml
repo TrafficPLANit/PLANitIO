@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>1</nr>
-			<csvdata type="Cost">src\test\resources\testcases\explanatory\xml\defaults\Origin-Destination_RunId 0_explanatory__1.csv</csvdata>
+			<csvdata type="Cost">src\test\resources\testcases\explanatory\xml\defaults\Origin-Destination_RunId_0_explanatory__1.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>
