@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>499</nr>
-			<csvdata type="Cost">src\test\resources\testcases\route_choice\xml\biDirectionalLinksRouteChoiceSingleModeWithPlusSignSeparator\Origin-Destination_RunId_0_testRouteChoice4raw2_Time_Period_1_499.csv</csvdata>
+			<csvdata type="Cost">.\Origin-Destination_RunId_0_testRouteChoice4raw2_Time_Period_1_499.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

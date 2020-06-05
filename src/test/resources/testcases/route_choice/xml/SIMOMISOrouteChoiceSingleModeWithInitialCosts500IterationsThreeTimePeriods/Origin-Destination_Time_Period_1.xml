@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>499</nr>
-			<csvdata type="Cost">src\test\resources\testcases\route_choice\xml\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsThreeTimePeriods\Origin-Destination_RunId_0_test2initialCosts500IterationsThreeTimePeriods_Time_Period_1_499.csv</csvdata>
+			<csvdata type="Cost">.\Origin-Destination_RunId_0_test2initialCosts500IterationsThreeTimePeriods_Time_Period_1_499.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>2</nr>
-			<csvdata type="Path">src\test\resources\testcases\explanatory\xml\defaults\Path_RunId_0_explanatory__2.csv</csvdata>
+			<csvdata type="Path">.\Path_RunId_0_explanatory__2.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

@@ -26,8 +26,8 @@
 		-->
 		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
 		<project.build.directory>target</project.build.directory>
-		<planit.version>0.0.4a3</planit.version>
-		<planitltm.version>0.0.4a3</planitltm.version>
+		<planit.version>0.0.4a7</planit.version>
+		<planitltm.version>0.0.4a7</planitltm.version>
 		<!-- Change the property below to match the path of your PLANitPy2J rsc 
 			directory -->
 		<py2j.resource.directory>..\PLANitPy2J\share\planit</py2j.resource.directory>

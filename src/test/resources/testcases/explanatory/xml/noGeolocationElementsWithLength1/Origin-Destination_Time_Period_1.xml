@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>1</nr>
-			<csvdata type="Cost">src\test\resources\testcases\explanatory\xml\noGeolocationElementsWithLength1\Origin-Destination_RunId_0_explanatory_Time_Period_1_1.csv</csvdata>
+			<csvdata type="Cost">.\Origin-Destination_RunId_0_explanatory_Time_Period_1_1.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

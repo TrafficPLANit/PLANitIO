@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>500</nr>
-			<csvdata type="Path">src\test\resources\testcases\route_choice\xml\MIMOrouteChoiceSingleMode\Path_RunId_0_testRouteChoice3_Time_Period_1_500.csv</csvdata>
+			<csvdata type="Path">.\Path_RunId_0_testRouteChoice3_Time_Period_1_500.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>

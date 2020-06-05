@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -132,6 +134,25 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	 * The Id of the traffic assignment run being recorded
 	 */
 	private long runId;
+
+  /**
+   * Generates the name of an output file using the relative path from XML to CSV files
+   * 
+   * @param timePeriod the time period
+   * @param outputType the OutputType of the output
+   * @param runId the id of the traffic assignment run
+   * @param iteration       current iteration
+   * @return the name of the output file
+   * @throws PlanItException thrown if the output directory cannot be opened
+   */
+  private String generateRelativeOutputFileName(TimePeriod timePeriod, OutputType outputType, long runId, int iteration) throws PlanItException {
+    Path pathAbsolute = Paths.get(csvDirectory);
+    Path pathBase = Paths.get(xmlDirectory);
+    Path pathRelative = pathBase.relativize(pathAbsolute);
+    String relativeCsvOutputDirectory = pathRelative.toString();
+    relativeCsvOutputDirectory = relativeCsvOutputDirectory.equals("") ? "." : relativeCsvOutputDirectory;
+    return generateOutputFileName(relativeCsvOutputDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, runId, iteration);
+  }
 
 	/**
 	 * Set the values of the version and description properties from a properties
@@ -359,8 +380,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
 
 		// create the name based on iteration, time period and related info
-		String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod,
-				outputTypeConfiguration.getOutputType(), runId, iterationIndex);
+		//String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod,	outputTypeConfiguration.getOutputType(), runId, iterationIndex);
+	  String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputTypeConfiguration.getOutputType(), runId, iterationIndex);
 		try {
 			// create the header (first line) of the file
 			CSVPrinter csvIterationPrinter = openCsvFileAndWriteHeaders(outputTypeConfiguration, csvFileName);
@@ -378,7 +399,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		return csvFileName;
 	}
 
-	/**
+  /**
 	 * Write the results for the current mode and time period to file
 	 * 
 	 * @param outputTypeConfiguration          the current output type configuration
@@ -416,7 +437,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 					outputTypeConfiguration, iterationIndex, createCsvFileForCurrentIteration);
 
 			// add metadata to the XML content
-			updateMetadataSimulationOutputForCurrentIteration(iterationIndex, csvFileName, currentOutputType);
+			String relativeCsvFileName = generateRelativeOutputFileName(timePeriod, outputTypeConfiguration.getOutputType(), runId, iterationIndex);
+			//updateMetadataSimulationOutputForCurrentIteration(iterationIndex, csvFileName, currentOutputType);
+			updateMetadataSimulationOutputForCurrentIteration(iterationIndex, relativeCsvFileName, currentOutputType);
 			addCsvFileNamePerOutputType(currentOutputType, csvFileName);
 
 			// MARK 6-1-2020: Why is this here and not immediately placed in the same if

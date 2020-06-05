@@ -15,7 +15,7 @@
 	<simulation>
 		<iteration>
 			<nr>2</nr>
-			<csvdata type="Path">src\test\resources\testcases\basicShortestPathAlgorithm\xml\ThreeTimePeriods\Path_RunId_0_testBasic13_Time_Period_1_2.csv</csvdata>
+			<csvdata type="Path">.\Path_RunId_0_testBasic13_Time_Period_1_2.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>
