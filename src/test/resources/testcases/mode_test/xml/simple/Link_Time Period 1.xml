@@ -15,7 +15,7 @@
     <simulation>
         <iteration>
             <nr>2</nr>
-            <csvdata type="Link">src\test\resources\testcases\modeTest\xml\simple\Link_RunId 0_modeTest_Time Period 1_2.csv</csvdata>
+            <csvdata type="Link">src\test\resources\testcases\mode_test\xml\simple\Link_RunId 0_mode_test_Time Period 1_2.csv</csvdata>
         </iteration>
     </simulation>
     <columns>

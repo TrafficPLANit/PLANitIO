@@ -113,15 +113,15 @@ public class PlanItIOIntegrationTest {
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
   }
-
+  
   /**
    * Trivial test case which matches the description in the README.md file.
    */
   @Test
   public void test_mode_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\modeTest\\xml\\simple";
-      String description = "modeTest";
+      String projectPath = "src\\test\\resources\\testcases\\mode_test\\xml\\simple";
+      String description = "mode_test";
       String csvFileName = "Time Period 1_2.csv";
       String odCsvFileName = "Time Period 1_1.csv";
       String xmlFileName = "Time Period 1.xml";
@@ -148,15 +148,15 @@ public class PlanItIOIntegrationTest {
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 1.0, 2000.0, 10.0, 10.0));
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 2000, 19.1019336, 1000.0, 10.0, 0.5235072));
       resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 1, 0.5, 2000.0, 10.0, 20.0));
+      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 2000, 4.5, 1000.0, 10.0, 2.2222222));
       resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 1, 1.0, 2000.0, 10.0, 10.0));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 2000, 33.0, 1000.0, 10.0, 0.3030303));
       resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4, new LinkSegmentExpectedResultsDto(4, 5, 1, 0.5, 2000.0, 10.0, 20.0));
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4, new LinkSegmentExpectedResultsDto(4, 5, 2000, 4.5, 1000.0, 10.0, 2.2222222));
       resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 5, new LinkSegmentExpectedResultsDto(5, 6, 1, 1.0, 2000.0, 10.0, 10.0));
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 5, new LinkSegmentExpectedResultsDto(5, 6, 2000, 19.1019336, 1000.0, 10.0, 0.5235072));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
           maxIterations, resultsMap);
 
@@ -178,7 +178,7 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
       odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(4.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(80.2038651));
       odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));

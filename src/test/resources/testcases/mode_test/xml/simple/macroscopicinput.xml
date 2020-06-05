@@ -19,7 +19,7 @@
 		<oddemands>
 			<odcellbycellmatrix timeperiodref="0"	userclassref="1">
 				<o ref="1">
-					<d ref="2">1</d>
+					<d ref="2">2000</d>
 				</o>
 			</odcellbycellmatrix>
 		</oddemands>
@@ -35,7 +35,7 @@
 			<linksegmenttypes>                                                                    <!-- optional, if omitted all link segments are assumed to be of the same default 	link segment type -->
 				<linksegmenttype id="1">                                                       <!-- mandatory, for referencing -->
 					<name>Slow</name>													<!-- optional -->
-					<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+					<capacitylane>1000</capacitylane>									<!-- optional, has default -->
 					<modes>                                                                             <!-- optional, if omitted all modes are assumed to be allowed based on their default properties (possibly dynamically capped by the physical link properties) -->
 						<mode ref="0">															    <!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
 							<maxspeed>10</maxspeed>										<!-- optional, should be lower or equal than link max speed when present -->
@@ -44,7 +44,7 @@
 				</linksegmenttype>
 				<linksegmenttype id="2">                                                       <!-- mandatory, for referencing -->
 					<name>Fast</name>													<!-- optional -->
-					<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+					<capacitylane>1000</capacitylane>									<!-- optional, has default -->
 					<modes>                                                                             <!-- optional, if omitted all modes are assumed to be allowed based on their default properties (possibly dynamically capped by the physical link properties) -->
 						<mode ref="0">															    <!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
 							<maxspeed>20</maxspeed>										<!-- optional, should be lower or equal than link max speed when present -->
