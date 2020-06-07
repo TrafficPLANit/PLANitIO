@@ -1,8 +1,8 @@
-Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Density,Flow
-1,0,1,0,1,0,11,4,1200.0000000,Not Specified,1.0000000,3,Not Specified,40.0000000,0.0250000,180.0000000,3600.0000000
-4,3,2,1,1,0,1,0,1200.0000000,Not Specified,1.0000000,1,Not Specified,14.9737025,0.0667837,180.0000000,1879.2000000
-12,5,3,2,1,0,4,3,1200.0000000,Not Specified,1.0000000,3,Not Specified,40.0000000,0.0250000,180.0000000,3600.0000000
-2,1,4,3,1,0,1,0,1200.0000000,Not Specified,2.0000000,1,Not Specified,59.8903352,0.0333944,180.0000000,295.2000000
-4,3,5,4,1,0,2,1,1200.0000000,Not Specified,2.0000000,1,Not Specified,59.8903352,0.0333944,180.0000000,295.2000000
-3,2,6,5,1,0,1,0,1200.0000000,Not Specified,1.0000000,1,Not Specified,30.0609344,0.0332658,180.0000000,1425.6000000
-4,3,7,6,1,0,3,2,1200.0000000,Not Specified,1.0000000,1,Not Specified,30.0609344,0.0332658,180.0000000,1425.6000000
+Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Flow
+1,0,1,0,1,0,11,4,1200.0000000,Not Specified,1.0000000,3,Not Specified,40.0000000,0.0250000,3600.0000000
+4,3,2,1,1,0,1,0,1200.0000000,Not Specified,1.0000000,1,Not Specified,14.9737025,0.0667837,1879.2000000
+12,5,3,2,1,0,4,3,1200.0000000,Not Specified,1.0000000,3,Not Specified,40.0000000,0.0250000,3600.0000000
+2,1,4,3,1,0,1,0,1200.0000000,Not Specified,2.0000000,1,Not Specified,59.8903352,0.0333944,295.2000000
+4,3,5,4,1,0,2,1,1200.0000000,Not Specified,2.0000000,1,Not Specified,59.8903352,0.0333944,295.2000000
+3,2,6,5,1,0,1,0,1200.0000000,Not Specified,1.0000000,1,Not Specified,30.0609344,0.0332658,1425.6000000
+4,3,7,6,1,0,3,2,1200.0000000,Not Specified,1.0000000,1,Not Specified,30.0609344,0.0332658,1425.6000000

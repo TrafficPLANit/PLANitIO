@@ -103,9 +103,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private static final long DEFAULT_EXTERNAL_ID = 1;
   
+  /**
+   * Default maximum capacity per lane
+   */
   private static final float DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0f;
   
-  private static final float DEFAULT_MAXIMUM_DENSITY_PER_LANE = 180.0f;
+  //private static final float DEFAULT_MAXIMUM_DENSITY_PER_LANE = 180.0f;
 
   /**
    * Default XSD files used to validate input XML files against
@@ -509,7 +512,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
-      xmlLinkSegmentType.setMaxdensitylane(DEFAULT_MAXIMUM_DENSITY_PER_LANE);
+      //xmlLinkSegmentType.setMaxdensitylane(DEFAULT_MAXIMUM_DENSITY_PER_LANE);
       macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
     }
     

@@ -1,6 +1,6 @@
-Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Density,Flow
-2,1,1,0,1,0,1,0,1000.0000000,Not Specified,10.0000000,1,Not Specified,0.5235072,19.1019336,180.0000000,2000.0000000
-3,2,2,1,1,0,2,1,1000.0000000,Not Specified,10.0000000,1,Not Specified,2.2222222,4.5000000,180.0000000,2000.0000000
-4,3,3,2,1,0,3,2,1000.0000000,Not Specified,10.0000000,1,Not Specified,0.3030303,33.0000000,180.0000000,2000.0000000
-5,4,4,3,1,0,4,3,1000.0000000,Not Specified,10.0000000,1,Not Specified,2.2222222,4.5000000,180.0000000,2000.0000000
-6,5,5,4,1,0,5,4,1000.0000000,Not Specified,10.0000000,1,Not Specified,0.5235072,19.1019336,180.0000000,2000.0000000
+Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Flow
+2,1,1,0,1,0,1,0,1000.0000000,Not Specified,10.0000000,1,Not Specified,0.5235072,19.1019336,2000.0000000
+3,2,2,1,1,0,2,1,1000.0000000,Not Specified,10.0000000,1,Not Specified,2.2222222,4.5000000,2000.0000000
+4,3,3,2,1,0,3,2,1000.0000000,Not Specified,10.0000000,1,Not Specified,0.3030303,33.0000000,2000.0000000
+5,4,4,3,1,0,4,3,1000.0000000,Not Specified,10.0000000,1,Not Specified,2.2222222,4.5000000,2000.0000000
+6,5,5,4,1,0,5,4,1000.0000000,Not Specified,10.0000000,1,Not Specified,0.5235072,19.1019336,2000.0000000

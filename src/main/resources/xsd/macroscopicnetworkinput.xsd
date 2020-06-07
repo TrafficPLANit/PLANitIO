@@ -45,14 +45,6 @@
 	</xs:simpleType>	
 	
 	<!-- simple elements -->
-	<xs:element name="maxdensitylane" type="xs:float" default="180.0">
-		<xs:annotation>
-			<xs:documentation>
-				Maximum density of a lane in veh/km/lane, default set to 180
-			</xs:documentation>
-		</xs:annotation>	
-	</xs:element>
-	
 	<xs:element name="pcu" type="xs:float" default="1">
 		<xs:annotation>
 			<xs:documentation>
@@ -158,13 +150,6 @@
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="name" type="xs:string" default=""/>
-							<xs:element ref="maxdensitylane" minOccurs="0">
-								<xs:annotation>
-									<xs:documentation>
-										When not present, the default maximum density per lane will be applied
-									</xs:documentation>
-								</xs:annotation>	
-							</xs:element>
 							<xs:element ref="capacitylane" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>

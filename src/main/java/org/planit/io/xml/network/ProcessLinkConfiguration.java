@@ -11,6 +11,7 @@ import org.planit.generated.XMLElementModes;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.network.physical.PhysicalNetwork;
+import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
@@ -78,7 +79,7 @@ public class ProcessLinkConfiguration {
       }
       String name = linkSegmentTypeGenerated.getName();
       double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : linkSegmentTypeGenerated.getCapacitylane();
-      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE  : linkSegmentTypeGenerated.getMaxdensitylane();
+      double maximumDensity = LinkSegment.MAX_DENSITY;
       for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
         int modeExternalId = mode.getRef().intValue();
         double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED : mode.getMaxspeed();

@@ -96,11 +96,6 @@
 			<type>double</type>
 		</column>
 		<column>
-			<name>Density</name>
-			<units>veh/km</units>
-			<type>double</type>
-		</column>
-		<column>
 			<name>Flow</name>
 			<units>veh/h</units>
 			<type>double</type>

@@ -1,10 +1,10 @@
-Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Density,Flow
-4,3,5,4,1,0,3,2,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,180.0000000,1.0000000
-5,4,7,6,1,0,4,3,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,180.0000000,1.0000000
-6,5,9,8,1,0,1,0,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,180.0000000,1.0000000
-3,2,14,13,1,0,8,7,2000.0000000,Not Specified,8.0000000,1,Not Specified,1.0000000,8.0000000,180.0000000,1.0000000
-10,9,17,16,1,0,5,4,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,180.0000000,1.0000000
-8,7,21,20,1,0,7,6,2000.0000000,Not Specified,12.0000000,1,Not Specified,1.0000000,12.0000000,180.0000000,1.0000000
-11,10,27,26,1,0,6,5,2000.0000000,Not Specified,12.0000000,1,Not Specified,1.0000000,12.0000000,180.0000000,1.0000000
-7,6,30,29,1,0,12,11,2000.0000000,Not Specified,5.0000000,1,Not Specified,1.0000000,5.0000000,180.0000000,1.0000000
-12,11,37,36,1,0,11,10,2000.0000000,Not Specified,8.0000000,1,Not Specified,1.0000000,8.0000000,180.0000000,1.0000000
+Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Flow
+4,3,5,4,1,0,3,2,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,1.0000000
+5,4,7,6,1,0,4,3,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,1.0000000
+6,5,9,8,1,0,1,0,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,1.0000000
+3,2,14,13,1,0,8,7,2000.0000000,Not Specified,8.0000000,1,Not Specified,1.0000000,8.0000000,1.0000000
+10,9,17,16,1,0,5,4,2000.0000000,Not Specified,10.0000000,1,Not Specified,1.0000000,10.0000000,1.0000000
+8,7,21,20,1,0,7,6,2000.0000000,Not Specified,12.0000000,1,Not Specified,1.0000000,12.0000000,1.0000000
+11,10,27,26,1,0,6,5,2000.0000000,Not Specified,12.0000000,1,Not Specified,1.0000000,12.0000000,1.0000000
+7,6,30,29,1,0,12,11,2000.0000000,Not Specified,5.0000000,1,Not Specified,1.0000000,5.0000000,1.0000000
+12,11,37,36,1,0,11,10,2000.0000000,Not Specified,8.0000000,1,Not Specified,1.0000000,8.0000000,1.0000000

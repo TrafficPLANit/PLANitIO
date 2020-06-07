@@ -719,7 +719,6 @@ public class PlanItIOTestHelper {
       }
     }
     linkOutputTypeConfiguration.removeAllProperties();
-    linkOutputTypeConfiguration.addProperty(OutputProperty.DENSITY);
     linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
