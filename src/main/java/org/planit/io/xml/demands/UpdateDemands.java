@@ -71,7 +71,7 @@ public class UpdateDemands {
         new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
     for (final Mode mode : inputBuilderListener.getAllModes()) {
       final Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
-      for (final TimePeriod timePeriod : demands.timePeriods.getRegisteredTimePeriods()) {
+      for (final TimePeriod timePeriod : demands.timePeriods.asSortedSetByStartTime()) {
         demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
       }
       demandsPerTimePeriodAndMode.put(mode, demandsPerTimePeriod);

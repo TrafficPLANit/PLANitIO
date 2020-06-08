@@ -126,6 +126,7 @@
 					<schemaDirectory>src/main/resources/xsd</schemaDirectory>
 					<bindingDirectory>src/main/resources/xjb</bindingDirectory>
 					<generateDirectory>src/main/java</generateDirectory>
+					<no-header>true</no-header>
 				</configuration>
 				<executions>
 					<execution>

@@ -601,14 +601,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateDemands(@Nonnull Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.info("Populating Demands");
     if (!(parameter1 instanceof Zoning)) {
-      String errorMessage = "Parameter 1 of call to populateDemands() is not of class Zoning.";
-      LOGGER.severe(errorMessage);
-      throw new PlanItException(errorMessage);
+      throw new PlanItException("Parameter 1 of call to populateDemands() is not of class Zoning.");
     }
     if (!(parameter2 instanceof PhysicalNetwork)) {
-      String errorMessage = "Parameter 2 of call to populateDemands() is not of class PhysicalNetwork";
-      LOGGER.severe(errorMessage);
-      throw new PlanItException(errorMessage);
+      throw new PlanItException("Parameter 2 of call to populateDemands() is not of class PhysicalNetwork");
     }
     final Zoning zoning = (Zoning) parameter1;
     final PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter2;
@@ -638,8 +634,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       throws PlanItException {
     LOGGER.info("Populating Initial Link Segment Costs");
     if (!(parameter1 instanceof PhysicalNetwork)) {
-      throw new PlanItException(
-          "Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
+      throw new PlanItException("Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
     }
     if (!(parameter2 instanceof String)) {
       String errorMessage = "Parameter 2 of call to populateInitialLinkSegments() is not a file name";

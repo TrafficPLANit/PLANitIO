@@ -89,68 +89,62 @@ public class ProcessConfiguration {
       Set<BigInteger> travellerTypeIdSet,
       PhysicalNetwork physicalNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-    XMLElementUserClasses userclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses()
-        : demandconfiguration.getUserclasses();
+
+    XMLElementUserClasses userclasses = 
+        (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
+    
     if (userclasses.getUserclass().isEmpty()) {
       if (travellerTypeIdSet.size() > 1) {
         String errorMessage = "No user classes defined but more than 1 traveller type defined";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       XMLElementUserClasses.Userclass userClass = generateDefaultUserClass();
       userClass.setTravellertyperef(travellerTypeIdSet.iterator().next());
       userclasses.getUserclass().add(userClass);
     }
+    
     for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
       
-      if ((userclass.getTravellertyperef() != null) && (!travellerTypeIdSet.contains(userclass
-          .getTravellertyperef()))) {
-        String errorMessage = "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()
-            + " referenced by user class " + userclass.getName() + " but not defined";
-        LOGGER.severe(errorMessage);
+      if ((userclass.getTravellertyperef() != null) && (!travellerTypeIdSet.contains(userclass.getTravellertyperef()))) {
+        String errorMessage = "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()+ " referenced by user class " + userclass.getName() + " but not defined";
         throw new PlanItException(errorMessage);
       }
       
       if ((userclass.getTravellertyperef() == null) && (travellerTypeIdSet.size() > 1)) {
-        String errorMessage = "User class " + userclass.getId()
-            + " has no traveller type specified, but more than one traveller type possible";
-        LOGGER.severe(errorMessage);
+        String errorMessage = "User class " + userclass.getId() + " has no traveller type specified, but more than one traveller type possible";
         throw new PlanItException(errorMessage);
       }
       
       if (userclass.getModeref() == null) {
         if (physicalNetwork.modes.getNumberOfModes() > 1) {
           String errorMessage = "User class " + userclass.getId() + " has no mode specified, but more than one mode possible.";
-          LOGGER.severe(errorMessage);
           throw new PlanItException(errorMessage);
+        }        
+        for(Mode mode : physicalNetwork.modes) {
+          long modeExternalId = (long) mode.getExternalId();
+          userclass.setModeref(BigInteger.valueOf(modeExternalId));          
         }
-        Mode mode = physicalNetwork.modes.toList().get(0);
-        long modeExternalId = (long) mode.getExternalId();
-        userclass.setModeref(BigInteger.valueOf(modeExternalId));
       }
       Long externalModeId = userclass.getModeref().longValue();
       Mode userClassMode = inputBuilderListener.getModeByExternalId(externalModeId);
       if (userClassMode == null) {
         String errorMessage = "User class " + userclass.getId() + " refers to mode " + externalModeId + " which has not been defined";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
-      long travellerTypeId =
-          (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID : userclass.getTravellertyperef()
-              .longValue();
+      
+      long travellerTypeId = (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID : userclass.getTravellertyperef().longValue();
       userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
       TravelerType travellerType = inputBuilderListener.getTravelerTypeByExternalId(travellerTypeId);
+      
       UserClass userClass = new UserClass(
           userclass.getId().longValue(),
           userclass.getName(),
           userClassMode,
           travellerType);
-      final boolean duplicateUserClassExternalId = inputBuilderListener.addUserClassToExternalIdMap(userClass
-          .getExternalId(), userClass);
+      
+      final boolean duplicateUserClassExternalId = inputBuilderListener.addUserClassToExternalIdMap(userClass.getExternalId(), userClass);
       if (duplicateUserClassExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate user class external id " + userClass.getExternalId()
-            + " found in network file.";
-        LOGGER.severe(errorMessage);
+        String errorMessage = "Duplicate user class external id " + userClass.getExternalId() + " found in network file.";
         throw new PlanItException(errorMessage);
       }
     }
