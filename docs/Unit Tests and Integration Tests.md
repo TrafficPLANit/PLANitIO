@@ -66,9 +66,11 @@ Each test case has an XML input file called macroscopicinput.xml which contains 
 
 ### 2.4	Standard Results Files – Naming Convention
 
+All result files have no spaces in their file names. If the user defines configurable elements of the result file to have spaces, PLANit will convert the spaces to underscores.
+
 CSV standard results files use the naming convention:-
 
-\<OutputType\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.csv
+\<OutputType\>\_Time Period_\<Time period number\>\_\<Number of Iterations\>.csv
 
 Where:-
 
@@ -80,9 +82,9 @@ Where:-
 
 Note that Origin-Destination results files use an iteration number one below those for links and paths.  This is because link costs are recalculated at the start of each iteration, using flows from the previous iteration.
 
-So typical CSV output file names include `Link_Time Period 1_500.csv`,`Origin-Destination_Time Period 2_1.csv` etc.
+So typical CSV output file names include `Link_Time_Period 1_500.csv`,`Origin-Destination_Time_Period 2_1.csv` etc.
 
-XML output files follow a similar naming convention but do not include the number of iterations in their title (number of iterations is included in their content anyway). So the equivalent names to the above examples would be `Link_Time Period 1.xml` and `Origin-Destination_Time Period 2.xml`.
+XML output files follow a similar naming convention but do not include the number of iterations in their title (number of iterations is included in their content anyway). So the equivalent names to the above examples would be `Link_Time_Period_1.xml` and `Origin-Destination_Time_Period_2.xml`.
 
 If a test case has more than one time period it will produce more than one set of output files. Several tests have three time periods; for these tests the generated results for all time periods are checked.
 
@@ -90,15 +92,15 @@ If a test case has more than one time period it will produce more than one set o
 
 The unit tests create temporary CSV and XML output files whose contents are compared to the standard output files.  These temporary output files follow a similar naming convention to the standard results files.  The CSV files are named:-
 
-\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>\_\<Number of Iterations\>.csv
+\<OutputType\>RunId_0\_\<Description\>\_Time_Period_\<Time period number\>\_\<Number of Iterations\>.csv
 
 "RunId 0" is part of the file name, and \<Description\> is an appropriate name for the test e.g. "explanatory".
 
 Similarly, XML temporary files are named:-
 
-\<OutputType\>RunId 0\_\<Description\>\_Time Period \<Time period number\>.xml
+\<OutputType\>RunId_0\_\<Description\>\_Time_Period \<Time period number\>.xml
 
-So example names of temporary results files include `Link_RunId0_explanatory_Time Period 1_2.csv` and `Link_RunId0_explanatory_Time Period 1.xml`.
+So example names of temporary results files include `Link_RunId_0_explanatory_Time Period_1_2.csv` and `Link_RunId_0_explanatory_Time_Period_1.xml`.
 
 For all the contents of the CSV files and *most* of the contents of the XML files, the values in the temporary files should match those in the standard results files.  The one exception to this is the \<timestamp\> element in the XML output file.  This gives the time of the run.  The time stamp value in the temporary results file must be *different* from that in the standard results file, to confirm the two files are from different runs.
 
