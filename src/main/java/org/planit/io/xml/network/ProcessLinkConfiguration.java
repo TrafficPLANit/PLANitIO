@@ -79,7 +79,7 @@ public class ProcessLinkConfiguration {
       }
       String name = linkSegmentTypeGenerated.getName();
       double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : linkSegmentTypeGenerated.getCapacitylane();
-      double maximumDensity = LinkSegment.MAX_DENSITY;
+      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? LinkSegment.MAX_DENSITY  : linkSegmentTypeGenerated.getMaxdensitylane();      
       for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
         int modeExternalId = mode.getRef().intValue();
         double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED : mode.getMaxspeed();

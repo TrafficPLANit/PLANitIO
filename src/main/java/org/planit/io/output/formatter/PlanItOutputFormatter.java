@@ -438,7 +438,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
 			// add metadata to the XML content
 			String relativeCsvFileName = generateRelativeOutputFileName(timePeriod, outputTypeConfiguration.getOutputType(), runId, iterationIndex);
-			//updateMetadataSimulationOutputForCurrentIteration(iterationIndex, csvFileName, currentOutputType);
 			updateMetadataSimulationOutputForCurrentIteration(iterationIndex, relativeCsvFileName, currentOutputType);
 			addCsvFileNamePerOutputType(currentOutputType, csvFileName);
 

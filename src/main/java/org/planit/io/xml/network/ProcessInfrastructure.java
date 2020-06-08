@@ -108,7 +108,7 @@ public class ProcessInfrastructure {
    * @param network the physical network object
    * @param link the link from which the link segment will be created
    * @param abDirection direction of travel
-   * @param linkSegmentType object storing the input values for this link
+   * @param linkSegmentTypeHelper object storing the input values for this link
    * @param noLanes the number of lanes in this link
    * @param externalId the external Id of this link segment
    * @param modeProperties properties of the link segment type for each mode
@@ -117,7 +117,7 @@ public class ProcessInfrastructure {
    */
   private static void createAndRegisterLinkSegment(Float maxSpeed, MacroscopicNetwork network, Link link,
       boolean abDirection,
-      MacroscopicLinkSegmentTypeXmlHelper linkSegmentType,
+      MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeHelper,
       int noLanes, long externalId,
       Map<Mode, MacroscopicModeProperties> modeProperties,
       InputBuilderListener inputBuilderListener) throws PlanItException {
@@ -128,19 +128,19 @@ public class ProcessInfrastructure {
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
     Map<Mode, Double> linkSegmentSpeedMap = new HashMap<Mode, Double>();
-    for (Mode mode : linkSegmentType.getSpeedMap().keySet()) {
-      linkSegmentSpeedMap.put(mode, Math.min(maxSpeedDouble, linkSegmentType.getSpeedMap().get(mode)));
+    for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
+      linkSegmentSpeedMap.put(mode, Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode)));
     }
 
     linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
     MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
-        linkSegmentType.getExternalId());
+        linkSegmentTypeHelper.getExternalId());
     if (existingLinkSegmentType == null) {
       MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
-          .createAndRegisterNewMacroscopicLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-              linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties);
+          .createAndRegisterNewMacroscopicLinkSegmentType(linkSegmentTypeHelper.getName(), linkSegmentTypeHelper.getCapacityPerLane(),
+              linkSegmentTypeHelper.getMaximumDensityPerLane(), linkSegmentTypeHelper.getExternalId(), modeProperties);
       inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(),
           macroscopicLinkSegmentType);
       linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
