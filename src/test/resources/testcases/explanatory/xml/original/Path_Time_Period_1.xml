@@ -35,6 +35,11 @@
             <type>integer</type>
         </column>
         <column>
+            <name>Path Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
             <name>Run Id</name>
             <units>none</units>
             <type>integer</type>
