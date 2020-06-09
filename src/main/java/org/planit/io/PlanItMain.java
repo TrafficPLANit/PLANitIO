@@ -36,8 +36,8 @@ public class PlanItMain {
 	private static Logger LOGGER = null;
 
 	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
-	private final int maxIterations = 500;
-	private final double epsilon = 0.00;
+	private final int maxIterations  = 500;
+	private final double epsilon     = 0.00;
 
 	/**
 	 * Main method for the PLANitIO program. Only used to start the program
