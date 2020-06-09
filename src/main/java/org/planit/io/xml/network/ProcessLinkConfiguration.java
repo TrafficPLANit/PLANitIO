@@ -60,7 +60,7 @@ public class ProcessLinkConfiguration {
    * 
    * @param linkconfiguration LinkConfiguration object populated with data from XML file
    * @param inputBuilderListener parser which holds the Map of nodes by external Id
-   * @return Map containing link type values
+   * @return Map containing link type values identified by their external Ids
    * @throws PlanItException thrown if there is an error reading the input file
    */
   public static Map<Long, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeHelperMap(

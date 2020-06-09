@@ -248,15 +248,12 @@
 	<xs:element name="linksegment">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="numberoflanes" minOccurs="0"
-					maxOccurs="1" />
+				<xs:element ref="numberoflanes" minOccurs="0" 	maxOccurs="1" />
 				<xs:element ref="maxspeed" minOccurs="0" maxOccurs="1" />
 			</xs:sequence>
-			<xs:attribute name="id" type="xs:positiveInteger"
-				use="required" />
+			<xs:attribute name="id" type="xs:positiveInteger" use="required" />
 			<xs:attribute name="dir" type="direction" use="required" />
-			<xs:attribute name="typeref" type="xs:positiveInteger"
-				use="optional">
+			<xs:attribute name="typeref" type="xs:positiveInteger" use="optional">
 				<xs:annotation>
 					<xs:documentation>
 						Refers to the unique identifier (id) associated

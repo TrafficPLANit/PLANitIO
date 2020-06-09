@@ -497,6 +497,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       macroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
     }
     
+    //if no modes defined, create single mode with default values
     if (macroscopicnetwork.getLinkconfiguration().getModes() == null) {
       macroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
       XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
@@ -506,16 +507,18 @@ public class PlanItInputBuilder extends InputBuilderListener {
       macroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
     }
     
+    //if no link segment types defined, create single link segment type with default parameters
     if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
       macroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
       XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
-      //xmlLinkSegmentType.setMaxdensitylane(DEFAULT_MAXIMUM_DENSITY_PER_LANE);
+      xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAX_DENSITY);
       macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
     }
     
+    //if link segment type(s) do not reference a mode, make them reference all modes (by using the reference value 0 which is reserved for this purpose)
     for (XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType : macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype()) {
       if (xmlLinkSegmentType.getModes() == null) {
         XMLElementLinkSegmentTypes.Linksegmenttype.Modes xmlLinkSegmentModes = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes();
@@ -525,7 +528,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
         xmlLinkSegmentType.setModes(xmlLinkSegmentModes);
       }
     }
-  }
+    
+   }
 
   /**
    * Creates the physical network object from the data in the input file
@@ -545,7 +549,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, this);  
       final XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
       ProcessInfrastructure.createAndRegisterNodes(infrastructure, network, this);
-      ProcessInfrastructure.createAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this, DEFAULT_EXTERNAL_ID);
+      ProcessInfrastructure.createAndRegisterLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this);
     } catch (PlanItException pe) {
       throw pe;
     } catch (final Exception ex) {
