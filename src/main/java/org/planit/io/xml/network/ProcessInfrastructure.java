@@ -1,6 +1,5 @@
 package org.planit.io.xml.network;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,15 +197,12 @@ public class ProcessInfrastructure {
    * @param network network the physical network object to be populated from the input data
    * @param linkSegmentTypeHelperMap Map of MacroscopicLinkSegmentTypeXmlHelper objects
    * @param inputBuilderListeners parser which holds the Map of nodes by external Id
-   * @param defaultLinkSegmentTypeRef default value for link segment type reference if this has not
-   *          been defined in the input file
-   * @throws PlanItException thrown if there is an error during processing
+   * @throws PlanItException thrown if there is an error during processing or reference to link segment types invalid
    */
   public static void createAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
       MacroscopicNetwork network,
       Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap,
-      InputBuilderListener inputBuilderListener,
-      long defaultLinkSegmentTypeRef) throws PlanItException {
+      InputBuilderListener inputBuilderListener) throws PlanItException {
 
     for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
       Node startNode = inputBuilderListener.getNodeByExternalId(generatedLink.getNodearef().longValue());
@@ -223,16 +219,24 @@ public class ProcessInfrastructure {
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
       for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
+        long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
         int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
             : generatedLinkSegment.getNumberoflanes().intValue();
+        long linkType = 0;
         if (generatedLinkSegment.getTyperef() == null) {
-          generatedLinkSegment.setTyperef(BigInteger.valueOf(defaultLinkSegmentTypeRef));
+          if (linkSegmentTypeHelperMap.keySet().size() > 1) {
+            String errorMessage = "Link Segment " + linkSegmentExternalId + " has no link segment defined, but there is more than one possible link segment type";
+            LOGGER.severe(errorMessage);
+            throw new PlanItException(errorMessage);
+          }
+          for (long linkSegmentTypeExternalId : linkSegmentTypeHelperMap.keySet()) {
+            linkType = linkSegmentTypeExternalId;
+          }
+        } else {
+          linkType = generatedLinkSegment.getTyperef().longValue();
         }
-        long linkType = generatedLinkSegment.getTyperef().longValue();
-        long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
         Float maxSpeed = generatedLinkSegment.getMaxspeed();
-        MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(
-            linkType);
+        MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);
         // TODO - We should be able to set the maximum speed for individual link
         // segments in the network XML file. This is where we would update it. However
         // we would then need to set it for
@@ -243,9 +247,9 @@ public class ProcessInfrastructure {
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
-            throw new PlanItException(
-                "Both link segments for the same link are in the same direction.  Link segment external Id is "
-                    + linkSegmentExternalId);
+            String errorMessage =  "Both link segments for the same link are in the same direction.  Link segment external Id is " + linkSegmentExternalId;
+            LOGGER.severe(errorMessage);
+            throw new PlanItException(errorMessage);
           }
         }
         createAndRegisterLinkSegment(maxSpeed, network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes,
