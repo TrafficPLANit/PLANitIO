@@ -1,53 +1,58 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/metadata.xsd">
-	<timestamp>2019-11-29T16:57:28.652+11:00</timestamp>
-	<version>0.0.3-beta</version>
-	<description>PlanIt common code for traffic assignment</description>
-	<outputconfiguration>
-		<assignment>TraditionalStaticAssignment</assignment>
-		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
-		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
-		<timeperiod>
-			<id>0</id>
-			<name>Time_Period_1</name>
-		</timeperiod>
-	</outputconfiguration>
-	<simulation>
-		<iteration>
-			<nr>1</nr>
-			<csvdata type="Path">.\Path_RunId_0_test2initialCostsOneIterationThreeTimePeriods_Time_Period_1_1.csv</csvdata>
-		</iteration>
-	</simulation>
-	<columns>
-		<column>
-			<name>Destination Zone External Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Mode External Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Origin Zone External Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Run Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Time Period External Id</name>
-			<units>none</units>
-			<type>integer</type>
-		</column>
-		<column>
-			<name>Path</name>
-			<units>none</units>
-			<type>string</type>
-		</column>
-	</columns>
+    <timestamp>2020-06-09T18:10:47.382+10:00</timestamp>
+    <version>0.0.4a7</version>
+    <description>PlanIt common code for traffic assignment</description>
+    <outputconfiguration>
+        <assignment>TraditionalStaticAssignment</assignment>
+        <physicalcost>BPRLinkTravelTimeCost</physicalcost>
+        <virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
+        <timeperiod>
+            <id>0</id>
+            <name>Time_Period_1</name>
+        </timeperiod>
+    </outputconfiguration>
+    <simulation>
+        <iteration>
+            <nr>1</nr>
+            <csvdata type="Path">.\Path_RunId_0_test2initialCostsOneIterationThreeTimePeriods_Time_Period_1_1.csv</csvdata>
+        </iteration>
+    </simulation>
+    <columns>
+        <column>
+            <name>Destination Zone External Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Mode External Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Origin Zone External Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Path Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Run Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Time Period External Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Path</name>
+            <units>none</units>
+            <type>string</type>
+        </column>
+    </columns>
 </metadata>

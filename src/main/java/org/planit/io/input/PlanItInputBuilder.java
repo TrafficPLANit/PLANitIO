@@ -762,7 +762,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
               + " which is not handled by PlanItInputBuilder.");
         }
       } catch (final PlanItException e) {
-        e.printStackTrace(); 
         throw new RemoteException(e.getMessage(), e);
       }
     }

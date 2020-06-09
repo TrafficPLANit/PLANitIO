@@ -115,7 +115,7 @@ public class PlanItIOIntegrationTest {
   }
   
   /**
-   * Trivial test case which matches the description in the README.md file.
+   * Test case which indicates the effects of changing BPR parameters when  flows are close to lane capacity.
    */
   @Test
   public void test_mode_test() {
