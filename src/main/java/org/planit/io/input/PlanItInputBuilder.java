@@ -141,7 +141,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
       macroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
           .generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
     } catch (final Exception e) {
-      throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error while generating classes from XML locations in PLANitIO",e);
     }
   }
 
@@ -218,7 +219,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
         macroscopicnetwork = planit.getMacroscopicnetwork();
         macroscopicdemand = planit.getMacroscopicdemand();
         return true;
-      } catch (final Exception e) {            
+      } catch (final Exception e) { 
+        LOGGER.severe(e.getMessage());
       }
     }
     return false;
