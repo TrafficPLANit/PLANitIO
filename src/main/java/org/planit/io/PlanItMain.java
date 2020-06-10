@@ -52,9 +52,9 @@ public class PlanItMain {
 		} catch (final Exception e) {
 		  LOGGER.severe(e.getMessage());
 			e.printStackTrace();
-		}
-		
-    Logging.closeLogger(LOGGER);
+    } finally {
+      Logging.closeLogger(LOGGER);
+    }
 	}
 
 	/**
