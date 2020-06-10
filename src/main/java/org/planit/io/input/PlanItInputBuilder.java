@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.function.LongFunction;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -514,7 +512,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
-      xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAX_DENSITY);
+      xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAXIMUM_DENSITY);
       macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
     }
     
@@ -537,7 +535,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param physicalNetwork the physical network object to be populated from the input data
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populatePhysicalNetwork(@Nonnull final PhysicalNetwork physicalNetwork) throws PlanItException {
+  protected void populatePhysicalNetwork(final PhysicalNetwork physicalNetwork) throws PlanItException {
 
     LOGGER.info("Populating Network");
 
@@ -602,7 +600,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param parameter2 PhysicalNetwork object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateDemands(@Nonnull Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
+  protected void populateDemands(Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.info("Populating Demands");
     if (!(parameter1 instanceof Zoning)) {
       throw new PlanItException("Parameter 1 of call to populateDemands() is not of class Zoning.");
