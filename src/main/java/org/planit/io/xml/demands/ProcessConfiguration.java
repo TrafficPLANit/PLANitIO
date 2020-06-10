@@ -64,7 +64,6 @@ public class ProcessConfiguration {
       if (duplicateTravelerTypeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate traveler type external id " + travelerType.getExternalId()
             + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       travellerTypeIdSet.add(travellertype.getId());
@@ -200,7 +199,8 @@ public class ProcessConfiguration {
       defaultStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(localDateTime.format(
           DateTimeFormatter.ISO_DATE_TIME));
     } catch (DatatypeConfigurationException e) {
-      throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when generating time period map when processing demand configuration",e);
     }
     for (XMLElementTimePeriods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {
       long timePeriodId = timePeriodGenerated.getId().longValue();
@@ -228,7 +228,6 @@ public class ProcessConfiguration {
       if (duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate time period external id " + timePeriod.getExternalId()
             + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       demands.timePeriods.registerTimePeriod(timePeriod);

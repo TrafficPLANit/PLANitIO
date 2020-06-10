@@ -1,6 +1,5 @@
 package org.planit.io;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -43,19 +42,19 @@ public class PlanItMain {
 	 * Main method for the PLANitIO program. Only used to start the program
 	 *
 	 * @param args main method args
-	 * @throws IOException
-	 * @throws SecurityException
 	 */
-	public static void main(final String[] args) throws SecurityException, IOException {
+	public static void main(final String[] args) {
 
 		try {
 			LOGGER = Logging.createLogger(PlanItMain.class);
 			final PlanItMain planItMain = new PlanItMain();
 			planItMain.execute();
-			Logging.closeLogger(LOGGER);
 		} catch (final Exception e) {
+		  LOGGER.severe(e.getMessage());
 			e.printStackTrace();
 		}
+		
+    Logging.closeLogger(LOGGER);
 	}
 
 	/**

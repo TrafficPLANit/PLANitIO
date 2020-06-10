@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConstants;
 
@@ -67,6 +68,10 @@ import org.planit.utils.test.TestOutputDto;
  *
  */
 public class PlanItIOTestHelper {
+  
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(PlanItIOTestHelper.class.getCanonicalName());
+
 
   private static final double epsilon = 0.00001;
 
@@ -77,6 +82,7 @@ public class PlanItIOTestHelper {
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
     } catch (final PlanItException e) {
+      LOGGER.severe(e.getMessage());
       e.printStackTrace();
     }
   };
@@ -233,8 +239,8 @@ public class PlanItIOTestHelper {
           final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
               timePeriod, iteration, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
           return new Pair<Integer, Integer>(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
-          } catch (PlanItException pe) {
-            return pe;
+          } catch (PlanItException e) {
+            return e;
           }
         },
         (positionKeys, innerObj, keys) -> {
@@ -274,8 +280,8 @@ public class PlanItIOTestHelper {
             final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod,
                 iteration, OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
           return new Pair<Integer, Integer>(linkSegmentIdPosition, 0);
-          } catch (PlanItException pe) {
-            return pe;
+          } catch (PlanItException e) {
+            return e;
           }
         },
         (positionKeys, innerObj, keys) -> {

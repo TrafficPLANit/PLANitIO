@@ -153,7 +153,6 @@ public class ProcessInfrastructure {
       if (duplicateLinkSegmentExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate link segment external id " + linkSegment.getExternalId()
             + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
     }
@@ -184,7 +183,6 @@ public class ProcessInfrastructure {
       if (duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate node external id " + generatedNode.getId().longValue()
             + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
     }
@@ -226,7 +224,6 @@ public class ProcessInfrastructure {
         if (generatedLinkSegment.getTyperef() == null) {
           if (linkSegmentTypeHelperMap.keySet().size() > 1) {
             String errorMessage = "Link Segment " + linkSegmentExternalId + " has no link segment defined, but there is more than one possible link segment type";
-            LOGGER.severe(errorMessage);
             throw new PlanItException(errorMessage);
           }
           for (long linkSegmentTypeExternalId : linkSegmentTypeHelperMap.keySet()) {
@@ -248,7 +245,6 @@ public class ProcessInfrastructure {
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
             String errorMessage =  "Both link segments for the same link are in the same direction.  Link segment external Id is " + linkSegmentExternalId;
-            LOGGER.severe(errorMessage);
             throw new PlanItException(errorMessage);
           }
         }

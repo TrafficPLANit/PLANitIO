@@ -197,7 +197,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			}
 
 		} catch (Exception e) {
-			throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when setting version and description in PLANitIO OutputFormatter",e);
 		}
 	}
 
@@ -227,7 +228,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			metadata.get((SubOutputTypeEnum) currentOutputType).getSimulation().getIteration().add(iteration);
 		} else {
 			String errorMessage = "invalid output type provided when updating metadata simulation output for current iteration";
-			LOGGER.severe(errorMessage);
 			throw new PlanItException(errorMessage);
 		}
 
@@ -304,7 +304,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 				purgeDirectory(outputDirectory);
 			}
 		} catch (Exception e) {
-			throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when creating output directory in PLANitIO OutputFormatter",e);
 		}
 	}
 
@@ -335,7 +336,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			SortedSet<BaseOutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
 			metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
 		} catch (Exception e) {
-			throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when initialising meta data object in PLANitIO OutputFormatter",e);
 		}
 	}
 
@@ -393,7 +395,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 			}
 			csvIterationPrinter.close();
 		} catch (Exception e) {
-		  throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when createing CSV file name and file in PLANitIO OutputFormatter",e);
 		}
 
 		return csvFileName;
@@ -447,10 +450,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 				xmlFileNameMap.put(outputType, generateOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension,
 						timePeriod, outputType, runId));
 			}
-		} catch (PlanItException pe) {
-			throw pe;
+		} catch (PlanItException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when writing results for current time period in PLANitIO OutputFormatter",e);
 		}
 	}
 	
@@ -648,12 +652,10 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 		this.runId = runId;
 		if (xmlDirectory == null) {
 			String errorMessage = "No common output directory or XML output directory has been defined in the code.";
-			LOGGER.severe(errorMessage);
 			throw new PlanItException(errorMessage);
 		}
 		if (csvDirectory == null) {
 			String errorMessage = "No common output directory or CSV output directory has been defined in the code.";
-			LOGGER.severe(errorMessage);
 			throw new PlanItException(errorMessage);
 		}
 
@@ -688,7 +690,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 	            }		        
 		    }
 		} catch (Exception e) {
-			throw new PlanItException(e);
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when finalising after simulation in PLANitIO OutputFormatter",e);
 		}
 	}
 

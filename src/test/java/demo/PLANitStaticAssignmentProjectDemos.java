@@ -49,7 +49,7 @@ public class PLANitStaticAssignmentProjectDemos {
 
           project.executeAllTrafficAssignments();
         } catch (final Exception e) {
-          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+          LOGGER.severe(e.getMessage());
         }
     }
 
@@ -126,7 +126,7 @@ public class PLANitStaticAssignmentProjectDemos {
             // EXECUTE ASSIGNMENTS
             project.executeAllTrafficAssignments();
         } catch (final Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.severe(e.getMessage());
         }
     }
 }

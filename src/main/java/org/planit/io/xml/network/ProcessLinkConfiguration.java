@@ -40,7 +40,6 @@ public class ProcessLinkConfiguration {
       long externalModeId = generatedMode.getId().longValue();
       if (externalModeId == 0) {
         String errorMessage = "Found a Mode value of 0 in the modes definition file, this is prohibited";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       String name = generatedMode.getName();
@@ -49,7 +48,6 @@ public class ProcessLinkConfiguration {
       final boolean duplicateModeExternalId = inputBuilderListener.addModeToExternalIdMap(mode.getExternalId(), mode);
       if (duplicateModeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate mode external id " + mode.getExternalId() + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
     }
@@ -74,12 +72,11 @@ public class ProcessLinkConfiguration {
       long externalId = linkSegmentTypeGenerated.getId().longValue();
       if (macroscopicLinkSegmentTypeXmlHelperMap.containsKey(externalId) && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate link segment type external id " + externalId + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       String name = linkSegmentTypeGenerated.getName();
       double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : linkSegmentTypeGenerated.getCapacitylane();
-      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? LinkSegment.MAX_DENSITY  : linkSegmentTypeGenerated.getMaxdensitylane();      
+      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : linkSegmentTypeGenerated.getMaxdensitylane();      
       for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
         int modeExternalId = mode.getRef().intValue();
         double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED : mode.getMaxspeed();

@@ -46,7 +46,7 @@ public class PLANitDynamicAssignmentProjectDemos {
 
             project.executeAllTrafficAssignments();
         } catch (final Exception e) {
-          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+          LOGGER.severe(e.getMessage());
         }
     }
 
@@ -108,7 +108,7 @@ public class PLANitDynamicAssignmentProjectDemos {
 
             project.executeAllTrafficAssignments();
         } catch (final Exception e) {
-          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+          LOGGER.severe(e.getMessage());
         }
     }
 }
