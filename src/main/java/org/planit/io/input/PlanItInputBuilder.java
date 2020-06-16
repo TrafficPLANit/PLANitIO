@@ -108,8 +108,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private static final float DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0f;
   
-  //private static final float DEFAULT_MAXIMUM_DENSITY_PER_LANE = 180.0f;
-
   /**
    * Default XSD files used to validate input XML files against
    */
