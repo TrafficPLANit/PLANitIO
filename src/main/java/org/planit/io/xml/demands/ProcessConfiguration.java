@@ -183,7 +183,6 @@ public class ProcessConfiguration {
    * @param demandconfiguration generated XMLElementDemandConfiguration object from
    *          demand XML input
    * @param inputBuilderListener parser to be updated
-   * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
    * @throws PlanItException thrown if a duplicate external Id is found, or if there is an
    */
   private static void generateTimePeriodMap(
@@ -242,7 +241,6 @@ public class ProcessConfiguration {
    *          containing the data from the XML input file
    * @param physicalNetwork the physical network
    * @param inputBuilderListener parser to be updated
-   * @return Map of TimePeriod objects, using the id of the TimePeriod as its key
    * @throws PlanItException thrown if there is a duplicate external Id found for any component
    */
   public static void generateAndStoreConfigurationData(

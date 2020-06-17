@@ -726,7 +726,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Whenever a project component is created this method will be invoked
    *
    * @param event event containing the created (and empty) project component
-   * @throws PlanItException thrown if there is an error
+   * @throws RemoteException thrown if there is an error
    */
   @Override
   public void notify(final EventInterface event) throws RemoteException {

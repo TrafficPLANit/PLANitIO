@@ -111,7 +111,7 @@ public class ProcessInfrastructure {
    * @param noLanes the number of lanes in this link
    * @param externalId the external Id of this link segment
    * @param modeProperties properties of the link segment type for each mode
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error
    */
   private static void createAndRegisterLinkSegment(Float maxSpeed, MacroscopicNetwork network, Link link,
@@ -163,7 +163,7 @@ public class ProcessInfrastructure {
    * 
    * @param infrastructure Infrastructure object populated with data from XML file
    * @param network network the physical network object to be populated from the input data
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
   public static void createAndRegisterNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network,
@@ -194,7 +194,7 @@ public class ProcessInfrastructure {
    * @param infrastructure Infrastructure object populated with data from XML file
    * @param network network the physical network object to be populated from the input data
    * @param linkSegmentTypeHelperMap Map of MacroscopicLinkSegmentTypeXmlHelper objects
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error during processing or reference to link segment types invalid
    */
   public static void createAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,

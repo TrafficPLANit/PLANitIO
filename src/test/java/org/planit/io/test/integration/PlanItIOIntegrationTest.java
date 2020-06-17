@@ -327,7 +327,7 @@ public class PlanItIOIntegrationTest {
   }
   
   /**
-   * <userclass> but no <travellertype> included in input file.
+   * we have <userclass> but no <travellertype> included in input file.
    */
   @Test
   public void test_explanatory_traveller_type_ref_missing_from_user_class() {

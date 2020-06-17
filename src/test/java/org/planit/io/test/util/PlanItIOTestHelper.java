@@ -94,7 +94,7 @@ public class PlanItIOTestHelper {
    * 
    * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
    *          results from a test run
-   * @param iteration the current iteration index
+   * @param iterationIndex the current iteration index
    * @param resultsMap Map containing the standard results for each time period and mode
    * @param getPositionKeys lambda function which generates the position of the key(s) in the key array
    * @param getResultDto lambda function which generates the known result for each iteration
@@ -111,14 +111,7 @@ public class PlanItIOTestHelper {
     for (final TimePeriod timePeriod : resultsMap.keySet()) {
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
         Object innerMap = resultsMap.get(timePeriod).get(mode);
-/*
-        final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.FLOW);
-        final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.LINK_COST);
-        final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.LENGTH);
-        final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.CALCULATED_SPEED);
-        final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.CAPACITY_PER_LANE);
-        final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,iteration, OutputType.LINK, OutputProperty.NUMBER_OF_LANES);
-*/
+
         final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.FLOW);
         final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LINK_COST);
         final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LENGTH);
