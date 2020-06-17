@@ -1,9 +1,0 @@
-Destination Zone External Id,Mode External Id,Origin Zone External Id,Run Id,Time Period External Id,Path
-31,1,31,0,0,
-27,1,31,0,0,"[11,1,4,12]"
-31,1,27,0,0,
-27,1,27,0,0,
-31,2,31,0,0,
-27,2,31,0,0,"[11,1,2,4,12]"
-31,2,27,0,0,
-27,2,27,0,0,

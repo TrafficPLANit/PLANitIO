@@ -11,12 +11,12 @@
 			</userclasses>
 			<timeperiods>
 				<timeperiod id="0">
-					<name>Time Period 1</name>
+					<name>Time_Period_1</name>
 					<starttime>00:00:01</starttime>
 					<duration>43200</duration>
 				</timeperiod>
 				<timeperiod id="0">                                <!--  DUPLICATE TIME PERIOD  -->
-					<name>Time Period 2</name>
+					<name>Time_Period_2</name>
 					<starttime>12:00:01</starttime>
 					<duration>43200</duration>
 				</timeperiod>

@@ -1,6 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.planit.all</groupId>
+    <artifactId>PLANitAll</artifactId>
+    <version>0.0.4a7</version>
+  </parent>	
+		
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.planit.io</groupId>
@@ -10,62 +16,56 @@
 	<packaging>jar</packaging>
 
 	<name>PLANitIO</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.sydney.edu.au/planit/planitio</url>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.11</maven.compiler.source>
-		<maven.compiler.target>1.11</maven.compiler.target>
 		<!-- TODO: A new release of the maven-jaxb2-plugin, 0.14.1, is expected 
-			soon. Upgrade to the new release when it becomes available
-			
-			Why: because we now have to manually override the jaxb versoin used to 2.3.1. to avoid illegal
-			reflective access warnings (see dependencies for javax.xml.bind and  org.glassfish.jaxb)
-			
-			When upgraded remove these dependencies since they should no longer be needed
-		-->
+			soon. Upgrade to the new release when it becomes available Why: because we 
+			now have to manually override the jaxb versoin used to 2.3.1. to avoid illegal 
+			reflective access warnings (see dependencies for javax.xml.bind and org.glassfish.jaxb) 
+			When upgraded remove these dependencies since they should no longer be needed -->
 		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
-		<project.build.directory>target</project.build.directory>
-		<planit.version>0.0.4a7</planit.version>
-		<planitltm.version>0.0.4a7</planitltm.version>
-		<!-- Change the property below to match the path of your PLANitPy2J rsc 
-			directory -->
-		<py2j.resource.directory>..\PLANitPy2J\share\planit</py2j.resource.directory>
 	</properties>
 
 	<dependencies>
+	
+	   <!-- version inherited from parent -->
+     <dependency>
+       <groupId>org.planit.utils</groupId>
+       <artifactId>PLANitUtils</artifactId>
+     </dependency>
 
-		<dependency>
-			<groupId>org.planit</groupId>
-			<artifactId>PLANit</artifactId>
-			<version>${planit.version}</version>
-		</dependency>
+     <!-- version inherited from parent -->
+     <dependency>
+       <groupId>org.planit</groupId>
+       <artifactId>PLANit</artifactId>
+     </dependency>
 
-		<dependency>
-			<groupId>org.planit.ltm</groupId>
-			<artifactId>PLANitLTM</artifactId>
-			<version>${planitltm.version}</version>
-		</dependency>
- 
+     <!-- version inherited from parent -->
+     <dependency>
+       <groupId>org.planit.ltm</groupId>
+       <artifactId>PLANitLTM</artifactId>
+     </dependency>
+
 		<dependency>
 			<groupId>org.jvnet.jaxb2.maven2</groupId>
 			<artifactId>maven-jaxb2-plugin</artifactId>
 			<version>${maven.jaxb2.plugin.version}</version>
 		</dependency>
-		
+
 		<!-- TODO: remove once we upgraded to 0.14.1 for jaxb2 plugin -->
 		<dependency>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jaxb-api</artifactId>
-		    <version>2.3.1</version>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
 		</dependency>
-		
+
 		<!-- TODO: remove once we upgraded to 0.14.1 for jaxb2 plugin -->
 		<dependency>
-		    <groupId>org.glassfish.jaxb</groupId>
-		    <artifactId>jaxb-runtime</artifactId>
-		    <version>2.3.1</version>
-		</dependency>		
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>2.3.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -73,48 +73,10 @@
 			<version>2.6</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-jar-plugin</artifactId>
-			<version>3.1.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-resources-plugin</artifactId>
-			<version>3.1.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-shade-plugin</artifactId>
-					<version>3.2.1</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<release>11</release>
-				</configuration>
-			</plugin>
-
+    <plugins>
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
 				<artifactId>maven-jaxb2-plugin</artifactId>
@@ -126,6 +88,7 @@
 					<schemaDirectory>src/main/resources/xsd</schemaDirectory>
 					<bindingDirectory>src/main/resources/xjb</bindingDirectory>
 					<generateDirectory>src/main/java</generateDirectory>
+					<no-header>true</no-header>
 				</configuration>
 				<executions>
 					<execution>
@@ -133,29 +96,6 @@
 						<goals>
 							<goal>generate</goal>
 						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>resources</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -183,6 +123,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -194,40 +135,10 @@
 							<Class-Path>.</Class-Path>
 						</manifestEntries>
 					</archive>
-					<outputDirectory>${py2j.resource.directory}</outputDirectory>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>org.planit.io.PlanItMain</mainClass>
-								</transformer>
-							</transformers>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net repository</name>
-			<url>http://download.java.net/maven/2</url>
-		</repository>
-	</repositories>
 </project>

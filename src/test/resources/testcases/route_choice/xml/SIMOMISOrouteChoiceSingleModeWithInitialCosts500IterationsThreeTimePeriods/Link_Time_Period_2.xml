@@ -1,0 +1,103 @@
+<?xml version="1.0" ?>
+<metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/metadata.xsd">
+	<timestamp>2020-01-24T12:11:54.360+11:00</timestamp>
+	<version>0.0.3-beta</version>
+	<description>PlanIt common code for traffic assignment</description>
+	<outputconfiguration>
+		<assignment>TraditionalStaticAssignment</assignment>
+		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
+		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
+		<timeperiod>
+			<id>1</id>
+			<name>Time_Period_2</name>
+		</timeperiod>
+	</outputconfiguration>
+	<simulation>
+		<iteration>
+			<nr>500</nr>
+			<csvdata type="Link">.\Link_RunId_0_test2initialCosts500IterationsThreeTimePeriods_Time_Period_2_500.csv</csvdata>
+		</iteration>
+	</simulation>
+	<columns>
+		<column>
+			<name>Downstream Node External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Downstream Node Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Link Segment External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Link Segment Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Mode External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Mode Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Upstream Node External Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Upstream Node Id</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Capacity per Lane</name>
+			<units>veh/h</units>
+			<type>double</type>
+		</column>
+		<column>
+			<name>Downstream Node Location</name>
+			<units>srs</units>
+			<type>srsname</type>
+		</column>
+		<column>
+			<name>Length</name>
+			<units>km</units>
+			<type>double</type>
+		</column>
+		<column>
+			<name>Number of Lanes</name>
+			<units>none</units>
+			<type>integer</type>
+		</column>
+		<column>
+			<name>Upstream Node Location</name>
+			<units>srs</units>
+			<type>srsname</type>
+		</column>
+		<column>
+			<name>Calculated Speed</name>
+			<units>km/h</units>
+			<type>double</type>
+		</column>
+		<column>
+			<name>Cost</name>
+			<units>h</units>
+			<type>double</type>
+		</column>
+		<column>
+			<name>Flow</name>
+			<units>veh/h</units>
+			<type>double</type>
+		</column>
+	</columns>
+</metadata>

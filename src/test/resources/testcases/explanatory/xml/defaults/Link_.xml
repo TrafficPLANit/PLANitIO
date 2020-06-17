@@ -16,7 +16,7 @@
 	<simulation>
 		<iteration>
 			<nr>2</nr>
-			<csvdata type="Link">src\test\resources\testcases\explanatory\xml\defaults\Link_RunId 0_explanatory__2.csv</csvdata>
+			<csvdata type="Link">.\Link_RunId_0_explanatory__2.csv</csvdata>
 		</iteration>
 	</simulation>
 	<columns>
@@ -93,11 +93,6 @@
 		<column>
 			<name>Cost</name>
 			<units>h</units>
-			<type>double</type>
-		</column>
-		<column>
-			<name>Density</name>
-			<units>veh/km</units>
 			<type>double</type>
 		</column>
 		<column>

@@ -1,6 +1,5 @@
 package org.planit.io.xml.network;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,16 +107,16 @@ public class ProcessInfrastructure {
    * @param network the physical network object
    * @param link the link from which the link segment will be created
    * @param abDirection direction of travel
-   * @param linkSegmentType object storing the input values for this link
+   * @param linkSegmentTypeHelper object storing the input values for this link
    * @param noLanes the number of lanes in this link
    * @param externalId the external Id of this link segment
    * @param modeProperties properties of the link segment type for each mode
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error
    */
   private static void createAndRegisterLinkSegment(Float maxSpeed, MacroscopicNetwork network, Link link,
       boolean abDirection,
-      MacroscopicLinkSegmentTypeXmlHelper linkSegmentType,
+      MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeHelper,
       int noLanes, long externalId,
       Map<Mode, MacroscopicModeProperties> modeProperties,
       InputBuilderListener inputBuilderListener) throws PlanItException {
@@ -128,19 +127,19 @@ public class ProcessInfrastructure {
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
     Map<Mode, Double> linkSegmentSpeedMap = new HashMap<Mode, Double>();
-    for (Mode mode : linkSegmentType.getSpeedMap().keySet()) {
-      linkSegmentSpeedMap.put(mode, Math.min(maxSpeedDouble, linkSegmentType.getSpeedMap().get(mode)));
+    for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
+      linkSegmentSpeedMap.put(mode, Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode)));
     }
 
     linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
     MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
-        linkSegmentType.getExternalId());
+        linkSegmentTypeHelper.getExternalId());
     if (existingLinkSegmentType == null) {
       MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
-          .createAndRegisterNewMacroscopicLinkSegmentType(linkSegmentType.getName(), linkSegmentType.getCapacityPerLane(),
-              linkSegmentType.getMaximumDensityPerLane(), linkSegmentType.getExternalId(), modeProperties);
+          .createAndRegisterNewMacroscopicLinkSegmentType(linkSegmentTypeHelper.getName(), linkSegmentTypeHelper.getCapacityPerLane(),
+              linkSegmentTypeHelper.getMaximumDensityPerLane(), linkSegmentTypeHelper.getExternalId(), modeProperties);
       inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(),
           macroscopicLinkSegmentType);
       linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
@@ -154,7 +153,6 @@ public class ProcessInfrastructure {
       if (duplicateLinkSegmentExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate link segment external id " + linkSegment.getExternalId()
             + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
     }
@@ -165,7 +163,7 @@ public class ProcessInfrastructure {
    * 
    * @param infrastructure Infrastructure object populated with data from XML file
    * @param network network the physical network object to be populated from the input data
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
   public static void createAndRegisterNodes(XMLElementInfrastructure infrastructure, MacroscopicNetwork network,
@@ -185,7 +183,6 @@ public class ProcessInfrastructure {
       if (duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate node external id " + generatedNode.getId().longValue()
             + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
     }
@@ -197,16 +194,13 @@ public class ProcessInfrastructure {
    * @param infrastructure Infrastructure object populated with data from XML file
    * @param network network the physical network object to be populated from the input data
    * @param linkSegmentTypeHelperMap Map of MacroscopicLinkSegmentTypeXmlHelper objects
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
-   * @param defaultLinkSegmentTypeRef default value for link segment type reference if this has not
-   *          been defined in the input file
-   * @throws PlanItException thrown if there is an error during processing
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
+   * @throws PlanItException thrown if there is an error during processing or reference to link segment types invalid
    */
   public static void createAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
       MacroscopicNetwork network,
       Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap,
-      InputBuilderListener inputBuilderListener,
-      long defaultLinkSegmentTypeRef) throws PlanItException {
+      InputBuilderListener inputBuilderListener) throws PlanItException {
 
     for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
       Node startNode = inputBuilderListener.getNodeByExternalId(generatedLink.getNodearef().longValue());
@@ -223,16 +217,23 @@ public class ProcessInfrastructure {
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
       for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
+        long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
         int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES
             : generatedLinkSegment.getNumberoflanes().intValue();
+        long linkType = 0;
         if (generatedLinkSegment.getTyperef() == null) {
-          generatedLinkSegment.setTyperef(BigInteger.valueOf(defaultLinkSegmentTypeRef));
+          if (linkSegmentTypeHelperMap.keySet().size() > 1) {
+            String errorMessage = "Link Segment " + linkSegmentExternalId + " has no link segment defined, but there is more than one possible link segment type";
+            throw new PlanItException(errorMessage);
+          }
+          for (long linkSegmentTypeExternalId : linkSegmentTypeHelperMap.keySet()) {
+            linkType = linkSegmentTypeExternalId;
+          }
+        } else {
+          linkType = generatedLinkSegment.getTyperef().longValue();
         }
-        long linkType = generatedLinkSegment.getTyperef().longValue();
-        long linkSegmentExternalId = generatedLinkSegment.getId().longValue();
         Float maxSpeed = generatedLinkSegment.getMaxspeed();
-        MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(
-            linkType);
+        MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);
         // TODO - We should be able to set the maximum speed for individual link
         // segments in the network XML file. This is where we would update it. However
         // we would then need to set it for
@@ -243,9 +244,8 @@ public class ProcessInfrastructure {
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
-            throw new PlanItException(
-                "Both link segments for the same link are in the same direction.  Link segment external Id is "
-                    + linkSegmentExternalId);
+            String errorMessage =  "Both link segments for the same link are in the same direction.  Link segment external Id is " + linkSegmentExternalId;
+            throw new PlanItException(errorMessage);
           }
         }
         createAndRegisterLinkSegment(maxSpeed, network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes,

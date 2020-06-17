@@ -11,6 +11,7 @@ import org.planit.generated.XMLElementModes;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.network.physical.PhysicalNetwork;
+import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
@@ -31,7 +32,7 @@ public class ProcessLinkConfiguration {
    * 
    * @param physicalNetwork
    * @param linkconfiguration LinkConfiguration object populated with data from XML file
-   * @param inputBuilderListeners parser which holds the Map of nodes by external Id
+   * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
    */
   public static void createAndRegisterModes(PhysicalNetwork physicalNetwork, XMLElementLinkConfiguration linkconfiguration, InputBuilderListener inputBuilderListener) throws PlanItException {
@@ -39,7 +40,6 @@ public class ProcessLinkConfiguration {
       long externalModeId = generatedMode.getId().longValue();
       if (externalModeId == 0) {
         String errorMessage = "Found a Mode value of 0 in the modes definition file, this is prohibited";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       String name = generatedMode.getName();
@@ -48,7 +48,6 @@ public class ProcessLinkConfiguration {
       final boolean duplicateModeExternalId = inputBuilderListener.addModeToExternalIdMap(mode.getExternalId(), mode);
       if (duplicateModeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate mode external id " + mode.getExternalId() + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
     }
@@ -59,7 +58,7 @@ public class ProcessLinkConfiguration {
    * 
    * @param linkconfiguration LinkConfiguration object populated with data from XML file
    * @param inputBuilderListener parser which holds the Map of nodes by external Id
-   * @return Map containing link type values
+   * @return Map containing link type values identified by their external Ids
    * @throws PlanItException thrown if there is an error reading the input file
    */
   public static Map<Long, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeHelperMap(
@@ -73,12 +72,11 @@ public class ProcessLinkConfiguration {
       long externalId = linkSegmentTypeGenerated.getId().longValue();
       if (macroscopicLinkSegmentTypeXmlHelperMap.containsKey(externalId) && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "Duplicate link segment type external id " + externalId + " found in network file.";
-        LOGGER.severe(errorMessage);
         throw new PlanItException(errorMessage);
       }
       String name = linkSegmentTypeGenerated.getName();
       double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : linkSegmentTypeGenerated.getCapacitylane();
-      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_MAXIMUM_DENSITY_LANE  : linkSegmentTypeGenerated.getMaxdensitylane();
+      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : linkSegmentTypeGenerated.getMaxdensitylane();      
       for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
         int modeExternalId = mode.getRef().intValue();
         double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED : mode.getMaxspeed();

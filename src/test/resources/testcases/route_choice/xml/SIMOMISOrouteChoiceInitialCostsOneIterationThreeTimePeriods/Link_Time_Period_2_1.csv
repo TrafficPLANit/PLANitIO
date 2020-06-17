@@ -1,0 +1,4 @@
+Downstream Node External Id,Downstream Node Id,Link Segment External Id,Link Segment Id,Mode External Id,Mode Id,Upstream Node External Id,Upstream Node Id,Capacity per Lane,Downstream Node Location,Length,Number of Lanes,Upstream Node Location,Calculated Speed,Cost,Flow
+1,0,1,0,1,0,11,4,1200.0000000,Not Specified,1.0000000,3,Not Specified,40.0000000,0.0250000,3600.0000000
+4,3,2,1,1,0,1,0,1200.0000000,Not Specified,1.0000000,1,Not Specified,1.4457831,0.6916667,3600.0000000
+12,5,3,2,1,0,4,3,1200.0000000,Not Specified,1.0000000,3,Not Specified,40.0000000,0.0250000,3600.0000000

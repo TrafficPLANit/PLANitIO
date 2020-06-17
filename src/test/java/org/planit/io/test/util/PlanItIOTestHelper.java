@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConstants;
 
@@ -67,6 +68,10 @@ import org.planit.utils.test.TestOutputDto;
  *
  */
 public class PlanItIOTestHelper {
+  
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(PlanItIOTestHelper.class.getCanonicalName());
+
 
   private static final double epsilon = 0.00001;
 
@@ -77,6 +82,7 @@ public class PlanItIOTestHelper {
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
     } catch (final PlanItException e) {
+      LOGGER.severe(e.getMessage());
       e.printStackTrace();
     }
   };
@@ -88,7 +94,7 @@ public class PlanItIOTestHelper {
    * 
    * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
    *          results from a test run
-   * @param iteration the current iteration index
+   * @param iterationIndex the current iteration index
    * @param resultsMap Map containing the standard results for each time period and mode
    * @param getPositionKeys lambda function which generates the position of the key(s) in the key array
    * @param getResultDto lambda function which generates the known result for each iteration
@@ -105,18 +111,13 @@ public class PlanItIOTestHelper {
     for (final TimePeriod timePeriod : resultsMap.keySet()) {
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
         Object innerMap = resultsMap.get(timePeriod).get(mode);
-        final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
-            iteration, OutputType.LINK, OutputProperty.FLOW);
-        final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
-            iteration, OutputType.LINK, OutputProperty.LINK_COST);
-        final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
-            iteration, OutputType.LINK, OutputProperty.LENGTH);
-        final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
-            iteration, OutputType.LINK, OutputProperty.CALCULATED_SPEED);
-        final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
-            iteration, OutputType.LINK, OutputProperty.CAPACITY_PER_LANE);
-        final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod,
-            iteration, OutputType.LINK, OutputProperty.NUMBER_OF_LANES);
+
+        final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.FLOW);
+        final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LINK_COST);
+        final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LENGTH);
+        final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.CALCULATED_SPEED);
+        final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.CAPACITY_PER_LANE);
+        final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.NUMBER_OF_LANES);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod,
             iteration, OutputType.LINK);
         Object obj = getPositionKeys.apply(mode, timePeriod, iteration);
@@ -177,10 +178,15 @@ public class PlanItIOTestHelper {
       Map<Mode, Map<Long, Map<Long, ?>>> mapPerTimePeriod = (Map<Mode, Map<Long, Map<Long, ?>>>) map.get(timePeriod);
       for (Mode mode : mapPerTimePeriod.keySet()) {
         Map<Long, Map<Long, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
+/*
         final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, outputType, outputProperty);
         final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, outputType, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
         final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, outputType, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
-        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, outputType);
+*/
+        final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty);
+        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
+        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
+        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, outputType);       
         while (memoryOutputIterator.hasNext()) {
           memoryOutputIterator.next();
           final Object[] keys = memoryOutputIterator.getKeys();
@@ -228,13 +234,13 @@ public class PlanItIOTestHelper {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-          final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
-              timePeriod, iteration, OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
-          final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode,
-              timePeriod, iteration, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+          //final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+          //final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+          final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+          final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
           return new Pair<Integer, Integer>(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
-          } catch (PlanItException pe) {
-            return pe;
+          } catch (PlanItException e) {
+            return e;
           }
         },
         (positionKeys, innerObj, keys) -> {
@@ -271,11 +277,11 @@ public class PlanItIOTestHelper {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-            final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod,
-                iteration, OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
-          return new Pair<Integer, Integer>(linkSegmentIdPosition, 0);
-          } catch (PlanItException pe) {
-            return pe;
+            //final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
+            final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
+         return new Pair<Integer, Integer>(linkSegmentIdPosition, 0);
+          } catch (PlanItException e) {
+            return e;
           }
         },
         (positionKeys, innerObj, keys) -> {
@@ -719,7 +725,6 @@ public class PlanItIOTestHelper {
       }
     }
     linkOutputTypeConfiguration.removeAllProperties();
-    linkOutputTypeConfiguration.addProperty(OutputProperty.DENSITY);
     linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);

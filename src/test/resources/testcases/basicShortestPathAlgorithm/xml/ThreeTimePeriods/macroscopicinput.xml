@@ -424,17 +424,17 @@
 			</userclasses>
 			<timeperiods>
 				<timeperiod id="0">
-					<name>Time Period 1</name>
+					<name>Time_Period_1</name>
 					<starttime>00:00:01</starttime>
 					<duration>28800</duration>
 				</timeperiod>
 				<timeperiod id="1">
-					<name>Time Period 2</name>
+					<name>Time_Period_2</name>
 					<starttime>08:00:01</starttime>
 					<duration>28800</duration>
 				</timeperiod>
 				<timeperiod id="2">
-					<name>Time Period 3</name>
+					<name>Time_Period_3</name>
 					<starttime>16:00:01</starttime>
 					<duration>28800</duration>
 				</timeperiod>

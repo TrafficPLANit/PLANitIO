@@ -10,7 +10,7 @@
 			</userclasses>
 			<timeperiods>
 				<timeperiod id="0">
-					<name>Time Period 1</name>
+					<name>Time_Period_1</name>
 					<starttime>00:00:01</starttime>
 					<duration>86400</duration>
 				</timeperiod>

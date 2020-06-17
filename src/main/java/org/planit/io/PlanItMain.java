@@ -1,6 +1,5 @@
 package org.planit.io;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -36,26 +35,26 @@ public class PlanItMain {
 	private static Logger LOGGER = null;
 
 	private final String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\test3";
-	private final int maxIterations = 500;
-	private final double epsilon = 0.00;
+	private final int maxIterations  = 500;
+	private final double epsilon     = 0.00;
 
 	/**
 	 * Main method for the PLANitIO program. Only used to start the program
 	 *
 	 * @param args main method args
-	 * @throws IOException
-	 * @throws SecurityException
 	 */
-	public static void main(final String[] args) throws SecurityException, IOException {
+	public static void main(final String[] args) {
 
 		try {
 			LOGGER = Logging.createLogger(PlanItMain.class);
 			final PlanItMain planItMain = new PlanItMain();
 			planItMain.execute();
-			Logging.closeLogger(LOGGER);
 		} catch (final Exception e) {
+		  LOGGER.severe(e.getMessage());
 			e.printStackTrace();
-		}
+    } finally {
+      Logging.closeLogger(LOGGER);
+    }
 	}
 
 	/**
