@@ -1,0 +1,93 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
+	<macroscopicdemand>
+		<demandconfiguration>
+			<userclasses>
+				<userclass id="1" moderef="1">
+					<name>1</name>
+				</userclass>
+			</userclasses>
+			<timeperiods>
+				<timeperiod id="0">
+					<name>Time_Period_1</name>
+					<starttime>00:00:01</starttime>
+					<duration>86400</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0"	userclassref="1">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
+	<macroscopicnetwork>
+		<linkconfiguration>                                                                        <!-- optional, if absent assume a single link segment type for the entire simulation and a simple Cartesian coordinate system with top-left (0,0) -->
+			<modes>                                                                                     <!-- optional, if absent a single 'virtual' mode is created to represent all modes -->
+				<mode id="1">																        <!-- mandatory, for referencing -->
+					<name>Basic</name>														<!-- optional -->
+					<pcu>1</pcu>															            <!-- optional, default available -->
+				</mode>
+			</modes>
+			<linksegmenttypes>                                                                    <!-- optional, if omitted all link segments are assumed to be of the same default 	link segment type -->
+				<linksegmenttype id="1">                                                       <!-- mandatory, for referencing -->
+					<name>Standard</name>													<!-- optional -->
+					<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+					<modes>                                                                             <!-- optional, if omitted all modes are assumed to be allowed based on their default properties (possibly dynamically capped by the physical link properties) -->
+						<mode ref="0">															    <!-- one or more required, when 0 it refers to all modes, if not all modes are included the missing ones are assumed to be banned from the link segment -->
+							<maxspeed>1</maxspeed>										<!-- optional, should be lower or equal than link max speed when present -->
+						</mode>
+					</modes>
+				</linksegmenttype>
+			</linksegmenttypes>
+		</linkconfiguration>
+		<infrastructure>
+			<nodes>
+				<node id="1" />
+				<node id="2" />
+			</nodes>
+			<links>
+				<link nodearef="1" nodebref="2">
+					<linksegment id="1" dir="a_b" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<linksegment id="2" dir="b_a" typeref="1">
+						<numberoflanes>1</numberoflanes>
+					</linksegment>
+					<length>10</length>
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<centroid>
+					<name>1</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="1">
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>2</name>
+					<gml:Point>									<!-- Mandatory Location of the centroid -->
+						<gml:pos>45.256 -110.45</gml:pos>
+					</gml:Point>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="2">
+					</connectoid>
+				</connectoids>
+			</zone>
+		</zones>
+	</macroscopiczoning>
+</PLANit>

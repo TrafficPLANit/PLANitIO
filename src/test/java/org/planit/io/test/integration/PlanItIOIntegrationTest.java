@@ -138,7 +138,7 @@ public class PlanItIOIntegrationTest {
       };
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -210,7 +210,72 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true);
+          .setupAndExecuteAssignment(projectPath, null, description, true, false);
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,
+          2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+          maxIterations, resultsMap);
+
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[1,2]");
+      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+ 
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
+          xmlFileName);
+    } catch (final Exception e) {
+      LOGGER.severe( e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+  
+  /**
+   * Tests that rows with zero output are included when testZeroOutput is set to true
+   */
+  @Test
+  public void test_explanatory_report_zero_outputs() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\reportZeroOutputs";
+      String description = "explanatory";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
+      Integer maxIterations = null;
+
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
+          .setupAndExecuteAssignment(projectPath, null, description, true, true);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -275,7 +340,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true);
+          .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -340,7 +405,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true);
+          .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -400,7 +465,7 @@ public class PlanItIOIntegrationTest {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypesButNoUserClasses";
       String description = "explanatory";
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
       fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
      } catch (final Exception e) {
       assertTrue(true);
@@ -416,7 +481,7 @@ public class PlanItIOIntegrationTest {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\notSpecifiedWhichTravellerTypeBeingUsed";
       String description = "explanatory";
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
       fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
      } catch (final Exception e) {
       assertTrue(true);
@@ -432,7 +497,7 @@ public class PlanItIOIntegrationTest {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\referenceToMissingTravellerType";
       String description = "explanatory";
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
       fail("Test should throw an exception due to reference to missing traveller type but it did not.");
      } catch (final Exception e) {
       assertTrue(true);
@@ -453,7 +518,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, false);
+          .setupAndExecuteAssignment(projectPath, null, description, false, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -518,7 +583,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, false);
+          .setupAndExecuteAssignment(projectPath, null, description, false, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -577,7 +642,7 @@ public class PlanItIOIntegrationTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\linkSegmentsInSameDirection";
       String description = "explanatory";
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
       fail("Exception for link segment in same direction was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -599,7 +664,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true);
+          .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -729,7 +794,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateLinkSegmentType";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate link segment type external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -746,7 +811,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateLinkSegment";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate link segment external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -763,7 +828,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateNode";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate node external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -780,7 +845,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateMode";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate mode external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -797,7 +862,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateZone";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate zone external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -814,7 +879,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateTimePeriod";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate time period external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -831,7 +896,7 @@ public class PlanItIOIntegrationTest {
       String description = "testDuplicateUserClass";
       Integer maxIterations = 1;
 
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate user class external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -935,7 +1000,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile\\initial_link_segment_costs_external_id.csv",
-          maxIterations, null, description, true);
+          maxIterations, null, description, true, false);
       fail(
           "RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
     } catch (Exception e) {
@@ -965,7 +1030,7 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv", maxIterations, null,
-          description, true);
+          description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
@@ -1001,7 +1066,7 @@ public class PlanItIOIntegrationTest {
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv",
           "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs1.csv", 0, maxIterations, null,
-          description, true);
+          description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
@@ -1038,7 +1103,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
@@ -1118,7 +1183,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
@@ -1198,7 +1263,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
@@ -1302,7 +1367,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = null;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
 
@@ -1580,7 +1645,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -1751,7 +1816,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -1838,7 +1903,7 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeInitialCostsOneIteration\\initial_link_segment_costs.csv",
-          null, 0, maxIterations, 0.0, null, description, true);
+          null, 0, maxIterations, 0.0, null, description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
@@ -1881,7 +1946,7 @@ public class PlanItIOIntegrationTest {
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceInitialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
-          0.0, null, description, true);
+          0.0, null, description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,
@@ -1926,7 +1991,7 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceInitialCostsOneIterationExternalIds\\initial_link_segment_costs.csv",
-          null, 0, maxIterations, 0.0, null, description, true);
+          null, 0, maxIterations, 0.0, null, description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
@@ -1958,7 +2023,7 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500Iterations\\initial_link_segment_costs.csv",
-          null, 0, maxIterations, 0.0, null, description, true);
+          null, 0, maxIterations, 0.0, null, description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
@@ -2000,7 +2065,7 @@ public class PlanItIOIntegrationTest {
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsThreeTimePeriods\\initial_link_segment_costs_time_period_3.csv");
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
-          0.0, null, description, true);
+          0.0, null, description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,
@@ -2045,7 +2110,7 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds\\initial_link_segment_costs.csv",
-          null, 0, maxIterations, 0.0, null, description, true);
+          null, 0, maxIterations, 0.0, null, description, true, false);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
@@ -2074,7 +2139,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -2164,7 +2229,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -2377,7 +2442,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -2752,7 +2817,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -2960,7 +3025,7 @@ public class PlanItIOIntegrationTest {
       Integer maxIterations = 500;
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -3175,7 +3240,7 @@ public class PlanItIOIntegrationTest {
       };
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true);
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
@@ -3321,7 +3386,7 @@ public class PlanItIOIntegrationTest {
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
           .setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, maxIterations, 0.0,
-              setCostParameters, description, true);
+              setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);

@@ -215,7 +215,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
         macroscopicdemand = planit.getMacroscopicdemand();
         return true;
       } catch (final Exception e) { 
-        LOGGER.severe(e.getMessage());
+        //An exception here may is not bug, it just means the current file is not an input file.
+        //There may be an input file later in the array of file names.
       }
     }
     return false;
