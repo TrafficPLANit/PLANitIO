@@ -115,7 +115,7 @@ public class PlanItIOIntegrationTest {
   }
   
   /**
-   * Test case which indicates the effects of changing BPR parameters when  flows are close to lane capacity.
+   * Test case which indicates the effects of changing BPR parameters when flows are close to lane capacity.
    */
   @Test
   public void test_mode_test() {
@@ -298,7 +298,7 @@ public class PlanItIOIntegrationTest {
       pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
       pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[1,2]");
       pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"[2,1]");
       pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
       
@@ -310,7 +310,7 @@ public class PlanItIOIntegrationTest {
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(10.0));
       odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
-      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(10.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  

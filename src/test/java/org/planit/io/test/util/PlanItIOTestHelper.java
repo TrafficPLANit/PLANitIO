@@ -178,11 +178,6 @@ public class PlanItIOTestHelper {
       Map<Mode, Map<Long, Map<Long, ?>>> mapPerTimePeriod = (Map<Mode, Map<Long, Map<Long, ?>>>) map.get(timePeriod);
       for (Mode mode : mapPerTimePeriod.keySet()) {
         Map<Long, Map<Long, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
-/*
-        final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(mode, timePeriod, iteration, outputType, outputProperty);
-        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, outputType, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
-        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, outputType, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
-*/
         final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty);
         final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
         final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
@@ -234,8 +229,6 @@ public class PlanItIOTestHelper {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-          //final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
-          //final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
           final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
           final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
           return new Pair<Integer, Integer>(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
@@ -277,7 +270,6 @@ public class PlanItIOTestHelper {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-            //final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(mode, timePeriod, iteration, OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
             final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
          return new Pair<Integer, Integer>(linkSegmentIdPosition, 0);
           } catch (PlanItException e) {
@@ -785,34 +777,6 @@ public class PlanItIOTestHelper {
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
    * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
-   * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
-   */
- /*
-  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
-      final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
-      final Integer maxIterations, final Double epsilon,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
-      final String description,
-      boolean useFixedConnectoidTravelTimeCost) throws Exception {
-      return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts, maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost, false);
-  }
- */
-
-  /**
-   * Run a test case and store the results in a MemoryOutputFormatter
-   *
-   * @param projectPath project directory containing the input files
-   * @param setOutputTypeConfigurationProperties lambda function to set output properties being used
-   * @param registerInitialCosts lambda function to register initial costs on the Traffic Assignment
-   *          Builder
-   * @param maxIterations the maximum number of iterations allowed in this test run
-   * @param epsilon measure of how close successive iterations must be to each other to accept
-   *          convergence
-   * @param setCostParameters lambda function which sets parameters of cost function
-   * @param description description used in temporary output file names
-   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @param recordZeroFlow if true, paths, OD costs and links with zero cost are included in the output
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
@@ -858,16 +822,16 @@ public class PlanItIOTestHelper {
     taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
     // DATA OUTPUT CONFIGURATION
-    final OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
+    OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
     // PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set
     // to true - outputs will not match test data otherwise
     outputConfiguration.setPersistOnlyFinalIteration(true);
+    outputConfiguration.setRecordZeroFlow(recordZeroFlow);
 
     // LINK OUTPUT CONFIGURATION
     final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
         (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
     setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
-    linkOutputTypeConfiguration.setRecordZeroFlow(recordZeroFlow);
 
     // OD OUTPUT CONFIGURATION
     final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
@@ -875,13 +839,11 @@ public class PlanItIOTestHelper {
     originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
-    originDestinationOutputTypeConfiguration.setRecordZeroFlow(recordZeroFlow);
 
     // PATH OUTPUT CONFIGURATION
     final PathOutputTypeConfiguration pathOutputTypeConfiguration = 
         (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
     pathOutputTypeConfiguration.setPathIdType(RouteIdType.NODE_EXTERNAL_ID);
-    pathOutputTypeConfiguration.setRecordZeroFlow(recordZeroFlow);
 
     // OUTPUT FORMAT CONFIGURATION
 
