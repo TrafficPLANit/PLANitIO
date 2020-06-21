@@ -826,7 +826,7 @@ public class PlanItIOTestHelper {
     // PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set
     // to true - outputs will not match test data otherwise
     outputConfiguration.setPersistOnlyFinalIteration(true);
-    outputConfiguration.setRecordZeroFlow(recordZeroFlow);
+    outputConfiguration.setPersistZeroFlow(recordZeroFlow);
 
     // LINK OUTPUT CONFIGURATION
     final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
