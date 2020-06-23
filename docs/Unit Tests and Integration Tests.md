@@ -1227,6 +1227,29 @@ and link costs:
 The network and results for this test are the same as those for 3.5.14.  The only difference is that links are identified by link id in both the CSV output file and MemoryOutputFormatter.
 This is the only one of the tests which identifies links by link id.  All other test cases use link external id.  The code should allow either.
 
+#### 3.5.16 5_SIMO_MISO_route_choice_two_modes_with_impossible_route
+
+***Purpose:*** 
+
+This test illustrates the outputs when an "impossible" set of inputs has been entered.
+
+***Description:***
+
+This test uses the same network as Test 3.5.14, but now all links except 1 and 3 forbid trucks.
+This means that it is impossible to construct proper route for trucks, since there is a demand from the origin to the destination but all routes in between have at least one link along which trucks are forbidden.
+
+The resulting link costs for trucks are reported as Infinity for a links except Link 3.  This reflects the fact that trucks cannot travel along these links.
+The OD cost from the origin to the destination for trucks is reported as Infinity, this means trucks cannot travel along this route.
+Routes for which there is no demand but are not trivial (from the destination to the origin in this case) are also reported as having Infinity OD cost.
+
+***Location:***
+
+`src\test\resources\testcases\route_choice\xml\SIMOMISOrouteChoiceTwoModesWithImpossibleRoute`
+
+***Notes:***
+
+At present the results stored in the MemoryOutputFormatter are not used in this test.
+
 ### 3.6 BPR Parameters Tests
 
 This test demonstrates the effects of significantly changing the BPR parameters for each link.
@@ -1248,6 +1271,16 @@ Link Segments 1 and 5 have BPR parameters alpha=0.8, beta=4.5 (this uses the set
 Link Segment 3 has BPR parameters alpha=1.0, beta=5.0 (this uses the setParameters() method for an individual link segment).
 Link Segments 2 and 4 have BPR parameters alpha=0.5, beta=4.0 (these uses PLANit's defaults).
 The demand is 2000 from the start of Link Segment 1 to the end of Link Segment 5.
+
+The resulting costs along each segment are:
+
+|Link Segment|Cost|
+|--|--|
+|1|19.10193|
+|2|4.5|
+|3|33|
+|4|4.5|
+|5|19.10193|
 
 ***Location:***
 
