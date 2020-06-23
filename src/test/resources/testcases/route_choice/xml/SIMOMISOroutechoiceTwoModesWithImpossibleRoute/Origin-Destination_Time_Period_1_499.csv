@@ -1,0 +1,9 @@
+Destination Zone External Id,Mode External Id,Origin Zone External Id,Cost
+31,1,31,0.0000000
+27,1,31,0.0946617
+31,1,27,Infinity
+27,1,27,0.0000000
+31,2,31,0.0000000
+27,2,31,Infinity
+31,2,27,Infinity
+27,2,27,0.0000000

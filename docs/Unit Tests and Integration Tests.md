@@ -399,6 +399,25 @@ Test case in which the time period external Id values do not match the internall
 This test case gives the same result as the explanatory_original test case. It just so happens that most of the test cases use an external Id value for time period which is the same as the internally generated id.
 In general these values are not the same and the input file should use the external Id.  In this test the external Id is deliberately different, to check that the external Id is the one being used.
 
+#### 3.1.11 explanatory_report_zero_outputs
+
+***Purpose***
+
+Tests and illustrates the output when the persistZeroFlow flag is set to true.
+
+***Description***
+
+- As “explanatory_original” above.
+- The only difference from the explanatory_original test case is that the persistZeroFlow input is set to true.
+
+***Location***
+
+`src\test\resources\testcases\explanatory\xml\reportZeroOutputs`
+
+***Notes***
+
+The output files now include rows for links and paths with zero flow along them.
+
 ### 3.2 Tests for Duplicate External Ids 
 
 ***Purpose:***
@@ -557,6 +576,28 @@ Confirms that the output from a PLANit traffic assignment for the basic network 
 `src\test\resources\testcases\basicShortestPathAlgorithm\xml\AtoD`
 
 ***Notes:***
+
+#### 3.3.7 basic_shortest_path_algorithm_three_time_periods_record_zero_flow
+
+***Purpose:*** 
+
+Tests and illustrates the outputs when the persistZeroFlow input is set to "true" (normally it is false).
+
+***Description:***
+
+- This uses the same network as illustrated in 3.4.1.
+- Time Period 1 uses route A to B in the example, which has a total route cost of 85 (the fifth argument in the ResultDto constructor). 
+- Time Period 2 uses route A to C in the example, which has a total route cost of 77. 
+- Time Period 3 uses route A to D in the example, which has a total route cost of 108.
+- The persistZeroFlow input is set to true, which causes the output files for links, OD cost and path to record values even for links and paths which have zero flow along them.
+
+***Location:***
+
+`src\test\resources\testcases\basicShortestPathAlgorithm\xml\ThreeTimePeriodsRecordZeroFlow`
+
+***Notes:***
+
+The output paths and OD costs for this test case include a value from every possible to every other one.  It can be checked by hand that the output paths and costs are correct.
 
 ### 3.4 Tests for Reading Initial Cost Values
 
@@ -1185,3 +1226,33 @@ and link costs:
 
 The network and results for this test are the same as those for 3.5.14.  The only difference is that links are identified by link id in both the CSV output file and MemoryOutputFormatter.
 This is the only one of the tests which identifies links by link id.  All other test cases use link external id.  The code should allow either.
+
+### 3.6 BPR Parameters Tests
+
+This test demonstrates the effects of significantly changing the BPR parameters for each link.
+
+#### 3.6.1 bpr_parameters_simple
+
+***Purpose:***
+
+This test demonstrates the effect of significantly changing BPR parameters for link segments.
+
+***Description:***
+
+The network consists of five link segments, 1 to 5, in a straight line.  
+All link segments have a length of 10.
+All link segments have a capacity of 1000.
+Link Segments 1,3 and 5 have a maximum speed of 10.
+Link Segments 2 and 4 have a maximum speed of 20.
+Link Segments 1 and 5 have BPR parameters alpha=0.8, beta=4.5 (this uses the setDefaultParameters() method for a link type).
+Link Segment 3 has BPR parameters alpha=1.0, beta=5.0 (this uses the setParameters() method for an individual link segment).
+Link Segments 2 and 4 have BPR parameters alpha=0.5, beta=4.0 (these uses PLANit's defaults).
+The demand is 2000 from the start of Link Segment 1 to the end of Link Segment 5.
+
+***Location:***
+
+`src\test\resources\testcases\bpr_parameters_test\xml\simple`
+
+***Notes:***
+
+The costs along each link differ significantly.  The costs along Link Segment 3 are higher than those along Link Segments 1 and 5, even though it has the same length and capacity.  This is the effect of its BPR parameters being higher.

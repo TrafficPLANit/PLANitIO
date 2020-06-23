@@ -118,9 +118,9 @@ public class PlanItIOIntegrationTest {
    * Test case which indicates the effects of changing BPR parameters when flows are close to lane capacity.
    */
   @Test
-  public void test_mode_test() {
+  public void test_bpr_parameters_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\mode_test\\xml\\simple";
+      String projectPath = "src\\test\\resources\\testcases\\bpr_parameters_test\\xml\\simple";
       String description = "mode_test";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -3760,4 +3760,139 @@ public class PlanItIOIntegrationTest {
     }
   }
 
+  /**
+   * Test of results for TraditionalStaticAssignment for simple test case using
+   * the fifth route choice example from the Traditional Static Assignment Route
+   * Choice Equilibration Test cases.docx document.
+   * 
+   * This test case uses two modes and only one route is possible for trucks.  The
+   * persistZeroFlow flag is set to true, meaning that some of the OD costs are 
+   * reported as "Inifinity" for forbidden truck routes.
+   */
+  @Test
+  public void test_5_SIMO_MISO_route_choice_two_modes_with_impossible_route() {
+    try {
+      String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceTwoModesWithImpossibleRoute";
+      String description = "testRouteChoice5";
+      String csvFileName = "Time_Period_1_500.csv";
+      String odCsvFileName = "Time_Period_1_499.csv";
+      String xmlFileName = "Time_Period_1.xml";
+      Integer maxIterations = 500;
+
+      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
+          bprLinkTravelTimeCost, inputBuilderListener) -> {
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
+            (long) 1);
+        Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
+        bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+      };
+
+      //TODO - Comparisons with MemoryOutputFormatter have been commented out due to insufficient time 
+      //to configure them
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
+          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, true);
+      //MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+
+      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
+      Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
+          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3000,
+          0.0370117, 3600.0, 1.0, 27.0184697));
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 6,
+          0.0447625, 1200.0, 2.0, 44.6802634));
+      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 1068,
+          0.0360526, 1200.0, 1.0, 27.7372551));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1926,
+          0.0719659, 1200.0, 1.0, 13.8954751));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 6,
+          0.0447625, 1200.0, 2.0, 44.6802634));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 1068,
+          0.0360526, 1200.0, 1.0, 27.7372551));
+      resultsMap.get(timePeriod).get(mode1).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 3000,
+          0.0370117, 3600.0, 1.0, 27.0184697));
+
+      resultsMap.get(timePeriod).put(mode2, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 1500,
+          0.0636732, 3600.0, 1.0, 15.705194));
+      resultsMap.get(timePeriod).get(mode2).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1086,
+          0.0609332, 1200.0, 2.0, 32.8228128));
+      resultsMap.get(timePeriod).get(mode2).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 414,
+          0.0613639, 1200.0, 1.0, 16.296231));
+      resultsMap.get(timePeriod).get(mode2).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 1086,
+          0.0609332, 1200.0, 2.0, 32.8228128));
+      resultsMap.get(timePeriod).get(mode2).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 414,
+          0.0613639, 1200.0, 1.0, 16.296231));
+      resultsMap.get(timePeriod).get(mode2).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 1500,
+          0.0636732, 3600.0, 1.0, 15.705194));
+      //PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      //    maxIterations, resultsMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,"");
+      pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,"");
+      pathMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,"");
+      pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,"");
+      pathMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,"[11,1,4,12]");
+      pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,"");
+      pathMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,"[11,1,2,4,12]");
+      pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,"");
+      //PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
+          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
+      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
+      odMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, Double>>());
+      
+      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,Double.valueOf(0.1457425));
+      odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,Double.valueOf(0.0));
+      
+      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,Double.valueOf(0.249072));
+      odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
+      //PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
+          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
+          xmlFileName);
+    } catch (final Exception e) {
+      LOGGER.severe( e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+  
 }
