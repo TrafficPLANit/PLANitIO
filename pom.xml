@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.planit.all</groupId>
     <artifactId>PLANitAll</artifactId>
-    <version>0.0.4a7</version>
+    <version>0.0.4</version>
   </parent>	
 		
 	<modelVersion>4.0.0</modelVersion>
@@ -12,7 +12,6 @@
 	<groupId>org.planit.io</groupId>
 	<artifactId>PLANitIO</artifactId>
 	<description>PlanIt Code for default input and output</description>
-	<version>0.0.4a7</version>
 	<packaging>jar</packaging>
 
 	<name>PLANitIO</name>
