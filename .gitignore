@@ -3,7 +3,6 @@
 /.classpath
 /.settings
 .project
-/doc
 /src/main/java/META-INF
 /src/main/java/net
 /src/main/java/org/hisrc
@@ -53,3 +52,4 @@
 /dependency-reduced-pom.xml
 /logs
 /bin
+/doc
