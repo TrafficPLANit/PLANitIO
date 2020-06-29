@@ -805,7 +805,10 @@ public class PlanItIOTestHelper {
     final TraditionalStaticAssignmentBuilder taBuilder =
         (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
             TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
-
+    
+    //READ INITIAL COSTS
+    registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
+    
     // SUPPLY-DEMAND INTERACTIONS
     final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
         .createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
@@ -845,6 +848,7 @@ public class PlanItIOTestHelper {
         (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
     pathOutputTypeConfiguration.setPathIdType(RouteIdType.NODE_EXTERNAL_ID);
 
+    
     // OUTPUT FORMAT CONFIGURATION
 
     // PlanItOutputFormatter
@@ -871,7 +875,8 @@ public class PlanItIOTestHelper {
       taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
-   registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
+    //registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
+    //xmlOutputFormatter.setInitialCostsLocation(project.getInitialCostsLocation());
 
     final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
     if (!exceptionMap.keySet().isEmpty()) {

@@ -135,6 +135,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * The Id of the traffic assignment run being recorded
    */
   private long runId;
+  
+  /**
+   * The location of the initial costs file
+   */
+  private String initialCostsLocation;
 
   /**
    * Generates the name of an output file using the relative path from XML to CSV files
@@ -283,6 +288,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     outputconfiguration.setAssignment(outputAdapter.getAssignmentClassName());
     outputconfiguration.setPhysicalcost(outputAdapter.getPhysicalCostClassName());
     outputconfiguration.setVirtualcost(outputAdapter.getVirtualCostClassName());
+    outputconfiguration.setSmoothing(outputAdapter.getSmoothingClassName());
+    outputconfiguration.setGapfunction(outputAdapter.getGapFunctionClassName());
+    outputconfiguration.setStopcriterion(outputAdapter.getStopCriterionClassName());
     XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
     long externalId = (long) timePeriod.getExternalId();
     timeperiod.setId(BigInteger.valueOf(externalId));
@@ -336,7 +344,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       if (description != null) {
         metadata.get(currentOutputType).setDescription(description);
       }
-      metadata.get(currentOutputType).setOutputconfiguration(getOutputconfiguration(outputAdapter, timePeriod));
+      XMLElementOutputConfiguration outputconfiguration = getOutputconfiguration(outputAdapter, timePeriod);
+      outputconfiguration.setInitialcostlocation(initialCostsLocation);
+      metadata.get(currentOutputType).setOutputconfiguration(outputconfiguration);
       SortedSet<BaseOutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
       metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
     } catch (Exception e) {
@@ -666,7 +676,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   }
 
   /**
-   * Finalise the persistence after the simulation. Here we generate the XML meta-data file(s)
+   * Finalize the persistence after the simulation. Here we generate the XML meta-data file(s)
    * *
    * 
    * @param outputTypeConfigurations OutputTypeConfigurations for the assignment that have been
@@ -865,4 +875,14 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   public void setXmlFileNamePerOutputType(OutputType outputType, String xmlFileName) {
     xmlFileNameMap.put(outputType, xmlFileName);
   }
+
+  /**
+   * Set the initial costs file location
+   * 
+   * @param initialCostsLocation the location of the initial costs file
+   */
+  //public void setInitialCostsLocation(String initialCostsLocation) {
+ //  this.initialCostsLocation = initialCostsLocation;
+ // }
+  
 }

@@ -37,6 +37,7 @@
 
 	<!-- definition of simple elements -->
 	<xs:element name="assignment" type="xs:string" />
+	<xs:element name="initialcostlocation" type="xs:string" />
 	<xs:element name="description" type="xs:string" />
 	<xs:element name="id" type="xs:nonNegativeInteger" />
 	<xs:element name="name" type="xs:string" />
@@ -48,7 +49,10 @@
 	<xs:element name="version" type="xs:string" />
 	<xs:element name="virtualcost" type="xs:string" />
 	<xs:element name="price" type="xs:decimal" />
-
+	<xs:element name="smoothing" type="xs:string" />
+    <xs:element name="gapfunction" type="xs:string" />
+    <xs:element name="stopcriterion" type="xs:string" />
+	
 	<!-- Root element -->
 	<xs:element name="metadata">
 		<xs:complexType>
@@ -66,18 +70,17 @@
 			-->
 		</xs:complexType>
 	</xs:element>
-<!-- 
-<PLANit xmlns:gml="http://www.opengis.net/gml"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
 
--->
 	<xs:element name="outputconfiguration">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="assignment" />
 				<xs:element ref="physicalcost" />
 				<xs:element ref="virtualcost" />
+				<xs:element ref="initialcostlocation" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="smoothing" />
+				<xs:element ref="gapfunction" />
+				<xs:element ref="stopcriterion" />
 				<xs:element ref="timeperiod" />
 			</xs:sequence>
 		</xs:complexType>
