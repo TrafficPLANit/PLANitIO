@@ -37,7 +37,6 @@
 
 	<!-- definition of simple elements -->
 	<xs:element name="assignment" type="xs:string" />
-	<xs:element name="initialcostlocation" type="xs:string" />
 	<xs:element name="description" type="xs:string" />
 	<xs:element name="id" type="xs:nonNegativeInteger" />
 	<xs:element name="name" type="xs:string" />
@@ -77,7 +76,6 @@
 				<xs:element ref="assignment" />
 				<xs:element ref="physicalcost" />
 				<xs:element ref="virtualcost" />
-				<xs:element ref="initialcostlocation" minOccurs="0" maxOccurs="1"/>
 				<xs:element ref="smoothing" />
 				<xs:element ref="gapfunction" />
 				<xs:element ref="stopcriterion" />

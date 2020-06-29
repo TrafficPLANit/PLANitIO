@@ -345,7 +345,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         metadata.get(currentOutputType).setDescription(description);
       }
       XMLElementOutputConfiguration outputconfiguration = getOutputconfiguration(outputAdapter, timePeriod);
-      outputconfiguration.setInitialcostlocation(initialCostsLocation);
       metadata.get(currentOutputType).setOutputconfiguration(outputconfiguration);
       SortedSet<BaseOutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
       metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
@@ -876,13 +875,4 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     xmlFileNameMap.put(outputType, xmlFileName);
   }
 
-  /**
-   * Set the initial costs file location
-   * 
-   * @param initialCostsLocation the location of the initial costs file
-   */
-  //public void setInitialCostsLocation(String initialCostsLocation) {
- //  this.initialCostsLocation = initialCostsLocation;
- // }
-  
 }

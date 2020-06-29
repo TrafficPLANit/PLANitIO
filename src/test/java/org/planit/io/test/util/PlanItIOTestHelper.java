@@ -875,9 +875,6 @@ public class PlanItIOTestHelper {
       taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
-    //registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
-    //xmlOutputFormatter.setInitialCostsLocation(project.getInitialCostsLocation());
-
     final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
     if (!exceptionMap.keySet().isEmpty()) {
       for (final long id : exceptionMap.keySet()) {
