@@ -1133,6 +1133,15 @@ public class PlanItIOTestHelper {
     if (!outputConfigurationStandard.getVirtualcost().equals(outputConfigurationBeingTested.getVirtualcost())) {
       return false;
     }
+    if (!outputConfigurationStandard.getGapfunction().equals(outputConfigurationBeingTested.getGapfunction())) {
+      return false;
+    }
+    if (!outputConfigurationStandard.getSmoothing().equals(outputConfigurationBeingTested.getSmoothing())) {
+      return false;
+    }
+    if (!outputConfigurationStandard.getStopcriterion().equals(outputConfigurationBeingTested.getStopcriterion())) {
+      return false;
+    }
     final XMLElementOutputTimePeriod timeperiodStandard = outputConfigurationStandard.getTimeperiod();
     final XMLElementOutputTimePeriod timeperiodBeingTested = outputConfigurationBeingTested.getTimeperiod();
     if (!timeperiodStandard.getId().equals(timeperiodBeingTested.getId())) {

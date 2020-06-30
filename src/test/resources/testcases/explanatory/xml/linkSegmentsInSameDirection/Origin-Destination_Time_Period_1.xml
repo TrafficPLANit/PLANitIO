@@ -7,6 +7,9 @@
 		<assignment>TraditionalStaticAssignment</assignment>
 		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
 		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
+        <smoothing>MSASmoothing</smoothing>
+        <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>
+        <stopcriterion>StopCriterion</stopcriterion>
 		<timeperiod>
 			<id>0</id>
 			<name>Time_Period_1</name>
