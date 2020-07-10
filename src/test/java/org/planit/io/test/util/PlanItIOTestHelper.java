@@ -730,12 +730,7 @@ public class PlanItIOTestHelper {
 
     registerInitialCosts.accept(taBuilder, project, physicalNetwork);
 
-    Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
-    if (!exceptionMap.keySet().isEmpty()) {
-      for (final long id : exceptionMap.keySet()) {
-        throw exceptionMap.get(id);
-      }
-    }
+    project.executeAllTrafficAssignments();
     linkOutputTypeConfiguration.removeAllProperties();
     linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
@@ -754,12 +749,7 @@ public class PlanItIOTestHelper {
     linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);
-    exceptionMap = project.executeAllTrafficAssignments();
-    if (!exceptionMap.keySet().isEmpty()) {
-      for (final long id : exceptionMap.keySet()) {
-        throw exceptionMap.get(id);
-      }
-    }
+    project.executeAllTrafficAssignments();
     TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
     return testOutputDto;
   }
@@ -875,12 +865,7 @@ public class PlanItIOTestHelper {
       taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
-    final Map<Long, PlanItException> exceptionMap = project.executeAllTrafficAssignments();
-    if (!exceptionMap.keySet().isEmpty()) {
-      for (final long id : exceptionMap.keySet()) {
-        throw exceptionMap.get(id);
-      }
-    }
+    project.executeAllTrafficAssignments();
     TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDtoX = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
     return testOutputDtoX;
   }

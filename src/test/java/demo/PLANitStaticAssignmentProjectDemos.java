@@ -1,8 +1,6 @@
 package demo;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;

@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
+import org.planit.exceptions.PlanItException;
 import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
 import org.planit.ltm.trafficassignment.ELTM;
@@ -45,7 +46,7 @@ public class PLANitDynamicAssignmentProjectDemos {
         	project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
 
             project.executeAllTrafficAssignments();
-        } catch (final Exception e) {
+        } catch (final PlanItException e) {
           LOGGER.severe(e.getMessage());
         }
     }
@@ -107,7 +108,7 @@ public class PLANitDynamicAssignmentProjectDemos {
             project.executeAllTrafficAssignments();
 
             project.executeAllTrafficAssignments();
-        } catch (final Exception e) {
+        } catch (final PlanItException e) {
           LOGGER.severe(e.getMessage());
         }
     }

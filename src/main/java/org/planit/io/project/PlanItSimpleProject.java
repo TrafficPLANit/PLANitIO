@@ -142,26 +142,17 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       throw new PlanItException(errorMessage);
     }
 
-    /**
-     * Override where we conduct the parsing of all inputs at the last moment such that any mistakes regarding the configuration
-     * will be found quickly and are not hampered by long load times for parsing inputs. This is mainly useful for inexperienced users
-     * who just want to run a single model. If one wants complete control of the process flow use @see org.planit.project.PlanItProject instead
-     *
-     * @see org.planit.project.CustomPlanItProject#executeAllTrafficAssignments()
-     * @return Map of ids of failed runs (key) together with their exceptions (value).  Empty if all runs succeeded
-     * @throws PlanItException thrown if there is an error during configuration before the runs start
-     */
+   /**
+    * {@inheritDoc}
+    */
     @Override
-    public Map<Long, PlanItException> executeAllTrafficAssignments() throws PlanItException {
-        Map<Long, PlanItException> exceptionMap = new TreeMap<Long, PlanItException>();
+    public void executeAllTrafficAssignments() throws PlanItException {
         if(super.trafficAssignments.hasRegisteredAssignments()) {
-            // parse inputs (not a choice when this happens on simple project, always do this last based on native input format)
-            exceptionMap = super.executeAllTrafficAssignments();
+            super.executeAllTrafficAssignments();
         }else
         {
-          LOGGER.info("No traffic assignment has been registered yet, terminating execution");
+          LOGGER.info("No traffic assignment has been registered yet, ignoring execution");
         }
-        return exceptionMap;
     }
 
     /** Collect the default output formatter for PLANit simple project which is the native XMLFormatter
