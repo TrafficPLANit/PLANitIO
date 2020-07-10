@@ -25,6 +25,7 @@ import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
+import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 
 /**
  * Demo class. Show casing how to setup typical static assignment PLANit projects
@@ -64,23 +65,24 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       // Create a custom PLANit project with all the default settings
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(projectPath));
-      OutputFormatter outputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
       
-      // parse and register macroscopic network on project
+      // parse and register inputs
       PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
-      
-      // parse and register zoning on project
       Zoning zoning = project.createAndRegisterZoning(network);
+      Demands demands = project.createAndRegisterDemands(zoning, network);
       
-      // parse and register demands on project
-      Demands demands = project.createAndRegisterDemands(zoning, network);      
+      // create and register project level output formatter
+      OutputFormatter outputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
 
       // create traffic assignment with selected project inputs
-      project.createAndRegisterTrafficAssignment(
+      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
           TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
           demands,
           zoning,
           network);
+      
+      // activate the default output formatter on the assignment
+      taBuilder.registerOutputFormatter(outputFormatter); 
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
