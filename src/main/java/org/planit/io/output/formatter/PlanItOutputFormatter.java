@@ -137,11 +137,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   private long runId;
   
   /**
-   * The location of the initial costs file
-   */
-  private String initialCostsLocation;
-
-  /**
    * Generates the name of an output file using the relative path from XML to CSV files
    * 
    * @param timePeriod the time period

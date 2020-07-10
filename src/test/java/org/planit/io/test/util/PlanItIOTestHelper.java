@@ -46,6 +46,7 @@ import org.planit.output.enums.OutputType;
 import org.planit.output.enums.RouteIdType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
+import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
@@ -71,7 +72,6 @@ public class PlanItIOTestHelper {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanItIOTestHelper.class.getCanonicalName());
-
 
   private static final double epsilon = 0.00001;
 
@@ -709,7 +709,7 @@ public class PlanItIOTestHelper {
 
     // PlanItXMLOutputFormatter
     final PlanItOutputFormatter xmlOutputFormatter = 
-        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
     xmlOutputFormatter.setXmlNameRoot(description);
     xmlOutputFormatter.setCsvNameRoot(description);
     xmlOutputFormatter.setOutputDirectory(projectPath);
@@ -843,7 +843,7 @@ public class PlanItIOTestHelper {
 
     // PlanItOutputFormatter
     final PlanItOutputFormatter xmlOutputFormatter = 
-        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
     xmlOutputFormatter.setXmlNameRoot(description);
     xmlOutputFormatter.setCsvNameRoot(description);
     xmlOutputFormatter.setOutputDirectory(projectPath);

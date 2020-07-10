@@ -24,6 +24,7 @@ import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.exceptions.PlanItException;
 import org.planit.input.InputBuilderListener;
+import org.planit.io.PlanItMain;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
@@ -106,7 +107,7 @@ public class PlanItIOIntegrationTest {
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(PlanItIOIntegrationTest.class);
-    }
+    } 
   }
 
   @AfterClass

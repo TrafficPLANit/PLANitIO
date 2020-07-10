@@ -15,6 +15,7 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.enums.OutputType;
+import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
@@ -104,7 +105,7 @@ public class PlanItMain {
 
 		// OUTPUT FORMAT CONFIGURATION
 		final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project
-				.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());
+				.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
 		taBuilder.registerOutputFormatter(xmlOutputFormatter);
 		xmlOutputFormatter.setXmlDirectory("C:\\Users\\Public\\PlanIt\\Xml");
 		xmlOutputFormatter.setCsvDirectory("C:\\Users\\Public\\PlanIt\\Csv");

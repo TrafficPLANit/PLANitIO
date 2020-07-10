@@ -1,6 +1,5 @@
 package demo;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;

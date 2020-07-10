@@ -2,8 +2,6 @@ package org.planit.io.project;
 
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +12,7 @@ import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
+import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 
@@ -57,7 +56,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     private void initialiseSimpleProject() {
         try {
             // register the default Output formatter as a formatter that is available
-            defaultOutputFormatter = (PlanItOutputFormatter) this.createAndRegisterOutputFormatter(PlanItOutputFormatter.class.getCanonicalName());            
+            defaultOutputFormatter = (PlanItOutputFormatter) this.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);            
             // parse a macroscopic network representation + register on assignment
             network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
             // parse the zoning system + register on assignment
