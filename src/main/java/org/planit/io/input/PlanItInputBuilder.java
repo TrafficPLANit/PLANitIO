@@ -158,16 +158,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private void setInputFiles(final String projectPath, final String xmlNameExtension) throws PlanItException {
     final String[] xmlFileNames = getXmlFileNames(projectPath, xmlNameExtension);
-    if (setInputFilesSingleFile(xmlFileNames)) {
-      return;
+    
+    boolean inputFilesSet = setInputFilesSingleFile(xmlFileNames) || setInputFilesSeparateFiles(xmlFileNames);
+    PlanItException.throwIf(!inputFilesSet, "The directory " + projectPath
+        + " does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network");
     }
-    if (setInputFilesSeparateFiles(xmlFileNames)) {
-      return;
-    }
-    String errorMessage = "The directory " + projectPath
-        + " does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network.";
-    throw new PlanItException(errorMessage);
-  }
 
   /**
    * Return an array of the names of all the input files in the project path
@@ -181,13 +176,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private String[] getXmlFileNames(final String projectPath, final String xmlNameExtension) throws PlanItException {
     final File xmlFilesDirectory = new File(projectPath);
-    if (!xmlFilesDirectory.isDirectory()) {
-      throw new PlanItException(projectPath + " is not a valid directory");
-    }
+    
+    PlanItException.throwIf(!xmlFilesDirectory.isDirectory(),projectPath + " is not a valid directory");
+    
     final String[] fileNames = xmlFilesDirectory.list((d, name) -> name.endsWith(xmlNameExtension));
-    if (fileNames.length == 0) {
-      throw new PlanItException("Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
-    }
+    PlanItException.throwIf(fileNames.length == 0,"Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
+
     for (int i = 0; i < fileNames.length; i++) {
       fileNames[i] = projectPath + "\\" + fileNames[i];
     }

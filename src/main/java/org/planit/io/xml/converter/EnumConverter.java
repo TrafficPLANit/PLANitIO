@@ -44,8 +44,7 @@ public interface EnumConverter {
 		case STRING:
 			return Typevalues.STRING;
 		default:
-			String errorMessage = "Data type " + type.value() + " has not been defined in the typevalues simple type in the output XSD file.";
-      throw new PlanItException(errorMessage);
+      throw new PlanItException("Data type " + type.value() + " has not been defined in the typevalues simple type in the output XSD file");
 		}
 	}
 
@@ -73,8 +72,7 @@ public interface EnumConverter {
 		case SRS:
 			return Unitsvalues.SRS;
 		default:
-			String errorMessage = "Units type " + units.value() + " has not been defined in the unitsvalues simple type in the output XSD file.";
-      throw new PlanItException(errorMessage);
+      throw new PlanItException("Units type " + units.value() + " has not been defined in the unitsvalues simple type in the output XSD file.");
 		}
 	}
 

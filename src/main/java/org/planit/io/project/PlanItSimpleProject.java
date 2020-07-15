@@ -114,11 +114,8 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      */
     public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(final String trafficAssignmentType)
             throws PlanItException {
-        if(super.trafficAssignments.hasRegisteredAssignments()) {
-            String errorMessage = "This type of PLANit project only allows a single assignment per project";
-            throw new PlanItException(errorMessage);
-       }
-        return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
+      PlanItException.throwIf(super.trafficAssignments.hasRegisteredAssignments(), "This type of PLANit project only allows a single assignment per project");
+      return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
     }
 
     /**
@@ -137,8 +134,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     		final Zoning theZoning,
     		final PhysicalNetwork thePhysicalNetwork)
             throws PlanItException {
-    	String errorMessage = "A simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected";
-      throw new PlanItException(errorMessage);
+      throw new PlanItException("A simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");
     }
 
    /**

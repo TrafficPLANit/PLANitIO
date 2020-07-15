@@ -50,8 +50,9 @@ public class ProcessConfiguration {
    */
   private static Set<BigInteger> generateAndStoreTravelerTypes(XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-    XMLElementTravellerTypes travellertypes = (demandconfiguration.getTravellertypes() == null)
-        ? new XMLElementTravellerTypes() : demandconfiguration.getTravellertypes();
+    
+    XMLElementTravellerTypes travellertypes = 
+        (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes() : demandconfiguration.getTravellertypes();
     Set<BigInteger> travellerTypeIdSet = new HashSet<BigInteger>();
     if (travellertypes.getTravellertype().isEmpty()) {
       travellertypes.getTravellertype().add(generateDefaultTravellerType());
@@ -59,13 +60,10 @@ public class ProcessConfiguration {
 
     for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
       TravelerType travelerType = new TravelerType(travellertype.getId().longValue(), travellertype.getName());
-      final boolean duplicateTravelerTypeExternalId = inputBuilderListener.addTravelerTypeToExternalIdMap(travelerType
-          .getExternalId(), travelerType);
-      if (duplicateTravelerTypeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate traveler type external id " + travelerType.getExternalId()
-            + " found in network file.";
-        throw new PlanItException(errorMessage);
-      }
+      final boolean duplicateTravelerTypeExternalId = 
+          inputBuilderListener.addTravelerTypeToExternalIdMap(travelerType.getExternalId(), travelerType);
+      PlanItException.throwIf(duplicateTravelerTypeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(), 
+          "Duplicate traveler type external id " + travelerType.getExternalId() + " found in network file");
       travellerTypeIdSet.add(travellertype.getId());
 
     }
@@ -93,32 +91,27 @@ public class ProcessConfiguration {
         (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
     
     if (userclasses.getUserclass().isEmpty()) {
-      if (travellerTypeIdSet.size() > 1) {
-        String errorMessage = "No user classes defined but more than 1 traveller type defined";
-        throw new PlanItException(errorMessage);
-      }
+      PlanItException.throwIf(travellerTypeIdSet.size() > 1, "No user classes defined but more than 1 traveller type defined");
+      
       XMLElementUserClasses.Userclass userClass = generateDefaultUserClass();
       userClass.setTravellertyperef(travellerTypeIdSet.iterator().next());
       userclasses.getUserclass().add(userClass);
     }
     
     for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
-      
-      if ((userclass.getTravellertyperef() != null) && (!travellerTypeIdSet.contains(userclass.getTravellertyperef()))) {
-        String errorMessage = "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()+ " referenced by user class " + userclass.getName() + " but not defined";
-        throw new PlanItException(errorMessage);
+      if(userclass.getTravellertyperef()==null) {
+        PlanItException.throwIf(travellerTypeIdSet.size() > 1,
+            "User class " + userclass.getId() + " has no traveller type specified, but more than one traveller type possible");                
+      }else {
+        PlanItException.throwIf(!travellerTypeIdSet.contains(userclass.getTravellertyperef()), 
+            "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()+ " referenced by user class " + userclass.getName() + " but not defined");
       }
-      
-      if ((userclass.getTravellertyperef() == null) && (travellerTypeIdSet.size() > 1)) {
-        String errorMessage = "User class " + userclass.getId() + " has no traveller type specified, but more than one traveller type possible";
-        throw new PlanItException(errorMessage);
-      }
+      PlanItException.throwIf(userclass.getModeref() == null, "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
       
       if (userclass.getModeref() == null) {
-        if (physicalNetwork.modes.getNumberOfModes() > 1) {
-          String errorMessage = "User class " + userclass.getId() + " has no mode specified, but more than one mode possible.";
-          throw new PlanItException(errorMessage);
-        }        
+        PlanItException.throwIf(physicalNetwork.modes.getNumberOfModes() > 1, 
+            "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
+                
         for(Mode mode : physicalNetwork.modes) {
           long modeExternalId = (long) mode.getExternalId();
           userclass.setModeref(BigInteger.valueOf(modeExternalId));          
@@ -126,11 +119,8 @@ public class ProcessConfiguration {
       }
       Long externalModeId = userclass.getModeref().longValue();
       Mode userClassMode = inputBuilderListener.getModeByExternalId(externalModeId);
-      if (userClassMode == null) {
-        String errorMessage = "User class " + userclass.getId() + " refers to mode " + externalModeId + " which has not been defined";
-        throw new PlanItException(errorMessage);
-      }
-      
+      PlanItException.throwIf(userClassMode == null,"User class " + userclass.getId() + " refers to mode " + externalModeId + " which has not been defined");
+           
       long travellerTypeId = (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID : userclass.getTravellertyperef().longValue();
       userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
       TravelerType travellerType = inputBuilderListener.getTravelerTypeByExternalId(travellerTypeId);
@@ -142,10 +132,8 @@ public class ProcessConfiguration {
           travellerType);
       
       final boolean duplicateUserClassExternalId = inputBuilderListener.addUserClassToExternalIdMap(userClass.getExternalId(), userClass);
-      if (duplicateUserClassExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate user class external id " + userClass.getExternalId() + " found in network file.";
-        throw new PlanItException(errorMessage);
-      }
+      PlanItException.throwIf(duplicateUserClassExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(),
+          "Duplicate user class external id " + userClass.getExternalId() + " found in network file");
     }
     return userclasses.getUserclass().size();
   }
@@ -222,13 +210,11 @@ public class ProcessConfiguration {
           break;
       }
       TimePeriod timePeriod = new TimePeriod(timePeriodId, timePeriodGenerated.getName(), startTime, duration);
-      final boolean duplicateTimePeriodExternalId = inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod
-          .getExternalId(), timePeriod);
-      if (duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate time period external id " + timePeriod.getExternalId()
-            + " found in network file.";
-        throw new PlanItException(errorMessage);
-      }
+      final boolean duplicateTimePeriodExternalId = 
+          inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod.getExternalId(), timePeriod);
+      PlanItException.throwIf(duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(), 
+          "Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.");
+      
       demands.timePeriods.registerTimePeriod(timePeriod);
     }
   }

@@ -230,9 +230,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       csvdata.setType(((SubOutputTypeEnum) currentOutputType).value());
       metadata.get((SubOutputTypeEnum) currentOutputType).getSimulation().getIteration().add(iteration);
     } else {
-      String errorMessage =
-          "invalid output type provided when updating metadata simulation output for current iteration";
-      throw new PlanItException(errorMessage);
+      throw new PlanItException("invalid output type provided when updating metadata simulation output for current iteration");
     }
 
   }
@@ -404,6 +402,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         throw ple;
       }
       csvIterationPrinter.close();
+    }catch( PlanItException e)
+    {
+      throw e;
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error when createing CSV file name and file in PLANitIO OutputFormatter", e);
@@ -653,16 +654,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   @Override
   public void initialiseBeforeSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations,
       long runId) throws PlanItException {
+    
+    PlanItException.throwIf(xmlDirectory == null, "No common output directory or XML output directory has been defined");
+    PlanItException.throwIf(csvDirectory == null,"No common output directory or CSV output directory has been defined");
+    
     this.runId = runId;
-    if (xmlDirectory == null) {
-      String errorMessage = "No common output directory or XML output directory has been defined in the code.";
-      throw new PlanItException(errorMessage);
-    }
-    if (csvDirectory == null) {
-      String errorMessage = "No common output directory or CSV output directory has been defined in the code.";
-      throw new PlanItException(errorMessage);
-    }
-
     createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
     createOrOpenOutputDirectory(csvDirectory, resetCsvDirectory);
 

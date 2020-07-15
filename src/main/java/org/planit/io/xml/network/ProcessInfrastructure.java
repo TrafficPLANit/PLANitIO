@@ -19,13 +19,12 @@ import org.planit.geo.PlanitGeoUtils;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.XmlUtils;
-import org.planit.network.physical.NodeImpl;
-import org.planit.network.physical.macroscopic.MacroscopicLinkSegmentImpl;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.utils.network.physical.Link;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.Node;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 import net.opengis.gml.LineStringType;
@@ -122,16 +121,14 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
 
     // create the link and store it in the network object
-    MacroscopicLinkSegmentImpl linkSegment =
-        (MacroscopicLinkSegmentImpl) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
+    MacroscopicLinkSegment linkSegment =
+        (MacroscopicLinkSegment) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
-    Map<Mode, Double> linkSegmentSpeedMap = new HashMap<Mode, Double>();
     for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
-      linkSegmentSpeedMap.put(mode, Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode)));
+      linkSegment.setMaximumSpeed(mode, Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode))); 
     }
 
-    linkSegment.setMaximumSpeedMap(linkSegmentSpeedMap);
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
     MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
@@ -148,13 +145,10 @@ public class ProcessInfrastructure {
     }
     network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
     if (linkSegment.getExternalId() != null) {
-      final boolean duplicateLinkSegmentExternalId = inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment
-          .getExternalId(), linkSegment);
-      if (duplicateLinkSegmentExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate link segment external id " + linkSegment.getExternalId()
-            + " found in network file.";
-        throw new PlanItException(errorMessage);
-      }
+      final boolean duplicateLinkSegmentExternalId = 
+          inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
+      PlanItException.throwIf(duplicateLinkSegmentExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(), 
+          "Duplicate link segment external id " + linkSegment.getExternalId() + " found in network file");
     }
   }
 
@@ -170,7 +164,7 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
     for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
-      NodeImpl node = (NodeImpl) network.nodes.registerNewNode();
+      Node node = network.nodes.registerNewNode();
       node.setExternalId(generatedNode.getId().longValue());
       PointType pointType = generatedNode.getPoint();
       if (pointType != null) {
@@ -178,13 +172,10 @@ public class ProcessInfrastructure {
         node.setCentrePointGeometry(centrePointGeometry);
       }
       network.nodes.registerNode(node);
-      boolean duplicateNodeExternalId = inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(),
-          node);
-      if (duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate node external id " + generatedNode.getId().longValue()
-            + " found in network file.";
-        throw new PlanItException(errorMessage);
-      }
+      boolean duplicateNodeExternalId = 
+          inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(),node);
+      PlanItException.throwIf(duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(),
+          "Duplicate node external id " + generatedNode.getId().longValue() + " found in network file");
     }
   }
 
