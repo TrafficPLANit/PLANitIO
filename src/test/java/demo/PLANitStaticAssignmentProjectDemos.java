@@ -89,6 +89,33 @@ public class PLANitStaticAssignmentProjectDemos {
       LOGGER.severe(e.getMessage());
     }
   }  
+  
+  /**
+   * Setup a project with the most basic initial costs
+   */
+  public static void minimumInitialCostExampleDemo() {
+    final String projectPath = "<insert the project path here>";
+    final String initialCostCSVPath = "<insert the initial cost CSV file path here>";
+
+    try {
+      // Create a custom PLANit project with all the default settings
+      final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
+      
+      InitialLinkSegmentCost initialLinkSegmentCost = project.createAndRegisterInitialLinkSegmentCost(
+          project.getNetwork(), initialCostCSVPath);
+      
+      // create traffic assignment with selected project inputs
+      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
+          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+
+      // register initial link segment costs for all time periods
+      taBuilder.registerInitialLinkSegmentCost(initialLinkSegmentCost);
+
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  } 
 
   /**
    * Setup a mininum configuration standard traditional static assignment:

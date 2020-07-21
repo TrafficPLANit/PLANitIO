@@ -2227,6 +2227,7 @@ public class PlanItIOIntegrationTest {
 
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
           0.0, null, description, true, false);
+    
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName1,
           xmlFileName1);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName2,

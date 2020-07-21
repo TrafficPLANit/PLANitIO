@@ -20,6 +20,7 @@ import javax.xml.datatype.DatatypeConstants;
 import org.apache.commons.io.FileUtils;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
+import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
@@ -1003,11 +1004,10 @@ public class PlanItIOTestHelper {
     final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
         demands, taBuilder, project, physicalNetwork) -> {
       for (final Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
-    	final TimePeriod timePeriod = demands.timePeriods.getTimePeriodById(timePeriodId);
+        final TimePeriod timePeriod = demands.timePeriods.getTimePeriodById(timePeriodId);
         final String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
-        final InitialLinkSegmentCost initialCost = 
-            project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
-        taBuilder.registerInitialLinkSegmentCost(timePeriod, initialCost);
+        final InitialLinkSegmentCostPeriod initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation,timePeriod);
+        taBuilder.registerInitialLinkSegmentCost(initialCost);
       }
     };
 
