@@ -1,10 +1,16 @@
 package demo;
 
+import java.util.List;
 import java.util.logging.Logger;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
+import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
+import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
+import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
+import org.planit.cost.virtual.VirtualCost;
 import org.planit.demands.Demands;
+import org.planit.gap.LinkBasedRelativeDualityGapFunction;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.io.project.PlanItProject;
@@ -22,7 +28,8 @@ import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.trafficassignment.TraditionalStaticAssignment;
+import org.planit.sdinteraction.smoothing.Smoothing;
+import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
@@ -98,7 +105,7 @@ public class PLANitStaticAssignmentProjectDemos {
     final String initialCostCSVPath = "<insert the initial cost CSV file path here>";
 
     try {
-      // Create a custom PLANit project with all the default settings
+      // Create a  PLANit project with all the default settings
       final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
       
       InitialLinkSegmentCost initialLinkSegmentCost = project.createAndRegisterInitialLinkSegmentCost(
@@ -116,6 +123,166 @@ public class PLANitStaticAssignmentProjectDemos {
       LOGGER.severe(e.getMessage());
     }
   } 
+  
+  /**
+   * Setup a project with the initial link segment costs for a particular time period
+   */
+  public static void initialCostTimePeriodDemo() {
+
+    try {
+      // Create a PLANit project with all the default settings
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+      TimePeriod theTimePeriod = project.getDemands().timePeriods.getTimePeriodById(0);
+      
+      InitialLinkSegmentCost initialLinkSegmentCost = project.createAndRegisterInitialLinkSegmentCost(
+          project.getNetwork(), 
+          "<insert the initial cost CSV file path here>", 
+          theTimePeriod);
+      
+      // create traffic assignment with selected project inputs
+      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
+          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+
+      // register initial link segment costs for the given time period
+      taBuilder.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCost);
+
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  }
+  
+  /**
+   * Setup a project with the initial link segment costs for time periods available in the demands
+   */
+  public static void initialCostTimePeriodDemandsDemo() {
+
+    try {
+      // Create a PLANit project with all the default settings
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+
+      // register on all available time periods
+      List<InitialLinkSegmentCostPeriod> initialLinkSegmentCosts = project.createAndRegisterInitialLinkSegmentCost(
+          project.getNetwork(), 
+          "<insert the initial cost CSV file path here>", 
+          project.getDemands());
+      
+      // create traffic assignment with selected project inputs
+      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
+          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+
+      // register initial link segment costs for the given time period
+      for(InitialLinkSegmentCostPeriod initialCost : initialLinkSegmentCosts) {
+        taBuilder.registerInitialLinkSegmentCost(initialCost);
+      }      
+
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  }    
+  
+  /**
+   * Setup a traditional static assignment with explicit smoothing type
+   */
+  public static void simpleAssignmentSmoothingDemo() {
+    try {
+
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+
+      TrafficAssignmentBuilder taBuilder = 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      
+      MSASmoothing smoothing = (MSASmoothing) taBuilder.createAndRegisterSmoothing(Smoothing.MSA);
+      smoothing.getId();
+
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  }  
+  
+  /**
+   * Setup a traditional static assignment with explicit physical cost type (BPR)
+   */
+  public static void simpleAssignmentPhysicalCostDemo() {
+    try {
+
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+
+      TrafficAssignmentBuilder taBuilder = 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      
+      BPRLinkTravelTimeCost bprCost = (BPRLinkTravelTimeCost) taBuilder.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+      bprCost.setDefaultParameters(0.87, 4);
+
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  }   
+  
+  /**
+   * Setup a traditional static assignment with explicit virtual cost type (SPEED)
+   */
+  public static void simpleAssignmentVirtualCostDemo() {
+    try {
+
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+
+      TrafficAssignmentBuilder taBuilder = 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      
+      SpeedConnectoidTravelTimeCost virtualCost = (SpeedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualCost(VirtualCost.SPEED);
+      virtualCost.setConnectiodSpeed(25);
+      
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  } 
+  
+  /**
+   * Setup a traditional static assignment with gap function configuration
+   */
+  public static void simpleAssignmentGapFunctionDemo() {
+    try {
+
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+
+      TrafficAssignmentBuilder taBuilder = 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      
+      if(taBuilder.getGapFunction() instanceof LinkBasedRelativeDualityGapFunction) {
+        LOGGER.info("Link based relative duality gap used as gap function");
+      }else {
+        LOGGER.severe("unknown gap function");
+      }
+      
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  }      
+  
+  /**
+   * Setup a traditional static assignment with stop crtierion configuration
+   */
+  public static void simpleAssignmentStopCriterionDemo() {
+    try {
+
+      final PlanItSimpleProject project = new PlanItSimpleProject();
+
+      TrafficAssignmentBuilder taBuilder = 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      
+      taBuilder.getGapFunction().getStopCriterion().setMaxIterations(100);
+      
+      project.executeAllTrafficAssignments();
+    } catch (final Exception e) {
+      LOGGER.severe(e.getMessage());
+    }
+  }     
 
   /**
    * Setup a mininum configuration standard traditional static assignment:
