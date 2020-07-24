@@ -10,6 +10,7 @@ import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.VirtualCost;
 import org.planit.demands.Demands;
+import org.planit.exceptions.PlanItException;
 import org.planit.gap.LinkBasedRelativeDualityGapFunction;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
@@ -510,12 +511,42 @@ public class PLANitStaticAssignmentProjectDemos {
     } catch (final Exception e) {
       // do something
     }
-  }   
+  }  
   
-
-  
-  
-
+  /**
+   * The Getting started demo as provided on the website. We let it throw an exception instead of cathing it because it is the only runnable test
+   * of the bunch and is called from the integration tests to ensure it remains runnable.
+   * 
+   *  It must be a viable example because it is used in the getting started on the website. Hence it is part of the testing cycle to ensure it remains up to date
+   *  and viable. If any issues are found that require changing the demo, they should also be reflected in the getting started on the website
+   *  
+   * @throws PlanItException thrown when error
+   */
+  public static void GettingStartedDemo() throws PlanItException {
+      // PROJECT INSTANCE
+      final PlanItSimpleProject project = new PlanItSimpleProject("c:\\Users\\Public\\planit\\");
+           
+      // ASSIGNMENT INSTANCE
+      TraditionalStaticAssignmentBuilder assignment = 
+        (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      
+      // COMPONENTS
+      BPRLinkTravelTimeCost bprCost = (BPRLinkTravelTimeCost) assignment.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+      assignment.createAndRegisterVirtualCost(VirtualCost.FIXED);
+      assignment.createAndRegisterSmoothing(Smoothing.MSA);
+      
+      // CONFIGURE COST COMPONENT
+      // BPR 
+      double alpha = 0.9;
+      double beta = 4.5;
+      bprCost.setDefaultParameters(alpha, beta);
+      
+      // CONFIGURE OUTPUT
+      assignment.getOutputConfiguration().setPersistOnlyFinalIteration(false);
+      
+      // EXECUTE ASSIGNMENT
+      project.executeAllTrafficAssignments();
+  }  
 
   /**
    * Setup a mininum configuration standard traditional static assignment:
@@ -525,7 +556,7 @@ public class PLANitStaticAssignmentProjectDemos {
   public static void maximumExampleDemo() {
     // CONFIGURATION INPUT
     final String projectPath = "<insert the project path here>";
-    final String logFile = "<insert logFile including path and extension here>";
+    //final String logFile = "<insert logFile including path and extension here>";
     final String initialCsvCostFilePath = "<insert the initial cost file path here>";
     final String outputFileName = "<insert base output file name without extension here>";
     final String outputPath = "<insert path to output directory here>";

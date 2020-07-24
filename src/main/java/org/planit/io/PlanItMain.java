@@ -1,8 +1,6 @@
 package org.planit.io;
 
-import java.util.Map;
 import java.util.logging.Logger;
-
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
