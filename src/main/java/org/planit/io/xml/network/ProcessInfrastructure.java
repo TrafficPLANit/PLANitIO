@@ -1,6 +1,5 @@
 package org.planit.io.xml.network;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -39,6 +38,7 @@ import net.opengis.gml.PointType;
 public class ProcessInfrastructure {
 
   /** the logger */
+  @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(ProcessInfrastructure.class.getCanonicalName());
 
   private static PlanitGeoUtils planitGeoUtils;
@@ -171,7 +171,6 @@ public class ProcessInfrastructure {
         DirectPosition centrePointGeometry = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
         node.setCentrePointGeometry(centrePointGeometry);
       }
-      network.nodes.registerNode(node);
       boolean duplicateNodeExternalId = 
           inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(),node);
       PlanItException.throwIf(duplicateNodeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(),

@@ -23,24 +23,20 @@ import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Zone;
 
 /**
- * This class contains methods to update the Demands object using input values
+ * This class contains methods to populate the Demands object using input values
  * from the XML demands input file.
  *
  * @author gman6028
  *
  */
-public class UpdateDemands {
+public class DemandsPopulator {
 
-  private static List<String> RESERVED_CHARACTERS;
+  private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
 
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(UpdateDemands.class.getCanonicalName());   
+  @SuppressWarnings("unused")
+  private static final Logger LOGGER = Logger.getLogger(DemandsPopulator.class.getCanonicalName());   
   
-  static {
-    final String[] reservedCharacters = {"+", "*", "^"};
-    RESERVED_CHARACTERS = Arrays.asList(reservedCharacters);
-  }
-
   /**
    * Convert regular expression special characters to act like simple strings
    * during String.split() calls
@@ -277,7 +273,6 @@ public class UpdateDemands {
       final int userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
           : odmatrix.getUserclassref().intValue();
       final UserClass userClass = inputBuilderListener.getUserClassByExternalId((long) userClassExternalId);
-      demands.registerUserClass(userClass);
       final Mode mode = userClass.getMode();
       final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByExternalId(timePeriodId);
       ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);

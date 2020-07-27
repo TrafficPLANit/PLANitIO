@@ -18,7 +18,7 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
-import org.planit.utils.misc.IdGenerator;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 

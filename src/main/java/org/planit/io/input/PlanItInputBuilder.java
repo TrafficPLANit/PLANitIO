@@ -34,7 +34,7 @@ import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementPLANit;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.demands.ProcessConfiguration;
-import org.planit.io.xml.demands.UpdateDemands;
+import org.planit.io.xml.demands.DemandsPopulator;
 import org.planit.io.xml.network.ProcessInfrastructure;
 import org.planit.io.xml.network.ProcessLinkConfiguration;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
@@ -560,10 +560,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
       ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, physicalNetwork, this);
       final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-      UpdateDemands.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
-      for (TravelerType travelerType : travelerTypeExternalIdToTravelerTypeMap.values()) {
-    	  demands.registerTravelerType(travelerType);
-      }
+      DemandsPopulator.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error when populating demands in PLANitIO",e);

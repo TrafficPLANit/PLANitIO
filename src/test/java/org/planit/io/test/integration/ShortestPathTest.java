@@ -104,6 +104,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -140,6 +141,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -223,6 +225,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -303,6 +306,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -398,6 +402,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -677,6 +682,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }  
@@ -969,6 +975,7 @@ public class ShortestPathTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName3,
           xmlFileName3);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }

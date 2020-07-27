@@ -392,7 +392,7 @@ public class PLANitStaticAssignmentProjectDemos {
       
       // * NEW *
       MemoryOutputIterator outputIterator = memoryOutputFormatter.getIterator(
-          network.modes.getFirs(), 
+          network.modes.getFirst(), 
           demands.timePeriods.getFirst(), 
           memoryOutputFormatter.getLastIteration(), 
           OutputType.LINK);

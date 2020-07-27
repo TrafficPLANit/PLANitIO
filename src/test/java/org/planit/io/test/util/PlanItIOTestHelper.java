@@ -57,7 +57,7 @@ import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 import org.planit.utils.functionalinterface.QuadConsumer;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.functionalinterface.TriFunction;
-import org.planit.utils.misc.IdGenerator;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;

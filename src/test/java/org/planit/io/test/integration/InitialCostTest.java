@@ -26,7 +26,7 @@ import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.CustomPlanItProject;
-import org.planit.utils.misc.IdGenerator;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 

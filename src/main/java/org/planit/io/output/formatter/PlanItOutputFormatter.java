@@ -43,6 +43,7 @@ import org.planit.output.formatter.CsvTextFileOutputFormatter;
 import org.planit.output.formatter.XmlTextFileOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.time.TimePeriod;
+import org.planit.utils.id.IdGroupingToken;
 import org.planit.utils.network.physical.Mode;
 
 /**
@@ -600,24 +601,27 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Constructor, uses default values for properties file name, description
    * property and version property
+   * 
+   * @param groupId contiguous id generation within this group for instances of this class
    */
-  public PlanItOutputFormatter() throws PlanItException {
-    this(DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
+  public PlanItOutputFormatter(IdGroupingToken groupId) throws PlanItException {
+    this(groupId, DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
   }
 
   /**
    * Constructor, takes values for properties file name, description and version
    * property
    * 
+   * @param groupId contiguous id generation within this group for instances of this class
    * @param propertiesFileName the name of the application properties file
    * @param descriptionProperty the name of the description property
    * @param versionProperty the name of the version property
    * @throws PlanItException thrown if the application properties file exists but
    *           cannot be opened
    */
-  public PlanItOutputFormatter(String propertiesFileName, String descriptionProperty, String versionProperty)
+  public PlanItOutputFormatter(IdGroupingToken groupId, String propertiesFileName, String descriptionProperty, String versionProperty)
       throws PlanItException {
-    super();
+    super(groupId);
     xmlNameRoot = DEFAULT_XML_NAME_PREFIX;
     xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
     xmlFileNameMap = new HashMap<OutputType, String>();
@@ -634,12 +638,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Constructor, uses default values description property and version property
    * 
+   * @param groupId contiguous id generation within this group for instances of this class
    * @param propertiesFileName the name of the application properties file
    * @throws PlanItException thrown if the application properties file exists but
    *           cannot be opened
    */
-  public PlanItOutputFormatter(String propertiesFileName) throws PlanItException {
-    this(propertiesFileName, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
+  public PlanItOutputFormatter(IdGroupingToken groupId, String propertiesFileName) throws PlanItException {
+    this(groupId, propertiesFileName, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
   }
 
   /**
