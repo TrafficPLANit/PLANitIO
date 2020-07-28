@@ -1,0 +1,59 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!-- Demand component -->
+	<macroscopicdemand>
+		<demandconfiguration>
+			<timeperiods>
+				<timeperiod id="0">
+					<duration>3600</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0">
+				<o ref="1">
+					<d ref="2">1000</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
+
+	<!-- Physical network component -->
+	<macroscopicnetwork>
+		<infrastructure>
+			<nodes>
+				<node id="1" />
+				<node id="2" />
+			</nodes>
+			<links>
+				<link nodearef="1" nodebref="2">
+					<linksegment id="1" dir="a_b" />
+					<linksegment id="2" dir="b_a" />
+					<length>10</length>
+				</link>
+			</links>
+		</infrastructure>
+	</macroscopicnetwork>
+
+	<!-- zoning structure component -->
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<centroid>
+					<name>Zone 1 centroid</name>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="1" />
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>Zone 2 centroid</name>
+				</centroid>
+				<connectoids>
+					<connectoid noderef="2" />
+				</connectoids>
+			</zone>
+		</zones>
+	</macroscopiczoning>
+</PLANit>

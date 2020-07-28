@@ -50,7 +50,7 @@ public class ProcessConfiguration {
     XMLElementTravellerTypes travellertypes = 
         (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes() : demandconfiguration.getTravellertypes();
     if (travellertypes.getTravellertype().isEmpty()) {
-      generateDefaultXMLTravellerType();
+      travellertypes.getTravellertype().add(generateDefaultXMLTravellerType());
     }
     
     for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
@@ -95,7 +95,7 @@ public class ProcessConfiguration {
         PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1,
             "User class " + userclass.getId() + " has no traveller type specified, but more than one traveller type possible");                
       }else {
-        PlanItException.throwIf(demands.travelerTypes.getTravelerTypeById(userclass.getTravellertyperef().longValue()) == null, 
+        PlanItException.throwIf(demands.travelerTypes.getTravelerTypeByExternalId(userclass.getTravellertyperef().longValue()) == null, 
             "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()+ " referenced by user class " + userclass.getName() + " but not defined");
       }
       PlanItException.throwIf(userclass.getModeref() == null, "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
@@ -151,8 +151,8 @@ public class ProcessConfiguration {
     XMLElementUserClasses.Userclass userclass = new XMLElementUserClasses.Userclass();
     userclass.setName(UserClass.DEFAULT_NAME);
     userclass.setId(BigInteger.valueOf(UserClass.DEFAULT_EXTERNAL_ID));
-    userclass.setModeref(BigInteger.valueOf(UserClass.DEFAULT_MODE_REF));
-    userclass.setTravellertyperef(BigInteger.valueOf(UserClass.DEFAULT_TRAVELLER_TYPE));
+    userclass.setModeref(BigInteger.valueOf(Mode.DEFAULT_EXTERNAL_ID));
+    userclass.setTravellertyperef(BigInteger.valueOf(TravelerType.DEFAULT_EXTERNAL_ID));
     return userclass;
   }
 

@@ -522,9 +522,10 @@ public class PLANitStaticAssignmentProjectDemos {
    *  
    * @throws PlanItException thrown when error
    */
-  public static void GettingStartedDemo() throws PlanItException {
+  public static void gettingStartedDemo(String overrideProjectPath) throws PlanItException {
       // PROJECT INSTANCE
-      final PlanItSimpleProject project = new PlanItSimpleProject("c:\\Users\\Public\\planit\\");
+      final PlanItSimpleProject project = new PlanItSimpleProject(
+          overrideProjectPath==null ? "c:\\Users\\Public\\planit\\" : overrideProjectPath);
            
       // ASSIGNMENT INSTANCE
       TraditionalStaticAssignmentBuilder assignment = 

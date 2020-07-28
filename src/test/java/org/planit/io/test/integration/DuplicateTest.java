@@ -3,6 +3,7 @@ package org.planit.io.test.integration;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.AfterClass;
@@ -10,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.logging.Logging;
+import org.planit.utils.id.IdGenerator;
 
 /**
  * JUnit test cases for duplicate tests for TraditionalStaticAssignment
@@ -32,6 +34,7 @@ public class DuplicateTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
   
   /**
@@ -47,6 +50,7 @@ public class DuplicateTest {
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       fail("Exception for duplicate link segment type external Id was not thrown");
     } catch (Exception e) {
+      LOGGER.severe("EXCEPTION=CORRECT");
       assertTrue(true);
     }
   }
@@ -61,7 +65,10 @@ public class DuplicateTest {
       String description = "testDuplicateLinkSegment";
       Integer maxIterations = 1;
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate link segment external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -78,7 +85,10 @@ public class DuplicateTest {
       String description = "testDuplicateNode";
       Integer maxIterations = 1;
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate node external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -95,7 +105,10 @@ public class DuplicateTest {
       String description = "testDuplicateMode";
       Integer maxIterations = 1;
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate mode external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -112,7 +125,10 @@ public class DuplicateTest {
       String description = "testDuplicateZone";
       Integer maxIterations = 1;
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate zone external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -129,7 +145,10 @@ public class DuplicateTest {
       String description = "testDuplicateTimePeriod";
       Integer maxIterations = 1;
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate time period external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -146,7 +165,10 @@ public class DuplicateTest {
       String description = "testDuplicateUserClass";
       Integer maxIterations = 1;
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate user class external Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);

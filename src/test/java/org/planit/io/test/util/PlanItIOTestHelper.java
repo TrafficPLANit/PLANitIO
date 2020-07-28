@@ -658,7 +658,6 @@ public class PlanItIOTestHelper {
       final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
       final String description,
       final boolean useFixedConnectoidTravelTimeCost) throws Exception {
-    IdGenerator.reset();
 
     final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
@@ -780,7 +779,6 @@ public class PlanItIOTestHelper {
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow) throws Exception {
-    IdGenerator.reset();
 
     final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);

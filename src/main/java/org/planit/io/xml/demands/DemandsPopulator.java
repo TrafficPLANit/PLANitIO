@@ -270,8 +270,8 @@ public class DemandsPopulator {
     		initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
     for (final XMLElementOdMatrix odmatrix : oddemands) {
       final long timePeriodId = odmatrix.getTimeperiodref().longValue();
-      final int userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
-          : odmatrix.getUserclassref().intValue();
+      final long userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
+          : odmatrix.getUserclassref().longValue();
       final UserClass userClass = inputBuilderListener.getUserClassByExternalId((long) userClassExternalId);
       final Mode mode = userClass.getMode();
       final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByExternalId(timePeriodId);

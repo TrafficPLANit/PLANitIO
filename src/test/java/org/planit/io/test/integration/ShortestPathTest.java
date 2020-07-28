@@ -21,6 +21,7 @@ import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 
 /**
@@ -72,6 +73,7 @@ public class ShortestPathTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
   
   /**

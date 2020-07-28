@@ -51,6 +51,7 @@ public class InitialCostTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
   
   /**

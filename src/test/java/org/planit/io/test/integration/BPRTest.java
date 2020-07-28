@@ -24,6 +24,7 @@ import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.utils.functionalinterface.TriConsumer;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
@@ -77,6 +78,7 @@ public class BPRTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
   
   /**

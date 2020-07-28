@@ -22,6 +22,7 @@ import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 
 /**
@@ -73,6 +74,7 @@ public class ExplanatoryTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
  
   /**
@@ -135,6 +137,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -200,6 +203,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -265,6 +269,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -330,6 +335,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception ex) {
+      ex.printStackTrace();
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
       fail(ex.getMessage());
     }
@@ -344,7 +350,10 @@ public class ExplanatoryTest {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypesButNoUserClasses";
       String description = "explanatory";
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
      } catch (final Exception e) {
       assertTrue(true);
@@ -360,10 +369,13 @@ public class ExplanatoryTest {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\notSpecifiedWhichTravellerTypeBeingUsed";
       String description = "explanatory";
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
      } catch (final Exception e) {
-      assertTrue(true);
+       assertTrue(true);
     }
   }
  
@@ -376,10 +388,13 @@ public class ExplanatoryTest {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\referenceToMissingTravellerType";
       String description = "explanatory";
 
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Test should throw an exception due to reference to missing traveller type but it did not.");
      } catch (final Exception e) {
-      assertTrue(true);
+       assertTrue(true);
     }
   }
 
@@ -443,6 +458,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -508,6 +524,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -521,7 +538,11 @@ public class ExplanatoryTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\linkSegmentsInSameDirection";
       String description = "explanatory";
+      
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);      
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail("Exception for link segment in same direction was not thrown");
     } catch (Exception e) {
       assertTrue(true);
@@ -589,6 +610,7 @@ public class ExplanatoryTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -658,6 +680,7 @@ public class ExplanatoryTest {
           xmlFileName);
       assertTrue(true);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }

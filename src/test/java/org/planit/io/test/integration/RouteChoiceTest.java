@@ -29,6 +29,7 @@ import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.utils.functionalinterface.TriConsumer;
+import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 
@@ -95,6 +96,7 @@ public class RouteChoiceTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
   
   /**

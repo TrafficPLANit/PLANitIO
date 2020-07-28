@@ -8,6 +8,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.logging.Logging;
+import org.planit.utils.id.IdGenerator;
+
 import demo.PLANitStaticAssignmentProjectDemos;
 
 /**
@@ -31,6 +33,7 @@ public class GettingStartedTest {
   @AfterClass
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
 
   /**
@@ -40,7 +43,7 @@ public class GettingStartedTest {
   @Test
   public void getting_started_example_test() {
     try {
-      PLANitStaticAssignmentProjectDemos.GettingStartedDemo();
+      PLANitStaticAssignmentProjectDemos.gettingStartedDemo("src\\test\\resources\\testcases\\getting_started\\xml");
     }catch(Exception e){
       e.printStackTrace();
       LOGGER.severe(e.getMessage());
