@@ -44,6 +44,7 @@ import org.planit.output.formatter.XmlTextFileOutputFormatter;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.time.TimePeriod;
 import org.planit.utils.id.IdGroupingToken;
+import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.network.physical.Mode;
 
 /**
@@ -473,17 +474,17 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Log information regarding the output to the log
    */
-  private void logOutputInformation() {
+  private void logOutputInformation(OutputAdapter outputAdapter) {
     if (isXmlDirectorySet()) {
-      LOGGER.info("XML meta-data persisted in: " + xmlDirectory);
+      LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) + "XML meta-data directory set: " + xmlDirectory);
     } else {
-      LOGGER.info("XML meta-data output directory unknown");
+      LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) + "XML meta-data output directory unknown");
     }
 
     if (isCsvDirectorySet()) {
-      LOGGER.info("CSV results persisted in: " + csvDirectory);
+      LOGGER.info(LoggingUtils.createRunIdPrefix(runId) + "CSV result directory set: " + csvDirectory);
     } else {
-      LOGGER.info("CSV result directory unknown");
+      LOGGER.info(LoggingUtils.createRunIdPrefix(runId) + "CSV result directory unknown");
     }
   }
 
@@ -503,7 +504,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   protected void writeSimulationResultsForCurrentTimePeriod(OutputConfiguration outputConfiguration, OutputTypeConfiguration outputTypeConfiguration,
       OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod,
       int iterationIndex) throws PlanItException {
-    LOGGER.info("XML Output for OutputType SIMULATION has not been implemented yet.");
+    LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) +"XML Output for OutputType SIMULATION has not been implemented yet.");
   }
 
   /**
@@ -523,7 +524,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   protected void writeGeneralResultsForCurrentTimePeriod(OutputConfiguration outputConfiguration, OutputTypeConfiguration outputTypeConfiguration,
       OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod,
       int iterationIndex) throws PlanItException {
-    LOGGER.info("XML Output for OutputType GENERAL has not been implemented yet.");
+    LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) +"XML Output for OutputType GENERAL has not been implemented yet.");
   }
 
   /**
@@ -650,15 +651,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Create the output directories and open the CSV writers
    * 
-   * @param outputTypeConfigurations OutputTypeConfiguration for the assignment to
-   *          be saved
+   * @param outputTypeConfigurations OutputTypeConfiguration for the assignment to be saved
    * @param runId the id of the traffic assignment to be saved
-   * @throws PlanItException thrown if there is an error or validation failure
-   *           during set up of the output formatter
+   * @throws PlanItException thrown if there is an error or validation failure during set up of the output formatter
    */
   @Override
-  public void initialiseBeforeSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations,
-      long runId) throws PlanItException {
+  public void initialiseBeforeSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations, long runId) throws PlanItException {
     
     PlanItException.throwIf(xmlDirectory == null, "No common output directory or XML output directory has been defined");
     PlanItException.throwIf(csvDirectory == null,"No common output directory or CSV output directory has been defined");
@@ -666,20 +664,18 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     this.runId = runId;
     createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
     createOrOpenOutputDirectory(csvDirectory, resetCsvDirectory);
-
-    logOutputInformation();
   }
 
   /**
    * Finalize the persistence after the simulation. Here we generate the XML meta-data file(s)
    * *
    * 
-   * @param outputTypeConfigurations OutputTypeConfigurations for the assignment that have been
-   *          activated
+   * @param outputTypeConfigurations OutputTypeConfigurations for the assignment that have been activated
+   * @param outputAdapter the outputAdapter
    * @throws PlanItException thrown if there is an error closing a resource
    */
   @Override
-  public void finaliseAfterSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations)
+  public void finaliseAfterSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations, OutputAdapter outputAdapter)
       throws PlanItException {
     try {
       for (Map.Entry<OutputType, OutputTypeConfiguration> entry : outputTypeConfigurations.entrySet()) {
@@ -697,11 +693,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
             }
           }
         }
-      }
+      }      
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error when finalising after simulation in PLANitIO OutputFormatter", e);
     }
+    
+    logOutputInformation(outputAdapter);    
   }
 
   /**

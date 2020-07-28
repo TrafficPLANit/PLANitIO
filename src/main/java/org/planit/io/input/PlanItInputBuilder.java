@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.function.LongFunction;
 import java.util.logging.Logger;
 
-
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -53,7 +51,6 @@ import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
-import org.planit.userclass.TravelerType;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Centroid;
@@ -695,7 +692,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         } else if (projectComponent instanceof InitialPhysicalCost) {
           populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, parameters[0], parameters[1]);
         } else {
-          LOGGER.info("Event component is " + projectComponent.getClass().getCanonicalName()
+          LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
               + " which is not handled by PlanItInputBuilder.");
         }
       } catch (final PlanItException e) {
