@@ -58,7 +58,7 @@ public interface XmlUtils {
 	 * @throws Exception thrown if the input file fails the validation
 	 */
 	public static void validateXml(String xmlFileLocation, String schemaFileLocation) throws Exception {
-		LOGGER.info("Validating " + xmlFileLocation + " against " + schemaFileLocation);
+		LOGGER.fine("validating " + xmlFileLocation + " against " + schemaFileLocation);
 		String schemaLang = "http://www.w3.org/2001/XMLSchema";
 		SchemaFactory factory = SchemaFactory.newInstance(schemaLang);
 		Schema schema = factory.newSchema(new StreamSource(schemaFileLocation));

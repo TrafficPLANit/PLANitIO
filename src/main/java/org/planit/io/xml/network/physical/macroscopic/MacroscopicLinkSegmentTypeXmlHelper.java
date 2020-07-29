@@ -69,9 +69,8 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
       MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper,
       Mode mode, double maxSpeed, double critSpeed, Object linkTypeExternalId) {
     if (maxSpeed < 0.0) {
-      LOGGER.warning("A negative maximum speed has been defined for Link Type "
-          + macroscopicLinkSegmentTypeXmlHelper.getName()
-          + " and Mode " + mode.getName()
+      LOGGER.warning("a negative maximum speed has been defined for Link Type "
+          + macroscopicLinkSegmentTypeXmlHelper.getName() + " and Mode " + mode.getName()
           + ".  Setting the speed to zero instead (which means vehicles of this type are forbidden in links of this type.)");
       maxSpeed = 0.0;
     }
@@ -116,21 +115,21 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
     MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper;
     if (!existingLinkTypeHelpers.containsKey(linkTypeExternalId)) {
       if (capacityPerLane == 0.0) {
-        LOGGER.warning("Link Type " + name + " initially defined without a capacity, being given a capacity of zero.");
+        LOGGER.warning("link Type " + name + " initially defined without a capacity, being given a capacity of zero.");
       }
       macroscopicLinkSegmentTypeXmlHelper =
           new MacroscopicLinkSegmentTypeXmlHelper(name, capacityPerLane, maximumDensityPerLane, linkTypeExternalId);
     } else {
       macroscopicLinkSegmentTypeXmlHelper = existingLinkTypeHelpers.get(linkTypeExternalId);
       if (capacityPerLane != macroscopicLinkSegmentTypeXmlHelper.getCapacityPerLane()) {
-        LOGGER.warning("Different capacity per lane values for Link Type " + macroscopicLinkSegmentTypeXmlHelper
+        LOGGER.warning("different capacity per lane values for Link Type " + macroscopicLinkSegmentTypeXmlHelper
             .getName() + ".  Will use the highest one.");
       }
       if (capacityPerLane > macroscopicLinkSegmentTypeXmlHelper.getCapacityPerLane()) {
         macroscopicLinkSegmentTypeXmlHelper.setCapacityPerLane(capacityPerLane);
       }
       if (maximumDensityPerLane != macroscopicLinkSegmentTypeXmlHelper.getMaximumDensityPerLane()) {
-        LOGGER.warning("Different maximum density per lane values for link type "
+        LOGGER.warning("different maximum density per lane values for link type "
             + macroscopicLinkSegmentTypeXmlHelper.getName() + ".  Will use the highest one.");
       }
       if (maximumDensityPerLane > macroscopicLinkSegmentTypeXmlHelper.getMaximumDensityPerLane()) {

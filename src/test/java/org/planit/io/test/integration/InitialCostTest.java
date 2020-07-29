@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
@@ -149,9 +150,13 @@ public class InitialCostTest {
       String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile";
       String description = "readingInitialCostValuesWithMissingRows";
       Integer maxIterations = null;
+      
+      Level oldLevel = LOGGER.getLevel();
+      LOGGER.setLevel(Level.OFF);      
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
           "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile\\initial_link_segment_costs_external_id.csv",
           maxIterations, null, description, true, false);
+      LOGGER.setLevel(oldLevel);
       fail(
           "RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
     } catch (Exception e) {

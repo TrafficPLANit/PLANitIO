@@ -51,6 +51,7 @@ import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.trafficassignment.TrafficAssignmentComponentFactory;
+import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Centroid;
@@ -203,7 +204,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         macroscopicnetwork = planit.getMacroscopicnetwork();
         macroscopicdemand = planit.getMacroscopicdemand();
         
-        LOGGER.info("File " + xmlFileNames[i] + " provides the network, demands and zoning input data.");        
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the network, demands and zoning input data.");        
         return true;
       } catch (final Exception e) { 
         //An exception here may is not bug, it just means the current file is not an input file.
@@ -231,7 +232,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
               .generateObjectFromXml(XMLElementMacroscopicZoning.class, xmlFileNames[i]);
         } catch (final Exception e) {}
         foundZoningFile = true;        
-        LOGGER.info("File " + xmlFileNames[i] + " provides the zoning input data.");          
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the zoning input data.");          
         continue;        
       }
       if (!foundNetworkFile) {
@@ -240,7 +241,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
               .generateObjectFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames[i]);
         } catch (final Exception e) {}
         foundNetworkFile = true;        
-        LOGGER.info("File " + xmlFileNames[i] + " provides the network input data.");          
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the network input data.");          
         continue;        
       }
       if (!foundDemandFile) {
@@ -249,7 +250,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
               .generateObjectFromXml(XMLElementMacroscopicDemand.class, xmlFileNames[i]);
         } catch (final Exception e) {}
         foundDemandFile = true;        
-        LOGGER.info("File " + xmlFileNames[i] + " provides the demand input data.");          
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the demand input data.");          
         continue;        
       }
     }
@@ -294,9 +295,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanItException.throwIf(networkFileName==null, "Failed to find a valid network input file in the project directory " + projectPath);
     PlanItException.throwIf(demandFileName==null, "Failed to find a valid demand input file in the project directory " + projectPath);
     
-    LOGGER.info("File " + zoningFileName + " provides the zoning input data.");
-    LOGGER.info("File " + networkFileName + " provides the network input data.");
-    LOGGER.info("File " +demandFileName + " provides the demand input data.");
+    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + zoningFileName + " provides the zoning input data.");
+    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + networkFileName + " provides the network input data.");
+    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +demandFileName + " provides the demand input data.");
 
     createGeneratedClassesFromXmlLocations(zoningFileName, demandFileName, networkFileName);
   }
@@ -483,8 +484,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if there is an error reading the input file
    */
   protected void populatePhysicalNetwork( final PhysicalNetwork physicalNetwork) throws PlanItException {
-
-    LOGGER.info("Populating Network");
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Network");
 
     MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
     try {
@@ -511,7 +511,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if there is an error reading the input file
    */
   protected void populateZoning(final Zoning zoning, final Object parameter1) throws PlanItException {
-    LOGGER.info("Populating Zoning");
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
 
     final PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter1;
@@ -547,7 +547,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if there is an error reading the input file
    */
   protected void populateDemands( Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
-    LOGGER.info("Populating Demands");
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");
     PlanItException.throwIf(!(parameter1 instanceof Zoning),"Parameter 1 of call to populateDemands() is not of class Zoning");
     PlanItException.throwIf(!(parameter2 instanceof PhysicalNetwork),"Parameter 2 of call to populateDemands() is not of class PhysicalNetwork");
     
@@ -575,7 +575,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost,
       final Object parameter1, final Object parameter2)
       throws PlanItException {
-    LOGGER.info("Populating Initial Link Segment Costs");
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Initial Link Segment Costs");
     
     PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork),"Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
     PlanItException.throwIf(!(parameter2 instanceof String), "Parameter 2 of call to populateInitialLinkSegments() is not a file name");
@@ -646,7 +646,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   public PlanItInputBuilder(final String projectPath, final String xmlNameExtension) throws PlanItException {
     super();
-    LOGGER.info("Project path is set to: "+ projectPath);
+    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"project path is set to: "+ projectPath);
     setInputFiles(projectPath, xmlNameExtension);
   }
 

@@ -132,31 +132,40 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * Generated object for the metadata element in the output XML file
    */
   private Map<OutputTypeEnum, XMLElementMetadata> metadata;
-
-  /**
-   * The Id of the traffic assignment run being recorded
+ 
+  /** create the logging prefix to use for non assignment specific logging messages
+   * @return loggingPrefix
    */
-  private long runId;
+  private String createLoggingPrefix() {
+    return LoggingUtils.createOutputFormatterPrefix(this.id);
+  }
+  
+  /** create the logging prefix to use for assignment specific logging messages
+   * @return loggingPrefix
+   */
+  private String createLoggingPrefix(long runId) {
+    return LoggingUtils.createRunIdPrefix(runId) +createLoggingPrefix();
+  }  
   
   /**
    * Generates the name of an output file using the relative path from XML to CSV files
    * 
-   * @param timePeriod the time period
    * @param outputType the OutputType of the output
+   * @param outputAdapter outputAdapter
+   * @param timePeriod the time period 
    * @param runId the id of the traffic assignment run
    * @param iteration current iteration
    * @return the name of the output file
    * @throws PlanItException thrown if the output directory cannot be opened
    */
-  private String generateRelativeOutputFileName(TimePeriod timePeriod, OutputType outputType, long runId, int iteration)
+  private String generateRelativeOutputFileName(OutputType outputType, OutputAdapter outputAdapter, TimePeriod timePeriod, int iteration)
       throws PlanItException {
     Path pathAbsolute = Paths.get(csvDirectory);
     Path pathBase = Paths.get(xmlDirectory);
     Path pathRelative = pathBase.relativize(pathAbsolute);
     String relativeCsvOutputDirectory = pathRelative.toString();
     relativeCsvOutputDirectory = relativeCsvOutputDirectory.equals("") ? "." : relativeCsvOutputDirectory;
-    return generateOutputFileName(relativeCsvOutputDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType,
-        runId, iteration);
+    return generateOutputFileName(relativeCsvOutputDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, outputAdapter.getRunId(), iteration);
   }
 
   /**
@@ -174,15 +183,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   private void setVersionAndDescription(String propertiesFileName, String descriptionProperty, String versionProperty)
       throws PlanItException {
     if (propertiesFileName == null) {
-      LOGGER.info(
-          "No application properties file specified, version and description properties must be set from the code or will not be recorded.");
+      LOGGER.info(this.createLoggingPrefix()+"no application properties file specified, version and description properties must be set from the code or will not be recorded");
       return;
     }
     try (InputStream input = PlanItOutputFormatter.class.getClassLoader().getResourceAsStream(propertiesFileName)) {
 
       if (input == null) {
-        LOGGER.info("Application properties " + propertiesFileName
-            + " could not be found, version and description properties must be set from the code or will not be recorded.");
+        LOGGER.info(this.createLoggingPrefix()+"application properties " + propertiesFileName + " could not be found, version and description properties must be set from the code or will not be recorded.");
         return;
       }
 
@@ -192,13 +199,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
       description = prop.getProperty(descriptionProperty);
       if (description == null) {
-        LOGGER.info("Description property could not be set from properties file " + propertiesFileName
-            + ", this must be set from the code or will not be recorded.");
+        LOGGER.info(this.createLoggingPrefix()+"description property could not be set from properties file " + propertiesFileName+ ", this must be set from the code or will not be recorded.");
       }
       version = prop.getProperty(versionProperty);
       if (version == null) {
-        LOGGER.info("Version property could not be set from properties file " + propertiesFileName
-            + ", this must be set from the code or will not be recorded.");
+        LOGGER.info(this.createLoggingPrefix()+"version property could not be set from properties file " + propertiesFileName+ ", this must be set from the code or will not be recorded.");
       }
 
     } catch (Exception e) {
@@ -375,9 +380,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Create a CSV file with output content based on the current (sub) output type
    * 
-   * @param timePeriod current time period
-   * @param outputTypeConfiguration the OutputTypeConfiguration object
-   *          containing the run information
+   * @param outputTypeConfiguration the OutputTypeConfiguration object containing the run information
+   * @param outputAdapter the outputAdapter
+   * @param timePeriod current time period          
    * @param iterationIndex current iteration index
    * @param createCsvFileForCurrentIteration lambda function which records data
    *          specific to the CSV file for the
@@ -385,15 +390,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @throws PlanItException thrown if there is an error
    * @return name of CSV output file
    */
-  private String createCsvFileNameAndFileForTimePeriodCurrentIteration(TimePeriod timePeriod,
-      OutputTypeConfiguration outputTypeConfiguration, int iterationIndex,
+  private String createCsvFileNameAndFileForTimePeriodCurrentIteration(
+      OutputTypeConfiguration outputTypeConfiguration, OutputAdapter outputAdapter, TimePeriod timePeriod, int iterationIndex,
       Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
 
     // create the name based on iteration, time period and related info
     // String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension,
     // timePeriod, outputTypeConfiguration.getOutputType(), runId, iterationIndex);
     String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod,
-        outputTypeConfiguration.getOutputType(), runId, iterationIndex);
+        outputTypeConfiguration.getOutputType(), outputAdapter.getRunId(), iterationIndex);
     try {
       // create the header (first line) of the file
       CSVPrinter csvIterationPrinter = openCsvFileAndWriteHeaders(outputTypeConfiguration, csvFileName);
@@ -404,8 +409,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         throw ple;
       }
       csvIterationPrinter.close();
-    }catch( PlanItException e)
-    {
+    }catch( PlanItException e) {
       throw e;
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -447,21 +451,17 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         initializeMetadataObject(currentOutputType, outputTypeConfiguration, outputAdapter, timePeriod);
       }
 
-      // MARK 6-1-2020 - refactored
-      String csvFileName = createCsvFileNameAndFileForTimePeriodCurrentIteration(timePeriod,
-          outputTypeConfiguration, iterationIndex, createCsvFileForCurrentIteration);
+      String csvFileName = createCsvFileNameAndFileForTimePeriodCurrentIteration(outputTypeConfiguration, outputAdapter, timePeriod, iterationIndex, createCsvFileForCurrentIteration);
 
       // add metadata to the XML content
-      String relativeCsvFileName = generateRelativeOutputFileName(timePeriod, outputTypeConfiguration.getOutputType(),
-          runId, iterationIndex);
+      String relativeCsvFileName = generateRelativeOutputFileName(outputTypeConfiguration.getOutputType(), outputAdapter, timePeriod, iterationIndex);
       updateMetadataSimulationOutputForCurrentIteration(iterationIndex, relativeCsvFileName, currentOutputType);
       addCsvFileNamePerOutputType(currentOutputType, csvFileName);
 
       // MARK 6-1-2020: Why is this here and not immediately placed in the same if
       // that checks for a new period at the top of this method?
       if (isNewTimePeriod) {
-        xmlFileNameMap.put(outputType, generateOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension,
-            timePeriod, outputType, runId));
+        xmlFileNameMap.put(outputType, generateOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
       }
     } catch (PlanItException e) {
       throw e;
@@ -476,15 +476,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    */
   private void logOutputInformation(OutputAdapter outputAdapter) {
     if (isXmlDirectorySet()) {
-      LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) + "XML meta-data directory set: " + xmlDirectory);
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "XML meta-data directory set: " + xmlDirectory);
     } else {
-      LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) + "XML meta-data output directory unknown");
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "XML meta-data output directory unknown");
     }
 
     if (isCsvDirectorySet()) {
-      LOGGER.info(LoggingUtils.createRunIdPrefix(runId) + "CSV result directory set: " + csvDirectory);
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "CSV result directory set: " + csvDirectory);
     } else {
-      LOGGER.info(LoggingUtils.createRunIdPrefix(runId) + "CSV result directory unknown");
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "CSV result directory unknown");
     }
   }
 
@@ -501,10 +501,17 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @throws PlanItException thrown if there is an error
    */
   @Override
-  protected void writeSimulationResultsForCurrentTimePeriod(OutputConfiguration outputConfiguration, OutputTypeConfiguration outputTypeConfiguration,
-      OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod,
+  protected void writeSimulationResultsForCurrentTimePeriod(
+      OutputConfiguration outputConfiguration, 
+      OutputTypeConfiguration outputTypeConfiguration,
+      OutputTypeEnum currentOutputType, 
+      OutputAdapter outputAdapter, 
+      Set<Mode> modes, 
+      TimePeriod timePeriod,
       int iterationIndex) throws PlanItException {
-    LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) +"XML Output for OutputType SIMULATION has not been implemented yet.");
+    
+    LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +"XML Output for OutputType SIMULATION has not been implemented yet.");
+    
   }
 
   /**
@@ -521,10 +528,17 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @throws PlanItException thrown if there is an error
    */
   @Override
-  protected void writeGeneralResultsForCurrentTimePeriod(OutputConfiguration outputConfiguration, OutputTypeConfiguration outputTypeConfiguration,
-      OutputTypeEnum currentOutputType, OutputAdapter outputAdapter, Set<Mode> modes, TimePeriod timePeriod,
+  protected void writeGeneralResultsForCurrentTimePeriod(
+      OutputConfiguration outputConfiguration, 
+      OutputTypeConfiguration outputTypeConfiguration,
+      OutputTypeEnum currentOutputType, 
+      OutputAdapter outputAdapter, 
+      Set<Mode> modes, 
+      TimePeriod timePeriod,
       int iterationIndex) throws PlanItException {
-    LOGGER.info(LoggingUtils.createRunIdPrefix(outputAdapter.getRunId()) +"XML Output for OutputType GENERAL has not been implemented yet.");
+    
+    LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +"XML Output for OutputType GENERAL has not been implemented yet.");
+    
   }
 
   /**
@@ -661,7 +675,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     PlanItException.throwIf(xmlDirectory == null, "No common output directory or XML output directory has been defined");
     PlanItException.throwIf(csvDirectory == null,"No common output directory or CSV output directory has been defined");
     
-    this.runId = runId;
     createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
     createOrOpenOutputDirectory(csvDirectory, resetCsvDirectory);
   }

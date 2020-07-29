@@ -15,6 +15,7 @@ import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
+import org.planit.utils.misc.LoggingUtils;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Limitations include:
@@ -64,7 +65,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
             // parse the demands + register on assignment
             demands = this.createAndRegisterDemands(zoning, network);            
         } catch (final PlanItException e) {
-        	LOGGER.log(Level.SEVERE, "Could not instantiate default settings for project", e);
+        	LOGGER.log(Level.SEVERE, "could not instantiate default settings for project", e);
         }
     }
 
@@ -91,7 +92,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     public PlanItSimpleProject(final String projectPath) throws PlanItException {
         // use the default input builder
         super(new PlanItInputBuilder(projectPath));
-        LOGGER.info("Searching for input files in: "+Paths.get(projectPath).toAbsolutePath().toString());
+        LOGGER.info(LoggingUtils.createProjectPrefix(this.id)+String.format("searching for input files in: %s",Paths.get(projectPath).toAbsolutePath().toString()));
         initialiseSimpleProject();
     }
 
@@ -114,7 +115,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      */
     public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(final String trafficAssignmentType)
             throws PlanItException {
-      PlanItException.throwIf(super.trafficAssignments.hasRegisteredAssignments(), "This type of PLANit project only allows a single assignment per project");
+      PlanItException.throwIf(super.trafficAssignments.hasRegisteredAssignments(), "this type of PLANit project only allows a single assignment per project");
       return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
     }
 
@@ -134,7 +135,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     		final Zoning theZoning,
     		final PhysicalNetwork thePhysicalNetwork)
             throws PlanItException {
-      throw new PlanItException("A simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");
+      throw new PlanItException("a simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");
     }
 
    /**
@@ -146,7 +147,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
             super.executeAllTrafficAssignments();
         }else
         {
-          LOGGER.info("No traffic assignment has been registered yet, ignoring execution");
+          LOGGER.info(LoggingUtils.createProjectPrefix(this.id) + "no traffic assignment has been registered yet, ignoring execution");
         }
     }
 
