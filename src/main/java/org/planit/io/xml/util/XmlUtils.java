@@ -16,8 +16,8 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.opengis.geometry.DirectPosition;
-import org.planit.exceptions.PlanItException;
 import org.planit.geo.PlanitGeoUtils;
+import org.planit.utils.exceptions.PlanItException;
 
 import net.opengis.gml.PointType;
 

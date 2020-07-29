@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
-import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementOdCellByCellMatrix;
 import org.planit.generated.XMLElementOdMatrix;
 import org.planit.generated.XMLElementOdRawMatrix;
@@ -19,6 +18,7 @@ import org.planit.network.virtual.Zoning.Zones;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.UserClass;
+import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.virtual.Zone;
 

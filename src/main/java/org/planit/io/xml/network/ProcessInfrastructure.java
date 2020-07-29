@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
-import org.planit.exceptions.PlanItException;
 import org.planit.generated.Direction;
 import org.planit.generated.LengthUnit;
 import org.planit.generated.XMLElementInfrastructure;
@@ -19,6 +18,7 @@ import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.XmlUtils;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.network.physical.Link;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Mode;

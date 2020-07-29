@@ -11,7 +11,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.planit.demands.Demands;
-import org.planit.exceptions.PlanItException;
 import org.planit.generated.Durationunit;
 import org.planit.generated.XMLElementDemandConfiguration;
 import org.planit.generated.XMLElementTimePeriods;
@@ -22,6 +21,7 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
+import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.network.physical.Mode;
 
 /**

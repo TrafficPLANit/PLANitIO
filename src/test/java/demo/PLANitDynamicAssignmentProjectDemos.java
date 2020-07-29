@@ -3,7 +3,6 @@ package demo;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
-import org.planit.exceptions.PlanItException;
 import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
 import org.planit.ltm.trafficassignment.ELTM;
@@ -16,6 +15,7 @@ import org.planit.route.choice.StochasticRouteChoice;
 import org.planit.route.choice.logit.MultinomialLogit;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
+import org.planit.utils.exceptions.PlanItException;
 
 /**
  * Demo class. Show casing how to setup typical dynamic assignment PLANit projects

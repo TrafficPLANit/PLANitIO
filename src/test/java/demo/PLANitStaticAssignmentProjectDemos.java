@@ -10,7 +10,6 @@ import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.VirtualCost;
 import org.planit.demands.Demands;
-import org.planit.exceptions.PlanItException;
 import org.planit.gap.LinkBasedRelativeDualityGapFunction;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
@@ -36,6 +35,7 @@ import org.planit.time.TimePeriod;
 import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
+import org.planit.utils.exceptions.PlanItException;
 
 /**
  * Demo class. Show casing how to setup typical static assignment PLANit projects

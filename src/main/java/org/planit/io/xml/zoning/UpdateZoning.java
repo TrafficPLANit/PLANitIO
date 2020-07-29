@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
-import org.planit.exceptions.PlanItException;
 import org.planit.generated.XMLElementCentroid;
 import org.planit.generated.XMLElementConnectoid;
 import org.planit.generated.XMLElementZones.Zone;
@@ -14,6 +13,7 @@ import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.util.XmlUtils;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.virtual.Zoning;
+import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.virtual.Centroid;
 

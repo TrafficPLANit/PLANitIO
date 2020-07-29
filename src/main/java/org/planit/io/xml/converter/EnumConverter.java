@@ -2,11 +2,11 @@ package org.planit.io.xml.converter;
 
 import java.util.logging.Logger;
 
-import org.planit.exceptions.PlanItException;
 import org.planit.generated.Typevalues;
 import org.planit.generated.Unitsvalues;
 import org.planit.output.enums.Type;
 import org.planit.output.enums.Units;
+import org.planit.utils.exceptions.PlanItException;
 
 /**
  * Utility methods to convert enumerations from the PLANit org.planit.output.enums package into enumerations generated from the output XSD file
