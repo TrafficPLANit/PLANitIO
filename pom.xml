@@ -25,6 +25,16 @@
 			When upgraded remove these dependencies since they should no longer be needed -->
 		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
 	</properties>
+	
+	<!-- license based on the one published on the website -->
+    <licenses>
+      <license>
+        <name>PLANit license based on modified BSD</name>
+        <url>${planit.website.url}/docs/licenses/LICENSE.txt</url>
+        <distribution>repo</distribution>
+        <comments>A slightly modified version of a modified BSD license</comments>
+      </license>
+    </licenses>		
 
 	<dependencies>
 	
