@@ -1,4 +1,4 @@
-package demo;
+package org.planit.io.demo;
 
 import java.util.logging.Logger;
 
@@ -35,14 +35,14 @@ public class PLANitDynamicAssignmentProjectDemos {
         final String projectPath =                "<insert the project path here>";
 
         try{
-        	// Create a simple PLANit project with all the default settings
-        	final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
-        	// register ELTM as eligible assignment
-        	
-        	//TODO: not great that we must register it separately as an option. Probably better to simply
-        	//allow any implementation of the registered (meta)types and not bother with the actual implemented subclasses
-        	project.registerEligibleTrafficComponentClass(ELTM.class);
-        	project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
+          // Create a simple PLANit project with all the default settings
+          final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
+          // register ELTM as eligible assignment
+          
+          //TODO: not great that we must register it separately as an option. Probably better to simply
+          //allow any implementation of the registered (meta)types and not bother with the actual implemented subclasses
+          project.registerEligibleTrafficComponentClass(ELTM.class);
+          project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
 
             project.executeAllTrafficAssignments();
         } catch (final PlanItException e) {
@@ -59,8 +59,8 @@ public class PLANitDynamicAssignmentProjectDemos {
         final String routeInputPath =             "<insert path to input path directory here>";
 
         try{
-        	// Create a simple PLANit project with all the default settings
-        	final PlanItProject project = new PlanItProject(projectPath);
+          // Create a simple PLANit project with all the default settings
+          final PlanItProject project = new PlanItProject(projectPath);
 
             // INITIALISE INPUTS
             final PhysicalNetwork physicalNetwork             = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
@@ -73,18 +73,18 @@ public class PLANitDynamicAssignmentProjectDemos {
 
             //:TODO: to be implemented
             // alternatively routes can be generated with a route generator
-//        	final RouteGenerator routeGenerator = project.createRouteGenerator(physicalNetwork);
-//        	final ODRouteSet routeSet = routeGenerator.generateODRouteSet(zoning);
-//        	project.registerODRouteSet(routeSet);
+//          final RouteGenerator routeGenerator = project.createRouteGenerator(physicalNetwork);
+//          final ODRouteSet routeSet = routeGenerator.generateODRouteSet(zoning);
+//          project.registerODRouteSet(routeSet);
 
             // this saves an additional call AND will allow us to provide defaults such as using the
             // triangular FD on eLTM because we already know the network (for example) in the constructor of the
             // builder!
-        	final ELTMTrafficAssignmentBuilder taBuilder =
-        			(ELTMTrafficAssignmentBuilder) project.createAndRegisterTrafficAssignment(
-        					ELTM.class.getCanonicalName(), demands, zoning, physicalNetwork);
+          final ELTMTrafficAssignmentBuilder taBuilder =
+              (ELTMTrafficAssignmentBuilder) project.createAndRegisterTrafficAssignment(
+                  ELTM.class.getCanonicalName(), demands, zoning, physicalNetwork);
 
-        	// CREATE/REGISTER ASSIGNMENT COMPONENTS
+          // CREATE/REGISTER ASSIGNMENT COMPONENTS
 
             // eLTM only supports a triangular fundamental diagram, but it still needs to be registered
             taBuilder.createAndRegisterFundamentalDiagram(NewellFundamentalDiagram.class.getCanonicalName(), physicalNetwork);
@@ -92,13 +92,13 @@ public class PLANitDynamicAssignmentProjectDemos {
             // iteration smoothing: MSA
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
-        	// stochastic route choice is a route choice type that requires a logit model and routes as input
-        	final StochasticRouteChoice sueRouteChoice =
-        			(StochasticRouteChoice) taBuilder.createAndRegisterRouteChoice(StochasticRouteChoice.class.getCanonicalName());
-        	// MNL for route choice
-        	sueRouteChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
-        	// register a fixed od route set
-        	sueRouteChoice.RegisterODRouteMatrix(project.odRouteSets.getFirstODRouteSets().getFirstODRouteMatrix());
+          // stochastic route choice is a route choice type that requires a logit model and routes as input
+          final StochasticRouteChoice sueRouteChoice =
+              (StochasticRouteChoice) taBuilder.createAndRegisterRouteChoice(StochasticRouteChoice.class.getCanonicalName());
+          // MNL for route choice
+          sueRouteChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
+          // register a fixed od route set
+          sueRouteChoice.RegisterODRouteMatrix(project.odRouteSets.getFirstODRouteSets().getFirstODRouteMatrix());
 
             // Output formatter: MEMORY
             taBuilder.registerOutputFormatter(memoryOutputFormatter);

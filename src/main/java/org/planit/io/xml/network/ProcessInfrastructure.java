@@ -4,15 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.planit.xml.generated.*;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
-import org.planit.generated.Direction;
-import org.planit.generated.LengthUnit;
-import org.planit.generated.XMLElementInfrastructure;
-import org.planit.generated.XMLElementLinkLengthType;
-import org.planit.generated.XMLElementLinkSegment;
-import org.planit.generated.XMLElementLinks;
-import org.planit.generated.XMLElementNodes;
 import org.planit.geo.PlanitGeoUtils;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;

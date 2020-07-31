@@ -7,10 +7,9 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.planit.io.demo.PLANitStaticAssignmentProjectDemos;
 import org.planit.logging.Logging;
 import org.planit.utils.id.IdGenerator;
-
-import demo.PLANitStaticAssignmentProjectDemos;
 
 /**
  * Test the getting started demo example

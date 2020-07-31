@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
-import org.planit.generated.XMLElementCentroid;
-import org.planit.generated.XMLElementConnectoid;
-import org.planit.generated.XMLElementZones.Zone;
+import org.planit.xml.generated.XMLElementCentroid;
+import org.planit.xml.generated.XMLElementConnectoid;
+import org.planit.xml.generated.XMLElementZones.Zone;
 import org.planit.geo.PlanitGeoUtils;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.util.XmlUtils;

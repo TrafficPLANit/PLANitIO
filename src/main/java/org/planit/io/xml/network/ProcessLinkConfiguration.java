@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.planit.generated.XMLElementLinkConfiguration;
-import org.planit.generated.XMLElementLinkSegmentTypes;
-import org.planit.generated.XMLElementModes;
+import org.planit.xml.generated.XMLElementLinkConfiguration;
+import org.planit.xml.generated.XMLElementLinkSegmentTypes;
+import org.planit.xml.generated.XMLElementModes;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.network.physical.PhysicalNetwork;

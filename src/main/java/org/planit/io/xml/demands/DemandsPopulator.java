@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
-import org.planit.generated.XMLElementOdCellByCellMatrix;
-import org.planit.generated.XMLElementOdMatrix;
-import org.planit.generated.XMLElementOdRawMatrix;
-import org.planit.generated.XMLElementOdRawMatrix.Values;
-import org.planit.generated.XMLElementOdRowMatrix;
+import org.planit.xml.generated.XMLElementOdCellByCellMatrix;
+import org.planit.xml.generated.XMLElementOdMatrix;
+import org.planit.xml.generated.XMLElementOdRawMatrix;
+import org.planit.xml.generated.XMLElementOdRawMatrix.Values;
+import org.planit.xml.generated.XMLElementOdRowMatrix;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.network.virtual.Zoning.Zones;

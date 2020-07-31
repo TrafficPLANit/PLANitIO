@@ -11,11 +11,11 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.planit.demands.Demands;
-import org.planit.generated.Durationunit;
-import org.planit.generated.XMLElementDemandConfiguration;
-import org.planit.generated.XMLElementTimePeriods;
-import org.planit.generated.XMLElementTravellerTypes;
-import org.planit.generated.XMLElementUserClasses;
+import org.planit.xml.generated.Durationunit;
+import org.planit.xml.generated.XMLElementDemandConfiguration;
+import org.planit.xml.generated.XMLElementTimePeriods;
+import org.planit.xml.generated.XMLElementTravellerTypes;
+import org.planit.xml.generated.XMLElementUserClasses;
 import org.planit.input.InputBuilderListener;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.time.TimePeriod;

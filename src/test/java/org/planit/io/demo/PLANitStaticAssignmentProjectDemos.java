@@ -1,4 +1,4 @@
-package demo;
+package org.planit.io.demo;
 
 import java.util.List;
 import java.util.logging.Logger;

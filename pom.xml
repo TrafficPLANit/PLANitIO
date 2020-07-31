@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>org.planit.all</groupId>
-    <artifactId>PLANitAll</artifactId>
-    <version>0.0.5a2</version>
-  </parent>	
-		
+	<parent>
+		<groupId>org.planit.all</groupId>
+		<artifactId>PLANitAll</artifactId>
+		<version>0.0.5a2</version>
+	</parent>
+
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.planit.io</groupId>
@@ -17,134 +17,68 @@
 	<name>PLANitIO</name>
 	<url>https://github.com/TrafficPLANit/planitio</url>
 
-	<properties>
-		<!-- TODO: A new release of the maven-jaxb2-plugin, 0.14.1, is expected 
-			soon. Upgrade to the new release when it becomes available Why: because we 
-			now have to manually override the jaxb versoin used to 2.3.1. to avoid illegal 
-			reflective access warnings (see dependencies for javax.xml.bind and org.glassfish.jaxb) 
-			When upgraded remove these dependencies since they should no longer be needed -->
-		<maven.jaxb2.plugin.version>0.14.0</maven.jaxb2.plugin.version>
-	</properties>
-	
 	<!-- license based on the one published on the website -->
-    <licenses>
-      <license>
-        <name>PLANit license based on modified BSD</name>
-        <url>${planit.website.url}/docs/licenses/LICENSE.txt</url>
-        <distribution>repo</distribution>
-        <comments>A slightly modified version of a modified BSD license</comments>
-      </license>
-    </licenses>		
+	<licenses>
+		<license>
+			<name>PLANit license based on modified BSD</name>
+			<url>${planit.website.url}/docs/licenses/LICENSE.txt</url>
+			<distribution>repo</distribution>
+			<comments>A slightly modified version of a modified BSD license</comments>
+		</license>
+	</licenses>
 
 	<dependencies>
-	
-	   <!-- version inherited from parent -->
-     <dependency>
-       <groupId>org.planit.utils</groupId>
-       <artifactId>PLANitUtils</artifactId>
-     </dependency>
 
-     <!-- version inherited from parent -->
-     <dependency>
-       <groupId>org.planit</groupId>
-       <artifactId>PLANit</artifactId>
-     </dependency>
-
-     <!-- version inherited from parent -->
-     <dependency>
-       <groupId>org.planit.ltm</groupId>
-       <artifactId>PLANitLTM</artifactId>
-     </dependency>
-
+		<!-- version inherited from parent -->
 		<dependency>
-			<groupId>org.jvnet.jaxb2.maven2</groupId>
-			<artifactId>maven-jaxb2-plugin</artifactId>
-			<version>${maven.jaxb2.plugin.version}</version>
+			<groupId>org.planit.utils</groupId>
+			<artifactId>PLANitUtils</artifactId>
 		</dependency>
 
-		<!-- TODO: remove once we upgraded to 0.14.1 for jaxb2 plugin -->
+		<!-- version inherited from parent -->
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.3.1</version>
+			<groupId>org.planit</groupId>
+			<artifactId>PLANit</artifactId>
 		</dependency>
 
-		<!-- TODO: remove once we upgraded to 0.14.1 for jaxb2 plugin -->
+		<!-- version inherited from parent -->
 		<dependency>
-			<groupId>org.glassfish.jaxb</groupId>
-			<artifactId>jaxb-runtime</artifactId>
-			<version>2.3.1</version>
+			<groupId>org.planit.ltm</groupId>
+			<artifactId>PLANitLTM</artifactId>
 		</dependency>
+		
+		<!-- version inherited from parent -->
+		<dependency>
+			<groupId>org.planit.xml</groupId>
+			<artifactId>PLANitXMLGenerator</artifactId>
+		</dependency>		
 
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<!-- only used locally for testing so not an actual dependency for using the API -->
+			<optional>true</optional>
+		</dependency>		
 
 	</dependencies>
 
 	<build>
-    <plugins>
-			<plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<version>${maven.jaxb2.plugin.version}</version>
-				<configuration>
-					<args>
-						<arg>-XautoNameResolution</arg>
-					</args>
-					<schemaDirectory>src/main/resources/xsd</schemaDirectory>
-					<bindingDirectory>src/main/resources/xjb</bindingDirectory>
-					<generateDirectory>src/main/java</generateDirectory>
-					<no-header>true</no-header>
-				</configuration>
-				<executions>
-					<execution>
-						<id>generate</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+		<plugins>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.2.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.planit.xml.PlanItXmlMain</mainClass>
-						</manifest>
-						<manifestEntries>
-							<Class-Path>.</Class-Path>
-						</manifestEntries>
-					</archive>
-				</configuration>
 			</plugin>
 
 		</plugins>

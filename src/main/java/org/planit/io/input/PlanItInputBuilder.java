@@ -19,16 +19,7 @@ import org.opengis.geometry.DirectPosition;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
-import org.planit.generated.XMLElementDemandConfiguration;
-import org.planit.generated.XMLElementInfrastructure;
-import org.planit.generated.XMLElementLinkConfiguration;
-import org.planit.generated.XMLElementLinkSegmentTypes;
-import org.planit.generated.XMLElementMacroscopicDemand;
-import org.planit.generated.XMLElementMacroscopicNetwork;
-import org.planit.generated.XMLElementMacroscopicZoning;
-import org.planit.generated.XMLElementModes;
-import org.planit.generated.XMLElementOdMatrix;
-import org.planit.generated.XMLElementPLANit;
+import org.planit.xml.generated.*;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.demands.ProcessConfiguration;
 import org.planit.io.xml.demands.DemandsPopulator;
@@ -519,7 +510,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
 
     // create and register zones, centroids and connectoids
     try {
-      for (final org.planit.generated.XMLElementZones.Zone xmlZone : macroscopiczoning.getZones().getZone()) {
+      for (final XMLElementZones.Zone xmlZone : macroscopiczoning.getZones().getZone()) {
         long zoneExternalId = xmlZone.getId().longValue();
         Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
         addZoneToExternalIdMap(zone.getExternalId(), zone);
