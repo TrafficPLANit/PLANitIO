@@ -78,9 +78,14 @@
 	                <exclude>*.properties</exclude>
 	            </excludes>
 	        </resource>
-	    </resources>
-		
+	    </resources>		 
+	    
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -90,8 +95,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
-
-		</plugins>
-	</build>
+		</plugins>	    
+    </build>
 
 </project>
