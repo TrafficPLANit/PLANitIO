@@ -1,7 +1,8 @@
 # PLANitIO
-Default PLANit IO project which uses XML input and generates XML and CSV output.
 
-For more information on the format itself and how to use it see the manual http://trafficplanit.github.io/PLANitManual
+PLANit IO project which uses XML input and generates XML and CSV output. this reflects the default input and output format of PLANit.
+
+For more information on PLANit such as the user the manual, licensing, installation, getting started, reference documentation, and more, please visit [https://trafficplanit.github.io/PLANitManual/](https://trafficplanit.github.io/PLANitManual/)
 
 ## Maven parent
 
