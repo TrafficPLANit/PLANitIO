@@ -25,11 +25,13 @@ import org.planit.utils.misc.LoggingUtils;
  * Advanced users who want to utilize all the flexibility of PLANit should instead use CustomPLANitProject in the PLANit core.
  *
  * Default configuration for this type of project:
- *   (i)     Use the native output formatter (PLANitIO format),
- *   (ii)    Use a macroscopic network,
- *   (iii)   Use the native input parser (PLANitIO format)
- *   (iv)    The assignment will by default persist link outputs and OD outputs (no paths)
- *   (v)     Parsing of the inputs occurs after configuration of all other components to quickly identify user configuration errors
+ * <ol>
+ *   <li>     Use the native output formatter (PLANitIO format) </li>
+ *   <li>    Use a macroscopic network </li>
+ *   <li>   Use the native input parser (PLANitIO format) </li>
+ *   <li>    The assignment will by default persist link outputs and OD outputs (no paths) </li>
+ *   <li>     Parsing of the inputs occurs after configuration of all other components to quickly identify user configuration errors </li>
+ * </ol>
  *
  * @author markr
  *
@@ -87,7 +89,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      * Base constructor for simple project which adopts the PlanItIO input/output format
      *
      * @param projectPath to retrieve the files from
-     * @throws PlanItException
+     * @throws PlanItException thrown if error
      */
     public PlanItSimpleProject(final String projectPath) throws PlanItException {
         // use the default input builder
@@ -98,7 +100,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 
     /**
      * Default constructor without explicit project path (use default)
-     * @param planItInputBuilder
+     * @param planItInputBuilder the input builder
      */
 	public PlanItSimpleProject(final PlanItInputBuilder planItInputBuilder) {
       super(planItInputBuilder);
@@ -112,6 +114,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      *
      * @param trafficAssignmentType the traffic assignment type to be used
      * @return trafficAssignmentBuilder the builder to configure this traffic assignment instance
+     * @throws PlanItException thrown if error
      */
     public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(final String trafficAssignmentType)
             throws PlanItException {
@@ -123,10 +126,10 @@ public class PlanItSimpleProject extends CustomPlanItProject {
      * Disallow the use of the generic create and register traffic assignment because a simple project
      * automatically determines its demands, zoning, and network
      *
-     * @param trafficAssignmentType
-     * @param theDemands
-     * @param theZoning
-     * @param thePhysicalNetwork
+     * @param trafficAssignmentType the traffic assignment type 
+     * @param theDemands the demands
+     * @param theZoning the zoning
+     * @param thePhysicalNetwork the network
      */
    @Override
 	public TrafficAssignmentBuilder createAndRegisterTrafficAssignment(

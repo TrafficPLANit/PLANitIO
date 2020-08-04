@@ -1,8 +1,4 @@
 /**
- * 
- */
-/**
- * @author mraa2518
- *
+ * PLANit IO output formatter package 
  */
 package org.planit.io.output.formatter;

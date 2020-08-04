@@ -618,6 +618,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * property and version property
    * 
    * @param groupId contiguous id generation within this group for instances of this class
+   * @throws PlanItException thrown if error
    */
   public PlanItOutputFormatter(IdGroupingToken groupId) throws PlanItException {
     this(groupId, DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);

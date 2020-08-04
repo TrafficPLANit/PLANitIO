@@ -2,7 +2,6 @@ package org.planit.io.project;
 
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
-import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.OutputFormatter;
@@ -26,8 +25,8 @@ public class PlanItProject extends CustomPlanItProject {
   
   /** Constructor taking project path where to find all project input files
 	 * 
-	 * @param projectPath
-	 * @throws PlanItException
+	 * @param projectPath the project path to source input files from
+	 * @throws PlanItException thrown if error
 	 */
 	public PlanItProject(String projectPath) throws PlanItException {
 		super(new PlanItInputBuilder(projectPath));

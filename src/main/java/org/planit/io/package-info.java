@@ -1,8 +1,4 @@
 /**
- * 
- */
-/**
- * @author gman6028
- *
+ * PLANit input output package 
  */
 package org.planit.io;

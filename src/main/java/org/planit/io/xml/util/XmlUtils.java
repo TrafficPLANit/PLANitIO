@@ -37,8 +37,8 @@ public interface XmlUtils {
 	/**
 	 * Create GML position from generated PointType object
 	 * 
-	 * @param pointType PointType object storing the location, read in from an XML
-	 *                  input file
+	 * @param planitGeoUtils utils
+	 * @param pointType PointType object storing the location, read in from an XML input file
 	 * @return DirectPosition object storing the location
 	 * @throws PlanItException thrown if there is an error during processing
 	 */

@@ -25,12 +25,13 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 public class ProcessLinkConfiguration {
 
   /** the logger */
+  @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(ProcessLinkConfiguration.class.getCanonicalName());   
 
   /**
    * Reads mode types from input file and stores them in a Map
    * 
-   * @param physicalNetwork
+   * @param physicalNetwork the network
    * @param linkconfiguration LinkConfiguration object populated with data from XML file
    * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file

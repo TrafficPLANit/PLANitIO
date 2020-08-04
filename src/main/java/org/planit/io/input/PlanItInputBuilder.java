@@ -561,7 +561,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
    * @param parameter1 previously created network object
    * @param parameter2 CSV file containing the initial link segment cost values
-   * @throws PlanItException
+   * @throws PlanItException thrown if error
    */
   protected void populateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost,
       final Object parameter1, final Object parameter2)
