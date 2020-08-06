@@ -1979,11 +1979,9 @@ public class RouteChoiceTest {
         bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
-      //TODO - Comparisons with MemoryOutputFormatter have been commented out due to insufficient time 
-      //to configure them
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, true);
-      //MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      //TODO - Comparisons with MemoryOutputFormatter have been commented out due to insufficient time to configure them
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
+          PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, true);
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
       Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
@@ -2075,12 +2073,9 @@ public class RouteChoiceTest {
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
       //PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
-          xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
-          xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
-          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName, xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
     } catch (final Exception e) {
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());

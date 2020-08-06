@@ -94,22 +94,22 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
-          bprLinkTravelTimeCost, inputBuilderListener) -> {
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
-            (long) 1);
-        Mode mode = inputBuilderListener.getModeByExternalId((long) 1);
-        bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-        MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByExternalId((long) 3);
-        bprLinkTravelTimeCost.setParameters(linkSegment, mode, 1.0, 5.0);
+      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = 
+          (physicalNetwork, bprLinkTravelTimeCost, inputBuilderListener) -> {
+            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
+            Mode mode = inputBuilderListener.getModeByExternalId((long) 1);
+            bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+            MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByExternalId((long) 3);
+            bprLinkTravelTimeCost.setParameters(linkSegment, mode, 1.0, 5.0);
       };
   
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
+          PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
   
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());

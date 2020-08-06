@@ -11,8 +11,8 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.route.choice.StochasticRouteChoice;
-import org.planit.route.choice.logit.MultinomialLogit;
+import org.planit.path.choice.StochasticPathChoice;
+import org.planit.path.choice.logit.MultinomialLogit;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
 import org.planit.utils.exceptions.PlanItException;
@@ -69,13 +69,11 @@ public class PLANitDynamicAssignmentProjectDemos {
             // INITIALISE OUTPUT FORMATTERS
             final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
             // route sets are defined on the project level and linked to a network, zoning combination
-            project.createAndRegisterODRouteSets(physicalNetwork, zoning, routeInputPath);
+            project.createAndRegisterOdPathSets(physicalNetwork, zoning, routeInputPath);
 
             //:TODO: to be implemented
-            // alternatively routes can be generated with a route generator
-//          final RouteGenerator routeGenerator = project.createRouteGenerator(physicalNetwork);
-//          final ODRouteSet routeSet = routeGenerator.generateODRouteSet(zoning);
-//          project.registerODRouteSet(routeSet);
+            // alternatively pathss can be generated with a route generator
+              
 
             // this saves an additional call AND will allow us to provide defaults such as using the
             // triangular FD on eLTM because we already know the network (for example) in the constructor of the
@@ -92,13 +90,13 @@ public class PLANitDynamicAssignmentProjectDemos {
             // iteration smoothing: MSA
             taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
-          // stochastic route choice is a route choice type that requires a logit model and routes as input
-          final StochasticRouteChoice sueRouteChoice =
-              (StochasticRouteChoice) taBuilder.createAndRegisterRouteChoice(StochasticRouteChoice.class.getCanonicalName());
-          // MNL for route choice
-          sueRouteChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
-          // register a fixed od route set
-          sueRouteChoice.RegisterODRouteMatrix(project.odRouteSets.getFirstODRouteSets().getFirstODRouteMatrix());
+          // stochastic path choice is a path choice type that requires a logit model and paths as input
+          final StochasticPathChoice suePathChoice =
+              (StochasticPathChoice) taBuilder.createAndRegisterPathChoice(StochasticPathChoice.class.getCanonicalName());
+          // MNL for path choice
+          suePathChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
+          // register a fixed od path set
+          suePathChoice.RegisterOdPathMatrix(project.odPathSets.getFirstOdPathSets().getFirstOdPathMatrix());
 
             // Output formatter: MEMORY
             taBuilder.registerOutputFormatter(memoryOutputFormatter);

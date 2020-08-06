@@ -23,7 +23,7 @@ import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.ODSkimSubOutputType;
 import org.planit.output.enums.OutputType;
-import org.planit.output.enums.RouteIdType;
+import org.planit.output.enums.PathOutputIdentificationType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
 import org.planit.output.formatter.OutputFormatter;
@@ -618,7 +618,7 @@ public class PLANitStaticAssignmentProjectDemos {
       // PATH outputs: ON + example configuration
       final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taBuilder
           .activateOutput(OutputType.PATH);
-      pathOutputTypeConfiguration.setPathIdType(RouteIdType.NODE_EXTERNAL_ID);
+      pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_EXTERNAL_ID);
 
       // COMPONENT CONFIGURATION - PLANitIO OUTPUT FORMAT
       xmlOutputFormatter.setXmlNameRoot(outputFileName);
