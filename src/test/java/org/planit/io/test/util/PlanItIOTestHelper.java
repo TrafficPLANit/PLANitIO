@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.io.FileUtils;
+import org.planit.assignment.traditionalstatic.TraditionalStaticAssignment;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
@@ -51,7 +52,6 @@ import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.TraditionalStaticAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.QuadConsumer;

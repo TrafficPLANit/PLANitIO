@@ -2,6 +2,8 @@ package org.planit.io.demo;
 
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.planit.assignment.TrafficAssignment;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
@@ -32,7 +34,6 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.TrafficAssignment;
 import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 import org.planit.utils.exceptions.PlanItException;
