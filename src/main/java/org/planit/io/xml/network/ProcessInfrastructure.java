@@ -137,7 +137,8 @@ public class ProcessInfrastructure {
     } else {
       linkSegment.setLinkSegmentType(existingLinkSegmentType);
     }
-    network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
+    LinkSegment theSegment = (LinkSegment)linkSegment;
+    network.linkSegments.registerLinkSegment(link, theSegment, abDirection);
     if (linkSegment.getExternalId() != null) {
       final boolean duplicateLinkSegmentExternalId = 
           inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
