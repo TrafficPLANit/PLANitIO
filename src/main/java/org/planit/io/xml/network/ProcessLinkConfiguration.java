@@ -40,7 +40,7 @@ public class ProcessLinkConfiguration {
     for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
       long externalModeId = generatedMode.getId().longValue();
       if (externalModeId == 0) {
-        String errorMessage = "Found a Mode value of 0 in the modes definition file, this is prohibited";
+        String errorMessage = "found a Mode value of 0 in the modes definition file, this is prohibited";
         throw new PlanItException(errorMessage);
       }
       String name = generatedMode.getName();
@@ -48,7 +48,7 @@ public class ProcessLinkConfiguration {
       Mode mode = physicalNetwork.modes.registerNewMode(externalModeId, name, pcu);
       final boolean duplicateModeExternalId = inputBuilderListener.addModeToExternalIdMap(mode.getExternalId(), mode);
       if (duplicateModeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate mode external id " + mode.getExternalId() + " found in network file.";
+        String errorMessage = "duplicate mode external id " + mode.getExternalId() + " found in network file.";
         throw new PlanItException(errorMessage);
       }
     }

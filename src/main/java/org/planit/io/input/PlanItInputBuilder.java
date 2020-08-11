@@ -388,7 +388,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       throws PlanItException {
     final long id = Long.parseLong(record.get(header));
     final LinkSegment linkSegment = findLinkSegmentFunction.apply(id);
-    PlanItException.throwIf(linkSegment == null, "Failed to find link segment");
+    PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment %d", id));
     
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
   }
@@ -421,7 +421,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final long startId = getNodeByExternalId(upstreamNodeExternalId).getId();
     final long endId = getNodeByExternalId(downstreamNodeExternalId).getId();
     final LinkSegment linkSegment = network.linkSegments.getLinkSegmentByStartAndEndNodeId(startId, endId);
-    PlanItException.throwIf(linkSegment == null, "Failed to find link segment");
+    PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment (startnode %d, endnode %d)",startId,endId));
     
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
   }

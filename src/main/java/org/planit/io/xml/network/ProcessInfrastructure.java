@@ -116,7 +116,7 @@ public class ProcessInfrastructure {
 
     // create the link and store it in the network object
     MacroscopicLinkSegment linkSegment =
-        (MacroscopicLinkSegment) network.linkSegments.createDirectionalLinkSegment(link, abDirection);
+        (MacroscopicLinkSegment) network.linkSegments.createLinkSegment(link, abDirection);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
     for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
@@ -197,7 +197,7 @@ public class ProcessInfrastructure {
             "Error in network XML file: Must define either a length or GML LineString for link from node "
                 + generatedLink.getNodearef().longValue() + " to node " + generatedLink.getNodebref().longValue());
       }
-      Link link = network.links.registerNewLink(startNode, endNode, length, "");
+      Link link = network.links.registerNewLink(startNode, endNode, length);
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
       for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
