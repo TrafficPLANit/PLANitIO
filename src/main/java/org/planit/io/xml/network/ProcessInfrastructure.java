@@ -95,7 +95,7 @@ public class ProcessInfrastructure {
   /**
    * Registers a new link segment in the physical network
    * 
-   * @param maxSpeed the value of the <maxspeed> element within the <linksegment> element in the
+   * @param maxSpeed the value of the {@code <maxspeed>} element within the {@code <linksegment>} element in the
    *          input file, null if this element omitted for this link segment
    * @param network the physical network object
    * @param link the link from which the link segment will be created
@@ -115,8 +115,7 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
 
     // create the link and store it in the network object
-    MacroscopicLinkSegment linkSegment =
-        (MacroscopicLinkSegment) network.linkSegments.createLinkSegment(link, abDirection);
+    MacroscopicLinkSegment linkSegment = network.linkSegments.createLinkSegment(link, abDirection);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
     for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
@@ -137,8 +136,7 @@ public class ProcessInfrastructure {
     } else {
       linkSegment.setLinkSegmentType(existingLinkSegmentType);
     }
-    LinkSegment theSegment = (LinkSegment)linkSegment;
-    network.linkSegments.registerLinkSegment(link, theSegment, abDirection);
+    network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
     if (linkSegment.getExternalId() != null) {
       final boolean duplicateLinkSegmentExternalId = 
           inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
