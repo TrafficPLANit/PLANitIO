@@ -76,7 +76,7 @@ public class ProcessConfiguration {
   private static int generateAndStoreUserClasses(
       Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
-      PhysicalNetwork physicalNetwork,
+      PhysicalNetwork<?,?,?> physicalNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
 
     XMLElementUserClasses userclasses = 
@@ -220,7 +220,7 @@ public class ProcessConfiguration {
   public static void generateAndStoreConfigurationData(
       Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
-      PhysicalNetwork physicalNetwork,
+      PhysicalNetwork<?,?,?> physicalNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
     ProcessConfiguration.generateAndStoreTravelerTypes(demands, demandconfiguration, inputBuilderListener);
     ProcessConfiguration.generateAndStoreUserClasses(demands, demandconfiguration, physicalNetwork, inputBuilderListener);

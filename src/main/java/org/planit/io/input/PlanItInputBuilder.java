@@ -411,7 +411,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           link segment
    */
   private void updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(
-      final PhysicalNetwork network,
+      final PhysicalNetwork<?,?,?> network,
       final InitialLinkSegmentCost initialLinkSegmentCost, final CSVParser parser, final CSVRecord record,
       final OutputProperty startOutputProperty, final OutputProperty endOutputProperty, final String startHeader,
       final String endHeader)
@@ -474,7 +474,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param physicalNetwork the physical network object to be populated from the input data
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populatePhysicalNetwork( final PhysicalNetwork physicalNetwork) throws PlanItException {
+  protected void populatePhysicalNetwork( final PhysicalNetwork<?,?,?> physicalNetwork) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Network");
 
     MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
@@ -505,7 +505,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
 
-    final PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter1;
+    final PhysicalNetwork<?,?,?> physicalNetwork = (PhysicalNetwork<?,?,?>) parameter1;
     final Nodes nodes = physicalNetwork.nodes;
 
     // create and register zones, centroids and connectoids
@@ -543,7 +543,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanItException.throwIf(!(parameter2 instanceof PhysicalNetwork),"Parameter 2 of call to populateDemands() is not of class PhysicalNetwork");
     
     final Zoning zoning = (Zoning) parameter1;
-    final PhysicalNetwork physicalNetwork = (PhysicalNetwork) parameter2;
+    final PhysicalNetwork<?,?,?> physicalNetwork = (PhysicalNetwork<?,?,?>) parameter2;
     try {
       final XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
       ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, physicalNetwork, this);
@@ -571,7 +571,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork),"Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
     PlanItException.throwIf(!(parameter2 instanceof String), "Parameter 2 of call to populateInitialLinkSegments() is not a file name");
         
-    final PhysicalNetwork network = (PhysicalNetwork) parameter1;
+    final PhysicalNetwork<?,?,?> network = (PhysicalNetwork<?,?,?>) parameter1;
     final String fileName = (String) parameter2;
     try {
       final Reader in = new FileReader(fileName);

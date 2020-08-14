@@ -18,8 +18,10 @@ import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.io.FileUtils;
-import org.planit.assignment.traditionalstatic.TraditionalStaticAssignment;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
+import org.planit.assignment.TrafficAssignment;
+import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
+import org.planit.cost.physical.BPRConfigurator;
+import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
@@ -52,12 +54,10 @@ import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.QuadConsumer;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.functionalinterface.TriFunction;
-import org.planit.utils.id.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
@@ -127,7 +127,7 @@ public class PlanItIOTestHelper {
           throw pe;
         }
        
-        Pair<Integer, Integer> positionKeys = (Pair<Integer, Integer>) obj;
+        @SuppressWarnings("unchecked") Pair<Integer, Integer> positionKeys = (Pair<Integer, Integer>) obj;
         while (memoryOutputIterator.hasNext()) {
           memoryOutputIterator.next();
           final Object[] keys = memoryOutputIterator.getKeys();
@@ -176,7 +176,7 @@ public class PlanItIOTestHelper {
       outputProperty = OutputProperty.OD_COST;
     }
     for (TimePeriod timePeriod : map.keySet()) {
-      Map<Mode, Map<Long, Map<Long, ?>>> mapPerTimePeriod = (Map<Mode, Map<Long, Map<Long, ?>>>) map.get(timePeriod);
+      @SuppressWarnings("unchecked") Map<Mode, Map<Long, Map<Long, ?>>> mapPerTimePeriod = (Map<Mode, Map<Long, Map<Long, ?>>>) map.get(timePeriod);
       for (Mode mode : mapPerTimePeriod.keySet()) {
         Map<Long, Map<Long, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
         final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty);
@@ -238,7 +238,7 @@ public class PlanItIOTestHelper {
           }
         },
         (positionKeys, innerObj, keys) -> {
-          final SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>> innerMap =
+          @SuppressWarnings("unchecked") final SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>> innerMap =
               (SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>) innerObj;
           final int downstreamNodeExternalIdPosition = positionKeys.getFirst();
           final int upstreamNodeExternalIdPosition = positionKeys.getSecond();
@@ -278,7 +278,7 @@ public class PlanItIOTestHelper {
           }
         },
         (positionKeys, innerObj, keys) -> {
-          final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
+          @SuppressWarnings("unchecked") final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
           final int linkSegmentIdPosition = positionKeys.getFirst();
           final long linkSegmentId = (Long) keys[linkSegmentIdPosition];
           return innerMap.get(linkSegmentId);
@@ -334,13 +334,14 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0,
-        maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, setOutputTypeConfigurationProperties, null, null, 0, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
   }
 
   /**
@@ -358,13 +359,14 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters,
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, null, setCostParameters,
-        description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, null, null, 0, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
   }
 
   /**
@@ -385,12 +387,13 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation,
       final Integer maxIterations, 
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow) throws Exception {
-    return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation,
-        null, 0, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation, null, 0, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
   }
 
   /**
@@ -409,12 +412,13 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation,
       final Integer maxIterations, 
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow) throws Exception {
-    return setupAndExecuteAssignment(projectPath, initialCostsFileLocation, null, 0, maxIterations, null,
-        setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, initialCostsFileLocation, null, 0, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
   }
 
   /**
@@ -438,12 +442,23 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, 
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow) throws Exception {
-    return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, initialCostsFileLocation1,
-        initialCostsFileLocation2, initCostsFilePos, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, 
+        setOutputTypeConfigurationProperties, 
+        initialCostsFileLocation1,
+        initialCostsFileLocation2, 
+        initCostsFilePos, 
+        maxIterations, 
+        null, 
+        setCostParameters, 
+        description, 
+        useFixedConnectoidTravelTimeCost, 
+        recordZeroFlow);
   }
 
   /**
@@ -465,13 +480,23 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation1,
       final String initialCostsFileLocation2, final int initCostsFilePos, final Integer maxIterations,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, initialCostsFileLocation1, initialCostsFileLocation2,
-        initCostsFilePos, maxIterations, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, 
+        initialCostsFileLocation1, 
+        initialCostsFileLocation2,
+        initCostsFilePos, 
+        maxIterations, 
+        null, 
+        setCostParameters, 
+        description, 
+        useFixedConnectoidTravelTimeCost, 
+        recordZeroFlow);
   }
 
   /**
@@ -493,7 +518,7 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final Double epsilon, 
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -508,8 +533,7 @@ public class PlanItIOTestHelper {
    *
    * @param projectPath project directory containing the input files
    * @param maxIterations the maximum number of iterations allowed in this test run
-   * @param epsilon measure of how close successive iterations must be to each other to accept
-   *          convergence
+   * @param epsilon measure of how close successive iterations must be to each other to accept convergence
    * @param setCostParameters lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
    * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
@@ -520,13 +544,23 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
       final Double epsilon, 
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, null, null, 0, maxIterations, epsilon, setCostParameters,
-        description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, 
+        null, 
+        null, 
+        0, 
+        maxIterations, 
+        epsilon, 
+        setCostParameters,
+        description, 
+        useFixedConnectoidTravelTimeCost, 
+        recordZeroFlow);
   }
 
   /**
@@ -544,12 +578,20 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, null, null, 0, null, null,
+    
+    return setupAndExecuteAssignment(
+        projectPath, 
+        setOutputTypeConfigurationProperties, 
+        null, 
+        null, 
+        0, 
+        null, 
+        null,
         setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
   }
 
@@ -566,12 +608,23 @@ public class PlanItIOTestHelper {
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
       throws Exception {
-    return setupAndExecuteAssignment(projectPath, null, null, 0, null, null, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    
+    return setupAndExecuteAssignment(
+        projectPath, 
+        null, 
+        null, 
+        0, 
+        null, 
+        null, 
+        setCostParameters, 
+        description, 
+        useFixedConnectoidTravelTimeCost, 
+        recordZeroFlow);
   }
 
  /**
@@ -584,12 +637,23 @@ public class PlanItIOTestHelper {
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
   */
-  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
-      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description,
+  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
+      final String projectPath,
+      final BiConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator> setCostParameters, 
+      final String description,
       final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
-    return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, null, 0, null, null,
-        setCostParameters, description, useFixedConnectoidTravelTimeCost);
+    
+    return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
+        projectPath, 
+        null, 
+        null, 
+        0, 
+        null, 
+        null,
+        setCostParameters, 
+        description, 
+        useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -611,30 +675,36 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
-      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters, final String description,
+      final BiConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator> setCostParameters, final String description,
       final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
 
-    final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        taBuilder, project, physicalNetwork) -> {
-      InitialLinkSegmentCost initialCost = null;
-      if (initialCostsFileLocation1 != null) {
-        if (initialCostsFileLocation2 != null) {
-          if (initCostsFilePos == 0) {
-            initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-          } else {
-            initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+    final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, PhysicalNetwork<?,?,?>> registerInitialCosts = 
+        (taConfigurator, project, physicalNetwork) -> {
+          InitialLinkSegmentCost initialCost = null;
+          if (initialCostsFileLocation1 != null) {
+            if (initialCostsFileLocation2 != null) {
+              if (initCostsFilePos == 0) {
+                initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+              } else {
+                initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+              }
+            } else {
+              initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+            }
+            taConfigurator.registerInitialLinkSegmentCost(initialCost);
           }
-        } else {
-          initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-        }
-        taBuilder.registerInitialLinkSegmentCost(initialCost);
-      }
-    };
+        };
 
-    return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath,
-        defaultSetOutputTypeConfigurationProperties, registerInitialCosts, maxIterations, epsilon, setCostParameters,
-        description, useFixedConnectoidTravelTimeCost);
+    return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
+        projectPath,
+        defaultSetOutputTypeConfigurationProperties, 
+        registerInitialCosts, 
+        maxIterations, 
+        epsilon, 
+        setCostParameters,
+        description, 
+        useFixedConnectoidTravelTimeCost);
   }
 
   /**
@@ -653,9 +723,9 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final TriConsumer<TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
+      final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, PhysicalNetwork<?,?,?>> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
-      final BiConsumer<PhysicalNetwork, BPRLinkTravelTimeCost> setCostParameters,
+      final BiConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator> setCostParameters,
       final String description,
       final boolean useFixedConnectoidTravelTimeCost) throws Exception {
 
@@ -663,45 +733,44 @@ public class PlanItIOTestHelper {
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
     // RAW INPUT START --------------------------------
-    final PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class
-        .getCanonicalName());
+    final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
     final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
     final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
     // RAW INPUT END -----------------------------------
 
     // TRAFFIC ASSIGNMENT START------------------------
-    final TraditionalStaticAssignmentBuilder taBuilder =
-        (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
-            TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
+    final TraditionalStaticAssignmentConfigurator taConfigurator =
+        (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
+            TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, physicalNetwork);
 
     // SUPPLY-DEMAND INTERACTIONS
     if (setCostParameters != null) {
-      setCostParameters.accept(physicalNetwork, (BPRLinkTravelTimeCost)taBuilder.getPhysicalCost());
+      setCostParameters.accept(physicalNetwork, (BPRConfigurator) taConfigurator.getPhysicalCost());
     }
 
     if (useFixedConnectoidTravelTimeCost) {
-      taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+      taConfigurator.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
     } else {
-      taBuilder.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+      taConfigurator.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
     }
-    taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+    taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
     // DATA OUTPUT CONFIGURATION
     // PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set
     // to true - outputs will not match test data otherwise
-    final OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
+    final OutputConfiguration outputConfiguration = taConfigurator.getOutputConfiguration();
     outputConfiguration.setPersistOnlyFinalIteration(true);
 
     // LINK OUTPUT
     final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
-        (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
+        (LinkOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.LINK);
     if (setOutputTypeConfigurationProperties != null) {
       setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
     }
 
     // OD OUTPUT
     final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-        (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
+        (OriginDestinationOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
@@ -713,22 +782,22 @@ public class PlanItIOTestHelper {
     xmlOutputFormatter.setXmlNameRoot(description);
     xmlOutputFormatter.setCsvNameRoot(description);
     xmlOutputFormatter.setOutputDirectory(projectPath);
-    taBuilder.registerOutputFormatter(xmlOutputFormatter);
+    taConfigurator.registerOutputFormatter(xmlOutputFormatter);
 
     // MemoryOutputFormatter
     final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
         .createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-    taBuilder.registerOutputFormatter(memoryOutputFormatter);
+    taConfigurator.registerOutputFormatter(memoryOutputFormatter);
 
     // "USER" configuration
     if (maxIterations != null) {
-      taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+      taConfigurator.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
     }
     if (epsilon != null) {
-      taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+      taConfigurator.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
-    registerInitialCosts.accept(taBuilder, project, physicalNetwork);
+    registerInitialCosts.accept(taConfigurator, project, physicalNetwork);
 
     project.executeAllTrafficAssignments();
     linkOutputTypeConfiguration.removeAllProperties();
@@ -773,9 +842,9 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts,
+      final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, PhysicalNetwork<?,?,?>> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters,
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters,
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow) throws Exception {
@@ -784,37 +853,36 @@ public class PlanItIOTestHelper {
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
     // RAW INPUT START --------------------------------
-    final PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-    final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
-    final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
+    final MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+    final Zoning zoning = project.createAndRegisterZoning(network);
+    final Demands demands = project.createAndRegisterDemands(zoning, network);
     
     // RAW INPUT END -----------------------------------
 
     // TRAFFIC ASSIGNMENT START------------------------
-    final TraditionalStaticAssignmentBuilder taBuilder =
-        (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(
-            TraditionalStaticAssignment.class.getCanonicalName(), demands, zoning, physicalNetwork);
+    final TraditionalStaticAssignmentConfigurator taConfigurator =
+        (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
+            TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
     
     //READ INITIAL COSTS
-    registerInitialCosts.accept(demands, taBuilder, project, physicalNetwork);
+    registerInitialCosts.accept(demands, taConfigurator, project, network);
     
     // SUPPLY-DEMAND INTERACTIONS
-    final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-        .createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+    final BPRConfigurator bpr = (BPRConfigurator) taConfigurator.createAndRegisterPhysicalCost(PhysicalCost.BPR);
     
     if (setCostParameters != null) {
-      setCostParameters.accept(physicalNetwork, bprLinkTravelTimeCost, planItInputBuilder);
+      setCostParameters.accept(network, bpr, planItInputBuilder);
     }
 
     if (useFixedConnectoidTravelTimeCost) {
-      taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+      taConfigurator.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
     } else {
-      taBuilder.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+      taConfigurator.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
     }
-    taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+    taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
     // DATA OUTPUT CONFIGURATION
-    OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
+    OutputConfiguration outputConfiguration = taConfigurator.getOutputConfiguration();
     // PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set
     // to true - outputs will not match test data otherwise
     outputConfiguration.setPersistOnlyFinalIteration(true);
@@ -822,19 +890,19 @@ public class PlanItIOTestHelper {
 
     // LINK OUTPUT CONFIGURATION
     final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
-        (LinkOutputTypeConfiguration) taBuilder.activateOutput(OutputType.LINK);
+        (LinkOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.LINK);
     setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 
     // OD OUTPUT CONFIGURATION
     final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-        (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
+        (OriginDestinationOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
     originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
     // PATH OUTPUT CONFIGURATION
     final PathOutputTypeConfiguration pathOutputTypeConfiguration = 
-        (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
+        (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
     pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_EXTERNAL_ID);
 
     
@@ -849,19 +917,19 @@ public class PlanItIOTestHelper {
     
     //Illustration of how to set <description> element in output XML file below
     //xmlOutputFormatter.setDescription("Some other description");
-    taBuilder.registerOutputFormatter(xmlOutputFormatter);
+    taConfigurator.registerOutputFormatter(xmlOutputFormatter);
 
     // MemoryOutputFormatter
     final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
         .createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-    taBuilder.registerOutputFormatter(memoryOutputFormatter);
+    taConfigurator.registerOutputFormatter(memoryOutputFormatter);
 
     // "USER" configuration
     if (maxIterations != null) {
-      taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+      taConfigurator.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
     }
     if (epsilon != null) {
-      taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+      taConfigurator.getGapFunction().getStopCriterion().setEpsilon(epsilon);
     }
 
     project.executeAllTrafficAssignments();
@@ -894,28 +962,28 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow)
       throws Exception {
 
-    final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        demands, taBuilder, project, physicalNetwork) -> {
-      InitialLinkSegmentCost initialCost = null;
-      if (initialCostsFileLocation1 != null) {
-        if (initialCostsFileLocation2 != null) {
-          if (initCostsFilePos == 0) {
-            initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-          } else {
-            initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, PhysicalNetwork<?,?,?>> registerInitialCosts = 
+        (demands, taBuilder, project, physicalNetwork) -> {
+          InitialLinkSegmentCost initialCost = null;
+          if (initialCostsFileLocation1 != null) {
+            if (initialCostsFileLocation2 != null) {
+              if (initCostsFilePos == 0) {
+                initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+              } else {
+                initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+              }
+            } else {
+              initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+            }
+            taBuilder.registerInitialLinkSegmentCost(initialCost);
           }
-        } else {
-          initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-        }
-        taBuilder.registerInitialLinkSegmentCost(initialCost);
-      }
-    };
+        };
 
     return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
         maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
@@ -948,27 +1016,27 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, final Double epsilon,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow) throws Exception {
 
-    final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        demands, taBuilder, project, physicalNetwork) -> {
-      InitialLinkSegmentCost initialCost = null;
-      if (initialCostsFileLocation1 != null) {
-        if (initialCostsFileLocation2 != null) {
-          if (initCostsFilePos == 0) {
-            initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-          } else {
-            initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, PhysicalNetwork<?,?,?>> registerInitialCosts = 
+        (demands, taConfigurator, project, physicalNetwork) -> {
+          InitialLinkSegmentCost initialCost = null;
+          if (initialCostsFileLocation1 != null) {
+            if (initialCostsFileLocation2 != null) {
+              if (initCostsFilePos == 0) {
+                initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+              } else {
+                initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation2);
+              }
+            } else {
+              initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
+            }
+            taConfigurator.registerInitialLinkSegmentCost(initialCost);
           }
-        } else {
-          initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation1);
-        }
-        taBuilder.registerInitialLinkSegmentCost(initialCost);
-      }
-    };
+        };
 
     return setupAndExecuteAssignment(projectPath, setOutputTypeConfigurationProperties, registerInitialCosts,
         maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
@@ -993,24 +1061,32 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, final Integer maxIterations,
       final Double epsilon,
-      final TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters, 
+      final TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow)
       throws Exception {
 
-    final QuadConsumer<Demands, TraditionalStaticAssignmentBuilder, CustomPlanItProject, PhysicalNetwork> registerInitialCosts = (
-        demands, taBuilder, project, physicalNetwork) -> {
+    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, PhysicalNetwork<?,?,?>> registerInitialCosts = (
+        demands, taConfigurator, project, physicalNetwork) -> {
       for (final Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
         final TimePeriod timePeriod = demands.timePeriods.getTimePeriodById(timePeriodId);
         final String initialCostsFileLocation = initialLinkSegmentLocationsPerTimePeriod.get(timePeriodId);
         final InitialLinkSegmentCostPeriod initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation,timePeriod);
-        taBuilder.registerInitialLinkSegmentCost(initialCost);
+        taConfigurator.registerInitialLinkSegmentCost(initialCost);
       }
     };
 
-    return setupAndExecuteAssignment(projectPath, defaultSetOutputTypeConfigurationProperties, registerInitialCosts,
-        maxIterations, epsilon, setCostParameters, description, useFixedConnectoidTravelTimeCost, recordZeroFlow);
+    return setupAndExecuteAssignment(
+        projectPath, 
+        defaultSetOutputTypeConfigurationProperties, 
+        registerInitialCosts,
+        maxIterations, 
+        epsilon, 
+        setCostParameters, 
+        description, 
+        useFixedConnectoidTravelTimeCost, 
+        recordZeroFlow);
   }
 
   /**

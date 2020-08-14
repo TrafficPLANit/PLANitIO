@@ -36,7 +36,7 @@ public class ProcessLinkConfiguration {
    * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
    */
-  public static void createAndRegisterModes(PhysicalNetwork physicalNetwork, XMLElementLinkConfiguration linkconfiguration, InputBuilderListener inputBuilderListener) throws PlanItException {
+  public static void createAndRegisterModes(PhysicalNetwork<?,?,?> physicalNetwork, XMLElementLinkConfiguration linkconfiguration, InputBuilderListener inputBuilderListener) throws PlanItException {
     for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
       long externalModeId = generatedMode.getId().longValue();
       if (externalModeId == 0) {

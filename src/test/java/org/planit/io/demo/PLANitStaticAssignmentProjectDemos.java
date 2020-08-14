@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.planit.assignment.TrafficAssignment;
+import org.planit.assignment.TrafficAssignmentBuilder;
+import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentBuilder;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
@@ -34,8 +36,6 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.time.TimePeriod;
-import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
-import org.planit.trafficassignment.builder.TrafficAssignmentBuilder;
 import org.planit.utils.exceptions.PlanItException;
 
 /**
@@ -283,7 +283,7 @@ public class PLANitStaticAssignmentProjectDemos {
       SpeedConnectoidTravelTimeCost virtualCost =
         (SpeedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualCost(VirtualCost.SPEED);
       // set default speed to 25 km/h
-      virtualCost.setConnectiodSpeed(25);
+      virtualCost.setConnectoidSpeed(25);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {

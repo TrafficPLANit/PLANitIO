@@ -2,9 +2,11 @@ package org.planit.io;
 
 import java.util.logging.Logger;
 
-import org.planit.assignment.traditionalstatic.TraditionalStaticAssignment;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
-import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
+import org.planit.assignment.TrafficAssignment;
+import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
+import org.planit.cost.physical.BPRConfigurator;
+import org.planit.cost.physical.PhysicalCost;
+import org.planit.cost.virtual.VirtualCost;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
@@ -12,12 +14,10 @@ import org.planit.logging.Logging;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
-import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
-import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.trafficassignment.builder.TraditionalStaticAssignmentBuilder;
+import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
@@ -76,46 +76,45 @@ public class PlanItMain {
 		PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
 		final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
+		// output formatter
+		final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);		
+    xmlOutputFormatter.setXmlDirectory("C:\\Users\\Public\\PlanIt\\Xml");
+    xmlOutputFormatter.setCsvDirectory("C:\\Users\\Public\\PlanIt\\Csv");
+    xmlOutputFormatter.resetXmlDirectory();
+    xmlOutputFormatter.resetCsvDirectory();
+    xmlOutputFormatter.setXmlNameRoot("Route Choice Test 1");
+    xmlOutputFormatter.setCsvNameRoot("Route Choice Test 1");
+		
+
 		// RAW INPUT START --------------------------------
-		final PhysicalNetwork physicalNetwork = project
-				.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+		final PhysicalNetwork<?,?,?> physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 		final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
 		final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
 		// RAW INPUT END -----------------------------------
 
 		// TRAFFIC ASSIGNMENT START------------------------
-		final TraditionalStaticAssignmentBuilder taBuilder = (TraditionalStaticAssignmentBuilder) project
-				.createAndRegisterTrafficAssignment(TraditionalStaticAssignment.class.getCanonicalName(), demands,
-						zoning, physicalNetwork);
-		// SUPPLY-DEMAND INTERACTIONS
-		final BPRLinkTravelTimeCost bprLinkTravelTimeCost = (BPRLinkTravelTimeCost) taBuilder
-				.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
-		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = planItInputBuilder
-				.getLinkSegmentTypeByExternalId((long) 1);
+		final TraditionalStaticAssignmentConfigurator ta = 
+		    (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
+		        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, physicalNetwork);
+
+		// TA CONFIGURATION
+		final BPRConfigurator bpr = (BPRConfigurator) ta.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+		final MacroscopicLinkSegmentType macroscopiclinkSegmentType = planItInputBuilder.getLinkSegmentTypeByExternalId((long) 1);
 		final Mode mode = planItInputBuilder.getModeByExternalId((long) 2);
-		bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-		taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
-		taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+		bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+
+		ta.createAndRegisterVirtualCost(VirtualCost.FIXED);
+		
+		ta.createAndRegisterSmoothing(Smoothing.MSA);
+		
+    ta.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+    ta.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+		
 
 		// DATA OUTPUT CONFIGURATION
-		taBuilder.activateOutput(OutputType.LINK);
-		final OutputConfiguration outputConfiguration = taBuilder.getOutputConfiguration();
-		outputConfiguration.setPersistOnlyFinalIteration(true); // option to only persist the final iteration
-
-		// OUTPUT FORMAT CONFIGURATION
-		final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project
-				.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
-		taBuilder.registerOutputFormatter(xmlOutputFormatter);
-		xmlOutputFormatter.setXmlDirectory("C:\\Users\\Public\\PlanIt\\Xml");
-		xmlOutputFormatter.setCsvDirectory("C:\\Users\\Public\\PlanIt\\Csv");
-		xmlOutputFormatter.resetXmlDirectory();
-		xmlOutputFormatter.resetCsvDirectory();
-		xmlOutputFormatter.setXmlNameRoot("Route Choice Test 1");
-		xmlOutputFormatter.setCsvNameRoot("Route Choice Test 1");
-
-		// "USER" configuration
-		taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-		taBuilder.getGapFunction().getStopCriterion().setEpsilon(epsilon);
+    ta.registerOutputFormatter(xmlOutputFormatter);		
+		ta.activateOutput(OutputType.LINK);
+		ta.getOutputConfiguration().setPersistOnlyFinalIteration(true); // option to only persist the final iteration
 
 		project.executeAllTrafficAssignments();
 	}

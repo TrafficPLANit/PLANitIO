@@ -11,9 +11,14 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
+import org.planit.path.choice.PathChoice;
 import org.planit.path.choice.StochasticPathChoice;
+import org.planit.path.choice.StochasticPathChoiceConfigurator;
+import org.planit.path.choice.logit.LogitChoiceModel;
 import org.planit.path.choice.logit.MultinomialLogit;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
+import org.planit.sdinteraction.smoothing.Smoothing;
+import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
 import org.planit.utils.exceptions.PlanItException;
 
@@ -62,47 +67,43 @@ public class PLANitDynamicAssignmentProjectDemos {
           // Create a simple PLANit project with all the default settings
           final PlanItProject project = new PlanItProject(projectPath);
 
-            // INITIALISE INPUTS
-            final PhysicalNetwork physicalNetwork             = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
-            final Zoning zoning                               = project.createAndRegisterZoning(physicalNetwork);
-            final Demands demands                             = project.createAndRegisterDemands(zoning, physicalNetwork);
-            // INITIALISE OUTPUT FORMATTERS
-            final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-            // route sets are defined on the project level and linked to a network, zoning combination
-            project.createAndRegisterOdPathSets(physicalNetwork, zoning, routeInputPath);
+          // INITIALISE INPUTS
+          final MacroscopicNetwork physicalNetwork          = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+          final Zoning zoning                               = project.createAndRegisterZoning(physicalNetwork);
+          final Demands demands                             = project.createAndRegisterDemands(zoning, physicalNetwork);
 
-            //:TODO: to be implemented
-            // alternatively pathss can be generated with a route generator
+          // INITIALISE OUTPUT FORMATTERS
+          final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+          // route sets are defined on the project level and linked to a network, zoning combination
+          project.createAndRegisterOdPathSets(physicalNetwork, zoning, routeInputPath);
+
+          //:TODO: to be implemented
+          // alternatively pathss can be generated with a route generator
               
 
-            // this saves an additional call AND will allow us to provide defaults such as using the
-            // triangular FD on eLTM because we already know the network (for example) in the constructor of the
-            // builder!
-          final ELTMTrafficAssignmentBuilder taBuilder =
-              (ELTMTrafficAssignmentBuilder) project.createAndRegisterTrafficAssignment(
-                  ELTM.class.getCanonicalName(), demands, zoning, physicalNetwork);
+          final ELTMTrafficAssignmentConfigurator eLTM =
+              (ELTMTrafficAssignmentConfigurator) project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName(), demands, zoning, physicalNetwork);
 
           // CREATE/REGISTER ASSIGNMENT COMPONENTS
 
-            // eLTM only supports a triangular fundamental diagram, but it still needs to be registered
-            taBuilder.createAndRegisterFundamentalDiagram(NewellFundamentalDiagram.class.getCanonicalName(), physicalNetwork);
+          // eLTM only supports a triangular fundamental diagram, but it still needs to be registered
+          eLTM.createAndRegisterFundamentalDiagram(FundamentalDiagram.NEWELL, physicalNetwork);
 
-            // iteration smoothing: MSA
-            taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+          // iteration smoothing: MSA
+          eLTM.createAndRegisterSmoothing(Smoothing.MSA);
 
           // stochastic path choice is a path choice type that requires a logit model and paths as input
-          final StochasticPathChoice suePathChoice =
-              (StochasticPathChoice) taBuilder.createAndRegisterPathChoice(StochasticPathChoice.class.getCanonicalName());
+          final StochasticPathChoiceConfigurator suePathChoice = (StochasticPathChoiceConfigurator) eLTM.createAndRegisterPathChoice(PathChoice.STOCHASTIC);
           // MNL for path choice
-          suePathChoice.createAndRegisterLogitModel(MultinomialLogit.class.getCanonicalName());
+          suePathChoice.createAndRegisterLogitModel(LogitChoiceModel.MNL);
           // register a fixed od path set
-          suePathChoice.RegisterOdPathMatrix(project.odPathSets.getFirstOdPathSets().getFirstOdPathMatrix());
+          suePathChoice.setOdPathMatrix(project.odPathSets.getFirstOdPathSets().getFirstOdPathMatrix());
 
-            // Output formatter: MEMORY
-            taBuilder.registerOutputFormatter(memoryOutputFormatter);
+          // Output formatter: MEMORY
+          eLTM.registerOutputFormatter(memoryOutputFormatter);
 
-            // EXECUTE ASSIGNMENTS
-            project.executeAllTrafficAssignments();
+          // EXECUTE ASSIGNMENTS
+          project.executeAllTrafficAssignments();
 
             project.executeAllTrafficAssignments();
         } catch (final PlanItException e) {
