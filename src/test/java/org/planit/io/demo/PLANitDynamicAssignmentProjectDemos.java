@@ -5,8 +5,9 @@ import java.util.logging.Logger;
 import org.planit.demands.Demands;
 import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
-import org.planit.ltm.assignment.dynamic.ELTM;
-import org.planit.ltm.assignment.dynamic.ELTMTrafficAssignmentBuilder;
+import org.planit.assignment.TrafficAssignment;
+import org.planit.assignment.eltm.ELTM;
+import org.planit.assignment.eltm.ELTMConfigurator;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -81,13 +82,13 @@ public class PLANitDynamicAssignmentProjectDemos {
           // alternatively pathss can be generated with a route generator
               
 
-          final ELTMTrafficAssignmentConfigurator eLTM =
-              (ELTMTrafficAssignmentConfigurator) project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName(), demands, zoning, physicalNetwork);
+          final ELTMConfigurator eLTM = 
+              (ELTMConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.ELTM, demands, zoning, physicalNetwork);
 
           // CREATE/REGISTER ASSIGNMENT COMPONENTS
 
           // eLTM only supports a triangular fundamental diagram, but it still needs to be registered
-          eLTM.createAndRegisterFundamentalDiagram(FundamentalDiagram.NEWELL, physicalNetwork);
+          eLTM.createAndRegisterFundamentalDiagram(FundamentalDiagram.NEWELL);
 
           // iteration smoothing: MSA
           eLTM.createAndRegisterSmoothing(Smoothing.MSA);

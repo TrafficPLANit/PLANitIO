@@ -40,13 +40,7 @@
 			<groupId>org.planit</groupId>
 			<artifactId>PLANit</artifactId>
 		</dependency>
-
-		<!-- version inherited from parent -->
-		<dependency>
-			<groupId>org.planit.ltm</groupId>
-			<artifactId>PLANitLTM</artifactId>
-		</dependency>
-		
+	
 		<!-- version inherited from parent -->
 		<dependency>
 			<groupId>org.planit.xml</groupId>
