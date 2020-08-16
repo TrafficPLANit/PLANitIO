@@ -4,17 +4,17 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.planit.assignment.TrafficAssignment;
-import org.planit.assignment.TrafficAssignmentBuilder;
-import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentBuilder;
+import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
+import org.planit.cost.physical.BPRConfigurator;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
-import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
+import org.planit.cost.virtual.SpeedVirtualCostConfigurator;
 import org.planit.cost.virtual.VirtualCost;
 import org.planit.demands.Demands;
-import org.planit.gap.LinkBasedRelativeDualityGapFunction;
+import org.planit.gap.LinkBasedRelativeGapConfigurator;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.io.project.PlanItProject;
@@ -34,6 +34,7 @@ import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
+import org.planit.sdinteraction.smoothing.MSASmoothingConfigurator;
 import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
@@ -81,7 +82,7 @@ public class PLANitStaticAssignmentProjectDemos {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(projectPath));
       
       // parse and register inputs
-      PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -89,14 +90,15 @@ public class PLANitStaticAssignmentProjectDemos {
       OutputFormatter outputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
 
       // create traffic assignment with selected project inputs
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
-          demands,
-          zoning,
-          network);
+      TraditionalStaticAssignmentConfigurator ta = 
+          (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
+            TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
+            demands,
+            zoning,
+            network);
       
       // activate the default output formatter on the assignment
-      taBuilder.registerOutputFormatter(outputFormatter); 
+      ta.registerOutputFormatter(outputFormatter); 
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -119,11 +121,12 @@ public class PLANitStaticAssignmentProjectDemos {
           project.getNetwork(), initialCostCSVPath);
       
       // create traffic assignment with selected project inputs
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator ta = 
+          (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
+              TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
 
       // register initial link segment costs for all time periods
-      taBuilder.registerInitialLinkSegmentCost(initialLinkSegmentCost);
+      ta.registerInitialLinkSegmentCost(initialLinkSegmentCost);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -145,7 +148,7 @@ public class PLANitStaticAssignmentProjectDemos {
           simpleProject.createAndRegisterInitialLinkSegmentCost(
               simpleProject.getNetwork(),"<insert the initial cost CSV file path here>", theTimePeriod);  
 
-      TrafficAssignmentBuilder taBuilder = 
+      TraditionalStaticAssignmentConfigurator taBuilder = (TraditionalStaticAssignmentConfigurator)
           simpleProject.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW *
@@ -171,12 +174,12 @@ public class PLANitStaticAssignmentProjectDemos {
           simpleProject.createAndRegisterInitialLinkSegmentCost(
               simpleProject.getNetwork(),"<insert the initial cost CSV file path here>", simpleProject.getDemands());  
 
-      TrafficAssignmentBuilder taBuilder = 
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
           simpleProject.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW * register for all available time periods
       for(InitialLinkSegmentCostPeriod initialCost : initialLinkSegmentCosts) {
-        taBuilder.registerInitialLinkSegmentCost(initialCost.getTimePeriod(), initialCost);
+        ta.registerInitialLinkSegmentCost(initialCost.getTimePeriod(), initialCost);
       }
       
       simpleProject.executeAllTrafficAssignments();
@@ -206,12 +209,12 @@ public class PLANitStaticAssignmentProjectDemos {
       InitialLinkSegmentCost initialLinkSegmentCostTimePeriod = 
           simpleProject.createAndRegisterInitialLinkSegmentCost(simpleProject.getNetwork(),initialCostCSVPath2, theTimePeriod);      
     
-      TrafficAssignmentBuilder taBuilder = 
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
           simpleProject.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW * register with and without time period
-      taBuilder.registerInitialLinkSegmentCost(initialLinkSegmentCostNoTimePeriod);
-      taBuilder.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCostTimePeriod);
+      ta.registerInitialLinkSegmentCost(initialLinkSegmentCostNoTimePeriod);
+      ta.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCostTimePeriod);
       
       simpleProject.executeAllTrafficAssignments();
         
@@ -228,13 +231,14 @@ public class PLANitStaticAssignmentProjectDemos {
 
       final PlanItSimpleProject project = new PlanItSimpleProject();
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator)
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW *
       // set MSA Smoothing as the type
       // instance is returned for follow up configuration
       @SuppressWarnings("unused") 
-      MSASmoothing smoothing = (MSASmoothing) taBuilder.createAndRegisterSmoothing(Smoothing.MSA);
+      MSASmoothingConfigurator smoothing = (MSASmoothingConfigurator) ta.createAndRegisterSmoothing(Smoothing.MSA);
       // smoothing.callAMethod()  
 
       project.executeAllTrafficAssignments();
@@ -251,13 +255,12 @@ public class PLANitStaticAssignmentProjectDemos {
 
       final PlanItSimpleProject project = new PlanItSimpleProject();
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW *
       // set BPR link performance function as the type
-      BPRLinkTravelTimeCost bprCost = 
-        (BPRLinkTravelTimeCost) taBuilder.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+      BPRConfigurator bprCost = (BPRConfigurator) ta.createAndRegisterPhysicalCost(PhysicalCost.BPR);
       // override default alpha and beta parameters
       bprCost.setDefaultParameters(0.5, 5); 
 
@@ -275,13 +278,13 @@ public class PLANitStaticAssignmentProjectDemos {
 
       final PlanItSimpleProject project = new PlanItSimpleProject();
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW *
       // set speed based virtual cost function as the type
-      SpeedConnectoidTravelTimeCost virtualCost =
-        (SpeedConnectoidTravelTimeCost) taBuilder.createAndRegisterVirtualCost(VirtualCost.SPEED);
+      SpeedVirtualCostConfigurator virtualCost =
+        (SpeedVirtualCostConfigurator) ta.createAndRegisterVirtualCost(VirtualCost.SPEED);
       // set default speed to 25 km/h
       virtualCost.setConnectoidSpeed(25);
 
@@ -299,12 +302,12 @@ public class PLANitStaticAssignmentProjectDemos {
 
       final PlanItSimpleProject project = new PlanItSimpleProject();
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator)
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
         
       // * NEW *
       // check type of default created gap function
-      if(taBuilder.getGapFunction() instanceof LinkBasedRelativeDualityGapFunction) {
+      if(ta.getGapFunction() instanceof LinkBasedRelativeGapConfigurator) {
         System.out.println("Link based relative duality gap used as gap function");
       }else {
         System.out.println("unknown gap function");
@@ -324,12 +327,12 @@ public class PLANitStaticAssignmentProjectDemos {
 
       final PlanItSimpleProject project = new PlanItSimpleProject();
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator)
+          project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW *
       // access stop criterion via gap function and set max number of iterations to 100  
-      taBuilder.getGapFunction().getStopCriterion().setMaxIterations(100);
+      ta.getGapFunction().getStopCriterion().setMaxIterations(100);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -344,7 +347,7 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -352,15 +355,13 @@ public class PLANitStaticAssignmentProjectDemos {
       OutputFormatter defaultOutputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
       OutputFormatter memoryOutputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.MEMORY_OUTPUT_FORMATTER);
 
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
-          demands,
-          zoning,
-          network);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
+          project.createAndRegisterTrafficAssignment(
+            TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
       
       // *NEW*
-      taBuilder.registerOutputFormatter(defaultOutputFormatter);
-      taBuilder.registerOutputFormatter(memoryOutputFormatter); 
+      ta.registerOutputFormatter(defaultOutputFormatter);
+      ta.registerOutputFormatter(memoryOutputFormatter); 
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -375,19 +376,16 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
       MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.MEMORY_OUTPUT_FORMATTER);
 
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
-          demands,
-          zoning,
-          network);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator)
+          project.createAndRegisterTrafficAssignment( TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
       
-      taBuilder.registerOutputFormatter(memoryOutputFormatter); 
+      ta.registerOutputFormatter(memoryOutputFormatter); 
 
       project.executeAllTrafficAssignments();
       
@@ -425,21 +423,19 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
-          demands,
-          zoning,
-          network);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
+          project.createAndRegisterTrafficAssignment(
+              TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
                   
-      taBuilder.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
+      ta.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
            
       // * NEW *
-      taBuilder.getOutputConfiguration().setPersistOnlyFinalIteration(false);
-      taBuilder.getOutputConfiguration().setPersistZeroFlow(true);
+      ta.getOutputConfiguration().setPersistOnlyFinalIteration(false);
+      ta.getOutputConfiguration().setPersistZeroFlow(true);
       
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -454,23 +450,21 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
-          demands,
-          zoning,
-          network);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
+          project.createAndRegisterTrafficAssignment(
+              TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
                   
-      taBuilder.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
+      ta.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
       
       // * NEW *
-      taBuilder.deactivateOutput(OutputType.LINK);
+      ta.deactivateOutput(OutputType.LINK);
       
       // * NEW *
-      PathOutputTypeConfiguration pathOutputConfiguration = (PathOutputTypeConfiguration) taBuilder.activateOutput(OutputType.PATH);
+      PathOutputTypeConfiguration pathOutputConfiguration = (PathOutputTypeConfiguration) ta.activateOutput(OutputType.PATH);
       
       // * NEW *
       pathOutputConfiguration.removeProperty(OutputProperty.RUN_ID);
@@ -489,20 +483,18 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      PhysicalNetwork network = project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
-      TrafficAssignmentBuilder taBuilder = project.createAndRegisterTrafficAssignment(
-          TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT,
-          demands,
-          zoning,
-          network);
+      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator)
+          project.createAndRegisterTrafficAssignment(
+              TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
                   
-      taBuilder.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
+      ta.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
            
       // * NEW *
-      OriginDestinationOutputTypeConfiguration odOutputConfiguration = (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
+      OriginDestinationOutputTypeConfiguration odOutputConfiguration = (OriginDestinationOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       
       // * NEW *
       odOutputConfiguration.activateOdSkimOutputType(ODSkimSubOutputType.COST);
@@ -529,11 +521,11 @@ public class PLANitStaticAssignmentProjectDemos {
           overrideProjectPath==null ? "c:\\Users\\Public\\planit\\" : overrideProjectPath);
            
       // ASSIGNMENT INSTANCE
-      TraditionalStaticAssignmentBuilder assignment = 
-        (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      TraditionalStaticAssignmentConfigurator assignment = 
+        (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // COMPONENTS
-      BPRLinkTravelTimeCost bprCost = (BPRLinkTravelTimeCost) assignment.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+      BPRConfigurator bprCost = (BPRConfigurator) assignment.createAndRegisterPhysicalCost(PhysicalCost.BPR);
       assignment.createAndRegisterVirtualCost(VirtualCost.FIXED);
       assignment.createAndRegisterSmoothing(Smoothing.MSA);
       
@@ -573,52 +565,56 @@ public class PLANitStaticAssignmentProjectDemos {
       final PlanItProject project = new PlanItProject(projectPath);
 
       // INITIALISE INPUTS
-      final PhysicalNetwork physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class
-          .getCanonicalName());
-      final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
-      final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
-      final InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork,
-          initialCsvCostFilePath, demands.timePeriods.asSortedSetByStartTime().first());
+      final MacroscopicNetwork network = (MacroscopicNetwork) 
+          project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class .getCanonicalName());
+      final Zoning zoning = project.createAndRegisterZoning(network);
+      final Demands demands = project.createAndRegisterDemands(zoning, network);
+      final InitialLinkSegmentCost initialCost = 
+          project.createAndRegisterInitialLinkSegmentCost(
+              network, initialCsvCostFilePath, demands.timePeriods.asSortedSetByStartTime().first());
+      
       // INITIALISE OUTPUT FORMATTERS
-      final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(
-          PlanItOutputFormatter.class.getCanonicalName());
-      final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
-          .createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+      final PlanItOutputFormatter xmlOutputFormatter = (PlanItOutputFormatter) 
+          project.createAndRegisterOutputFormatter(
+              PlanItOutputFormatter.class.getCanonicalName());
+      final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) 
+          project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
 
-      final TraditionalStaticAssignmentBuilder taBuilder =
-          (TraditionalStaticAssignmentBuilder) project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, physicalNetwork);
+      final TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
+          project.createAndRegisterTrafficAssignment(
+              TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
 
       // Initial (physical) link segment cost
-      taBuilder.registerInitialLinkSegmentCost(initialCost);
+      ta.registerInitialLinkSegmentCost(initialCost);
       // physical links: BPR cost function
-      taBuilder.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+      ta.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
       // virtual links: fixed cost function
-      taBuilder.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
+      ta.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
       // iteration smoothing: MSA
-      taBuilder.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+      ta.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
       // Output formatter: PLANitIO + MEMORY
-      taBuilder.registerOutputFormatter(xmlOutputFormatter);
-      taBuilder.registerOutputFormatter(memoryOutputFormatter);
+      ta.registerOutputFormatter(xmlOutputFormatter);
+      ta.registerOutputFormatter(memoryOutputFormatter);
 
       // COMPONENT CONFIGURATION - INPUT
-      taBuilder.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-      taBuilder.getGapFunction().getStopCriterion().setEpsilon(gapEpsilon);
+      ta.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
+      ta.getGapFunction().getStopCriterion().setEpsilon(gapEpsilon);
 
       // COMPONENT CONFIGURATION - OUTPUT CONTENTS
       // General:
-      taBuilder.getOutputConfiguration().setPersistOnlyFinalIteration(true);
+      ta.getOutputConfiguration().setPersistOnlyFinalIteration(true);
       // link outputs: ON + example configuration
-      final LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taBuilder
-          .activateOutput(OutputType.LINK);
+      final LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) 
+          ta.activateOutput(OutputType.LINK);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
       // OD outputs: ON + example configuration
       final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-          (OriginDestinationOutputTypeConfiguration) taBuilder.activateOutput(OutputType.OD);
+          (OriginDestinationOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
       // PATH outputs: ON + example configuration
-      final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taBuilder
-          .activateOutput(OutputType.PATH);
+      final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) 
+          ta.activateOutput(OutputType.PATH);
       pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_EXTERNAL_ID);
 
       // COMPONENT CONFIGURATION - PLANitIO OUTPUT FORMAT

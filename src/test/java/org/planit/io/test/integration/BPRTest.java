@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
+import org.planit.cost.physical.BPRConfigurator;
 import org.planit.input.InputBuilderListener;
-import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
+import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
@@ -94,13 +94,13 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = 
-          (physicalNetwork, bprLinkTravelTimeCost, inputBuilderListener) -> {
+      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
+          (physicalNetwork, bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
             Mode mode = inputBuilderListener.getModeByExternalId((long) 1);
-            bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+            bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
             MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByExternalId((long) 3);
-            bprLinkTravelTimeCost.setParameters(linkSegment, mode, 1.0, 5.0);
+            bpr.setParameters(linkSegment, mode, 1.0, 5.0);
       };
   
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 

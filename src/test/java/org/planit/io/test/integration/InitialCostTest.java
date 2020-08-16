@@ -71,7 +71,7 @@ public class InitialCostTest {
       IdGenerator.reset();
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-      PhysicalNetwork physicalNetwork =
+      PhysicalNetwork<?,?,?> physicalNetwork =
           project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       InitialLinkSegmentCost initialCost =
@@ -112,7 +112,7 @@ public class InitialCostTest {
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
-      PhysicalNetwork physicalNetwork =
+      PhysicalNetwork<?,?,?> physicalNetwork =
           project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       InitialLinkSegmentCost initialCost =

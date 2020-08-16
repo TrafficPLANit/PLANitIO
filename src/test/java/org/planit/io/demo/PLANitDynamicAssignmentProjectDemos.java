@@ -8,19 +8,14 @@ import org.planit.io.project.PlanItSimpleProject;
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.eltm.ELTM;
 import org.planit.assignment.eltm.ELTMConfigurator;
-import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.path.choice.PathChoice;
-import org.planit.path.choice.StochasticPathChoice;
 import org.planit.path.choice.StochasticPathChoiceConfigurator;
 import org.planit.path.choice.logit.LogitChoiceModel;
-import org.planit.path.choice.logit.MultinomialLogit;
-import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
-import org.planit.supply.fundamentaldiagram.NewellFundamentalDiagram;
 import org.planit.utils.exceptions.PlanItException;
 
 /**

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
+import org.planit.cost.physical.BPRConfigurator;
 import org.planit.input.InputBuilderListener;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
@@ -1264,6 +1264,7 @@ public class RouteChoiceTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName2,
           xmlFileName2);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -1472,6 +1473,7 @@ public class RouteChoiceTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -1680,6 +1682,7 @@ public class RouteChoiceTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -1702,12 +1705,12 @@ public class RouteChoiceTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
-      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
-          bprLinkTravelTimeCost, inputBuilderListener) -> {
+      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork,
+          bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
             (long) 1);
         Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
-        bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+        bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
@@ -1811,6 +1814,7 @@ public class RouteChoiceTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -1834,12 +1838,12 @@ public class RouteChoiceTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
-      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
-          bprLinkTravelTimeCost, inputBuilderListener) -> {
+      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork,
+          bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
             (long) 1);
         Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
-        bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+        bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
       Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties = (
@@ -1850,6 +1854,7 @@ public class RouteChoiceTest {
           linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
           linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
         } catch (PlanItException e) {
+          e.printStackTrace();
           LOGGER.severe(e.getMessage());
           fail(e.getMessage());
         }
@@ -1947,6 +1952,7 @@ public class RouteChoiceTest {
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
           xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
@@ -1971,12 +1977,12 @@ public class RouteChoiceTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 500;
 
-      TriConsumer<PhysicalNetwork, BPRLinkTravelTimeCost, InputBuilderListener> setCostParameters = (physicalNetwork,
-          bprLinkTravelTimeCost, inputBuilderListener) -> {
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
-            (long) 1);
+      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork,
+          bpr, inputBuilderListener) -> {
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = 
+            inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
         Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
-        bprLinkTravelTimeCost.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
+        bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
       //TODO - Comparisons with MemoryOutputFormatter have been commented out due to insufficient time to configure them
@@ -2077,6 +2083,7 @@ public class RouteChoiceTest {
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName, xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }

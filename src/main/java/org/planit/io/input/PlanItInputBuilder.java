@@ -675,7 +675,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Object[] parameters = (Object[]) content[1];
       try {
         if (projectComponent instanceof PhysicalNetwork) {
-          populatePhysicalNetwork((PhysicalNetwork) projectComponent);
+          populatePhysicalNetwork((PhysicalNetwork<?,?,?>) projectComponent);
         } else if (projectComponent instanceof Zoning) {
           populateZoning((Zoning) projectComponent, parameters[0]);
         } else if (projectComponent instanceof Demands) {
