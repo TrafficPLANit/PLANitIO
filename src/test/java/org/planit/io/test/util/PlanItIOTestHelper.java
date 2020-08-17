@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -1092,13 +1093,17 @@ public class PlanItIOTestHelper {
   /**
    * Deletes a file from the file system
    *
-   * @param filename location of the file to be deleted
-   * @throws Exception thrown if there is an error deleting the file
+   * @param fileName location of the file to be deleted
+   * @throws Exception thrown if there is an error deleting the file (except when it does not exist)
    */
-  public static void deleteFile(final String filename) throws Exception {
-    final String rootPath = System.getProperty("user.dir");
-    final Path path = FileSystems.getDefault().getPath(rootPath + "\\" + filename);
-    Files.delete(path);
+  public static void deleteFile(final String fileName) throws Exception {
+    try {
+      final String rootPath = System.getProperty("user.dir");
+      final Path path = FileSystems.getDefault().getPath(rootPath + "\\" + fileName);
+      Files.delete(path);
+    }catch(NoSuchFileException e) {
+      LOGGER.fine(String.format("File cannot be deleted, it does not exist; %s", fileName));
+    }
   }
 
   /**
