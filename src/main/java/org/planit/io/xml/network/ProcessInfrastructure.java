@@ -103,7 +103,6 @@ public class ProcessInfrastructure {
    * @param linkSegmentTypeHelper object storing the input values for this link
    * @param noLanes the number of lanes in this link
    * @param externalId the external Id of this link segment
-   * @param modeProperties properties of the link segment type for each mode
    * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error
    */
@@ -111,26 +110,26 @@ public class ProcessInfrastructure {
       boolean abDirection,
       MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeHelper,
       int noLanes, long externalId,
-      Map<Mode, MacroscopicModeProperties> modeProperties,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-
+    
     // create the link and store it in the network object
     MacroscopicLinkSegment linkSegment = network.linkSegments.createLinkSegment(link, abDirection);
 
-    double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
-    linkSegment.setMaximumSpeed(maxSpeedDouble);
-    for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
-      linkSegment.setMaximumSpeed(mode, Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode))); 
-    }
-
+    double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
+    linkSegment.setMaximumSpeed(maxSpeedDouble);    
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
-    MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
-        linkSegmentTypeHelper.getExternalId());
+    
+    Map<Mode, MacroscopicModeProperties> modeProperties = linkSegmentTypeHelper.getModePropertiesMap();
+    for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
+      modeProperties.get(mode).setMaximumSpeed(Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode))); 
+    }      
+    
+    MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(linkSegmentTypeHelper.getExternalId());
     if (existingLinkSegmentType == null) {
       MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
           .createAndRegisterNewMacroscopicLinkSegmentType(linkSegmentTypeHelper.getName(), linkSegmentTypeHelper.getCapacityPerLane(),
-              linkSegmentTypeHelper.getMaximumDensityPerLane(), linkSegmentTypeHelper.getExternalId(), modeProperties);
+              linkSegmentTypeHelper.getMaximumDensityPerLane(), linkSegmentTypeHelper.getExternalId(), modeProperties);        
       inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(),
           macroscopicLinkSegmentType);
       linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
@@ -223,7 +222,6 @@ public class ProcessInfrastructure {
         // we would then need to set it for
         // every mode. We need to change the XSD file to specify how to do this.
 
-        Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
@@ -232,7 +230,7 @@ public class ProcessInfrastructure {
           }
         }
         createAndRegisterLinkSegment(maxSpeed, network, link, abDirection, macroscopicLinkSegmentTypeXmlHelper, noLanes,
-            linkSegmentExternalId, modeProperties, inputBuilderListener);
+            linkSegmentExternalId, inputBuilderListener);
         isFirstLinkSegment = false;
         firstLinkDirection = abDirection;
       }
