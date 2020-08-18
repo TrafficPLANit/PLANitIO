@@ -81,7 +81,7 @@ public class ProcessInfrastructure {
       Position startPosition = null;
       Position endPosition = null;
       for (int i = 0; i < posList.size(); i += 2) {
-        endPosition = planitGeoUtils.getDirectPositionFromValues(posList.get(i), posList.get(i + 1));
+        endPosition = planitGeoUtils.createDirectPosition(posList.get(i), posList.get(i + 1));
         if (startPosition != null) {
           distance += planitGeoUtils.getDistanceInKilometres(startPosition, endPosition);
         }
@@ -118,6 +118,7 @@ public class ProcessInfrastructure {
     MacroscopicLinkSegment linkSegment = network.linkSegments.createLinkSegment(link, abDirection);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;
+    linkSegment.setMaximumSpeed(maxSpeedDouble);
     for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
       linkSegment.setMaximumSpeed(mode, Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode))); 
     }
@@ -222,8 +223,7 @@ public class ProcessInfrastructure {
         // we would then need to set it for
         // every mode. We need to change the XSD file to specify how to do this.
 
-        Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper
-            .getModePropertiesMap();
+        Map<Mode, MacroscopicModeProperties> modeProperties = macroscopicLinkSegmentTypeXmlHelper.getModePropertiesMap();
         boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {

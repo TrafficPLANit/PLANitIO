@@ -45,7 +45,7 @@ public interface XmlUtils {
 	public static DirectPosition getDirectPositionFromPointType(PlanitGeoUtils planitGeoUtils, PointType pointType)
 			throws PlanItException {
 		List<Double> value = pointType.getPos().getValue();
-		return planitGeoUtils.getDirectPositionFromValues(value.get(0), value.get(1));
+		return planitGeoUtils.createDirectPosition(value.get(0), value.get(1));
 	}
 
 	/**

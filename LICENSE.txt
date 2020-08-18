@@ -1,2 +1,0 @@
-see pom.xml on where to find the license
-
