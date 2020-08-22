@@ -422,7 +422,9 @@ public class RouteChoiceTest {
       String xmlFileName1 = "Time_Period_1.xml";
       String xmlFileName2 = "Time_Period_2.xml";
       String xmlFileName3 = "Time_Period_3.xml";
+      
       Integer maxIterations = 1;
+      
       Map<Long, String> initialLinkSegmentLocationsPerTimePeriod = new HashMap<Long, String>();
       initialLinkSegmentLocationsPerTimePeriod.put((long) 0,
           "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceInitialCostsOneIterationThreeTimePeriods\\initial_link_segment_costs_time_period_1.csv");
@@ -457,14 +459,7 @@ public class RouteChoiceTest {
       
       PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, initialLinkSegmentLocationsPerTimePeriod, maxIterations,
           0.0, null, description, true, false);
-    
-      /** TODO --> FAILS it appears the registered results are incorrect and the new result is correct (links - first time period):
-       * TO FIX:
-       * - verify correct results, initial costs should result in different path chosen, but this is not the case
-       *    reason (I think) is because the initial costs will not cause this behaviour...weirdly enough they do in the reference results
-       * - FURTHER -> initial costs should be based on external id of link segments by default! It seems it is based on internal id which is dangerous!
-       */
-      
+         
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName3, xmlFileName3);
