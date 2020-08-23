@@ -113,7 +113,7 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
     
     // create the link and store it in the network object
-    MacroscopicLinkSegment linkSegment = network.linkSegments.createLinkSegment(link, abDirection);
+    MacroscopicLinkSegment linkSegment = network.linkSegments.createAndRegisterLinkSegment(link, abDirection, true /* register on nodes and link*/);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
     linkSegment.setMaximumSpeed(maxSpeedDouble);    
@@ -136,7 +136,7 @@ public class ProcessInfrastructure {
     } else {
       linkSegment.setLinkSegmentType(existingLinkSegmentType);
     }
-    network.linkSegments.registerLinkSegment(link, linkSegment, abDirection);
+
     if (linkSegment.getExternalId() != null) {
       final boolean duplicateLinkSegmentExternalId = 
           inputBuilderListener.addLinkSegmentToExternalIdMap(linkSegment.getExternalId(), linkSegment);
@@ -195,8 +195,9 @@ public class ProcessInfrastructure {
         throw new PlanItException(
             "Error in network XML file: Must define either a length or GML LineString for link from node "
                 + generatedLink.getNodearef().longValue() + " to node " + generatedLink.getNodebref().longValue());
-      }
+      }      
       Link link = network.links.registerNewLink(startNode, endNode, length);
+      
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
       for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
