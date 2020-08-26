@@ -57,7 +57,7 @@ public class ProcessInfrastructure {
       if(lst.getCoordinates() != null) {
         return planitGeoUtils.createLineStringFromCsvString(lst.getCoordinates().getValue(), lst.getCoordinates().getTs(), lst.getCoordinates().getCs());
       }else if(lst.getPosList()!=null) {
-        return planitGeoUtils.createLineStringFromDoubleCoordinateList(lst.getPosList().getValue());
+        return planitGeoUtils.createLineString(lst.getPosList().getValue());
       }
     }
     return null;    
