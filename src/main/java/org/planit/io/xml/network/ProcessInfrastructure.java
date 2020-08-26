@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.planit.xml.generated.*;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.coordinate.LineString;
 import org.opengis.geometry.coordinate.Position;
 import org.planit.geo.PlanitGeoUtils;
 import org.planit.input.InputBuilderListener;
@@ -20,6 +21,7 @@ import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
+
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
@@ -40,6 +42,26 @@ public class ProcessInfrastructure {
   static {
     planitGeoUtils = new PlanitGeoUtils();
   }
+  
+  /**
+   * parse the geometry from the xml link
+   * 
+   * @param generatedLink xml link
+   * @return created LineString if any, null if not present
+   * @throws PlanItException thrown if error
+   */
+  private static LineString parseLinkGeometry(org.planit.xml.generated.XMLElementLinks.Link generatedLink) throws PlanItException {
+    /* geometry of link */
+    if(generatedLink.getLineString()!=null) {
+      LineStringType lst = generatedLink.getLineString();
+      if(lst.getCoordinates() != null) {
+        return planitGeoUtils.createLineStringFromCsvString(lst.getCoordinates().getValue(), lst.getCoordinates().getTs(), lst.getCoordinates().getCs());
+      }else if(lst.getPosList()!=null) {
+        return planitGeoUtils.createLineStringFromDoubleCoordinateList(lst.getPosList().getValue());
+      }
+    }
+    return null;    
+  }  
 
   /**
    * Get the link length from the length element in the XML file, if this has
@@ -180,7 +202,7 @@ public class ProcessInfrastructure {
    * @param inputBuilderListener parser which holds the Map of nodes by external Id
    * @throws PlanItException thrown if there is an error during processing or reference to link segment types invalid
    */
-  public static void createAndRegisterLinkSegments(XMLElementInfrastructure infrastructure,
+  public static void createAndRegisterLinkAndLinkSegments(XMLElementInfrastructure infrastructure,
       MacroscopicNetwork network,
       Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap,
       InputBuilderListener inputBuilderListener) throws PlanItException {
@@ -197,6 +219,8 @@ public class ProcessInfrastructure {
                 + generatedLink.getNodearef().longValue() + " to node " + generatedLink.getNodebref().longValue());
       }      
       Link link = network.links.registerNewLink(startNode, endNode, length);
+      LineString theLineString = parseLinkGeometry(generatedLink);
+      link.setGeometry(theLineString);
       
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
