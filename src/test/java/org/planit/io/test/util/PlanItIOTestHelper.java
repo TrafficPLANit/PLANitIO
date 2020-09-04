@@ -42,7 +42,7 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
-import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
+import org.planit.output.configuration.ODOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.ODSkimSubOutputType;
@@ -770,8 +770,8 @@ public class PlanItIOTestHelper {
     }
 
     // OD OUTPUT
-    final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-        (OriginDestinationOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
+    final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
+        (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
@@ -895,8 +895,8 @@ public class PlanItIOTestHelper {
     setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
 
     // OD OUTPUT CONFIGURATION
-    final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-        (OriginDestinationOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
+    final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
+        (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
     originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);

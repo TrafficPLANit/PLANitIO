@@ -23,7 +23,7 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
-import org.planit.output.configuration.OriginDestinationOutputTypeConfiguration;
+import org.planit.output.configuration.ODOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
 import org.planit.output.enums.ODSkimSubOutputType;
 import org.planit.output.enums.OutputType;
@@ -494,7 +494,7 @@ public class PLANitStaticAssignmentProjectDemos {
       ta.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
            
       // * NEW *
-      OriginDestinationOutputTypeConfiguration odOutputConfiguration = (OriginDestinationOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
+      ODOutputTypeConfiguration odOutputConfiguration = (ODOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       
       // * NEW *
       odOutputConfiguration.activateOdSkimOutputType(ODSkimSubOutputType.COST);
@@ -608,8 +608,8 @@ public class PLANitStaticAssignmentProjectDemos {
           ta.activateOutput(OutputType.LINK);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
       // OD outputs: ON + example configuration
-      final OriginDestinationOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-          (OriginDestinationOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
+      final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
+          (ODOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
       // PATH outputs: ON + example configuration
