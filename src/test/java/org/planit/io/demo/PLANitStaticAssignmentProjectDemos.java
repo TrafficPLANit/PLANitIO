@@ -7,7 +7,7 @@ import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.planit.cost.physical.BPRConfigurator;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
-import org.planit.cost.physical.PhysicalCost;
+import org.planit.cost.physical.AbstractPhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
@@ -260,7 +260,7 @@ public class PLANitStaticAssignmentProjectDemos {
       
       // * NEW *
       // set BPR link performance function as the type
-      BPRConfigurator bprCost = (BPRConfigurator) ta.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+      BPRConfigurator bprCost = (BPRConfigurator) ta.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
       // override default alpha and beta parameters
       bprCost.setDefaultParameters(0.5, 5); 
 
@@ -525,7 +525,7 @@ public class PLANitStaticAssignmentProjectDemos {
         (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // COMPONENTS
-      BPRConfigurator bprCost = (BPRConfigurator) assignment.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+      BPRConfigurator bprCost = (BPRConfigurator) assignment.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
       assignment.createAndRegisterVirtualCost(VirtualCost.FIXED);
       assignment.createAndRegisterSmoothing(Smoothing.MSA);
       

@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.planit.cost.physical.BPRConfigurator;
-import org.planit.cost.physical.PhysicalCost;
+import org.planit.cost.physical.AbstractPhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
@@ -869,7 +869,7 @@ public class PlanItIOTestHelper {
     registerInitialCosts.accept(demands, taConfigurator, project, network);
     
     // SUPPLY-DEMAND INTERACTIONS
-    final BPRConfigurator bpr = (BPRConfigurator) taConfigurator.createAndRegisterPhysicalCost(PhysicalCost.BPR);
+    final BPRConfigurator bpr = (BPRConfigurator) taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
     
     if (setCostParameters != null) {
       setCostParameters.accept(network, bpr, planItInputBuilder);
