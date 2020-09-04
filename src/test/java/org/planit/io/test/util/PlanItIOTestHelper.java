@@ -140,13 +140,14 @@ public class PlanItIOTestHelper {
           final double speed = (Double) results[speedPosition];
           final double capacityPerLane = (Double) results[capacityPosition];
           final int numberOfLanes = (Integer) results[numberOfLanesPosition];
-          assertEquals(flow, resultDto.getLinkFlow(), epsilon);
+          
+          assertEquals(resultDto.getLinkFlow(), flow , epsilon);
           pass = pass && (Math.abs(flow - resultDto.getLinkFlow()) < epsilon);
-          assertEquals(length, resultDto.getLength(), epsilon);
+          assertEquals(resultDto.getLength(), length , epsilon);
           pass = pass && (Math.abs(speed - resultDto.getSpeed()) < epsilon);
-          assertEquals(speed, resultDto.getSpeed(), epsilon);
+          assertEquals(resultDto.getSpeed(), speed , epsilon);
           pass = pass && (Math.abs(cost - resultDto.getLinkCost()) < epsilon);
-          assertEquals(cost, resultDto.getLinkCost(), epsilon);
+          assertEquals(resultDto.getLinkCost(), cost , epsilon);
           pass = pass && (Math.abs(numberOfLanes *  capacityPerLane - resultDto.getCapacity()) < epsilon);
           assertEquals(numberOfLanes * capacityPerLane, resultDto.getCapacity(), epsilon);
         }

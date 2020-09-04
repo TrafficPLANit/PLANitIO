@@ -101,7 +101,7 @@ public class ProcessConfiguration {
       PlanItException.throwIf(userclass.getModeref() == null, "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
       
       if (userclass.getModeref() == null) {
-        PlanItException.throwIf(physicalNetwork.modes.getNumberOfModes() > 1, 
+        PlanItException.throwIf(physicalNetwork.modes.size() > 1, 
             "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
                 
         for(Mode mode : physicalNetwork.modes) {

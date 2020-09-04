@@ -131,7 +131,7 @@ public class InitialCostTest {
         long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
         final long startId = planItInputBuilder.getNodeByExternalId(upstreamNodeExternalId).getId();
         final long endId = planItInputBuilder.getNodeByExternalId(downstreamNodeExternalId).getId();
-        final LinkSegment linkSegment = physicalNetwork.linkSegments.getLinkSegmentByStartAndEndNodeId(startId, endId);
+        final LinkSegment linkSegment = physicalNetwork.linkSegments.getByStartAndEndNodeId(startId, endId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();

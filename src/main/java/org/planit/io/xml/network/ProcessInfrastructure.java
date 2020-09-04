@@ -135,7 +135,7 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
     
     // create the link and store it in the network object
-    MacroscopicLinkSegment linkSegment = network.linkSegments.createAndRegisterLinkSegment(link, abDirection, true /* register on nodes and link*/);
+    MacroscopicLinkSegment linkSegment = network.linkSegments.createAndRegisterNew(link, abDirection, true /* register on nodes and link*/);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
     linkSegment.setMaximumSpeed(maxSpeedDouble);    
@@ -179,7 +179,7 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
     for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
 
-      Node node = network.nodes.registerNewNode();
+      Node node = network.nodes.registerNew();
       node.setExternalId(generatedNode.getId().longValue());
       PointType pointType = generatedNode.getPoint();
       if (pointType != null) {

@@ -12,7 +12,7 @@ import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedVirtualCostConfigurator;
-import org.planit.cost.virtual.VirtualCost;
+import org.planit.cost.virtual.AbstractVirtualCost;
 import org.planit.demands.Demands;
 import org.planit.gap.LinkBasedRelativeGapConfigurator;
 import org.planit.io.input.PlanItInputBuilder;
@@ -284,7 +284,7 @@ public class PLANitStaticAssignmentProjectDemos {
       // * NEW *
       // set speed based virtual cost function as the type
       SpeedVirtualCostConfigurator virtualCost =
-        (SpeedVirtualCostConfigurator) ta.createAndRegisterVirtualCost(VirtualCost.SPEED);
+        (SpeedVirtualCostConfigurator) ta.createAndRegisterVirtualCost(AbstractVirtualCost.SPEED);
       // set default speed to 25 km/h
       virtualCost.setConnectoidSpeed(25);
 
@@ -526,7 +526,7 @@ public class PLANitStaticAssignmentProjectDemos {
       
       // COMPONENTS
       BPRConfigurator bprCost = (BPRConfigurator) assignment.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
-      assignment.createAndRegisterVirtualCost(VirtualCost.FIXED);
+      assignment.createAndRegisterVirtualCost(AbstractVirtualCost.FIXED);
       assignment.createAndRegisterSmoothing(Smoothing.MSA);
       
       // CONFIGURE COST COMPONENT

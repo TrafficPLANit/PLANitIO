@@ -6,7 +6,7 @@ import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.planit.cost.physical.BPRConfigurator;
 import org.planit.cost.physical.AbstractPhysicalCost;
-import org.planit.cost.virtual.VirtualCost;
+import org.planit.cost.virtual.AbstractVirtualCost;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
@@ -103,7 +103,7 @@ public class PlanItMain {
 		final Mode mode = planItInputBuilder.getModeByExternalId((long) 2);
 		bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
 
-		ta.createAndRegisterVirtualCost(VirtualCost.FIXED);
+		ta.createAndRegisterVirtualCost(AbstractVirtualCost.FIXED);
 		
 		ta.createAndRegisterSmoothing(Smoothing.MSA);
 		

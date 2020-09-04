@@ -45,7 +45,7 @@ public class ProcessLinkConfiguration {
       }
       String name = generatedMode.getName();
       double pcu = generatedMode.getPcu();
-      Mode mode = physicalNetwork.modes.registerNewMode(externalModeId, name, pcu);
+      Mode mode = physicalNetwork.modes.registerNew(externalModeId, name, pcu);
       final boolean duplicateModeExternalId = inputBuilderListener.addModeToExternalIdMap(mode.getExternalId(), mode);
       if (duplicateModeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId()) {
         String errorMessage = "duplicate mode external id " + mode.getExternalId() + " found in network file.";

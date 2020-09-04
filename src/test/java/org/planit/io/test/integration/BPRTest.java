@@ -24,7 +24,6 @@ import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.utils.functionalinterface.TriConsumer;
-import org.planit.utils.id.IdGenerator;
 import org.planit.utils.network.physical.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
@@ -54,17 +53,14 @@ public class BPRTest {
       String csvFileName, String xmlFileName) throws Exception {
 
     String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
-    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"
-        + csvFileName;
+    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"+ csvFileName;
 
     assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, csvFileName);
 
     String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
-    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"
-        + xmlFileName;
-    assertTrue(PlanItIOTestHelper.isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription,
-        fullXmlFileNameWithDescription));
+    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"+ xmlFileName;
+    assertTrue(PlanItIOTestHelper.isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription,fullXmlFileNameWithDescription));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, xmlFileName);
   }
 
@@ -101,6 +97,14 @@ public class BPRTest {
             MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByExternalId((long) 3);
             bpr.setParameters(linkSegment, mode, 1.0, 5.0);
       };
+      
+      String runIdDescription = "RunId_0_" + description;
+      PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName);
+      PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, xmlFileName);
+      PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
+      PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
   
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
           PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
@@ -123,11 +127,9 @@ public class BPRTest {
       resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4, new LinkSegmentExpectedResultsDto(4, 5, 2000, 4.5, 1000.0, 10.0, 2.2222222));
       resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 5, new LinkSegmentExpectedResultsDto(5, 6, 2000, 19.1019336, 1000.0, 10.0, 0.5235072));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
-          maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter, maxIterations, resultsMap);
   
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
+      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap = new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
       pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
       pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
       pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
@@ -150,12 +152,9 @@ public class BPRTest {
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
   
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName,
-          xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName,
-          xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName,
-          xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName,xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName,xmlFileName);
+      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName,xmlFileName);
     } catch (final Exception e) {
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
