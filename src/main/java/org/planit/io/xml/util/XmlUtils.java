@@ -27,7 +27,7 @@ import net.opengis.gml.PointType;
  * @author gman6028
  *
  */
-public interface XmlUtils {
+public class XmlUtils {
   
   static final String PATH_TO_XSD_FILE = "../../../../../../main/resources/xsd/metadata.xsd";
   
