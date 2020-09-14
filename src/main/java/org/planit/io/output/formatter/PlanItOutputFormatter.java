@@ -666,12 +666,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Create the output directories and open the CSV writers
    * 
-   * @param outputTypeConfigurations OutputTypeConfiguration for the assignment to be saved
+   * @param outputTypeConfiguration OutputConfiguration of the assignment
    * @param runId the id of the traffic assignment to be saved
    * @throws PlanItException thrown if there is an error or validation failure during set up of the output formatter
    */
   @Override
-  public void initialiseBeforeSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations, long runId) throws PlanItException {
+  public void initialiseBeforeSimulation(OutputConfiguration outputConfiguration, long runId) throws PlanItException {
     
     PlanItException.throwIf(xmlDirectory == null, "No common output directory or XML output directory has been defined");
     PlanItException.throwIf(csvDirectory == null,"No common output directory or CSV output directory has been defined");
@@ -684,17 +684,16 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * Finalize the persistence after the simulation. Here we generate the XML meta-data file(s)
    * *
    * 
-   * @param outputTypeConfigurations OutputTypeConfigurations for the assignment that have been activated
+   * @param outputTypeConfiguration OutputTypeConfiguration of the assignment that have been activated
    * @param outputAdapter the outputAdapter
    * @throws PlanItException thrown if there is an error closing a resource
    */
   @Override
-  public void finaliseAfterSimulation(Map<OutputType, OutputTypeConfiguration> outputTypeConfigurations, OutputAdapter outputAdapter)
+  public void finaliseAfterSimulation(OutputConfiguration outputConfiguration, OutputAdapter outputAdapter)
       throws PlanItException {
     try {
-      for (Map.Entry<OutputType, OutputTypeConfiguration> entry : outputTypeConfigurations.entrySet()) {
-        OutputType outputType = entry.getKey();
-        OutputTypeConfiguration outputTypeConfiguration = entry.getValue();
+      for (OutputType outputType : outputConfiguration.getActivatedOutputTypes()) {
+        OutputTypeConfiguration outputTypeConfiguration = outputConfiguration.getOutputTypeConfiguration(outputType);
         if (xmlFileNameMap.containsKey(outputType)) {
           String xmlFileName = xmlFileNameMap.get(outputType);
           if (metadata.containsKey(outputType)) {
