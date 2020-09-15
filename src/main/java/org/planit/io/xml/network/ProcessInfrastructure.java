@@ -138,7 +138,7 @@ public class ProcessInfrastructure {
     MacroscopicLinkSegment linkSegment = network.linkSegments.createAndRegisterNew(link, abDirection, true /* register on nodes and link*/);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
-    linkSegment.setMaximumSpeed(maxSpeedDouble);    
+    linkSegment.setMaximumSpeedKmH(maxSpeedDouble);    
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId);
     

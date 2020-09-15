@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 import org.planit.xml.generated.Typevalues;
 import org.planit.xml.generated.Unitsvalues;
 import org.planit.output.enums.Type;
-import org.planit.output.enums.Units;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.unit.Units;
 
 /**
  * Utility methods to convert enumerations from the PLANit org.planit.output.enums package into enumerations generated from the output XSD file
@@ -61,11 +61,11 @@ public interface EnumConverter {
 			return Unitsvalues.VEH_KM;
 		case NONE:
 			return Unitsvalues.NONE;
-		case VEH_H:
+		case VEH_HOUR:
 			return Unitsvalues.VEH_H;
-		case KM_H:
+		case KM_HOUR:
 			return Unitsvalues.KM_H;
-		case H:
+		case HOUR:
 			return Unitsvalues.H;
 		case KM:
 			return Unitsvalues.KM;
