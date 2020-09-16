@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import org.planit.input.InputBuilderListener;
 import org.planit.network.physical.macroscopic.MacroscopicModePropertiesImpl;
-import org.planit.utils.network.physical.Mode;
+import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 
 /**

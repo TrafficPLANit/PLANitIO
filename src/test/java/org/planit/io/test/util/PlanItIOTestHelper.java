@@ -60,7 +60,7 @@ import org.planit.utils.functionalinterface.QuadConsumer;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.functionalinterface.TriFunction;
 import org.planit.utils.misc.Pair;
-import org.planit.utils.network.physical.Mode;
+import org.planit.utils.mode.Mode;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 

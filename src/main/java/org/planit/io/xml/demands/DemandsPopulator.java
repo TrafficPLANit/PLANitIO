@@ -19,7 +19,7 @@ import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.UserClass;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.network.physical.Mode;
+import org.planit.utils.mode.Mode;
 import org.planit.utils.network.virtual.Zone;
 
 /**

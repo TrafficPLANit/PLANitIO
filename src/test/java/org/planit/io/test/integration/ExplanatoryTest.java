@@ -23,7 +23,7 @@ import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
 import org.planit.utils.id.IdGenerator;
-import org.planit.utils.network.physical.Mode;
+import org.planit.utils.mode.Mode;
 
 /**
  * JUnit test cases for explanatory tests for TraditionalStaticAssignment
