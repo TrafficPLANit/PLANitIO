@@ -44,6 +44,7 @@ import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
+import org.planit.utils.mode.PredefinedModeType;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.virtual.Centroid;
 import org.planit.utils.network.virtual.Zone;
@@ -81,12 +82,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Default extension for XML input files
    */
   private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
-  
-  /**
-   * Default PCU value for modes 
-   */
-  private static final float DEFAULT_PCU_VALUE = 1.0f;
-  
+   
   /**
    * Default external Id value
    */
@@ -438,9 +434,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     if (macroscopicnetwork.getLinkconfiguration().getModes() == null) {
       macroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
       XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
-      xmlElementMode.setPcu(DEFAULT_PCU_VALUE);
-      xmlElementMode.setName("");
-      xmlElementMode.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
+      // default in absence of any modes is the predefined CAR mode
+      xmlElementMode.setPredefined(true);
+      xmlElementMode.setName(PredefinedModeType.CAR.value());
       macroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
     }
     
@@ -460,7 +456,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       if (xmlLinkSegmentType.getModes() == null) {
         XMLElementLinkSegmentTypes.Linksegmenttype.Modes xmlLinkSegmentModes = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes();
         XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode xmlLinkSegmentMode = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode();
-        xmlLinkSegmentMode.setRef(BigInteger.valueOf(0));
+        xmlLinkSegmentMode.setRef(BigInteger.valueOf(0)); // 0 indicates all modes
         xmlLinkSegmentModes.getMode().add(xmlLinkSegmentMode);
         xmlLinkSegmentType.setModes(xmlLinkSegmentModes);
       }
