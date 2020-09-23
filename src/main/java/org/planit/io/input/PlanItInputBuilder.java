@@ -450,18 +450,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAXIMUM_DENSITY);
       macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
     }
-    
-    //if link segment type(s) do not reference a mode, make them reference all modes (by using the reference value 0 which is reserved for this purpose)
-    for (XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType : macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype()) {
-      if (xmlLinkSegmentType.getModes() == null) {
-        XMLElementLinkSegmentTypes.Linksegmenttype.Modes xmlLinkSegmentModes = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes();
-        XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode xmlLinkSegmentMode = new XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode();
-        xmlLinkSegmentMode.setRef(BigInteger.valueOf(0)); // 0 indicates all modes
-        xmlLinkSegmentModes.getMode().add(xmlLinkSegmentMode);
-        xmlLinkSegmentType.setModes(xmlLinkSegmentModes);
-      }
-    }
-    
+        
    }
 
   /**

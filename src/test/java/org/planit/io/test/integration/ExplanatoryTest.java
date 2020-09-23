@@ -603,15 +603,18 @@ public class ExplanatoryTest {
 
       Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.put(timePeriod,new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
+      
       resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.125,
-          1800.0, 10.0, 80.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
-          maxIterations, resultsMap);
+      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, 
+          new LinkSegmentExpectedResultsDto(1, 2, 1, 0.0769231, 1800.0, 10.0, 130.0));
+      
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(
+          memoryOutputFormatter, maxIterations, resultsMap);
 
       Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
           new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
@@ -631,7 +634,7 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
       odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(0.125));
+      odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, Double.valueOf(0.0769231));
       odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2, Double.valueOf(0.0));

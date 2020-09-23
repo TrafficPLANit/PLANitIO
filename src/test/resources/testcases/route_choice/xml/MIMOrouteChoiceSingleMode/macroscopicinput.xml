@@ -31,39 +31,36 @@
 	<macroscopicnetwork>
 		<linkconfiguration>
 			<modes>
-				<mode id="1">																<!-- mandatory attributes, for referencing -->
-					<name>Basic</name>														<!-- optional -->
-					<pcu>1</pcu>															<!-- optional, default available -->
+				<mode id="1">														
+					<name>Basic</name>										
+					<maxspeed>130</maxspeed>
 				</mode>
 			</modes>
 			<linksegmenttypes>
 				<linksegmenttype id="1">
-					<name>Capacity1500</name>													<!-- optional -->
-					<capacitylane>1500</capacitylane>										<!-- optional, has default -->
+					<name>Capacity1500</name>							
+					<capacitylane>1500</capacitylane>			
 					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						<mode ref="1">											
+							<maxspeed>100</maxspeed>					
 						</mode>
 					</modes>
 				</linksegmenttype>
 				<linksegmenttype id="2">
-					<name>Capacity2000</name>													<!-- optional -->
-					<capacitylane>2000</capacitylane>										<!-- optional, has default -->
+					<name>Capacity2000</name>							
+					<capacitylane>2000</capacitylane>			
 					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						<mode ref="1">											
+							<maxspeed>100</maxspeed>					
 						</mode>
 					</modes>
 				</linksegmenttype>
 				<linksegmenttype id="3">
-					<name>Capacity2500</name>													<!-- optional -->
-					<capacitylane>2500</capacitylane>										<!-- optional, has default -->
+					<name>Capacity2500</name>							
+					<capacitylane>2500</capacitylane>			
 					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						<mode ref="1">											
+							<maxspeed>100</maxspeed>					
 						</mode>
 					</modes>
 				</linksegmenttype>

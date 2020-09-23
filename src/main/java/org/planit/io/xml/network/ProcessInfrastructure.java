@@ -138,26 +138,24 @@ public class ProcessInfrastructure {
     MacroscopicLinkSegment linkSegment = network.linkSegments.createAndRegisterNew(link, abDirection, true /* register on nodes and link*/);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
-    linkSegment.setMaximumSpeedKmH(maxSpeedDouble);    
+    linkSegment.setPhysicalSpeedLimitKmH(maxSpeedDouble);    
     linkSegment.setNumberOfLanes(noLanes);
-    linkSegment.setExternalId(externalId);
+    linkSegment.setExternalId(externalId);    
     
-    Map<Mode, MacroscopicModeProperties> modeProperties = linkSegmentTypeHelper.getModePropertiesMap();
-    for (Mode mode : linkSegmentTypeHelper.getSpeedMap().keySet()) {
-      modeProperties.get(mode).setMaximumSpeed(Math.min(maxSpeedDouble, linkSegmentTypeHelper.getSpeedMap().get(mode))); 
-    }      
-    
+    Map<Mode, MacroscopicModeProperties> modeProperties = linkSegmentTypeHelper.getModePropertiesMap();    
     MacroscopicLinkSegmentType existingLinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(linkSegmentTypeHelper.getExternalId());
     if (existingLinkSegmentType == null) {
-      MacroscopicLinkSegmentType macroscopicLinkSegmentType = network
-          .createAndRegisterNewMacroscopicLinkSegmentType(linkSegmentTypeHelper.getName(), linkSegmentTypeHelper.getCapacityPerLane(),
-              linkSegmentTypeHelper.getMaximumDensityPerLane(), linkSegmentTypeHelper.getExternalId(), modeProperties);        
-      inputBuilderListener.addLinkSegmentTypeToExternalIdMap(macroscopicLinkSegmentType.getExternalId(),
-          macroscopicLinkSegmentType);
-      linkSegment.setLinkSegmentType(macroscopicLinkSegmentType);
-    } else {
-      linkSegment.setLinkSegmentType(existingLinkSegmentType);
+      existingLinkSegmentType = 
+          network.createAndRegisterNewMacroscopicLinkSegmentType(
+              linkSegmentTypeHelper.getName(), 
+              linkSegmentTypeHelper.getCapacityPerLane(),
+              linkSegmentTypeHelper.getMaximumDensityPerLane(), 
+              linkSegmentTypeHelper.getExternalId(), 
+              modeProperties);
+            
+      inputBuilderListener.addLinkSegmentTypeToExternalIdMap(existingLinkSegmentType.getExternalId(), existingLinkSegmentType);
     }
+    linkSegment.setLinkSegmentType(existingLinkSegmentType);    
 
     if (linkSegment.getExternalId() != null) {
       final boolean duplicateLinkSegmentExternalId = 

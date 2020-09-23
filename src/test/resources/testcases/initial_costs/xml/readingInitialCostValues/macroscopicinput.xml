@@ -4,21 +4,15 @@
 	<macroscopicnetwork>
 		<linkconfiguration>
 			<modes>
-				<mode id="1">																<!-- mandatory attributes, for referencing -->
-					<name>Basic</name>														<!-- optional -->
-					<pcu>1</pcu>															<!-- optional, default available -->
+				<mode id="1">						
+					<name>Basic</name>		
+					<maxspeed>1</maxspeed>
 				</mode>
 			</modes>
 			<linksegmenttypes>
 				<linksegmenttype id="1">
-					<name>Standard</name>													<!-- optional -->
-					<capacitylane>2000</capacitylane>										<!-- optional, has default -->
-					<modes>
-						<mode ref="0">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>1</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-						</mode>
-					</modes>
+					<name>Standard</name>													
+					<capacitylane>2000</capacitylane>										
 				</linksegmenttype>
 			</linksegmenttypes>
 		</linkconfiguration>

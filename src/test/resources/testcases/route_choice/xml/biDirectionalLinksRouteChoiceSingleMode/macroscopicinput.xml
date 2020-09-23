@@ -30,29 +30,27 @@
 	<macroscopicnetwork>
 		<linkconfiguration>
 			<modes>
-				<mode id="1">																<!-- mandatory attributes, for referencing -->
-					<name>Basic</name>														<!-- optional -->
-					<pcu>1</pcu>															<!-- optional, default available -->
+				<mode id="1">																
+					<name>Basic</name>												
+					<maxspeed>130</maxspeed>
 				</mode>
 			</modes>
 			<linksegmenttypes>
 				<linksegmenttype id="1">
-					<name>Regular</name>													<!-- optional -->
-					<capacitylane>1500</capacitylane>										<!-- optional, has default -->
+					<name>Regular</name>											
+					<capacitylane>1500</capacitylane>					
 					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						<mode ref="1">													
+							<maxspeed>100</maxspeed>							
 						</mode>
 					</modes>
 				</linksegmenttype>
 				<linksegmenttype id="2">
-					<name>Connector</name>													<!-- optional -->
-					<capacitylane>1000</capacitylane>										<!-- optional, has default -->
+					<name>Connector</name>										
+					<capacitylane>1000</capacitylane>					
 					<modes>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>50</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+						<mode ref="1">													
+							<maxspeed>50</maxspeed>								
 						</mode>
 					</modes>
 				</linksegmenttype>

@@ -1,6 +1,8 @@
 package org.planit.io.xml.network;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -12,6 +14,7 @@ import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentType
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.MotorisationModeType;
 import org.planit.utils.mode.PhysicalModeFeatures;
@@ -130,7 +133,14 @@ public class ProcessLinkConfiguration {
    */
   public static void createAndRegisterModes(PhysicalNetwork<?,?,?> physicalNetwork, XMLElementLinkConfiguration linkconfiguration, InputBuilderListener inputBuilderListener) throws PlanItException {
     for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {
-      PredefinedModeType modeType = PredefinedModeType.create(generatedMode.getName()); 
+      String name = generatedMode.getName();
+      
+      /* generate unique name if undefined */
+      if(name==null) {
+        name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(physicalNetwork.modes.size()));
+      }
+      
+      PredefinedModeType modeType = PredefinedModeType.create(name);      
       if(!generatedMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
         LOGGER.warning(String.format("mode %s is not registered as predefined mode but name corresponds to PLANit predefined mode, reverting to PLANit predefined mode",generatedMode.getName()));
       }
@@ -145,14 +155,15 @@ public class ProcessLinkConfiguration {
         if (externalModeId == 0) {
           String errorMessage = "found a Mode value of 0 in the modes definition file, this is prohibited";
           throw new PlanItException(errorMessage);
-        }
-        String name = generatedMode.getName();
-        double pcu = generatedMode.getPcu();
+        }              
+
+        double maxSpeed = generatedMode.getMaxspeed()==null ? Mode.GLOBAL_DEFAULT_MAXIMUM_SPEED_KMH : generatedMode.getMaxspeed();
+        double pcu = generatedMode.getPcu()==null ? Mode.GLOBAL_DEFAULT_PCU : generatedMode.getPcu();
         
         PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(generatedMode);
         UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(generatedMode);        
                 
-        mode = physicalNetwork.modes.registerNewCustomMode(externalModeId, name, pcu, physicalFeatures, usabilityFeatures);        
+        mode = physicalNetwork.modes.registerNewCustomMode(externalModeId, name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
       }
       
       final boolean duplicateModeExternalId = inputBuilderListener.addModeToExternalIdMap(mode.getExternalId(), mode);
@@ -172,33 +183,69 @@ public class ProcessLinkConfiguration {
    * @throws PlanItException thrown if there is an error reading the input file
    */
   public static Map<Long, MacroscopicLinkSegmentTypeXmlHelper> createLinkSegmentTypeHelperMap(
-      final XMLElementLinkConfiguration linkconfiguration, 
-      InputBuilderListener inputBuilderListener) throws PlanItException {
+      final XMLElementLinkConfiguration linkconfiguration, InputBuilderListener inputBuilderListener) throws PlanItException {
+    
     MacroscopicLinkSegmentTypeXmlHelper.reset();
-    Map<Long, MacroscopicLinkSegmentTypeXmlHelper> macroscopicLinkSegmentTypeXmlHelperMap =
-        new HashMap<Long, MacroscopicLinkSegmentTypeXmlHelper>();
-    for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes()
-        .getLinksegmenttype()) {
-      long externalId = linkSegmentTypeGenerated.getId().longValue();
-      if (macroscopicLinkSegmentTypeXmlHelperMap.containsKey(externalId) && inputBuilderListener.isErrorIfDuplicateExternalId()) {
-        String errorMessage = "Duplicate link segment type external id " + externalId + " found in network file.";
+    
+    Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeXmlHelperMap = new HashMap<Long, MacroscopicLinkSegmentTypeXmlHelper>();
+    for (XMLElementLinkSegmentTypes.Linksegmenttype linkSegmentTypeGenerated : linkconfiguration.getLinksegmenttypes().getLinksegmenttype()) {
+      
+      long linkSegmentTypeExternalId = linkSegmentTypeGenerated.getId().longValue();
+      if (linkSegmentTypeXmlHelperMap.containsKey(linkSegmentTypeExternalId) && inputBuilderListener.isErrorIfDuplicateExternalId()) {
+        String errorMessage = "Duplicate link segment type external id " + linkSegmentTypeExternalId + " found in network file.";
         throw new PlanItException(errorMessage);
       }
+      
       String name = linkSegmentTypeGenerated.getName();
       double capacity = (linkSegmentTypeGenerated.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : linkSegmentTypeGenerated.getCapacitylane();
-      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : linkSegmentTypeGenerated.getMaxdensitylane();      
-      for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode mode : linkSegmentTypeGenerated.getModes().getMode()) {
-        int modeExternalId = mode.getRef().intValue();
-        double maxSpeed = (mode.getMaxspeed() == null) ? MacroscopicModeProperties.DEFAULT_MAXIMUM_SPEED : mode.getMaxspeed();
-        double critSpeed = (mode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED  : mode.getCritspeed();
-        MacroscopicLinkSegmentTypeXmlHelper macroscopicLinkSegmentTypeXmlHelper = MacroscopicLinkSegmentTypeXmlHelper
-            .createOrUpdateLinkSegmentTypeHelper(name, capacity, maximumDensity, maxSpeed, critSpeed, modeExternalId,
-                externalId, inputBuilderListener);
-                
-        macroscopicLinkSegmentTypeXmlHelperMap.put(externalId, macroscopicLinkSegmentTypeXmlHelper);
+      double maximumDensity = (linkSegmentTypeGenerated.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : linkSegmentTypeGenerated.getMaxdensitylane();
+      
+      MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name,capacity, maximumDensity, linkSegmentTypeExternalId);
+      linkSegmentTypeXmlHelperMap.put(linkSegmentTypeExternalId, linkSegmentTypeXmlHelper);      
+      
+      /* mode properties, only set when defined, otherwise not */
+      Collection<Mode> thePlanitModes = new HashSet<Mode>();
+      if(linkSegmentTypeGenerated.getModes() != null) {
+        for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode xmlMode : linkSegmentTypeGenerated.getModes().getMode()) {        
+          Object modeExternalId = xmlMode.getRef().longValue();
+
+          Mode thePlanitMode = inputBuilderListener.getModeByExternalId(modeExternalId);
+          PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (%d) does not exist in PLANit parser",modeExternalId));
+          thePlanitModes.add(thePlanitMode);                                    
+        }          
+      }else {
+        /* all modes allowed */
+        thePlanitModes = inputBuilderListener.getAllModes();
+      }
+      
+      /* populate the mode properties with either defaults, or actually defined values */
+      for (Mode thePlanitMode : thePlanitModes) {
+        XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode xmlMode = null;
+        if(linkSegmentTypeGenerated.getModes() != null) {
+          xmlMode = linkSegmentTypeGenerated.getModes().getMode().stream().dropWhile( currXmlMode -> ((long)thePlanitMode.getExternalId()) != currXmlMode.getRef().longValue()).findFirst().get();
+        }
+        
+        double maxSpeed = thePlanitMode.getMaximumSpeed();
+        double critSpeed = Math.min(maxSpeed, MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED); 
+        if(xmlMode != null) {
+
+          /** cap max speed of mode properties to global mode's default if it exceeds this maximum */ 
+          maxSpeed = (xmlMode.getMaxspeed() == null) ? thePlanitMode.getMaximumSpeed() : xmlMode.getMaxspeed();
+          if( Precision.isGreater(maxSpeed, thePlanitMode.getMaximumSpeed(), Precision.EPSILON_6)) {
+            maxSpeed = thePlanitMode.getMaximumSpeed();
+            LOGGER.warning(String.format("Capped maximum speed for mode %s on link segment type %d to mode's global maximum speed %.1f",
+                thePlanitMode.getName(), linkSegmentTypeExternalId, maxSpeed));          
+          }        
+          
+          critSpeed = (xmlMode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED  : xmlMode.getCritspeed();
+          /* critical speed can never exceed max speed, so capp it if needed */
+          critSpeed = Math.min(maxSpeed, critSpeed);
+        }
+        
+        linkSegmentTypeXmlHelper.updateLinkSegmentTypeModeProperties(linkSegmentTypeExternalId, thePlanitMode, maxSpeed, critSpeed);
       }
     }
-    return macroscopicLinkSegmentTypeXmlHelperMap;
+    return linkSegmentTypeXmlHelperMap;
   }
 
 }

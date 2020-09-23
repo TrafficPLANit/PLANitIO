@@ -199,7 +199,8 @@ This test validates that PLANit inserts the correct default values when optional
 - As “explanatory_original” above
 - The link has a demand of 10 units from Node 1 to Node 2. 
 - The road is single-lane, one-way from Node 1 to Node 2. 
-- The capacity of the link is 2000.
+- The capacity of the link is 2000
+- The default speed of the default mode is applied to the link
 
 ***Location:***
 
@@ -1067,7 +1068,7 @@ The origin – destination travel demands are given in the table below:-
 
 - Simulation time period is 1 h.
 - The run uses 500 iterations.
- 
+
 It uses the <odrawmatrix> method in the macroscopicinput.xml file to define the OD demands input matrix.
 
 ***Location:***
@@ -1115,7 +1116,7 @@ The origin – destination travel demands are given in the table below:-
 
 - Simulation time period is 1 h.
 - The run uses 500 iterations.
- 
+
 It uses the <odrawmatrix> method with the plus sign as separator in the macroscopicinput.xml file to define the OD demands input matrix.
 
 ***Location:***
