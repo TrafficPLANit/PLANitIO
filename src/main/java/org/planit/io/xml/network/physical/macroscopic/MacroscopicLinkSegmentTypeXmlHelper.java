@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.planit.network.physical.macroscopic.MacroscopicModePropertiesImpl;
+import org.planit.network.physical.macroscopic.MacroscopicModePropertiesFactory;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 
@@ -70,7 +70,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
           + ".  Setting the speed to zero instead (which means vehicles of this type are forbidden in links of this type.)");
       maxSpeed = 0.0;
     }
-    MacroscopicModeProperties macroscopicModeProperties = new MacroscopicModePropertiesImpl(maxSpeed, critSpeed);
+    MacroscopicModeProperties macroscopicModeProperties = MacroscopicModePropertiesFactory.create(maxSpeed, critSpeed);
     macroscopicLinkSegmentTypeModeProperties.put(mode, macroscopicModeProperties);
   }
 

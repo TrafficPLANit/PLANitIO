@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.planit.xml.generated.XMLElementLinkConfiguration;
 import org.planit.xml.generated.XMLElementLinkSegmentTypes;
@@ -110,11 +111,11 @@ public class ProcessLinkConfiguration {
     
     TrackModeType trackType = null; 
     switch (generatedMode.getPhysicalfeatures().getTracktype()) {
-    case DOUBLE:
-      trackType = TrackModeType.DOUBLE;
+    case ROAD:
+      trackType = TrackModeType.ROAD;
       break;
-    case SINGLE:
-      trackType = TrackModeType.SINGLE;
+    case RAIL:
+      trackType = TrackModeType.RAIL;
       break;
     default:
       throw new PlanItException(String.format("invalid track type for mode %s defined; %s",generatedMode.getName(),generatedMode.getPhysicalfeatures().getTracktype().toString()));
@@ -203,7 +204,7 @@ public class ProcessLinkConfiguration {
       MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name,capacity, maximumDensity, linkSegmentTypeExternalId);
       linkSegmentTypeXmlHelperMap.put(linkSegmentTypeExternalId, linkSegmentTypeXmlHelper);      
       
-      /* mode properties, only set when defined, otherwise not */
+      /* mode properties, only set when allowed, otherwise not */
       Collection<Mode> thePlanitModes = new HashSet<Mode>();
       if(linkSegmentTypeGenerated.getModes() != null) {
         for (XMLElementLinkSegmentTypes.Linksegmenttype.Modes.Mode xmlMode : linkSegmentTypeGenerated.getModes().getMode()) {        
@@ -214,8 +215,9 @@ public class ProcessLinkConfiguration {
           thePlanitModes.add(thePlanitMode);                                    
         }          
       }else {
-        /* all modes allowed */
-        thePlanitModes = inputBuilderListener.getAllModes();
+        /* all ROAD modes allowed */
+        thePlanitModes = inputBuilderListener.getAllModes().stream().filter( 
+            mode -> mode.getPhysicalFeatures().getTrackType() == TrackModeType.ROAD).collect(Collectors.toSet());
       }
       
       /* populate the mode properties with either defaults, or actually defined values */
