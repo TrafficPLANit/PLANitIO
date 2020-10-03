@@ -29,7 +29,7 @@ import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 
 /**
  * JUnit test cases for initial cost tests for TraditionalStaticAssignment
@@ -86,7 +86,7 @@ public class InitialCostTest {
         Mode mode = planItInputBuilder.getModeByExternalId(modeExternalId);
         double cost = Double.parseDouble(record.get(costHeader));
         long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-        LinkSegment linkSegment = planItInputBuilder.getLinkSegmentByExternalId(linkSegmentExternalId);
+        MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentByExternalId(linkSegmentExternalId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
@@ -112,11 +112,10 @@ public class InitialCostTest {
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
-      PhysicalNetwork<?,?,?> physicalNetwork =
-          project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       InitialLinkSegmentCost initialCost =
-          project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
+          project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeExternalIdOutputProperty.NAME;
@@ -131,7 +130,7 @@ public class InitialCostTest {
         long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
         final long startId = planItInputBuilder.getNodeByExternalId(upstreamNodeExternalId).getId();
         final long endId = planItInputBuilder.getNodeByExternalId(downstreamNodeExternalId).getId();
-        final LinkSegment linkSegment = physicalNetwork.linkSegments.getByStartAndEndNodeId(startId, endId);
+        final MacroscopicLinkSegment linkSegment = network.linkSegments.getByStartAndEndNodeId(startId, endId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();

@@ -30,7 +30,6 @@ import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentType
 import org.planit.io.xml.util.XmlUtils;
 import org.planit.io.xml.zoning.UpdateZoning;
 import org.planit.network.physical.PhysicalNetwork;
-import org.planit.network.physical.PhysicalNetwork.Nodes;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
@@ -46,6 +45,7 @@ import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.PredefinedModeType;
 import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.virtual.Centroid;
 import org.planit.utils.network.virtual.Zone;
 
@@ -356,7 +356,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if error
    */
   private void setInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
-      final LinkSegment linkSegment) throws PlanItException {
+      final MacroscopicLinkSegment linkSegment) throws PlanItException {
     
     final long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.NAME));
     final Mode mode = getModeByExternalId(modeExternalId);
@@ -380,10 +380,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private void updateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVParser parser,
       final CSVRecord record, final OutputProperty outputProperty, final String header,
-      final LongFunction<LinkSegment> findLinkSegmentFunction)
+      final LongFunction<MacroscopicLinkSegment> findLinkSegmentFunction)
       throws PlanItException {
     final long id = Long.parseLong(record.get(header));
-    final LinkSegment linkSegment = findLinkSegmentFunction.apply(id);
+    final MacroscopicLinkSegment linkSegment = findLinkSegmentFunction.apply(id);
     PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment %d", id));
     
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
@@ -407,7 +407,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           link segment
    */
   private void updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(
-      final PhysicalNetwork<?,?,?> network,
+      final MacroscopicNetwork network,
       final InitialLinkSegmentCost initialLinkSegmentCost, final CSVParser parser, final CSVRecord record,
       final OutputProperty startOutputProperty, final OutputProperty endOutputProperty, final String startHeader,
       final String endHeader)
@@ -416,7 +416,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
     final long startId = getNodeByExternalId(upstreamNodeExternalId).getId();
     final long endId = getNodeByExternalId(downstreamNodeExternalId).getId();
-    final LinkSegment linkSegment = network.linkSegments.getByStartAndEndNodeId(startId, endId);
+    final MacroscopicLinkSegment linkSegment = network.linkSegments.getByStartAndEndNodeId(startId, endId);
     PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment (startnode %d, endnode %d)",startId,endId));
     
     setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
@@ -490,8 +490,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
 
-    final PhysicalNetwork<?,?,?> physicalNetwork = (PhysicalNetwork<?,?,?>) parameter1;
-    final Nodes nodes = physicalNetwork.nodes;
+    final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) parameter1;
 
     // create and register zones, centroids and connectoids
     try {
@@ -504,7 +503,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
           DirectPosition centrePointGeometry = UpdateZoning.getCentrePointGeometry(xmlZone);
           centroid.setCentrePointGeometry(centrePointGeometry);
         }
-        UpdateZoning.registerNewConnectoid(zoning, nodes, xmlZone, centroid, this);
+        UpdateZoning.registerNewConnectoid(zoning, physicalNetwork.nodes, xmlZone, centroid, this);
       }
     } catch (PlanItException e) {
       throw e;
@@ -556,7 +555,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork),"Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
     PlanItException.throwIf(!(parameter2 instanceof String), "Parameter 2 of call to populateInitialLinkSegments() is not a file name");
         
-    final PhysicalNetwork<?,?,?> network = (PhysicalNetwork<?,?,?>) parameter1;
+    final MacroscopicNetwork network = (MacroscopicNetwork) parameter1;
     final String fileName = (String) parameter2;
     try {
       final Reader in = new FileReader(fileName);
