@@ -135,7 +135,7 @@ public class ProcessInfrastructure {
       InputBuilderListener inputBuilderListener) throws PlanItException {
     
     // create the link and store it in the network object
-    MacroscopicLinkSegment linkSegment = network.linkSegments.createAndRegisterNew(link, abDirection, true /* register on nodes and link*/);
+    MacroscopicLinkSegment linkSegment = network.linkSegments.registerNew(link, abDirection, true /* register on nodes and link*/);
 
     double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
     linkSegment.setPhysicalSpeedLimitKmH(maxSpeedDouble);    
@@ -216,7 +216,7 @@ public class ProcessInfrastructure {
             "Error in network XML file: Must define either a length or GML LineString for link from node "
                 + generatedLink.getNodearef().longValue() + " to node " + generatedLink.getNodebref().longValue());
       }      
-      Link link = network.links.registerNewLink(startNode, endNode, length);
+      Link link = network.links.registerNew(startNode, endNode, length);
       LineString theLineString = parseLinkGeometry(generatedLink);
       link.setGeometry(theLineString);
       
