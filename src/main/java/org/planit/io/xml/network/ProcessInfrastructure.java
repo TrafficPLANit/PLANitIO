@@ -8,7 +8,7 @@ import org.planit.xml.generated.*;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.LineString;
 import org.opengis.geometry.coordinate.Position;
-import org.planit.geo.PlanitGeoUtils;
+import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.XmlUtils;
@@ -37,10 +37,10 @@ public class ProcessInfrastructure {
   @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(ProcessInfrastructure.class.getCanonicalName());
 
-  private static PlanitGeoUtils planitGeoUtils;
+  private static PlanitOpenGisUtils planitGeoUtils;
 
   static {
-    planitGeoUtils = new PlanitGeoUtils();
+    planitGeoUtils = new PlanitOpenGisUtils();
   }
   
   /**
@@ -182,7 +182,7 @@ public class ProcessInfrastructure {
       PointType pointType = generatedNode.getPoint();
       if (pointType != null) {
         DirectPosition centrePointGeometry = XmlUtils.getDirectPositionFromPointType(planitGeoUtils, pointType);
-        node.setCentrePointGeometry(centrePointGeometry);
+        node.setPosition(centrePointGeometry);
       }
       boolean duplicateNodeExternalId = 
           inputBuilderListener.addNodeToExternalIdMap(generatedNode.getId().longValue(),node);

@@ -8,7 +8,7 @@ import org.opengis.geometry.coordinate.Position;
 import org.planit.xml.generated.XMLElementCentroid;
 import org.planit.xml.generated.XMLElementConnectoid;
 import org.planit.xml.generated.XMLElementZones.Zone;
-import org.planit.geo.PlanitGeoUtils;
+import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.util.XmlUtils;
 import org.planit.network.physical.PhysicalNetwork.Nodes;
@@ -30,10 +30,10 @@ import net.opengis.gml.PointType;
  */
 public class UpdateZoning {
 
-  private static PlanitGeoUtils planitGeoUtils;
+  private static PlanitOpenGisUtils planitGeoUtils;
 
   static {
-    planitGeoUtils = new PlanitGeoUtils();
+    planitGeoUtils = new PlanitOpenGisUtils();
   }
 
   /**
@@ -44,12 +44,12 @@ public class UpdateZoning {
    * @return DirectPosition object containing the location of the centroid
    * @throws PlanItException thrown if there is an error during processing
    */
-  public static DirectPosition getCentrePointGeometry(Zone zone) throws PlanItException {
+  public static Position getPosition(Zone zone) throws PlanItException {
     List<Double> value = zone.getCentroid().getPoint().getPos().getValue();
     Coordinate coordinate = new Coordinate(value.get(0), value.get(1));
     Coordinate[] coordinates = {coordinate};
-    List<Position> positions = planitGeoUtils.convertToDirectPositions(coordinates);
-    return (DirectPosition) positions.get(0);
+    List<Position> positions = planitGeoUtils.convertToJtsPositions(coordinates);
+    return positions.get(0);
   }
 
   /**
@@ -66,7 +66,7 @@ public class UpdateZoning {
     XMLElementConnectoid connectoid = zone.getConnectoids().getConnectoid().get(0);
     long nodeExternalId = connectoid.getNoderef().longValue();
     Node node = inputBuilderListener.getNodeByExternalId(nodeExternalId);
-    DirectPosition nodePosition = node.getCentrePointGeometry();
+    DirectPosition nodePosition = node.getPosition();
     BigInteger externalId = connectoid.getId();
     double connectoidLength;
     if (connectoid.getLength() != null) {

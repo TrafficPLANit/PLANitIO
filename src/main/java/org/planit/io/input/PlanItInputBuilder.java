@@ -21,6 +21,9 @@ import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
 import org.planit.xml.generated.*;
+
+import com.vividsolutions.jts.geomgraph.Position;
+
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.demands.ProcessConfiguration;
 import org.planit.io.xml.demands.DemandsPopulator;
@@ -500,8 +503,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
         addZoneToExternalIdMap(zone.getExternalId(), zone);
         Centroid centroid = zone.getCentroid();
         if (xmlZone.getCentroid().getPoint() != null) {
-          DirectPosition centrePointGeometry = UpdateZoning.getCentrePointGeometry(xmlZone);
-          centroid.setCentrePointGeometry(centrePointGeometry);
+          Position centrePointGeometry = UpdateZoning.getPosition(xmlZone);
+          centroid.setPosition(centrePointGeometry);
         }
         UpdateZoning.registerNewConnectoid(zoning, physicalNetwork.nodes, xmlZone, centroid, this);
       }

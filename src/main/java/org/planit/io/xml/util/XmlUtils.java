@@ -16,7 +16,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.opengis.geometry.DirectPosition;
-import org.planit.geo.PlanitGeoUtils;
+import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.utils.exceptions.PlanItException;
 
 import net.opengis.gml.PointType;
@@ -42,7 +42,7 @@ public class XmlUtils {
 	 * @return DirectPosition object storing the location
 	 * @throws PlanItException thrown if there is an error during processing
 	 */
-	public static DirectPosition getDirectPositionFromPointType(PlanitGeoUtils planitGeoUtils, PointType pointType)
+	public static DirectPosition getDirectPositionFromPointType(PlanitOpenGisUtils planitGeoUtils, PointType pointType)
 			throws PlanItException {
 		List<Double> value = pointType.getPos().getValue();
 		return planitGeoUtils.createDirectPosition(value.get(0), value.get(1));
