@@ -15,23 +15,22 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.djutils.event.EventInterface;
-import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.assignment.TrafficAssignmentComponentFactory;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
+import org.planit.geo.PlanitJtsUtils;
 import org.planit.xml.generated.*;
 
-import com.vividsolutions.jts.geomgraph.Position;
+import com.vividsolutions.jts.geom.Point;
 
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.demands.ProcessConfiguration;
 import org.planit.io.xml.demands.DemandsPopulator;
-import org.planit.io.xml.network.ProcessInfrastructure;
-import org.planit.io.xml.network.ProcessLinkConfiguration;
+import org.planit.io.xml.network.XmlMacroscopicNetworkHelper;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.XmlUtils;
-import org.planit.io.xml.zoning.UpdateZoning;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -48,6 +47,7 @@ import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.PredefinedModeType;
 import org.planit.utils.network.physical.LinkSegment;
+import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.virtual.Centroid;
 import org.planit.utils.network.virtual.Zone;
@@ -69,7 +69,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   /**
    * Generated object to store input network data
    */
-  private XMLElementMacroscopicNetwork macroscopicnetwork;
+  private XMLElementMacroscopicNetwork xmlMacroscopicnetwork;
 
   /**
    * Generated object to store demand input data
@@ -80,6 +80,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Generated object to store zoning input data
    */
   private XMLElementMacroscopicZoning macroscopiczoning;
+  
+  /** coordinate reference system used */
+  private final CoordinateReferenceSystem crs = PlanitJtsUtils.DEFAULT_GEOGRAPHIC_CRS;
+  
+  /** geoUtils to use based on adopted crs */ 
+  private PlanitJtsUtils geoUtils;    
 
   /**
    * Default extension for XML input files
@@ -124,7 +130,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
           .generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
       macroscopicdemand = (XMLElementMacroscopicDemand) XmlUtils
           .generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
-      macroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
+      xmlMacroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
           .generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
@@ -191,7 +197,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
             (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class, xmlFileNames[i]);
         
         macroscopiczoning = planit.getMacroscopiczoning();
-        macroscopicnetwork = planit.getMacroscopicnetwork();
+        xmlMacroscopicnetwork = planit.getMacroscopicnetwork();
         macroscopicdemand = planit.getMacroscopicdemand();
         
         LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the network, demands and zoning input data.");        
@@ -227,7 +233,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       }
       if (!foundNetworkFile) {
         try {
-          macroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
+          xmlMacroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
               .generateObjectFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames[i]);
         } catch (final Exception e) {}
         foundNetworkFile = true;        
@@ -429,31 +435,30 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Update the XML macroscopic network element to include default values for any properties not included in the input file
    */
   private void addDefaultValuesToXmlMacroscopicNetwork() {
-    if (macroscopicnetwork.getLinkconfiguration() == null) {
-      macroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
+    if (xmlMacroscopicnetwork.getLinkconfiguration() == null) {
+      xmlMacroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
     }
     
     //if no modes defined, create single mode with default values
-    if (macroscopicnetwork.getLinkconfiguration().getModes() == null) {
-      macroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
+    if (xmlMacroscopicnetwork.getLinkconfiguration().getModes() == null) {
+      xmlMacroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
       XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
       // default in absence of any modes is the predefined CAR mode
       xmlElementMode.setPredefined(true);
       xmlElementMode.setName(PredefinedModeType.CAR.value());
-      macroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
+      xmlMacroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
     }
     
     //if no link segment types defined, create single link segment type with default parameters
-    if (macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
-      macroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
+    if (xmlMacroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
+      xmlMacroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
       XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
       xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAXIMUM_DENSITY);
-      macroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
-    }
-        
+      xmlMacroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
+    }       
    }
 
   /**
@@ -462,18 +467,27 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param physicalNetwork the physical network object to be populated from the input data
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populatePhysicalNetwork( final PhysicalNetwork<?,?,?> physicalNetwork) throws PlanItException {
+  protected void populateNetwork( final MacroscopicNetwork network) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Network");
 
-    MacroscopicNetwork network = (MacroscopicNetwork) physicalNetwork;
+    network.setCoordinateReferenceSystem(crs);  
+    this.geoUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());
+    
+    XmlMacroscopicNetworkHelper physicalNetworkHelper = new XmlMacroscopicNetworkHelper(network, geoUtils); 
+    
     try {
+      /* defaults */
       addDefaultValuesToXmlMacroscopicNetwork();
-      final XMLElementLinkConfiguration linkconfiguration = macroscopicnetwork.getLinkconfiguration();
-      ProcessLinkConfiguration.createAndRegisterModes(physicalNetwork, linkconfiguration, this);
-      final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = ProcessLinkConfiguration.createLinkSegmentTypeHelperMap(linkconfiguration, this);  
-      final XMLElementInfrastructure infrastructure = macroscopicnetwork.getInfrastructure();
-      ProcessInfrastructure.createAndRegisterNodes(infrastructure, network, this);
-      ProcessInfrastructure.createAndRegisterLinkAndLinkSegments(infrastructure, network, linkSegmentTypeHelperMap, this);
+      
+      /* link configuration and modes */
+      final XMLElementLinkConfiguration linkconfiguration = xmlMacroscopicnetwork.getLinkconfiguration();
+      physicalNetworkHelper.createAndRegisterModes(linkconfiguration, this);
+      
+      /* links, link segments, nodes */
+      final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = physicalNetworkHelper.createLinkSegmentTypeHelperMap(linkconfiguration, this);  
+      physicalNetworkHelper.createAndRegisterNodes(xmlMacroscopicnetwork.getInfrastructure(), this);
+      physicalNetworkHelper.createAndRegisterLinkAndLinkSegments(xmlMacroscopicnetwork.getInfrastructure(), linkSegmentTypeHelperMap, this);
+      
     } catch (PlanItException e) {
       throw e;
     } catch (final Exception e) {
@@ -489,24 +503,51 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param parameter1 PhysicalNetwork object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateZoning(final Zoning zoning, final Object parameter1) throws PlanItException {
+  protected void populateZoning(final Zoning zoning, final MacroscopicNetwork physicalNetwork) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
-    PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
-
-    final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) parameter1;
 
     // create and register zones, centroids and connectoids
     try {
       for (final XMLElementZones.Zone xmlZone : macroscopiczoning.getZones().getZone()) {
+        /* zone */
         long zoneExternalId = xmlZone.getId().longValue();
         Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
         addZoneToExternalIdMap(zone.getExternalId(), zone);
+        
+        /* centroid */
         Centroid centroid = zone.getCentroid();
         if (xmlZone.getCentroid().getPoint() != null) {
-          Position centrePointGeometry = UpdateZoning.getPosition(xmlZone);
-          centroid.setPosition(centrePointGeometry);
+          List<Double> value = xmlZone.getCentroid().getPoint().getPos().getValue();        
+          centroid.setPosition(geoUtils.createPoint(value.get(0), value.get(1)));
         }
-        UpdateZoning.registerNewConnectoid(zoning, physicalNetwork.nodes, xmlZone, centroid, this);
+             
+        /* connectoids */
+        List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
+        for(XMLElementConnectoid xmlConnectoid : xmlConnectoids) {
+          long nodeExternalId = xmlConnectoid.getNoderef().longValue();
+          Node node = getNodeByExternalId(nodeExternalId);
+          Point nodePosition = node.getPosition();
+          
+          double connectoidLength;
+          if (xmlConnectoid.getLength() != null) {
+            connectoidLength = xmlConnectoid.getLength();
+            // :TODO - need to create some test cases in which nodes have a GML location
+          } else if (nodePosition != null) {
+            // if node has a GML Point, get the GML Point from the centroid and calculate the length
+            // between them
+            connectoidLength = geoUtils.getDistanceInKilometres(centroid.getPosition(), nodePosition);
+          } else {
+            connectoidLength = org.planit.utils.network.virtual.Connectoid.DEFAULT_LENGTH_KM;
+          }
+
+          BigInteger externalId = xmlConnectoid.getId();        
+          if (externalId != null) {
+            zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength, externalId
+                .longValue());
+          } else {
+            zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
+          } 
+        }             
       }
     } catch (PlanItException e) {
       throw e;
@@ -661,10 +702,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
       // parameters (second parameter)
       final Object[] parameters = (Object[]) content[1];
       try {
-        if (projectComponent instanceof PhysicalNetwork) {
-          populatePhysicalNetwork((PhysicalNetwork<?,?,?>) projectComponent);
+        if (projectComponent instanceof MacroscopicNetwork) {
+          populateNetwork((MacroscopicNetwork) projectComponent);
         } else if (projectComponent instanceof Zoning) {
-          populateZoning((Zoning) projectComponent, parameters[0]);
+          PlanItException.throwIf(!(parameters[0] instanceof MacroscopicNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
+          final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) parameters[0];
+          populateZoning((Zoning) projectComponent, physicalNetwork);
         } else if (projectComponent instanceof Demands) {
           populateDemands((Demands) projectComponent, parameters[0], parameters[1]);
         } else if (projectComponent instanceof InitialPhysicalCost) {

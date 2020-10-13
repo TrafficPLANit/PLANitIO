@@ -2,7 +2,6 @@ package org.planit.io.xml.util;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
@@ -14,12 +13,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-
-import org.opengis.geometry.DirectPosition;
-import org.planit.geo.PlanitOpenGisUtils;
-import org.planit.utils.exceptions.PlanItException;
-
-import net.opengis.gml.PointType;
 
 /**
  * Utility methods for parsing XML data
@@ -34,20 +27,6 @@ public class XmlUtils {
   /** the logger */
   public static final Logger LOGGER = Logger.getLogger(XmlUtils.class.getCanonicalName());   
   
-	/**
-	 * Create GML position from generated PointType object
-	 * 
-	 * @param planitGeoUtils utils
-	 * @param pointType PointType object storing the location, read in from an XML input file
-	 * @return DirectPosition object storing the location
-	 * @throws PlanItException thrown if there is an error during processing
-	 */
-	public static DirectPosition getDirectPositionFromPointType(PlanitOpenGisUtils planitGeoUtils, PointType pointType)
-			throws PlanItException {
-		List<Double> value = pointType.getPos().getValue();
-		return planitGeoUtils.createDirectPosition(value.get(0), value.get(1));
-	}
-
 	/**
 	 * Method to validate an XML input file against an XSD schema using Java XML
 	 * Validator
