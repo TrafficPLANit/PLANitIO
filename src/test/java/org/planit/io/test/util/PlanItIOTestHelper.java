@@ -234,7 +234,7 @@ public class PlanItIOTestHelper {
           try {
           final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
           final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
-          return new Pair<Integer, Integer>(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
+          return Pair.create(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
           } catch (PlanItException e) {
             return e;
           }
@@ -274,7 +274,7 @@ public class PlanItIOTestHelper {
         (mode, timePeriod, iteration) -> {
           try {
             final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
-         return new Pair<Integer, Integer>(linkSegmentIdPosition, 0);
+         return Pair.create(linkSegmentIdPosition, 0);
           } catch (PlanItException e) {
             return e;
           }
