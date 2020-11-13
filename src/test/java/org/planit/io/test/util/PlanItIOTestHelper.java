@@ -242,8 +242,8 @@ public class PlanItIOTestHelper {
         (positionKeys, innerObj, keys) -> {
           @SuppressWarnings("unchecked") final SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>> innerMap =
               (SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>) innerObj;
-          final int downstreamNodeExternalIdPosition = positionKeys.getFirst();
-          final int upstreamNodeExternalIdPosition = positionKeys.getSecond();
+          final int downstreamNodeExternalIdPosition = positionKeys.first();
+          final int upstreamNodeExternalIdPosition = positionKeys.second();
           final long upstreamNodeExternalId = (Long) keys[downstreamNodeExternalIdPosition];
           final long downstreamNodeExternalId = (Long) keys[upstreamNodeExternalIdPosition];
           return innerMap.get(upstreamNodeExternalId).get(downstreamNodeExternalId);
@@ -281,7 +281,7 @@ public class PlanItIOTestHelper {
         },
         (positionKeys, innerObj, keys) -> {
           @SuppressWarnings("unchecked") final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
-          final int linkSegmentIdPosition = positionKeys.getFirst();
+          final int linkSegmentIdPosition = positionKeys.first();
           final long linkSegmentId = (Long) keys[linkSegmentIdPosition];
           return innerMap.get(linkSegmentId);
         });
