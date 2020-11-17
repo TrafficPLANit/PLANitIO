@@ -23,7 +23,7 @@ import org.planit.demands.Demands;
 import org.planit.geo.PlanitJtsUtils;
 import org.planit.xml.generated.*;
 
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.demands.ProcessConfiguration;

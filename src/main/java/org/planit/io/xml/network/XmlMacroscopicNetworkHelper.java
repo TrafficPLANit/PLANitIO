@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 import org.planit.xml.generated.*;
 
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
