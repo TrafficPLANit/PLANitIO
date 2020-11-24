@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.LongFunction;
 import java.util.logging.Logger;
@@ -15,7 +14,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.djutils.event.EventInterface;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.assignment.TrafficAssignmentComponentFactory;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
@@ -27,9 +25,9 @@ import org.locationtech.jts.geom.Point;
 
 import org.planit.input.InputBuilderListener;
 import org.planit.io.xml.demands.ProcessConfiguration;
+import org.planit.io.network.converter.PlanitNetworkReader;
+import org.planit.io.network.converter.PlanitNetworkReaderFactory;
 import org.planit.io.xml.demands.DemandsPopulator;
-import org.planit.io.xml.network.XmlMacroscopicNetworkHelper;
-import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.XmlUtils;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
@@ -43,10 +41,9 @@ import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.mode.PredefinedModeType;
-import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.virtual.Centroid;
@@ -64,48 +61,35 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private static final long serialVersionUID = -8928911341112445424L;
   
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PlanItInputBuilder.class.getCanonicalName());   
+  private static final Logger LOGGER = Logger.getLogger(PlanItInputBuilder.class.getCanonicalName());
   
-  /**
-   * Generated object to store input network data
-   */
-  private XMLElementMacroscopicNetwork xmlMacroscopicnetwork;
-
   /**
    * Generated object to store demand input data
    */
-  private XMLElementMacroscopicDemand macroscopicdemand;
+  private XMLElementMacroscopicDemand xmlRawDemand;
 
   /**
    * Generated object to store zoning input data
    */
-  private XMLElementMacroscopicZoning macroscopiczoning;
+  private XMLElementMacroscopicZoning xmlRawZoning;
   
-  /** coordinate reference system used */
-  private final CoordinateReferenceSystem crs = PlanitJtsUtils.DEFAULT_GEOGRAPHIC_CRS;
+  /**
+   * Generated object to store network input data
+   */  
+  private XMLElementMacroscopicNetwork xmlRawNetwork;  
+    
   
-  /** geoUtils to use based on adopted crs */ 
-  private PlanitJtsUtils geoUtils;    
+  /** project path to use */
+  private final String projectPath;
+  
+  /** xml file extension to use */
+  private final String xmlFileExtension;  
 
   /**
    * Default extension for XML input files
    */
-  private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
-   
-  /**
-   * Default external Id value
-   */
-  private static final long DEFAULT_EXTERNAL_ID = 1;
-  
-  /**
-   * Default maximum capacity per lane
-   */
-  private static final float DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0f;
-  
-  /**
-   * Default XSD files used to validate input XML files against
-   */
-  private static final String NETWORK_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd";
+  private static final String DEFAULT_XML_FILE_EXTENSION = ".xml";
+       
   private static final String ZONING_XSD_FILE = "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd";
   private static final String DEMAND_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd";
 
@@ -122,16 +106,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param networkXmlFileLocation location of the network input XML file
    * @throws PlanItException thrown if there is an error during reading the files
    */
-  private void createGeneratedClassesFromXmlLocations(final String zoningXmlFileLocation,
-      final String demandXmlFileLocation,
-      final String networkXmlFileLocation) throws PlanItException {
+  private void createGeneratedClassesFromXmlLocations(final File zoningXmlFileLocation,
+      final File demandXmlFileLocation,
+      final File networkXmlFileLocation) throws PlanItException {
     try {
-      macroscopiczoning = (XMLElementMacroscopicZoning) XmlUtils
-          .generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
-      macroscopicdemand = (XMLElementMacroscopicDemand) XmlUtils
-          .generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
-      xmlMacroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
-          .generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
+      xmlRawZoning = (XMLElementMacroscopicZoning) XmlUtils.generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
+      xmlRawDemand = (XMLElementMacroscopicDemand) XmlUtils.generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
+      xmlRawNetwork = (XMLElementMacroscopicNetwork) XmlUtils.generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error while generating classes from XML locations in PLANitIO",e);
@@ -139,47 +120,23 @@ public class PlanItInputBuilder extends InputBuilderListener {
   }
 
   /**
-   * Read the input XML file(s)
+   * Read the input XML file(s) 
    *
-   * This method first checks for a single file containing all three of network,
-   * demand and zoning inputs. If no single file is found, it then checks for
-   * three separate files, one for each type of input.
+   * This method checks if a single file contains all components of the of project; network, demand, and zoning. 
+   * If no single file is found, it then checks for separate files, one for each type of input.
    *
-   * @param projectPath the project path directory
-   * @param xmlNameExtension the extension of the files to search through
    * @throws PlanItException thrown if not all of network, demand and zoning input
    *           data are available
    */
-  private void setInputFiles(final String projectPath, final String xmlNameExtension) throws PlanItException {
-    final String[] xmlFileNames = getXmlFileNames(projectPath, xmlNameExtension);
+  private void parseXmlRawInputs() throws PlanItException {
+    final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension);
     
-    boolean inputFilesSet = setInputFilesSingleFile(xmlFileNames) || setInputFilesSeparateFiles(xmlFileNames);
-    PlanItException.throwIf(!inputFilesSet, "The directory " + projectPath
-        + " does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network");
+    boolean success = parseXmlRawInputsFromSingleFile(xmlFileNames);
+    if(!success) {
+      success = parseXmlRawInputSeparateFiles(xmlFileNames);
     }
-
-  /**
-   * Return an array of the names of all the input files in the project path
-   * directory
-   *
-   * @param projectPath the project path directory
-   * @param xmlNameExtension the extension of the files to search through
-   * @return array of names of files in the directory with the specified extension
-   * @throws PlanItException thrown if no files with the specified extension can
-   *           be found
-   */
-  private String[] getXmlFileNames(final String projectPath, final String xmlNameExtension) throws PlanItException {
-    final File xmlFilesDirectory = new File(projectPath);
     
-    PlanItException.throwIf(!xmlFilesDirectory.isDirectory(),projectPath + " is not a valid directory");
-    
-    final String[] fileNames = xmlFilesDirectory.list((d, name) -> name.endsWith(xmlNameExtension));
-    PlanItException.throwIf(fileNames.length == 0,"Directory " + projectPath + " contains no files with extension " + xmlNameExtension);
-
-    for (int i = 0; i < fileNames.length; i++) {
-      fileNames[i] = projectPath + "\\" + fileNames[i];
-    }
-    return fileNames;
+    PlanItException.throwIf(!success, String.format("The directory %s does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network",projectPath));
   }
 
   /**
@@ -190,26 +147,18 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @return true if a single file containing all the inputs has been found and
    *         read, false otherwise
    */
-  private boolean setInputFilesSingleFile(final String[] xmlFileNames) {
-    for (int i = 0; i < xmlFileNames.length; i++) {
-      try {
-        final XMLElementPLANit planit = 
-            (XMLElementPLANit) XmlUtils.generateObjectFromXml(XMLElementPLANit.class, xmlFileNames[i]);
-        
-        macroscopiczoning = planit.getMacroscopiczoning();
-        xmlMacroscopicnetwork = planit.getMacroscopicnetwork();
-        macroscopicdemand = planit.getMacroscopicdemand();
-        
-        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the network, demands and zoning input data.");        
-        return true;
-      } catch (final Exception e) { 
-        //An exception here may is not bug, it just means the current file is not an input file.
-        //There may be an input file later in the array of file names.
-      }
+  private boolean parseXmlRawInputsFromSingleFile(final File[] xmlFileNames) {
+    
+    XMLElementPLANit xmlRawPLANitAll = XmlUtils.generateInstanceFromXml(XMLElementPLANit.class, xmlFileNames);
+    if(xmlRawPLANitAll!= null) {
+      xmlRawZoning = xmlRawPLANitAll.getMacroscopiczoning();
+      xmlRawNetwork = xmlRawPLANitAll.getMacroscopicnetwork();
+      xmlRawDemand = xmlRawPLANitAll.getMacroscopicdemand();
+      return true;
     }
     return false;
   }
-
+  
   /**
    * Populate the generated input objects from three separate XML files
    *
@@ -217,40 +166,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @return true if input demand, zoning and network file are found in
    *         xmlFileNames, false otherwise
    */
-  private boolean setInputFilesSeparateFiles(final String[] xmlFileNames) {
-    boolean foundZoningFile = false;
-    boolean foundNetworkFile = false;
-    boolean foundDemandFile = false;
-    for (int i = 0; i < xmlFileNames.length; i++) {
-      if (!foundZoningFile) {
-        try {
-          macroscopiczoning = (XMLElementMacroscopicZoning) XmlUtils
-              .generateObjectFromXml(XMLElementMacroscopicZoning.class, xmlFileNames[i]);
-        } catch (final Exception e) {}
-        foundZoningFile = true;        
-        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the zoning input data.");          
-        continue;        
-      }
-      if (!foundNetworkFile) {
-        try {
-          xmlMacroscopicnetwork = (XMLElementMacroscopicNetwork) XmlUtils
-              .generateObjectFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames[i]);
-        } catch (final Exception e) {}
-        foundNetworkFile = true;        
-        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the network input data.");          
-        continue;        
-      }
-      if (!foundDemandFile) {
-        try {
-          macroscopicdemand = (XMLElementMacroscopicDemand) XmlUtils
-              .generateObjectFromXml(XMLElementMacroscopicDemand.class, xmlFileNames[i]);
-        } catch (final Exception e) {}
-        foundDemandFile = true;        
-        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + xmlFileNames[i] + " provides the demand input data.");          
-        continue;        
-      }
-    }
-    return (foundZoningFile && foundNetworkFile && foundDemandFile);
+  private boolean parseXmlRawInputSeparateFiles(final File[] xmlFileNames) {
+    xmlRawZoning = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicZoning.class, xmlFileNames);
+    xmlRawNetwork = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
+    xmlRawDemand = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicDemand.class, xmlFileNames);
+    return (xmlRawZoning!=null && xmlRawNetwork!=null && xmlRawDemand!=null);
   }
 
   /**
@@ -268,19 +188,19 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           directory
    */
   @SuppressWarnings("unused")
-  private void setInputFilesSeparateFilesWithValidation(final String projectPath, final String[] xmlFileNames)
+  private void setInputFilesSeparateFilesWithValidation(final String projectPath, final File[] xmlFileNames)
       throws PlanItException {
     boolean foundZoningFile = false;
-    String zoningFileName = null;
+    File zoningFileName = null;
     boolean foundNetworkFile = false;
-    String networkFileName = null;
+    File networkFileName = null;
     boolean foundDemandFile = false;
-    String demandFileName = null;
+    File demandFileName = null;
     for (int i = 0; i < xmlFileNames.length; i++) {
       if (zoningFileName==null && validateXmlInputFile(xmlFileNames[i], ZONING_XSD_FILE)) {
           zoningFileName = xmlFileNames[i];
       }
-      if (networkFileName==null && validateXmlInputFile(xmlFileNames[i], NETWORK_XSD_FILE)) {
+      if (networkFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitNetworkReader.NETWORK_XSD_FILE)) {
           networkFileName = xmlFileNames[i];
       }
       if (demandFileName==null && validateXmlInputFile(xmlFileNames[i], DEMAND_XSD_FILE)) {
@@ -432,68 +352,29 @@ public class PlanItInputBuilder extends InputBuilderListener {
   }
   
   /**
-   * Update the XML macroscopic network element to include default values for any properties not included in the input file
-   */
-  private void addDefaultValuesToXmlMacroscopicNetwork() {
-    if (xmlMacroscopicnetwork.getLinkconfiguration() == null) {
-      xmlMacroscopicnetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
-    }
-    
-    //if no modes defined, create single mode with default values
-    if (xmlMacroscopicnetwork.getLinkconfiguration().getModes() == null) {
-      xmlMacroscopicnetwork.getLinkconfiguration().setModes(new XMLElementModes());
-      XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
-      // default in absence of any modes is the predefined CAR mode
-      xmlElementMode.setPredefined(true);
-      xmlElementMode.setName(PredefinedModeType.CAR.value());
-      xmlMacroscopicnetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
-    }
-    
-    //if no link segment types defined, create single link segment type with default parameters
-    if (xmlMacroscopicnetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
-      xmlMacroscopicnetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
-      XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
-      xmlLinkSegmentType.setName("");
-      xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_EXTERNAL_ID));
-      xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
-      xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAXIMUM_DENSITY);
-      xmlMacroscopicnetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
-    }       
-   }
-
-  /**
    * Creates the physical network object from the data in the input file
    *
    * @param physicalNetwork the physical network object to be populated from the input data
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateNetwork( final MacroscopicNetwork network) throws PlanItException {
+  protected void populateNetwork(MacroscopicNetwork network) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Network");
-
-    network.setCoordinateReferenceSystem(crs);  
-    this.geoUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());
     
-    XmlMacroscopicNetworkHelper physicalNetworkHelper = new XmlMacroscopicNetworkHelper(network, geoUtils); 
-    
-    try {
-      /* defaults */
-      addDefaultValuesToXmlMacroscopicNetwork();
-      
-      /* link configuration and modes */
-      final XMLElementLinkConfiguration linkconfiguration = xmlMacroscopicnetwork.getLinkconfiguration();
-      physicalNetworkHelper.createAndRegisterModes(linkconfiguration, this);
-      
-      /* links, link segments, nodes */
-      final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = physicalNetworkHelper.createLinkSegmentTypeHelperMap(linkconfiguration, this);  
-      physicalNetworkHelper.createAndRegisterNodes(xmlMacroscopicnetwork.getInfrastructure(), this);
-      physicalNetworkHelper.createAndRegisterLinkAndLinkSegments(xmlMacroscopicnetwork.getInfrastructure(), linkSegmentTypeHelperMap, this);
-      
-    } catch (PlanItException e) {
-      throw e;
-    } catch (final Exception e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error while populating physical network in PLANitIO",e);
+    /* parse raw inputs if not already done */
+    if(xmlRawNetwork == null) {
+      parseXmlRawInputs();
     }
+        
+    /* create parser and read/populate the network */
+    PlanitNetworkReader reader = PlanitNetworkReaderFactory.createReader(xmlRawNetwork, network);
+    /* make sure the external ids are indexed via the input builder's already present maps */
+    reader.getSettings().setUseMapToIndexLinkSegmentByExternalIds(linkSegmentExternalIdToLinkSegmentMap);
+    reader.getSettings().setUseMapToIndexLinkSegmentTypeByExternalIds(linkSegmentTypeExternalIdToLinkSegmentTypeMap);
+    reader.getSettings().setUseMapToIndexModeByExternalIds(modeExternalIdToModeMap);
+    reader.getSettings().setUseMapToIndexNodeByExternalIds(nodeExternalIdToNodeMap);
+    /* pass on relevant general settings to reader settings */
+    reader.getSettings().setErrorIfDuplicatexExternalId(isErrorIfDuplicateExternalId());
+    network = reader.read();        
   }
 
   /**
@@ -505,10 +386,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   protected void populateZoning(final Zoning zoning, final MacroscopicNetwork physicalNetwork) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
-
+    
+    /* parse raw inputs if not already done */
+    if(xmlRawNetwork == null) {
+      parseXmlRawInputs();
+    }
+    
     // create and register zones, centroids and connectoids
     try {
-      for (final XMLElementZones.Zone xmlZone : macroscopiczoning.getZones().getZone()) {
+      PlanitJtsUtils jtsUtils = new PlanitJtsUtils(physicalNetwork.getCoordinateReferenceSystem());      
+      for (final XMLElementZones.Zone xmlZone : xmlRawZoning.getZones().getZone()) {
         /* zone */
         long zoneExternalId = xmlZone.getId().longValue();
         Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
@@ -518,7 +405,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         Centroid centroid = zone.getCentroid();
         if (xmlZone.getCentroid().getPoint() != null) {
           List<Double> value = xmlZone.getCentroid().getPoint().getPos().getValue();        
-          centroid.setPosition(geoUtils.createPoint(value.get(0), value.get(1)));
+          centroid.setPosition(PlanitJtsUtils.createPoint(value.get(0), value.get(1)));
         }
              
         /* connectoids */
@@ -535,7 +422,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
           } else if (nodePosition != null) {
             // if node has a GML Point, get the GML Point from the centroid and calculate the length
             // between them
-            connectoidLength = geoUtils.getDistanceInKilometres(centroid.getPosition(), nodePosition);
+            connectoidLength = jtsUtils.getDistanceInKilometres(centroid.getPosition(), nodePosition);
           } else {
             connectoidLength = org.planit.utils.network.virtual.Connectoid.DEFAULT_LENGTH_KM;
           }
@@ -570,12 +457,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanItException.throwIf(!(parameter1 instanceof Zoning),"Parameter 1 of call to populateDemands() is not of class Zoning");
     PlanItException.throwIf(!(parameter2 instanceof PhysicalNetwork),"Parameter 2 of call to populateDemands() is not of class PhysicalNetwork");
     
+    /* parse raw inputs if not already done */
+    if(xmlRawNetwork == null) {
+      parseXmlRawInputs();
+    }    
+    
     final Zoning zoning = (Zoning) parameter1;
     final PhysicalNetwork<?,?,?> physicalNetwork = (PhysicalNetwork<?,?,?>) parameter2;
     try {
-      final XMLElementDemandConfiguration demandconfiguration = macroscopicdemand.getDemandconfiguration();
+      final XMLElementDemandConfiguration demandconfiguration = xmlRawDemand.getDemandconfiguration();
       ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, physicalNetwork, this);
-      final List<XMLElementOdMatrix> oddemands = macroscopicdemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
+      final List<XMLElementOdMatrix> oddemands = xmlRawDemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
       DemandsPopulator.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
@@ -649,7 +541,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           of them
    */
   public PlanItInputBuilder(final String projectPath) throws PlanItException {
-    this(projectPath, DEFAULT_XML_NAME_EXTENSION);
+    this(projectPath, DEFAULT_XML_FILE_EXTENSION);
   }
 
   /**
@@ -663,10 +555,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *           cannot be found, or if there is an error reading one
    *           of them
    */
-  public PlanItInputBuilder(final String projectPath, final String xmlNameExtension) throws PlanItException {
+  public PlanItInputBuilder(final String projectPath, final String xmlFileExtension) throws PlanItException {
     super();
     LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"project path is set to: "+ projectPath);
-    setInputFiles(projectPath, xmlNameExtension);
+    
+    this.projectPath = projectPath;
+    this.xmlFileExtension = xmlFileExtension;
+    
   }
 
   /**
@@ -676,7 +571,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param schemaFileLocation XSD file to validate XML file against
    * @return true if the file is valid, false otherwise
    */
-  public static boolean validateXmlInputFile(final String xmlFileLocation, final String schemaFileLocation) {
+  public static boolean validateXmlInputFile(final File xmlFileLocation, final String schemaFileLocation) {
     try {
       XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
       return true;

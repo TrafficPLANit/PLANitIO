@@ -1156,11 +1156,9 @@ public class PlanItIOTestHelper {
   public static boolean isXmlFileSameExceptForTimestamp(final String xmlFileStandard, final String xmlFileBeingTested)
       throws Exception {
     final XMLElementMetadata metadataStandard = (XMLElementMetadata) XmlUtils.generateObjectFromXml(
-        XMLElementMetadata.class,
-        xmlFileStandard);
+        XMLElementMetadata.class, new File(xmlFileStandard));
     final XMLElementMetadata metadataBeingTested = (XMLElementMetadata) XmlUtils.generateObjectFromXml(
-        XMLElementMetadata.class,
-        xmlFileBeingTested);
+        XMLElementMetadata.class, new File(xmlFileBeingTested));
 
     // compare <columns> and <column> elements in the generated output file against the standard
     // output file

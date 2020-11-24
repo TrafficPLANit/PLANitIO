@@ -36,8 +36,8 @@ public class XmlUtils {
 	 *                           against
 	 * @throws Exception thrown if the input file fails the validation
 	 */
-	public static void validateXml(String xmlFileLocation, String schemaFileLocation) throws Exception {
-		LOGGER.fine("validating " + xmlFileLocation + " against " + schemaFileLocation);
+	public static void validateXml(File xmlFileLocation, String schemaFileLocation) throws Exception {
+		LOGGER.fine("validating " + xmlFileLocation.getAbsolutePath() + " against " + schemaFileLocation);
 		String schemaLang = "http://www.w3.org/2001/XMLSchema";
 		SchemaFactory factory = SchemaFactory.newInstance(schemaLang);
 		Schema schema = factory.newSchema(new StreamSource(schemaFileLocation));
@@ -60,7 +60,7 @@ public class XmlUtils {
 	 *         file.
 	 * @throws Exception thrown if the XML file is invalid or cannot be opened
 	 */
-	public static Object generateObjectFromXml(Class<?> clazz, String xmlFileLocation) throws Exception {
+	public static Object generateObjectFromXml(Class<?> clazz, File xmlFileLocation) throws Exception {
 		FileReader fileReader = new FileReader(xmlFileLocation);
 		XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 		XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(fileReader);
@@ -81,8 +81,7 @@ public class XmlUtils {
 	 * @throws Exception thrown if the object is not of the correct class, or the
 	 *                   output file cannot be opened
 	 */
-	public static void generateXmlFileFromObject(Object object, Class<?> clazz, String xmlFileLocation)
-			throws Exception {
+	public static void generateXmlFileFromObject(Object object, Class<?> clazz, String xmlFileLocation) throws Exception {
 	  File file = new File(xmlFileLocation);
     if (!clazz.isInstance(object)) {
       throw new Exception("Trying to convert an object to XML which is not of class " + clazz.getName());
@@ -93,5 +92,30 @@ public class XmlUtils {
     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
     marshaller.marshal(object,file);
 	}
+	
+  /** create populated instance of class based from the first compatible potential files
+   * @param <T> raw XML to find
+   * @param clazz of type T
+   * @param potentialXmlFileNames to search among
+   * @return parsed result, null if not found
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T generateInstanceFromXml(Class<T> clazz, final File[] potentialXmlFileNames) {
+    T result=null;
+    for (int i = 0; i < potentialXmlFileNames.length; i++) {
+      File currFileName = potentialXmlFileNames[i];
+      if (result==null) {
+        try {
+          result = (T) XmlUtils.generateObjectFromXml(clazz, currFileName);
+        } catch (final Exception e) {
+          /* ok, just try next */   
+        }                  
+      }else {
+        LOGGER.info("parsed file " + currFileName);
+        break;
+      }
+    }    
+    return result;
+  }	
 	
 }
