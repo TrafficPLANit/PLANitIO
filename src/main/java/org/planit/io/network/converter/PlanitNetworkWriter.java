@@ -3,11 +3,12 @@ package org.planit.io.network.converter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.network.converter.IdMapper;
 import org.planit.network.converter.NetworkWriter;
-import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.network.physical.Link;
+import org.planit.utils.network.physical.LinkSegments;
+import org.planit.utils.network.physical.Links;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.Nodes;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
@@ -36,7 +37,7 @@ public class PlanitNetworkWriter implements NetworkWriter {
    * @param links 
    * @param nodes 
    */
-  protected void populateInfrastructure(CoordinateReferenceSystem coordinateReferenceSystem, Nodes<Node> nodes, PhysicalNetwork<Node, Link, MacroscopicLinkSegment>.Links links, PhysicalNetwork<Node, Link, MacroscopicLinkSegment>.LinkSegments linkSegments) {
+  protected void populateInfrastructure(CoordinateReferenceSystem coordinateReferenceSystem, Nodes<Node> nodes, Links<Link> links, LinkSegments<MacroscopicLinkSegment> linkSegments) {
     XMLElementInfrastructure xmlInfrastructure = xmlRawNetwork.getInfrastructure(); 
     if(xmlInfrastructure == null) {
       xmlInfrastructure = new XMLElementInfrastructure();
