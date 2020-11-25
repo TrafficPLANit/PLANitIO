@@ -526,7 +526,7 @@ public class XmlMacroscopicNetworkHelper {
         MacroscopicLinkSegmentType existingLinkSegmentType = linkSegmentTypesByExternalId.get(linkSegmentTypeXmlHelper.getExternalId());
         if (existingLinkSegmentType == null) {
           existingLinkSegmentType = 
-              network.createAndRegisterNewMacroscopicLinkSegmentType(
+              network.linkSegmentTypes.createAndRegisterNew(
                   linkSegmentTypeXmlHelper.getName(), 
                   linkSegmentTypeXmlHelper.getCapacityPerLane(),
                   linkSegmentTypeXmlHelper.getMaximumDensityPerLane(), 

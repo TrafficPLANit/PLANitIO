@@ -11,22 +11,22 @@ import org.planit.xml.generated.XMLElementMacroscopicNetwork;
  */
 public class PlanitNetworkReaderFactory {
   
-  /** Create a PLANitOSMReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 
    * @param networkPath to use
    * @param xmlFileExtension to consider
    * @param network to populate
-   * @return create osm reader
+   * @return created PLANit reader
    */
   public static PlanitNetworkReader createReader(String networkPath, String xmlFileExtension, MacroscopicNetwork network) {
     return new PlanitNetworkReader(networkPath, xmlFileExtension, network);    
   }  
   
-  /** Create a PLANitOSMReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 
    * @param xmlRawNetwork the raw network based on the JAXB parser
    * @param network to populate
-   * @return create osm reader
+   * @return created PLANit reader
    */
   public static PlanitNetworkReader createReader(XMLElementMacroscopicNetwork xmlRawNetwork, MacroscopicNetwork network) {
     return new PlanitNetworkReader(xmlRawNetwork, network);    
