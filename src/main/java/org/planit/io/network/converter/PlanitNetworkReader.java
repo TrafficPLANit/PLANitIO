@@ -102,7 +102,7 @@ public class PlanitNetworkReader implements NetworkReader {
   /**
    * Default maximum capacity per lane
    */
-  public static final float DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0f;      
+  public static final double DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0;      
   
   
   /** constructor

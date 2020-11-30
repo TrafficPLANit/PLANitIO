@@ -219,7 +219,7 @@ public class XmlMacroscopicNetworkHelper {
   /**
    * Registers a new link segment in the physical network
    * 
-   * @param maxSpeed the value of the {@code <maxspeed>} element within the {@code <linksegment>} element in the
+   * @param maxSpeedKmH the value of the {@code <maxspeed>} element within the {@code <linksegment>} element in the
    *          input file, null if this element omitted for this link segment
    * @param link the link from which the link segment will be created
    * @param abDirection direction of travel
@@ -227,15 +227,13 @@ public class XmlMacroscopicNetworkHelper {
    * @param externalId the external Id of this link segment
    * @throws PlanItException thrown if there is an error
    */
-  protected MacroscopicLinkSegment createAndRegisterLinkSegment(Float maxSpeed, Link link,
-      boolean abDirection,
-      int noLanes, long externalId) throws PlanItException {
+  protected MacroscopicLinkSegment createAndRegisterLinkSegment(
+      double maxSpeedKmH, Link link, boolean abDirection, int noLanes, long externalId) throws PlanItException {
     
     // create the link and store it in the network object
     MacroscopicLinkSegment linkSegment = network.linkSegments.registerNew(link, abDirection, true /* register on nodes and link*/);
-
-    double maxSpeedDouble = maxSpeed == null ? Double.POSITIVE_INFINITY : (double) maxSpeed;        
-    linkSegment.setPhysicalSpeedLimitKmH(maxSpeedDouble);    
+        
+    linkSegment.setPhysicalSpeedLimitKmH(maxSpeedKmH);    
     linkSegment.setNumberOfLanes(noLanes);
     linkSegment.setExternalId(externalId); 
     
@@ -504,7 +502,8 @@ public class XmlMacroscopicNetworkHelper {
         } else {
           linkType = generatedLinkSegment.getTyperef().longValue();
         }
-        Float maxSpeed = generatedLinkSegment.getMaxspeed();
+        
+        double maxSpeed = (generatedLinkSegment.getMaxspeed() == null) ? Double.POSITIVE_INFINITY : generatedLinkSegment.getMaxspeed(); 
         MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkType);
         // TODO - We should be able to set the maximum speed for individual link
         // segments in the network XML file. This is where we would update it. However

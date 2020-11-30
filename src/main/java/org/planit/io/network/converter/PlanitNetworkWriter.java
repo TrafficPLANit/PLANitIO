@@ -2,34 +2,27 @@ package org.planit.io.network.converter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Logger;
+
+import org.planit.utils.network.physical.*;
+import org.planit.utils.network.physical.macroscopic.*;
+import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.network.converter.IdMapperType;
 import org.planit.geo.PlanitJtsUtils;
 import org.planit.network.converter.IdMapperFunctionFactory;
 import org.planit.network.converter.NetworkWriterImpl;
-import org.planit.network.physical.macroscopic.MacroscopicNetwork;
-import org.planit.output.enums.OutputType;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.id.IdGenerator;
-import org.planit.utils.id.IdGroupingToken;
+import org.planit.utils.math.TypeConversionUtil;
 import org.planit.utils.mode.Modes;
-import org.planit.utils.network.physical.Link;
-import org.planit.utils.network.physical.LinkSegments;
-import org.planit.utils.network.physical.Links;
-import org.planit.utils.network.physical.Node;
-import org.planit.utils.network.physical.Nodes;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentTypes;
+import org.planit.xml.generated.Direction;
 import org.planit.xml.generated.LengthUnit;
 import org.planit.xml.generated.XMLElementInfrastructure;
 import org.planit.xml.generated.XMLElementLinkLengthType;
+import org.planit.xml.generated.XMLElementLinkSegment;
 import org.planit.xml.generated.XMLElementLinks;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementNodes;
@@ -54,18 +47,15 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
   
   /** user configurable settings for the writer */
   PlanitNetworkWriterSettings settings;
-  
-  /** the idToken to use for generating id's in case the user decides to map id's based on newly generated id's rather than existing ones */
-  private IdGroupingToken idToken = null;;
-  
+    
   /** id mapper for nodes */
-  private BiFunction<Node, IdGroupingToken, String> nodeIdMapper;
+  private Function<Node, String> nodeIdMapper;
   /** id mapper for links */
-  private BiFunction<Link, IdGroupingToken, String> linkIdMapper;
+  private Function<Link, String> linkIdMapper;
   /** id mapper for link segments */
-  private BiFunction<MacroscopicLinkSegment, IdGroupingToken, String> linkSegmentIdMapper;
+  private Function<MacroscopicLinkSegment, String> linkSegmentIdMapper;
   /** id mapper for link segment types */
-  private BiFunction<MacroscopicLinkSegmentType, IdGroupingToken, String> linkSegmentTypeIdMapper;
+  private Function<MacroscopicLinkSegmentType, String> linkSegmentTypeIdMapper;
     
   /** network path (file) to persist to */
   private final String networkPath;
@@ -75,14 +65,53 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     
   
   /**
+   * populate a single xml link segment element based on the passed in PLANit link segment
+   * 
+   * @param xmlLinkSegment to populate
+   * @param linkSegment the PLANit link segment instance to populate from
+   */
+  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
+    /* id */
+    xmlLinkSegment.setId(TypeConversionUtil.toBigInteger(linkSegmentIdMapper.apply(linkSegment)));
+    /* max speed */
+    xmlLinkSegment.setMaxspeed(linkSegment.getPhysicalSpeedLimitKmH());
+    /* number of lanes */
+    xmlLinkSegment.setNumberoflanes(BigInteger.valueOf(linkSegment.getNumberOfLanes()));
+    if(!linkSegment.hasLinkSegmentType()) {
+      LOGGER.severe(String.format("missing link segment type on link segment %s (id:%d)", linkSegment.getExternalId(), linkSegment.getId()));      
+    }else {
+      xmlLinkSegment.setTyperef(TypeConversionUtil.toBigInteger(linkSegmentTypeIdMapper.apply(linkSegment.getLinkSegmentType())));  
+    }
+  }  
+  
+  /** populate a link's link segments
+   * 
    * @param xmlLink to populate link segments on
    * @param link to populate link segments from
    */
-  private void populateLinkSegments(org.planit.xml.generated.XMLElementLinks.Link xmlLink, Link link) {
-    //TODO: continue here
+  private void populateLinkSegments(XMLElementLinks.Link xmlLink, Link link) {
+    List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegment();
+    if(xmlLinkSegments==null && link.hasLinkSegmentAb() || link.hasLinkSegmentBa()) {
+      LOGGER.severe(String.format("link %s (id:%d)has no xm lLink segment element, but does have link segments",link.getExternalId(), link.getId()));
+      return;
+    }
+    
+    if(link.hasLinkSegmentAb()) {      
+      XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
+      /* direction A->B */
+      xmlLinkSegment.setDir(Direction.A_B);
+      populateLinkSegment(xmlLinkSegment, link.getLinkSegmentAb());
+      xmlLinkSegments.add(xmlLinkSegment);
+    }
+    if(link.hasLinkSegmentBa()) {
+      XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
+      /* direction B->A */
+      xmlLinkSegment.setDir(Direction.B_A);
+      populateLinkSegment(xmlLinkSegment, link.getLinkSegmentBa());
+      xmlLinkSegments.add(xmlLinkSegment);
+    }
   }
   
-
   /**
    *  populate the xml /<link/> element
    *  
@@ -93,7 +122,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
     /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
-    xmlLink.setId(BigInteger.valueOf(Long.parseLong(linkIdMapper.apply(link, idToken))));
+    xmlLink.setId(BigInteger.valueOf(Long.parseLong(linkIdMapper.apply(link))));
     /* length */
     XMLElementLinkLengthType xmlLinkLength = new XMLElementLinkLengthType();     
     xmlLinkLength.setUnit(LengthUnit.KM);
@@ -111,9 +140,9 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     /* name */
     xmlLink.setName(link.getName());
     /* node A ref */
-    xmlLink.setNodearef(BigInteger.valueOf(Long.parseLong(nodeIdMapper.apply(link.getNodeA(), idToken))));
+    xmlLink.setNodearef(TypeConversionUtil.toBigInteger(nodeIdMapper.apply(link.getNodeA())));
     /* node B ref */
-    xmlLink.setNodebref(BigInteger.valueOf(Long.parseLong(nodeIdMapper.apply(link.getNodeB(), idToken))));
+    xmlLink.setNodebref(TypeConversionUtil.toBigInteger(nodeIdMapper.apply(link.getNodeB())));
     
     /* link segments */
     populateLinkSegments(xmlLink, link);
@@ -148,7 +177,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementNodes.Node xmlNode = new XMLElementNodes.Node();
     
     /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
-    xmlNode.setId(BigInteger.valueOf(Long.parseLong(nodeIdMapper.apply(node, idToken))));
+    xmlNode.setId(BigInteger.valueOf(Long.parseLong(nodeIdMapper.apply(node))));
     /* name */
     xmlNode.setName(node.getName());
     /* location */
@@ -201,6 +230,12 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
   }
 
 
+  /**
+   * populate the link configuration for this network, i.e., the modes and link types
+   * 
+   * @param modes to use to populate the XML elements
+   * @param linkSegmentTypes to use to populate the XML elements
+   */
   protected void populateXmlLinkConfiguration(Modes modes, MacroscopicLinkSegmentTypes linkSegmentTypes) {
     //TODO: continue here
   }  
@@ -213,12 +248,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     nodeIdMapper = IdMapperFunctionFactory.createNodeIdMappingFunction(getIdMapper());
     linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapper());
     linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapper());
-    linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapper());
-    
-    /* initialise token when used during id generation, otherwise leave at null */
-    if(getIdMapper().equals(IdMapperType.GENERATED)) {
-      idToken = IdGenerator.createIdGroupingToken(this.getClass().getCanonicalName());
-    }
+    linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapper());    
   }  
   
   /** Constructor 
