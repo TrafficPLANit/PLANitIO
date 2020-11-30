@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.planit.io.xml.network.XmlMacroscopicNetworkHelper;
-import org.planit.io.xml.util.XmlUtils;
+import org.planit.io.xml.util.JAXBUtils;
 import org.planit.network.converter.NetworkReader;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -82,7 +82,7 @@ public class PlanitNetworkReader implements NetworkReader {
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_LINKSEGMENTTYPE_EXTERNAL_ID));
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
-      xmlLinkSegmentType.setMaxdensitylane((float) LinkSegment.MAXIMUM_DENSITY);
+      xmlLinkSegmentType.setMaxdensitylane(LinkSegment.MAXIMUM_DENSITY);
       xmlRawNetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
     }       
    }  
@@ -95,7 +95,7 @@ public class PlanitNetworkReader implements NetworkReader {
     if(xmlRawNetwork==null) {
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(networkPathDirectory, xmlFileExtension);
       PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",networkPathDirectory, xmlFileExtension));
-      xmlRawNetwork = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
+      xmlRawNetwork = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
     }    
   }  
   

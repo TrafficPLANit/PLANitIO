@@ -30,7 +30,7 @@ import org.planit.xml.generated.XMLElementOutputConfiguration;
 import org.planit.xml.generated.XMLElementOutputTimePeriod;
 import org.planit.xml.generated.XMLElementSimulation;
 import org.planit.io.xml.converter.EnumConverter;
-import org.planit.io.xml.util.XmlUtils;
+import org.planit.io.xml.util.JAXBUtils;
 import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.OutputTypeConfiguration;
@@ -442,7 +442,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
           .getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
       if (isNewTimePeriod) {
         if (metadata.containsKey(currentOutputType)) {
-          XmlUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
+          JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
               xmlFileNameMap.get(outputType));
         }
         metadata.put(currentOutputType, new XMLElementMetadata());
@@ -697,11 +697,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         if (xmlFileNameMap.containsKey(outputType)) {
           String xmlFileName = xmlFileNameMap.get(outputType);
           if (metadata.containsKey(outputType)) {
-            XmlUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
+            JAXBUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
           } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
             Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
             for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-              XmlUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,
+              JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,
                   xmlFileName);
             }
           }

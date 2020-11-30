@@ -37,7 +37,7 @@ import org.planit.xml.generated.XMLElementOutputTimePeriod;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
-import org.planit.io.xml.util.XmlUtils;
+import org.planit.io.xml.util.JAXBUtils;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -1155,9 +1155,9 @@ public class PlanItIOTestHelper {
    */
   public static boolean isXmlFileSameExceptForTimestamp(final String xmlFileStandard, final String xmlFileBeingTested)
       throws Exception {
-    final XMLElementMetadata metadataStandard = (XMLElementMetadata) XmlUtils.generateObjectFromXml(
+    final XMLElementMetadata metadataStandard = (XMLElementMetadata) JAXBUtils.generateObjectFromXml(
         XMLElementMetadata.class, new File(xmlFileStandard));
-    final XMLElementMetadata metadataBeingTested = (XMLElementMetadata) XmlUtils.generateObjectFromXml(
+    final XMLElementMetadata metadataBeingTested = (XMLElementMetadata) JAXBUtils.generateObjectFromXml(
         XMLElementMetadata.class, new File(xmlFileBeingTested));
 
     // compare <columns> and <column> elements in the generated output file against the standard

@@ -21,6 +21,7 @@ import org.planit.geo.PlanitJtsUtils;
 import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.network.converter.PlanitNetworkReaderSettings;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
+import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -91,26 +92,7 @@ public class XmlMacroscopicNetworkHelper {
     }
     
     /* parse set values */
-    UseOfModeType useOfModeType = null; 
-    switch (generatedMode.getUsabilityfeatures().getUsedtotype()) {
-    case PRIVATE:
-      useOfModeType = UseOfModeType.PRIVATE;
-      break;
-    case PUBLIC:
-      useOfModeType = UseOfModeType.PUBLIC;
-      break;
-    case HIGH_OCCUPANCY:
-      useOfModeType = UseOfModeType.HIGH_OCCUPANCY;
-      break;
-    case RIDE_SHARE:
-      useOfModeType = UseOfModeType.RIDE_SHARE;
-      break;
-    case GOODS:
-      useOfModeType = UseOfModeType.GOODS;
-      break;
-    default:
-      throw new PlanItException(String.format("invalid usability type for mode %s defined; %s",generatedMode.getName(),generatedMode.getUsabilityfeatures().getUsedtotype().toString()));
-    }
+    UseOfModeType useOfModeType = EnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());    
     
     return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType);
   }
@@ -126,41 +108,9 @@ public class XmlMacroscopicNetworkHelper {
     }
     
     /* parse set values */
-    VehicularModeType vehicleType = null; 
-    switch (generatedMode.getPhysicalfeatures().getVehicletype()) {
-    case VEHICLE:
-      vehicleType = VehicularModeType.VEHICLE;
-      break;
-    case NO_VEHICLE:
-      vehicleType = VehicularModeType.NO_VEHICLE;
-      break;
-    default:
-      throw new PlanItException(String.format("invalid vehicular mode type for mode %s defined; %s",generatedMode.getName(),generatedMode.getPhysicalfeatures().getVehicletype().toString()));
-    }
-    
-    MotorisationModeType motorisationType = null; 
-    switch (generatedMode.getPhysicalfeatures().getMotorisationtype()) {
-    case MOTORISED:
-      motorisationType = MotorisationModeType.MOTORISED;
-      break;
-    case NON_MOTORISED:
-      motorisationType = MotorisationModeType.NON_MOTORISED;
-      break;
-    default:
-      throw new PlanItException(String.format("invalid motorisation type for mode %s defined; %s",generatedMode.getName(),generatedMode.getPhysicalfeatures().getMotorisationtype().toString()));
-    }    
-    
-    TrackModeType trackType = null; 
-    switch (generatedMode.getPhysicalfeatures().getTracktype()) {
-    case ROAD:
-      trackType = TrackModeType.ROAD;
-      break;
-    case RAIL:
-      trackType = TrackModeType.RAIL;
-      break;
-    default:
-      throw new PlanItException(String.format("invalid track type for mode %s defined; %s",generatedMode.getName(),generatedMode.getPhysicalfeatures().getTracktype().toString()));
-    }     
+    VehicularModeType vehicleType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());    
+    MotorisationModeType motorisationType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());       
+    TrackModeType trackType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());         
     
     return ModeFeaturesFactory.createPhysicalFeatures(vehicleType, motorisationType, trackType);
   }    
@@ -310,19 +260,19 @@ public class XmlMacroscopicNetworkHelper {
           xmlMode = linkSegmentTypeGenerated.getModes().getMode().stream().dropWhile( currXmlMode -> ((long)thePlanitMode.getExternalId()) != currXmlMode.getRef().longValue()).findFirst().get();
         }
         
-        double maxSpeed = thePlanitMode.getMaximumSpeed();
-        double critSpeed = Math.min(maxSpeed, MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED); 
+        double maxSpeed = thePlanitMode.getMaximumSpeedKmH();
+        double critSpeed = Math.min(maxSpeed, MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED_KMH); 
         if(xmlMode != null) {
 
           /** cap max speed of mode properties to global mode's default if it exceeds this maximum */ 
-          maxSpeed = (xmlMode.getMaxspeed() == null) ? thePlanitMode.getMaximumSpeed() : xmlMode.getMaxspeed();
-          if( Precision.isGreater(maxSpeed, thePlanitMode.getMaximumSpeed(), Precision.EPSILON_6)) {
-            maxSpeed = thePlanitMode.getMaximumSpeed();
+          maxSpeed = (xmlMode.getMaxspeed() == null) ? thePlanitMode.getMaximumSpeedKmH() : xmlMode.getMaxspeed();
+          if( Precision.isGreater(maxSpeed, thePlanitMode.getMaximumSpeedKmH(), Precision.EPSILON_6)) {
+            maxSpeed = thePlanitMode.getMaximumSpeedKmH();
             LOGGER.warning(String.format("Capped maximum speed for mode %s on link segment type %d to mode's global maximum speed %.1f",
                 thePlanitMode.getName(), linkSegmentTypeExternalId, maxSpeed));          
           }        
           
-          critSpeed = (xmlMode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED  : xmlMode.getCritspeed();
+          critSpeed = (xmlMode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED_KMH  : xmlMode.getCritspeed();
           /* critical speed can never exceed max speed, so capp it if needed */
           critSpeed = Math.min(maxSpeed, critSpeed);
         }

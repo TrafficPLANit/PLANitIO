@@ -20,12 +20,12 @@ import javax.xml.validation.Validator;
  * @author gman6028
  *
  */
-public class XmlUtils {
+public class JAXBUtils {
   
   static final String PATH_TO_XSD_FILE = "../../../../../../main/resources/xsd/metadata.xsd";
   
   /** the logger */
-  public static final Logger LOGGER = Logger.getLogger(XmlUtils.class.getCanonicalName());   
+  public static final Logger LOGGER = Logger.getLogger(JAXBUtils.class.getCanonicalName());   
   
 	/**
 	 * Method to validate an XML input file against an XSD schema using Java XML
@@ -106,7 +106,7 @@ public class XmlUtils {
       File currFileName = potentialXmlFileNames[i];
       if (result==null) {
         try {
-          result = (T) XmlUtils.generateObjectFromXml(clazz, currFileName);
+          result = (T) JAXBUtils.generateObjectFromXml(clazz, currFileName);
         } catch (final Exception e) {
           /* ok, just try next */   
         }                  

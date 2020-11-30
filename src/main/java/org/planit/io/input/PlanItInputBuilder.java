@@ -28,7 +28,7 @@ import org.planit.io.xml.demands.ProcessConfiguration;
 import org.planit.io.network.converter.PlanitNetworkReader;
 import org.planit.io.network.converter.PlanitNetworkReaderFactory;
 import org.planit.io.xml.demands.DemandsPopulator;
-import org.planit.io.xml.util.XmlUtils;
+import org.planit.io.xml.util.JAXBUtils;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
@@ -110,9 +110,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final File demandXmlFileLocation,
       final File networkXmlFileLocation) throws PlanItException {
     try {
-      xmlRawZoning = (XMLElementMacroscopicZoning) XmlUtils.generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
-      xmlRawDemand = (XMLElementMacroscopicDemand) XmlUtils.generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
-      xmlRawNetwork = (XMLElementMacroscopicNetwork) XmlUtils.generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
+      xmlRawZoning = (XMLElementMacroscopicZoning) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
+      xmlRawDemand = (XMLElementMacroscopicDemand) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
+      xmlRawNetwork = (XMLElementMacroscopicNetwork) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error while generating classes from XML locations in PLANitIO",e);
@@ -149,7 +149,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private boolean parseXmlRawInputsFromSingleFile(final File[] xmlFileNames) {
     
-    XMLElementPLANit xmlRawPLANitAll = XmlUtils.generateInstanceFromXml(XMLElementPLANit.class, xmlFileNames);
+    XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(XMLElementPLANit.class, xmlFileNames);
     if(xmlRawPLANitAll!= null) {
       xmlRawZoning = xmlRawPLANitAll.getMacroscopiczoning();
       xmlRawNetwork = xmlRawPLANitAll.getMacroscopicnetwork();
@@ -167,9 +167,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *         xmlFileNames, false otherwise
    */
   private boolean parseXmlRawInputSeparateFiles(final File[] xmlFileNames) {
-    xmlRawZoning = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicZoning.class, xmlFileNames);
-    xmlRawNetwork = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
-    xmlRawDemand = XmlUtils.generateInstanceFromXml(XMLElementMacroscopicDemand.class, xmlFileNames);
+    xmlRawZoning = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicZoning.class, xmlFileNames);
+    xmlRawNetwork = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
+    xmlRawDemand = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicDemand.class, xmlFileNames);
     return (xmlRawZoning!=null && xmlRawNetwork!=null && xmlRawDemand!=null);
   }
 
@@ -573,7 +573,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   public static boolean validateXmlInputFile(final File xmlFileLocation, final String schemaFileLocation) {
     try {
-      XmlUtils.validateXml(xmlFileLocation, schemaFileLocation);
+      JAXBUtils.validateXml(xmlFileLocation, schemaFileLocation);
       return true;
     } catch (final Exception e) {
       LOGGER.info(e.getMessage());
