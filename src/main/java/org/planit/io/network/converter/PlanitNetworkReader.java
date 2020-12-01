@@ -35,7 +35,7 @@ public class PlanitNetworkReader implements NetworkReader {
   /**
    * Default external Id value for link segment types when none are specified
    */
-  private static final long DEFAULT_LINKSEGMENTTYPE_EXTERNAL_ID = 1;  
+  private static final String DEFAULT_LINKSEGMENTTYPE_XML_ID = "1";  
     
   /** object to extract PLANit network from once file is parsed */
   private XMLElementMacroscopicNetwork xmlRawNetwork;          
@@ -81,7 +81,7 @@ public class PlanitNetworkReader implements NetworkReader {
       xmlRawNetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
       XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
       xmlLinkSegmentType.setName("");
-      xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_LINKSEGMENTTYPE_EXTERNAL_ID));
+      xmlLinkSegmentType.setId(DEFAULT_LINKSEGMENTTYPE_XML_ID);
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
       xmlLinkSegmentType.setMaxdensitylane(LinkSegment.MAXIMUM_DENSITY);
       xmlRawNetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
@@ -145,13 +145,13 @@ public class PlanitNetworkReader implements NetworkReader {
       XmlMacroscopicNetworkHelper physicalNetworkHelper = new XmlMacroscopicNetworkHelper(xmlRawNetwork, network, settings);
       
       /* parse modes*/
-      Map<Long, Mode> modesByExternalId = physicalNetworkHelper.createAndRegisterModes();
+      Map<String, Mode> modesByXmlId = physicalNetworkHelper.createAndRegisterModes();
       
       /* parse nodes */
-      Map<Long, Node> nodesByExternalId = physicalNetworkHelper.createAndRegisterNodes();      
+      Map<String, Node> nodesByXmlId = physicalNetworkHelper.createAndRegisterNodes();      
            
       /* parse links, link segments, and link segment types  (implementation requires refactoring)*/
-      physicalNetworkHelper.createAndRegisterLinkAndLinkSegments(modesByExternalId, nodesByExternalId);
+      physicalNetworkHelper.createAndRegisterLinkAndLinkSegments(modesByXmlId, nodesByXmlId);
       
     } catch (PlanItException e) {
       throw e;

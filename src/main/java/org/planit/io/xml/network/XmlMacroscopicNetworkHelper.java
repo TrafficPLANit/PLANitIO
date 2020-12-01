@@ -42,13 +42,11 @@ import org.planit.xml.generated.XMLElementLinkConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;
 import org.planit.xml.generated.XMLElementLinkSegment;
 import org.planit.xml.generated.XMLElementLinkSegmentType;
-import org.planit.xml.generated.XMLElementLinkSegmentTypes;
 import org.planit.xml.generated.XMLElementLinks;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementModes;
 import org.planit.xml.generated.XMLElementNodes;
 
-import net.opengis.gml.AbstractGMLType;
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
@@ -177,30 +175,6 @@ public class XmlMacroscopicNetworkHelper {
     }
     return initLength;
   }
-
-  /**
-   * Registers a new link segment in the physical network
-   * 
-   * @param maxSpeedKmH the value of the {@code <maxspeed>} element within the {@code <linksegment>} element in the
-   *          input file, null if this element omitted for this link segment
-   * @param link the link from which the link segment will be created
-   * @param abDirection direction of travel
-   * @param noLanes the number of lanes in this link
-   * @param externalId the external Id of this link segment
-   * @throws PlanItException thrown if there is an error
-   */
-  protected MacroscopicLinkSegment createAndRegisterLinkSegment(
-      double maxSpeedKmH, Link link, boolean abDirection, int noLanes, String externalId) throws PlanItException {
-    
-    // create the link and store it in the network object
-    MacroscopicLinkSegment linkSegment = network.linkSegments.registerNew(link, abDirection, true /* register on nodes and link*/);
-        
-    linkSegment.setPhysicalSpeedLimitKmH(maxSpeedKmH);    
-    linkSegment.setNumberOfLanes(noLanes);
-    linkSegment.setExternalId(externalId); 
-    
-    return linkSegment;    
-  }  
   
   /**
    * parse the geometry from the xml link
@@ -229,7 +203,7 @@ public class XmlMacroscopicNetworkHelper {
    * @param xmlMode to extract from if available (otherwise use defaults)
    * @param thePlanitMode properties relate to
    */
-  protected void populateLinkSegmentTypeModeProperties(MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper, long linkSegmentTypeXmlId, Accessmode xmlMode,
+  protected void populateLinkSegmentTypeModeProperties(MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper, String linkSegmentTypeXmlId, Accessmode xmlMode,
       Mode thePlanitMode) {
     
     double maxSpeed = thePlanitMode.getMaximumSpeedKmH();
@@ -259,46 +233,49 @@ public class XmlMacroscopicNetworkHelper {
    * @return Map containing link type values identified by their external Ids
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected Map<Long, MacroscopicLinkSegmentTypeXmlHelper> populateLinkSegmentTypeHelperMap(Map<Long, Mode> modesByXmlId) throws PlanItException {       
+  protected Map<String, MacroscopicLinkSegmentTypeXmlHelper> populateLinkSegmentTypeHelperMap(Map<String, Mode> modesByXmlId) throws PlanItException {       
     MacroscopicLinkSegmentTypeXmlHelper.reset();
     
-    Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeXmlHelperMap = new HashMap<Long, MacroscopicLinkSegmentTypeXmlHelper>();
+    Map<String, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeXmlHelperMap = new HashMap<String, MacroscopicLinkSegmentTypeXmlHelper>();
     XMLElementLinkConfiguration linkconfiguration = xmlRawNetwork.getLinkconfiguration();
     List<XMLElementLinkSegmentType> xmlLinkSegmentTypes = linkconfiguration.getLinksegmenttypes().getLinksegmenttype();    
     for(XMLElementLinkSegmentType generatedLinkSegmentType : xmlLinkSegmentTypes) {
-      long linkSegmentTypeXmlId = generatedLinkSegmentType.getId().longValue();
-      if (linkSegmentTypeXmlHelperMap.containsKey(linkSegmentTypeXmlId) && settings.isErrorIfDuplicateXmlId()) {
-        String errorMessage = "Duplicate link segment type external id " + linkSegmentTypeXmlId + " found in network file.";
+      
+      /* xml id */
+      String xmlId = generatedLinkSegmentType.getId();      
+      if (linkSegmentTypeXmlHelperMap.containsKey(xmlId) && settings.isErrorIfDuplicateXmlId()) {
+        String errorMessage = "Duplicate link segment type external id " + xmlId + " found in network file.";
         throw new PlanItException(errorMessage);
       }
+      
+      /* external id */
+      String externalId = null;
+      if(generatedLinkSegmentType.getExternalid() != null && !generatedLinkSegmentType.getExternalid().isBlank()) {
+        externalId = generatedLinkSegmentType.getExternalid();
+      }        
       
       /* name */
       String name = generatedLinkSegmentType.getName();
       /* capacity */
       double capacity = (generatedLinkSegmentType.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : generatedLinkSegmentType.getCapacitylane();
       /* max density */
-      double maximumDensity = (generatedLinkSegmentType.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : generatedLinkSegmentType.getMaxdensitylane();
-      /* external id */
-      String externalId = String.valueOf(generatedLinkSegmentType.getId());
-      if(generatedLinkSegmentType.getExternalid() != null && !generatedLinkSegmentType.getExternalid().isBlank()) {
-        externalId = generatedLinkSegmentType.getExternalid();
-      }       
+      double maximumDensity = (generatedLinkSegmentType.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : generatedLinkSegmentType.getMaxdensitylane();    
       
-      MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name,capacity, maximumDensity, externalId);
-      linkSegmentTypeXmlHelperMap.put(linkSegmentTypeXmlId, linkSegmentTypeXmlHelper);      
+      MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name,capacity, maximumDensity, externalId, xmlId);
+      linkSegmentTypeXmlHelperMap.put(xmlId, linkSegmentTypeXmlHelper);      
       
       /* mode properties, only set when allowed, otherwise not */
       Collection<Mode> thePlanitModes = new HashSet<org.planit.utils.mode.Mode>();      
       List<Accessmode> xmlModes = generatedLinkSegmentType.getAccess().getMode();      
       if(generatedLinkSegmentType.getAccess() != null) {
         for (Accessmode xmlMode : xmlModes) {        
-          Long modeXmlRefId = xmlMode.getRef().longValue();
+          String modeXmlRefId = xmlMode.getRef();
 
           Mode thePlanitMode = modesByXmlId.get(modeXmlRefId);
           PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%d) does not exist in PLANit parser",modeXmlRefId));
           
           /* mode properties */
-          populateLinkSegmentTypeModeProperties(linkSegmentTypeXmlHelper, linkSegmentTypeXmlId, xmlMode, thePlanitMode);
+          populateLinkSegmentTypeModeProperties(linkSegmentTypeXmlHelper, xmlId, xmlMode, thePlanitMode);
           
           thePlanitModes.add(thePlanitMode);                                    
         }          
@@ -306,7 +283,7 @@ public class XmlMacroscopicNetworkHelper {
         /* all ROAD modes allowed */
         thePlanitModes = modesByXmlId.values().stream().filter( 
             mode -> mode.getPhysicalFeatures().getTrackType() == TrackModeType.ROAD).collect(Collectors.toSet());
-        thePlanitModes.forEach( planitMode -> populateLinkSegmentTypeModeProperties(linkSegmentTypeXmlHelper, linkSegmentTypeXmlId, null, planitMode));
+        thePlanitModes.forEach( planitMode -> populateLinkSegmentTypeModeProperties(linkSegmentTypeXmlHelper, xmlId, null, planitMode));
       }
     }
     return linkSegmentTypeXmlHelperMap;
@@ -332,58 +309,61 @@ public class XmlMacroscopicNetworkHelper {
   }
  
   /**
-   * Reads mode types from input file, register them on the network and also populate mapping based on external ids
+   * Reads mode types from input file, register them on the network and also populate mapping based on XML ids
    * 
-   * @return map with modesByExternalId 
+   * @return map with modesByXmlId 
    * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
    */
-  public Map<Long, Mode> createAndRegisterModes() throws PlanItException {
+  public Map<String, Mode> createAndRegisterModes() throws PlanItException {
 
     /* populate if referenced later on by xml id */
     if(settings.getMapToIndexModeByXmlIds()==null) {
-      settings.setMapToIndexModeByXmlIds(new HashMap<Long, Mode>());
+      settings.setMapToIndexModeByXmlIds(new HashMap<String, Mode>());
     }
-    Map<Long, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
+    Map<String, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
     
     final XMLElementLinkConfiguration linkconfiguration = xmlRawNetwork.getLinkconfiguration();    
-    for (XMLElementModes.Mode generatedMode : linkconfiguration.getModes().getMode()) {      
+    for (XMLElementModes.Mode xmlMode : linkconfiguration.getModes().getMode()) {      
       /* name, generate unique name if undefined */
-      String name = generatedMode.getName();
+      String name = xmlMode.getName();
       if(name==null) {
         name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.modes.size()));
       }
-      
-      /* external id: = xmlId, unless explicitly set */
-      String externalId = String.valueOf(generatedMode.getId());
-      if(generatedMode.getExternalid() != null && !generatedMode.getExternalid().isBlank()) {
-        externalId = generatedMode.getExternalid();
-      }
-     
+           
       PredefinedModeType modeType = PredefinedModeType.create(name);      
-      if(!generatedMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
-        LOGGER.warning(String.format("mode %s is not registered as predefined mode but name corresponds to PLANit predefined mode, reverting to PLANit predefined mode",generatedMode.getName()));
+      if(!xmlMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
+        LOGGER.warning(String.format("mode %s is not registered as predefined mode but name corresponds to PLANit predefined mode, reverting to PLANit predefined mode",xmlMode.getName()));
       }
       
       Mode mode = null;
       if(modeType != PredefinedModeType.CUSTOM) {
         /* predefined mode use factory, ignore other attributes (if any) */
         mode = this.network.modes.registerNew(modeType);
-        mode.setExternalId(externalId);
       }else {
         
         /* custom mode, parse all components to correctly configure the custom mode */
-        double maxSpeed = generatedMode.getMaxspeed()==null ? Mode.GLOBAL_DEFAULT_MAXIMUM_SPEED_KMH : generatedMode.getMaxspeed();
-        double pcu = generatedMode.getPcu()==null ? Mode.GLOBAL_DEFAULT_PCU : generatedMode.getPcu();
+        double maxSpeed = xmlMode.getMaxspeed()==null ? Mode.GLOBAL_DEFAULT_MAXIMUM_SPEED_KMH : xmlMode.getMaxspeed();
+        double pcu = xmlMode.getPcu()==null ? Mode.GLOBAL_DEFAULT_PCU : xmlMode.getPcu();
         
-        PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(generatedMode);
-        UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(generatedMode);        
+        PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(xmlMode);
+        UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(xmlMode);        
                 
-        mode = this.network.modes.registerNewCustomMode(externalId, name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
+        mode = this.network.modes.registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
+      }     
+      
+      /* xml id */
+      if(xmlMode.getId() != null && !xmlMode.getId().isBlank()) {
+        mode.setXmlId(xmlMode.getId());
+      }
+      
+      /* external id*/
+      if(xmlMode.getExternalid() != null && !xmlMode.getExternalid().isBlank()) {
+        mode.setExternalId(xmlMode.getExternalid());
       }      
       
-      final Mode prevValue = modesByXmlId.put(generatedMode.getId().longValue(), mode);
+      final Mode prevValue = modesByXmlId.put(mode.getXmlId(), mode);
       if (prevValue!=null && settings.isErrorIfDuplicateXmlId()) {
-        String errorMessage = "duplicate mode xml id " + generatedMode.getId().longValue() + " found in network file.";
+        String errorMessage = "duplicate mode xml id " + mode.getXmlId() + " found in network file.";
         throw new PlanItException(errorMessage);
       }
     }
@@ -397,33 +377,37 @@ public class XmlMacroscopicNetworkHelper {
    * return nodesByExternalIdToPopulate map for reference
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
-  public Map<Long, Node> createAndRegisterNodes() throws PlanItException {
+  public Map<String, Node> createAndRegisterNodes() throws PlanItException {
     if(settings.getMapToIndexNodeByXmlIds()==null) {
-      settings.setMapToIndexModeByXmlIds(new HashMap<Long, Mode>());
+      settings.setMapToIndexNodeByXmlIds(new HashMap<String, Node>());
     }
-    Map<Long, Node>  nodesByXmlId = settings.getMapToIndexNodeByXmlIds();    
+    Map<String, Node>  nodesByXmlId = settings.getMapToIndexNodeByXmlIds();    
     
     XMLElementInfrastructure infrastructure = xmlRawNetwork.getInfrastructure();    
-    for (XMLElementNodes.Node generatedNode : infrastructure.getNodes().getNode()) {
+    for (XMLElementNodes.Node xmlNode : infrastructure.getNodes().getNode()) {
 
       Node node = network.nodes.registerNew();
-
-      /* external id: = xmlId, unless explicitly set */
-      String externalId = String.valueOf(generatedNode.getId());
-      if(generatedNode.getExternalid() != null && !generatedNode.getExternalid().isBlank()) {
-        externalId = generatedNode.getExternalid();
-      }
-      node.setExternalId(externalId);      
       
-      PointType pointType = generatedNode.getPoint();
+      /* xml id */
+      if(xmlNode.getId() != null && !xmlNode.getId().isBlank()) {
+        node.setXmlId(xmlNode.getId());
+      }
+
+      /* external id */
+      if(xmlNode.getExternalid() != null && !xmlNode.getExternalid().isBlank()) {
+        node.setExternalId(xmlNode.getExternalid());
+      }
+            
+      
+      PointType pointType = xmlNode.getPoint();
       if (pointType != null) {
         List<Double> posValues = pointType.getPos().getValue();
         Point centrePointGeometry = PlanitJtsUtils.createPoint(posValues.get(0), posValues.get(1));
         node.setPosition(centrePointGeometry);
       }
-      final Node prevValue = nodesByXmlId.put(generatedNode.getId().longValue(), node);
+      final Node prevValue = nodesByXmlId.put(node.getXmlId(), node);
       PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(),
-          "Duplicate node external id " + generatedNode.getId().longValue() + " found in network file");
+          "Duplicate node external id " + node.getXmlId() + " found in network file");
     }
     return nodesByXmlId;
   }  
@@ -435,95 +419,107 @@ public class XmlMacroscopicNetworkHelper {
    * 
    * @throws PlanItException thrown if there is an error during processing or reference to link segment types invalid
    */
-  public void createAndRegisterLinkAndLinkSegments(Map<Long, Mode> modesByXmlId, Map<Long, Node> nodesByXmlId) throws PlanItException {
+  public void createAndRegisterLinkAndLinkSegments(Map<String, Mode> modesByXmlId, Map<String, Node> nodesByXmlId) throws PlanItException {
     //TODO REFACTOR THIS, it is a disaster how this method is implemented
     
     /* link segment xml id map to populate */
     if(settings.getMapToIndexLinkSegmentByXmlIds()==null) {
-      settings.setMapToIndexLinkSegmentByXmlIds(new HashMap<Long, MacroscopicLinkSegment>());
+      settings.setMapToIndexLinkSegmentByXmlIds(new HashMap<String, MacroscopicLinkSegment>());
     }
-    Map<Long, MacroscopicLinkSegment> linkSegmentsByXmlId = settings.getMapToIndexLinkSegmentByXmlIds();
+    Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId = settings.getMapToIndexLinkSegmentByXmlIds();
     
     /* link segment type xml id map to populate */
     if(settings.getMapToIndexLinkSegmentTypeByXmlIds()==null) {
-      settings.setMapToIndexLinkSegmentTypeByXmlIds(new HashMap<Long, MacroscopicLinkSegmentType>());
+      settings.setMapToIndexLinkSegmentTypeByXmlIds(new HashMap<String, MacroscopicLinkSegmentType>());
     }
-    Map<Long, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId = settings.getMapToIndexLinkSegmentTypeByXmlIds();    
+    Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId = settings.getMapToIndexLinkSegmentTypeByXmlIds();    
     
     /* parse link segment types and put findings in helper --> TODO: refactor, do not use helper */
-    final Map<Long, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelperMap = populateLinkSegmentTypeHelperMap(modesByXmlId);    
+    final Map<String, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeHelpersByXmlId = populateLinkSegmentTypeHelperMap(modesByXmlId);    
 
     XMLElementInfrastructure infrastructure = xmlRawNetwork.getInfrastructure();
-    for (XMLElementLinks.Link generatedLink : infrastructure.getLinks().getLink()) {
+    for (XMLElementLinks.Link xmlLink : infrastructure.getLinks().getLink()) {
       
       /** LINK **/
       Link link = null;
       {
-        Node startNode = nodesByXmlId.get(generatedLink.getNodearef().longValue());
-        Node endNode = nodesByXmlId.get(generatedLink.getNodebref().longValue());
+        Node startNode = nodesByXmlId.get(xmlLink.getNodearef());
+        Node endNode = nodesByXmlId.get(xmlLink.getNodebref());
         double length = Double.MIN_VALUE;
-        length = getLengthFromLineString(length, generatedLink);
-        length = getLengthFromLength(length, generatedLink);
+        length = getLengthFromLineString(length, xmlLink);
+        length = getLengthFromLength(length, xmlLink);
         if (length == Double.MIN_VALUE) {
           throw new PlanItException(
               "Error in network XML file: Must define either a length or GML LineString for link from node "
-                  + generatedLink.getNodearef().longValue() + " to node " + generatedLink.getNodebref().longValue());
+                  + xmlLink.getNodearef() + " to node " + xmlLink.getNodebref());
         }      
         link = network.links.registerNew(startNode, endNode, length);
-        LineString theLineString = parseLinkGeometry(generatedLink);
+        
+        /* geometry */
+        LineString theLineString = parseLinkGeometry(xmlLink);
         link.setGeometry(theLineString);
         
+        /* xml id */
+        if(xmlLink.getId() != null && !xmlLink.getId().isBlank()) {
+          link.setXmlId(xmlLink.getId());
+        }         
+        
         /* external id */
-        String externalId = String.valueOf(generatedLink.getId());
-        if(generatedLink.getExternalid() != null && !generatedLink.getExternalid().isBlank()) {
-          externalId = generatedLink.getExternalid();
+        if(xmlLink.getExternalid() != null && !xmlLink.getExternalid().isBlank()) {
+          link.setExternalId(xmlLink.getExternalid());
         } 
-        link.setExternalId(externalId);        
       }      
       /** end LINK **/
       
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
-      for (XMLElementLinkSegment generatedLinkSegment : generatedLink.getLinksegment()) {
-        /** LINK SEGMENT **/
-        int noLanes = (generatedLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES : generatedLinkSegment.getNumberoflanes().intValue();
-        long linkTypeXmlId = 0;
-        if (generatedLinkSegment.getTyperef() == null) {
-          if (linkSegmentTypeHelperMap.keySet().size() > 1) {
-            String errorMessage = "Link Segment " + generatedLinkSegment.getId() + " has no link segment defined, but there is more than one possible link segment type";
-            throw new PlanItException(errorMessage);
-          }
-          for (long linkSegmentTypeXmlId : linkSegmentTypeHelperMap.keySet()) {
-            /* should only have a single entry, ugly --> refactor */
-            linkTypeXmlId = linkSegmentTypeXmlId;
-          }
-        } else {
-          linkTypeXmlId = generatedLinkSegment.getTyperef().longValue();
-        }
-        
-        double maxSpeed = (generatedLinkSegment.getMaxspeed() == null) ? Double.POSITIVE_INFINITY : generatedLinkSegment.getMaxspeed(); 
-        MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = linkSegmentTypeHelperMap.get(linkTypeXmlId);
+      
+      /** LINK SEGMENT **/
+      for (XMLElementLinkSegment xmlLinkSegment : xmlLink.getLinksegment()) {
+                                
         // TODO - We should be able to set the maximum speed for individual link
         // segments in the network XML file. This is where we would update it. However
         // we would then need to set it for
-        // every mode. We need to change the XSD file to specify how to do this.
-
-        boolean abDirection = generatedLinkSegment.getDir().equals(Direction.A_B);
+        // every mode. We need to change the XSD file to specify how to do this.        
+                        
+        
+        /* direction */
+        boolean abDirection = xmlLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
-            String errorMessage =  "Both link segments for the same link are in the same direction.  Link segment external Id is " + generatedLinkSegment.getId();
+            String errorMessage =  "Both link segments for the same link are in the same direction.  Link segment external Id is " + xmlLinkSegment.getId();
             throw new PlanItException(errorMessage);
           }
-        }
+        }        
+
+        MacroscopicLinkSegment linkSegment = network.linkSegments.registerNew(link, abDirection, true /* register on nodes and link*/);
+        
+        /* xml id */
+        String linkTypeXmlId = null;
+        if (xmlLinkSegment.getTyperef() == null) {
+          if (linkSegmentTypeHelpersByXmlId.keySet().size() > 1) {
+            String errorMessage = "Link Segment " + xmlLinkSegment.getId() + " has no link segment defined, but there is more than one possible link segment type";
+            throw new PlanItException(errorMessage);
+          }
+          linkTypeXmlId = linkSegmentTypeHelpersByXmlId.keySet().iterator().next();
+        } else {
+          linkTypeXmlId = xmlLinkSegment.getTyperef();
+        }       
         
         /* external id */
-        String externalId = String.valueOf(generatedLinkSegment.getId());
-        if(generatedLinkSegment.getExternalid() != null && !generatedLinkSegment.getExternalid().isBlank()) {
-          externalId = generatedLinkSegment.getExternalid();
-        }     
-
-        MacroscopicLinkSegment linkSegment = createAndRegisterLinkSegment(maxSpeed, link, abDirection, noLanes, externalId);
+        if(xmlLinkSegment.getExternalid() != null && !xmlLinkSegment.getExternalid().isBlank()) {
+          linkSegment.setExternalId(xmlLinkSegment.getExternalid());
+        }         
         
+        /* max speed */
+        double maxSpeed = (xmlLinkSegment.getMaxspeed() == null) ? Double.POSITIVE_INFINITY : xmlLinkSegment.getMaxspeed();        
+        linkSegment.setPhysicalSpeedLimitKmH(maxSpeed);
+        
+        /* lanes */
+        int noLanes = (xmlLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES : xmlLinkSegment.getNumberoflanes().intValue();        
+        linkSegment.setNumberOfLanes(noLanes);                              
+        
+        MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = linkSegmentTypeHelpersByXmlId.get(linkTypeXmlId);        
         Map<Mode, MacroscopicModeProperties> modeProperties = linkSegmentTypeXmlHelper.getModePropertiesMap();    
         MacroscopicLinkSegmentType existingLinkSegmentType = linkSegmentTypesByXmlId.get(linkTypeXmlId);
         if (existingLinkSegmentType == null) {
@@ -531,9 +527,12 @@ public class XmlMacroscopicNetworkHelper {
               network.linkSegmentTypes.createAndRegisterNew(
                   linkSegmentTypeXmlHelper.getName(), 
                   linkSegmentTypeXmlHelper.getCapacityPerLane(),
-                  linkSegmentTypeXmlHelper.getMaximumDensityPerLane(), 
-                  linkSegmentTypeXmlHelper.getExternalId(), 
+                  linkSegmentTypeXmlHelper.getMaximumDensityPerLane(),  
                   modeProperties);
+          /* link segment type xml id */
+          existingLinkSegmentType.setXmlId(linkSegmentTypeXmlHelper.getXmlId());          
+          /* link segment type external id */
+          existingLinkSegmentType.setExternalId(linkSegmentTypeXmlHelper.getExternalId());
                 
           if (existingLinkSegmentType.getExternalId() != null) {
             MacroscopicLinkSegmentType prevValue = linkSegmentTypesByXmlId.put(linkTypeXmlId, existingLinkSegmentType);
@@ -543,16 +542,14 @@ public class XmlMacroscopicNetworkHelper {
         }
         linkSegment.setLinkSegmentType(existingLinkSegmentType);    
 
-        if (linkSegment.getExternalId() != null) {
-          final MacroscopicLinkSegment prevValue = linkSegmentsByXmlId.put(generatedLinkSegment.getId().longValue(), linkSegment);
-          PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(), 
-              "Duplicate link segment xml id " + linkSegment.getExternalId() + " found in network file");
-        } 
-        /** end LINK SEGMENT **/
+        final MacroscopicLinkSegment prevValue = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
+        PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(), 
+            "Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network file");
         
         isFirstLinkSegment = false;
         firstLinkDirection = abDirection;        
       }
+      /** end LINK SEGMENT **/      
     }
   }  
 

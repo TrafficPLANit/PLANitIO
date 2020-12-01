@@ -212,7 +212,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    * 
    * @return List of all registered time periods
    */
-  public List<Long> getTimePeriodXmlIds() {
+  public List<String> getTimePeriodXmlIds() {
     return inputBuilderListener.getTimePeriodXmlIds();
   }
 

@@ -292,8 +292,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     outputconfiguration.setGapfunction(outputAdapter.getGapFunctionClassName());
     outputconfiguration.setStopcriterion(outputAdapter.getStopCriterionClassName());
     XMLElementOutputTimePeriod xmlTimePeriod = new XMLElementOutputTimePeriod();
-    long externalId = (long) timePeriod.getExternalId();
-    xmlTimePeriod.setId(BigInteger.valueOf(externalId));
+    xmlTimePeriod.setId(timePeriod.getXmlId());
     xmlTimePeriod.setName(timePeriod.getDescription());
     outputconfiguration.setTimeperiod(xmlTimePeriod);
     return outputconfiguration;
@@ -439,7 +438,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     try {
       OutputType outputType = outputTypeConfiguration.getOutputType();
       boolean isNewTimePeriod = ((!metadata.containsKey(currentOutputType)) || (metadata.get(currentOutputType)
-          .getOutputconfiguration().getTimeperiod().getId().longValue() != timePeriod.getId()));
+          .getOutputconfiguration().getTimeperiod().getId() != timePeriod.getXmlId()));
       if (isNewTimePeriod) {
         if (metadata.containsKey(currentOutputType)) {
           JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,

@@ -25,9 +25,14 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
   private static Map<Object, MacroscopicLinkSegmentTypeXmlHelper> existingLinkTypeHelpers;  
 
   /**
-   * External reference number of link type
+   * External id number of link type
    */
-  private Object externalId;
+  private String externalId;
+  
+  /**
+   * xml reference id of link type
+   */
+  private String xmlId;  
 
   /**
    * Name of link type
@@ -48,7 +53,15 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * Link Segment Mode Properties (maximum speed and critical speed) for each mode
    */
   private Map<Mode, MacroscopicModeProperties> macroscopicLinkSegmentTypeModeProperties;
+
   
+  protected void setCapacityPerLane(double capacityPerLane) {
+    this.capacityPerLane = capacityPerLane;
+  }
+  
+  protected void setMaximumDensityPerLane(double maximumDensityPerLane) {
+    this.maximumDensityPerLane = maximumDensityPerLane;
+  }    
 
   /**
    * Update an existing MacroscopicLinkSegmentTypeXmlHelper
@@ -88,9 +101,10 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * @param capacityPerLane capacity per lane
    * @param maximumDensityPerLane maximum density per lane
    * @param externalId external Id of the link segment type
+   * @param xmlId external Id of the link segment type
    */
   public MacroscopicLinkSegmentTypeXmlHelper(
-      String name, double capacityPerLane, double maximumDensityPerLane, String externalId) {
+      String name, double capacityPerLane, double maximumDensityPerLane, String externalId, String xmlId) {
     
     this.name = name;
     if (capacityPerLane == 0.0) {
@@ -100,6 +114,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
     this.capacityPerLane = capacityPerLane;
     this.maximumDensityPerLane = maximumDensityPerLane;
     this.externalId = externalId;
+    this.xmlId = xmlId;
     macroscopicLinkSegmentTypeModeProperties = new HashMap<Mode, MacroscopicModeProperties>();        
     
     /* check for duplication, log issues */
@@ -132,24 +147,21 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
     return capacityPerLane;
   }
 
-  public void setCapacityPerLane(double capacityPerLane) {
-    this.capacityPerLane = capacityPerLane;
-  }
 
   public double getMaximumDensityPerLane() {
     return maximumDensityPerLane;
   }
 
-  public void setMaximumDensityPerLane(double maximumDensityPerLane) {
-    this.maximumDensityPerLane = maximumDensityPerLane;
-  }
-
-  public Object getExternalId() {
+  public String getExternalId() {
     return externalId;
   }
 
   public Map<Mode, MacroscopicModeProperties> getModePropertiesMap() {
     return macroscopicLinkSegmentTypeModeProperties;
+  }
+
+  public String getXmlId() {
+    return xmlId;
   }
 
 }

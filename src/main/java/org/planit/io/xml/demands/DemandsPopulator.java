@@ -66,7 +66,7 @@ public class DemandsPopulator {
       final InputBuilderListener inputBuilderListener) throws PlanItException {
     Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode =
         new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
-    for (final Entry<Long, Mode> modeEntry : inputBuilderListener.getAllModesByXmlId().entrySet()) {
+    for (final Entry<String, Mode> modeEntry : inputBuilderListener.getAllModesByXmlId().entrySet()) {
       final Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
       for (final TimePeriod timePeriod : demands.timePeriods.asSortedSetByStartTime()) {
         demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
@@ -79,66 +79,54 @@ public class DemandsPopulator {
   /**
    * Update the demand matrix object from a generated OD matrix
    *
-   * @param odmatrix XMLElementOdMatrix object generated from the input XML
+   * @param xmlOdMatrix XMLElementOdMatrix object generated from the input XML
    * @param pcu number of PCUs for current mode of travel
    * @param odDemandMatrix ODDemandMatrix object to be updated
+   * @param zones to collect zone instances from when needed
    * @param inputBuilderListener InputBuilderListener containing zones by external Id
    * @throws Exception thrown if there is an error during processing
    */
-  private static void updateDemandMatrixFromOdMatrix(final XMLElementOdMatrix odmatrix, final double pcu,
-      ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) throws Exception {
-    if (odmatrix instanceof XMLElementOdCellByCellMatrix) {
-      updateDemandMatrixFromCellByCellMatrix((XMLElementOdCellByCellMatrix) odmatrix, pcu, odDemandMatrix,
-          inputBuilderListener);
-    } else if (odmatrix instanceof XMLElementOdRowMatrix) {
-      updateDemandMatrixFromOdRowMatrix((XMLElementOdRowMatrix) odmatrix, pcu, odDemandMatrix, inputBuilderListener);
-    } else if (odmatrix instanceof XMLElementOdRawMatrix) {
-      updateDemandMatrixFromOdRawMatrix((XMLElementOdRawMatrix) odmatrix, pcu, odDemandMatrix, inputBuilderListener);
+  private static void populateDemandMatrix(final XMLElementOdMatrix xmlOdMatrix, final double pcu,
+      ODDemandMatrix odDemandMatrix, Zones zones, final InputBuilderListener inputBuilderListener) throws Exception {
+    
+    if (xmlOdMatrix instanceof XMLElementOdCellByCellMatrix) {
+      
+      /* cell-by-cell matrix */
+      final List<XMLElementOdCellByCellMatrix.O> o = ((XMLElementOdCellByCellMatrix) xmlOdMatrix).getO();
+      for (final XMLElementOdCellByCellMatrix.O xmlOriginZone : o) {
+        final Zone originZone = inputBuilderListener.getZoneByXmlId(xmlOriginZone.getRef());        
+        for (final XMLElementOdCellByCellMatrix.O.D xmlDestinationZone : xmlOriginZone.getD()) {
+          final Zone destinationZone = inputBuilderListener.getZoneByXmlId(xmlDestinationZone.getRef());
+          final double demand = xmlDestinationZone.getValue() * pcu;
+          odDemandMatrix.setValue(originZone, destinationZone, demand);                    
+        }        
+      }      
+    } else if (xmlOdMatrix instanceof XMLElementOdRowMatrix) {
+      
+      /* od row matrix */
+      XMLElementOdRowMatrix xmlOdRowMatrix = ((XMLElementOdRowMatrix) xmlOdMatrix);      
+      String separator = (xmlOdRowMatrix.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlOdRowMatrix.getDs();
+      separator = escapeSeparator(separator);
+      final List<XMLElementOdRowMatrix.Odrow> xmlOdRow = xmlOdRowMatrix.getOdrow();
+      for (final XMLElementOdRowMatrix.Odrow xmlOriginZone : xmlOdRow) {
+        final Zone originZone = inputBuilderListener.getZoneByXmlId(xmlOriginZone.getRef());
+        final String[] rowValuesAsString = xmlOriginZone.getValue().split(separator);
+        for (int i = 0; i < rowValuesAsString.length; i++) {
+          /* use internal id's, i.e. order of appearance of the zone elements in XML is used */ 
+          final Zone destinationZone = zones.getZoneById(i);
+          final double demand = Double.parseDouble(rowValuesAsString[i]) * pcu;
+          odDemandMatrix.setValue(originZone, destinationZone, demand);          
+        }
+      }      
+      
+    } else if (xmlOdMatrix instanceof XMLElementOdRawMatrix) {
+      
+      //TODO: continue here, remove methods called and instead put in this method similar to above
+      //      remove the methods called afterwards
+      updateDemandMatrixFromOdRawMatrix((XMLElementOdRawMatrix) xmlOdMatrix, pcu, odDemandMatrix, inputBuilderListener);
     }
-  }
-
-  /**
-   * Update the demand matrix object from a generated cell by cell matrix
-   *
-   * @param odcellbycellmatrix XMLElementOdCellByCellMatrix object generated from the input
-   *          XML
-   * @param pcu number of PCUs for current mode of travel
-   * @param odDemandMatrix ODDemandMatrix object to be updated
-   * @param inputBuilderListener InputBuilderListener containing zones by external Id
-   */
-  private static void updateDemandMatrixFromCellByCellMatrix(final XMLElementOdCellByCellMatrix odcellbycellmatrix,
-      final double pcu, ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) {
-    final List<XMLElementOdCellByCellMatrix.O> o = odcellbycellmatrix.getO();
-    for (final XMLElementOdCellByCellMatrix.O originZone : o) {
-      final List<XMLElementOdCellByCellMatrix.O.D> d = originZone.getD();
-      for (final XMLElementOdCellByCellMatrix.O.D demandZone : d) {
-        updateDemandMatrix(odDemandMatrix, originZone.getRef().intValue(), demandZone.getRef().intValue(), pcu,
-            demandZone.getValue(), inputBuilderListener);
-      }
-    }
-  }
-
-  /**
-   * Update the demand matrix object from a generated OD row matrix
-   *
-   * @param odrowmatrix XMLElementOdRowMatrix object generated from the input XML
-   * @param pcu number of PCUs for current mode of travel
-   * @param odDemandMatrix ODDemandMatrix object to be updated
-   * @param inputBuilderListener InputBuilderListener containing zones by external Id
-   */
-  private static void updateDemandMatrixFromOdRowMatrix(final XMLElementOdRowMatrix odrowmatrix, final double pcu,
-      ODDemandMatrix odDemandMatrix, final InputBuilderListener inputBuilderListener) {
-    String separator = (odrowmatrix.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR
-        : odrowmatrix.getDs();
-    separator = escapeSeparator(separator);
-    final List<XMLElementOdRowMatrix.Odrow> odrow = odrowmatrix.getOdrow();
-    for (final XMLElementOdRowMatrix.Odrow originZone : odrow) {
-      final String[] rowValuesAsString = originZone.getValue().split(separator);
-      for (int i = 0; i < rowValuesAsString.length; i++) {
-        updateDemandMatrix(odDemandMatrix, originZone.getRef().intValue(), i + 1, pcu,
-            Double.parseDouble(rowValuesAsString[i]), inputBuilderListener);
-      }
-    }
+    
+    
   }
 
   /**
@@ -235,21 +223,21 @@ public class DemandsPopulator {
    * column
    *
    * @param odDemandMatrix the ODDemandMatrix object to be updated
-   * @param rowRef reference to the row (origin) for the current demand value
-   * @param colRef reference to the column (destination) for the current demand value
-   * @param pcu number of PCUs for current mode of travel
+   * @param rowRef reference to the row (origin) for the current demand value by the xml id
+   * @param colRef reference to the column (destination) for the current demand value by the xml id
+   * @param pcu number of PCUs for current mode of travel 
    * @param demandValue current demand value (in PCU)
    * @param inputBuilderListener InputBuilderListener containing zones by external Id
    */
-  private static void updateDemandMatrix(ODDemandMatrix odDemandMatrix, final int rowRef, final int colRef,
+  private static void updateDemandMatrix(ODDemandMatrix odDemandMatrix, final String rowRef, final String colRef,
       final double pcu,
       final double demandValue, 
       final InputBuilderListener inputBuilderListener) {
-    final Zone originZone = inputBuilderListener.getZoneByXmlId((long) rowRef);
-    final Zone destinationZone = inputBuilderListener.getZoneByXmlId((long) colRef);
+    final Zone originZone = inputBuilderListener.getZoneByXmlId(rowRef);
+    final Zone destinationZone = inputBuilderListener.getZoneByXmlId(colRef);
     final double demand = demandValue * pcu;
     odDemandMatrix.setValue(originZone, destinationZone, demand);
-  }
+  }  
 
   /**
    * Creates a ODDemandMatrix object from a List of Odmatrix objects read in from
@@ -277,7 +265,7 @@ public class DemandsPopulator {
       final Mode mode = userClass.getMode();
       final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByXmlId(timePeriodId);
       ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
-      updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), odDemandMatrix, inputBuilderListener);
+      populateDemandMatrix(odmatrix, mode.getPcu(), odDemandMatrix, zones, inputBuilderListener);
       demands.registerODDemand(timePeriod, mode, odDemandMatrix);
     }
   }

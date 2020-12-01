@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Set;
-import java.util.function.LongFunction;
 import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
@@ -32,15 +31,12 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
-import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
-import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentIdOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
 import org.planit.output.property.OutputProperty;
-import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.FileUtils;
@@ -232,6 +228,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   @SuppressWarnings("incomplete-switch")
   private OutputProperty getLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
     boolean linkSegmentXmlIdPresent = false;
+    boolean linkSegmentExternalIdPresent = false;
     boolean linkSegmentIdPresent = false;
     boolean upstreamNodeXmlIdPresent = false;
     boolean downstreamNodeXmlIdPresent = false;
@@ -243,6 +240,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
         case LINK_SEGMENT_XML_ID:
           linkSegmentXmlIdPresent = true;
           break;
+        case LINK_SEGMENT_EXTERNAL_ID:
+          linkSegmentExternalIdPresent = true;
+          break;          
         case LINK_SEGMENT_ID:
           linkSegmentIdPresent = true;
           break;
@@ -261,11 +261,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
     PlanItException.throwIf(!costPresent, "Cost column not present in initial link segment costs file");
     PlanItException.throwIf(!modeXmlIdPresent, "Mode xml Id not present in initial link segment costs file");
-    PlanItException.throwIf(!modeXmlIdPresent, "Mode xml Id not present in initial link segment costs file");
    
     if (linkSegmentXmlIdPresent) {
       return OutputProperty.LINK_SEGMENT_XML_ID;
     }
+    if (linkSegmentExternalIdPresent) {
+      return OutputProperty.LINK_SEGMENT_EXTERNAL_ID;
+    }    
     if (linkSegmentIdPresent) {
       return OutputProperty.LINK_SEGMENT_ID;
     }
@@ -348,12 +350,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
         Zone zone = zoning.zones.createAndRegisterNewZone();
         addZoneToXmlIdMap(xmlZone.getId(), zone);
         
-        /* external id */
-        String zoneExternalId = String.valueOf(xmlZone.getId());
+        /* xml id */
+        if(xmlZone.getId() != null && xmlZone.getId().isBlank()) {
+          zone.setXmlId(xmlZone.getId());
+        }
+        
+        /* external id */        
         if(xmlZone.getExternalid() != null && !xmlZone.getExternalid().isBlank()) {
-          zoneExternalId = xmlZone.getExternalid();
+          zone.setExternalId(xmlZone.getExternalid());  
         }                  
-        zone.setExternalId(zoneExternalId);        
+      
         
         /* centroid */
         Centroid centroid = zone.getCentroid();
@@ -381,13 +387,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
           }
                     
           Connectoid theConnectoid = zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
+
+          /* xml id */
+          if(xmlConnectoid.getId() != null && xmlConnectoid.getId().isBlank()) {
+            theConnectoid.setXmlId(xmlConnectoid.getId());
+          }
           
           /* external id */
-          String connectoidExternalId = String.valueOf(xmlConnectoid.getId());
           if(xmlConnectoid.getExternalid() != null && !xmlConnectoid.getExternalid().isBlank()) {
-            connectoidExternalId = xmlConnectoid.getExternalid();
+            theConnectoid.setExternalId(xmlConnectoid.getExternalid());
           }   
-          theConnectoid.setExternalId(connectoidExternalId);
         }             
       }
     } catch (PlanItException e) {
@@ -462,7 +471,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
           case LINK_SEGMENT_XML_ID:
             final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
             linkSegment = getLinkSegmentByXmlId(xmlId);
-            break;
+            break;          
           case UPSTREAM_NODE_XML_ID:
             final Node startNode = getNodeByXmlId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
             final Node endNode = getNodeByXmlId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
