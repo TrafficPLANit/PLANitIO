@@ -37,20 +37,20 @@
 				<linksegmenttype id="1">
 					<name>Regular</name>										
 					<capacitylane>1500</capacitylane>										<!-- optional, has default -->
-					<modes>
+					<access>
 						<mode ref="1">												
 							<maxspeed>100</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
 						</mode>
-					</modes>
+					</access>
 				</linksegmenttype>
 				<linksegmenttype id="2">
 					<name>Connector</name>									
 					<capacitylane>1000</capacitylane>				
-					<modes>
+					<access>
 						<mode ref="1">												
 							<maxspeed>50</maxspeed>							
 						</mode>
-					</modes>
+					</access>
 				</linksegmenttype>
 			</linksegmenttypes>
 		</linkconfiguration>

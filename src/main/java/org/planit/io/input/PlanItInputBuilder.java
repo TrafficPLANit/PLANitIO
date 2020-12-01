@@ -3,7 +3,6 @@ package org.planit.io.input;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
-import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Set;
@@ -34,12 +33,15 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentIdOutputProperty;
-import org.planit.output.property.ModeExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
+import org.planit.output.property.ModeXmlIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
+import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.LoggingUtils;
@@ -47,6 +49,7 @@ import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.virtual.Centroid;
+import org.planit.utils.network.virtual.Connectoid;
 import org.planit.utils.network.virtual.Zone;
 
 /**
@@ -228,46 +231,46 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   @SuppressWarnings("incomplete-switch")
   private OutputProperty getLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
-    boolean linkSegmentExternalIdPresent = false;
+    boolean linkSegmentXmlIdPresent = false;
     boolean linkSegmentIdPresent = false;
-    boolean upstreamNodeExternalIdPresent = false;
-    boolean downstreamNodeExternalIdPresent = false;
-    boolean modeExternalIdPresent = false;
+    boolean upstreamNodeXmlIdPresent = false;
+    boolean downstreamNodeXmlIdPresent = false;
+    boolean modeXmlIdPresent = false;
     boolean costPresent = false;
     for (final String header : headers) {
       final OutputProperty outputProperty = OutputProperty.fromHeaderName(header);
       switch (outputProperty) {
-        case LINK_SEGMENT_EXTERNAL_ID:
-          linkSegmentExternalIdPresent = true;
+        case LINK_SEGMENT_XML_ID:
+          linkSegmentXmlIdPresent = true;
           break;
         case LINK_SEGMENT_ID:
           linkSegmentIdPresent = true;
           break;
-        case MODE_EXTERNAL_ID:
-          modeExternalIdPresent = true;
+        case MODE_XML_ID:
+          modeXmlIdPresent = true;
           break;
-        case UPSTREAM_NODE_EXTERNAL_ID:
-          upstreamNodeExternalIdPresent = true;
+        case UPSTREAM_NODE_XML_ID:
+          upstreamNodeXmlIdPresent = true;
           break;
-        case DOWNSTREAM_NODE_EXTERNAL_ID:
-          downstreamNodeExternalIdPresent = true;
+        case DOWNSTREAM_NODE_XML_ID:
+          downstreamNodeXmlIdPresent = true;
           break;
         case LINK_COST:
           costPresent = true;
       }
     }
     PlanItException.throwIf(!costPresent, "Cost column not present in initial link segment costs file");
-    PlanItException.throwIf(!modeExternalIdPresent, "Mode External Id not present in initial link segment costs file");
-    PlanItException.throwIf(!modeExternalIdPresent, "Mode External Id not present in initial link segment costs file");
+    PlanItException.throwIf(!modeXmlIdPresent, "Mode xml Id not present in initial link segment costs file");
+    PlanItException.throwIf(!modeXmlIdPresent, "Mode xml Id not present in initial link segment costs file");
    
-    if (linkSegmentExternalIdPresent) {
-      return OutputProperty.LINK_SEGMENT_EXTERNAL_ID;
+    if (linkSegmentXmlIdPresent) {
+      return OutputProperty.LINK_SEGMENT_XML_ID;
     }
     if (linkSegmentIdPresent) {
       return OutputProperty.LINK_SEGMENT_ID;
     }
-    if (upstreamNodeExternalIdPresent && downstreamNodeExternalIdPresent) {
-      return OutputProperty.UPSTREAM_NODE_EXTERNAL_ID;
+    if (upstreamNodeXmlIdPresent && downstreamNodeXmlIdPresent) {
+      return OutputProperty.UPSTREAM_NODE_XML_ID;
     }
     
     throw new PlanItException("Links not correctly identified in initial link segment costs file");
@@ -287,68 +290,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private void setInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
       final MacroscopicLinkSegment linkSegment) throws PlanItException {
     
-    final long modeExternalId = Long.parseLong(record.get(ModeExternalIdOutputProperty.NAME));
-    final Mode mode = getModeByExternalId(modeExternalId);
-    PlanItException.throwIf(mode == null, "mode external id not available in configuration");
+    final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
+    final Mode mode = getModeByXmlId(modeXmlId);
+    PlanItException.throwIf(mode == null, "mode xml id not available in configuration");
     
     final double cost = Double.parseDouble(record.get(LinkCostOutputProperty.NAME));
     initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
-  }
-
-  /**
-   * Update the initial link segment cost object using the data from the CSV input
-   * file for the current record
-   *
-   * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
-   * @param parser the CSVParser containing all CSV records
-   * @param record the current CSVRecord
-   * @param outputProperty the OutputProperty corresponding to the column to be read from
-   * @param header the header specifying the column to be read from
-   * @param findLinkSegmentFunction the function which finds the link segment for the current header
-   * @throws PlanItException thrown if no link segment is found
-   */
-  private void updateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVParser parser,
-      final CSVRecord record, final OutputProperty outputProperty, final String header,
-      final LongFunction<MacroscopicLinkSegment> findLinkSegmentFunction)
-      throws PlanItException {
-    final long id = Long.parseLong(record.get(header));
-    final MacroscopicLinkSegment linkSegment = findLinkSegmentFunction.apply(id);
-    PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment %d", id));
-    
-    setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
-  }
-
-  /**
-   * Update the initial link segment cost object using the data from the CSV input
-   * file for the current record specified by start and end node external Id
-   *
-   * @param network the physical network
-   * @param initialLinkSegmentCost the InitialLinkSegmentCost object to be updated
-   * @param parser the CSVParser containing all CSV records
-   * @param record the current CSVRecord
-   * @param startOutputProperty the OutputProperty corresponding to the column
-   *          to the start node
-   * @param endOutputProperty the OutputProperty corresponding to the column
-   *          to the end node
-   * @param startHeader the header specifying the start node column
-   * @param endHeader the header specifying the end node column
-   * @throws PlanItException thrown if there is an error during searching for the
-   *           link segment
-   */
-  private void updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(
-      final MacroscopicNetwork network,
-      final InitialLinkSegmentCost initialLinkSegmentCost, final CSVParser parser, final CSVRecord record,
-      final OutputProperty startOutputProperty, final OutputProperty endOutputProperty, final String startHeader,
-      final String endHeader)
-      throws PlanItException {
-    final long upstreamNodeExternalId = Long.parseLong(record.get(startHeader));
-    final long downstreamNodeExternalId = Long.parseLong(record.get(endHeader));
-    final long startId = getNodeByExternalId(upstreamNodeExternalId).getId();
-    final long endId = getNodeByExternalId(downstreamNodeExternalId).getId();
-    final MacroscopicLinkSegment linkSegment = network.linkSegments.getByStartAndEndNodeId(startId, endId);
-    PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment (startnode %d, endnode %d)",startId,endId));
-    
-    setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
   }
   
   /**
@@ -368,12 +315,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /* create parser and read/populate the network */
     PlanitNetworkReader reader = PlanitNetworkReaderFactory.createReader(xmlRawNetwork, network);
     /* make sure the external ids are indexed via the input builder's already present maps */
-    reader.getSettings().setUseMapToIndexLinkSegmentByExternalIds(linkSegmentExternalIdToLinkSegmentMap);
-    reader.getSettings().setUseMapToIndexLinkSegmentTypeByExternalIds(linkSegmentTypeExternalIdToLinkSegmentTypeMap);
-    reader.getSettings().setUseMapToIndexModeByExternalIds(modeExternalIdToModeMap);
-    reader.getSettings().setUseMapToIndexNodeByExternalIds(nodeExternalIdToNodeMap);
+    reader.getSettings().setMapToIndexLinkSegmentByXmlIds(xmlIdLinkSegmentMap);
+    reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(xmlIdLinkSegmentTypeMap);
+    reader.getSettings().setMapToIndexModeByXmlIds(xmlIdModeMap);
+    reader.getSettings().setMapToIndexNodeByXmlIds(xmlIdNodeMap);
     /* pass on relevant general settings to reader settings */
-    reader.getSettings().setErrorIfDuplicatexExternalId(isErrorIfDuplicateExternalId());
+    reader.getSettings().setErrorIfDuplicatexXmlId(isErrorIfDuplicateXmlId());
     network = reader.read();        
   }
 
@@ -394,12 +341,19 @@ public class PlanItInputBuilder extends InputBuilderListener {
     
     // create and register zones, centroids and connectoids
     try {
-      PlanitJtsUtils jtsUtils = new PlanitJtsUtils(physicalNetwork.getCoordinateReferenceSystem());      
+      PlanitJtsUtils jtsUtils = new PlanitJtsUtils(physicalNetwork.getCoordinateReferenceSystem());
+      
+      /* zone */
       for (final XMLElementZones.Zone xmlZone : xmlRawZoning.getZones().getZone()) {
-        /* zone */
-        long zoneExternalId = xmlZone.getId().longValue();
-        Zone zone = zoning.zones.createAndRegisterNewZone(zoneExternalId);
-        addZoneToExternalIdMap(zone.getExternalId(), zone);
+        Zone zone = zoning.zones.createAndRegisterNewZone();
+        addZoneToXmlIdMap(xmlZone.getId(), zone);
+        
+        /* external id */
+        String zoneExternalId = String.valueOf(xmlZone.getId());
+        if(xmlZone.getExternalid() != null && !xmlZone.getExternalid().isBlank()) {
+          zoneExternalId = xmlZone.getExternalid();
+        }                  
+        zone.setExternalId(zoneExternalId);        
         
         /* centroid */
         Centroid centroid = zone.getCentroid();
@@ -411,8 +365,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         /* connectoids */
         List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
         for(XMLElementConnectoid xmlConnectoid : xmlConnectoids) {
-          long nodeExternalId = xmlConnectoid.getNoderef().longValue();
-          Node node = getNodeByExternalId(nodeExternalId);
+          Node node = getNodeByXmlId(xmlConnectoid.getNoderef());
           Point nodePosition = node.getPosition();
           
           double connectoidLength;
@@ -426,14 +379,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
           } else {
             connectoidLength = org.planit.utils.network.virtual.Connectoid.DEFAULT_LENGTH_KM;
           }
-
-          BigInteger externalId = xmlConnectoid.getId();        
-          if (externalId != null) {
-            zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength, externalId
-                .longValue());
-          } else {
-            zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
-          } 
+                    
+          Connectoid theConnectoid = zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
+          
+          /* external id */
+          String connectoidExternalId = String.valueOf(xmlConnectoid.getId());
+          if(xmlConnectoid.getExternalid() != null && !xmlConnectoid.getExternalid().isBlank()) {
+            connectoidExternalId = xmlConnectoid.getExternalid();
+          }   
+          theConnectoid.setExternalId(connectoidExternalId);
         }             
       }
     } catch (PlanItException e) {
@@ -499,30 +453,28 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Set<String> headers = parser.getHeaderMap().keySet();
       final OutputProperty linkIdentificationMethod = getLinkIdentificationMethod(headers);
       for (final CSVRecord record : parser) {
+        MacroscopicLinkSegment linkSegment = null;
         switch (linkIdentificationMethod) {
           case LINK_SEGMENT_ID:
-            updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record, OutputProperty.LINK_SEGMENT_ID,
-                LinkSegmentIdOutputProperty.NAME, (id) -> {
-                  return network.linkSegments.get(id);
-                });
+            final long id = Long.parseLong(record.get(LinkSegmentIdOutputProperty.NAME));
+            linkSegment = network.linkSegments.get(id);            
             break;
-          case LINK_SEGMENT_EXTERNAL_ID:
-            updateInitialLinkSegmentCost(initialLinkSegmentCost, parser, record,
-                OutputProperty.LINK_SEGMENT_EXTERNAL_ID,
-                LinkSegmentExternalIdOutputProperty.NAME, (externalId) -> {
-                  return getLinkSegmentByExternalId(externalId);
-                });
+          case LINK_SEGMENT_XML_ID:
+            final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
+            linkSegment = getLinkSegmentByXmlId(xmlId);
             break;
-          case UPSTREAM_NODE_EXTERNAL_ID:
-            updateInitialLinkSegmentCostFromStartAndEndNodeExternalId(network, initialLinkSegmentCost, parser, record,
-                OutputProperty.UPSTREAM_NODE_EXTERNAL_ID, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID,
-                UpstreamNodeExternalIdOutputProperty.NAME, DownstreamNodeExternalIdOutputProperty.NAME);
+          case UPSTREAM_NODE_XML_ID:
+            final Node startNode = getNodeByXmlId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
+            final Node endNode = getNodeByXmlId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
+            linkSegment = startNode.getLinkSegment(endNode);
             break;
           default:
             throw new PlanItException("Invalid Output Property "
                 + BaseOutputProperty.convertToBaseOutputProperty(linkIdentificationMethod).getName()
                 + " found in header of Initial Link Segment Cost CSV file");
        }
+       PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment for record %d", record.getRecordNumber() ));        
+       setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);        
       }
       in.close();
     } catch (final Exception e) {

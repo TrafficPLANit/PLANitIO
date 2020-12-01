@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -47,18 +48,24 @@ public class ProcessConfiguration {
   private static void generateAndStoreTravelerTypes(Demands demands, XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
     
-    XMLElementTravellerTypes travellertypes = 
+    XMLElementTravellerTypes xmlTravellertypes = 
         (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes() : demandconfiguration.getTravellertypes();
-    if (travellertypes.getTravellertype().isEmpty()) {
-      travellertypes.getTravellertype().add(generateDefaultXMLTravellerType());
+    if (xmlTravellertypes.getTravellertype().isEmpty()) {
+      xmlTravellertypes.getTravellertype().add(generateDefaultXMLTravellerType());
     }
     
-    for (XMLElementTravellerTypes.Travellertype travellertype : travellertypes.getTravellertype()) {
-      TravelerType travelerType = demands.travelerTypes.createAndRegisterNewTravelerType(travellertype.getId().longValue(), travellertype.getName());
-      final boolean duplicateTravelerTypeExternalId = 
-          inputBuilderListener.addTravelerTypeToExternalIdMap(travelerType.getExternalId(), travelerType);
-      PlanItException.throwIf(duplicateTravelerTypeExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(), 
-          "Duplicate traveler type external id " + travelerType.getExternalId() + " found in network file");
+    for (XMLElementTravellerTypes.Travellertype xmlTravellertype : xmlTravellertypes.getTravellertype()) {
+      
+      /* external id */
+      String externalId = String.valueOf(xmlTravellertype.getId());
+      if(xmlTravellertype.getExternalid() != null && !xmlTravellertype.getExternalid().isBlank()) {
+        externalId = xmlTravellertype.getExternalid();
+      }  
+      
+      TravelerType travelerType = demands.travelerTypes.createAndRegisterNewTravelerType(externalId, xmlTravellertype.getName());
+      final boolean duplicateTravelerTypeXmlId = inputBuilderListener.addTravelerTypeToXmlIdMap(xmlTravellertype.getId().longValue(), travelerType);
+      PlanItException.throwIf(duplicateTravelerTypeXmlId && inputBuilderListener.isErrorIfDuplicateXmlId(), 
+          "Duplicate traveler type xml id " + travelerType.getExternalId() + " found in network file");
     }
   }
 
@@ -79,55 +86,60 @@ public class ProcessConfiguration {
       PhysicalNetwork<?,?,?> physicalNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
 
-    XMLElementUserClasses userclasses = 
+    XMLElementUserClasses xmlUserclasses = 
         (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
     
-    if (userclasses.getUserclass().isEmpty()) {
+    if (xmlUserclasses.getUserclass().isEmpty()) {
       PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1, "No user classes defined but more than 1 traveller type defined");
       
-      XMLElementUserClasses.Userclass userClass = generateDefaultUserClass();
-      userClass.setTravellertyperef(BigInteger.valueOf((long)demands.travelerTypes.getFirst().getExternalId()));
-      userclasses.getUserclass().add(userClass);
+      XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
+      xmlUserClass.setTravellertyperef(BigInteger.valueOf((long)demands.travelerTypes.getFirst().getExternalId()));
+      xmlUserclasses.getUserclass().add(xmlUserClass);
     }
     
-    for (XMLElementUserClasses.Userclass userclass : userclasses.getUserclass()) {
-      if(userclass.getTravellertyperef()==null) {
+    for (XMLElementUserClasses.Userclass xmlUserclass : xmlUserclasses.getUserclass()) {
+      if(xmlUserclass.getTravellertyperef()==null) {
         PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1,
-            "User class " + userclass.getId() + " has no traveller type specified, but more than one traveller type possible");                
+            "User class " + xmlUserclass.getId() + " has no traveller type specified, but more than one traveller type possible");                
       }else {
-        PlanItException.throwIf(demands.travelerTypes.getTravelerTypeByExternalId(userclass.getTravellertyperef().longValue()) == null, 
-            "travellertyperef value of " + userclass.getTravellertyperef().longValueExact()+ " referenced by user class " + userclass.getName() + " but not defined");
+        PlanItException.throwIf(demands.travelerTypes.getTravelerTypeByExternalId(xmlUserclass.getTravellertyperef().longValue()) == null, 
+            "travellertyperef value of " + xmlUserclass.getTravellertyperef().longValueExact()+ " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
-      PlanItException.throwIf(userclass.getModeref() == null, "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
+      PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
       
-      if (userclass.getModeref() == null) {
+      /* mode ref */
+      if (xmlUserclass.getModeref() == null) {
         PlanItException.throwIf(physicalNetwork.modes.size() > 1, 
-            "User class " + userclass.getId() + " has no mode specified, but more than one mode possible");
+            "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
                 
-        for(Mode mode : physicalNetwork.modes) {
-          long modeExternalId = (long) mode.getExternalId();
-          userclass.setModeref(BigInteger.valueOf(modeExternalId));          
+        
+        for(Entry<Long,Mode> entry : inputBuilderListener.getAllModesByXmlId().entrySet()) {
+          xmlUserclass.setModeref(BigInteger.valueOf(entry.getKey()));          
         }
       }
-      Long externalModeId = userclass.getModeref().longValue();
-      Mode userClassMode = inputBuilderListener.getModeByExternalId(externalModeId);
-      PlanItException.throwIf(userClassMode == null,"User class " + userclass.getId() + " refers to mode " + externalModeId + " which has not been defined");
+      Long xmlModeIdRef = xmlUserclass.getModeref().longValue();
+      Mode userClassMode = inputBuilderListener.getModeByXmlId(xmlModeIdRef);
+      PlanItException.throwIf(userClassMode == null,"User class " + xmlUserclass.getId() + " refers to mode " + xmlModeIdRef + " which has not been defined");
            
-      long travellerTypeId = (userclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_EXTERNAL_ID : userclass.getTravellertyperef().longValue();
-      userclass.setTravellertyperef(BigInteger.valueOf(travellerTypeId));
-      TravelerType travellerType = inputBuilderListener.getTravelerTypeByExternalId(travellerTypeId);
+      /* traveller type ref */
+      long travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef().longValue();
+      xmlUserclass.setTravellertyperef(BigInteger.valueOf(travellerTypeXmlIdRef));
+      TravelerType travellerType = inputBuilderListener.getTravelerTypeByXmlId(travellerTypeXmlIdRef);
+      
+      /* external id */
+      String externalId = String.valueOf(xmlUserclass.getId());
+      if(xmlUserclass.getExternalid() != null && !xmlUserclass.getExternalid().isBlank()) {
+        externalId = xmlUserclass.getExternalid();
+      }        
       
       UserClass userClass = demands.userClasses.createAndRegisterNewUserClass(
-          userclass.getId().longValue(),
-          userclass.getName(),
-          userClassMode,
-          travellerType);
+          externalId, xmlUserclass.getName(), userClassMode, travellerType);
       
-      final boolean duplicateUserClassExternalId = inputBuilderListener.addUserClassToExternalIdMap(userClass.getExternalId(), userClass);
-      PlanItException.throwIf(duplicateUserClassExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(),
-          "Duplicate user class external id " + userClass.getExternalId() + " found in network file");
+      final boolean duplicateUserClassXmlId = inputBuilderListener.addUserClassToXmlIdMap(xmlUserclass.getId().longValue(), userClass);
+      PlanItException.throwIf(duplicateUserClassXmlId && inputBuilderListener.isErrorIfDuplicateXmlId(),
+          "Duplicate user class xml id " + userClass.getExternalId() + " found in network file");
     }
-    return userclasses.getUserclass().size();
+    return xmlUserclasses.getUserclass().size();
   }
 
   /**
@@ -137,7 +149,7 @@ public class ProcessConfiguration {
    */
   private static XMLElementTravellerTypes.Travellertype generateDefaultXMLTravellerType() {
     XMLElementTravellerTypes.Travellertype travellerType = new XMLElementTravellerTypes.Travellertype();
-    travellerType.setId(BigInteger.valueOf(TravelerType.DEFAULT_EXTERNAL_ID));
+    travellerType.setId(BigInteger.valueOf(TravelerType.DEFAULT_XML_ID));
     travellerType.setName(TravelerType.DEFAULT_NAME);
     return travellerType;
   }
@@ -150,9 +162,9 @@ public class ProcessConfiguration {
   private static XMLElementUserClasses.Userclass generateDefaultUserClass() {
     XMLElementUserClasses.Userclass userclass = new XMLElementUserClasses.Userclass();
     userclass.setName(UserClass.DEFAULT_NAME);
-    userclass.setId(BigInteger.valueOf(UserClass.DEFAULT_EXTERNAL_ID));
-    userclass.setModeref(BigInteger.valueOf(Mode.DEFAULT_EXTERNAL_ID));
-    userclass.setTravellertyperef(BigInteger.valueOf(TravelerType.DEFAULT_EXTERNAL_ID));
+    userclass.setId(BigInteger.valueOf(UserClass.DEFAULT_XML_ID));
+    userclass.setModeref(BigInteger.valueOf(Mode.DEFAULT_XML_ID));
+    userclass.setTravellertyperef(BigInteger.valueOf(TravelerType.DEFAULT_XML_ID));
     return userclass;
   }
 
@@ -169,10 +181,11 @@ public class ProcessConfiguration {
       Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
       InputBuilderListener inputBuilderListener) throws PlanItException {
-    XMLElementTimePeriods timeperiods = demandconfiguration.getTimeperiods();
+    
+    /* tim periods */
+    XMLElementTimePeriods xmlTimeperiods = demandconfiguration.getTimeperiods();
 
     XMLGregorianCalendar defaultStartTime;
-
     try {
       LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
       defaultStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(localDateTime.format(DateTimeFormatter.ISO_DATE_TIME));
@@ -180,14 +193,23 @@ public class ProcessConfiguration {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error when generating time period map when processing demand configuration",e);
     }
-    for (XMLElementTimePeriods.Timeperiod timePeriodGenerated : timeperiods.getTimeperiod()) {
-      long timePeriodExternalId = timePeriodGenerated.getId().longValue();
-      XMLGregorianCalendar time = (timePeriodGenerated.getStarttime() == null) ? defaultStartTime : timePeriodGenerated.getStarttime();
+    
+    /* time period */
+    for (XMLElementTimePeriods.Timeperiod xmlTimePeriod : xmlTimeperiods.getTimeperiod()) {
+      
+      /* external id */
+      String externalId = String.valueOf(xmlTimePeriod.getId());
+      if(xmlTimePeriod.getExternalid() != null && !xmlTimePeriod.getExternalid().isBlank()) {
+        externalId = xmlTimePeriod.getExternalid();
+      }       
+      
+      /* starttime, duration */
+      XMLGregorianCalendar time = (xmlTimePeriod.getStarttime() == null) ? defaultStartTime : xmlTimePeriod.getStarttime();
       int startTimeSeconds = 3600 * time.getHour() + 60 * time.getMinute() + time.getSecond();
-      int duration = timePeriodGenerated.getDuration().getValue().intValue();
-      Durationunit durationUnit = timePeriodGenerated.getDuration().getUnit();
-      if (timePeriodGenerated.getName() == null) {
-        timePeriodGenerated.setName("");
+      int duration = xmlTimePeriod.getDuration().getValue().intValue();
+      Durationunit durationUnit = xmlTimePeriod.getDuration().getUnit();
+      if (xmlTimePeriod.getName() == null) {
+        xmlTimePeriod.setName("");
       }
       switch (durationUnit) {
         case H:
@@ -199,11 +221,11 @@ public class ProcessConfiguration {
         case S:
           break;
       }
-      TimePeriod timePeriod = demands.timePeriods.createAndRegisterNewTimePeriod(
-          timePeriodExternalId, timePeriodGenerated.getName(), startTimeSeconds, duration /*converted to seconds*/);
-      final boolean duplicateTimePeriodExternalId = inputBuilderListener.addTimePeriodToExternalIdMap(timePeriod.getExternalId(), timePeriod);
-      PlanItException.throwIf(duplicateTimePeriodExternalId && inputBuilderListener.isErrorIfDuplicateExternalId(), 
-          "Duplicate time period external id " + timePeriod.getExternalId() + " found in network file.");
+      
+      TimePeriod timePeriod = demands.timePeriods.createAndRegisterNewTimePeriod(externalId, xmlTimePeriod.getName(), startTimeSeconds, duration /*converted to seconds*/);
+      final boolean duplicateTimePeriodXmlId = inputBuilderListener.addTimePeriodToXmlIdMap(xmlTimePeriod.getId().longValue(), timePeriod);
+      PlanItException.throwIf(duplicateTimePeriodXmlId && inputBuilderListener.isErrorIfDuplicateXmlId(), 
+          "Duplicate time period xml id " + xmlTimePeriod.getId() + " found in network file.");
     }
   }
 

@@ -23,7 +23,7 @@ import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeExternalIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
-import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
+import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.UpstreamNodeExternalIdOutputProperty;
 import org.planit.project.CustomPlanItProject;
@@ -79,14 +79,14 @@ public class InitialCostTest {
       Reader in = new FileReader(initialCostsFileLocationExternalId);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeExternalIdOutputProperty.NAME;
-      String linkSegmentExternalIdHeader = LinkSegmentExternalIdOutputProperty.NAME;
+      String linkSegmentXmlIdHeader = LinkSegmentXmlIdOutputProperty.NAME;
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
         long modeExternalId = Long.parseLong(record.get(modeHeader));
-        Mode mode = planItInputBuilder.getModeByExternalId(modeExternalId);
+        Mode mode = planItInputBuilder.getModeByXmlId(modeExternalId);
         double cost = Double.parseDouble(record.get(costHeader));
-        long linkSegmentExternalId = Long.parseLong(record.get(linkSegmentExternalIdHeader));
-        MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentByExternalId(linkSegmentExternalId);
+        long linkSegmentXmlId = Long.parseLong(record.get(linkSegmentXmlIdHeader));
+        MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentByXmlId(linkSegmentXmlId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
@@ -124,12 +124,12 @@ public class InitialCostTest {
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
         long modeExternalId = Long.parseLong(record.get(modeHeader));
-        Mode mode = planItInputBuilder.getModeByExternalId(modeExternalId);
+        Mode mode = planItInputBuilder.getModeByXmlId(modeExternalId);
         double cost = Double.parseDouble(record.get(costHeader));
         long upstreamNodeExternalId = Long.parseLong(record.get(upstreamNodeExternalIdHeader));
         long downstreamNodeExternalId = Long.parseLong(record.get(downstreamNodeExternalIdHeader));
-        final long startId = planItInputBuilder.getNodeByExternalId(upstreamNodeExternalId).getId();
-        final long endId = planItInputBuilder.getNodeByExternalId(downstreamNodeExternalId).getId();
+        final long startId = planItInputBuilder.getNodeByXmlId(upstreamNodeExternalId).getId();
+        final long endId = planItInputBuilder.getNodeByXmlId(downstreamNodeExternalId).getId();
         final MacroscopicLinkSegment linkSegment = network.linkSegments.getByStartAndEndNodeId(startId, endId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }

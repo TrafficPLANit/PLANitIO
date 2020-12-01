@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.planit.demands.Demands;
@@ -65,12 +66,12 @@ public class DemandsPopulator {
       final InputBuilderListener inputBuilderListener) throws PlanItException {
     Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode =
         new HashMap<Mode, Map<TimePeriod, ODDemandMatrix>>();
-    for (final Mode mode : inputBuilderListener.getAllModes()) {
+    for (final Entry<Long, Mode> modeEntry : inputBuilderListener.getAllModesByXmlId().entrySet()) {
       final Map<TimePeriod, ODDemandMatrix> demandsPerTimePeriod = new HashMap<TimePeriod, ODDemandMatrix>();
       for (final TimePeriod timePeriod : demands.timePeriods.asSortedSetByStartTime()) {
         demandsPerTimePeriod.put(timePeriod, new ODDemandMatrix(zones));
       }
-      demandsPerTimePeriodAndMode.put(mode, demandsPerTimePeriod);
+      demandsPerTimePeriodAndMode.put(modeEntry.getValue(), demandsPerTimePeriod);
     }
     return demandsPerTimePeriodAndMode;
   }
@@ -244,8 +245,8 @@ public class DemandsPopulator {
       final double pcu,
       final double demandValue, 
       final InputBuilderListener inputBuilderListener) {
-    final Zone originZone = inputBuilderListener.getZoneByExternalId((long) rowRef);
-    final Zone destinationZone = inputBuilderListener.getZoneByExternalId((long) colRef);
+    final Zone originZone = inputBuilderListener.getZoneByXmlId((long) rowRef);
+    final Zone destinationZone = inputBuilderListener.getZoneByXmlId((long) colRef);
     final double demand = demandValue * pcu;
     odDemandMatrix.setValue(originZone, destinationZone, demand);
   }
@@ -270,11 +271,11 @@ public class DemandsPopulator {
     		initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
     for (final XMLElementOdMatrix odmatrix : oddemands) {
       final long timePeriodId = odmatrix.getTimeperiodref().longValue();
-      final long userClassExternalId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_EXTERNAL_ID
+      final long userClassXmlId = (odmatrix.getUserclassref() == null) ? UserClass.DEFAULT_XML_ID
           : odmatrix.getUserclassref().longValue();
-      final UserClass userClass = inputBuilderListener.getUserClassByExternalId((long) userClassExternalId);
+      final UserClass userClass = inputBuilderListener.getUserClassByXmlId((long) userClassXmlId);
       final Mode mode = userClass.getMode();
-      final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByExternalId(timePeriodId);
+      final TimePeriod timePeriod = inputBuilderListener.getTimePeriodByXmlId(timePeriodId);
       ODDemandMatrix odDemandMatrix = demandsPerTimePeriodAndMode.get(mode).get(timePeriod);
       updateDemandMatrixFromOdMatrix(odmatrix, mode.getPcu(), odDemandMatrix, inputBuilderListener);
       demands.registerODDemand(timePeriod, mode, odDemandMatrix);

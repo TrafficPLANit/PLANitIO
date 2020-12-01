@@ -98,8 +98,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -169,8 +169,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, true, true);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -240,8 +240,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 2);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 2);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -311,8 +311,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -439,8 +439,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, false, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -510,8 +510,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, false, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -601,8 +601,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignment(projectPath, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
@@ -674,8 +674,8 @@ public class ExplanatoryTest {
           .setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description, true);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());

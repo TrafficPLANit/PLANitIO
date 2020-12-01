@@ -1,6 +1,9 @@
 package org.planit.io.network.converter;
 
 import java.text.DecimalFormat;
+import java.util.logging.Logger;
+
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.utils.math.Precision;
 import org.planit.utils.misc.CharacterUtils;
 
@@ -11,6 +14,9 @@ import org.planit.utils.misc.CharacterUtils;
  *
  */
 public class PlanitNetworkWriterSettings {
+  
+  /** the logger */
+  private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriterSettings.class.getCanonicalName());
   
   /**
    * number of decimals to use, default is {@link Precision.DEFAULT_DECIMAL_FORMAT}
@@ -24,7 +30,25 @@ public class PlanitNetworkWriterSettings {
   protected Character commaSeparator = CharacterUtils.COMMA;
   
   /** decimal separator, default is {@Link CharacterUtils.DECIMAL_POINT} */
-  protected Character decimalSeparator = CharacterUtils.DECIMAL_POINT;  
+  protected Character decimalSeparator = CharacterUtils.DECIMAL_POINT;
+  
+  /** the coordinate reference system used for writing entities of this network */
+  protected CoordinateReferenceSystem destinationCoordinateReferenceSystem = null;  
+  
+  /** the country */
+  protected String countryName = null;  
+  
+  /**
+   * Convenience method to log all the current settings
+   */
+  public void logSettings() {
+    LOGGER.info(String.format("Decimal fidelity set to %s", decimalFormat.getMaximumFractionDigits()));
+    
+    if(getDestinationCoordinateReferenceSystem() != null) {
+      LOGGER.info(String.format("Destination Coordinate Reference System set to: %s", getDestinationCoordinateReferenceSystem().getName()));
+    }
+    
+  }  
 
   /** collect number of decimals used in writing coordinates
    * @return number of decimals used
@@ -89,6 +113,40 @@ public class PlanitNetworkWriterSettings {
    */
   public void setDecimalSeparator(Character decimalSeparator) {
     this.decimalSeparator = decimalSeparator;
+  }
+  
+  /**
+   * set the country name to optimise projection if possible
+   * 
+   * @param country to use
+   */
+  public void setCountryName(String countryName) {
+    this.countryName = countryName;
+  }  
+
+  /**
+   * collect the country name set
+   * 
+   * @return used country
+   */
+  public String getCountryName() {
+    return countryName;
+  }   
+  
+  /** collect the destination Crs
+   * @return destination Crs
+   */
+  public CoordinateReferenceSystem getDestinationCoordinateReferenceSystem() {
+    return destinationCoordinateReferenceSystem;
+  }
+
+  /** Set the destination Crs to use (if not set, network's native Crs will be used, unless the user has specified a
+   * specific country for which we have a more appropriate Crs registered) 
+   * 
+   * @param destinationCoordinateReferenceSystem to use
+   */
+  public void setDestinationCoordinateReferenceSystem(CoordinateReferenceSystem destinationCoordinateReferenceSystem) {
+    this.destinationCoordinateReferenceSystem = destinationCoordinateReferenceSystem;
   }  
   
 }

@@ -90,7 +90,7 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
    * @param externalId external Id of the link segment type
    */
   public MacroscopicLinkSegmentTypeXmlHelper(
-      String name, double capacityPerLane, double maximumDensityPerLane, Object externalId) {
+      String name, double capacityPerLane, double maximumDensityPerLane, String externalId) {
     
     this.name = name;
     if (capacityPerLane == 0.0) {

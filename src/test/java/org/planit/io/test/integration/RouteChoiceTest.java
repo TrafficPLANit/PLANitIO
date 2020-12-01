@@ -126,8 +126,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -302,8 +302,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -685,8 +685,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -780,8 +780,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1005,8 +1005,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1125,7 +1125,7 @@ public class RouteChoiceTest {
       resultsMap.get(timePeriod1).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
 
-      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByExternalId((long) 1);
+      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByXmlId((long) 1);
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -1383,8 +1383,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1597,8 +1597,8 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1807,8 +1807,8 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
       TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
-        Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId((long) 1);
+        Mode mode = inputBuilderListener.getModeByXmlId((long) 2);
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
@@ -1816,9 +1816,9 @@ public class RouteChoiceTest {
           .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      Mode mode2 = testOutputDto.getC().getModeByXmlId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -1930,9 +1930,9 @@ public class RouteChoiceTest {
 
       TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork,
           bpr, inputBuilderListener) -> {
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId(
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId(
             (long) 1);
-        Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
+        Mode mode = inputBuilderListener.getModeByXmlId((long) 2);
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
@@ -1955,9 +1955,9 @@ public class RouteChoiceTest {
               setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      Mode mode2 = testOutputDto.getC().getModeByXmlId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>>();
@@ -2075,8 +2075,8 @@ public class RouteChoiceTest {
       TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork,
           bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = 
-            inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
-        Mode mode = inputBuilderListener.getModeByExternalId((long) 2);
+            inputBuilderListener.getLinkSegmentTypeByXmlId((long) 1);
+        Mode mode = inputBuilderListener.getModeByXmlId((long) 2);
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
@@ -2084,9 +2084,9 @@ public class RouteChoiceTest {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
           PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, true);
 
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      Mode mode2 = testOutputDto.getC().getModeByExternalId((long) 2);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      Mode mode2 = testOutputDto.getC().getModeByXmlId((long) 2);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());

@@ -36,20 +36,20 @@
 				<linksegmenttype id="1">                    
 					<name>Slow</name>													
 					<capacitylane>1000</capacitylane>					
-					<modes>                                   
+					<access>                                   
 						<mode ref="1">													
 							<maxspeed>10</maxspeed>								
 						</mode>
-					</modes>
+					</access>
 				</linksegmenttype>
 				<linksegmenttype id="2">                    
 					<name>Fast</name>													
 					<capacitylane>1000</capacitylane>							
-					<modes>                                       
+					<access>                                       
 						<mode ref="1">															
 							<maxspeed>20</maxspeed>										
 						</mode>
-					</modes>
+					</access>
 				</linksegmenttype>
 			</linksegmenttypes>
 		</linkconfiguration>

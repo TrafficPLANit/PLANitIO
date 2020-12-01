@@ -91,10 +91,10 @@ public class BPRTest {
   
       TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
           (physicalNetwork, bpr, inputBuilderListener) -> {
-            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByExternalId((long) 1);
-            Mode mode = inputBuilderListener.getModeByExternalId((long) 1);
+            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId((long) 1);
+            Mode mode = inputBuilderListener.getModeByXmlId((long) 1);
             bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-            MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByExternalId((long) 3);
+            MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByXmlId((long) 3);
             bpr.setParameters(linkSegment, mode, 1.0, 5.0);
       };
       
@@ -110,8 +110,8 @@ public class BPRTest {
           PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
   
-      Mode mode1 = testOutputDto.getC().getModeByExternalId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByExternalId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
       
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();

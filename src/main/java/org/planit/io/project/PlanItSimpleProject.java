@@ -208,12 +208,12 @@ public class PlanItSimpleProject extends CustomPlanItProject {
   }
 
   /**
-   * Retrieve a list of the external Ids of all registered time periods
+   * Retrieve a list of the xml Ids of all registered time periods
    * 
    * @return List of all registered time periods
    */
-  public List<Object> getTimePeriodExternalIds() {
-    return inputBuilderListener.getTimePeriodExternalIds();
+  public List<Long> getTimePeriodXmlIds() {
+    return inputBuilderListener.getTimePeriodXmlIds();
   }
 
 }

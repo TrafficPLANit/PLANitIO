@@ -283,7 +283,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param timePeriod the current time period
    * @return the XMLElementOutputConfiguration object
    */
-  private XMLElementOutputConfiguration getOutputconfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
+  private XMLElementOutputConfiguration getXmlOutputConfiguration(OutputAdapter outputAdapter, TimePeriod timePeriod) {
     XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
     outputconfiguration.setAssignment(outputAdapter.getAssignmentClassName());
     outputconfiguration.setPhysicalcost(outputAdapter.getPhysicalCostClassName());
@@ -291,11 +291,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     outputconfiguration.setSmoothing(outputAdapter.getSmoothingClassName());
     outputconfiguration.setGapfunction(outputAdapter.getGapFunctionClassName());
     outputconfiguration.setStopcriterion(outputAdapter.getStopCriterionClassName());
-    XMLElementOutputTimePeriod timeperiod = new XMLElementOutputTimePeriod();
+    XMLElementOutputTimePeriod xmlTimePeriod = new XMLElementOutputTimePeriod();
     long externalId = (long) timePeriod.getExternalId();
-    timeperiod.setId(BigInteger.valueOf(externalId));
-    timeperiod.setName(timePeriod.getDescription());
-    outputconfiguration.setTimeperiod(timeperiod);
+    xmlTimePeriod.setId(BigInteger.valueOf(externalId));
+    xmlTimePeriod.setName(timePeriod.getDescription());
+    outputconfiguration.setTimeperiod(xmlTimePeriod);
     return outputconfiguration;
   }
 
@@ -344,7 +344,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       if (description != null) {
         metadata.get(currentOutputType).setDescription(description);
       }
-      XMLElementOutputConfiguration outputconfiguration = getOutputconfiguration(outputAdapter, timePeriod);
+      XMLElementOutputConfiguration outputconfiguration = getXmlOutputConfiguration(outputAdapter, timePeriod);
       metadata.get(currentOutputType).setOutputconfiguration(outputconfiguration);
       SortedSet<BaseOutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
       metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));

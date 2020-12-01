@@ -16,6 +16,7 @@ import org.planit.utils.mode.PredefinedModeType;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Node;
 import org.planit.xml.generated.XMLElementLinkConfiguration;
+import org.planit.xml.generated.XMLElementLinkSegmentType;
 import org.planit.xml.generated.XMLElementLinkSegmentTypes;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementModes;
@@ -78,7 +79,7 @@ public class PlanitNetworkReader implements NetworkReader {
     //if no link segment types defined, create single link segment type with default parameters
     if (xmlRawNetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
       xmlRawNetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
-      XMLElementLinkSegmentTypes.Linksegmenttype xmlLinkSegmentType = new XMLElementLinkSegmentTypes.Linksegmenttype();
+      XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(BigInteger.valueOf(DEFAULT_LINKSEGMENTTYPE_EXTERNAL_ID));
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
@@ -144,10 +145,10 @@ public class PlanitNetworkReader implements NetworkReader {
       XmlMacroscopicNetworkHelper physicalNetworkHelper = new XmlMacroscopicNetworkHelper(xmlRawNetwork, network, settings);
       
       /* parse modes*/
-      Map<Object, Mode> modesByExternalId = physicalNetworkHelper.createAndRegisterModes();
+      Map<Long, Mode> modesByExternalId = physicalNetworkHelper.createAndRegisterModes();
       
       /* parse nodes */
-      Map<Object, Node> nodesByExternalId = physicalNetworkHelper.createAndRegisterNodes();      
+      Map<Long, Node> nodesByExternalId = physicalNetworkHelper.createAndRegisterNodes();      
            
       /* parse links, link segments, and link segment types  (implementation requires refactoring)*/
       physicalNetworkHelper.createAndRegisterLinkAndLinkSegments(modesByExternalId, nodesByExternalId);

@@ -39,12 +39,12 @@
 				<linksegmenttype id="1">
 					<name>Standard</name>													<!-- optional -->
 					<capacitylane>1200</capacitylane>										<!-- optional, has default -->
-					<modes>
+					<access>
 						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
 								is assumed to be banned from the link segment -->
 							<maxspeed>60</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
 						</mode>
-					</modes>
+					</access>
 				</linksegmenttype>
 			</linksegmenttypes>
 		</linkconfiguration>

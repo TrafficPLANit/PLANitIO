@@ -19,98 +19,98 @@ public class PlanitNetworkReaderSettings {
   /**
    * option to provide external map to populate with external node Ids corresponding to parsed Nodes
    */
-  private Map<Object, Node> nodeExternalIdToNodeMap;
+  private Map<String, Node> nodeXmlIdToNodeMap;
 
   /**
    * option to provide external map to populate with link segments by external Id
    */
-  private Map<Object, MacroscopicLinkSegment> linkSegmentExternalIdToLinkSegmentMap;
+  private Map<String, MacroscopicLinkSegment> linkSegmentXmlIdToLinkSegmentMap;
 
   /**
    * option to provide external map to populate with external link segment type Ids corresponding to link segment types
    */
-  private Map<Object, MacroscopicLinkSegmentType> linkSegmentTypeExternalIdToLinkSegmentTypeMap;
+  private Map<String, MacroscopicLinkSegmentType> linkSegmentTypeXmlIdToLinkSegmentTypeMap;
 
   /**
    * option to provide external map to populate with external Ids corresponding to Modes
    */
-  private Map<Object, Mode> modeExternalIdToModeMap;
+  private Map<String, Mode> modeXmlIdToModeMap;
   
   /**
    * Flag to determine whether duplicate external Id should be considered an error (defaults to {@link InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_EXTERNAL_ID}
    */
-  private boolean errorIfDuplicateExternalId = InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_EXTERNAL_ID;  
+  private boolean errorIfDuplicateXmlId = InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_XML_ID;  
   
   /** Use provided map to index modes by external id when parsing
-   * @param modeExternalIdToModeMap to use
+   * @param modeXmlIdToModeMap to use
    */
-  public void setUseMapToIndexModeByExternalIds(Map<Object, Mode> modeExternalIdToModeMap) {
-    this.modeExternalIdToModeMap = modeExternalIdToModeMap;
+  public void setMapToIndexModeByXmlIds(Map<String, Mode> modeXmlIdToModeMap) {
+    this.modeXmlIdToModeMap = modeXmlIdToModeMap;
   }
   
-  /** exogenous map to index modes by external id when parsing (if any, can be null)
-   * @param modeExternalIdToModeMap to use
+  /** exogenous map to index modes by xml id when parsing (if any, can be null)
+   * @param modeXmlIdToModeMap to use
    */
-  public Map<Object, Mode> getUseMapToIndexModeByExternalIds() {
-    return this.modeExternalIdToModeMap;
+  public Map<String, Mode> getMapToIndexModeByXmlIds() {
+    return this.modeXmlIdToModeMap;
   }  
   
-  /** Use provided map to index nodes by external id when parsing
-   * @param nodeExternalIdToNodeMap to use
+  /** Use provided map to index nodes by xml id when parsing
+   * @param nodeXmlIdToNodeMap to use
    */
-  public void setUseMapToIndexNodeByExternalIds(Map<Object, Node> nodeExternalIdToNodeMap) {
-    this.nodeExternalIdToNodeMap = nodeExternalIdToNodeMap;
+  public void setMapToIndexNodeByXmlIds(Map<String, Node> nodeXmlIdToNodeMap) {
+    this.nodeXmlIdToNodeMap = nodeXmlIdToNodeMap;
   } 
   
-  /** exogenous map to index nodes by external id when parsing (if any, can be null)
-   * @param nodeExternalIdToNodeMap to use
+  /** exogenous map to index nodes by xml id when parsing (if any, can be null)
+   * @param nodeXmlIdToNodeMap to use
    */
-  public Map<Object, Node> getUseMapToIndexNodeByExternalIds() {
-    return this.nodeExternalIdToNodeMap;
+  public Map<String, Node> getMapToIndexNodeByXmlIds() {
+    return this.nodeXmlIdToNodeMap;
   }    
   
-  /** Use provided map to index link segments by external id when parsing
-   * @param linkSegmentExternalIdToLinkSegmentMap to use
+  /** Use provided map to index link segments by xml id when parsing
+   * @param linkSegmentXmlIdToLinkSegmentMap to use
    */
-  public void setUseMapToIndexLinkSegmentByExternalIds(Map<Object, MacroscopicLinkSegment> linkSegmentExternalIdToLinkSegmentMap) {
-    this.linkSegmentExternalIdToLinkSegmentMap = linkSegmentExternalIdToLinkSegmentMap;
+  public void setMapToIndexLinkSegmentByXmlIds(Map<String, MacroscopicLinkSegment> linkSegmentXmlIdToLinkSegmentMap) {
+    this.linkSegmentXmlIdToLinkSegmentMap = linkSegmentXmlIdToLinkSegmentMap;
   }   
   
-  /** exogenous map to index link segments by external id when parsing (if any, can be null)
-   * @param linkSegmentExternalIdToLinkSegmentMap to use
+  /** exogenous map to index link segments by xml id when parsing (if any, can be null)
+   * @param linkSegmentXmlIdToLinkSegmentMap to use
    */
-  public Map<Object, MacroscopicLinkSegment> getUseMapToIndexLinkSegmentByExternalIds() {
-    return this.linkSegmentExternalIdToLinkSegmentMap;
+  public Map<String, MacroscopicLinkSegment> getMapToIndexLinkSegmentByXmlIds() {
+    return this.linkSegmentXmlIdToLinkSegmentMap;
   }   
   
-  /** Use provided map to index link segment types by external id when parsing
-   * @param linkSegmentTypeExternalIdToLinkSegmentTypeMap to use
+  /** Use provided map to index link segment types by xml id when parsing
+   * @param linkSegmentTypeXmlIdToLinkSegmentTypeMap to use
    */
-  public void setUseMapToIndexLinkSegmentTypeByExternalIds(Map<Object, MacroscopicLinkSegmentType> linkSegmentTypeExternalIdToLinkSegmentTypeMap) {
-    this.linkSegmentTypeExternalIdToLinkSegmentTypeMap = linkSegmentTypeExternalIdToLinkSegmentTypeMap;
+  public void setMapToIndexLinkSegmentTypeByXmlIds(Map<String, MacroscopicLinkSegmentType> linkSegmentTypeXmlIdToLinkSegmentTypeMap) {
+    this.linkSegmentTypeXmlIdToLinkSegmentTypeMap = linkSegmentTypeXmlIdToLinkSegmentTypeMap;
   }  
   
-  /** exogenous map to index link segment types by external id when parsing (if any, can be null)
-   * @param linkSegmentTypeExternalIdToLinkSegmentTypeMap to use
+  /** exogenous map to index link segment types by xml id when parsing (if any, can be null)
+   * @param linkSegmentTypeXmlIdToLinkSegmentTypeMap to use
    */
-  public Map<Object, MacroscopicLinkSegmentType> getUseMapToIndexLinkSegmentTypeByExternalIds() {
-    return this.linkSegmentTypeExternalIdToLinkSegmentTypeMap;
+  public Map<String, MacroscopicLinkSegmentType> getMapToIndexLinkSegmentTypeByXmlIds() {
+    return this.linkSegmentTypeXmlIdToLinkSegmentTypeMap;
   }
 
   /** check value of this flag
    * @return true when raising error on duplicate external id
    */
-  public boolean isErrorIfDuplicateExternalId() {
-    return errorIfDuplicateExternalId;
+  public boolean isErrorIfDuplicateXmlId() {
+    return errorIfDuplicateXmlId;
   }
 
   /**
-   * update flag on whether or not to raise an error on duplicate external ids
+   * update flag on whether or not to raise an error on duplicate xml ids
    * 
-   * @param errorIfDuplicateExternalId
+   * @param errorIfDuplicateXmlId
    */
-  public void setErrorIfDuplicatexExternalId(boolean errorIfDuplicateExternalId) {
-    this.errorIfDuplicateExternalId = errorIfDuplicateExternalId;
+  public void setErrorIfDuplicatexXmlId(boolean errorIfDuplicateXmlId) {
+    this.errorIfDuplicateXmlId = errorIfDuplicateXmlId;
   }   
   
   
