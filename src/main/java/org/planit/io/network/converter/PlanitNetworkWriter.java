@@ -24,7 +24,6 @@ import org.planit.network.converter.IdMapperFunctionFactory;
 import org.planit.network.converter.NetworkWriterImpl;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.locale.CountryNames;
-import org.planit.utils.math.TypeConversionUtil;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.mode.PhysicalModeFeatures;
@@ -95,7 +94,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    */
   private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
     /* id */
-    xmlLinkSegment.setId(TypeConversionUtil.toBigInteger(linkSegmentIdMapper.apply(linkSegment)));
+    xmlLinkSegment.setId(linkSegmentIdMapper.apply(linkSegment));
     /* max speed */
     xmlLinkSegment.setMaxspeed(linkSegment.getPhysicalSpeedLimitKmH());
     /* number of lanes */
@@ -103,7 +102,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     if(!linkSegment.hasLinkSegmentType()) {
       LOGGER.severe(String.format("missing link segment type on link segment %s (id:%d)", linkSegment.getExternalId(), linkSegment.getId()));      
     }else {
-      xmlLinkSegment.setTyperef(TypeConversionUtil.toBigInteger(linkSegmentTypeIdMapper.apply(linkSegment.getLinkSegmentType())));  
+      xmlLinkSegment.setTyperef(linkSegmentTypeIdMapper.apply(linkSegment.getLinkSegmentType()));  
     }
   }  
   
@@ -145,7 +144,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
     /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
-    xmlLink.setId(BigInteger.valueOf(Long.parseLong(linkIdMapper.apply(link))));
+    xmlLink.setId(linkIdMapper.apply(link));
     /* length */
     XMLElementLinkLengthType xmlLinkLength = new XMLElementLinkLengthType();     
     xmlLinkLength.setUnit(LengthUnit.KM);
@@ -154,9 +153,9 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     /* name */
     xmlLink.setName(link.getName());
     /* node A ref */
-    xmlLink.setNodearef(TypeConversionUtil.toBigInteger(nodeIdMapper.apply(link.getNodeA())));
+    xmlLink.setNodearef(nodeIdMapper.apply(link.getNodeA()));
     /* node B ref */
-    xmlLink.setNodebref(TypeConversionUtil.toBigInteger(nodeIdMapper.apply(link.getNodeB())));    
+    xmlLink.setNodebref(nodeIdMapper.apply(link.getNodeB()));    
     
     /* line string */
     LineString destinationLineString = link.getGeometry();
@@ -211,7 +210,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementNodes.Node xmlNode = new XMLElementNodes.Node();
     
     /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
-    xmlNode.setId(BigInteger.valueOf(Long.parseLong(nodeIdMapper.apply(node))));
+    xmlNode.setId(nodeIdMapper.apply(node));
     /* name */
     xmlNode.setName(node.getName());
     
@@ -263,7 +262,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     Accessmode xmlModeAccess = new Accessmode();
 
     /* mode ref id */
-    xmlModeAccess.setRef(TypeConversionUtil.toBigInteger(modeIdMapper.apply(mode)));
+    xmlModeAccess.setRef(modeIdMapper.apply(mode));
     
     /* critical speed */
     xmlModeAccess.setCritspeed(modeProperties.getCriticalSpeedKmH());
@@ -283,7 +282,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
     
     /* id */
-    xmlLinkSegmentType.setId(TypeConversionUtil.toBigInteger(linkSegmentTypeIdMapper.apply(linkSegmentType)));
+    xmlLinkSegmentType.setId(linkSegmentTypeIdMapper.apply(linkSegmentType));
     /* external id */
     xmlLinkSegmentType.setExternalid(linkSegmentType.getExternalId());
     
@@ -376,7 +375,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementModes.Mode xmlMode = new XMLElementModes.Mode();
     
     /* id */
-    xmlMode.setId(TypeConversionUtil.toBigInteger(modeIdMapper.apply(mode)));
+    xmlMode.setId(modeIdMapper.apply(mode));
     
     /* max speed */
     xmlMode.setMaxspeed(mode.getMaximumSpeedKmH());

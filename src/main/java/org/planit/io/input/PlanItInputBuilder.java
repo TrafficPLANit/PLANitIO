@@ -293,7 +293,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final MacroscopicLinkSegment linkSegment) throws PlanItException {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
-    final Mode mode = getModeByXmlId(modeXmlId);
+    final Mode mode = getModeBySourceId(modeXmlId);
     PlanItException.throwIf(mode == null, "mode xml id not available in configuration");
     
     final double cost = Double.parseDouble(record.get(LinkCostOutputProperty.NAME));
@@ -317,12 +317,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /* create parser and read/populate the network */
     PlanitNetworkReader reader = PlanitNetworkReaderFactory.createReader(xmlRawNetwork, network);
     /* make sure the external ids are indexed via the input builder's already present maps */
-    reader.getSettings().setMapToIndexLinkSegmentByXmlIds(xmlIdLinkSegmentMap);
-    reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(xmlIdLinkSegmentTypeMap);
-    reader.getSettings().setMapToIndexModeByXmlIds(xmlIdModeMap);
-    reader.getSettings().setMapToIndexNodeByXmlIds(xmlIdNodeMap);
+    reader.getSettings().setMapToIndexLinkSegmentByXmlIds(sourceIdLinkSegmentMap);
+    reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(sourceIdLinkSegmentTypeMap);
+    reader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
+    reader.getSettings().setMapToIndexNodeByXmlIds(sourceIdNodeMap);
     /* pass on relevant general settings to reader settings */
-    reader.getSettings().setErrorIfDuplicatexXmlId(isErrorIfDuplicateXmlId());
+    reader.getSettings().setErrorIfDuplicatexXmlId(isErrorIfDuplicateSourceId());
     network = reader.read();        
   }
 
@@ -348,7 +348,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       /* zone */
       for (final XMLElementZones.Zone xmlZone : xmlRawZoning.getZones().getZone()) {
         Zone zone = zoning.zones.createAndRegisterNewZone();
-        addZoneToXmlIdMap(xmlZone.getId(), zone);
+        addZoneToSourceIdMap(xmlZone.getId(), zone);
         
         /* xml id */
         if(xmlZone.getId() != null && xmlZone.getId().isBlank()) {
@@ -371,7 +371,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         /* connectoids */
         List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
         for(XMLElementConnectoid xmlConnectoid : xmlConnectoids) {
-          Node node = getNodeByXmlId(xmlConnectoid.getNoderef());
+          Node node = getNodeBySourceId(xmlConnectoid.getNoderef());
           Point nodePosition = node.getPosition();
           
           double connectoidLength;
@@ -470,11 +470,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
             break;
           case LINK_SEGMENT_XML_ID:
             final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
-            linkSegment = getLinkSegmentByXmlId(xmlId);
+            linkSegment = getLinkSegmentBySourceId(xmlId);
             break;          
           case UPSTREAM_NODE_XML_ID:
-            final Node startNode = getNodeByXmlId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
-            final Node endNode = getNodeByXmlId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
+            final Node startNode = getNodeBySourceId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
+            final Node endNode = getNodeBySourceId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
             linkSegment = startNode.getLinkSegment(endNode);
             break;
           default:

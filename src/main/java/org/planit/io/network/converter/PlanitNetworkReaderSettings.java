@@ -39,7 +39,7 @@ public class PlanitNetworkReaderSettings {
   /**
    * Flag to determine whether duplicate external Id should be considered an error (defaults to {@link InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_EXTERNAL_ID}
    */
-  private boolean errorIfDuplicateXmlId = InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_XML_ID;  
+  private boolean errorIfDuplicateXmlId = InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_SOURCE_ID;  
   
   /** Use provided map to index modes by external id when parsing
    * @param modeXmlIdToModeMap to use

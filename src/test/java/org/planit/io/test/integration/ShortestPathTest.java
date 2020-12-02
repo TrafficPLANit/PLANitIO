@@ -194,8 +194,8 @@ public class ShortestPathTest {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
           .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -280,8 +280,8 @@ public class ShortestPathTest {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
           .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -366,8 +366,8 @@ public class ShortestPathTest {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
           .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
+      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
@@ -476,11 +476,11 @@ public class ShortestPathTest {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
           .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, true);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
+      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodBySourceId("0");
       resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -563,7 +563,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByXmlId((long) 1);
+      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodBySourceId("1");
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -629,7 +629,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodByXmlId((long) 2);
+      TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodBySourceId("2");
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod3).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod3).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -780,11 +780,11 @@ public class ShortestPathTest {
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
           .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-      Mode mode1 = testOutputDto.getC().getModeByXmlId((long) 1);
+      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
 
       SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
           new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByXmlId((long) 0);
+      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodBySourceId("0");
       resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -867,7 +867,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByXmlId((long) 1);
+      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodBySourceId("1");
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod2).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -933,7 +933,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
 
-      TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodByXmlId((long) 2);
+      TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodBySourceId("2");
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod3).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod3).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());

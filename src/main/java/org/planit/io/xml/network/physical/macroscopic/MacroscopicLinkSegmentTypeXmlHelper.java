@@ -118,25 +118,23 @@ public class MacroscopicLinkSegmentTypeXmlHelper {
     macroscopicLinkSegmentTypeModeProperties = new HashMap<Mode, MacroscopicModeProperties>();        
     
     /* check for duplication, log issues */
-    if (existingLinkTypeHelpers.containsKey(externalId)) {
-      MacroscopicLinkSegmentTypeXmlHelper other = existingLinkTypeHelpers.get(externalId);
+    if (existingLinkTypeHelpers.containsKey(xmlId)) {
+      MacroscopicLinkSegmentTypeXmlHelper other = existingLinkTypeHelpers.get(xmlId);
       if (capacityPerLane != other.getCapacityPerLane()) {
-        LOGGER.warning("different capacity per lane values for Link Type " + other
-            .getName() + ".  Will use the highest one.");
+        LOGGER.warning("different capacity per lane values for Link Type " + other.getName() + ".  Will use the highest one.");
       }
       if (capacityPerLane > other.getCapacityPerLane()) {
         this.setCapacityPerLane(capacityPerLane);
       }
       if (maximumDensityPerLane != other.getMaximumDensityPerLane()) {
-        LOGGER.warning("different maximum density per lane values for link type "
-            + other.getName() + ".  Will use the highest one.");
+        LOGGER.warning("different maximum density per lane values for link type "+ other.getName() + ".  Will use the highest one.");
       }
       if (maximumDensityPerLane > other.getMaximumDensityPerLane()) {
         this.setMaximumDensityPerLane(maximumDensityPerLane);
       }
     }  
     
-    existingLinkTypeHelpers.put(externalId, this);    
+    existingLinkTypeHelpers.put(xmlId, this);    
   }
 
   public String getName() {

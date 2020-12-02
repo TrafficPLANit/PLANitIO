@@ -239,35 +239,34 @@ public class XmlMacroscopicNetworkHelper {
     Map<String, MacroscopicLinkSegmentTypeXmlHelper> linkSegmentTypeXmlHelperMap = new HashMap<String, MacroscopicLinkSegmentTypeXmlHelper>();
     XMLElementLinkConfiguration linkconfiguration = xmlRawNetwork.getLinkconfiguration();
     List<XMLElementLinkSegmentType> xmlLinkSegmentTypes = linkconfiguration.getLinksegmenttypes().getLinksegmenttype();    
-    for(XMLElementLinkSegmentType generatedLinkSegmentType : xmlLinkSegmentTypes) {
+    for(XMLElementLinkSegmentType xmlLinkSegmentType : xmlLinkSegmentTypes) {
       
       /* xml id */
-      String xmlId = generatedLinkSegmentType.getId();      
+      String xmlId = xmlLinkSegmentType.getId();      
       if (linkSegmentTypeXmlHelperMap.containsKey(xmlId) && settings.isErrorIfDuplicateXmlId()) {
-        String errorMessage = "Duplicate link segment type external id " + xmlId + " found in network file.";
-        throw new PlanItException(errorMessage);
+        throw new PlanItException("Duplicate link segment type external id " + xmlId + " found in network file");
       }
       
       /* external id */
       String externalId = null;
-      if(generatedLinkSegmentType.getExternalid() != null && !generatedLinkSegmentType.getExternalid().isBlank()) {
-        externalId = generatedLinkSegmentType.getExternalid();
+      if(xmlLinkSegmentType.getExternalid() != null && !xmlLinkSegmentType.getExternalid().isBlank()) {
+        externalId = xmlLinkSegmentType.getExternalid();
       }        
       
       /* name */
-      String name = generatedLinkSegmentType.getName();
+      String name = xmlLinkSegmentType.getName();
       /* capacity */
-      double capacity = (generatedLinkSegmentType.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : generatedLinkSegmentType.getCapacitylane();
+      double capacity = (xmlLinkSegmentType.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : xmlLinkSegmentType.getCapacitylane();
       /* max density */
-      double maximumDensity = (generatedLinkSegmentType.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : generatedLinkSegmentType.getMaxdensitylane();    
+      double maximumDensity = (xmlLinkSegmentType.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : xmlLinkSegmentType.getMaxdensitylane();    
       
       MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name,capacity, maximumDensity, externalId, xmlId);
       linkSegmentTypeXmlHelperMap.put(xmlId, linkSegmentTypeXmlHelper);      
       
       /* mode properties, only set when allowed, otherwise not */
-      Collection<Mode> thePlanitModes = new HashSet<org.planit.utils.mode.Mode>();      
-      List<Accessmode> xmlModes = generatedLinkSegmentType.getAccess().getMode();      
-      if(generatedLinkSegmentType.getAccess() != null) {
+      Collection<Mode> thePlanitModes = new HashSet<Mode>();            
+      if(xmlLinkSegmentType.getAccess() != null) {
+        List<Accessmode> xmlModes = xmlLinkSegmentType.getAccess().getMode();        
         for (Accessmode xmlMode : xmlModes) {        
           String modeXmlRefId = xmlMode.getRef();
 
@@ -462,12 +461,15 @@ public class XmlMacroscopicNetworkHelper {
         /* xml id */
         if(xmlLink.getId() != null && !xmlLink.getId().isBlank()) {
           link.setXmlId(xmlLink.getId());
+        }else {
+          LOGGER.fine(String.format("link id absent, generating internal id instead (node a: %s, node b: %s)",link.getNodeA().getXmlId(), link.getNodeB().getXmlId()));
+          link.setXmlId(String.valueOf(link.getId()));
         }         
         
         /* external id */
         if(xmlLink.getExternalid() != null && !xmlLink.getExternalid().isBlank()) {
           link.setExternalId(xmlLink.getExternalid());
-        } 
+        }
       }      
       /** end LINK **/
       
@@ -487,8 +489,7 @@ public class XmlMacroscopicNetworkHelper {
         boolean abDirection = xmlLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
-            String errorMessage =  "Both link segments for the same link are in the same direction.  Link segment external Id is " + xmlLinkSegment.getId();
-            throw new PlanItException(errorMessage);
+            throw new PlanItException("Both link segments for the same link are in the same direction.  Link segment external Id is " + xmlLinkSegment.getId());
           }
         }        
 
@@ -498,8 +499,7 @@ public class XmlMacroscopicNetworkHelper {
         String linkTypeXmlId = null;
         if (xmlLinkSegment.getTyperef() == null) {
           if (linkSegmentTypeHelpersByXmlId.keySet().size() > 1) {
-            String errorMessage = "Link Segment " + xmlLinkSegment.getId() + " has no link segment defined, but there is more than one possible link segment type";
-            throw new PlanItException(errorMessage);
+            throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment defined, but there is more than one possible link segment type");
           }
           linkTypeXmlId = linkSegmentTypeHelpersByXmlId.keySet().iterator().next();
         } else {
@@ -536,15 +536,13 @@ public class XmlMacroscopicNetworkHelper {
                 
           if (existingLinkSegmentType.getExternalId() != null) {
             MacroscopicLinkSegmentType prevValue = linkSegmentTypesByXmlId.put(linkTypeXmlId, existingLinkSegmentType);
-            PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(), 
-                "Duplicate link segment type external id " + linkSegment.getExternalId() + " found in network file");
+            PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(),"Duplicate link segment type external id " + linkSegment.getExternalId() + " found in network file");
           }           
         }
         linkSegment.setLinkSegmentType(existingLinkSegmentType);    
 
         final MacroscopicLinkSegment prevValue = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
-        PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(), 
-            "Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network file");
+        PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(), "Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network file");
         
         isFirstLinkSegment = false;
         firstLinkDirection = abDirection;        
