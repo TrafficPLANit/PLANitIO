@@ -610,12 +610,12 @@ public class PLANitStaticAssignmentProjectDemos {
       // OD outputs: ON + example configuration
       final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
           (ODOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
-      originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
+      originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
       // PATH outputs: ON + example configuration
       final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) 
           ta.activateOutput(OutputType.PATH);
-      pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_EXTERNAL_ID);
+      pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
 
       // COMPONENT CONFIGURATION - PLANitIO OUTPUT FORMAT
       xmlOutputFormatter.setXmlNameRoot(outputFileName);

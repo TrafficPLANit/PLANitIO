@@ -494,17 +494,11 @@ public class XmlMacroscopicNetworkHelper {
         }        
 
         MacroscopicLinkSegment linkSegment = network.linkSegments.registerNew(link, abDirection, true /* register on nodes and link*/);
-        
+            
         /* xml id */
-        String linkTypeXmlId = null;
-        if (xmlLinkSegment.getTyperef() == null) {
-          if (linkSegmentTypeHelpersByXmlId.keySet().size() > 1) {
-            throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment defined, but there is more than one possible link segment type");
-          }
-          linkTypeXmlId = linkSegmentTypeHelpersByXmlId.keySet().iterator().next();
-        } else {
-          linkTypeXmlId = xmlLinkSegment.getTyperef();
-        }       
+        if(xmlLinkSegment.getId() != null && !xmlLinkSegment.getId().isBlank()) {
+          linkSegment.setXmlId(xmlLinkSegment.getId());
+        }            
         
         /* external id */
         if(xmlLinkSegment.getExternalid() != null && !xmlLinkSegment.getExternalid().isBlank()) {
@@ -517,7 +511,23 @@ public class XmlMacroscopicNetworkHelper {
         
         /* lanes */
         int noLanes = (xmlLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES : xmlLinkSegment.getNumberoflanes().intValue();        
-        linkSegment.setNumberOfLanes(noLanes);                              
+        linkSegment.setNumberOfLanes(noLanes);   
+        
+        final MacroscopicLinkSegment prevLinkSegment = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
+        PlanItException.throwIf(prevLinkSegment!=null && settings.isErrorIfDuplicateXmlId(), "Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network file");        
+        
+        /** LINK SEGMENT TYPE **/
+        
+        /* link segment type xml id */
+        String linkTypeXmlId = null;
+        if (xmlLinkSegment.getTyperef() == null) {
+          if (linkSegmentTypeHelpersByXmlId.keySet().size() > 1) {
+            throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment type defined, but there is more than one possible link segment type");
+          }
+          linkTypeXmlId = linkSegmentTypeHelpersByXmlId.keySet().iterator().next();
+        } else {
+          linkTypeXmlId = xmlLinkSegment.getTyperef();
+        }  
         
         MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = linkSegmentTypeHelpersByXmlId.get(linkTypeXmlId);        
         Map<Mode, MacroscopicModeProperties> modeProperties = linkSegmentTypeXmlHelper.getModePropertiesMap();    
@@ -541,8 +551,6 @@ public class XmlMacroscopicNetworkHelper {
         }
         linkSegment.setLinkSegmentType(existingLinkSegmentType);    
 
-        final MacroscopicLinkSegment prevValue = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
-        PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(), "Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network file");
         
         isFirstLinkSegment = false;
         firstLinkDirection = abDirection;        

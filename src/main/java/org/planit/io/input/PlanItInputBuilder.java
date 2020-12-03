@@ -351,7 +351,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         addZoneToSourceIdMap(xmlZone.getId(), zone);
         
         /* xml id */
-        if(xmlZone.getId() != null && xmlZone.getId().isBlank()) {
+        if(xmlZone.getId() != null && !xmlZone.getId().isBlank()) {
           zone.setXmlId(xmlZone.getId());
         }
         

@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRConfigurator;
@@ -57,6 +58,26 @@ public class RouteChoiceTest {
 
   /** the logger */
   private static Logger LOGGER = null;
+  
+  private final String zone1XmlId = "1";
+  private final String zone2XmlId = "2";
+  private final String zone3XmlId = "3";
+  private final String zone4XmlId = "4";
+  private final String zone5XmlId = "5";
+  private final String zone6XmlId = "6";
+  private final String zone27XmlId = "27";
+  private final String zone31XmlId = "31";
+  
+  private final String node1XmlId = "1";
+  private final String node2XmlId = "2";
+  private final String node3XmlId = "3"; 
+  
+  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */
+  private Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap;  
+  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, od value */
+  private Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap;
+  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
+  SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;      
 
   /**
    * Run assertions which confirm that results files contain the correct data, and
@@ -72,17 +93,14 @@ public class RouteChoiceTest {
       String csvFileName, String xmlFileName) throws Exception {
 
     String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
-    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"
-        + csvFileName;
+    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"+ csvFileName;
 
     assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, csvFileName);
 
     String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
-    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"
-        + xmlFileName;
-    assertTrue(PlanItIOTestHelper.isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription,
-        fullXmlFileNameWithDescription));
+    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"+ xmlFileName;
+    assertTrue(PlanItIOTestHelper.isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription,fullXmlFileNameWithDescription));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, xmlFileName);
   }
 
@@ -92,6 +110,13 @@ public class RouteChoiceTest {
       LOGGER = Logging.createLogger(RouteChoiceTest.class);
     } 
   }
+  
+  @Before
+  public void beforeTest() {
+    pathMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, String>>>>();
+    odMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>>();    
+    resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>>();       
+  }  
 
   @AfterClass
   public static void tearDown() {
@@ -128,135 +153,117 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, new LinkSegmentExpectedResultsDto(2, 1, 2000,
-          0.015, 2000, 1, 66.6666667));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 1000,
-          0.0103125, 2000, 1, 96.969697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3, new LinkSegmentExpectedResultsDto(3, 2, 2000,
-          0.015, 2000, 1, 66.6666667));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4, new LinkSegmentExpectedResultsDto(4, 2, 1000,
-          0.0103125, 2000, 1, 96.969697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 2000,
-          0.09, 1000, 1, 11.1111111));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 6, new LinkSegmentExpectedResultsDto(6, 3, 1000,
-          0.0103125, 2000, 1, 96.969697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 13, new LinkSegmentExpectedResultsDto(13, 4, 1000,
-          0.01, 20000, 1, 99.9996875));
-      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 15, new LinkSegmentExpectedResultsDto(15, 5, 1000,
-          0.01, 20000, 1, 99.9996875));
-      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 12, new LinkSegmentExpectedResultsDto(12, 6, 1000,
-          0.01, 20000, 1, 99.9996875));
-      resultsMap.get(timePeriod).get(mode1).get((long) 11).put((long) 2, new LinkSegmentExpectedResultsDto(2, 11, 1000,
-          0.0103125, 2000, 1, 96.969697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 14).put((long) 3, new LinkSegmentExpectedResultsDto(3, 14, 1000,
-          0.0103125, 2000, 1, 96.969697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 16).put((long) 1, new LinkSegmentExpectedResultsDto(1, 16, 1000,
-          0.0103125, 2000, 1, 96.969697));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
-          maxIterations, resultsMap);
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 1, 2000,0.015, 2000, 1, 66.6666667));
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 1000,0.0103125, 2000, 1, 96.969697));
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 2, 2000,0.015, 2000, 1, 66.6666667));
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 2, 1000,0.0103125, 2000, 1, 96.969697));
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 2000,0.09, 1000, 1, 11.1111111));
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 6, new LinkSegmentExpectedResultsDto(6, 3, 1000,0.0103125, 2000, 1, 96.969697));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 13, new LinkSegmentExpectedResultsDto(13, 4, 1000,0.01, 20000, 1, 99.9996875));
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 15, new LinkSegmentExpectedResultsDto(15, 5, 1000,0.01, 20000, 1, 99.9996875));
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 12, new LinkSegmentExpectedResultsDto(12, 6, 1000,0.01, 20000, 1, 99.9996875));
+      resultsMap.get(timePeriod).get(mode1).get((long) 11).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 11, 1000,0.0103125, 2000, 1, 96.969697));
+      resultsMap.get(timePeriod).get(mode1).get((long) 14).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 14, 1000,0.0103125, 2000, 1, 96.969697));
+      resultsMap.get(timePeriod).get(mode1).get((long) 16).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 16, 1000,0.0103125, 2000, 1, 96.969697));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
 
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 6,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 5,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 6,"[12,6,3,2,1,16]");
-      pathMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,"[13,4,2,1,3,14]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 5,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 6,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 5,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 6,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 5).put((long) 1,"[15,5,1,3,2,11]");
-      pathMap.get(timePeriod).get(mode1).get((long) 5).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 5).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 5).put((long) 5,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 5).put((long) 6,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 4,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 5,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 6).put((long) 6,"");
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone4XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone5XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone6XmlId,"");
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone4XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone5XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone6XmlId,"[12,6,3,2,1,16]");
+      pathMap.get(timePeriod).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone4XmlId,"[13,4,2,1,3,14]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone5XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone6XmlId,"");
+      pathMap.get(timePeriod).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone4XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone5XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone6XmlId,"");
+      pathMap.get(timePeriod).get(mode1).put(zone5XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone1XmlId,"[15,5,1,3,2,11]");
+      pathMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone4XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone5XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone6XmlId,"");
+      pathMap.get(timePeriod).get(mode1).put(zone6XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone4XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone5XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone6XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
 
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 6,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 5,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 6,Double.valueOf(0.060625));
-      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.135625));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 5,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 6,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 5,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 6,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 1,Double.valueOf(0.135625));
       odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 5,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 5).put((long) 6,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 6).put((long) 3,Double.valueOf(0.0));
@@ -304,53 +311,48 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3600,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3600,
           0.025, 3600, 1, 40));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 295.2,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 295.2,
           0.0333944, 1200, 2, 59.8903352));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 1425.6,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 1425.6,
           0.0332658, 1200, 1, 30.0609344));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1879.2,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1879.2,
           0.0667837, 1200, 1, 14.9737025));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 295.2,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 295.2,
           0.0333944, 1200, 2, 59.8903352));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 1425.6,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1425.6,
           0.0332658, 1200, 1, 30.0609344));
       resultsMap.get(timePeriod).get(mode1).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 3600,
           0.025, 3600, 1, 40));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
           maxIterations, resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[11,1,4,12]");
-      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[11,1,4,12]");
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,""); 
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
-
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.1164169));
-      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
@@ -687,56 +689,50 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 8000,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 8000,
           0.03, 8000, 2, 66.6666667));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 3952,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 3952,
           0.0239029, 5000, 2, 83.6718462));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 4048,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 4048,
           0.0531495, 3000, 2, 37.6297041));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 3952,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 3952,
           0.0295286, 4000, 2, 67.7310119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 3856,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 3856,
           0.0472937, 3000, 2, 42.2888931));
-      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 3, new LinkSegmentExpectedResultsDto(3, 5, 4144,
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 5, 4144,
           0.2043143, 2000, 2, 9.7888406));
       resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 4, new LinkSegmentExpectedResultsDto(4, 5, 3856,
           0.1581746, 2000, 2, 12.6442576));
       resultsMap.get(timePeriod).get(mode1).get((long) 12).put((long) 5, new LinkSegmentExpectedResultsDto(5, 12, 8000,
           2.58, 2000, 2, 0.7751938));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
           maxIterations, resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[11,1,2,3,4,5,12]");
-      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[11,1,2,3,4,5,12]");
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,""); 
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);          
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(2.8673689));
-      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
@@ -782,30 +778,29 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 7, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 8, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 9, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 10, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 15, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 21, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 22, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 23, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 24, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 7, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 8, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 9, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 10, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 15, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 21, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 22, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 23, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 24, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
       resultsMap.get(timePeriod).get(mode1).get((long) 9).put((long) 12, new LinkSegmentExpectedResultsDto(12, 9, 0.6,
           0.029, 1500, 2.9, 100));
@@ -835,33 +830,33 @@ public class RouteChoiceTest {
           0.0100617, 1500, 1, 99.3865031));
       resultsMap.get(timePeriod).get(mode1).get((long) 11).put((long) 15, new LinkSegmentExpectedResultsDto(15, 11, 500,
           0.0100617, 1500, 1, 99.3865031));
-      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 1, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1012,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, new LinkSegmentExpectedResultsDto(2, 1, 1012,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 1, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 2, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod).get(mode1).get((long) 7).put((long) 3, new LinkSegmentExpectedResultsDto(3, 7, 1900,
+      resultsMap.get(timePeriod).get(mode1).get((long) 7).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 7, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
           0.0106643, 1500, 1, 93.7709887));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
           0.0106643, 1500, 1, 93.7709887));
       resultsMap.get(timePeriod).get(mode1).get((long) 8).put((long) 4, new LinkSegmentExpectedResultsDto(4, 8, 1617,
           0.0167522, 1500, 1, 59.693666));
@@ -899,55 +894,51 @@ public class RouteChoiceTest {
           0.020013, 10000, 1, 49.967441));
       resultsMap.get(timePeriod).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
           maxIterations, resultsMap);
 
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[21,5,1,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,"[21,5,1,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,"[21,5,1,4,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"[22,6,2,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,"[22,6,2,1,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,"[22,6,2,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,"[23,8,4,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,"[23,8,4,1,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,"[23,8,4,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,"[24,7,3,4,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,"[24,7,3,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[21,5,1,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone3XmlId,"[21,5,1,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone4XmlId,"[21,5,1,4,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"[22,6,2,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone3XmlId,"[22,6,2,1,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone4XmlId,"[22,6,2,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone1XmlId,"[23,8,4,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone2XmlId,"[23,8,4,1,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone4XmlId,"[23,8,4,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone1XmlId,"[24,7,3,4,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone2XmlId,"[24,7,3,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone3XmlId,"[24,7,3,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone4XmlId,""); 
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+       
 
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
-      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
-      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
-      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
@@ -1007,30 +998,29 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod1).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 7, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 8, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 9, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 10, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 13, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 14, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 15, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 16, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 21, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 22, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 23, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put((long) 24, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod1, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod1).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod1).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 6, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 7, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 8, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 9, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 10, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 11, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 13, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 14, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 15, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 16, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 21, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 22, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 23, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put((long) 24, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
       resultsMap.get(timePeriod1).get(mode1).get((long) 9).put((long) 12, new LinkSegmentExpectedResultsDto(12, 9, 0.6,
           0.029, 1500, 2.9, 100));
@@ -1060,33 +1050,33 @@ public class RouteChoiceTest {
           500, 0.0100617, 1500, 1, 99.3865031));
       resultsMap.get(timePeriod1).get(mode1).get((long) 11).put((long) 15, new LinkSegmentExpectedResultsDto(15, 11,
           500, 0.0100617, 1500, 1, 99.3865031));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 5).put((long) 1, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
+      resultsMap.get(timePeriod1).get(mode1).get((long) 5).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
+      resultsMap.get(timePeriod1).get(mode1).get(node1XmlId).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
+      resultsMap.get(timePeriod1).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
+      resultsMap.get(timePeriod1).get(mode1).get(node1XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1012,
+      resultsMap.get(timePeriod1).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 2, new LinkSegmentExpectedResultsDto(2, 1, 1012,
+      resultsMap.get(timePeriod1).get(mode1).get(node1XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 1, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 6).put((long) 2, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
+      resultsMap.get(timePeriod1).get(mode1).get((long) 6).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
+      resultsMap.get(timePeriod1).get(mode1).get(node2XmlId).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
+      resultsMap.get(timePeriod1).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 3, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
+      resultsMap.get(timePeriod1).get(mode1).get(node2XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 7).put((long) 3, new LinkSegmentExpectedResultsDto(3, 7, 1900,
+      resultsMap.get(timePeriod1).get(mode1).get((long) 7).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 7, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
+      resultsMap.get(timePeriod1).get(mode1).get(node3XmlId).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
+      resultsMap.get(timePeriod1).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
           0.0106643, 1500, 1, 93.7709887));
-      resultsMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
+      resultsMap.get(timePeriod1).get(mode1).get(node3XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
           0.0106643, 1500, 1, 93.7709887));
       resultsMap.get(timePeriod1).get(mode1).get((long) 8).put((long) 4, new LinkSegmentExpectedResultsDto(4, 8, 1617,
           0.0167522, 1500, 1, 59.693666));
@@ -1126,28 +1116,29 @@ public class RouteChoiceTest {
           0.020013, 10000, 1, 49.967441));
 
       TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodBySourceId("1");
-      resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod2).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 7, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 8, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 9, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 10, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 13, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 14, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 15, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 16, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 21, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 22, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 23, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod2).get(mode1).put((long) 24, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod2).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod2).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 6, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 7, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 8, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 9, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 10, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 11, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 13, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 14, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 15, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 16, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 21, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 22, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 23, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod2).get(mode1).put((long) 24, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
       resultsMap.get(timePeriod2).get(mode1).get((long) 9).put((long) 12, new LinkSegmentExpectedResultsDto(12, 9, 0.6,
           0.029, 1500, 2.9, 100));
@@ -1177,33 +1168,33 @@ public class RouteChoiceTest {
           500, 0.0100617, 1500, 1, 99.3865031));
       resultsMap.get(timePeriod2).get(mode1).get((long) 11).put((long) 15, new LinkSegmentExpectedResultsDto(15, 11,
           500, 0.0100617, 1500, 1, 99.3865031));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 5).put((long) 1, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
+      resultsMap.get(timePeriod2).get(mode1).get((long) 5).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
+      resultsMap.get(timePeriod2).get(mode1).get(node1XmlId).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
+      resultsMap.get(timePeriod2).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
+      resultsMap.get(timePeriod2).get(mode1).get(node1XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1012,
+      resultsMap.get(timePeriod2).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 2, new LinkSegmentExpectedResultsDto(2, 1, 1012,
+      resultsMap.get(timePeriod2).get(mode1).get(node1XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 1, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 6).put((long) 2, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
+      resultsMap.get(timePeriod2).get(mode1).get((long) 6).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
+      resultsMap.get(timePeriod2).get(mode1).get(node2XmlId).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
+      resultsMap.get(timePeriod2).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 3, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
+      resultsMap.get(timePeriod2).get(mode1).get(node2XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 7).put((long) 3, new LinkSegmentExpectedResultsDto(3, 7, 1900,
+      resultsMap.get(timePeriod2).get(mode1).get((long) 7).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 7, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
+      resultsMap.get(timePeriod2).get(mode1).get(node3XmlId).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
+      resultsMap.get(timePeriod2).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
           0.0106643, 1500, 1, 93.7709887));
-      resultsMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
+      resultsMap.get(timePeriod2).get(mode1).get(node3XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
           0.0106643, 1500, 1, 93.7709887));
       resultsMap.get(timePeriod2).get(mode1).get((long) 8).put((long) 4, new LinkSegmentExpectedResultsDto(4, 8, 1617,
           0.0167522, 1500, 1, 59.693666));
@@ -1241,99 +1232,95 @@ public class RouteChoiceTest {
           0.020013, 10000, 1, 49.967441));
       resultsMap.get(timePeriod2).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
           maxIterations, resultsMap);
 
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod1, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod1).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod1).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 2,"[21,5,1,2,6,22]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 3,"[21,5,1,4,8,23]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 4,"[21,5,1,4,3,7,24]");
-      pathMap.get(timePeriod1).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 1,"[22,6,2,1,5,21]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 2,"");
-      pathMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 3,"[22,6,2,1,4,8,23]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 4,"[22,6,2,3,7,24]");
-      pathMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, String>());
-      pathMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 1,"[23,8,4,1,5,21]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 2,"[23,8,4,1,2,6,22]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 3,"");
-      pathMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 4,"[23,8,4,3,7,24]");
-      pathMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<Long, String>());
-      pathMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 1,"[24,7,3,4,1,5,21]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 2,"[24,7,3,2,6,22]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
-      pathMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,"");
-      pathMap.put(timePeriod2, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod2).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 2,"[21,5,1,2,6,22]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 3,"[21,5,1,4,8,23]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 4,"[21,5,1,4,3,7,24]");
-      pathMap.get(timePeriod2).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 1,"[22,6,2,1,5,21]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 2,"");
-      pathMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 3,"[22,6,2,1,4,8,23]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 4,"[22,6,2,3,7,24]");
-      pathMap.get(timePeriod2).get(mode1).put((long) 3, new TreeMap<Long, String>());
-      pathMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 1,"[23,8,4,1,5,21]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 2,"[23,8,4,1,2,6,22]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 3,"");
-      pathMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 4,"[23,8,4,3,7,24]");
-      pathMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<Long, String>());
-      pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 1,"[24,7,3,4,1,5,21]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 2,"[24,7,3,2,6,22]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
-      pathMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 4,"");
+      pathMap.put(timePeriod1, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod1).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod1).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone2XmlId,"[21,5,1,2,6,22]");
+      pathMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone3XmlId,"[21,5,1,4,8,23]");
+      pathMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone4XmlId,"[21,5,1,4,3,7,24]");
+      pathMap.get(timePeriod1).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone1XmlId,"[22,6,2,1,5,21]");
+      pathMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone3XmlId,"[22,6,2,1,4,8,23]");
+      pathMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone4XmlId,"[22,6,2,3,7,24]");
+      pathMap.get(timePeriod1).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone1XmlId,"[23,8,4,1,5,21]");
+      pathMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone2XmlId,"[23,8,4,1,2,6,22]");
+      pathMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone4XmlId,"[23,8,4,3,7,24]");
+      pathMap.get(timePeriod1).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone1XmlId,"[24,7,3,4,1,5,21]");
+      pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,"[24,7,3,2,6,22]");
+      pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,"[24,7,3,4,8,23]");
+      pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,"");   
+      pathMap.put(timePeriod2, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod2).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod2).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone2XmlId,"[21,5,1,2,6,22]");
+      pathMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone3XmlId,"[21,5,1,4,8,23]");
+      pathMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone4XmlId,"[21,5,1,4,3,7,24]");
+      pathMap.get(timePeriod2).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone1XmlId,"[22,6,2,1,5,21]");
+      pathMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone3XmlId,"[22,6,2,1,4,8,23]");
+      pathMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone4XmlId,"[22,6,2,3,7,24]");
+      pathMap.get(timePeriod2).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone1XmlId,"[23,8,4,1,5,21]");
+      pathMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone2XmlId,"[23,8,4,1,2,6,22]");
+      pathMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone4XmlId,"[23,8,4,3,7,24]");
+      pathMap.get(timePeriod2).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone1XmlId,"[24,7,3,4,1,5,21]");
+      pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone2XmlId,"[24,7,3,2,6,22]");
+      pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone3XmlId,"[24,7,3,4,8,23]");
+      pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone4XmlId,"");   
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+         
 
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod1, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod1).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod1).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod1, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod1).put(mode1, new TreeMap<String, Map<String, Double>>());
       odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
       odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
       odMap.get(timePeriod1).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
-      odMap.get(timePeriod1).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
       odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
       odMap.get(timePeriod1).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
-      odMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).put((long) 3, new TreeMap<String, Double>());
       odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
       odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
       odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod1).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
-      odMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod1).get(mode1).put((long) 4, new TreeMap<String, Double>());
       odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
       odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
       odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
       odMap.get(timePeriod1).get(mode1).get((long) 4).put((long) 4,Double.valueOf(0.0));
-      odMap.put(timePeriod2, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod2).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod2, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod2).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod2).get(mode1).put((long) 1, new TreeMap<String, Double>());
       odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
       odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
       odMap.get(timePeriod2).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
-      odMap.get(timePeriod2).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
       odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
       odMap.get(timePeriod2).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
-      odMap.get(timePeriod2).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).put((long) 3, new TreeMap<String, Double>());
       odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
       odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
       odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod2).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
-      odMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod2).get(mode1).put((long) 4, new TreeMap<String, Double>());
       odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
       odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
       odMap.get(timePeriod2).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
@@ -1385,30 +1372,29 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 7, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 8, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 9, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 10, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 15, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 21, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 22, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 23, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 24, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 7, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 8, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 9, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 10, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 15, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 21, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 22, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 23, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 24, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
       resultsMap.get(timePeriod).get(mode1).get((long) 9).put((long) 12, new LinkSegmentExpectedResultsDto(12, 9, 0.6,
           0.029, 1500, 2.9, 100));
@@ -1438,33 +1424,33 @@ public class RouteChoiceTest {
           0.0100617, 1500, 1, 99.3865031));
       resultsMap.get(timePeriod).get(mode1).get((long) 11).put((long) 15, new LinkSegmentExpectedResultsDto(15, 11, 500,
           0.0100617, 1500, 1, 99.3865031));
-      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 1, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1012,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, new LinkSegmentExpectedResultsDto(2, 1, 1012,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 1, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 2, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod).get(mode1).get((long) 7).put((long) 3, new LinkSegmentExpectedResultsDto(3, 7, 1900,
+      resultsMap.get(timePeriod).get(mode1).get((long) 7).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 7, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
           0.0106643, 1500, 1, 93.7709887));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
           0.0106643, 1500, 1, 93.7709887));
       resultsMap.get(timePeriod).get(mode1).get((long) 8).put((long) 4, new LinkSegmentExpectedResultsDto(4, 8, 1617,
           0.0167522, 1500, 1, 59.693666));
@@ -1502,55 +1488,51 @@ public class RouteChoiceTest {
           0.020013, 10000, 1, 49.967441));
       resultsMap.get(timePeriod).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
           maxIterations, resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[21,5,1,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,"[21,5,1,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,"[21,5,1,4,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"[22,6,2,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,"[22,6,2,1,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,"[22,6,2,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,"[23,8,4,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,"[23,8,4,1,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,"[23,8,4,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,"[24,7,3,4,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,"[24,7,3,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[21,5,1,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone3XmlId,"[21,5,1,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone4XmlId,"[21,5,1,4,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"[22,6,2,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone3XmlId,"[22,6,2,1,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone4XmlId,"[22,6,2,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone1XmlId,"[23,8,4,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone2XmlId,"[23,8,4,1,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone4XmlId,"[23,8,4,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone1XmlId,"[24,7,3,4,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone2XmlId,"[24,7,3,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone3XmlId,"[24,7,3,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone4XmlId,"");  
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);         
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
-      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
-      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
-      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
@@ -1599,30 +1581,29 @@ public class RouteChoiceTest {
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 7, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 8, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 9, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 10, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 15, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 21, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 22, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 23, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 24, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 5, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 6, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 7, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 8, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 9, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 10, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 11, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 13, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 14, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 15, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 16, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 21, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 22, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 23, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 24, new TreeMap<String, LinkSegmentExpectedResultsDto>());
 
       resultsMap.get(timePeriod).get(mode1).get((long) 9).put((long) 12, new LinkSegmentExpectedResultsDto(12, 9, 0.6,
           0.029, 1500, 2.9, 100));
@@ -1652,33 +1633,33 @@ public class RouteChoiceTest {
           0.0100617, 1500, 1, 99.3865031));
       resultsMap.get(timePeriod).get(mode1).get((long) 11).put((long) 15, new LinkSegmentExpectedResultsDto(15, 11, 500,
           0.0100617, 1500, 1, 99.3865031));
-      resultsMap.get(timePeriod).get(mode1).get((long) 5).put((long) 1, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 5).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 5, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 5, new LinkSegmentExpectedResultsDto(5, 1, 899.4,
           0.0106463, 1500, 1, 93.9295781));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 1, 1087.4,
           0.0102428, 1500, 0.9, 87.8665119));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1012,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2, new LinkSegmentExpectedResultsDto(2, 1, 1012,
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 1, 1012,
           0.0099323, 1500, 0.9, 90.613182));
-      resultsMap.get(timePeriod).get(mode1).get((long) 6).put((long) 2, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
+      resultsMap.get(timePeriod).get(mode1).get((long) 6).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 6, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put((long) 6, new LinkSegmentExpectedResultsDto(6, 2, 1582.4,
           0.0161926, 1500, 1, 61.756766));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 2, 994.4,
           0.0109657, 1500, 1, 91.1933155));
-      resultsMap.get(timePeriod).get(mode1).get((long) 7).put((long) 3, new LinkSegmentExpectedResultsDto(3, 7, 1900,
+      resultsMap.get(timePeriod).get(mode1).get((long) 7).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 7, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 7, new LinkSegmentExpectedResultsDto(7, 3, 1900,
           0.0228712, 1500, 1, 43.7230914));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 905.6,
           0.0106643, 1500, 1, 93.7709887));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put((long) 4, new LinkSegmentExpectedResultsDto(4, 3, 905.6,
           0.0106643, 1500, 1, 93.7709887));
       resultsMap.get(timePeriod).get(mode1).get((long) 8).put((long) 4, new LinkSegmentExpectedResultsDto(4, 8, 1617,
           0.0167522, 1500, 1, 59.693666));
@@ -1716,55 +1697,51 @@ public class RouteChoiceTest {
           0.020013, 10000, 1, 49.967441));
       resultsMap.get(timePeriod).get(mode1).get((long) 24).put((long) 7, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
           maxIterations, resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,"[21,5,1,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,"[21,5,1,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,"[21,5,1,4,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,"[22,6,2,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,"[22,6,2,1,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,"[22,6,2,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,"[23,8,4,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,"[23,8,4,1,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,"[23,8,4,3,7,24]");
-      pathMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,"[24,7,3,4,1,5,21]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,"[24,7,3,2,6,22]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,"[24,7,3,4,8,23]");
-      pathMap.get(timePeriod).get(mode1).get((long) 4).put((long) 4,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[21,5,1,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone3XmlId,"[21,5,1,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone4XmlId,"[21,5,1,4,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"[22,6,2,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone3XmlId,"[22,6,2,1,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone4XmlId,"[22,6,2,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone1XmlId,"[23,8,4,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone2XmlId,"[23,8,4,1,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone4XmlId,"[23,8,4,3,7,24]");
+      pathMap.get(timePeriod).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone1XmlId,"[24,7,3,4,1,5,21]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone2XmlId,"[24,7,3,2,6,22]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone3XmlId,"[24,7,3,4,8,23]");
+      pathMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone4XmlId,""); 
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);            
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, Double>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 1,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 2,Double.valueOf(0.0767791));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 3,Double.valueOf(0.0776307));
       odMap.get(timePeriod).get(mode1).get((long) 1).put((long) 4,Double.valueOf(0.0944051));
-      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1,Double.valueOf(0.0767791));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 2,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 3,Double.valueOf(0.0931159));
       odMap.get(timePeriod).get(mode1).get((long) 2).put((long) 4,Double.valueOf(0.0900226));
-      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1,Double.valueOf(0.0776307));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 2,Double.valueOf(0.0931159));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 3,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 3).put((long) 4,Double.valueOf(0.0902602));
-      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1,Double.valueOf(0.0944051));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2,Double.valueOf(0.0900226));
       odMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3,Double.valueOf(0.0902602));
@@ -1819,75 +1796,69 @@ public class RouteChoiceTest {
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       Mode mode2 = testOutputDto.getC().getModeBySourceId("2");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3000,0.0370117, 3600.0, 1.0, 27.0184697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 6, 0.0447625, 1200.0, 2.0, 44.6802634));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 1068, 0.0360526, 1200.0, 1.0, 27.7372551));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1926, 0.0719659, 1200.0, 1.0, 13.8954751));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 6, 0.0447625, 1200.0, 2.0, 44.6802634));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526, 1200.0, 1.0, 27.7372551));
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3000,0.0370117, 3600.0, 1.0, 27.0184697));
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 6, 0.0447625, 1200.0, 2.0, 44.6802634));
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 1068, 0.0360526, 1200.0, 1.0, 27.7372551));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1926, 0.0719659, 1200.0, 1.0, 13.8954751));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 6, 0.0447625, 1200.0, 2.0, 44.6802634));
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526, 1200.0, 1.0, 27.7372551));
       resultsMap.get(timePeriod).get(mode1).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 3000, 0.0370117, 3600.0, 1.0, 27.0184697));
 
-      resultsMap.get(timePeriod).put(mode2, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732, 3600.0, 1.0, 15.705194));
-      resultsMap.get(timePeriod).get(mode2).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332, 1200.0, 2.0, 32.8228128));
-      resultsMap.get(timePeriod).get(mode2).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639, 1200.0, 1.0, 16.296231));
-      resultsMap.get(timePeriod).get(mode2).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332, 1200.0, 2.0, 32.8228128));
-      resultsMap.get(timePeriod).get(mode2).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639, 1200.0, 1.0, 16.296231));
+      resultsMap.get(timePeriod).put(mode2, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode2).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).get(node1XmlId).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732, 3600.0, 1.0, 15.705194));
+      resultsMap.get(timePeriod).get(mode2).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332, 1200.0, 2.0, 32.8228128));
+      resultsMap.get(timePeriod).get(mode2).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639, 1200.0, 1.0, 16.296231));
+      resultsMap.get(timePeriod).get(mode2).get((long) 4).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332, 1200.0, 2.0, 32.8228128));
+      resultsMap.get(timePeriod).get(mode2).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639, 1200.0, 1.0, 16.296231));
       resultsMap.get(timePeriod).get(mode2).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732, 3600.0, 1.0, 15.705194));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter, maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,"");
-      pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,"[11,1,4,12]");
-      pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,"[11,1,2,4,12]");
-      pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone27XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone27XmlId).put(zone27XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone27XmlId).put(zone31XmlId,"");
+      pathMap.get(timePeriod).get(mode2).put(zone27XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode2).get(zone27XmlId).put(zone27XmlId,"");
+      pathMap.get(timePeriod).get(mode2).get(zone27XmlId).put(zone31XmlId,"");
+      pathMap.get(timePeriod).get(mode1).put(zone31XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone31XmlId).put(zone27XmlId,"[11,1,4,12]");
+      pathMap.get(timePeriod).get(mode1).get(zone31XmlId).put(zone31XmlId,"");
+      pathMap.get(timePeriod).get(mode2).put(zone31XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode2).get(zone31XmlId).put(zone27XmlId,"[11,1,2,4,12]");
+      pathMap.get(timePeriod).get(mode2).get(zone31XmlId).put(zone31XmlId,"");
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);           
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, Double>>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).put(mode2, new TreeMap<String, Map<String, Double>>());
       
-      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,Double.valueOf(0.1457425));
       odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,Double.valueOf(0.249072));
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
@@ -1958,17 +1929,15 @@ public class RouteChoiceTest {
       Mode mode2 = testOutputDto.getC().getModeBySourceId("2");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
 
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod).get(mode1).put((long) 0, new LinkSegmentExpectedResultsDto(11, 1, 3000, 0.0370117,
           3600.0, 1.0, 27.0184697));
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1926, 0.0719659,
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1926, 0.0719659,
           1200.0, 1.0, 13.8954751));
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new LinkSegmentExpectedResultsDto(4, 12, 3000, 0.0370117,
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new LinkSegmentExpectedResultsDto(4, 12, 3000, 0.0370117,
           3600.0, 1.0, 27.0184697));
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new LinkSegmentExpectedResultsDto(1, 2, 6, 0.0447625,
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new LinkSegmentExpectedResultsDto(1, 2, 6, 0.0447625,
           1200.0, 2.0, 44.6802634));
       resultsMap.get(timePeriod).get(mode1).put((long) 4, new LinkSegmentExpectedResultsDto(2, 4, 6, 0.0447625,
           1200.0, 2.0, 44.6802634));
@@ -1976,12 +1945,12 @@ public class RouteChoiceTest {
           1200.0, 1.0, 27.7372551));
       resultsMap.get(timePeriod).get(mode1).put((long) 6, new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526,
           1200.0, 1.0, 27.7372551));
-      resultsMap.get(timePeriod).put(mode2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).put(mode2, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode2).put((long) 0, new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732,
           3600.0, 1.0, 15.705194));
-      resultsMap.get(timePeriod).get(mode2).put((long) 2, new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732,
+      resultsMap.get(timePeriod).get(mode2).put(node2XmlId, new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732,
           3600.0, 1.0, 15.705194));
-      resultsMap.get(timePeriod).get(mode2).put((long) 3, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332,
+      resultsMap.get(timePeriod).get(mode2).put(node3XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332,
           1200.0, 2.0, 32.8228128));
       resultsMap.get(timePeriod).get(mode2).put((long) 4, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332,
           1200.0, 2.0, 32.8228128));
@@ -1992,44 +1961,39 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingLinkSegmentId(memoryOutputFormatter, maxIterations,
           resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,"");
-      pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,"");
-      pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,"[11,1,4,12]");
-      pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, String>());
-      pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,"[11,1,2,4,12]");
-      pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put(zone27XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone27XmlId).put(zone27XmlId,"");
+      pathMap.get(timePeriod).get(mode1).get(zone27XmlId).put(zone31XmlId,"");
+      pathMap.get(timePeriod).get(mode2).put(zone27XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode2).get(zone27XmlId).put(zone27XmlId,"");
+      pathMap.get(timePeriod).get(mode2).get(zone27XmlId).put(zone31XmlId,"");
+      pathMap.get(timePeriod).get(mode1).put(zone31XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).get(zone31XmlId).put(zone27XmlId,"[11,1,4,12]");
+      pathMap.get(timePeriod).get(mode1).get(zone31XmlId).put(zone31XmlId,"");
+      pathMap.get(timePeriod).get(mode2).put(zone31XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode2).get(zone31XmlId).put(zone27XmlId,"[11,1,2,4,12]");
+      pathMap.get(timePeriod).get(mode2).get(zone31XmlId).put(zone31XmlId,"");  
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);         
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, Double>>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).put(mode2, new TreeMap<String, Map<String, Double>>());
       
-      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,Double.valueOf(0.1457425));
       odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,Double.valueOf(0.249072));
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
@@ -2085,89 +2049,84 @@ public class RouteChoiceTest {
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       Mode mode2 = testOutputDto.getC().getModeBySourceId("2");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap =
-          new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>>();
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3000,
+      
+      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode1).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode1).get(node1XmlId).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 3000,
           0.0370117, 3600.0, 1.0, 27.0184697));
-      resultsMap.get(timePeriod).get(mode1).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 6,
+      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 6,
           0.0447625, 1200.0, 2.0, 44.6802634));
-      resultsMap.get(timePeriod).get(mode1).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 1068,
+      resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 1068,
           0.0360526, 1200.0, 1.0, 27.7372551));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 1, new LinkSegmentExpectedResultsDto(1, 4, 1926,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 4, 1926,
           0.0719659, 1200.0, 1.0, 13.8954751));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 6,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 6,
           0.0447625, 1200.0, 2.0, 44.6802634));
-      resultsMap.get(timePeriod).get(mode1).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 1068,
+      resultsMap.get(timePeriod).get(mode1).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1068,
           0.0360526, 1200.0, 1.0, 27.7372551));
       resultsMap.get(timePeriod).get(mode1).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 3000,
           0.0370117, 3600.0, 1.0, 27.0184697));
 
-      resultsMap.get(timePeriod).put(mode2, new TreeMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 3, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 4, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).put((long) 12, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode2).get((long) 1).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 1500,
+      resultsMap.get(timePeriod).put(mode2, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
+      resultsMap.get(timePeriod).get(mode2).put(node1XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 4, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).put((long) 12, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod).get(mode2).get(node1XmlId).put((long) 11, new LinkSegmentExpectedResultsDto(11, 1, 1500,
           0.0636732, 3600.0, 1.0, 15.705194));
-      resultsMap.get(timePeriod).get(mode2).get((long) 2).put((long) 1, new LinkSegmentExpectedResultsDto(1, 2, 1086,
+      resultsMap.get(timePeriod).get(mode2).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1086,
           0.0609332, 1200.0, 2.0, 32.8228128));
-      resultsMap.get(timePeriod).get(mode2).get((long) 3).put((long) 1, new LinkSegmentExpectedResultsDto(1, 3, 414,
+      resultsMap.get(timePeriod).get(mode2).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 414,
           0.0613639, 1200.0, 1.0, 16.296231));
-      resultsMap.get(timePeriod).get(mode2).get((long) 4).put((long) 2, new LinkSegmentExpectedResultsDto(2, 4, 1086,
+      resultsMap.get(timePeriod).get(mode2).get((long) 4).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 1086,
           0.0609332, 1200.0, 2.0, 32.8228128));
-      resultsMap.get(timePeriod).get(mode2).get((long) 4).put((long) 3, new LinkSegmentExpectedResultsDto(3, 4, 414,
+      resultsMap.get(timePeriod).get(mode2).get((long) 4).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 414,
           0.0613639, 1200.0, 1.0, 16.296231));
       resultsMap.get(timePeriod).get(mode2).get((long) 12).put((long) 4, new LinkSegmentExpectedResultsDto(4, 12, 1500,
           0.0636732, 3600.0, 1.0, 15.705194));
       //PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(memoryOutputFormatter,
       //    maxIterations, resultsMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>>();
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, String>>());
-      pathMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, String>());
+      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).put(mode2, new TreeMap<String, Map<String, String>>());
+      pathMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,"");
       pathMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,"");
       pathMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,"[11,1,4,12]");
       pathMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,"");
-      pathMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, String>());
+      pathMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,"[11,1,2,4,12]");
       pathMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,"");
       //PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
       
-      Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap =
-          new TreeMap<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>>();
-      odMap.put(timePeriod, new TreeMap<Mode, Map<Long, Map<Long, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<Long, Map<Long, Double>>());
-      odMap.get(timePeriod).put(mode2, new TreeMap<Long, Map<Long, Double>>());
+      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.get(timePeriod).put(mode2, new TreeMap<String, Map<String, Double>>());
       
-      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 27, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 27,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get((long) 27).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).put((long) 27, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 27,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode2).get((long) 27).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode1).put((long) 31, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 27,Double.valueOf(0.1457425));
       odMap.get(timePeriod).get(mode1).get((long) 31).put((long) 31,Double.valueOf(0.0));
       
-      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<Long, Double>());
+      odMap.get(timePeriod).get(mode2).put((long) 31, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 27,Double.valueOf(0.249072));
       odMap.get(timePeriod).get(mode2).get((long) 31).put((long) 31,Double.valueOf(0.0));
       //PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);

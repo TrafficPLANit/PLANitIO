@@ -80,7 +80,7 @@ public class PlanItIOTestHelper {
   private static Consumer<LinkOutputTypeConfiguration> defaultSetOutputTypeConfigurationProperties = (
       linkOutputTypeConfiguration) -> {
     try {
-      linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
+      linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
     } catch (final PlanItException e) {
@@ -178,26 +178,26 @@ public class PlanItIOTestHelper {
       outputProperty = OutputProperty.OD_COST;
     }
     for (TimePeriod timePeriod : map.keySet()) {
-      @SuppressWarnings("unchecked") Map<Mode, Map<Long, Map<Long, ?>>> mapPerTimePeriod = (Map<Mode, Map<Long, Map<Long, ?>>>) map.get(timePeriod);
+      @SuppressWarnings("unchecked") Map<Mode, Map<String, Map<String, ?>>> mapPerTimePeriod = (Map<Mode, Map<String, Map<String, ?>>>) map.get(timePeriod);
       for (Mode mode : mapPerTimePeriod.keySet()) {
-        Map<Long, Map<Long, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
+        Map<String, Map<String, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
         final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty);
-        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.ORIGIN_ZONE_EXTERNAL_ID);
-        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.DESTINATION_ZONE_EXTERNAL_ID);
+        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.ORIGIN_ZONE_XML_ID);
+        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.DESTINATION_ZONE_XML_ID);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, outputType);       
         while (memoryOutputIterator.hasNext()) {
           memoryOutputIterator.next();
           final Object[] keys = memoryOutputIterator.getKeys();
           final Object[] results = memoryOutputIterator.getValues();
-          Long originZoneExternalId = (Long) keys[originZonePosition];
-          Long destinationZoneExternalId = (Long) keys[destinationZonePosition];
+          String originZoneXmlId = (String) keys[originZonePosition];
+          String destinationZoneXmlId = (String) keys[destinationZonePosition];
           if (outputType.equals(OutputType.OD)) {
-            Double expectedCost = (Double) mapPerTimePeriodAndMode.get(originZoneExternalId).get(destinationZoneExternalId);
+            Double expectedCost = (Double) mapPerTimePeriodAndMode.get(originZoneXmlId).get(destinationZoneXmlId);
             Double costFromMemoryOutputFormatter = (Double) results[position];
             assertEquals(expectedCost, costFromMemoryOutputFormatter, epsilon);
             pass = pass && (Math.abs(expectedCost - costFromMemoryOutputFormatter) < epsilon);
           } else {
-            String expectedPath = (String) mapPerTimePeriodAndMode.get(originZoneExternalId).get(destinationZoneExternalId);
+            String expectedPath = (String) mapPerTimePeriodAndMode.get(originZoneXmlId).get(destinationZoneXmlId);
             String pathFromMemoryOutputFormatter = (String) results[position];
             assertEquals(expectedPath, pathFromMemoryOutputFormatter);
             pass = pass && (expectedPath.equals(pathFromMemoryOutputFormatter));
@@ -225,28 +225,28 @@ public class PlanItIOTestHelper {
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
-  public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesExternalId(
+  public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
-      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>>> resultsMap)
+      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap)
       throws PlanItException {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-          final int downstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
-          final int upstreamNodeExternalIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
-          return Pair.create(downstreamNodeExternalIdPosition, upstreamNodeExternalIdPosition);
+          final int downstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_XML_ID);
+          final int upstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.UPSTREAM_NODE_XML_ID);
+          return Pair.create(downstreamNodeXmlIdPosition, upstreamNodeXmlIdPosition);
           } catch (PlanItException e) {
             return e;
           }
         },
         (positionKeys, innerObj, keys) -> {
-          @SuppressWarnings("unchecked") final SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>> innerMap =
-              (SortedMap<Long, SortedMap<Long, LinkSegmentExpectedResultsDto>>) innerObj;
-          final int downstreamNodeExternalIdPosition = positionKeys.first();
-          final int upstreamNodeExternalIdPosition = positionKeys.second();
-          final long upstreamNodeExternalId = (Long) keys[downstreamNodeExternalIdPosition];
-          final long downstreamNodeExternalId = (Long) keys[upstreamNodeExternalIdPosition];
-          return innerMap.get(upstreamNodeExternalId).get(downstreamNodeExternalId);
+          @SuppressWarnings("unchecked") final SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>> innerMap =
+              (SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>) innerObj;
+          final int downstreamNodeXmlIdPosition = positionKeys.first();
+          final int upstreamNodeXmlIdPosition = positionKeys.second();
+          final String upstreamNodeXmlId = (String) keys[downstreamNodeXmlIdPosition];
+          final String  downstreamNodeXmlId = (String) keys[upstreamNodeXmlIdPosition];
+          return innerMap.get(upstreamNodeXmlId).get(downstreamNodeXmlId);
         });
   }
   
@@ -293,13 +293,13 @@ public class PlanItIOTestHelper {
    * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
    *          results from a test run
    * @param iterationIndex the current iteration index
-   * @param pathMap Map of expected paths by time period, mode, origin zone external Id and destination zone external Id
+   * @param pathMap Map of expected paths by time period, mode, origin zone xml Id and destination zone xml Id
    * @return true if all the tests pass, false otherwise
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
   public static boolean comparePathResultsToMemoryOutputFormatter(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<Long, Map<Long, String>>>> pathMap) throws PlanItException {
+      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap) throws PlanItException {
     return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, pathMap, OutputType.PATH);
 
   }
@@ -307,16 +307,15 @@ public class PlanItIOTestHelper {
   /**
    * Compares the Origin-Destination cost values stored in the MemoryOutputFormatter with the expected results
    * 
-   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
-   *          results from a test run
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
    * @param iterationIndex the current iteration index
-   * @param odMap Map of expected OD costs by time period, mode, origin zone external Id and destination zone external Id
+   * @param odMap Map of expected OD costs by time period, mode, origin zone Xml Id and destination zone Xml Id
    * @return true if all the tests pass, false otherwise
    * @throws PlanItException thrown if one of the test output properties has not
    *           been saved
    */
   public static boolean compareOriginDestinationResultsToMemoryOutputFormatter(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<Long, Map<Long, Double>>>> odMap) throws PlanItException {
+      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap) throws PlanItException {
     return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, odMap, OutputType.OD);
   }
    
@@ -773,7 +772,7 @@ public class PlanItIOTestHelper {
     // OD OUTPUT
     final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
         (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
-    originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
+    originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
     // OUTPUT FORMAT CONFIGURATION
@@ -804,11 +803,11 @@ public class PlanItIOTestHelper {
     project.executeAllTrafficAssignments();
     linkOutputTypeConfiguration.removeAllProperties();
     linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_EXTERNAL_ID);
+    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
+    linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_XML_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_LOCATION);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_EXTERNAL_ID);
+    linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_XML_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_LOCATION);
     linkOutputTypeConfiguration.addProperty(OutputProperty.FLOW);
@@ -818,7 +817,7 @@ public class PlanItIOTestHelper {
     linkOutputTypeConfiguration.addProperty(OutputProperty.CALCULATED_SPEED);
     linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_COST);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_EXTERNAL_ID);
+    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
     linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);
     project.executeAllTrafficAssignments();
     TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
@@ -899,13 +898,13 @@ public class PlanItIOTestHelper {
     final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
         (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
     originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
-    originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_EXTERNAL_ID);
+    originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
     originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
     // PATH OUTPUT CONFIGURATION
     final PathOutputTypeConfiguration pathOutputTypeConfiguration = 
         (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
-    pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_EXTERNAL_ID);
+    pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
 
     
     // OUTPUT FORMAT CONFIGURATION
