@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/metadata.xsd">
-    <timestamp>2020-06-30T09:48:14.512+10:00</timestamp>
-    <version>0.0.5a1</version>
-    <description>PlanIt common code for traffic assignment</description>
+    <timestamp>2020-12-04T08:57:09.630+11:00</timestamp>
     <outputconfiguration>
         <assignment>TraditionalStaticAssignment</assignment>
         <physicalcost>BPRLinkTravelTimeCost</physicalcost>
@@ -23,19 +21,19 @@
     </simulation>
     <columns>
         <column>
-            <name>Destination Zone External Id</name>
+            <name>Destination Zone Xml Id</name>
             <units>none</units>
-            <type>integer</type>
+            <type>string</type>
         </column>
         <column>
-            <name>Mode External Id</name>
+            <name>Mode Xml Id</name>
             <units>none</units>
-            <type>integer</type>
+            <type>string</type>
         </column>
         <column>
-            <name>Origin Zone External Id</name>
+            <name>Origin Zone Xml Id</name>
             <units>none</units>
-            <type>integer</type>
+            <type>string</type>
         </column>
         <column>
             <name>Path Id</name>
@@ -48,9 +46,9 @@
             <type>integer</type>
         </column>
         <column>
-            <name>Time Period External Id</name>
+            <name>Time Period Xml Id</name>
             <units>none</units>
-            <type>integer</type>
+            <type>string</type>
         </column>
         <column>
             <name>Path</name>
