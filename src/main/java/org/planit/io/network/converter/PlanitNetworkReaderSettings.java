@@ -109,7 +109,7 @@ public class PlanitNetworkReaderSettings {
    * 
    * @param errorIfDuplicateXmlId
    */
-  public void setErrorIfDuplicatexXmlId(boolean errorIfDuplicateXmlId) {
+  public void setErrorIfDuplicateXmlId(boolean errorIfDuplicateXmlId) {
     this.errorIfDuplicateXmlId = errorIfDuplicateXmlId;
   }   
   

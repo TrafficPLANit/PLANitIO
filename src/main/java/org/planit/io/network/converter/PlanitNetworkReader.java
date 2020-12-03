@@ -1,7 +1,6 @@
 package org.planit.io.network.converter;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.logging.Logger;
 

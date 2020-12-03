@@ -271,7 +271,7 @@ public class XmlMacroscopicNetworkHelper {
           String modeXmlRefId = xmlMode.getRef();
 
           Mode thePlanitMode = modesByXmlId.get(modeXmlRefId);
-          PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%d) does not exist in PLANit parser",modeXmlRefId));
+          PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%s) does not exist in PLANit parser",modeXmlRefId));
           
           /* mode properties */
           populateLinkSegmentTypeModeProperties(linkSegmentTypeXmlHelper, xmlId, xmlMode, thePlanitMode);
@@ -544,7 +544,7 @@ public class XmlMacroscopicNetworkHelper {
           /* link segment type external id */
           existingLinkSegmentType.setExternalId(linkSegmentTypeXmlHelper.getExternalId());
                 
-          if (existingLinkSegmentType.getExternalId() != null) {
+          if (existingLinkSegmentType.getXmlId() != null) {
             MacroscopicLinkSegmentType prevValue = linkSegmentTypesByXmlId.put(linkTypeXmlId, existingLinkSegmentType);
             PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(),"Duplicate link segment type external id " + linkSegment.getExternalId() + " found in network file");
           }           

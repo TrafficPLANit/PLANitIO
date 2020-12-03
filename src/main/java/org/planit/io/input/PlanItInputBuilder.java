@@ -322,7 +322,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     reader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
     reader.getSettings().setMapToIndexNodeByXmlIds(sourceIdNodeMap);
     /* pass on relevant general settings to reader settings */
-    reader.getSettings().setErrorIfDuplicatexXmlId(isErrorIfDuplicateSourceId());
+    reader.getSettings().setErrorIfDuplicateXmlId(isErrorIfDuplicateSourceId());
     network = reader.read();        
   }
 

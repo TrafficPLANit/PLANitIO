@@ -117,7 +117,13 @@ public class BPRTest {
       TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
           (physicalNetwork, bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
+            if(macroscopiclinkSegmentType == null) {
+              fail("link segment type not present");
+            }
             Mode mode = inputBuilderListener.getModeBySourceId("1");
+            if(mode == null) {
+              fail("link segment type not present");
+            }            
             bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
             MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentBySourceId("3");
             bpr.setParameters(linkSegment, mode, 1.0, 5.0);
