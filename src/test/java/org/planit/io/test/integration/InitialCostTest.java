@@ -24,7 +24,6 @@ import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
-import org.planit.output.property.ModeExternalIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
 import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
 import org.planit.project.CustomPlanItProject;
@@ -65,27 +64,22 @@ public class InitialCostTest {
   @Test
   public void test_reading_initial_cost_values() {
     String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues";
-    String initialCostsFileLocation =
-        "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
-    String initialCostsFileLocationExternalId =
-        "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs_external_id.csv";
+    String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
+    String initialCostsFileLocationXmlId = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs_xml_id.csv";
     try {
-      IdGenerator.reset();
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-      PhysicalNetwork<?,?,?> physicalNetwork =
-          project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+      PhysicalNetwork<?,?,?> physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      InitialLinkSegmentCost initialCost =
-         project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
-      Reader in = new FileReader(initialCostsFileLocationExternalId);
+      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
+      Reader in = new FileReader(initialCostsFileLocationXmlId);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-      String modeHeader = ModeExternalIdOutputProperty.NAME;
+      String modeHeader = ModeXmlIdOutputProperty.NAME;
       String linkSegmentXmlIdHeader = LinkSegmentXmlIdOutputProperty.NAME;
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
-        String modeExternalId = record.get(modeHeader);
-        Mode mode = planItInputBuilder.getModeBySourceId(modeExternalId);
+        String modeXmlId = record.get(modeHeader);
+        Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
         String linkSegmentXmlId = record.get(linkSegmentXmlIdHeader);
         MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentBySourceId(linkSegmentXmlId);
@@ -105,31 +99,27 @@ public class InitialCostTest {
   @Test
   public void test_reading_initial_cost_values_with_missing_rows() {
     String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues";
-    String initialCostsFileLocation =
-        "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
-    String initialCostsFileLocationMissingRows =
-        "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs1.csv";
+    String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
+    String initialCostsFileLocationMissingRows = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs1.csv";
     try {
-      IdGenerator.reset();
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      InitialLinkSegmentCost initialCost =
-          project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
-      String upstreamNodeExternalIdHeader = UpstreamNodeXmlIdOutputProperty.NAME;
-      String downstreamNodeExternalIdHeader = DownstreamNodeXmlIdOutputProperty.NAME;
+      String upstreamNodeXmlIdHeader = UpstreamNodeXmlIdOutputProperty.NAME;
+      String downstreamNodeXmlIdHeader = DownstreamNodeXmlIdOutputProperty.NAME;
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
-        String modeExternalId =record.get(modeHeader);
-        Mode mode = planItInputBuilder.getModeBySourceId(modeExternalId);
+        String modeXmlId =record.get(modeHeader);
+        Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
-        String upstreamNodeXmlId = record.get(upstreamNodeExternalIdHeader);
-        String downstreamNodeXmlId = record.get(downstreamNodeExternalIdHeader);
+        String upstreamNodeXmlId = record.get(upstreamNodeXmlIdHeader);
+        String downstreamNodeXmlId = record.get(downstreamNodeXmlIdHeader);
         Node startNode = planItInputBuilder.getNodeBySourceId(upstreamNodeXmlId);
         Node endNode = planItInputBuilder.getNodeBySourceId(downstreamNodeXmlId);
         final MacroscopicLinkSegment linkSegment = startNode.getLinkSegment(endNode);
