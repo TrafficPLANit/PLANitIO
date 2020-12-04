@@ -106,7 +106,7 @@ public class ProcessConfiguration {
         PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1,
             "User class " + xmlUserclass.getId() + " has no traveller type specified, but more than one traveller type possible");                
       }else {
-        PlanItException.throwIf(demands.travelerTypes.getTravelerTypeByExternalId(xmlUserclass.getTravellertyperef()) == null, 
+        PlanItException.throwIf(inputBuilderListener.getTravelerTypeBySourceId(xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
       PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");

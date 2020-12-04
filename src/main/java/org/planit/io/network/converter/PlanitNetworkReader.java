@@ -14,6 +14,7 @@ import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.PredefinedModeType;
 import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Node;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.xml.generated.XMLElementLinkConfiguration;
 import org.planit.xml.generated.XMLElementLinkSegmentType;
 import org.planit.xml.generated.XMLElementLinkSegmentTypes;
@@ -30,12 +31,7 @@ public class PlanitNetworkReader implements NetworkReader {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());
-  
-  /**
-   * Default external Id value for link segment types when none are specified
-   */
-  private static final String DEFAULT_LINKSEGMENTTYPE_XML_ID = "1";  
-    
+      
   /** object to extract PLANit network from once file is parsed */
   private XMLElementMacroscopicNetwork xmlRawNetwork;          
   
@@ -72,6 +68,7 @@ public class PlanitNetworkReader implements NetworkReader {
       // default in absence of any modes is the predefined CAR mode
       xmlElementMode.setPredefined(true);
       xmlElementMode.setName(PredefinedModeType.CAR.value());
+      xmlElementMode.setId(Mode.DEFAULT_XML_ID);
       xmlRawNetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
     }
     
@@ -80,7 +77,7 @@ public class PlanitNetworkReader implements NetworkReader {
       xmlRawNetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
       XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
       xmlLinkSegmentType.setName("");
-      xmlLinkSegmentType.setId(DEFAULT_LINKSEGMENTTYPE_XML_ID);
+      xmlLinkSegmentType.setId(MacroscopicLinkSegmentType.DEFAULT_XML_ID);
       xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
       xmlLinkSegmentType.setMaxdensitylane(LinkSegment.MAXIMUM_DENSITY);
       xmlRawNetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
