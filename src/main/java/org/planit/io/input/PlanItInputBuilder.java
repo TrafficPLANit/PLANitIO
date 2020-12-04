@@ -33,6 +33,7 @@ import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
+import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentIdOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
@@ -226,7 +227,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if there is an error reading the file
    */
   @SuppressWarnings("incomplete-switch")
-  private OutputProperty getLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
+  private OutputProperty getInitialCostLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
     boolean linkSegmentXmlIdPresent = false;
     boolean linkSegmentExternalIdPresent = false;
     boolean linkSegmentIdPresent = false;
@@ -460,7 +461,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Reader in = new FileReader(fileName);
       final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
       final Set<String> headers = parser.getHeaderMap().keySet();
-      final OutputProperty linkIdentificationMethod = getLinkIdentificationMethod(headers);
+      final OutputProperty linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);
       for (final CSVRecord record : parser) {
         MacroscopicLinkSegment linkSegment = null;
         switch (linkIdentificationMethod) {
@@ -468,6 +469,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
             final long id = Long.parseLong(record.get(LinkSegmentIdOutputProperty.NAME));
             linkSegment = network.linkSegments.get(id);            
             break;
+          case LINK_SEGMENT_EXTERNAL_ID:
+            final String externalId = record.get(LinkSegmentExternalIdOutputProperty.NAME);
+            linkSegment = network.linkSegments.getByExternalId(externalId);            
+            break;            
           case LINK_SEGMENT_XML_ID:
             final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
             linkSegment = getLinkSegmentBySourceId(xmlId);

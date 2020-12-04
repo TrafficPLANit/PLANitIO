@@ -50,52 +50,52 @@
 		</linkconfiguration>
 		<infrastructure>
 			<nodes>
-				<node id="1" />
-				<node id="2" />
-				<node id="3" />
-				<node id="4" />
-				<node id="11" />
-				<node id="12" />
+				<node id="1"  externalid="e1" />
+				<node id="2"  externalid="e2"/>
+				<node id="3"  externalid="e3"/>
+				<node id="4"  externalid="e4"/>
+				<node id="11" externalid="e11"/>
+				<node id="12" externalid="e12"/>
 			</nodes>
 			<links>
 				<link nodearef="11" nodebref="1">
-					<linksegment id="1" dir="a_b" typeref="1">
+					<linksegment id="1" externalid="e1" dir="a_b" typeref="1">
 						<numberoflanes>3</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="1" nodebref="4">
-					<linksegment id="2" dir="a_b" typeref="1">
+					<linksegment id="2" externalid="e2"  dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="4" nodebref="12">
-					<linksegment id="3" dir="a_b" typeref="1">
+					<linksegment id="3" externalid="e3" dir="a_b" typeref="1">
 						<numberoflanes>3</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="1" nodebref="2">
-					<linksegment id="4" dir="a_b" typeref="1">
+					<linksegment id="4" externalid="e4" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>2</length>
 				</link>
 				<link nodearef="2" nodebref="4">
-					<linksegment id="5" dir="a_b" typeref="1">
+					<linksegment id="5" externalid="e5" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>2</length>
 				</link>
 				<link nodearef="1" nodebref="3">
-					<linksegment id="6" dir="a_b" typeref="1">
+					<linksegment id="6" externalid="e6" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="3" nodebref="4">
-					<linksegment id="7" dir="a_b" typeref="1">
+					<linksegment id="7" externalid="e7" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>1</length>

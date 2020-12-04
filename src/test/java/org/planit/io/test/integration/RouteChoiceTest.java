@@ -659,8 +659,7 @@ public class RouteChoiceTest {
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids() {
     try {
-      String projectPath =
-          "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds";
+      String projectPath = "src\\test\\resources\\testcases\\route_choice\\xml\\SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds";
       String description = "testRouteChoice2initialCosts";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
