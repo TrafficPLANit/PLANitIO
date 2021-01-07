@@ -228,9 +228,9 @@ public class ExplanatoryTest {
    * Test case in which the time period external Id values do not match the internally generated Id values
    */
   @Test
-  public void test_explanatory_time_period_external_id_test() {
+  public void test_explanatory_time_period_xml_id_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\timePeriodExternalIdTest";
+      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\timePeriodXmlIdTest";
       String description = "explanatory";
       String csvFileName = "Time_Period_2_2.csv";
       String odCsvFileName = "Time_Period_2_1.csv";

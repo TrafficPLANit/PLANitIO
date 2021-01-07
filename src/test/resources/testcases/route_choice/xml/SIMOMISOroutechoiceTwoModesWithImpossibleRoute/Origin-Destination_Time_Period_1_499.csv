@@ -1,4 +1,4 @@
-Destination Zone External Id,Mode External Id,Origin Zone External Id,Cost
+Destination Zone Xml Id,Mode Xml Id,Origin Zone Xml Id,Cost
 31,1,31,0.0000000
 27,1,31,0.0946617
 31,1,27,Infinity

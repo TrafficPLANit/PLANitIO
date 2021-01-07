@@ -2,6 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
 	<macroscopicdemand>
+
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
@@ -18,17 +19,19 @@
 		</demandconfiguration>
 
 		<oddemands>
-			<odrawmatrix timeperiodref="0" userclassref="1">
-				<values>100,200,300,400,200,400,600,800,300,600,900,1200,400,800,1200,1600
-				</values>
-			</odrawmatrix>
+			<odrowmatrix timeperiodref="0" userclassref="1">
+				<odrow ref="1">100,200,300,400</odrow>
+				<odrow ref="2">200,400,600,800</odrow>
+				<odrow ref="3">300,600,900,1200</odrow>
+				<odrow ref="4">400,800,1200,1600</odrow>
+			</odrowmatrix>
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
 		<linkconfiguration>
 			<modes>
 				<mode id="1">																
-					<name>Basic</name>														
+					<name>Basic</name>												
 					<maxspeed>130</maxspeed>
 				</mode>
 			</modes>
@@ -293,11 +296,10 @@
 					</linksegment>
 					<length>1</length>
 				</link>
-
 			</links>
 		</infrastructure>
 	</macroscopicnetwork>
-		<macroscopiczoning>
+	<macroscopiczoning>
 		<zones>
 			<zone id="1">
 				<centroid>

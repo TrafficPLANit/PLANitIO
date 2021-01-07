@@ -43,7 +43,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_link_segment_type_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentTypeExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentTypeXmlId";
       String description = "testDuplicateLinkSegmentType";
       Integer maxIterations = 1;
 
@@ -61,7 +61,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_link_segment_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentXmlId";
       String description = "testDuplicateLinkSegment";
       Integer maxIterations = 1;
 
@@ -81,7 +81,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_node_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateNodeExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateNodeXmlId";
       String description = "testDuplicateNode";
       Integer maxIterations = 1;
 
@@ -101,7 +101,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_mode_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateModeExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateModeXmlId";
       String description = "testDuplicateMode";
       Integer maxIterations = 1;
 
@@ -121,7 +121,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_zone_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateZoneExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateZoneXmlId";
       String description = "testDuplicateZone";
       Integer maxIterations = 1;
 
@@ -141,7 +141,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_time_period_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateTimePeriodExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateTimePeriodXmlId";
       String description = "testDuplicateTimePeriod";
       Integer maxIterations = 1;
 
@@ -161,7 +161,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_user_class_external_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateUserClassExternalId";
+      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateUserClassXmlId";
       String description = "testDuplicateUserClass";
       Integer maxIterations = 1;
 

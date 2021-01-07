@@ -114,19 +114,17 @@ Most modellers do not need to worry about the contents of the temporary results 
 
 Tests of the contents of the MemoryOutputFormatter use data transfer objects (DTOs). These objects are populated with expected result values in the Java code, and then stored in Java Maps. After the traffic assignment run has finished, the values stored in the MemoryOutputFormatter can be compared to these standard results in the code.
 
-Expected results for link output are stored in ResultDto objects. A ResultDto object is populated by its constructor call, which has the following arguments:-
+Expected results beyond its identifying properties for link output are stored in LinkSegmentResultDto objects. This is populated by its constructor call, which has the following arguments:-
 
-- *startNodeId*		   external id of start node (used to define the link segment);
-- *endNodeId*			external id of end node (used to define the link segment);
+- *startNodeId*		   id of start node (used to define the link segment);
+- *endNodeId*		   id of end node (used to define the link segment);
 - *linkFlow*				 flow through link (output);
 - *linkCost*				 cost (travel time) of link (output);
 - *capacity*				 capacity of the link (input);
 - *length*					 length of the link (input);
 - *speed*					 travel speed of the link (input).
 
-ResultDto objects are stored in a Java Map whose keys are run id, time period and mode. Test cases may have more than one run, time period or mode so this allows all the results to be stored for each. 
-
-The fifth argument in the ResultDto constructor, total cost to end node, is not currently used. This was originally included to provide a sort order for the ResultDto objects in the Map which stores them. This is quite helpful for human inspection of CSV output files but is not required for computerized testing.
+These objects are stored in Maps whose keys are for example; time period, mode, and link segment xml id.
 
 ### 2.7	Storing Expected Results in Memory – Path Output
 
@@ -137,16 +135,16 @@ Path output maps use five values as keys:-
 - mode;
 - time period;
 - iteration number;
-- origin zone external Id;
-- destination zone external Id.
+- origin zone xml Id;
+- destination zone xml Id.
 
 Expected paths are stored as a String, which consists of a series of values representing the nodes in the path surrounded by square brackets e.g. "[11,1,2,4,12]".
 
-The Java code gets an iterator through rows of the MemoryOuptutFormatter for the columns corresponding to the keys above for the “PATH_STRING” output property type.  This gives an output path corresponding to each origin zone and destination zone (identified by external Id).  The path value in each row of the MemoryOutputFormatter is compared to the standard path from the Java Map.  If the paths do not agree for a given pair of origin and destination zones, the test fails.
+The Java code gets an iterator through rows of the MemoryOuptutFormatter for the columns corresponding to the keys above for the “PATH_STRING” output property type.  This gives an output path corresponding to each origin zone and destination zone.  The path value in each row of the MemoryOutputFormatter is compared to the standard path from the Java Map.  If the paths do not agree for a given pair of origin and destination zones, the test fails.
 
 ### 2.8	Storing Expected Results in Memory – Origin-Destination Output
 
-Tests of Origin-Destination costs stored in the MemoryOutputFormatter are done in an almost identical manner to tests of the path described in the previous section.  Values are stored in a Java Map by the external Ids of origin and destination zones, and these are used to identify rows in the MemoryOutputFormatter results which are iterated through.
+Tests of Origin-Destination costs stored in the MemoryOutputFormatter are done in an almost identical manner to tests of the path described in the previous section.  Values are stored in a Java Map by the xml Ids of origin and destination zones, and these are used to identify rows in the MemoryOutputFormatter results which are iterated through.
 The only difference is that origin-destination costs are stored as doubles whereas paths are stored as strings.  The code simply compares the expected cost with the calculated cost, issuing a test failure if they do not match.
 It was noted in Section 2.4 that Origin-Destination output files use an iteration number one lower than those for paths and links.  This applies to the MemoryOutputFormatter also.  The code to run the tests for Origin-Destination must decrement the iteration counter by one to identify the correct position in the MemoryOutputFormatter. 
 
@@ -380,11 +378,11 @@ This test is expected to throw an exception before any results are generated, so
 When the \<userclass\> element is omitted, PLANitIO creates a single default user class, which is assumed to use a traveller type with an id of 1. 
 But in this case the traveller types have been explicitly defined and none have an id of 1, so an exception should be thrown.
 
-#### 3.1.11 explanatory_time_period_external_id_test
+#### 3.1.11 explanatory_time_period_xml_id_test
 
 ***Purpose***
 
-Test case in which the time period external Id values do not match the internally generated Id values.
+Test case in which the time period xml Id values do not match the internally generated Id values.
 
 ***Description***
 
@@ -393,12 +391,11 @@ Test case in which the time period external Id values do not match the internall
 
 ***Location***
 
-`src\test\resources\testcases\explanatory\xml\timePeriodExternalIdTest`
+`src\test\resources\testcases\explanatory\xml\timePeriodXmlIdTest`
 
 ***Notes***
 
-This test case gives the same result as the explanatory_original test case. It just so happens that most of the test cases use an external Id value for time period which is the same as the internally generated id.
-In general these values are not the same and the input file should use the external Id.  In this test the external Id is deliberately different, to check that the external Id is the one being used.
+This test case gives the same result as the explanatory_original test case.  In this test the Xml Id is deliberately different than the internally generated id, to check that this difference is properly considered throught the code.
 
 #### 3.1.11 explanatory_report_zero_outputs
 
@@ -419,24 +416,24 @@ Tests and illustrates the output when the persistZeroFlow flag is set to true.
 
 The output files now include rows for links and paths with zero flow along them.
 
-### 3.2 Tests for Duplicate External Ids 
+### 3.2 Tests for Duplicate Xml Ids 
 
 ***Purpose:***
 
- These tests check that PLANit's input validation catches duplicate external Id values on input.
+ These tests check that PLANit's input validation catches duplicate Xml Id values on input.
 
 ***Description:***
 
- All these tests have a duplicate external Id in their input.  The unit tests pass if the code throws an appropriate exception.  
+ All these tests have a duplicate Xml Id in their input.  The unit tests pass if the code throws an appropriate exception.  
 
 ***Location:***
 
-`src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegmentExternalId`
-`src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegmentTypeExternalId`
-`src\test\resources\testcases\duplicate_tests\xml\duplicateModeExternalId`
-`src\test\resources\testcases\duplicate_tests\xml\duplicateTimePeriodExternalId`
-`src\test\resources\testcases\duplicate_tests\xml\duplicateUserClassExternalId`
-`src\test\resources\testcases\duplicate_tests\xml\duplicateZoneExternalId`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegmentXmlId`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateLinkSegmentTypeXmlId`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateModeXmlId`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateTimePeriodXmlId`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateUserClassXmlId`
+`src\test\resources\testcases\duplicate_tests\xml\duplicateZoneXmlId`
 
 ***Notes:*** 
 
@@ -617,11 +614,11 @@ These tests use the same input network as the “Tests using the Basic Network�
 
 ***Purpose:*** 
 
-Tests that the values of an initial costs file are read in by start and end node and registered by PlanItProject, and that the stored values match the expected ones by link external id.
+Tests that the values of an initial costs file are read in by start and end node and registered by PlanItProject, and that the stored values match the expected ones by link Xml id.
 
 ***Description:***
 
-This test does not run the traffic assignment.  It reads a files of initial cost values which identifies links by the external ids of upstream and downstream nodes into PlanIt.  It then tests that these values match those in another file which contains in another file which identifies links by link segment external id.
+This test does not run the traffic assignment.  It reads a files of initial cost values which identifies links by the Xml ids of upstream and downstream nodes into PlanIt.  It then tests that these values match those in another file which contains in another file which identifies links by link segment Xml id.
 
 ***Location:***
 
@@ -1178,13 +1175,13 @@ and link costs:
 
 ***Notes:***
 
-This test identifies links by the external ids of their upstream and downstream nodes.
+This test identifies links by the xml ids of their upstream and downstream nodes.
 
 #### 3.5.15 5_SIMO_MISO_route_choice_two_modes_identify_links_by_id
 
 ***Purpose:*** 
 
-This test verifies that links can be identified by link id (all other tests use link external id).
+This test verifies that links can be identified by link id (all other tests use link xml id).
 
 ***Description:***
 
@@ -1227,7 +1224,7 @@ and link costs:
 ***Notes:***
 
 The network and results for this test are the same as those for 3.5.14.  The only difference is that links are identified by link id in both the CSV output file and MemoryOutputFormatter.
-This is the only one of the tests which identifies links by link id.  All other test cases use link external id.  The code should allow either.
+This is the only one of the tests which identifies links by link id.  All other test cases use link xml id.  The code should allow either.
 
 #### 3.5.16 5_SIMO_MISO_route_choice_two_modes_with_impossible_route
 

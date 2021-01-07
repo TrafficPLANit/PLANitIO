@@ -1,4 +1,4 @@
-Destination Zone External Id,Mode External Id,Origin Zone External Id,Path Id,Run Id,Time Period External Id,Path
+Destination Zone Xml Id,Mode Xml Id,Origin Zone Xml Id,Path Id,Run Id,Time Period Xml Id,Path
 2,1,1,5988,0,0,"[21,5,1,2,6,22]"
 3,1,1,5989,0,0,"[21,5,1,4,8,23]"
 4,1,1,5990,0,0,"[21,5,1,4,3,7,24]"
