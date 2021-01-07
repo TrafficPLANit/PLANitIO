@@ -59,43 +59,43 @@
 			</nodes>
 			<links>
 				<link nodearef="11" nodebref="1">
-					<linksegment id="1" dir="a_b" typeref="1">
+					<linksegment id="1" externalid="one" dir="a_b" typeref="1">
 						<numberoflanes>3</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="1" nodebref="4">
-					<linksegment id="2" dir="a_b" typeref="1">
+					<linksegment id="2"  externalid="two" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="4" nodebref="12">
-					<linksegment id="3" dir="a_b" typeref="1">
+					<linksegment id="3" externalid="three" dir="a_b" typeref="1">
 						<numberoflanes>3</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="1" nodebref="2">
-					<linksegment id="4" dir="a_b" typeref="1">
+					<linksegment id="4" externalid="four" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>2</length>
 				</link>
 				<link nodearef="2" nodebref="4">
-					<linksegment id="5" dir="a_b" typeref="1">
+					<linksegment id="5" externalid="five" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>2</length>
 				</link>
 				<link nodearef="1" nodebref="3">
-					<linksegment id="6" dir="a_b" typeref="1">
+					<linksegment id="6" externalid="six" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>1</length>
 				</link>
 				<link nodearef="3" nodebref="4">
-					<linksegment id="7" dir="a_b" typeref="1">
+					<linksegment id="7" externalid="seven" dir="a_b" typeref="1">
 						<numberoflanes>1</numberoflanes>
 					</linksegment>
 					<length>1</length>

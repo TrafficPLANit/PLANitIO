@@ -805,6 +805,7 @@ This test uses the same network as 3.5.2.
 - All links have 1 lane, except for links 1 and 3 who have 3 lanes.
 - The travel demand from 1 from 2 is 3600 veh/h.
 - Simulation time is 1 h.
+- External id is textual version of their id, e.g., 1 has external id of "one", etc.
 
 ***Location:***
 
