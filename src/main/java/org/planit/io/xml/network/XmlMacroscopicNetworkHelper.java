@@ -60,7 +60,6 @@ import net.opengis.gml.PointType;
 public class XmlMacroscopicNetworkHelper {
 
   /** the logger */
-  @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(XmlMacroscopicNetworkHelper.class.getCanonicalName());
 
   /** geoUtils to use */
@@ -262,7 +261,7 @@ public class XmlMacroscopicNetworkHelper {
       
       MacroscopicLinkSegmentTypeXmlHelper linkSegmentTypeXmlHelper = new MacroscopicLinkSegmentTypeXmlHelper(name,capacity, maximumDensity, externalId, xmlId);
       linkSegmentTypeXmlHelperMap.put(xmlId, linkSegmentTypeXmlHelper);      
-      
+            
       /* mode properties, only set when allowed, otherwise not */
       Collection<Mode> thePlanitModes = new HashSet<Mode>();            
       if(xmlLinkSegmentType.getAccess() != null) {
