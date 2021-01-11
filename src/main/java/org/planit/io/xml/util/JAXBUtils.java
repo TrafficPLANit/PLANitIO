@@ -1,7 +1,10 @@
 package org.planit.io.xml.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
@@ -13,6 +16,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+
+import org.planit.utils.exceptions.PlanItException;
 
 /**
  * Utility methods for parsing XML data
@@ -81,16 +86,22 @@ public class JAXBUtils {
 	 * @throws Exception thrown if the object is not of the correct class, or the
 	 *                   output file cannot be opened
 	 */
-	public static void generateXmlFileFromObject(Object object, Class<?> clazz, String xmlFileLocation) throws Exception {
-	  File file = new File(xmlFileLocation);
+	public static void generateXmlFileFromObject(Object object, Class<?> clazz, Path xmlFileLocation) throws Exception {
     if (!clazz.isInstance(object)) {
-      throw new Exception("Trying to convert an object to XML which is not of class " + clazz.getName());
+      throw new PlanItException("Trying to convert an object to XML which is not of class " + clazz.getName());
     }
-    JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-    Marshaller marshaller = jaxbContext.createMarshaller();
-    marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, PATH_TO_XSD_FILE);
-    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-    marshaller.marshal(object,file);
+    
+    OutputStream outputStream = new FileOutputStream(xmlFileLocation.toFile());
+    try {          
+      JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+      Marshaller marshaller = jaxbContext.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, PATH_TO_XSD_FILE);
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      marshaller.marshal(object,outputStream);
+    }catch(Exception e) {
+      outputStream.close();
+      throw e;
+    }
 	}
 	
   /** create populated instance of class based from the first compatible potential files

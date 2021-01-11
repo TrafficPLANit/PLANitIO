@@ -2,6 +2,7 @@ package org.planit.io.network.converter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -78,6 +79,9 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     
   /** network path (file) to persist to */
   private final String networkPath;
+  
+  /** the network XML file name */
+  private String networkFileName = DEFAULT_NETWORK_FILE_NAME;
     
   /** XML memory model equivalent of the PLANit memory mode */
   private final XMLElementMacroscopicNetwork xmlRawNetwork;
@@ -113,10 +117,6 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    */
   private void populateLinkSegments(XMLElementLinks.Link xmlLink, Link link) {
     List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegment();
-    if(xmlLinkSegments==null && link.hasLinkSegmentAb() || link.hasLinkSegmentBa()) {
-      LOGGER.severe(String.format("link %s (id:%d)has no xm lLink segment element, but does have link segments",link.getExternalId(), link.getId()));
-      return;
-    }
     
     if(link.hasLinkSegmentAb()) {      
       XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
@@ -132,6 +132,10 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
       populateLinkSegment(xmlLinkSegment, link.getLinkSegmentBa());
       xmlLinkSegments.add(xmlLinkSegment);
     }
+    
+    if(xmlLinkSegments==null && (link.hasLinkSegmentAb() || link.hasLinkSegmentBa())) {
+      LOGGER.severe(String.format("link %s (id:%d) has no xm Link segment element, but does have link segments",link.getExternalId(), link.getId()));
+    }    
   }
   
   /**
@@ -208,6 +212,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    */  
   private void populateXmlNode(final List<XMLElementNodes.Node> xmlNodeList, final Node node) {
     XMLElementNodes.Node xmlNode = new XMLElementNodes.Node();
+    xmlNodeList.add(xmlNode);
     
     /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
     xmlNode.setId(nodeIdMapper.apply(node));
@@ -231,7 +236,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));
     PointType xmlPointType = new PointType();
     xmlPointType.setCoord(xmlCoord);
-    xmlNode.setPoint(xmlPointType);
+    xmlNode.setPoint(xmlPointType);    
   }
 
   /**
@@ -477,8 +482,8 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    * @throws PlanItException thrown if error
    */
   protected void persist() throws PlanItException {
-    try {
-      JAXBUtils.generateXmlFileFromObject(xmlRawNetwork, XMLElementMacroscopicNetwork.class, networkPath);
+    try {      
+      JAXBUtils.generateXmlFileFromObject(xmlRawNetwork, XMLElementMacroscopicNetwork.class, Paths.get(networkPath, networkFileName));
     }catch(Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("unable to persist PLANit network in native format");
@@ -513,6 +518,8 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     this.xmlRawNetwork = xmlRawNetwork;
     settings.setCountryName(CountryNames.WORLD);
   }  
+  
+  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
   
   /** Constructor 
    * @param networkPath to persist network on

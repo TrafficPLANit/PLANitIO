@@ -442,7 +442,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       if (isNewTimePeriod) {
         if (metadata.containsKey(currentOutputType)) {
           JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
-              xmlFileNameMap.get(outputType));
+              Paths.get(xmlFileNameMap.get(outputType)));
         }
         metadata.put(currentOutputType, new XMLElementMetadata());
         XMLElementSimulation simulation = new XMLElementSimulation();
@@ -696,12 +696,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         if (xmlFileNameMap.containsKey(outputType)) {
           String xmlFileName = xmlFileNameMap.get(outputType);
           if (metadata.containsKey(outputType)) {
-            JAXBUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, xmlFileName);
+            JAXBUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, Paths.get(xmlFileName));
           } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
             Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
             for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-              JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,
-                  xmlFileName);
+              JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,Paths.get(xmlFileName));
             }
           }
         }
