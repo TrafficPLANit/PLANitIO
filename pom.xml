@@ -67,10 +67,7 @@
 	    <resources>
 	        <resource>
 	            <directory>src/main/resources</directory>
-	            <excludes>
-	            	<!-- only used for internal formatting of logging statements -->
-	                <exclude>*.properties</exclude>
-	            </excludes>
+	            <filtering>true</filtering>
 	        </resource>
 	    </resources>		 
 	    

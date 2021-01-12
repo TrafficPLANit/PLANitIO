@@ -21,6 +21,7 @@ import org.planit.geo.PlanitJtsUtils;
 import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.JAXBUtils;
+import org.planit.io.xml.util.PlanitSchema;
 import org.planit.network.converter.IdMapperFunctionFactory;
 import org.planit.network.converter.NetworkWriterImpl;
 import org.planit.utils.exceptions.PlanItException;
@@ -57,8 +58,7 @@ import net.opengis.gml.PointType;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends NetworkWriterImpl {
-  
+public class PlanitNetworkWriter extends NetworkWriterImpl {  
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
@@ -89,6 +89,19 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
   /** when the destination CRS differs from the network CRS all geometries require transforming, for which this transformer will be initialised */
   private MathTransform destinationCrsTransformer = null;  
     
+  /** get the reference to use whenever a mode reference is encountered
+   * @param mode to collect reference for
+   * @return modeReference
+   */
+  private String getXmlModeReference(Mode mode) {
+    /* Xml id */
+    if(mode.isPredefinedModeType()) {
+      /* predefined modes, must utilise, their predefined Xml id/name, this overrules the mapper (if any) */
+      return mode.getXmlId();  
+    }else {
+      return modeIdMapper.apply(mode);
+    }
+  }  
   
   /**
    * populate a single xml link segment element based on the passed in PLANit link segment
@@ -147,15 +160,24 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
   private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final Link link) {
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
-    /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
+    /* XML id */
     xmlLink.setId(linkIdMapper.apply(link));
+    
+    /* external id */
+    if(link.hasExternalId()) {
+      xmlLink.setExternalid(link.getExternalId());
+    }
+    
     /* length */
     XMLElementLinkLengthType xmlLinkLength = new XMLElementLinkLengthType();     
     xmlLinkLength.setUnit(LengthUnit.KM);
     xmlLinkLength.setValue(link.getLengthKm());
     xmlLink.setLength(xmlLinkLength);
-    /* name */
-    xmlLink.setName(link.getName());
+    
+    if(link.hasName()) {
+      /* name */
+      xmlLink.setName(link.getName());      
+    }
     /* node A ref */
     xmlLink.setNodearef(nodeIdMapper.apply(link.getNodeA()));
     /* node B ref */
@@ -214,8 +236,14 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     XMLElementNodes.Node xmlNode = new XMLElementNodes.Node();
     xmlNodeList.add(xmlNode);
     
-    /* persisting id equates to external id when parsing the network again, since ids are internally generated always */
+    /* Xml id */
     xmlNode.setId(nodeIdMapper.apply(node));
+    
+    /* external id */
+    if(node.hasExternalId()) {
+      xmlNode.setExternalid(node.getExternalId());
+    }    
+
     /* name */
     xmlNode.setName(node.getName());
     
@@ -267,7 +295,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     Accessmode xmlModeAccess = new Accessmode();
 
     /* mode ref id */
-    xmlModeAccess.setRef(modeIdMapper.apply(mode));
+    xmlModeAccess.setRef(getXmlModeReference(mode));
     
     /* critical speed */
     xmlModeAccess.setCritspeed(modeProperties.getCriticalSpeedKmH());
@@ -286,10 +314,13 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
   private void populateXmlLinkSegmentType(List<XMLElementLinkSegmentType> xmlLinkSegmentTypeList, MacroscopicLinkSegmentType linkSegmentType) {
     XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
     
-    /* id */
+    /* Xml id */
     xmlLinkSegmentType.setId(linkSegmentTypeIdMapper.apply(linkSegmentType));
+    
     /* external id */
-    xmlLinkSegmentType.setExternalid(linkSegmentType.getExternalId());
+    if(linkSegmentType.hasExternalId()) {
+      xmlLinkSegmentType.setExternalid(linkSegmentType.getExternalId());
+    }
     
     /* capacity */
     xmlLinkSegmentType.setCapacitylane(linkSegmentType.getCapacityPerLane());
@@ -379,15 +410,25 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
   private void populateXmlMode(List<XMLElementModes.Mode> xmlModesList, Mode mode) {
     XMLElementModes.Mode xmlMode = new XMLElementModes.Mode();
     
-    /* id */
-    xmlMode.setId(modeIdMapper.apply(mode));
+    /* Xml id */
+    xmlMode.setId(getXmlModeReference(mode));
+    
+    /* external id */
+    if(mode.hasExternalId()) {
+      xmlMode.setExternalid(mode.getExternalId());
+    }
     
     /* max speed */
     xmlMode.setMaxspeed(mode.getMaximumSpeedKmH());
+    
     /* name */
-    xmlMode.setName(mode.getName());
+    if(mode.hasName()) {
+      xmlMode.setName(mode.getName());
+    }
+    
     /* pcu */
     xmlMode.setPcu(mode.getPcu());
+    
     /* predefined */
     xmlMode.setPredefined(mode.isPredefinedModeType());
     
@@ -470,11 +511,11 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    * @throws PlanItException thrown if error
    */
   protected void initialiseIdMappingFunctions() throws PlanItException {
-    nodeIdMapper = IdMapperFunctionFactory.createNodeIdMappingFunction(getIdMapper());
-    linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapper());
-    linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapper());
-    linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapper());
-    modeIdMapper = IdMapperFunctionFactory.createModeIdMappingFunction(getIdMapper());
+    nodeIdMapper = IdMapperFunctionFactory.createNodeIdMappingFunction(getIdMapperType());
+    linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapperType());
+    linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapperType());
+    linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapperType());
+    modeIdMapper = IdMapperFunctionFactory.createModeIdMappingFunction(getIdMapperType());
   }  
   
   /**
@@ -483,7 +524,8 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    */
   protected void persist() throws PlanItException {
     try {      
-      JAXBUtils.generateXmlFileFromObject(xmlRawNetwork, XMLElementMacroscopicNetwork.class, Paths.get(networkPath, networkFileName));
+      JAXBUtils.generateXmlFileFromObject(
+          xmlRawNetwork, XMLElementMacroscopicNetwork.class, Paths.get(networkPath, networkFileName), PlanitSchema.createPlanitSchemaUri(PlanitSchema.MACROSCOPIC_NETWORK_XSD));
     }catch(Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("unable to persist PLANit network in native format");
@@ -506,32 +548,31 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
     if(!destinationCrs.equals(network.getCoordinateReferenceSystem())) {
       destinationCrsTransformer = PlanitOpenGisUtils.findMathTransform(network.getCoordinateReferenceSystem(), settings.getDestinationCoordinateReferenceSystem());
     }
-  } 
+  }
+  
+  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";  
   
   /** Constructor 
    * @param networkPath to persist network on
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   public PlanitNetworkWriter(String networkPath, XMLElementMacroscopicNetwork xmlRawNetwork) {
-    super(IdMapperType.EXTERNAL_ID);
-    this.networkPath = networkPath;
-    this.xmlRawNetwork = xmlRawNetwork;
-    settings.setCountryName(CountryNames.WORLD);
+    this(networkPath,null,xmlRawNetwork);
   }  
-  
-  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
-  
+    
   /** Constructor 
    * @param networkPath to persist network on
    * @param countryName to optimise projection for (if available, otherwise ignore)
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   public PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
-    super(IdMapperType.EXTERNAL_ID);
+    super(IdMapperType.DEFAULT);
     this.networkPath = networkPath;
     this.xmlRawNetwork = xmlRawNetwork;
     if(countryName!=null && !countryName.isBlank()) {
       settings.setCountryName(countryName);
+    }else {
+      settings.setCountryName(CountryNames.WORLD);
     }
   }
 

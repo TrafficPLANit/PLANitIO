@@ -1,7 +1,6 @@
 package org.planit.io.output.formatter;
 
 import java.io.File;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +9,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Function;
@@ -30,7 +28,9 @@ import org.planit.xml.generated.XMLElementOutputConfiguration;
 import org.planit.xml.generated.XMLElementOutputTimePeriod;
 import org.planit.xml.generated.XMLElementSimulation;
 import org.planit.io.xml.converter.EnumConverter;
+import org.planit.io.xml.util.ApplicationProperties;
 import org.planit.io.xml.util.JAXBUtils;
+import org.planit.io.xml.util.PlanitSchema;
 import org.planit.output.adapter.OutputAdapter;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.OutputTypeConfiguration;
@@ -58,14 +58,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanItOutputFormatter.class.getCanonicalName());
-
-  /**
-   * properties taken from PLANit main project resources which pass on the Maven
-   * project properties.
-   */
-  private static final String DEFAULT_PROPERTIES_FILE_NAME = "application.properties";
-  private static final String DEFAULT_DESCRIPTION_PROPERTY_NAME = "planit.description";
-  private static final String DEFAULT_VERSION_PROPERTY_NAME = "planit.version";
 
   private static final String DEFAULT_XML_NAME_EXTENSION = ".xml";
   private static final String DEFAULT_XML_NAME_PREFIX = "XMLOutput";
@@ -117,17 +109,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * the run
    */
   private boolean resetCsvDirectory;
-
-  /**
-   * Description property to be included in the output files
-   */
-  private String description;
-
-  /**
-   * Version property to be included in the output files
-   */
-  private String version;
-
+  
   /**
    * Generated object for the metadata element in the output XML file
    */
@@ -166,50 +148,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     String relativeCsvOutputDirectory = pathRelative.toString();
     relativeCsvOutputDirectory = relativeCsvOutputDirectory.equals("") ? "." : relativeCsvOutputDirectory;
     return generateOutputFileName(relativeCsvOutputDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, outputAdapter.getRunId(), iteration);
-  }
-
-  /**
-   * Set the values of the version and description properties from a properties
-   * file
-   * 
-   * @param propertiesFileName the name of the properties file
-   * @param descriptionProperty the name of the description property used in the
-   *          properties file
-   * @param versionProperty the name of the version property used in the
-   *          properties file
-   * @throws PlanItException thrown if there is an error reading the properties
-   *           file
-   */
-  private void setVersionAndDescription(String propertiesFileName, String descriptionProperty, String versionProperty)
-      throws PlanItException {
-    if (propertiesFileName == null) {
-      LOGGER.info(this.createLoggingPrefix()+"no application properties file specified, version and description properties must be set from the code or will not be recorded");
-      return;
-    }
-    try (InputStream input = PlanItOutputFormatter.class.getClassLoader().getResourceAsStream(propertiesFileName)) {
-
-      if (input == null) {
-        LOGGER.info(this.createLoggingPrefix()+"application properties " + propertiesFileName + " could not be found, version and description properties must be set from the code or will not be recorded.");
-        return;
-      }
-
-      // load a properties file from class path, inside static method
-      Properties prop = new Properties();
-      prop.load(input);
-
-      description = prop.getProperty(descriptionProperty);
-      if (description == null) {
-        LOGGER.info(this.createLoggingPrefix()+"description property could not be set from properties file " + propertiesFileName+ ", this must be set from the code or will not be recorded.");
-      }
-      version = prop.getProperty(versionProperty);
-      if (version == null) {
-        LOGGER.info(this.createLoggingPrefix()+"version property could not be set from properties file " + propertiesFileName+ ", this must be set from the code or will not be recorded.");
-      }
-
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when setting version and description in PLANitIO OutputFormatter", e);
-    }
   }
 
   /**
@@ -337,12 +275,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       throws PlanItException {
     try {
       metadata.get(currentOutputType).setTimestamp(getTimestamp());
-      if (version != null) {
-        metadata.get(currentOutputType).setVersion(version);
-      }
-      if (description != null) {
-        metadata.get(currentOutputType).setDescription(description);
-      }
+      metadata.get(currentOutputType).setVersion(ApplicationProperties.getVersion());
+      metadata.get(currentOutputType).setDescription(ApplicationProperties.getDescription());
+
       XMLElementOutputConfiguration outputconfiguration = getXmlOutputConfiguration(outputAdapter, timePeriod);
       metadata.get(currentOutputType).setOutputconfiguration(outputconfiguration);
       SortedSet<BaseOutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
@@ -442,7 +377,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       if (isNewTimePeriod) {
         if (metadata.containsKey(currentOutputType)) {
           JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
-              Paths.get(xmlFileNameMap.get(outputType)));
+              Paths.get(xmlFileNameMap.get(outputType)),PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD));
         }
         metadata.put(currentOutputType, new XMLElementMetadata());
         XMLElementSimulation simulation = new XMLElementSimulation();
@@ -613,29 +548,14 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   }
 
   /**
-   * Constructor, uses default values for properties file name, description
-   * property and version property
-   * 
-   * @param groupId contiguous id generation within this group for instances of this class
-   * @throws PlanItException thrown if error
-   */
-  public PlanItOutputFormatter(IdGroupingToken groupId) throws PlanItException {
-    this(groupId, DEFAULT_PROPERTIES_FILE_NAME, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
-  }
-
-  /**
    * Constructor, takes values for properties file name, description and version
    * property
    * 
    * @param groupId contiguous id generation within this group for instances of this class
-   * @param propertiesFileName the name of the application properties file
-   * @param descriptionProperty the name of the description property
-   * @param versionProperty the name of the version property
    * @throws PlanItException thrown if the application properties file exists but
    *           cannot be opened
    */
-  public PlanItOutputFormatter(IdGroupingToken groupId, String propertiesFileName, String descriptionProperty, String versionProperty)
-      throws PlanItException {
+  public PlanItOutputFormatter(IdGroupingToken groupId) throws PlanItException {
     super(groupId);
     xmlNameRoot = DEFAULT_XML_NAME_PREFIX;
     xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
@@ -647,19 +567,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     resetCsvDirectory = false;
     csvDirectory = null;
     metadata = new HashMap<OutputTypeEnum, XMLElementMetadata>();
-    setVersionAndDescription(propertiesFileName, descriptionProperty, versionProperty);
-  }
-
-  /**
-   * Constructor, uses default values description property and version property
-   * 
-   * @param groupId contiguous id generation within this group for instances of this class
-   * @param propertiesFileName the name of the application properties file
-   * @throws PlanItException thrown if the application properties file exists but
-   *           cannot be opened
-   */
-  public PlanItOutputFormatter(IdGroupingToken groupId, String propertiesFileName) throws PlanItException {
-    this(groupId, propertiesFileName, DEFAULT_DESCRIPTION_PROPERTY_NAME, DEFAULT_VERSION_PROPERTY_NAME);
   }
 
   /**
@@ -691,16 +598,17 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   public void finaliseAfterSimulation(OutputConfiguration outputConfiguration, OutputAdapter outputAdapter)
       throws PlanItException {
     try {
+      final String metaDataSchemaUri = PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD);
       for (OutputType outputType : outputConfiguration.getActivatedOutputTypes()) {
         OutputTypeConfiguration outputTypeConfiguration = outputConfiguration.getOutputTypeConfiguration(outputType);
         if (xmlFileNameMap.containsKey(outputType)) {
-          String xmlFileName = xmlFileNameMap.get(outputType);
+          Path xmlFilePath = Paths.get(xmlFileNameMap.get(outputType));
           if (metadata.containsKey(outputType)) {
-            JAXBUtils.generateXmlFileFromObject(metadata.get(outputType), XMLElementMetadata.class, Paths.get(xmlFileName));
+            JAXBUtils.generateXmlFileFromObject( metadata.get(outputType), XMLElementMetadata.class, xmlFilePath,metaDataSchemaUri);
           } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
             Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
             for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-              JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,Paths.get(xmlFileName));
+              JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,xmlFilePath,metaDataSchemaUri);
             }
           }
         }
@@ -813,24 +721,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    */
   public void setCsvNameExtension(String csvNameExtension) {
     this.csvNameExtension = csvNameExtension;
-  }
-
-  /**
-   * Allows the developer to set the output description property
-   * 
-   * @param description description to be included
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
-   * Collect the description property
-   * 
-   * @return description
-   */
-  public String getDescription() {
-    return description;
   }
 
   /**

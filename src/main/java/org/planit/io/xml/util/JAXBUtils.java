@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -19,6 +20,8 @@ import javax.xml.validation.Validator;
 
 import org.planit.utils.exceptions.PlanItException;
 
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+
 /**
  * Utility methods for parsing XML data
  * 
@@ -26,9 +29,7 @@ import org.planit.utils.exceptions.PlanItException;
  *
  */
 public class JAXBUtils {
-  
-  static final String PATH_TO_XSD_FILE = "../../../../../../main/resources/xsd/metadata.xsd";
-  
+    
   /** the logger */
   public static final Logger LOGGER = Logger.getLogger(JAXBUtils.class.getCanonicalName());   
   
@@ -83,10 +84,11 @@ public class JAXBUtils {
 	 * @param object input object containing the data to be written to the XML file
 	 * @param clazz Class of the object containing the data
 	 * @param xmlFileLocation location of the output XML file
+	 * @param noNameSpaceUri the namespace uri to use for the default namespace schema (no prefix), not used when null 
 	 * @throws Exception thrown if the object is not of the correct class, or the
 	 *                   output file cannot be opened
 	 */
-	public static void generateXmlFileFromObject(Object object, Class<?> clazz, Path xmlFileLocation) throws Exception {
+	public static void generateXmlFileFromObject(final Object object, Class<?> clazz, final Path xmlFileLocation, final String noNameSpaceUri) throws Exception {
     if (!clazz.isInstance(object)) {
       throw new PlanItException("Trying to convert an object to XML which is not of class " + clazz.getName());
     }
@@ -95,15 +97,42 @@ public class JAXBUtils {
     try {          
       JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
       Marshaller marshaller = jaxbContext.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, PATH_TO_XSD_FILE);
+      
+      /* ensure correct namespace prefixes are used when writing */
+      setPlanitNamespacePrefixes(marshaller);    
+      
+      if(noNameSpaceUri != null && !noNameSpaceUri.isBlank()) {
+        marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, noNameSpaceUri);
+      }
+
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(object,outputStream);
+      marshaller.marshal(object,outputStream);      
     }catch(Exception e) {
       outputStream.close();
       throw e;
     }
+    outputStream.close();    
 	}
 	
+  /**
+   * Let any marshaller use the PLANit preferred prefixes for namespaces that it uses. the namespaces used
+   * are based on a custom implementation of a NamespacePrefixMapper {@link PlanitNamespacePrefixMapper}
+   * 
+   * @param marshaller to inject mapper on
+   * @throws PropertyException thrown if error setting properties
+   */
+  public static void setPlanitNamespacePrefixes(Marshaller marshaller) throws PropertyException {
+    
+    NamespacePrefixMapper mapper = new PlanitNamespacePrefixMapper();
+    /* this package depends on the Java implementation, alternatively try 
+     * com.sun.xml.internal.bind.namespacePrefixMapper if this fails */
+    try {
+      marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", mapper);
+    }catch(Exception e) {
+      marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", mapper);
+    }
+  }
+
   /** create populated instance of class based from the first compatible potential files
    * @param <T> raw XML to find
    * @param clazz of type T
