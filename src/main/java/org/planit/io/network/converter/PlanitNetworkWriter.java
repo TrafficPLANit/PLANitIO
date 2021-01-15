@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import org.planit.utils.network.physical.*;
 import org.planit.utils.network.physical.macroscopic.*;
-import org.planit.network.physical.macroscopic.MacroscopicNetwork;
 import org.geotools.geometry.jts.JTS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
@@ -24,6 +23,7 @@ import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitSchema;
 import org.planit.network.converter.IdMapperFunctionFactory;
 import org.planit.network.converter.NetworkWriterImpl;
+import org.planit.network.macroscopic.physical.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.locale.CountryNames;
 import org.planit.utils.mode.Mode;

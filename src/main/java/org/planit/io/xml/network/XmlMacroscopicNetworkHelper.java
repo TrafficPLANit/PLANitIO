@@ -17,7 +17,7 @@ import org.planit.io.network.converter.PlanitNetworkReaderSettings;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.mode.ModeFeaturesFactory;
-import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.macroscopic.physical.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;

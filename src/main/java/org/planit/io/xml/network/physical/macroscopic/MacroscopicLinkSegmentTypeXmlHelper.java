@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.planit.network.physical.macroscopic.MacroscopicModePropertiesFactory;
+import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 

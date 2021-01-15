@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import org.planit.io.xml.network.XmlMacroscopicNetworkHelper;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.network.converter.NetworkReader;
-import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.macroscopic.physical.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.FileUtils;
 import org.planit.utils.mode.Mode;

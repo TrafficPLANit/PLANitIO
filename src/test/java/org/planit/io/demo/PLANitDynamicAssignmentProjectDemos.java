@@ -8,7 +8,7 @@ import org.planit.io.project.PlanItSimpleProject;
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.eltm.ELTM;
 import org.planit.assignment.eltm.ELTMConfigurator;
-import org.planit.network.physical.macroscopic.MacroscopicNetwork;
+import org.planit.network.macroscopic.physical.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.path.choice.PathChoice;
