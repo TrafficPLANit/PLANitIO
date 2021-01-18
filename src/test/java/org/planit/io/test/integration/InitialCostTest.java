@@ -69,7 +69,7 @@ public class InitialCostTest {
     try {
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-      PhysicalNetwork<?,?,?> physicalNetwork = project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+      PhysicalNetwork<?,?,?> physicalNetwork = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationXmlId);
@@ -82,7 +82,7 @@ public class InitialCostTest {
         Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
         String linkSegmentXmlId = record.get(linkSegmentXmlIdHeader);
-        MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentBySourceId(linkSegmentXmlId);
+        MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentByXmlId(linkSegmentXmlId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
@@ -105,7 +105,7 @@ public class InitialCostTest {
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
@@ -120,8 +120,8 @@ public class InitialCostTest {
         double cost = Double.parseDouble(record.get(costHeader));
         String upstreamNodeXmlId = record.get(upstreamNodeXmlIdHeader);
         String downstreamNodeXmlId = record.get(downstreamNodeXmlIdHeader);
-        Node startNode = planItInputBuilder.getNodeBySourceId(upstreamNodeXmlId);
-        Node endNode = planItInputBuilder.getNodeBySourceId(downstreamNodeXmlId);
+        Node startNode = planItInputBuilder.getNodeByXmlId(upstreamNodeXmlId);
+        Node endNode = planItInputBuilder.getNodeByXmlId(downstreamNodeXmlId);
         final MacroscopicLinkSegment linkSegment = startNode.getLinkSegment(endNode);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }

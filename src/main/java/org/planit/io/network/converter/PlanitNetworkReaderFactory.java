@@ -1,6 +1,6 @@
 package org.planit.io.network.converter;
 
-import org.planit.network.macroscopic.physical.MacroscopicNetwork;
+import org.planit.network.InfrastructureNetwork;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 
 /**
@@ -18,7 +18,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader createReader(String networkPath, String xmlFileExtension, MacroscopicNetwork network) {
+  public static PlanitNetworkReader createReader(String networkPath, String xmlFileExtension, InfrastructureNetwork network) {
     return new PlanitNetworkReader(networkPath, xmlFileExtension, network);    
   }  
   
@@ -28,7 +28,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader createReader(XMLElementMacroscopicNetwork xmlRawNetwork, MacroscopicNetwork network) {
+  public static PlanitNetworkReader createReader(XMLElementMacroscopicNetwork xmlRawNetwork, InfrastructureNetwork network) {
     return new PlanitNetworkReader(xmlRawNetwork, network);    
   }    
      

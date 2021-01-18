@@ -68,7 +68,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       defaultOutputFormatter = (PlanItOutputFormatter) this.createAndRegisterOutputFormatter(
           OutputFormatter.PLANIT_OUTPUT_FORMATTER);
       // parse a macroscopic network representation + register on assignment
-      network = (MacroscopicNetwork) this.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+      network = (MacroscopicNetwork) this.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
       // parse the zoning system + register on assignment
       zoning = this.createAndRegisterZoning(network);
       // parse the demands + register on assignment

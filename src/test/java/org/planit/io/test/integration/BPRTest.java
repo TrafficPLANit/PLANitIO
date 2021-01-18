@@ -125,7 +125,7 @@ public class BPRTest {
               fail("link segment type not present");
             }            
             bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-            MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentBySourceId("3");
+            MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByXmlId("3");
             bpr.setParameters(linkSegment, mode, 1.0, 5.0);
       };
       

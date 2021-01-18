@@ -17,7 +17,8 @@ import org.planit.io.network.converter.PlanitNetworkReaderSettings;
 import org.planit.io.xml.network.physical.macroscopic.MacroscopicLinkSegmentTypeXmlHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.mode.ModeFeaturesFactory;
-import org.planit.network.macroscopic.physical.MacroscopicNetwork;
+import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;
@@ -37,7 +38,7 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
 import org.planit.xml.generated.LengthUnit;
-import org.planit.xml.generated.XMLElementInfrastructure;
+import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementLinkConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;
 import org.planit.xml.generated.XMLElementLinkSegment;
@@ -57,72 +58,12 @@ import net.opengis.gml.PointType;
  * @author gman6028
  *
  */
-public class XmlMacroscopicNetworkHelper {
+public class XmlMacroscopicNetworkLayerHelper {
 
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(XmlMacroscopicNetworkHelper.class.getCanonicalName());
-
-  /** geoUtils to use */
-  private PlanitJtsUtils jtsUtils;
+  private static final Logger LOGGER = Logger.getLogger(XmlMacroscopicNetworkLayerHelper.class.getCanonicalName());         
   
-  /** object to extract PLANit network from once file is parsed */
-  private XMLElementMacroscopicNetwork xmlRawNetwork;   
-  
-  /** network to populate */
-  private MacroscopicNetwork network;
-
-  /** settings specific to parsing the raw XML network and extracting the PLANit memory model equivalent */
-  private PlanitNetworkReaderSettings settings;
-    
-  /**
-   * parse the CRS from the raw XML or utilise the default if not present
-   */
-  private void parseCoordinateRerefenceSystem() {
-    CoordinateReferenceSystem crs = null;
-    if(xmlRawNetwork.getInfrastructure().getSrsname()==null || xmlRawNetwork.getInfrastructure().getSrsname().isBlank()) {
-      crs = PlanitJtsUtils.DEFAULT_GEOGRAPHIC_CRS;
-      LOGGER.warning(String.format("coordinate reference system not set for PLANit network reader, applying default %s",crs.getName().getCode()));
-    }else {
-      crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(xmlRawNetwork.getInfrastructure().getSrsname());
-    }
-    network.setCoordinateReferenceSystem(crs);     
-  }    
-  
-  /* PROTECTED */
-  
-  /** parse the usability component of the mode xml element. It is assumed they should be present, if not default values are created
-   * @param generatedMode mode to extract information from
-   * @return usabilityFeatures that are parsed
-   * @throws PlanItException 
-   */
-  protected UsabilityModeFeatures parseUsabilityModeFeatures(org.planit.xml.generated.XMLElementModes.Mode generatedMode) throws PlanItException {
-    if(generatedMode.getUsabilityfeatures() == null) {
-      return ModeFeaturesFactory.createDefaultUsabilityFeatures();
-    }
-    
-    /* parse set values */
-    UseOfModeType useOfModeType = EnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());    
-    
-    return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType);
-  }
-
-  /** parse the physical features component of the mode xml element. It is assumed they should be present, if not default values are created
-   * @param generatedMode mode to extract information from
-   * @return physicalFeatures that are parsed
-   * @throws PlanItException 
-   */  
-  protected PhysicalModeFeatures parsePhysicalModeFeatures(org.planit.xml.generated.XMLElementModes.Mode generatedMode) throws PlanItException {
-    if(generatedMode.getPhysicalfeatures() == null) {
-      return ModeFeaturesFactory.createDefaultPhysicalFeatures();
-    }
-    
-    /* parse set values */
-    VehicularModeType vehicleType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());    
-    MotorisationModeType motorisationType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());       
-    TrackModeType trackType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());         
-    
-    return ModeFeaturesFactory.createPhysicalFeatures(vehicleType, motorisationType, trackType);
-  }    
+  /* PROTECTED */ 
   
   /**
    * Get the link length from the length element in the XML file, if this has
@@ -288,103 +229,27 @@ public class XmlMacroscopicNetworkHelper {
   }   
   
   /* PUBLIC */
-
- 
-
-  /** Constructor
-   * @param xmlRawNetwork to extract from
-   * @param network to populate
-   * @param settings 
-   */
-  public XmlMacroscopicNetworkHelper(XMLElementMacroscopicNetwork xmlRawNetwork, MacroscopicNetwork network, PlanitNetworkReaderSettings settings) {
-    this.xmlRawNetwork = xmlRawNetwork;
-    this.network = network;
-    this.settings = settings;
     
-    /* crs */
-    parseCoordinateRerefenceSystem();
-    this.jtsUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());
-  }
- 
-  /**
-   * Reads mode types from input file, register them on the network and also populate mapping based on XML ids
-   * 
-   * @return map with modesByXmlId 
-   * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
-   */
-  public Map<String, Mode> createAndRegisterModes() throws PlanItException {
-
-    /* populate if referenced later on by xml id */
-    if(settings.getMapToIndexModeByXmlIds()==null) {
-      settings.setMapToIndexModeByXmlIds(new HashMap<String, Mode>());
-    }
-    Map<String, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
-    
-    final XMLElementLinkConfiguration linkconfiguration = xmlRawNetwork.getLinkconfiguration();    
-    for (XMLElementModes.Mode xmlMode : linkconfiguration.getModes().getMode()) {      
-      /* name, generate unique name if undefined */
-      String name = xmlMode.getName();
-      if(name==null) {
-        name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.modes.size()));
-      }
-           
-      PredefinedModeType modeType = PredefinedModeType.create(name);      
-      if(!xmlMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
-        LOGGER.warning(String.format("mode %s is not registered as predefined mode but name corresponds to PLANit predefined mode, reverting to PLANit predefined mode",xmlMode.getName()));
-      }
-      
-      Mode mode = null;
-      if(modeType != PredefinedModeType.CUSTOM) {
-        /* predefined mode use factory, ignore other attributes (if any) */
-        mode = this.network.modes.registerNew(modeType);
-      }else {
-        
-        /* custom mode, parse all components to correctly configure the custom mode */
-        double maxSpeed = xmlMode.getMaxspeed()==null ? Mode.GLOBAL_DEFAULT_MAXIMUM_SPEED_KMH : xmlMode.getMaxspeed();
-        double pcu = xmlMode.getPcu()==null ? Mode.GLOBAL_DEFAULT_PCU : xmlMode.getPcu();
-        
-        PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(xmlMode);
-        UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(xmlMode);        
-                
-        mode = this.network.modes.registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
-      }     
-      
-      /* xml id */
-      if(xmlMode.getId() != null && !xmlMode.getId().isBlank()) {
-        mode.setXmlId(xmlMode.getId());
-      }
-      
-      /* external id*/
-      if(xmlMode.getExternalid() != null && !xmlMode.getExternalid().isBlank()) {
-        mode.setExternalId(xmlMode.getExternalid());
-      }      
-      
-      final Mode prevValue = modesByXmlId.put(mode.getXmlId(), mode);
-      if (prevValue!=null && settings.isErrorIfDuplicateXmlId()) {
-        String errorMessage = "duplicate mode xml id " + mode.getXmlId() + " found in network file.";
-        throw new PlanItException(errorMessage);
-      }
-    }
-    
-    return modesByXmlId;
-  }
-  
   /**
    * Create and register nodes on the network
    * 
    * return nodesByExternalIdToPopulate map for reference
+   * @param xmlLayer to extract from
+   * @param settings to base configuration on
+   * @param networkLayer to populate
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
-  public Map<String, Node> createAndRegisterNodes() throws PlanItException {
+  public static Map<String, Node> createAndRegisterNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReaderSettings settings) throws PlanItException {
+    /* register by xml id */
     if(settings.getMapToIndexNodeByXmlIds()==null) {
       settings.setMapToIndexNodeByXmlIds(new HashMap<String, Node>());
     }
     Map<String, Node>  nodesByXmlId = settings.getMapToIndexNodeByXmlIds();    
-    
-    XMLElementInfrastructure infrastructure = xmlRawNetwork.getInfrastructure();    
-    for (XMLElementNodes.Node xmlNode : infrastructure.getNodes().getNode()) {
+        
+    /* parse nodes */
+    for (XMLElementNodes.Node xmlNode : xmlLayer.getNodes().getNode()) {
 
-      Node node = network.nodes.registerNew();
+      Node node = networkLayer.nodes.registerNew();
       
       /* xml id */
       if(xmlNode.getId() != null && !xmlNode.getId().isBlank()) {

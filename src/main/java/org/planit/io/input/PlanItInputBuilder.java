@@ -27,14 +27,13 @@ import org.planit.io.network.converter.PlanitNetworkReader;
 import org.planit.io.network.converter.PlanitNetworkReaderFactory;
 import org.planit.io.xml.demands.DemandsPopulator;
 import org.planit.io.xml.util.JAXBUtils;
-import org.planit.network.macroscopic.physical.MacroscopicNetwork;
+import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
-import org.planit.output.property.LinkSegmentIdOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
 import org.planit.output.property.OutputProperty;
@@ -230,7 +229,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private OutputProperty getInitialCostLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
     boolean linkSegmentXmlIdPresent = false;
     boolean linkSegmentExternalIdPresent = false;
-    boolean linkSegmentIdPresent = false;
     boolean upstreamNodeXmlIdPresent = false;
     boolean downstreamNodeXmlIdPresent = false;
     boolean modeXmlIdPresent = false;
@@ -244,9 +242,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
         case LINK_SEGMENT_EXTERNAL_ID:
           linkSegmentExternalIdPresent = true;
           break;          
-        case LINK_SEGMENT_ID:
-          linkSegmentIdPresent = true;
-          break;
         case MODE_XML_ID:
           modeXmlIdPresent = true;
           break;
@@ -269,9 +264,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
     if (linkSegmentExternalIdPresent) {
       return OutputProperty.LINK_SEGMENT_EXTERNAL_ID;
     }    
-    if (linkSegmentIdPresent) {
-      return OutputProperty.LINK_SEGMENT_ID;
-    }
     if (upstreamNodeXmlIdPresent && downstreamNodeXmlIdPresent) {
       return OutputProperty.UPSTREAM_NODE_XML_ID;
     }
@@ -302,13 +294,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
   }
   
   /**
-   * Creates the physical network object from the data in the input file
+   * Creates the macroscopic network object from the data in the input file
    *
-   * @param physicalNetwork the physical network object to be populated from the input data
+   * @param network the infrastructure network object to be populated from the input data
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateNetwork(MacroscopicNetwork network) throws PlanItException {
-    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Network");
+  protected void populateMacroscopicNetwork(MacroscopicNetwork network) throws PlanItException {
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating network");
     
     /* parse raw inputs if not already done */
     if(xmlRawNetwork == null) {
@@ -324,7 +316,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     reader.getSettings().setMapToIndexNodeByXmlIds(sourceIdNodeMap);
     /* pass on relevant general settings to reader settings */
     reader.getSettings().setErrorIfDuplicateXmlId(isErrorIfDuplicateSourceId());
-    network = reader.read();        
+    network = (MacroscopicNetwork) reader.read();        
   }
 
   /**
@@ -334,7 +326,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param parameter1 PhysicalNetwork object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateZoning(final Zoning zoning, final MacroscopicNetwork physicalNetwork) throws PlanItException {
+  protected void populateZoning(final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     
     /* parse raw inputs if not already done */
@@ -344,7 +336,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     
     // create and register zones, centroids and connectoids
     try {
-      PlanitJtsUtils jtsUtils = new PlanitJtsUtils(physicalNetwork.getCoordinateReferenceSystem());
+      PlanitJtsUtils jtsUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());
       
       /* zone */
       for (final XMLElementZones.Zone xmlZone : xmlRawZoning.getZones().getZone()) {
@@ -372,7 +364,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         /* connectoids */
         List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
         for(XMLElementConnectoid xmlConnectoid : xmlConnectoids) {
-          Node node = getNodeBySourceId(xmlConnectoid.getNoderef());
+          Node node = getNodeByXmlId(xmlConnectoid.getNoderef());
           Point nodePosition = node.getPosition();
           
           double connectoidLength;
@@ -452,9 +444,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
       throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Initial Link Segment Costs");
     
-    PlanItException.throwIf(!(parameter1 instanceof PhysicalNetwork),"Parameter 1 of call to populateInitialLinkSegments() is not of class PhysicalNework");
+    /* verify */
+    PlanItException.throwIf(!(parameter1 instanceof MacroscopicNetwork),"Parameter 1 of call to populateInitialLinkSegments() is not of class MacroscopicNetwork");
     PlanItException.throwIf(!(parameter2 instanceof String), "Parameter 2 of call to populateInitialLinkSegments() is not a file name");
         
+    /* parse */
     final MacroscopicNetwork network = (MacroscopicNetwork) parameter1;
     final String fileName = (String) parameter2;
     try {
@@ -465,21 +459,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
       for (final CSVRecord record : parser) {
         MacroscopicLinkSegment linkSegment = null;
         switch (linkIdentificationMethod) {
-          case LINK_SEGMENT_ID:
-            final long id = Long.parseLong(record.get(LinkSegmentIdOutputProperty.NAME));
-            linkSegment = network.linkSegments.get(id);            
-            break;
           case LINK_SEGMENT_EXTERNAL_ID:
-            final String externalId = record.get(LinkSegmentExternalIdOutputProperty.NAME);
-            linkSegment = network.linkSegments.getByExternalId(externalId);            
+            final String externalId = record.get(LinkSegmentExternalIdOutputProperty.NAME);                
+            linkSegment = getLinkSegmentByExternalId(network, externalId);           
             break;            
           case LINK_SEGMENT_XML_ID:
             final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
-            linkSegment = getLinkSegmentBySourceId(xmlId);
+            linkSegment = getLinkSegmentByXmlId(xmlId);
             break;          
           case UPSTREAM_NODE_XML_ID:
-            final Node startNode = getNodeBySourceId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
-            final Node endNode = getNodeBySourceId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
+            final Node startNode = getNodeByXmlId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
+            final Node endNode = getNodeByXmlId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
             linkSegment = startNode.getLinkSegment(endNode);
             break;
           default:
@@ -496,6 +486,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       throw new PlanItException("Error when initialising link segment costs in PLANitIO",e);
     }
   }
+
 
   /**
    * Constructor which generates the input objects from files in a specified
@@ -564,7 +555,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Object[] parameters = (Object[]) content[1];
       try {
         if (projectComponent instanceof MacroscopicNetwork) {
-          populateNetwork((MacroscopicNetwork) projectComponent);
+          populateMacroscopicNetwork((MacroscopicNetwork) projectComponent);
         } else if (projectComponent instanceof Zoning) {
           PlanItException.throwIf(!(parameters[0] instanceof MacroscopicNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
           final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) parameters[0];

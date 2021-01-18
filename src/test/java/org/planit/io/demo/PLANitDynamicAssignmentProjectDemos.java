@@ -64,7 +64,7 @@ public class PLANitDynamicAssignmentProjectDemos {
           final PlanItProject project = new PlanItProject(projectPath);
 
           // INITIALISE INPUTS
-          final MacroscopicNetwork physicalNetwork          = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+          final MacroscopicNetwork physicalNetwork          = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
           final Zoning zoning                               = project.createAndRegisterZoning(physicalNetwork);
           final Demands demands                             = project.createAndRegisterDemands(zoning, physicalNetwork);
 

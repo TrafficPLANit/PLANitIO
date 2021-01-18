@@ -734,7 +734,7 @@ public class PlanItIOTestHelper {
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
     // RAW INPUT START --------------------------------
-    final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+    final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
     final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
     final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
     // RAW INPUT END -----------------------------------
@@ -854,7 +854,7 @@ public class PlanItIOTestHelper {
     final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
     // RAW INPUT START --------------------------------
-    final MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterPhysicalNetwork(MacroscopicNetwork.class.getCanonicalName());
+    final MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
     final Zoning zoning = project.createAndRegisterZoning(network);
     final Demands demands = project.createAndRegisterDemands(zoning, network);
     
