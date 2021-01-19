@@ -167,14 +167,7 @@ public class XmlMacroscopicNetworkLayerHelper {
     /* mode properties link segment type speed settings */
     if(xmlMode != null) {
       
-      /** cap max speed of mode properties to global mode's default if it exceeds this maximum */ 
-      maxSpeed = (xmlMode.getMaxspeed() == null) ? thePlanitMode.getMaximumSpeedKmH() : xmlMode.getMaxspeed();
-      if( Precision.isGreater(maxSpeed, thePlanitMode.getMaximumSpeedKmH(), Precision.EPSILON_6)) {
-        maxSpeed = thePlanitMode.getMaximumSpeedKmH();
-        LOGGER.warning(String.format("Capped maximum speed for mode %s on link segment type %s to mode's global maximum speed %.1f",
-            thePlanitMode.getName(), linkSegmentType.getXmlId(), maxSpeed));          
-      }        
-      
+      maxSpeed = (xmlMode.getMaxspeed() == null) ? thePlanitMode.getMaximumSpeedKmH() : xmlMode.getMaxspeed();                          
       critSpeed = (xmlMode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED_KMH  : xmlMode.getCritspeed();
       /* critical speed can never exceed max speed, so cap it if needed */
       critSpeed = Math.min(maxSpeed, critSpeed);

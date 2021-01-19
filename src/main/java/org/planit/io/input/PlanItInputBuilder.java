@@ -28,7 +28,6 @@ import org.planit.io.network.converter.PlanitNetworkReaderFactory;
 import org.planit.io.xml.demands.DemandsPopulator;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.physical.PhysicalNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
