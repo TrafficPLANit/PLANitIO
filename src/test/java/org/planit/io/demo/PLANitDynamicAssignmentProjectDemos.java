@@ -8,7 +8,7 @@ import org.planit.io.project.PlanItSimpleProject;
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.eltm.ELTM;
 import org.planit.assignment.eltm.ELTMConfigurator;
-import org.planit.network.macroscopic.physical.MacroscopicNetwork;
+import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.path.choice.PathChoice;
@@ -64,21 +64,21 @@ public class PLANitDynamicAssignmentProjectDemos {
           final PlanItProject project = new PlanItProject(projectPath);
 
           // INITIALISE INPUTS
-          final MacroscopicNetwork physicalNetwork          = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-          final Zoning zoning                               = project.createAndRegisterZoning(physicalNetwork);
-          final Demands demands                             = project.createAndRegisterDemands(zoning, physicalNetwork);
+          final MacroscopicNetwork theNetwork          = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+          final Zoning zoning                               = project.createAndRegisterZoning(theNetwork);
+          final Demands demands                             = project.createAndRegisterDemands(zoning, theNetwork);
 
           // INITIALISE OUTPUT FORMATTERS
           final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-          // route sets are defined on the project level and linked to a network, zoning combination
-          project.createAndRegisterOdPathSets(physicalNetwork, zoning, routeInputPath);
+          // route sets are defined on the project level and linked to a network layer, zoning combination
+          project.createAndRegisterOdPathSets(theNetwork.infrastructureLayers.getFirst(), zoning, routeInputPath);
 
           //:TODO: to be implemented
-          // alternatively pathss can be generated with a route generator
+          // alternatively paths can be generated with a route generator
               
 
           final ELTMConfigurator eLTM = 
-              (ELTMConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.ELTM, demands, zoning, physicalNetwork);
+              (ELTMConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.ELTM, demands, zoning, theNetwork);
 
           // CREATE/REGISTER ASSIGNMENT COMPONENTS
 

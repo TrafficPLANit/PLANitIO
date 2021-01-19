@@ -2,7 +2,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
 	<macroscopicdemand>
-
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
@@ -27,7 +26,6 @@
 				</timeperiod>
 			</timeperiods>
 		</demandconfiguration>
-
 		<oddemands>
 			<odcellbycellmatrix timeperiodref="0"	userclassref="1">
 				<o ref="1">
@@ -47,80 +45,84 @@
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
-		<linkconfiguration>
+		<configuration>
 			<modes>
 				<mode id="1">																<!-- mandatory attributes, for referencing -->
 					<name>Basic</name>														<!-- optional -->
 					<pcu>1</pcu>															<!-- optional, default available -->
 				</mode>
 			</modes>
-			<linksegmenttypes>
-				<linksegmenttype id="1">
-					<name>Standard</name>													<!-- optional -->
-					<capacitylane>1200</capacitylane>										<!-- optional, has default -->
-					<access>
-						<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-								is assumed to be banned from the link segment -->
-							<maxspeed>60</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-						</mode>
-					</access>
-				</linksegmenttype>
-			</linksegmenttypes>
-		</linkconfiguration>
-		<infrastructure>
-			<nodes>
-				<node id="1" />
-				<node id="2" />
-				<node id="3" />
-				<node id="4" />
-				<node id="11" />
-				<node id="12" />
-			</nodes>
-			<links>
-				<link nodearef="11" nodebref="1">
-					<linksegment id="1" dir="a_b" typeref="1">
-						<numberoflanes>3</numberoflanes>
-					</linksegment>
-					<length>1</length>
-				</link>
-				<link nodearef="1" nodebref="4">
-					<linksegment id="2" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>1</length>
-				</link>
-				<link nodearef="4" nodebref="12">
-					<linksegment id="3" dir="a_b" typeref="1">
-						<numberoflanes>3</numberoflanes>
-					</linksegment>
-					<length>1</length>
-				</link>
-				<link nodearef="1" nodebref="2">
-					<linksegment id="4" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="2" nodebref="4">
-					<linksegment id="5" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="1" nodebref="3">
-					<linksegment id="6" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>1</length>
-				</link>
-				<link nodearef="3" nodebref="4">
-					<linksegment id="7" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>1</length>
-				</link>
-			</links>
-		</infrastructure>
+		</configuration>
+		<infrastructurelayers>
+			<layer id="road">
+				<layerconfiguration>
+					<linksegmenttypes>
+						<linksegmenttype id="1">
+							<name>Standard</name>													<!-- optional -->
+							<capacitylane>1200</capacitylane>										<!-- optional, has default -->
+							<access>
+								<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
+										is assumed to be banned from the link segment -->
+									<maxspeed>60</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
+								</mode>
+							</access>
+						</linksegmenttype>
+					</linksegmenttypes>
+				</layerconfiguration>
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+					<node id="3" />
+					<node id="4" />
+					<node id="11" />
+					<node id="12" />
+				</nodes>
+				<links>
+					<link nodearef="11" nodebref="1">
+						<linksegment id="1" dir="a_b" typeref="1">
+							<numberoflanes>3</numberoflanes>
+						</linksegment>
+						<length>1</length>
+					</link>
+					<link nodearef="1" nodebref="4">
+						<linksegment id="2" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>1</length>
+					</link>
+					<link nodearef="4" nodebref="12">
+						<linksegment id="3" dir="a_b" typeref="1">
+							<numberoflanes>3</numberoflanes>
+						</linksegment>
+						<length>1</length>
+					</link>
+					<link nodearef="1" nodebref="2">
+						<linksegment id="4" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="2" nodebref="4">
+						<linksegment id="5" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="1" nodebref="3">
+						<linksegment id="6" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>1</length>
+					</link>
+					<link nodearef="3" nodebref="4">
+						<linksegment id="7" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>1</length>
+					</link>
+				</links>
+			</layer>
+		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
 		<zones>

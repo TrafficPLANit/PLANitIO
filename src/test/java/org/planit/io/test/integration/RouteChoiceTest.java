@@ -21,7 +21,7 @@ import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
-import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.InfrastructureNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
@@ -1439,9 +1439,8 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
-
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);
+      
+      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, null, description, true, false);      
 
       runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -1478,7 +1477,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
+      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
         Mode mode = inputBuilderListener.getModeBySourceId("2");
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
@@ -1595,7 +1594,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork,
+      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = (network,
           bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
         Mode mode = inputBuilderListener.getModeBySourceId("2");
@@ -1732,8 +1731,8 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
-          (physicalNetwork,bpr, inputBuilderListener) -> {
+      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = 
+          (network,bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
             Mode mode = inputBuilderListener.getModeBySourceId("2");
             bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);

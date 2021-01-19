@@ -18,22 +18,24 @@
 			</odcellbycellmatrix>
 		</oddemands>
 	</macroscopicdemand>
-
+	
 	<!-- Physical network component -->
 	<macroscopicnetwork>
-		<infrastructure>
-			<nodes>
-				<node id="1" />
-				<node id="2" />
-			</nodes>
-			<links>
-				<link nodearef="1" nodebref="2">
-					<linksegment id="1" dir="a_b" />
-					<linksegment id="2" dir="b_a" />
-					<length>10</length>
-				</link>
-			</links>
-		</infrastructure>
+		<infrastructurelayers>
+			<layer id="road">
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+				</nodes>
+				<links>
+					<link nodearef="1" nodebref="2">
+						<linksegment id="1" dir="a_b" />
+						<linksegment id="2" dir="b_a" />
+						<length>10</length>
+					</link>
+				</links>
+			</layer>
+		</infrastructurelayers>
 	</macroscopicnetwork>
 
 	<!-- zoning structure component -->

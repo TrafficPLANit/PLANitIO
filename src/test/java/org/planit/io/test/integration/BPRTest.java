@@ -19,7 +19,7 @@ import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
-import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.InfrastructureNetwork;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
@@ -114,8 +114,8 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<PhysicalNetwork<?,?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
-          (physicalNetwork, bpr, inputBuilderListener) -> {
+      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = 
+          (network, bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
             if(macroscopiclinkSegmentType == null) {
               fail("link segment type not present");

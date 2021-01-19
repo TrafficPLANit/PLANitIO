@@ -411,7 +411,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateDemands( Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");
     PlanItException.throwIf(!(parameter1 instanceof Zoning),"Parameter 1 of call to populateDemands() is not of class Zoning");
-    PlanItException.throwIf(!(parameter2 instanceof PhysicalNetwork),"Parameter 2 of call to populateDemands() is not of class PhysicalNetwork");
+    PlanItException.throwIf(!(parameter2 instanceof MacroscopicNetwork),"Parameter 2 of call to populateDemands() is not of class MacroscopicNetwork");
     
     /* parse raw inputs if not already done */
     if(xmlRawNetwork == null) {
@@ -419,10 +419,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }    
     
     final Zoning zoning = (Zoning) parameter1;
-    final PhysicalNetwork<?,?,?> physicalNetwork = (PhysicalNetwork<?,?,?>) parameter2;
+    final MacroscopicNetwork network = (MacroscopicNetwork) parameter2;
     try {
       final XMLElementDemandConfiguration demandconfiguration = xmlRawDemand.getDemandconfiguration();
-      ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, physicalNetwork, this);
+      ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, network, this);
       final List<XMLElementOdMatrix> oddemands = xmlRawDemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
       DemandsPopulator.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
     } catch (final Exception e) {
@@ -453,7 +453,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final String fileName = (String) parameter2;
     try {
       final Reader in = new FileReader(fileName);
-      final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+      final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       final Set<String> headers = parser.getHeaderMap().keySet();
       final OutputProperty linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);
       for (final CSVRecord record : parser) {

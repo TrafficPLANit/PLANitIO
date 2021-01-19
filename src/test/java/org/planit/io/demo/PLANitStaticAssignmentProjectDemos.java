@@ -19,8 +19,8 @@ import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
-import org.planit.network.macroscopic.physical.MacroscopicNetwork;
-import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.Network;
+import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.ODOutputTypeConfiguration;
@@ -82,7 +82,7 @@ public class PLANitStaticAssignmentProjectDemos {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(projectPath));
       
       // parse and register inputs
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -347,7 +347,7 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -376,7 +376,7 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -423,7 +423,7 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -450,7 +450,7 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       
@@ -483,7 +483,7 @@ public class PLANitStaticAssignmentProjectDemos {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      
-      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(PhysicalNetwork.MACROSCOPICNETWORK);
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
       Zoning zoning = project.createAndRegisterZoning(network);
       Demands demands = project.createAndRegisterDemands(zoning, network);
       

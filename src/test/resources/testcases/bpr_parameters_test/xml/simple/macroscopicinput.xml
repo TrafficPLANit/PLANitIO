@@ -25,76 +25,80 @@
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
-		<linkconfiguration>                                                                        
+		<configuration>                                                                        
 			<modes>                                                                                     
 				<mode id="1">																
 					<name>Basic</name>												
 					<pcu>1</pcu>															
 				</mode>
 			</modes>
-			<linksegmenttypes>                            
-				<linksegmenttype id="1">                    
-					<name>Slow</name>													
-					<capacitylane>1000</capacitylane>					
-					<access>                                   
-						<mode ref="1">													
-							<maxspeed>10</maxspeed>								
-						</mode>
-					</access>
-				</linksegmenttype>
-				<linksegmenttype id="2">                    
-					<name>Fast</name>													
-					<capacitylane>1000</capacitylane>							
-					<access>                                       
-						<mode ref="1">															
-							<maxspeed>20</maxspeed>										
-						</mode>
-					</access>
-				</linksegmenttype>
-			</linksegmenttypes>
-		</linkconfiguration>
-		<infrastructure>
-			<nodes>
-				<node id="1" />
-				<node id="2" />
-				<node id="3" />
-				<node id="4" />
-				<node id="5" />
-				<node id="6" />
-			</nodes>
-			<links>
-				<link nodearef="1" nodebref="2">
-					<linksegment id="1" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>10</length>
-				</link>
-				<link nodearef="2" nodebref="3">
-					<linksegment id="2" dir="a_b" typeref="2">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>10</length>
-				</link>
-				<link nodearef="3" nodebref="4">
-					<linksegment id="3" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>10</length>
-				</link>
-				<link nodearef="4" nodebref="5">
-					<linksegment id="4" dir="a_b" typeref="2">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>10</length>
-				</link>
-				<link nodearef="5" nodebref="6">
-					<linksegment id="5" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>10</length>
-				</link>
-			</links>
-		</infrastructure>
+		</configuration>
+		<infrastructurelayers>
+			<layer id="road">
+				<layerconfiguration>
+					<linksegmenttypes>                            
+						<linksegmenttype id="1">                    
+							<name>Slow</name>													
+							<capacitylane>1000</capacitylane>					
+							<access>                                   
+								<mode ref="1">													
+									<maxspeed>10</maxspeed>								
+								</mode>
+							</access>
+						</linksegmenttype>
+						<linksegmenttype id="2">                    
+							<name>Fast</name>													
+							<capacitylane>1000</capacitylane>							
+							<access>                                       
+								<mode ref="1">															
+									<maxspeed>20</maxspeed>										
+								</mode>
+							</access>
+						</linksegmenttype>
+					</linksegmenttypes>
+				</layerconfiguration>
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+					<node id="3" />
+					<node id="4" />
+					<node id="5" />
+					<node id="6" />
+				</nodes>
+				<links>
+					<link nodearef="1" nodebref="2">
+						<linksegment id="1" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>10</length>
+					</link>
+					<link nodearef="2" nodebref="3">
+						<linksegment id="2" dir="a_b" typeref="2">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>10</length>
+					</link>
+					<link nodearef="3" nodebref="4">
+						<linksegment id="3" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>10</length>
+					</link>
+					<link nodearef="4" nodebref="5">
+						<linksegment id="4" dir="a_b" typeref="2">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>10</length>
+					</link>
+					<link nodearef="5" nodebref="6">
+						<linksegment id="5" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>10</length>
+					</link>
+				</links>
+			</layer>
+		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
 		<zones>

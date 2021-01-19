@@ -25,37 +25,41 @@
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
-		<linkconfiguration>                                                                        <!-- optional, if absent assume a single link segment type for the entire simulation and a simple Cartesian coordinate system with top-left (0,0) -->
+		<configuration>                                                                        <!-- optional, if absent assume a single link segment type for the entire simulation and a simple Cartesian coordinate system with top-left (0,0) -->
 			<modes>                                                                                     <!-- optional, if absent a single 'virtual' mode is created to represent all modes -->
 				<mode id="1">																        <!-- mandatory, for referencing -->
 					<name>Basic</name>														<!-- optional -->
 					<maxspeed>1</maxspeed>
 				</mode>
 			</modes>
-			<linksegmenttypes>                                                                    <!-- optional, if omitted all link segments are assumed to be of the same default 	link segment type -->
-				<linksegmenttype id="1">                                                       <!-- mandatory, for referencing -->
-					<name>Standard</name>													<!-- optional -->
-					<capacitylane>2000</capacitylane>									<!-- optional, has default -->
-				</linksegmenttype>
-			</linksegmenttypes>
-		</linkconfiguration>
-		<infrastructure>
-			<nodes>
-				<node id="1" />
-				<node id="2" />
-			</nodes>
-			<links>
-				<link nodearef="1" nodebref="2">
-					<linksegment id="1" dir="a_b" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<linksegment id="2" dir="b_a" typeref="1">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>10</length>
-				</link>
-			</links>
-		</infrastructure>
+		</configuration>
+		<infrastructurelayers>
+			<layer id="road">
+				<layerconfiguration>
+					<linksegmenttypes>                                                                    <!-- optional, if omitted all link segments are assumed to be of the same default 	link segment type -->
+						<linksegmenttype id="1">                                                       <!-- mandatory, for referencing -->
+							<name>Standard</name>													<!-- optional -->
+							<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+						</linksegmenttype>
+					</linksegmenttypes>
+				</layerconfiguration>
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+				</nodes>
+				<links>
+					<link nodearef="1" nodebref="2">
+						<linksegment id="1" dir="a_b" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<linksegment id="2" dir="b_a" typeref="1">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>10</length>
+					</link>
+				</links>
+			</layer>
+		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
 		<zones>

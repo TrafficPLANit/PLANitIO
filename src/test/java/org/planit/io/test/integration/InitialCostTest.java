@@ -19,8 +19,7 @@ import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.logging.Logging;
-import org.planit.network.macroscopic.physical.MacroscopicNetwork;
-import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
@@ -69,11 +68,11 @@ public class InitialCostTest {
     try {
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-      PhysicalNetwork<?,?,?> physicalNetwork = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(physicalNetwork, initialCostsFileLocation);
+      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationXmlId);
-      CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+      CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String linkSegmentXmlIdHeader = LinkSegmentXmlIdOutputProperty.NAME;
       String costHeader = LinkCostOutputProperty.NAME;
@@ -109,7 +108,7 @@ public class InitialCostTest {
 
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
-      CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+      CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String upstreamNodeXmlIdHeader = UpstreamNodeXmlIdOutputProperty.NAME;
       String downstreamNodeXmlIdHeader = DownstreamNodeXmlIdOutputProperty.NAME;

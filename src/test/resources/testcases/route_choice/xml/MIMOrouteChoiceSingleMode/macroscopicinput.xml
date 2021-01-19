@@ -2,7 +2,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
 	<macroscopicdemand>
-
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
@@ -17,7 +16,6 @@
 				</timeperiod>
 			</timeperiods>
 		</demandconfiguration>
-
 		<oddemands>
 			<odcellbycellmatrix timeperiodref="0"
 				userclassref="1">
@@ -27,106 +25,109 @@
 			</odcellbycellmatrix>
 		</oddemands>
 	</macroscopicdemand>
-
 	<macroscopicnetwork>
-		<linkconfiguration>
+		<configuration>
 			<modes>
 				<mode id="1">														
 					<name>Basic</name>										
 					<maxspeed>130</maxspeed>
 				</mode>
 			</modes>
-			<linksegmenttypes>
-				<linksegmenttype id="1">
-					<name>Capacity1500</name>							
-					<capacitylane>1500</capacitylane>			
-					<access>
-						<mode ref="1">											
-							<maxspeed>100</maxspeed>					
-						</mode>
-					</access>
-				</linksegmenttype>
-				<linksegmenttype id="2">
-					<name>Capacity2000</name>							
-					<capacitylane>2000</capacitylane>			
-					<access>
-						<mode ref="1">											
-							<maxspeed>100</maxspeed>					
-						</mode>
-					</access>
-				</linksegmenttype>
-				<linksegmenttype id="3">
-					<name>Capacity2500</name>							
-					<capacitylane>2500</capacitylane>			
-					<access>
-						<mode ref="1">											
-							<maxspeed>100</maxspeed>					
-						</mode>
-					</access>
-				</linksegmenttype>
-			</linksegmenttypes>
-		</linkconfiguration>
-		<infrastructure>
-			<nodes>
-				<node id="1" />
-				<node id="2" />
-				<node id="3" />
-				<node id="4" />
-				<node id="5" />
-				<node id="11" />
-				<node id="12" />
-			</nodes>
-			<links>
-				<link nodearef="11" nodebref="1">
-					<linksegment id="1" dir="a_b" typeref="2">
-						<numberoflanes>4</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="1" nodebref="3">
-					<linksegment id="2" dir="a_b" typeref="1">
-						<numberoflanes>2</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="1" nodebref="2">
-					<linksegment id="3" dir="a_b" typeref="3">
-						<numberoflanes>2</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="2" nodebref="3">
-					<linksegment id="4" dir="a_b" typeref="2">
-						<numberoflanes>2</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="3" nodebref="5">
-					<linksegment id="5" dir="a_b" typeref="2">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="3" nodebref="4">
-					<linksegment id="6" dir="a_b" typeref="1">
-						<numberoflanes>2</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="4" nodebref="5">
-					<linksegment id="7" dir="a_b" typeref="2">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-				<link nodearef="5" nodebref="12">
-					<linksegment id="8" dir="a_b" typeref="2">
-						<numberoflanes>1</numberoflanes>
-					</linksegment>
-					<length>2</length>
-				</link>
-			</links>
-		</infrastructure>
+		</configuration>
+		<infrastructurelayers>
+			<layer id="road">
+				<layerconfiguration>
+					<linksegmenttypes>
+						<linksegmenttype id="1">
+							<name>Capacity1500</name>							
+							<capacitylane>1500</capacitylane>			
+							<access>
+								<mode ref="1">											
+									<maxspeed>100</maxspeed>					
+								</mode>
+							</access>
+						</linksegmenttype>
+						<linksegmenttype id="2">
+							<name>Capacity2000</name>							
+							<capacitylane>2000</capacitylane>			
+							<access>
+								<mode ref="1">											
+									<maxspeed>100</maxspeed>					
+								</mode>
+							</access>
+						</linksegmenttype>
+						<linksegmenttype id="3">
+							<name>Capacity2500</name>							
+							<capacitylane>2500</capacitylane>			
+							<access>
+								<mode ref="1">											
+									<maxspeed>100</maxspeed>					
+								</mode>
+							</access>
+						</linksegmenttype>
+					</linksegmenttypes>
+				</layerconfiguration>
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+					<node id="3" />
+					<node id="4" />
+					<node id="5" />
+					<node id="11" />
+					<node id="12" />
+				</nodes>
+				<links>
+					<link nodearef="11" nodebref="1">
+						<linksegment id="1" dir="a_b" typeref="2">
+							<numberoflanes>4</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="1" nodebref="3">
+						<linksegment id="2" dir="a_b" typeref="1">
+							<numberoflanes>2</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="1" nodebref="2">
+						<linksegment id="3" dir="a_b" typeref="3">
+							<numberoflanes>2</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="2" nodebref="3">
+						<linksegment id="4" dir="a_b" typeref="2">
+							<numberoflanes>2</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="3" nodebref="5">
+						<linksegment id="5" dir="a_b" typeref="2">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="3" nodebref="4">
+						<linksegment id="6" dir="a_b" typeref="1">
+							<numberoflanes>2</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="4" nodebref="5">
+						<linksegment id="7" dir="a_b" typeref="2">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+					<link nodearef="5" nodebref="12">
+						<linksegment id="8" dir="a_b" typeref="2">
+							<numberoflanes>1</numberoflanes>
+						</linksegment>
+						<length>2</length>
+					</link>
+				</links>
+			</layer>
+		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
 		<zones>

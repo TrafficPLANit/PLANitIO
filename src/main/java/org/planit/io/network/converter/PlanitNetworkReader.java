@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
-
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.geo.PlanitJtsUtils;
 import org.planit.geo.PlanitOpenGisUtils;
@@ -33,14 +31,12 @@ import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.mode.UsabilityModeFeatures;
 import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
-import org.planit.utils.network.physical.LinkSegment;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.xml.generated.Layerconfiguration;
+import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
-import org.planit.xml.generated.XMLElementLinkConfiguration;
-import org.planit.xml.generated.XMLElementLinkSegmentType;
-import org.planit.xml.generated.XMLElementLinkSegmentTypes;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementModes;
 
@@ -80,31 +76,21 @@ public class PlanitNetworkReader implements NetworkReader {
    * Update the XML macroscopic network element to include default values for any properties not included in the input file
    */
   private void injectMissingDefaultsToRawXmlNetwork(XMLElementMacroscopicNetwork xmlRawNetwork) {
-    if (xmlRawNetwork.getLinkconfiguration() == null) {
-      xmlRawNetwork.setLinkconfiguration(new XMLElementLinkConfiguration());
+    if (xmlRawNetwork.getConfiguration() == null) {
+      xmlRawNetwork.setConfiguration(new XMLElementConfiguration());
     }
     
     //if no modes defined, create single mode with default values
-    if (xmlRawNetwork.getLinkconfiguration().getModes() == null) {
-      xmlRawNetwork.getLinkconfiguration().setModes(new XMLElementModes());
+    if (xmlRawNetwork.getConfiguration().getModes() == null) {
+      xmlRawNetwork.getConfiguration().setModes(new XMLElementModes());
       XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
       // default in absence of any modes is the predefined CAR mode
       xmlElementMode.setPredefined(true);
       xmlElementMode.setName(PredefinedModeType.CAR.value());
       xmlElementMode.setId(Mode.DEFAULT_XML_ID);
-      xmlRawNetwork.getLinkconfiguration().getModes().getMode().add(xmlElementMode);
+      xmlRawNetwork.getConfiguration().getModes().getMode().add(xmlElementMode);
     }
-    
-    //if no link segment types defined, create single link segment type with default parameters
-    if (xmlRawNetwork.getLinkconfiguration().getLinksegmenttypes() == null) {
-      xmlRawNetwork.getLinkconfiguration().setLinksegmenttypes(new XMLElementLinkSegmentTypes());
-      XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
-      xmlLinkSegmentType.setName("");
-      xmlLinkSegmentType.setId(MacroscopicLinkSegmentType.DEFAULT_XML_ID);
-      xmlLinkSegmentType.setCapacitylane(DEFAULT_MAXIMUM_CAPACITY_PER_LANE);
-      xmlLinkSegmentType.setMaxdensitylane(LinkSegment.MAXIMUM_DENSITY);
-      xmlRawNetwork.getLinkconfiguration().getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
-    }       
+           
    }  
     
   /**
@@ -170,8 +156,8 @@ public class PlanitNetworkReader implements NetworkReader {
     }
     Map<String, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
     
-    final XMLElementLinkConfiguration linkconfiguration = xmlRawNetwork.getLinkconfiguration();    
-    for (XMLElementModes.Mode xmlMode : linkconfiguration.getModes().getMode()) {      
+    final XMLElementConfiguration xmlGeneralConfiguration = xmlRawNetwork.getConfiguration();    
+    for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {      
       /* name, generate unique name if undefined */
       String name = xmlMode.getName();
       if(name==null) {
@@ -241,9 +227,11 @@ public class PlanitNetworkReader implements NetworkReader {
    * @param xmlLayer layer to extract from
    * @param modesByXmlId modes to reference
    * @param jtsUtils to use
+   * @return parsed network layer
+   * @throws PlanItException thrown if error
    *
    */
-  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, Map<String, Mode> modesByXmlId, PlanitJtsUtils jtsUtils ) {
+  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, Map<String, Mode> modesByXmlId, PlanitJtsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
     MacroscopicPhysicalNetwork networkLayer = network.infrastructureLayers.createNew();
@@ -251,16 +239,17 @@ public class PlanitNetworkReader implements NetworkReader {
     /* xml id */
     if(xmlLayer.getId() != null && !xmlLayer.getId().isBlank()) {
       networkLayer.setXmlId(xmlLayer.getId());
+    }else {
+      LOGGER.warning("infrastructure layer id missing in xml, use generated id instead");
+      networkLayer.setXmlId(Long.toString(networkLayer.getId()));
     }
     
     /* external id*/
     if(xmlLayer.getExternalid() != null && !xmlLayer.getExternalid().isBlank()) {
       networkLayer.setExternalId(xmlLayer.getExternalid());
     }  
-    
-    CONTINUE HERE -> IMPLEMENT MISSING METHODS, REFACTOR PARSER FURTHER
-    
-    /* register supported modes on layer */
+          
+    /* supported modes*/
     if(xmlLayer.getModes() != null && !xmlLayer.getModes().isBlank()) {
       String xmlSupportedModes = xmlLayer.getModes();
       String[] modeRefs = xmlSupportedModes.split(CharacterUtils.COMMA.toString());
@@ -273,20 +262,24 @@ public class PlanitNetworkReader implements NetworkReader {
       }      
     }else {
       /* absent, so register all modes (check if this is valid is to be executed by caller */
-      networkLayer.registerSupportedModes((Mode[]) network.modes.setOf().toArray());
+      networkLayer.registerSupportedModes(network.modes.setOf());
     }
     
-    /* parse nodes */
-    Map<String, Node> nodesByXmlId = XmlMacroscopicNetworkLayerHelper.createAndRegisterNodes(xmlLayer, network, settings);  
+    /* link segment types */
+    Layerconfiguration xmlLayerconfiguration = xmlLayer.getLayerconfiguration();
+    if(xmlLayerconfiguration == null) {
+      xmlLayer.setLayerconfiguration(new Layerconfiguration());
+      xmlLayerconfiguration = xmlLayer.getLayerconfiguration();
+    }
+    Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId = XmlMacroscopicNetworkLayerHelper.parseLinkSegmentTypes(xmlLayerconfiguration, networkLayer, settings, modesByXmlId);
     
-     MAKE OTHER METHODS ALSO STATIC, STARTING WITH PARSING LINK SEGMENT TYPES PROPERLY
-    XmlMacroscopicNetworkLayerHelper layerHelper = new XmlMacroscopicNetworkLayerHelper(xmlRawNetwork, network, settings);
-    
     /* parse nodes */
-    Map<String, Node> nodesByXmlId = layerHelper.createAndRegisterNodes();      
+    Map<String, Node> nodesByXmlId = XmlMacroscopicNetworkLayerHelper.parseNodes(xmlLayer, networkLayer, settings);                  
          
-    /* parse links, link segments, and link segment types  (implementation requires refactoring)*/
-    layerHelper.createAndRegisterLinkAndLinkSegments(modesByXmlId, nodesByXmlId);
+    /* parse links, link segments */
+    XmlMacroscopicNetworkLayerHelper.parseLinkAndLinkSegments(xmlLayer, networkLayer, settings, nodesByXmlId, linkSegmentTypesByXmlId, jtsUtils);
+    
+    return networkLayer;
   }  
   
   /** parse the various network layers
@@ -297,6 +290,7 @@ public class PlanitNetworkReader implements NetworkReader {
    */
   private void parseNetworkLayers(XMLElementMacroscopicNetwork xmlRawNetwork, Map<String, Mode> modesByXmlId) throws PlanItException {
     XMLElementInfrastructureLayers xmlLayers = xmlRawNetwork.getInfrastructurelayers();
+    PlanItException.throwIfNull(xmlLayers, "infrastructurelayers element not present in network file");
     
     /* crs */
     CoordinateReferenceSystem crs = parseCoordinateRerefenceSystem(xmlLayers);
@@ -307,6 +301,7 @@ public class PlanitNetworkReader implements NetworkReader {
     List<XMLElementInfrastructureLayer> xmlLayerList = xmlLayers.getLayer();
     Set<Mode> usedModes = new TreeSet<Mode>();
     for(XMLElementInfrastructureLayer xmlLayer : xmlLayerList) {
+      
       /*layer */
       InfrastructureLayer layer = parseNetworkLayer(xmlLayer, modesByXmlId, jtsUtils);
       
@@ -335,13 +330,7 @@ public class PlanitNetworkReader implements NetworkReader {
     }
     
     this.network = (MacroscopicNetwork) network;
-  }  
-  
-  /**
-   * Default maximum capacity per lane
-   */
-  public static final double DEFAULT_MAXIMUM_CAPACITY_PER_LANE = 1800.0;      
-  
+  }       
   
   /** constructor
    * 

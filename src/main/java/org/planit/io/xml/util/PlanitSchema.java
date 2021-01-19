@@ -1,10 +1,6 @@
 package org.planit.io.xml.util;
 
-import java.nio.file.Paths;
 import java.util.regex.Pattern;
-
-import org.planit.output.enums.PathOutputIdentificationType;
-import org.planit.path.Path;
 
 /**
  * Helper class to deal with XSD schema related locations for the various XML components

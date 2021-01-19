@@ -16,7 +16,7 @@ import org.planit.xml.generated.XMLElementTimePeriods;
 import org.planit.xml.generated.XMLElementTravellerTypes;
 import org.planit.xml.generated.XMLElementUserClasses;
 import org.planit.input.InputBuilderListener;
-import org.planit.network.physical.PhysicalNetwork;
+import org.planit.network.InfrastructureNetwork;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
@@ -86,7 +86,7 @@ public class ProcessConfiguration {
   private static int generateAndStoreUserClasses(
       Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
-      PhysicalNetwork<?,?,?> physicalNetwork,
+      InfrastructureNetwork theNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
 
     XMLElementUserClasses xmlUserclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
@@ -113,7 +113,7 @@ public class ProcessConfiguration {
       
       /* mode ref */
       if (xmlUserclass.getModeref() == null) {
-        PlanItException.throwIf(physicalNetwork.modes.size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
+        PlanItException.throwIf(theNetwork.modes.size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
         xmlUserclass.setModeref(inputBuilderListener.getAllModesBySourceId().keySet().iterator().next());          
       }
       String xmlModeIdRef = xmlUserclass.getModeref();
@@ -239,17 +239,18 @@ public class ProcessConfiguration {
    * @param demands the Demands object
    * @param demandconfiguration the generated XMLElementDemandConfiguration object
    *          containing the data from the XML input file
-   * @param physicalNetwork the physical network
+   * @param theNetwork the network
    * @param inputBuilderListener parser to be updated
    * @throws PlanItException thrown if there is a duplicate external Id found for any component
    */
   public static void generateAndStoreConfigurationData(
       Demands demands,
       XMLElementDemandConfiguration demandconfiguration,
-      PhysicalNetwork<?,?,?> physicalNetwork,
+      InfrastructureNetwork theNetwork,
       InputBuilderListener inputBuilderListener) throws PlanItException {
+    
     ProcessConfiguration.generateAndStoreTravelerTypes(demands, demandconfiguration, inputBuilderListener);
-    ProcessConfiguration.generateAndStoreUserClasses(demands, demandconfiguration, physicalNetwork, inputBuilderListener);
+    ProcessConfiguration.generateAndStoreUserClasses(demands, demandconfiguration, theNetwork, inputBuilderListener);
     ProcessConfiguration.generateTimePeriodMap(demands, demandconfiguration, inputBuilderListener);
   }
 
