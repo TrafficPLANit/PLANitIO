@@ -35,11 +35,11 @@ import org.planit.utils.mode.PhysicalModeFeatures;
 import org.planit.utils.mode.UsabilityModeFeatures;
 import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
-import org.planit.xml.generated.Layerconfiguration;
 import org.planit.xml.generated.LengthUnit;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
+import org.planit.xml.generated.XMLElementLayerConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;
 import org.planit.xml.generated.XMLElementLinkSegment;
 import org.planit.xml.generated.XMLElementLinkSegmentType;
@@ -353,7 +353,7 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    * @param xmlLayerConfiguration to populate on
    * @param linkSegmentTypes to populate from
    */
-  private void populateXmlLinkSegmentTypes(Layerconfiguration xmlLayerConfiguration, MacroscopicLinkSegmentTypes linkSegmentTypes) {
+  private void populateXmlLinkSegmentTypes(XMLElementLayerConfiguration xmlLayerConfiguration, MacroscopicLinkSegmentTypes linkSegmentTypes) {
     XMLElementLinkSegmentTypes xmlLinkSegmentTypes = xmlLayerConfiguration.getLinksegmenttypes();
     if(xmlLinkSegmentTypes == null) {
       xmlLinkSegmentTypes = new XMLElementLinkSegmentTypes();
@@ -492,9 +492,9 @@ public class PlanitNetworkWriter extends NetworkWriterImpl {
    * @param linkSegmentTypes to use to populate the XML elements
    */
   protected void populateXmlLayerConfiguration(XMLElementInfrastructureLayer xmlNetworkLayer, MacroscopicLinkSegmentTypes linkSegmentTypes) {
-    Layerconfiguration xmlLayerConfiguration = xmlNetworkLayer.getLayerconfiguration();
+    XMLElementLayerConfiguration xmlLayerConfiguration = xmlNetworkLayer.getLayerconfiguration();
     if(xmlLayerConfiguration == null) {
-      xmlLayerConfiguration = new Layerconfiguration();
+      xmlLayerConfiguration = new XMLElementLayerConfiguration();
       xmlNetworkLayer.setLayerconfiguration(xmlLayerConfiguration);
     }
     

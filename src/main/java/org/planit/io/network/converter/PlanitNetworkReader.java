@@ -14,6 +14,7 @@ import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.JAXBUtils;
+import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.InfrastructureLayer;
 import org.planit.network.InfrastructureNetwork;
@@ -33,10 +34,10 @@ import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.xml.generated.Layerconfiguration;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
+import org.planit.xml.generated.XMLElementLayerConfiguration;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementModes;
 
@@ -46,7 +47,7 @@ import org.planit.xml.generated.XMLElementModes;
  * @author gman, markr
  *
  */
-public class PlanitNetworkReader implements NetworkReader {
+public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNetwork> implements NetworkReader {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());            
@@ -59,19 +60,10 @@ public class PlanitNetworkReader implements NetworkReader {
    * TODO: replace with online schema
    */
   public static final String NETWORK_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd";
-  
-  /** network directory to look in */
-  private final String networkPathDirectory;
-  
-  /** xml file extension to use */
-  private final String xmlFileExtension;  
-  
+    
   /** the network memory model to populate */
   private MacroscopicNetwork network;
-  
-  /** external xmlRawNetwork to populate */
-  private final XMLElementMacroscopicNetwork externalXmlRawNetwork;
-  
+    
   /**
    * Update the XML macroscopic network element to include default values for any properties not included in the input file
    */
@@ -92,22 +84,7 @@ public class PlanitNetworkReader implements NetworkReader {
     }
            
    }  
-    
-  /**
-   * parse the raw network from file if not already set via constructor
-   * @return 
-   * @throws PlanItException thrown if error
-   */
-  private XMLElementMacroscopicNetwork collectPopulatedXmlRawNetwork() throws PlanItException {
-    if(this.externalXmlRawNetwork==null) {
-      final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(networkPathDirectory, xmlFileExtension);
-      PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",networkPathDirectory, xmlFileExtension));
-      return JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
-    }else { 
-      return externalXmlRawNetwork;
-    }
-  }
-  
+      
   /** parse the usability component of the mode xml element. It is assumed they should be present, if not default values are created
    * @param generatedMode mode to extract information from
    * @return usabilityFeatures that are parsed
@@ -266,9 +243,9 @@ public class PlanitNetworkReader implements NetworkReader {
     }
     
     /* link segment types */
-    Layerconfiguration xmlLayerconfiguration = xmlLayer.getLayerconfiguration();
+    XMLElementLayerConfiguration xmlLayerconfiguration = xmlLayer.getLayerconfiguration();
     if(xmlLayerconfiguration == null) {
-      xmlLayer.setLayerconfiguration(new Layerconfiguration());
+      xmlLayer.setLayerconfiguration(new XMLElementLayerConfiguration());
       xmlLayerconfiguration = xmlLayer.getLayerconfiguration();
     }
     Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId = XmlMacroscopicNetworkLayerHelper.parseLinkSegmentTypes(xmlLayerconfiguration, networkLayer, settings, modesByXmlId);
@@ -340,10 +317,7 @@ public class PlanitNetworkReader implements NetworkReader {
    * @throws PlanItException  thrown if error
    */
   public PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork network) throws PlanItException{   
-    this.externalXmlRawNetwork = null;
-    this.networkPathDirectory = networkPathDirectory;
-    this.xmlFileExtension = xmlFileExtension;
-    
+    super(XMLElementMacroscopicNetwork.class,networkPathDirectory,xmlFileExtension);    
     setNetwork(network);
   }
   
@@ -354,10 +328,7 @@ public class PlanitNetworkReader implements NetworkReader {
    * @throws PlanItException  thrown if error
    */
   public PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork network) throws PlanItException{
-    this.externalXmlRawNetwork = externalXmlRawNetwork;
-    this.networkPathDirectory = null;        
-    this.xmlFileExtension = null;
-    
+    super(externalXmlRawNetwork);    
     setNetwork(network);
   }  
 
@@ -368,7 +339,7 @@ public class PlanitNetworkReader implements NetworkReader {
   public InfrastructureNetwork read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
-    XMLElementMacroscopicNetwork xmlRawNetwork = collectPopulatedXmlRawNetwork();
+    XMLElementMacroscopicNetwork xmlRawNetwork = initialiseAndParseXmlRootElement();
     
     /* defaults */
     injectMissingDefaultsToRawXmlNetwork(xmlRawNetwork);       

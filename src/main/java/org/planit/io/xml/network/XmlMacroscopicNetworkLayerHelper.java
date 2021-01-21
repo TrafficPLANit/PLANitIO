@@ -15,7 +15,6 @@ import org.planit.io.network.converter.PlanitNetworkReaderSettings;
 import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.network.physical.Link;
@@ -26,9 +25,10 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
-import org.planit.xml.generated.Layerconfiguration;
 import org.planit.xml.generated.LengthUnit;
+import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
+import org.planit.xml.generated.XMLElementLayerConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;
 import org.planit.xml.generated.XMLElementLinkSegment;
 import org.planit.xml.generated.XMLElementLinkSegmentType;
@@ -182,7 +182,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    *
    * @param xmlLayerConfiguration to inject xml entry into
    */
-  protected static void injectDefaultLinkSegmentType(Layerconfiguration xmlLayerConfiguration) {
+  protected static void injectDefaultLinkSegmentType(XMLElementLayerConfiguration xmlLayerConfiguration) {
     if (xmlLayerConfiguration.getLinksegmenttypes() == null) {
       /* crete entry */
       xmlLayerConfiguration.setLinksegmenttypes(new XMLElementLinkSegmentTypes());
@@ -208,7 +208,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @throws PlanItException thrown if error
    */
   public static Map<String, MacroscopicLinkSegmentType> parseLinkSegmentTypes(
-      Layerconfiguration xmlLayerconfiguration, 
+      XMLElementLayerConfiguration xmlLayerconfiguration, 
       MacroscopicPhysicalNetwork networkLayer, 
       PlanitNetworkReaderSettings settings, 
       Map<String, Mode> modesByXmlId ) throws PlanItException {

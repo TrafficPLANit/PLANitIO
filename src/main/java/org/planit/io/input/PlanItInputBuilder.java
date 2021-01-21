@@ -27,6 +27,7 @@ import org.planit.io.network.converter.PlanitNetworkReader;
 import org.planit.io.network.converter.PlanitNetworkReaderFactory;
 import org.planit.io.xml.demands.DemandsPopulator;
 import org.planit.io.xml.util.JAXBUtils;
+import org.planit.io.zoning.PlanitZoningReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
@@ -328,75 +329,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateZoning(final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     
-    /* parse raw inputs if not already done */
-    if(xmlRawNetwork == null) {
-      parseXmlRawInputs();
-    }
-    
-    // create and register zones, centroids and connectoids
-    try {
-      PlanitJtsUtils jtsUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());
-      
-      /* zone */
-      for (final XMLElementZones.Zone xmlZone : xmlRawZoning.getZones().getZone()) {
-        Zone zone = zoning.zones.createAndRegisterNewZone();
-        addZoneToSourceIdMap(xmlZone.getId(), zone);
-        
-        /* xml id */
-        if(xmlZone.getId() != null && !xmlZone.getId().isBlank()) {
-          zone.setXmlId(xmlZone.getId());
-        }
-        
-        /* external id */        
-        if(xmlZone.getExternalid() != null && !xmlZone.getExternalid().isBlank()) {
-          zone.setExternalId(xmlZone.getExternalid());  
-        }                  
-      
-        
-        /* centroid */
-        Centroid centroid = zone.getCentroid();
-        if (xmlZone.getCentroid().getPoint() != null) {
-          List<Double> value = xmlZone.getCentroid().getPoint().getPos().getValue();        
-          centroid.setPosition(PlanitJtsUtils.createPoint(value.get(0), value.get(1)));
-        }
-             
-        /* connectoids */
-        List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
-        for(XMLElementConnectoid xmlConnectoid : xmlConnectoids) {
-          Node node = getNodeByXmlId(xmlConnectoid.getNoderef());
-          Point nodePosition = node.getPosition();
-          
-          double connectoidLength;
-          if (xmlConnectoid.getLength() != null) {
-            connectoidLength = xmlConnectoid.getLength();
-            // :TODO - need to create some test cases in which nodes have a GML location
-          } else if (nodePosition != null) {
-            // if node has a GML Point, get the GML Point from the centroid and calculate the length
-            // between them
-            connectoidLength = jtsUtils.getDistanceInKilometres(centroid.getPosition(), nodePosition);
-          } else {
-            connectoidLength = org.planit.utils.network.virtual.Connectoid.DEFAULT_LENGTH_KM;
-          }
-                    
-          Connectoid theConnectoid = zoning.getVirtualNetwork().connectoids.registerNewConnectoid(centroid, node, connectoidLength);
-
-          /* xml id */
-          if(xmlConnectoid.getId() != null && xmlConnectoid.getId().isBlank()) {
-            theConnectoid.setXmlId(xmlConnectoid.getId());
-          }
-          
-          /* external id */
-          if(xmlConnectoid.getExternalid() != null && !xmlConnectoid.getExternalid().isBlank()) {
-            theConnectoid.setExternalId(xmlConnectoid.getExternalid());
-          }   
-        }             
-      }
-    } catch (PlanItException e) {
-      throw e;
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when populating zoning in PLANitIO",e);
-    }
+    /** delegate to the dedicated zoning reader */
+    PlanitZoningReader zoningReader = new PlanitZoningReader(xmlRawZoning, zoning);
+    zoningReader.read(network, sourceIdNodeMap);
   }
 
   /**

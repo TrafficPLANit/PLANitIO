@@ -1,5 +1,6 @@
 package org.planit.io.network.converter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.planit.input.InputBuilderListener;
@@ -17,38 +18,38 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 public class PlanitNetworkReaderSettings {
   
   /**
-   * option to provide external map to populate with external node Ids corresponding to parsed Nodes
+   * option to provide external map to populate with xml node Ids corresponding to parsed Nodes
    */
-  private Map<String, Node> nodeXmlIdToNodeMap;
+  private Map<String, Node> nodeXmlIdToNodeMap = new HashMap<String, Node>();;
 
   /**
-   * option to provide external map to populate with link segments by external Id
+   * option to provide external map to populate with link segments by xml Id
    */
-  private Map<String, MacroscopicLinkSegment> linkSegmentXmlIdToLinkSegmentMap;
+  private Map<String, MacroscopicLinkSegment> linkSegmentXmlIdToLinkSegmentMap = new HashMap<String, MacroscopicLinkSegment>();
 
   /**
-   * option to provide external map to populate with external link segment type Ids corresponding to link segment types
+   * option to provide external map to populate with xml link segment type Ids corresponding to link segment types
    */
-  private Map<String, MacroscopicLinkSegmentType> linkSegmentTypeXmlIdToLinkSegmentTypeMap;
+  private Map<String, MacroscopicLinkSegmentType> linkSegmentTypeXmlIdToLinkSegmentTypeMap = new HashMap<String, MacroscopicLinkSegmentType>();
 
   /**
-   * option to provide external map to populate with external Ids corresponding to Modes
+   * option to provide external map to populate with xml Ids corresponding to Modes
    */
-  private Map<String, Mode> modeXmlIdToModeMap;
+  private Map<String, Mode> modeXmlIdToModeMap = new HashMap<String, Mode>();
   
   /**
-   * Flag to determine whether duplicate external Id should be considered an error (defaults to {@link InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_EXTERNAL_ID}
+   * Flag to determine whether duplicate xml Id should be considered an error (defaults to {@link InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_EXTERNAL_ID}
    */
   private boolean errorIfDuplicateXmlId = InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_SOURCE_ID;  
   
-  /** Use provided map to index modes by external id when parsing
+  /** Use provided map to index modes by xml id when parsing
    * @param modeXmlIdToModeMap to use
    */
   public void setMapToIndexModeByXmlIds(Map<String, Mode> modeXmlIdToModeMap) {
     this.modeXmlIdToModeMap = modeXmlIdToModeMap;
   }
   
-  /** exogenous map to index modes by xml id when parsing (if any, can be null)
+  /** exogenous map to index modes by xml id when parsing
    * @param modeXmlIdToModeMap to use
    */
   public Map<String, Mode> getMapToIndexModeByXmlIds() {
@@ -98,7 +99,7 @@ public class PlanitNetworkReaderSettings {
   }
 
   /** check value of this flag
-   * @return true when raising error on duplicate external id
+   * @return true when raising error on duplicate xml id
    */
   public boolean isErrorIfDuplicateXmlId() {
     return errorIfDuplicateXmlId;
