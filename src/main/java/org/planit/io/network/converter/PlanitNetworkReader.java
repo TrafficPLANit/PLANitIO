@@ -64,20 +64,20 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   /**
    * Update the XML macroscopic network element to include default values for any properties not included in the input file
    */
-  private void injectMissingDefaultsToRawXmlNetwork(XMLElementMacroscopicNetwork xmlRawNetwork) {
-    if (xmlRawNetwork.getConfiguration() == null) {
-      xmlRawNetwork.setConfiguration(new XMLElementConfiguration());
+  private void injectMissingDefaultsToRawXmlNetwork() {
+    if (getXmlRootElement().getConfiguration() == null) {
+      getXmlRootElement().setConfiguration(new XMLElementConfiguration());
     }
     
     //if no modes defined, create single mode with default values
-    if (xmlRawNetwork.getConfiguration().getModes() == null) {
-      xmlRawNetwork.getConfiguration().setModes(new XMLElementModes());
+    if (getXmlRootElement().getConfiguration().getModes() == null) {
+      getXmlRootElement().getConfiguration().setModes(new XMLElementModes());
       XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
       // default in absence of any modes is the predefined CAR mode
       xmlElementMode.setPredefined(true);
       xmlElementMode.setName(PredefinedModeType.CAR.value());
       xmlElementMode.setId(Mode.DEFAULT_XML_ID);
-      xmlRawNetwork.getConfiguration().getModes().getMode().add(xmlElementMode);
+      getXmlRootElement().getConfiguration().getModes().getMode().add(xmlElementMode);
     }
            
    }  
@@ -118,11 +118,10 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   
   /**
    * Reads mode types from input file, register them on the network and also populate mapping based on XML ids
-   * @param xmlRawNetwork 
    * @return map with modesByXmlId 
    * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
    */
-  private Map<String, Mode> parseModes(XMLElementMacroscopicNetwork xmlRawNetwork) throws PlanItException {
+  private Map<String, Mode> parseModes() throws PlanItException {
 
     /* populate if referenced later on by xml id */
     if(settings.getMapToIndexModeByXmlIds()==null) {
@@ -130,7 +129,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     }
     Map<String, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
     
-    final XMLElementConfiguration xmlGeneralConfiguration = xmlRawNetwork.getConfiguration();    
+    final XMLElementConfiguration xmlGeneralConfiguration = getXmlRootElement().getConfiguration();    
     for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {      
       /* name, generate unique name if undefined */
       String name = xmlMode.getName();
@@ -258,12 +257,11 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   
   /** parse the various network layers
    * 
-   * @param xmlRawNetwork to extract network layers from
    * @param modesByXmlId the already parsed modes by xml id
    * @throws PlanItException thrown if error
    */
-  private void parseNetworkLayers(XMLElementMacroscopicNetwork xmlRawNetwork, Map<String, Mode> modesByXmlId) throws PlanItException {
-    XMLElementInfrastructureLayers xmlLayers = xmlRawNetwork.getInfrastructurelayers();
+  private void parseNetworkLayers(Map<String, Mode> modesByXmlId) throws PlanItException {
+    XMLElementInfrastructureLayers xmlLayers = getXmlRootElement().getInfrastructurelayers();
     PlanItException.throwIfNull(xmlLayers, "infrastructurelayers element not present in network file");
     
     /* crs */
@@ -335,18 +333,21 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   public InfrastructureNetwork read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
-    XMLElementMacroscopicNetwork xmlRawNetwork = initialiseAndParseXmlRootElement();
+    initialiseAndParseXmlRootElement();
     
     /* defaults */
-    injectMissingDefaultsToRawXmlNetwork(xmlRawNetwork);       
+    injectMissingDefaultsToRawXmlNetwork();       
     
     try {
       
       /* parse modes*/
-      Map<String, Mode> modesByXmlId = parseModes(xmlRawNetwork);
+      Map<String, Mode> modesByXmlId = parseModes();
 
       /* parse layers */
-      parseNetworkLayers(xmlRawNetwork, modesByXmlId);
+      parseNetworkLayers(modesByXmlId);
+      
+      /* free xml content */
+      clearXmlContent();
       
     } catch (PlanItException e) {
       throw e;

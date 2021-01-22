@@ -9,7 +9,6 @@ import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.eltm.ELTM;
 import org.planit.assignment.eltm.ELTMConfigurator;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.path.choice.PathChoice;
 import org.planit.path.choice.StochasticPathChoiceConfigurator;
@@ -17,6 +16,7 @@ import org.planit.path.choice.logit.LogitChoiceModel;
 import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.zoning.Zoning;
 
 /**
  * Demo class. Show casing how to setup typical dynamic assignment PLANit projects

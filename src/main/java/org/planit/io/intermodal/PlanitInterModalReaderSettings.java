@@ -1,4 +1,4 @@
-package org.planit.io.zoning;
+package org.planit.io.intermodal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ import org.planit.utils.zoning.Zone;
  * @author markr
  *
  */
-public class PlanitZoningReaderSettings {
+public class PlanitInterModalReaderSettings {
 
   /**
    * Map to stores zones by xml Id

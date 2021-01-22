@@ -16,15 +16,14 @@ import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Zoning;
-import org.planit.network.virtual.Zoning.Zones;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.virtual.Zone;
+import org.planit.utils.zoning.Zone;
+import org.planit.utils.zoning.Zones;
 import org.planit.xml.generated.Durationunit;
 import org.planit.xml.generated.XMLElementDemandConfiguration;
 import org.planit.xml.generated.XMLElementMacroscopicDemand;
@@ -36,6 +35,7 @@ import org.planit.xml.generated.XMLElementTimePeriods;
 import org.planit.xml.generated.XMLElementTravellerTypes;
 import org.planit.xml.generated.XMLElementUserClasses;
 import org.planit.xml.generated.XMLElementOdRawMatrix.Values;
+import org.planit.zoning.Zoning;
 
 public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDemand>{
 
@@ -97,7 +97,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square matrix
    */
   private static void populateDemandMatrixRawForEqualSeparators(final Values values, final String separator,
-      final double pcu, ODDemandMatrix odDemandMatrix, final Zones zones) throws PlanItException {
+      final double pcu, ODDemandMatrix odDemandMatrix, final Zones<?> zones) throws PlanItException {
     final String[] allValuesAsString = values.getValue().split(separator);
     final int size = allValuesAsString.length;
     final int noRows = (int) Math.round(Math.sqrt(size));
@@ -107,9 +107,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     final int noCols = noRows;
     for (int i = 0; i < noRows; i++) {
       final int rowOffset = i * noRows;
-      final Zone originZone = zones.getZoneById(i);
+      final Zone originZone = zones.get(i);
       for (int col = 0; col < noCols; col++) {
-        final Zone destinationZone = zones.getZoneById(col);
+        final Zone destinationZone = zones.get(col);
         final double rawDemand = Double.parseDouble(allValuesAsString[rowOffset + col]);
         final double demand = rawDemand * pcu;
         odDemandMatrix.setValue(originZone, destinationZone, demand);
@@ -135,14 +135,14 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     final String[] originRows = values.getValue().split(originSeparator);
     final int noRows = originRows.length;
     for (int i = 0; i < noRows; i++) {
-      final Zone originZone = zones.getZoneById(i);
+      final Zone originZone = zones.get(i);
       final String[] destinationValuesByOrigin = originRows[i].split(destinationSeparator);
       final int noCols = destinationValuesByOrigin.length;
       if (noRows != noCols) {
         throw new PlanItException("Element <odrawmatrix> does not parse to a square matrix: Row " + (i + 1) + " has " + noCols + " values.");
       }
       for (int col = 0; col < noCols; col++) {
-        final Zone destinationZone = zones.getZoneById(col);
+        final Zone destinationZone = zones.get(col);
         final double rawDemand = Double.parseDouble(destinationValuesByOrigin[col]);
         final double demand = rawDemand * pcu;
         odDemandMatrix.setValue(originZone, destinationZone, demand);        
@@ -349,7 +349,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
         final String[] rowValuesAsString = xmlOriginZone.getValue().split(separator);
         for (int i = 0; i < rowValuesAsString.length; i++) {
           /* use internal id's, i.e. order of appearance of the zone elements in XML is used */ 
-          final Zone destinationZone = zones.getZoneById(i);
+          final Zone destinationZone = zones.get(i);
           final double demand = Double.parseDouble(rowValuesAsString[i]) * pcu;
           odDemandMatrix.setValue(originZone, destinationZone, demand);          
         }
@@ -423,9 +423,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       final TimePeriod timePeriod = settings.getMapToIndexTimePeriodByXmlIds().get(timePeriodXmlIdRef);
       
       /* create od matrix instance */
-      ODDemandMatrix odDemandMatrix = new ODDemandMatrix(zoning.zones);
+      ODDemandMatrix odDemandMatrix = new ODDemandMatrix(zoning.odZones);
       /* populate */
-      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, zoning.zones, xmlIdZoneMap);
+      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, zoning.odZones, xmlIdZoneMap);
       /* register */
       demands.registerODDemand(timePeriod, mode, odDemandMatrix);  
     }
@@ -466,11 +466,16 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     
     try {
       
+      initialiseAndParseXmlRootElement();
+      
       /* configuration */
       populateDemandConfiguration(network, xmlIdModeMap);
       
       /* demands */
       populateDemandContents(zoning, xmlIdZoneMap);
+      
+      /* free */
+      clearXmlContent();
 
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());

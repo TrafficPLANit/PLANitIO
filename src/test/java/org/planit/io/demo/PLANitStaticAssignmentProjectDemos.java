@@ -21,7 +21,6 @@ import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
 import org.planit.network.Network;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Zoning;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.ODOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
@@ -38,6 +37,7 @@ import org.planit.sdinteraction.smoothing.MSASmoothingConfigurator;
 import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.zoning.Zoning;
 
 /**
  * Demo class. Show casing how to setup typical static assignment PLANit projects

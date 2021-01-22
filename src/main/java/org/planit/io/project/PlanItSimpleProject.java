@@ -11,11 +11,11 @@ import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Zoning;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.LoggingUtils;
+import org.planit.zoning.Zoning;
 
 /**
  * Wrapper around PLANitProject with most common defaults automatically activated. Limitations

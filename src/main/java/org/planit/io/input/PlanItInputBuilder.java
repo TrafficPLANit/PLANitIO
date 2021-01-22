@@ -16,7 +16,7 @@ import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
 import org.planit.xml.generated.*;
-
+import org.planit.zoning.Zoning;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.demands.PlanitDemandsReader;
 import org.planit.io.network.converter.PlanitNetworkReader;
@@ -24,7 +24,6 @@ import org.planit.io.network.converter.PlanitNetworkReaderFactory;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.zoning.PlanitZoningReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.virtual.Zoning;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkCostOutputProperty;

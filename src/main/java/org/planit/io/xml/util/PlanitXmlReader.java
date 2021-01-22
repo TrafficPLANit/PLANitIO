@@ -75,4 +75,11 @@ public class PlanitXmlReader<T> {
   }
  
  
+  /**
+   * mark the xml root element for garbage collection 
+   */
+  public void clearXmlContent() {
+    this.xmlRootElement = null;
+    
+  }
 }
