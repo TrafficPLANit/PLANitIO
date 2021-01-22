@@ -139,14 +139,13 @@ public class JAXBUtils {
    * @param potentialXmlFileNames to search among
    * @return parsed result, null if not found
    */
-  @SuppressWarnings("unchecked")
   public static <T> T generateInstanceFromXml(Class<T> clazz, final File[] potentialXmlFileNames) {
     T result=null;
     for (int i = 0; i < potentialXmlFileNames.length; i++) {
       File currFileName = potentialXmlFileNames[i];
       if (result==null) {
         try {
-          result = (T) JAXBUtils.generateObjectFromXml(clazz, currFileName);
+          result = clazz.cast(JAXBUtils.generateObjectFromXml(clazz, currFileName));
         } catch (final Exception e) {
           /* ok, just try next */   
         }                  

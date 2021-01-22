@@ -26,7 +26,6 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
 import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
 import org.planit.xml.generated.LengthUnit;
-import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementLayerConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;

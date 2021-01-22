@@ -1,7 +1,6 @@
 package org.planit.io.project;
 
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

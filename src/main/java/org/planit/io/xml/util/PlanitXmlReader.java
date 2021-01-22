@@ -2,10 +2,8 @@ package org.planit.io.xml.util;
 
 import java.io.File;
 
-import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.FileUtils;
-import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 
 /**
  * Serves as a base class for readers of PLANit Xml files of which the root element is of type T

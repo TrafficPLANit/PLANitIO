@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.rmi.RemoteException;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -16,16 +15,12 @@ import org.planit.assignment.TrafficAssignmentComponentFactory;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
-import org.planit.geo.PlanitJtsUtils;
 import org.planit.xml.generated.*;
 
-import org.locationtech.jts.geom.Point;
-
 import org.planit.input.InputBuilderListener;
-import org.planit.io.xml.demands.ProcessConfiguration;
+import org.planit.io.demands.PlanitDemandsReader;
 import org.planit.io.network.converter.PlanitNetworkReader;
 import org.planit.io.network.converter.PlanitNetworkReaderFactory;
-import org.planit.io.xml.demands.DemandsPopulator;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.zoning.PlanitZoningReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
@@ -44,9 +39,6 @@ import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.virtual.Centroid;
-import org.planit.utils.network.virtual.Connectoid;
-import org.planit.utils.network.virtual.Zone;
 
 /**
  * Class which reads inputs from XML input files
@@ -314,8 +306,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
     reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(sourceIdLinkSegmentTypeMap);
     reader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
     reader.getSettings().setMapToIndexNodeByXmlIds(sourceIdNodeMap);
-    /* pass on relevant general settings to reader settings */
-    reader.getSettings().setErrorIfDuplicateXmlId(isErrorIfDuplicateSourceId());
     network = (MacroscopicNetwork) reader.read();        
   }
 
@@ -331,6 +321,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     
     /** delegate to the dedicated zoning reader */
     PlanitZoningReader zoningReader = new PlanitZoningReader(xmlRawZoning, zoning);
+    zoningReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
     zoningReader.read(network, sourceIdNodeMap);
   }
 
@@ -345,24 +336,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected void populateDemands( Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");
     PlanItException.throwIf(!(parameter1 instanceof Zoning),"Parameter 1 of call to populateDemands() is not of class Zoning");
-    PlanItException.throwIf(!(parameter2 instanceof MacroscopicNetwork),"Parameter 2 of call to populateDemands() is not of class MacroscopicNetwork");
-    
-    /* parse raw inputs if not already done */
-    if(xmlRawNetwork == null) {
-      parseXmlRawInputs();
-    }    
+    PlanItException.throwIf(!(parameter2 instanceof MacroscopicNetwork),"Parameter 2 of call to populateDemands() is not of class MacroscopicNetwork");     
     
     final Zoning zoning = (Zoning) parameter1;
     final MacroscopicNetwork network = (MacroscopicNetwork) parameter2;
-    try {
-      final XMLElementDemandConfiguration demandconfiguration = xmlRawDemand.getDemandconfiguration();
-      ProcessConfiguration.generateAndStoreConfigurationData(demands, demandconfiguration, network, this);
-      final List<XMLElementOdMatrix> oddemands = xmlRawDemand.getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-      DemandsPopulator.createAndRegisterDemandMatrix(demands, oddemands, zoning.zones, this);
-    } catch (final Exception e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when populating demands in PLANitIO",e);
-    }
+    
+    /* delegate to the dedicated demands reader */
+    PlanitDemandsReader demandsReader = new PlanitDemandsReader(xmlRawDemand, demands);
+    demandsReader.getSettings().setMapToIndexTravelerTypeByXmlIds(sourceIdTravelerTypeMap);
+    demandsReader.getSettings().setMapToIndexUserClassByXmlIds(sourceIdUserClassMap);
+    demandsReader.getSettings().setMapToIndexTimePeriodByXmlIds(sourceIdTimePeriodMap);
+    demandsReader.read(network, zoning, sourceIdModeMap, sourceIdZoneMap);    
   }
 
   /**

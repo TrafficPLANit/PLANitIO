@@ -1,6 +1,5 @@
 package org.planit.io.network.converter;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.planit.geo.PlanitJtsUtils;
 import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
-import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.InfrastructureLayer;
@@ -23,7 +21,6 @@ import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.CharacterUtils;
-import org.planit.utils.misc.FileUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.MotorisationModeType;
 import org.planit.utils.mode.PhysicalModeFeatures;
@@ -293,7 +290,6 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     
   }  
   
-
 
   /** place network to populate
    * 
