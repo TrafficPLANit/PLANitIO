@@ -321,7 +321,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /** delegate to the dedicated zoning reader */
     PlanitZoningReader zoningReader = new PlanitZoningReader(xmlRawZoning, zoning);
     zoningReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
-    zoningReader.read(network, sourceIdNodeMap);
+    zoningReader.getSettings().setMapToIndexConnectoidsByXmlIds(sourceIdConnectoidMap);
+    zoningReader.read(network, sourceIdNodeMap, sourceIdLinkSegmentMap);
   }
 
   /**
