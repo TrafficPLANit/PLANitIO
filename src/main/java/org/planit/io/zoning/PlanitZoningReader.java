@@ -200,7 +200,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       zone.setExternalId(externalId);  
     }                  
     
-    /* centroid */
+    /* centroid (optional location) */
     Centroid centroid = zone.getCentroid();
     if (xmlCentroid !=null && xmlCentroid.getPoint() != null) {
       List<Double> value = xmlCentroid.getPoint().getPos().getValue();        
