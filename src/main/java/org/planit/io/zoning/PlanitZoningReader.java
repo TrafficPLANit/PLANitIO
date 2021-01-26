@@ -27,17 +27,17 @@ import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.utils.zoning.Zone;
 import org.planit.utils.zoning.Zones;
+import org.planit.xml.generated.Connectoidnodelocationtype;
 import org.planit.xml.generated.Connectoidtype;
 import org.planit.xml.generated.Connectoidtypetype;
+import org.planit.xml.generated.Intermodaltype;
 import org.planit.xml.generated.Odconnectoid;
-import org.planit.xml.generated.Transferconnectoid;
 import org.planit.xml.generated.Transferzonetype;
 import org.planit.xml.generated.XMLElementCentroid;
 import org.planit.xml.generated.XMLElementConnectoid;
-import org.planit.xml.generated.XMLElementMacroscopicIntermodal;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
-import org.planit.xml.generated.XMLElementTransferConnectoid;
-import org.planit.xml.generated.XMLElementTransferZone;
+import org.planit.xml.generated.XMLElementTransferZoneAccess;
+import org.planit.xml.generated.XMLElementTransferZones;
 import org.planit.xml.generated.XMLElementZones;
 import org.planit.zoning.Zoning;
 
@@ -234,21 +234,27 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       }
       /* ACCESS NODE based*/
       theConnectoid = zoning.connectoids.registerNew(accessNode);
-    }else if(xmlConnectoid instanceof Transferconnectoid) {
-      if(nodesByXmlIds == null) {
+    }else if(xmlConnectoid instanceof XMLElementTransferZoneAccess.XMLElementTransferConnectoid) {
+      XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid = (XMLElementTransferZoneAccess.XMLElementTransferConnectoid) xmlConnectoid;
+      if(linkSegmentsByXmlId == null) {
         throw new PlanItException(String.format("provided link segments by XML id is null when parsing XML transfer connectoid %s", xmlConnectoid.getId()));
       }      
-      String xmlLinkSegmentRef = ((Transferconnectoid)xmlConnectoid).getLsref();
+      String xmlLinkSegmentRef = xmlTransferConnectoid.getLsref();
       MacroscopicLinkSegment linkSegment = linkSegmentsByXmlId.get(xmlLinkSegmentRef);
       if(linkSegment == null) {
         throw new PlanItException(String.format("provided link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
       /* LINK SEGMENT based */
       theConnectoid = zoning.connectoids.registerNew(linkSegment);
+      
+      /* special case: when upstream node should be used */
+      if(xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
+        ((DirectedConnectoid)theConnectoid).setNodeAccessDownstream(false);
+      }
     }
     
     /* xml id */
-    if(xmlConnectoid.getId() != null && xmlConnectoid.getId().isBlank()) {
+    if(xmlConnectoid.getId() != null && !xmlConnectoid.getId().isBlank()) {
       theConnectoid.setXmlId(xmlConnectoid.getId());
     }
     
@@ -274,7 +280,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @return transfer zone access point references map to later be able to connect each transfer zone to the correct access points
    * @throws PlanItException thrown if error
    */
-  private void populateTransferZones(XMLElementMacroscopicIntermodal xmlInterModal) throws PlanItException {
+  private void populateTransferZones(Intermodaltype xmlInterModal) throws PlanItException {
     
     /* no transfer zones */
     if(xmlInterModal.getTransferzones() == null) {
@@ -282,8 +288,8 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     }     
     
     /* transferzone */
-    List<XMLElementTransferZone> xmlTransferZones = xmlInterModal.getTransferzones().getTransferzone();
-    for(XMLElementTransferZone xmlTransferzone : xmlTransferZones) {
+    List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZones = xmlInterModal.getTransferzones().getZone();
+    for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZones) {
       /* base zone elements parsed and planit version registered */
       TransferZone transferZone = parseBaseZone(zoning.transferZones, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getCentroid());
       
@@ -303,7 +309,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @param linkSegmentsByXmlId to identify mapping between (transfer) connectoids and network
    * @throws PlanItException thrown if error
    */
-  private void populateTransferZoneAccess(Modes modes, XMLElementMacroscopicIntermodal xmlInterModal, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
+  private void populateTransferZoneAccess(Modes modes, Intermodaltype xmlInterModal, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
     
     /* no transfer zone connectoids */
     if(xmlInterModal.getTransferzoneaccess() == null) {
@@ -314,9 +320,8 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     modes.forEach( mode -> modesByXmlId.put(mode.getXmlId(), mode));
     
     /* transfer zone connectoid access */
-    List<XMLElementTransferConnectoid> xmlTransferConnectoids = xmlInterModal.getTransferzoneaccess().getTransferconnectoid();
-    for(XMLElementTransferConnectoid xmlConnectoid : xmlTransferConnectoids) {
-      Transferconnectoid xmlTransferConnectoid = xmlConnectoid.getValue();
+    List<XMLElementTransferZoneAccess.XMLElementTransferConnectoid> xmlTransferConnectoids = xmlInterModal.getTransferzoneaccess().getConnectoid();
+    for(XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid : xmlTransferConnectoids) {
       /* base connectoid */
       DirectedConnectoid connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid, null /* transfer connectoid are based on link segments*/, linkSegmentsByXmlId);
       
@@ -356,7 +361,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       }
 
       /* populate lengths using link segment downstream vertex position */
-      populateConnectoidToZoneLengths(connectoid, xmlTransferConnectoid, connectoid.getAccessEdgeSegment().getDownstreamVertex().getPosition(), jtsUtils);
+      populateConnectoidToZoneLengths(connectoid, xmlTransferConnectoid, connectoid.getAccessNode().getPosition(), jtsUtils);
                         
       Connectoid duplicateConnectoid = settings.getMapToIndexConnectoidsByXmlIds().put(connectoid.getXmlId(), connectoid);
       if(duplicateConnectoid != null) {
@@ -414,12 +419,12 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @throws PlanItException thrown if error
    */
   protected void populateIntermodal(Modes modes, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException{
-    if(getXmlRootElement().getMacroscopicintermodal() == null) {
+    if(getXmlRootElement().getIntermodal() == null) {
       return;
     }
     
     /* intermodal elements present */
-    XMLElementMacroscopicIntermodal xmlInterModal = getXmlRootElement().getMacroscopicintermodal();
+    Intermodaltype xmlInterModal = getXmlRootElement().getIntermodal();
     
     /* transferzones */
     populateTransferZones(xmlInterModal);

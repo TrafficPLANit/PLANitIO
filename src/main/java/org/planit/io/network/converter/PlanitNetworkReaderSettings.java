@@ -3,7 +3,6 @@ package org.planit.io.network.converter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.planit.input.InputBuilderListener;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
@@ -36,11 +35,6 @@ public class PlanitNetworkReaderSettings {
    * option to provide external map to populate with xml Ids corresponding to Modes
    */
   private Map<String, Mode> modeXmlIdToModeMap = new HashMap<String, Mode>();
-  
-  /**
-   * Flag to determine whether duplicate xml Id should be considered an error (defaults to {@link InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_EXTERNAL_ID}
-   */
-  private boolean errorIfDuplicateXmlId = InputBuilderListener.DEFAULT_ERROR_ON_DUPLICATE_SOURCE_ID;  
   
   /** Use provided map to index modes by xml id when parsing
    * @param modeXmlIdToModeMap to use
@@ -96,23 +90,6 @@ public class PlanitNetworkReaderSettings {
    */
   public Map<String, MacroscopicLinkSegmentType> getMapToIndexLinkSegmentTypeByXmlIds() {
     return this.linkSegmentTypeXmlIdToLinkSegmentTypeMap;
-  }
-
-  /** check value of this flag
-   * @return true when raising error on duplicate xml id
-   */
-  public boolean isErrorIfDuplicateXmlId() {
-    return errorIfDuplicateXmlId;
-  }
-
-  /**
-   * update flag on whether or not to raise an error on duplicate xml ids
-   * 
-   * @param errorIfDuplicateXmlId
-   */
-  public void setErrorIfDuplicateXmlId(boolean errorIfDuplicateXmlId) {
-    this.errorIfDuplicateXmlId = errorIfDuplicateXmlId;
-  }   
-  
+  }  
   
 }

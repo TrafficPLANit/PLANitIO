@@ -230,8 +230,8 @@ public class XmlMacroscopicNetworkLayerHelper {
       
       /* xml id */
       String xmlId = xmlLinkSegmentType.getId();      
-      if (segmentTypeByXmlId.containsKey(xmlId) && settings.isErrorIfDuplicateXmlId()) {
-        throw new PlanItException("duplicate link segment type id " + xmlId + " found in network file");
+      if (segmentTypeByXmlId.containsKey(xmlId)) {
+        throw new PlanItException("duplicate link segment type id " + xmlId + " found in network");
       }
       
       /* external id */
@@ -311,8 +311,9 @@ public class XmlMacroscopicNetworkLayerHelper {
         node.setPosition(centrePointGeometry);
       }
       final Node prevValue = nodesByXmlId.put(node.getXmlId(), node);
-      PlanItException.throwIf(prevValue!=null && settings.isErrorIfDuplicateXmlId(),
-          "Duplicate node external id " + node.getXmlId() + " found in network file");
+      if(prevValue != null) {
+       throw new PlanItException("Duplicate node external id " + node.getXmlId() + " found in network file");
+      }
     }
     return nodesByXmlId;
   }  
@@ -405,8 +406,10 @@ public class XmlMacroscopicNetworkLayerHelper {
         int noLanes = (xmlLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES : xmlLinkSegment.getNumberoflanes().intValue();        
         linkSegment.setNumberOfLanes(noLanes);   
         
-        final MacroscopicLinkSegment prevLinkSegment = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
-        PlanItException.throwIf(prevLinkSegment!=null && settings.isErrorIfDuplicateXmlId(), "Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network file");        
+        final MacroscopicLinkSegment duplicate = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
+        if(duplicate != null) {
+          throw new PlanItException("Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network");        
+        }
         
         /** LINK SEGMENT TYPE **/
         

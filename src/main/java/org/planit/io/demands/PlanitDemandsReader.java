@@ -200,9 +200,10 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     /* user classes */
     XMLElementUserClasses xmlUserclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
     
-    /* generate default if absent */
+    /* generate default if absent (and no more than one mode is used) */
     if (xmlUserclasses.getUserclass().isEmpty()) {
-      PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1, "No user classes defined but more than 1 traveller type defined");
+      PlanItException.throwIf(network.modes.size() > 1,"user classes must be explicitly defined when more than one mode is defined");
+      PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
       
       XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
       xmlUserClass.setTravellertyperef(demands.travelerTypes.getFirst().getXmlId());
@@ -213,7 +214,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     for (XMLElementUserClasses.Userclass xmlUserclass : xmlUserclasses.getUserclass()) {
       if(xmlUserclass.getTravellertyperef()==null) {
         PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1,
-            "User class " + xmlUserclass.getId() + " has no traveller type specified, but more than one traveller type possible");                
+            String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
         PlanItException.throwIf(settings.getMapToIndexTravelerTypeByXmlIds().get(xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
@@ -415,19 +416,34 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     
     /* od matrix */
     for (final XMLElementOdMatrix xmlOdMatrix : oddemands) {
-      /* refs */
-      final String timePeriodXmlIdRef = xmlOdMatrix.getTimeperiodref();
-      final String userClassXmlIdRef = (xmlOdMatrix.getUserclassref() == null) ? UserClass.DEFAULT_XML_ID : xmlOdMatrix.getUserclassref();
-      final UserClass userClass = settings.getMapToIndexUserClassByXmlIds().get(userClassXmlIdRef);
+      
+      /* user class ref */
+      UserClass userClass = null;  
+      if(xmlOdMatrix.getUserclassref() == null) {
+        PlanItException.throwIf(demands.userClasses.size()>1,"user class must be explicitly set on od matrix when more than one user class exists");
+        userClass = demands.userClasses.getFirst();
+      }else {
+        final String userClassXmlIdRef = xmlOdMatrix.getUserclassref();
+        userClass = settings.getMapToIndexUserClassByXmlIds().get(userClassXmlIdRef);        
+      }
+      PlanItException.throwIf(userClass==null, "referenced user class on od matrix not available");
       final Mode mode = userClass.getMode();
+      
+      /* time period ref */
+      final String timePeriodXmlIdRef = xmlOdMatrix.getTimeperiodref();
+      PlanItException.throwIf(timePeriodXmlIdRef==null, "time period must always be referenced on od matrix");
       final TimePeriod timePeriod = settings.getMapToIndexTimePeriodByXmlIds().get(timePeriodXmlIdRef);
+      PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
       ODDemandMatrix odDemandMatrix = new ODDemandMatrix(zoning.odZones);
       /* populate */
       populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, zoning.odZones, xmlIdZoneMap);
       /* register */
-      demands.registerODDemand(timePeriod, mode, odDemandMatrix);  
+      ODDemandMatrix duplicate = demands.registerODDemand(timePeriod, mode, odDemandMatrix);
+      if(duplicate != null) {
+        throw new PlanItException(String.format("multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
+      }
     }
   }  
   

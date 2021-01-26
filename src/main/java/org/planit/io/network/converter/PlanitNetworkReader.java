@@ -130,18 +130,28 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     Map<String, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
     
     final XMLElementConfiguration xmlGeneralConfiguration = getXmlRootElement().getConfiguration();    
-    for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {      
+    for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {
+      
+      /* xml id */
+      String modeXmlId = null;
+      if(xmlMode.getId() != null && !xmlMode.getId().isBlank()) {
+        modeXmlId = xmlMode.getId();
+      }      
+      
       /* name, generate unique name if undefined */
       String name = xmlMode.getName();
-      if(name==null) {
-        name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.modes.size()));
+      String potentialPredefinedModeType = name;
+      if(potentialPredefinedModeType==null) {
+        potentialPredefinedModeType = modeXmlId;
       }
-           
-      PredefinedModeType modeType = PredefinedModeType.create(name);      
+      PredefinedModeType modeType = PredefinedModeType.create(potentialPredefinedModeType);      
       if(!xmlMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
         LOGGER.warning(String.format("mode %s is not registered as predefined mode but name corresponds to PLANit predefined mode, reverting to PLANit predefined mode",xmlMode.getName()));
+      }            
+      if(name==null && modeType == PredefinedModeType.CUSTOM) {
+        name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.modes.size()));
       }
-      
+                 
       Mode mode = null;
       if(modeType != PredefinedModeType.CUSTOM) {
         /* predefined mode use factory, ignore other attributes (if any) */
@@ -157,20 +167,17 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
                 
         mode = this.network.modes.registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
       }     
-      
-      /* xml id */
-      if(xmlMode.getId() != null && !xmlMode.getId().isBlank()) {
-        mode.setXmlId(xmlMode.getId());
-      }
-      
+            
       /* external id*/
       if(xmlMode.getExternalid() != null && !xmlMode.getExternalid().isBlank()) {
         mode.setExternalId(xmlMode.getExternalid());
       }      
       
+      /* xml id */
+      mode.setXmlId(modeXmlId);
       final Mode prevValue = modesByXmlId.put(mode.getXmlId(), mode);
-      if (prevValue!=null && settings.isErrorIfDuplicateXmlId()) {
-        String errorMessage = "duplicate mode xml id " + mode.getXmlId() + " found in network file.";
+      if (prevValue!=null) {
+        String errorMessage = "duplicate mode xml id " + mode.getXmlId() + " found in network file";
         throw new PlanItException(errorMessage);
       }
     }

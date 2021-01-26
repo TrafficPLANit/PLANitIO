@@ -1288,3 +1288,47 @@ The resulting costs along each segment are:
 ***Notes:***
 
 The costs along each link differ significantly.  The costs along Link Segment 3 are higher than those along Link Segments 1 and 5, even though it has the same length and capacity.  This is the effect of its BPR parameters being higher.
+
+### 3.7 Intermodal Tests
+
+Tests in Section 3.7 aim to verify correctness of the optional intermodal extension that allows for multiple
+network layers and interaction between said layers by means of transfers by using transferzones and access points
+which can be thought of as a type of zone and connectoid, only one where one can change modes
+
+**Test Configuration**
+
+For now we are only able to parse intermodal networks (without intermodal routes) 
+
+**Naming Convention**
+
+N/A
+
+#### 3.7.1 inermodal_minimal
+
+***Purpose:*** 
+
+This tests the correct parsing of intermodal networks using the default PLANit XML format using as much of the defaults and various settings as possible.
+
+***Description:***
+
+![alt text](./images/intermodal_minimal.jpg "Intermodal Network")
+
+- Two predefined modes are used, bus and car
+- All links have a length of 10 km
+- all od connectoids have a length of 1 km
+- all transfer connectoids use the default length and connect to the appropriate link segment
+- the initial transfer connectoid relates to the upstream node explicitly of its reference link segment
+- Each of the three nodes has a transfer zone with a single transfer connectoid that accepts the mode bus
+- Travel demand is non-zero for both modes, demand is only set for od pair 1->2 (1 demand)
+- two user classes are defined, one per mode
+- Simulation time period is 1 h.
+
+all the settings in the XML regarding the network and intermodal component are tested via memory model based assertions
+
+***Location:***
+
+`src\test\resources\testcases\intermodal\xml\minimal_input`
+
+***Notes:***
+
+N/A
