@@ -312,7 +312,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Creates the Zoning object and connectoids from the data in the input file
    *
    * @param zoning the Zoning object to be populated from the input data
-   * @param parameter1 PhysicalNetwork object previously defined
+   * @param network PhysicalNetwork object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
   protected void populateZoning(final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
@@ -411,9 +411,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * directory, using the default extension ".xml"
    *
    * @param projectPath the location of the input file directory
-   * @throws PlanItException thrown if one of the input required input files
-   *           cannot be found, or if there is an error reading one
-   *           of them
+   * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
    */
   public PlanItInputBuilder(final String projectPath) throws PlanItException {
     this(projectPath, DEFAULT_XML_FILE_EXTENSION);
@@ -424,11 +422,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * directory
    *
    * @param projectPath the location of the input file directory
-   * @param xmlNameExtension the extension of the data files to be searched
-   *          through
-   * @throws PlanItException thrown if one of the input required input files
-   *           cannot be found, or if there is an error reading one
-   *           of them
+   * @param xmlFileExtension the extension of the data files to be searched through
+   * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
    */
   public PlanItInputBuilder(final String projectPath, final String xmlFileExtension) throws PlanItException {
     super();

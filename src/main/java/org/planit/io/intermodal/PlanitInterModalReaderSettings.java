@@ -19,14 +19,14 @@ public class PlanitInterModalReaderSettings {
   protected Map<String, Zone> xmlIdZoneMap = new HashMap<String, Zone>();
   
   /** map to index nodes by xml id when parsing
-   * @param zoneXmlIdToNodeMap to use
+   * @return zoneXmlIdToNodeMap to use
    */
   protected Map<String, Zone> getMapToIndexZoneByXmlIds() {
     return this.xmlIdZoneMap;
   }     
   
   /** Use provided map to index zones by xml id when parsing
-   * @param zoneXmlIdToNodeMap to use
+   * @param xmlIdZoneMap to use
    */
   public void setMapToIndexZoneByXmlIds(Map<String, Zone> xmlIdZoneMap) {
     this.xmlIdZoneMap = xmlIdZoneMap;

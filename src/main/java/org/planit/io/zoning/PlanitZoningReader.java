@@ -386,6 +386,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
   /**
    * parse the OD zones from Xml element into Planit memory
    * @param nodesByXmlIds nodes indexed by xml id to use
+   * @throws PlanItException thrown if error
    */
   protected void populateODZones(Map<String, Node> nodesByXmlIds) throws PlanItException{
     /* zone */

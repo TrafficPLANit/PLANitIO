@@ -36,7 +36,7 @@ public class EnumConversionUtil {
   }
   
   /** convert motorisation type from PLANit to XML
-   * @param xmlMotorisationType to convert
+   * @param planitMotorisationType to convert
    * @return result
    * @throws PlanItException thrown if error
    */
@@ -70,7 +70,7 @@ public class EnumConversionUtil {
   }  
   
   /** convert motorisation type from PLANit to XML
-   * @param xmlMotorisationType to convert
+   * @param planitVehicularType to convert
    * @return result
    * @throws PlanItException thrown if error
    */
@@ -108,20 +108,20 @@ public class EnumConversionUtil {
    * @return result
    * @throws PlanItException thrown if error
    */
-  public static TrackType planitToXml(final TrackModeType trackType) throws PlanItException {
+  public static TrackType planitToXml(final TrackModeType xmlTrackType) throws PlanItException {
     
-    switch (trackType) {
+    switch (xmlTrackType) {
     case RAIL:
       return TrackType.RAIL;
     case ROAD:
       return TrackType.ROAD;      
     default:
-      throw new PlanItException(String.format("mapping from planit track type %s to xml track type unavailable",trackType.toString()));
+      throw new PlanItException(String.format("mapping from planit track type %s to xml track type unavailable",xmlTrackType.toString()));
     }
   }
   
   /** convert used-to type from xml to PLANit
-   * @param xmlTrackType to convert
+   * @param xmlUseOfType to convert
    * @return result
    * @throws PlanItException thrown if error
    */

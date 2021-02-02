@@ -1,13 +1,24 @@
 # Release Log
 
-PLANitIO  Releases (formerly PLANitXML)
+PLANitIO  Releases
 
-### 0.1.0
+## 0.2.0
+
+* add LICENSE.TXT to each repository so it is clearly licensed (planit/#33)
+* add support for parsing/persisting predefined modes
+* add support for parsing default allowed link segment type modes based on their track type (road/rail) (planitio/#9)
+* separated reading of network from inputbuilder into networkreader class such that we can separately parse networks consistent with the converter classes (planitio/#10)  
+* allow an option to include XML validation in the Java if the user wishes (planitio/#4)
+* allow External Ids (and xml ids) to be of String type (planitio/#1)
+* centroid element must become optional, since it is not strictly needed (planitio/#2)
+* support multi-layer networks in parser   
+
+## 0.1.0
 
 * moved to new repository (www.github.com/trafficplanit/PLANitIO
 * split JAXB code generation off in its own repository (#7) - new repository is PLANitXMLGenerator
 
-### 0.0.4
+## 0.0.4
 
 * PLANitIO now reads the value of <maxspeed> from <linksegment> and <linksegmenttype> and uses the smaller if they are both present and different (#12)
 * Creation of bulky JAR file now done in PLANitALL project (#25)

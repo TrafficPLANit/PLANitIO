@@ -65,7 +65,7 @@ public class PlanitXmlReader<T> {
   /** 
    * Constructor where root element is already provided and assumed to be populated as well
    * 
-   * @param xmlRootElement
+   * @param xmlRootElement to use
    */
   public PlanitXmlReader(T xmlRootElement) {
     this.clazz = null;

@@ -44,7 +44,7 @@ public class PlanitNetworkReaderSettings {
   }
   
   /** exogenous map to index modes by xml id when parsing
-   * @param modeXmlIdToModeMap to use
+   * @return modeXmlIdToModeMap to use
    */
   public Map<String, Mode> getMapToIndexModeByXmlIds() {
     return this.modeXmlIdToModeMap;
@@ -58,7 +58,7 @@ public class PlanitNetworkReaderSettings {
   } 
   
   /** exogenous map to index nodes by xml id when parsing (if any, can be null)
-   * @param nodeXmlIdToNodeMap to use
+   * @return nodeXmlIdToNodeMap to use
    */
   public Map<String, Node> getMapToIndexNodeByXmlIds() {
     return this.nodeXmlIdToNodeMap;
@@ -72,7 +72,7 @@ public class PlanitNetworkReaderSettings {
   }   
   
   /** exogenous map to index link segments by xml id when parsing (if any, can be null)
-   * @param linkSegmentXmlIdToLinkSegmentMap to use
+   * @return linkSegmentXmlIdToLinkSegmentMap to use
    */
   public Map<String, MacroscopicLinkSegment> getMapToIndexLinkSegmentByXmlIds() {
     return this.linkSegmentXmlIdToLinkSegmentMap;
@@ -86,7 +86,7 @@ public class PlanitNetworkReaderSettings {
   }  
   
   /** exogenous map to index link segment types by xml id when parsing (if any, can be null)
-   * @param linkSegmentTypeXmlIdToLinkSegmentTypeMap to use
+   * @return linkSegmentTypeXmlIdToLinkSegmentTypeMap to use
    */
   public Map<String, MacroscopicLinkSegmentType> getMapToIndexLinkSegmentTypeByXmlIds() {
     return this.linkSegmentTypeXmlIdToLinkSegmentTypeMap;

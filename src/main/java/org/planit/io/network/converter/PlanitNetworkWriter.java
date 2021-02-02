@@ -57,8 +57,7 @@ import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
 /**
- * Writer to persist a PLANit network to disk in the native PLANit format. By default the external ids are used for writing out the ids in the XML 
- * based on the {@link IdMapper.EXTERNAL_ID}.
+ * Writer to persist a PLANit network to disk in the native PLANit format. By default the xml ids are used for writing out the ids in the XML. 
  * 
  * @author markr
  *

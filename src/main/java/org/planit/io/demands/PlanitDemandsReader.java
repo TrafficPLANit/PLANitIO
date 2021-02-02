@@ -452,7 +452,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * 
    * @param pathDirectory to use
    * @param xmlFileExtension to use
-   * @param zoning to populate
+   * @param demands to populate
    * @throws PlanItException  thrown if error
    */
   public PlanitDemandsReader(String pathDirectory, String xmlFileExtension, Demands demands) throws PlanItException{   
@@ -462,8 +462,8 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
   
   /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
-   * @param xmlMacroscopicZoning to extract from
-   * @param zoning to populate
+   * @param xmlMacroscopicDemands to extract from
+   * @param demands to populate
    * @throws PlanItException  thrown if error
    */
   public PlanitDemandsReader(XMLElementMacroscopicDemand xmlMacroscopicDemands, Demands demands) throws PlanItException{

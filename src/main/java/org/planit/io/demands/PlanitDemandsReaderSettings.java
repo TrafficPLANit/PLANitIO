@@ -32,7 +32,7 @@ public class PlanitDemandsReaderSettings {
   
   
   /** map to index traveler types by xml id when parsing
-   * @param xmlIdTravelerTypeMap to use
+   * @return xmlIdTravelerTypeMap 
    */
   protected Map<String, TravelerType> getMapToIndexTravelerTypeByXmlIds() {
     return this.xmlIdTravelerTypeMap;
@@ -46,7 +46,7 @@ public class PlanitDemandsReaderSettings {
   }
   
   /** map to index user classes by xml id when parsing
-   * @param xmlIdUserClassMap to use
+   * @return xmlIdUserClassMap
    */
   protected Map<String, UserClass> getMapToIndexUserClassByXmlIds() {
     return this.xmlIdUserClassMap;
@@ -60,7 +60,7 @@ public class PlanitDemandsReaderSettings {
   }  
   
   /** map to index time periods  by xml id when parsing
-   * @param xmlIdTimePeriodMap to use
+   * @return xmlIdTimePeriodMap
    */
   protected Map<String, TimePeriod> getMapToIndexTimePeriodByXmlIds() {
     return this.xmlIdTimePeriodMap;

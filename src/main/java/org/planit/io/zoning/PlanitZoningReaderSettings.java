@@ -25,28 +25,28 @@ public class PlanitZoningReaderSettings {
   protected Map<String, Connectoid> xmlIdConnectoidMap = new HashMap<String, Connectoid>();  
   
   /** map to index nodes by xml id when parsing
-   * @param zoneXmlIdToNodeMap to use
+   * @return zoneXmlIdToNodeMap to use
    */
   protected Map<String, Zone> getMapToIndexZoneByXmlIds() {
     return this.xmlIdZoneMap;
   }     
   
   /** Use provided map to index zones by xml id when parsing
-   * @param zoneXmlIdToNodeMap to use
+   * @param xmlIdZoneMap to use
    */
   public void setMapToIndexZoneByXmlIds(Map<String, Zone> xmlIdZoneMap) {
     this.xmlIdZoneMap = xmlIdZoneMap;
   } 
   
-  /** map to index nodes by xml id when parsing
-   * @param zoneXmlIdToNodeMap to use
+  /** map to index connectoids by xml id when parsing
+   * @return zoneXmlIdToNodeMap to use
    */
   protected Map<String, Connectoid> getMapToIndexConnectoidsByXmlIds() {
     return this.xmlIdConnectoidMap;
   }     
   
-  /** Use provided map to index zones by xml id when parsing
-   * @param zoneXmlIdToNodeMap to use
+  /** Use provided map to index connectoids by xml id when parsing
+   * @param xmlIdConnectoidMap to use
    */
   public void setMapToIndexConnectoidsByXmlIds(Map<String, Connectoid> xmlIdConnectoidMap) {
     this.xmlIdConnectoidMap = xmlIdConnectoidMap;

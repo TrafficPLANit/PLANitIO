@@ -80,7 +80,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param generatedLink object storing link data from XML file
    * @param jtsUtils to compute length from geometry
    * @return final length value
-   * @throws PlanItException
+   * @throws PlanItException thown if error
    */
   protected static Double parseLengthFromLineString(XMLElementLinks.Link generatedLink, PlanitJtsUtils jtsUtils) throws PlanItException {
     Double length = null;
@@ -204,6 +204,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param networkLayer to register them on
    * @param settings to draw configruation from
    * @param modesByXmlId modes indexed by their xml id
+   * @return parsed types
    * @throws PlanItException thrown if error
    */
   public static Map<String, MacroscopicLinkSegmentType> parseLinkSegmentTypes(
@@ -279,6 +280,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param xmlLayer to extract from
    * @param settings to base configuration on
    * @param networkLayer to populate
+   * @return parsed nodes
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
   public static Map<String, Node> parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReaderSettings settings) throws PlanItException {

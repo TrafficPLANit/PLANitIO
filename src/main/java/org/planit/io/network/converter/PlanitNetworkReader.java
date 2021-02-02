@@ -312,7 +312,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   
   /** constructor
    * 
-   * @param networkPath to use
+   * @param networkPathDirectory to use
    * @param xmlFileExtension to use
    * @param network to populate
    * @throws PlanItException  thrown if error

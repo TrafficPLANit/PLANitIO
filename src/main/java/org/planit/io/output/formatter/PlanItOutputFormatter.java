@@ -572,7 +572,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Create the output directories and open the CSV writers
    * 
-   * @param outputTypeConfiguration OutputConfiguration of the assignment
+   * @param outputConfiguration OutputConfiguration of the assignment
    * @param runId the id of the traffic assignment to be saved
    * @throws PlanItException thrown if there is an error or validation failure during set up of the output formatter
    */
@@ -590,7 +590,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * Finalize the persistence after the simulation. Here we generate the XML meta-data file(s)
    * *
    * 
-   * @param outputTypeConfiguration OutputTypeConfiguration of the assignment that have been activated
+   * @param outputConfiguration OutputTypeConfiguration of the assignment that have been activated
    * @param outputAdapter the outputAdapter
    * @throws PlanItException thrown if there is an error closing a resource
    */

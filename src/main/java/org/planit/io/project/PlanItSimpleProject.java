@@ -143,7 +143,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    * @param trafficAssignmentType the traffic assignment type
    * @param theDemands the demands
    * @param theZoning the zoning
-   * @param thePhysicalNetwork the network
+   * @param theNetwork the network
    */
   @Override
   public TrafficAssignmentConfigurator<? extends TrafficAssignment> createAndRegisterTrafficAssignment(

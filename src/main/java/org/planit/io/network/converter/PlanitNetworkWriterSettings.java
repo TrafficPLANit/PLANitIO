@@ -19,17 +19,17 @@ public class PlanitNetworkWriterSettings {
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriterSettings.class.getCanonicalName());
   
   /**
-   * number of decimals to use, default is {@link Precision.DEFAULT_DECIMAL_FORMAT}
+   * number of decimals to use, default is Precision.DEFAULT_DECIMAL_FORMAT
    */
   protected DecimalFormat decimalFormat = Precision.DEFAULT_DECIMAL_FORMAT;
   
-  /** tuple separator, default is {@Link CharacterUtils.SPACE} */
+  /** tuple separator, default is CharacterUtils.SPACE */
   protected Character tupleSeparator = CharacterUtils.SPACE;
 
-  /** tuple separator, default is {@Link CharacterUtils.COMMA} */
+  /** tuple separator, default is CharacterUtils.COMMA */
   protected Character commaSeparator = CharacterUtils.COMMA;
   
-  /** decimal separator, default is {@Link CharacterUtils.DECIMAL_POINT} */
+  /** decimal separator, default is CharacterUtils.DECIMAL_POINT */
   protected Character decimalSeparator = CharacterUtils.DECIMAL_POINT;
   
   /** the coordinate reference system used for writing entities of this network */
@@ -59,7 +59,7 @@ public class PlanitNetworkWriterSettings {
 
   /** set number of decimals used in writing coordinates
    * 
-   * @param coordinateDecimals number of decimals
+   * @param decimalFormat number of decimals
    */
   public void setDecimalFormat(DecimalFormat decimalFormat) {
     this.decimalFormat = decimalFormat;
@@ -118,7 +118,7 @@ public class PlanitNetworkWriterSettings {
   /**
    * set the country name to optimise projection if possible
    * 
-   * @param country to use
+   * @param countryName to use
    */
   public void setCountryName(String countryName) {
     this.countryName = countryName;
