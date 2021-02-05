@@ -1,4 +1,4 @@
-package org.planit.io.network.converter;
+package org.planit.io.converter.network;
 
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 

@@ -1,4 +1,4 @@
-package org.planit.io.network.converter;
+package org.planit.io.converter.network;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.planit.converter.network.NetworkReader;
 import org.planit.geo.PlanitJtsUtils;
 import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
@@ -16,7 +17,6 @@ import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.InfrastructureLayer;
 import org.planit.network.InfrastructureNetwork;
-import org.planit.network.converter.NetworkReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;

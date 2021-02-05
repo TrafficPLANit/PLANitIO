@@ -1,4 +1,4 @@
-package org.planit.io.network.converter;
+package org.planit.io.converter.network;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -15,7 +15,10 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-import org.planit.network.converter.IdMapperType;
+import org.planit.converter.BaseWriterImpl;
+import org.planit.converter.IdMapperFunctionFactory;
+import org.planit.converter.IdMapperType;
+import org.planit.converter.network.NetworkWriter;
 import org.planit.geo.PlanitJtsUtils;
 import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.xml.util.EnumConversionUtil;
@@ -23,8 +26,6 @@ import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitSchema;
 import org.planit.network.InfrastructureLayer;
 import org.planit.network.InfrastructureNetwork;
-import org.planit.network.converter.IdMapperFunctionFactory;
-import org.planit.network.converter.NetworkWriterImpl;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -62,7 +63,7 @@ import net.opengis.gml.PointType;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends NetworkWriterImpl {  
+public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork> implements NetworkWriter {  
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());

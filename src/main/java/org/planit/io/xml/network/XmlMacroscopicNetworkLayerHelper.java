@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.planit.geo.PlanitJtsUtils;
-import org.planit.io.network.converter.PlanitNetworkReaderSettings;
+import org.planit.io.converter.network.PlanitNetworkReaderSettings;
 import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;

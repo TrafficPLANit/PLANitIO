@@ -1,4 +1,4 @@
-package org.planit.io.network.converter;
+package org.planit.io.converter.network;
 
 import java.text.DecimalFormat;
 import java.util.logging.Logger;
