@@ -650,5 +650,13 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork> i
     /* persist */
     persist();
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    // TODO Auto-generated method stub    
+  }  
 
 }

@@ -373,6 +373,14 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     return settings;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    // TODO Auto-generated method stub    
+  }
+
 
 
 

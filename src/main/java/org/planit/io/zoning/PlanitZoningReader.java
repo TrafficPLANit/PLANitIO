@@ -433,8 +433,6 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     /* transfer zone access connectoids */
     populateTransferZoneAccess(modes, xmlInterModal, linkSegmentsByXmlId);
 
-    /* now connect the transfer zones to their access points and the access points to their transfer zones */
-    //connectTransferZonesAndTransferZoneAccess(transferZoneAccessXmlRefsByTransferZone, transferZoneXmlRefsByAccess);
   }  
   
   /** constructor
