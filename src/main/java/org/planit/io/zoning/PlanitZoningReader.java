@@ -294,7 +294,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       TransferZone transferZone = parseBaseZone(zoning.transferZones, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getCentroid());
       
       /* type */
-      transferZone.setTransferZoneType(parseTransferZoneType(xmlTransferzone.getType()));
+      transferZone.setType(parseTransferZoneType(xmlTransferzone.getType()));
             
       /* geometry */
       populateZoneGeometry(transferZone, xmlTransferzone.getPolygon());      

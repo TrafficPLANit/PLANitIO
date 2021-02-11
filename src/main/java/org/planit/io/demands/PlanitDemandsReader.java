@@ -22,6 +22,7 @@ import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.mode.Mode;
+import org.planit.utils.zoning.OdZone;
 import org.planit.utils.zoning.Zone;
 import org.planit.utils.zoning.Zones;
 import org.planit.xml.generated.Durationunit;
@@ -130,7 +131,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square matrix
    */
   private static void populateDemandMatrixRawDifferentSeparators(final Values values, final String originSeparator,
-      final String destinationSeparator, final double pcu, ODDemandMatrix odDemandMatrix, final Zones zones) throws PlanItException {
+      final String destinationSeparator, final double pcu, ODDemandMatrix odDemandMatrix, final Zones<OdZone> zones) throws PlanItException {
     
     final String[] originRows = values.getValue().split(originSeparator);
     final int noRows = originRows.length;
@@ -324,7 +325,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @param xmlIdZoneMap to obtain zones by xml id
    * @throws Exception thrown if there is an error during processing
    */
-  private static void populateDemandMatrix(final XMLElementOdMatrix xmlOdMatrix, final double pcu, ODDemandMatrix odDemandMatrix, Zones zones, Map<String, Zone> xmlIdZoneMap) throws PlanItException {
+  private static void populateDemandMatrix(final XMLElementOdMatrix xmlOdMatrix, final double pcu, ODDemandMatrix odDemandMatrix, Zones<OdZone> zones, Map<String, Zone> xmlIdZoneMap) throws PlanItException {
     
     if (xmlOdMatrix instanceof XMLElementOdCellByCellMatrix) {
       
