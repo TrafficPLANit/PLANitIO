@@ -9,10 +9,10 @@ import java.util.logging.Logger;
 
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import org.planit.geo.PlanitJtsUtils;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.InfrastructureNetwork;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.network.physical.Node;
