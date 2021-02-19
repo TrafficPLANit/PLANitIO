@@ -48,7 +48,7 @@ public class PlanItProject extends CustomPlanItProject {
       String trafficAssignmentType, 
       Demands theDemands,
       Zoning theZoning, 
-      final InfrastructureNetwork theNetwork) throws PlanItException {
+      final InfrastructureNetwork<?> theNetwork) throws PlanItException {
     
     /* delegate */
     TrafficAssignmentConfigurator<? extends TrafficAssignment> taConfigurator = 

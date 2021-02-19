@@ -69,7 +69,7 @@ public class PlanitInterModalReader extends PlanitXmlReader<XMLElementMacroscopi
    * @return zoning parsed
    * @throws PlanItException thrown if error
    */
-  public Zoning read(InfrastructureNetwork network, Map<String, Node> nodesByXmlIds) throws PlanItException {  
+  public Zoning read(InfrastructureNetwork<?> network, Map<String, Node> nodesByXmlIds) throws PlanItException {  
     // create and register zones, centroids and connectoids
     try {
       

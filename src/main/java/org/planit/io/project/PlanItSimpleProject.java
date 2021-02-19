@@ -150,7 +150,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       final String trafficAssignmentType,
       final Demands theDemands,
       final Zoning theZoning,
-      final InfrastructureNetwork theNetwork)
+      final InfrastructureNetwork<?> theNetwork)
       throws PlanItException {
     throw new PlanItException(
         "a simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");

@@ -92,7 +92,7 @@ public class IntermodalTest {
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
       /* NETWORK */
-      final InfrastructureNetwork network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+      final InfrastructureNetwork<?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       assertEquals(network.infrastructureLayers.size(), 1);
       assertEquals(network.modes.size(), 2);

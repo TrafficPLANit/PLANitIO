@@ -335,7 +335,7 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -360,7 +360,7 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters,
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters,
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -388,7 +388,7 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation,
       final Integer maxIterations, 
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow) throws Exception {
@@ -413,7 +413,7 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation,
       final Integer maxIterations, 
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow) throws Exception {
@@ -443,7 +443,7 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, 
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow) throws Exception {
@@ -481,7 +481,7 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final String initialCostsFileLocation1,
       final String initialCostsFileLocation2, final int initCostsFilePos, final Integer maxIterations,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -519,7 +519,7 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
       final Double epsilon, 
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -545,7 +545,7 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
       final Double epsilon, 
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -579,7 +579,7 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -609,7 +609,7 @@ public class PlanItIOTestHelper {
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -640,7 +640,7 @@ public class PlanItIOTestHelper {
   */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
       final String projectPath,
-      final BiConsumer<InfrastructureNetwork, BPRConfigurator> setCostParameters, 
+      final BiConsumer<InfrastructureNetwork<?>, BPRConfigurator> setCostParameters, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
@@ -676,11 +676,11 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
-      final BiConsumer<InfrastructureNetwork, BPRConfigurator> setCostParameters, final String description,
+      final BiConsumer<InfrastructureNetwork<?>, BPRConfigurator> setCostParameters, final String description,
       final boolean useFixedConnectoidTravelTimeCost)
       throws Exception {
 
-    final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork> registerInitialCosts = 
+    final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?>> registerInitialCosts = 
         (taConfigurator, project, network) -> {
           InitialLinkSegmentCost initialCost = null;
           if (initialCostsFileLocation1 != null) {
@@ -724,9 +724,9 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork> registerInitialCosts,
+      final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?>> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
-      final BiConsumer<InfrastructureNetwork, BPRConfigurator> setCostParameters,
+      final BiConsumer<InfrastructureNetwork<?>, BPRConfigurator> setCostParameters,
       final String description,
       final boolean useFixedConnectoidTravelTimeCost) throws Exception {
 
@@ -843,9 +843,9 @@ public class PlanItIOTestHelper {
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork> registerInitialCosts,
+      final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?>> registerInitialCosts,
       final Integer maxIterations, final Double epsilon,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters,
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters,
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow) throws Exception {
@@ -963,13 +963,13 @@ public class PlanItIOTestHelper {
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
       final Integer maxIterations,
       final Double epsilon,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow)
       throws Exception {
 
-    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork> registerInitialCosts = 
+    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?>> registerInitialCosts = 
         (demands, taBuilder, project, network) -> {
           InitialLinkSegmentCost initialCost = null;
           if (initialCostsFileLocation1 != null) {
@@ -1017,12 +1017,12 @@ public class PlanItIOTestHelper {
       final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
       final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos,
       final Integer maxIterations, final Double epsilon,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow) throws Exception {
 
-    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork> registerInitialCosts = 
+    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?>> registerInitialCosts = 
         (demands, taConfigurator, project, physicalNetwork) -> {
           InitialLinkSegmentCost initialCost = null;
           if (initialCostsFileLocation1 != null) {
@@ -1062,13 +1062,13 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Map<Long, String> initialLinkSegmentLocationsPerTimePeriod, final Integer maxIterations,
       final Double epsilon,
-      final TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
       boolean useFixedConnectoidTravelTimeCost,
       boolean recordZeroFlow)
       throws Exception {
 
-    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork> registerInitialCosts = (
+    final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?>> registerInitialCosts = (
         demands, taConfigurator, project, physicalNetwork) -> {
       for (final Long timePeriodId : initialLinkSegmentLocationsPerTimePeriod.keySet()) {
         final TimePeriod timePeriod = demands.timePeriods.getTimePeriodById(timePeriodId);

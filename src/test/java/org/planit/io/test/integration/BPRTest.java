@@ -114,7 +114,7 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = 
+      TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
           (network, bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
             if(macroscopiclinkSegmentType == null) {

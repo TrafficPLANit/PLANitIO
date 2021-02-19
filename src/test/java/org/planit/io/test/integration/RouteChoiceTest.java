@@ -1477,7 +1477,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
+      TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
         Mode mode = inputBuilderListener.getModeBySourceId("2");
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
@@ -1594,7 +1594,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = (network,
+      TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters = (network,
           bpr, inputBuilderListener) -> {
         MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
         Mode mode = inputBuilderListener.getModeBySourceId("2");
@@ -1731,7 +1731,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<InfrastructureNetwork, BPRConfigurator, InputBuilderListener> setCostParameters = 
+      TriConsumer<InfrastructureNetwork<?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
           (network,bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
             Mode mode = inputBuilderListener.getModeBySourceId("2");

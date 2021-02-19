@@ -25,7 +25,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader createReader(String networkPath, String xmlFileExtension, InfrastructureNetwork network) {
+  public static PlanitNetworkReader createReader(String networkPath, String xmlFileExtension, InfrastructureNetwork<?> network) {
     try {
       return new PlanitNetworkReader(networkPath, xmlFileExtension, network);
     } catch (PlanItException e) {
@@ -40,7 +40,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader createReader(XMLElementMacroscopicNetwork xmlRawNetwork, InfrastructureNetwork network) {
+  public static PlanitNetworkReader createReader(XMLElementMacroscopicNetwork xmlRawNetwork, InfrastructureNetwork<?> network) {
     try {
       return new PlanitNetworkReader(xmlRawNetwork, network);
     } catch (PlanItException e) {

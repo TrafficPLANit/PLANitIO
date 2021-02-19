@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.InfrastructureNetwork;
+import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.mode.Mode;
@@ -466,20 +467,26 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @return zoning parsed
    * @throws PlanItException thrown if error
    */
-  public Zoning read(InfrastructureNetwork network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {  
+  public Zoning read(InfrastructureNetwork<?> network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
+    
+    if(!(network instanceof MacroscopicNetwork)) {
+      throw new PlanItException("unable to read zoning, network is not compatible with Macroscopic network");
+    }
+    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;
+    
     // create and register zones, centroids and connectoids
     try {
       
       /* popoulate Xml memory model */
       initialiseAndParseXmlRootElement();
       
-      this.jtsUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());           
+      this.jtsUtils = new PlanitJtsUtils(macroscopicNetwork.getCoordinateReferenceSystem());           
       
       /* OD zones */
       populateODZones(nodesByXmlId);
       
       /* Intermodal/transfer zones, i.e., platforms, stations, etc. */
-      populateIntermodal(network.modes, linkSegmentsByXmlId);
+      populateIntermodal(macroscopicNetwork.modes, linkSegmentsByXmlId);
       
       /* free */
       clearXmlContent();
