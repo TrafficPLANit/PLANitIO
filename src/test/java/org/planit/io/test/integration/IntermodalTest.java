@@ -92,7 +92,7 @@ public class IntermodalTest {
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
       /* NETWORK */
-      final InfrastructureNetwork<?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+      final InfrastructureNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       assertEquals(network.infrastructureLayers.size(), 1);
       assertEquals(network.modes.size(), 2);
@@ -162,7 +162,7 @@ public class IntermodalTest {
       }
       
       /* DEMANDS */
-      final Demands demands = project.createAndRegisterDemands(zoning, network);      
+      @SuppressWarnings("unused") final Demands demands = project.createAndRegisterDemands(zoning, network);      
       
       } catch (final Exception e) {
       e.printStackTrace();

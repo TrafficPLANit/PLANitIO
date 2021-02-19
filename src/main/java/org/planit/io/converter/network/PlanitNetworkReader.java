@@ -301,7 +301,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected void setNetwork(final InfrastructureNetwork<?> network) throws PlanItException {
+  protected void setNetwork(final InfrastructureNetwork<?,?> network) throws PlanItException {
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
@@ -317,7 +317,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @param network to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?> network) throws PlanItException{   
+  public PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
     super(XMLElementMacroscopicNetwork.class,networkPathDirectory,xmlFileExtension);    
     setNetwork(network);
   }
@@ -328,7 +328,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @param network to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?> network) throws PlanItException{
+  public PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
     super(externalXmlRawNetwork);    
     setNetwork(network);
   }  
@@ -337,7 +337,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * {@inheritDoc}
    */
   @Override
-  public InfrastructureNetwork<?> read() throws PlanItException {
+  public InfrastructureNetwork<?,?> read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
     initialiseAndParseXmlRootElement();

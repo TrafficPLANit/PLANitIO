@@ -467,7 +467,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @return zoning parsed
    * @throws PlanItException thrown if error
    */
-  public Zoning read(InfrastructureNetwork<?> network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
+  public Zoning read(InfrastructureNetwork<?,?> network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
     
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("unable to read zoning, network is not compatible with Macroscopic network");

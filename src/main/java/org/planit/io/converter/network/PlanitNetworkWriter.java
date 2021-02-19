@@ -63,7 +63,7 @@ import net.opengis.gml.PointType;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?>> implements NetworkWriter {  
+public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,?>> implements NetworkWriter {  
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
@@ -624,7 +624,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?>
    * {@inheritDoc}
    */
   @Override
-  public void write(InfrastructureNetwork<?> network) throws PlanItException {
+  public void write(InfrastructureNetwork<?,?> network) throws PlanItException {
     
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
