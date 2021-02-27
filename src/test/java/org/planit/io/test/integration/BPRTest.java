@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.planit.cost.physical.BPRConfigurator;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.test.util.PlanItIOTestHelper;
+import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 
@@ -114,7 +115,7 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
+      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParametersConsumer = 
           (network, bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
             if(macroscopiclinkSegmentType == null) {
@@ -135,15 +136,22 @@ public class BPRTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);           
+      
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setMaxIterations(maxIterations);
+      runner.setGapFunctionEpsilonGap(0.0);
+      runner.setPersistZeroFlow(false);
+      runner.setUseFixedConnectoidCost();
   
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
-          PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, maxIterations, 0.0, setCostParameters, description, true, false);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-  
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteWithCustomBprConfiguration(setCostParametersConsumer);
+      
+      /* verify outcome */      
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();  
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      
+           
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
       resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());

@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -517,7 +516,8 @@ public class PlanItIOTestHelper {
    * @throws Exception thrown if there is an error
    */
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
-      final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, final Integer maxIterations,
+      final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties, 
+      final Integer maxIterations,
       final Double epsilon, 
       final TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
       final String description,
@@ -535,7 +535,7 @@ public class PlanItIOTestHelper {
    * @param projectPath project directory containing the input files
    * @param maxIterations the maximum number of iterations allowed in this test run
    * @param epsilon measure of how close successive iterations must be to each other to accept convergence
-   * @param setCostParameters lambda function which sets parameters of cost function
+   * @param setBprCostParametersConsumer lambda function which sets parameters of cost function
    * @param description description used in temporary output file names
    * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
    * @param recordZeroFlow if true, paths, OD costs and links with zero cost are included in the output
@@ -545,7 +545,7 @@ public class PlanItIOTestHelper {
   public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(final String projectPath,
       final Integer maxIterations,
       final Double epsilon, 
-      final TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters, 
+      final TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setBprCostParametersConsumer, 
       final String description,
       final boolean useFixedConnectoidTravelTimeCost,
       final boolean recordZeroFlow)
@@ -558,7 +558,7 @@ public class PlanItIOTestHelper {
         0, 
         maxIterations, 
         epsilon, 
-        setCostParameters,
+        setBprCostParametersConsumer,
         description, 
         useFixedConnectoidTravelTimeCost, 
         recordZeroFlow);
@@ -629,202 +629,6 @@ public class PlanItIOTestHelper {
   }
 
  /**
-  * Runs a test case which attempts to change a locked formatter
-  * 
-   * @param projectPath project directory containing the input files
-   * @param setCostParameters lambda function which sets parameters of cost function
-   * @param description description used in temporary output file names
-   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
-   * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
-  */
-  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-      final String projectPath,
-      final BiConsumer<InfrastructureNetwork<?,?>, BPRConfigurator> setCostParameters, 
-      final String description,
-      final boolean useFixedConnectoidTravelTimeCost)
-      throws Exception {
-    
-    return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-        projectPath, 
-        null, 
-        null, 
-        0, 
-        null, 
-        null,
-        setCostParameters, 
-        description, 
-        useFixedConnectoidTravelTimeCost);
-  }
-
-  /**
-   * Runs a test case which attempts to change a locked formatter
-   * 
-   * @param projectPath project directory containing the input files
-   * @param initialCostsFileLocation1
-   * @param initialCostsFileLocation2
-   * @param initCostsFilePos
-   * @param maxIterations
-   * @param epsilon
-   * @param setCostParameters lambda function which sets parameters of cost function
-   * @param description description used in temporary output file names
-   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
-   * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception
-   */
-  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath, 
-      final String initialCostsFileLocation1, final String initialCostsFileLocation2, final int initCostsFilePos, 
-      final Integer maxIterations,
-      final Double epsilon,
-      final BiConsumer<InfrastructureNetwork<?,?>, BPRConfigurator> setCostParameters, final String description,
-      final boolean useFixedConnectoidTravelTimeCost)
-      throws Exception {
-
-    final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?,?>> registerInitialCosts = 
-        (taConfigurator, project, network) -> {
-          InitialLinkSegmentCost initialCost = null;
-          if (initialCostsFileLocation1 != null) {
-            if (initialCostsFileLocation2 != null) {
-              if (initCostsFilePos == 0) {
-                initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation1);
-              } else {
-                initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation2);
-              }
-            } else {
-              initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation1);
-            }
-            taConfigurator.registerInitialLinkSegmentCost(initialCost);
-          }
-        };
-
-    return setupAndExecuteAssignmentAttemptToChangeLockedFormatter(
-        projectPath,
-        defaultSetOutputTypeConfigurationProperties, 
-        registerInitialCosts, 
-        maxIterations, 
-        epsilon, 
-        setCostParameters,
-        description, 
-        useFixedConnectoidTravelTimeCost);
-  }
-
-  /**
-   * Runs a test case which attempts to change a locked formatter
-   * 
-   * @param projectPath project directory containing the input files
-   * @param setOutputTypeConfigurationProperties
-   * @param registerInitialCosts
-   * @param maxIterations
-   * @param epsilon
-   * @param setCostParameters lambda function which sets parameters of cost function
-   * @param description description used in temporary output file names
-   * @param useFixedConnectoidTravelTimeCost if true use FixedVirtualCost, otherwise use SpeedConnectoidTravelTimeCost
-   * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception
-   */
-  public static TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignmentAttemptToChangeLockedFormatter(final String projectPath,
-      final Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties,
-      final TriConsumer<TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?,?>> registerInitialCosts,
-      final Integer maxIterations, final Double epsilon,
-      final BiConsumer<InfrastructureNetwork<?,?>, BPRConfigurator> setCostParameters,
-      final String description,
-      final boolean useFixedConnectoidTravelTimeCost) throws Exception {
-
-    final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
-    final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-
-    // RAW INPUT START --------------------------------
-    final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-    final Zoning zoning = project.createAndRegisterZoning(physicalNetwork);
-    final Demands demands = project.createAndRegisterDemands(zoning, physicalNetwork);
-    // RAW INPUT END -----------------------------------
-
-    // TRAFFIC ASSIGNMENT START------------------------
-    final TraditionalStaticAssignmentConfigurator taConfigurator =
-        (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
-            TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, physicalNetwork);
-
-    // SUPPLY-DEMAND INTERACTIONS
-    if (setCostParameters != null) {
-      setCostParameters.accept(physicalNetwork, (BPRConfigurator) taConfigurator.getPhysicalCost());
-    }
-
-    if (useFixedConnectoidTravelTimeCost) {
-      taConfigurator.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
-    } else {
-      taConfigurator.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
-    }
-    taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-
-    // DATA OUTPUT CONFIGURATION
-    // PlanItXML test cases use expect outputConfiguration.setPersistOnlyFinalIteration() to be set
-    // to true - outputs will not match test data otherwise
-    final OutputConfiguration outputConfiguration = taConfigurator.getOutputConfiguration();
-    outputConfiguration.setPersistOnlyFinalIteration(true);
-
-    // LINK OUTPUT
-    final LinkOutputTypeConfiguration linkOutputTypeConfiguration = 
-        (LinkOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.LINK);
-    if (setOutputTypeConfigurationProperties != null) {
-      setOutputTypeConfigurationProperties.accept(linkOutputTypeConfiguration);
-    }
-
-    // OD OUTPUT
-    final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-        (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
-    originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
-    originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
-
-    // OUTPUT FORMAT CONFIGURATION
-
-    // PlanItXMLOutputFormatter
-    final PlanItOutputFormatter xmlOutputFormatter = 
-        (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
-    xmlOutputFormatter.setXmlNameRoot(description);
-    xmlOutputFormatter.setCsvNameRoot(description);
-    xmlOutputFormatter.setOutputDirectory(projectPath);
-    taConfigurator.registerOutputFormatter(xmlOutputFormatter);
-
-    // MemoryOutputFormatter
-    final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project
-        .createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-    taConfigurator.registerOutputFormatter(memoryOutputFormatter);
-
-    // "USER" configuration
-    if (maxIterations != null) {
-      taConfigurator.getGapFunction().getStopCriterion().setMaxIterations(maxIterations);
-    }
-    if (epsilon != null) {
-      taConfigurator.getGapFunction().getStopCriterion().setEpsilon(epsilon);
-    }
-
-    registerInitialCosts.accept(taConfigurator, project, physicalNetwork);
-
-    project.executeAllTrafficAssignments();
-    linkOutputTypeConfiguration.removeAllProperties();
-    linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_XML_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_LOCATION);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_XML_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_LOCATION);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.FLOW);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.CAPACITY_PER_LANE);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.NUMBER_OF_LANES);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.LENGTH);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.CALCULATED_SPEED);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_COST);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
-    linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);
-    project.executeAllTrafficAssignments();
-    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener>(memoryOutputFormatter, project, planItInputBuilder);
-    return testOutputDto;
-  }
-  
-  /**
    * Run a test case and store the results in a MemoryOutputFormatter
    *
    * @param projectPath project directory containing the input files

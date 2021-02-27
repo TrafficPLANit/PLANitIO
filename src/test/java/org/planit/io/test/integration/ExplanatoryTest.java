@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,13 +17,17 @@ import org.junit.Test;
 import org.planit.input.InputBuilderListener;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
+import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
+import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
+import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.time.TimePeriod;
+import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.mode.Mode;
 
@@ -49,30 +54,6 @@ public class ExplanatoryTest {
   private Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap;
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
   SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;    
-
-  /**
-   * Run assertions which confirm that results files contain the correct data, and
-   * then remove the results files
-   * 
-   * @param projectPath project directory containing the input files
-   * @param description description used in temporary output file names
-   * @param csvFileName name of CSV file containing run results
-   * @param xmlFileName name of XML file containing run results
-   * @throws Exception thrown if there is an error
-   */
-  private void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,String csvFileName, String xmlFileName) throws Exception {
-
-    String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
-    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + csvFileName;
-
-    assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription));
-    PlanItIOTestHelper.deleteFile(outputType, projectPath, description, csvFileName);
-
-    String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
-    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + xmlFileName;
-    assertTrue(PlanItIOTestHelper.isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription,fullXmlFileNameWithDescription));
-    PlanItIOTestHelper.deleteFile(outputType, projectPath, description, xmlFileName);
-  }
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -114,9 +95,14 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
-
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true, false);
+      
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setPersistZeroFlow(false);
+      runner.setUseFixedConnectoidCost();     
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      
+      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -149,9 +135,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -178,10 +164,14 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);      
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
+      
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setPersistZeroFlow(true); // <--
+      runner.setUseFixedConnectoidCost();     
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true, true);
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -214,9 +204,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, "RunId_0_" + description, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -245,8 +235,12 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);      
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setPersistZeroFlow(false);
+      runner.setUseFixedConnectoidCost();     
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -279,9 +273,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName,xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName,xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName,xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName,xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName,xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName,xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -310,8 +304,12 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);        
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setPersistZeroFlow(false);
+      runner.setUseFixedConnectoidCost();     
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -344,9 +342,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath,runIdDescription, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath,runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
     } catch (final Exception ex) {
       ex.printStackTrace();
       LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -365,7 +363,10 @@ public class ExplanatoryTest {
 
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      
+      /* run test */
+      new PlanItIOTestRunner(projectPath, description).setupAndExecuteDefaultAssignment();     
+      
       LOGGER.setLevel(oldLevel);
       fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
      } catch (final Exception e) {
@@ -384,7 +385,10 @@ public class ExplanatoryTest {
 
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      
+      /* run test */
+      new PlanItIOTestRunner(projectPath, description).setupAndExecuteDefaultAssignment();     
+     
       LOGGER.setLevel(oldLevel);
       fail("Test should throw an exception due to no user class to reference traveller types but it did not.");
      } catch (final Exception e) {
@@ -403,7 +407,10 @@ public class ExplanatoryTest {
 
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      
+      /* run test */
+      new PlanItIOTestRunner(projectPath, description).setupAndExecuteDefaultAssignment();     
+     
       LOGGER.setLevel(oldLevel);
       fail("Test should throw an exception due to reference to missing traveller type but it did not.");
      } catch (final Exception e) {
@@ -432,8 +439,12 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);      
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, false, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setPersistZeroFlow(false);
+      runner.setUseSpeedBasedConnectoidCost();     
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -466,9 +477,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -497,8 +508,12 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);         
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, false, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setPersistZeroFlow(false);
+      runner.setUseSpeedBasedConnectoidCost();     
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -531,9 +546,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -552,7 +567,10 @@ public class ExplanatoryTest {
       
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);      
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath, null, description, true, false);
+      
+      /* run test */
+      new PlanItIOTestRunner(projectPath, description).setupAndExecuteDefaultAssignment();     
+     
       LOGGER.setLevel(oldLevel);
       fail("Exception for link segment in same direction was not thrown");
     } catch (Exception e) {
@@ -582,8 +600,12 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);       
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, null, description, true, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();     
+      runner.setPersistZeroFlow(false);      
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
@@ -616,9 +638,9 @@ public class ExplanatoryTest {
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -636,7 +658,6 @@ public class ExplanatoryTest {
     String csvFileName = "Time_Period_1_2.csv";
     String odCsvFileName = "Time_Period_1_1.csv";
     String xmlFileName = "Time_Period_1.xml";
-    Integer maxIterations = null;
     
     String runIdDescription = "RunId_0_" + description;    
     try {
@@ -646,39 +667,39 @@ public class ExplanatoryTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignmentAttemptToChangeLockedFormatter(projectPath, null, description, true);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
-
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);   
+      runner.setupAndExecuteDefaultAssignment();      
       
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
-
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
-      
-      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.0));
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      /* change link formatting*/
+      Consumer<LinkOutputTypeConfiguration> changeLockedProperties = (linkOutputTypeConfiguration) -> {
+        try {
+          linkOutputTypeConfiguration.removeAllProperties();
+          linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_XML_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_LOCATION);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_XML_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_LOCATION);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.FLOW);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.CAPACITY_PER_LANE);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.NUMBER_OF_LANES);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.LENGTH);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.CALCULATED_SPEED);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_COST);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);  
+        } catch (final PlanItException e) {
+          fail("testExplanatoryAttemptToChangeLockedFormatter() problem setting properties");
+          LOGGER.severe(e.getMessage());
+          e.printStackTrace();
+        }
+      };
+      /* run again with updated configuration -> should throw error */
+      runner.setupAndExecuteWithCustomLinkOutputConfiguration(changeLockedProperties);
       
       fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
     } catch (Exception e) {
@@ -686,8 +707,8 @@ public class ExplanatoryTest {
     }
 
     try {
-      runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
       assertTrue(true);
     } catch (final Exception e) {
       e.printStackTrace();

@@ -17,7 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.io.input.PlanItInputBuilder;
-import org.planit.io.test.util.PlanItIOTestHelper;
+import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.logging.Logging;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
@@ -58,7 +58,7 @@ public class InitialCostTest {
   /**
    * Tests that the values of an initial costs file are read in by start and end
    * node and registered by PlanItProject and the stored values match the expected
-   * ones by link external Id
+   * ones by link xml Id
    */
   @Test
   public void test_reading_initial_cost_values() {
@@ -66,17 +66,21 @@ public class InitialCostTest {
     String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
     String initialCostsFileLocationXmlId = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs_xml_id.csv";
     try {
+      
+      /* planit */
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      
+      /* reference */
       Reader in = new FileReader(initialCostsFileLocationXmlId);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String linkSegmentXmlIdHeader = LinkSegmentXmlIdOutputProperty.NAME;
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
+        /* compare */
         String modeXmlId = record.get(modeHeader);
         Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
@@ -101,12 +105,13 @@ public class InitialCostTest {
     String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
     String initialCostsFileLocationMissingRows = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs1.csv";
     try {
+      /* planit */
       PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
-
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      
+      /* reference */
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
@@ -114,6 +119,7 @@ public class InitialCostTest {
       String downstreamNodeXmlIdHeader = DownstreamNodeXmlIdOutputProperty.NAME;
       String costHeader = LinkCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
+        /* compare */
         String modeXmlId =record.get(modeHeader);
         Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
@@ -139,13 +145,17 @@ public class InitialCostTest {
     try {
       String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile";
       String description = "readingInitialCostValuesWithMissingRows";
-      Integer maxIterations = null;
       
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);      
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile\\initial_link_segment_costs_external_id.csv",
-          maxIterations, null, description, true, false);
+      
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+      runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile\\initial_link_segment_costs_external_id.csv");
+      runner.setupAndExecuteDefaultAssignment();      
+      
       LOGGER.setLevel(oldLevel);
       fail(
           "RunTest did not throw an exception when it should have (missing data in the input XML file in the link definition section).");
