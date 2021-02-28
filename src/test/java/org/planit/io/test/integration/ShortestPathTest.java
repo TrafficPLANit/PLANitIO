@@ -137,7 +137,7 @@ public class ShortestPathTest {
    * course notes.
    * 
    * Time_Period_1 uses route A to B in the example, which has a total route cost
-   * of 85 (the fifth argument in the ResultDto constructor).
+   * of 85.
    */
   @Test
   public void test_basic_shortest_path_algorithm_a_to_b_two_initial_cost_files() {
@@ -147,7 +147,6 @@ public class ShortestPathTest {
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName);
@@ -155,12 +154,16 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);       
-
-      PlanItIOTestHelper.setupAndExecuteAssignment(projectPath,
-          "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv",
-          "src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs1.csv", 0, maxIterations, null,
-          description, true, false);
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
+      
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+      /* two initial costs, second one is the one that should be used in the end */
+      runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv");
+      runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs1.csv");
+      runner.setupAndExecuteDefaultAssignment();       
       
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -193,7 +196,6 @@ public class ShortestPathTest {
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName);
@@ -201,14 +203,18 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);         
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);    
+      
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      /* compare results */
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
-      
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -220,7 +226,7 @@ public class ShortestPathTest {
       resultsMap.get(timePeriod).get(mode1).get(node12XmlId).put(node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
       resultsMap.get(timePeriod).get(mode1).put(node13XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode1).get(node13XmlId).put(node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, resultsMap);
 
       pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
       pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
@@ -230,7 +236,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);
       
       odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
       odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
@@ -240,7 +246,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
       
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -270,7 +276,6 @@ public class ShortestPathTest {
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName);
@@ -280,8 +285,13 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);        
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+
+      /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
@@ -297,8 +307,7 @@ public class ShortestPathTest {
       resultsMap.get(timePeriod).get(mode1).get(node12XmlId).put(node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
       resultsMap.get(timePeriod).get(mode1).put(node13XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode1).get(node13XmlId).put(node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,
-          maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, resultsMap);
 
       pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
       pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
@@ -308,7 +317,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);
       
       odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
       odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
@@ -318,7 +327,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
       
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -348,7 +357,6 @@ public class ShortestPathTest {
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName);
@@ -358,8 +366,13 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);      
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+
+      /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
@@ -384,7 +397,7 @@ public class ShortestPathTest {
       resultsMap.get(timePeriod).get(mode1).get(node15XmlId).put(node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1,10, 2000, 10, 1));
       resultsMap.get(timePeriod).get(mode1).put(node20XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode1).get(node20XmlId).put(node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1,21, 2000, 21, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, resultsMap);
 
       pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
       pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
@@ -394,7 +407,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);
       
       odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
       odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
@@ -404,7 +417,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -430,7 +443,6 @@ public class ShortestPathTest {
       String xmlFileName1 = "Time_Period_1.xml";
       String xmlFileName2 = "Time_Period_2.xml";
       String xmlFileName3 = "Time_Period_3.xml";
-      Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName1);
@@ -450,11 +462,15 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName3);
       PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName3);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName3);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName3);      
-      
+      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName3);           
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, true);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(true); // <- zero flow
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+
+      /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodBySourceId("0");
@@ -503,7 +519,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,"[20,15,10]");
       pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,"[20,15,14,13]");
       pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,"");
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);
       
       odMap.put(timePeriod1, new TreeMap<Mode, Map<String, Map<String, Double>>>());
       odMap.get(timePeriod1).put(mode1, new TreeMap<String, Map<String, Double>>());
@@ -527,7 +543,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(24.0));
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(36.0));
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
  
       TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodBySourceId("1");
       
@@ -588,7 +604,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(24.0));
       odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(36.0));
       odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodBySourceId("2");
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
@@ -611,7 +627,7 @@ public class ShortestPathTest {
       resultsMap.get(timePeriod3).get(mode1).get(node14XmlId).put(node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1,10, 2000, 10, 1));
       resultsMap.get(timePeriod3).get(mode1).get(node15XmlId).put(node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1,10, 2000, 10, 1));
       resultsMap.get(timePeriod3).get(mode1).get(node20XmlId).put(node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1,21, 2000, 21, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, resultsMap);
 
       /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */ 
       pathMap.put(timePeriod1, new TreeMap<Mode, Map<String, Map<String, String>>>());
@@ -659,7 +675,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(24.0));
       odMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(36.0));
       odMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);
@@ -704,7 +720,6 @@ public class ShortestPathTest {
       String xmlFileName1 = "Time_Period_1.xml";
       String xmlFileName2 = "Time_Period_2.xml";
       String xmlFileName3 = "Time_Period_3.xml";
-      Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName1);
@@ -726,8 +741,13 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName3);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName3);          
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = PlanItIOTestHelper
-          .setupAndExecuteAssignment(projectPath, maxIterations, null, description, true, false);
+      /* run test */
+      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+
+      /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
       TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodBySourceId("0");
@@ -776,7 +796,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,"");
       pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,"");
       pathMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,""); 
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);            
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);            
       
       odMap.put(timePeriod1, new TreeMap<Mode, Map<String, Map<String, Double>>>());
       odMap.get(timePeriod1).put(mode1, new TreeMap<String, Map<String, Double>>());
@@ -800,7 +820,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
  
       TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodBySourceId("1");
       resultsMap.put(timePeriod2, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
@@ -837,7 +857,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone2XmlId,"");
       pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone3XmlId,"");
       pathMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone4XmlId,"");  
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);           
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);           
       
       odMap.put(timePeriod2, new TreeMap<Mode, Map<String, Map<String, Double>>>());
       odMap.get(timePeriod2).put(mode1, new TreeMap<String, Map<String, Double>>());
@@ -861,7 +881,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       TimePeriod timePeriod3 = testOutputDto.getC().getTimePeriodBySourceId("2");
       resultsMap.put(timePeriod3, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
@@ -884,7 +904,7 @@ public class ShortestPathTest {
       resultsMap.get(timePeriod3).get(mode1).get(node14XmlId).put(node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1,10, 2000, 10, 1));
       resultsMap.get(timePeriod3).get(mode1).get(node15XmlId).put(node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1,10, 2000, 10, 1));
       resultsMap.get(timePeriod3).get(mode1).get(node20XmlId).put(node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1,21, 2000, 21, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, resultsMap);
 
       /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */ 
       pathMap.put(timePeriod3, new TreeMap<Mode, Map<String, Map<String, String>>>());
@@ -909,7 +929,7 @@ public class ShortestPathTest {
       pathMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone2XmlId,"");
       pathMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone3XmlId,"");
       pathMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone4XmlId,""); 
-      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
+      PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, null, pathMap);
              
       
       odMap.put(timePeriod3, new TreeMap<Mode, Map<String, Map<String, Double>>>());
@@ -934,7 +954,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod3).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
+      PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);

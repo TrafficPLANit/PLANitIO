@@ -2,16 +2,16 @@ package org.planit.io.test.util;
  
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
+import org.planit.cost.physical.AbstractPhysicalCost;
 import org.planit.cost.physical.BPRConfigurator;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
-import org.planit.cost.physical.AbstractPhysicalCost;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
-import org.planit.zoning.Zoning;
 import org.planit.input.InputBuilderListener;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
@@ -31,9 +31,9 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.functionalinterface.QuadConsumer;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.test.TestOutputDto;
+import org.planit.zoning.Zoning;
 
 /**
  * Helper class used by unit tests to conduct test runs with various configuration options set
@@ -91,22 +91,14 @@ public class PlanItIOTestRunner {
    * Run a test case and store the results in a MemoryOutputFormatter, most egneric form with all consumers passable but could be nulls
    *
    * @param setLinkOutputTypeConfigurationProperties lambda function to set output properties being used
-   * @param registerInitialCosts lambda function to register initial costs on the TrafficAssignmentBuilder
    * @param setCostParameters lambda function which sets parameters of cost function
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
   protected TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteAssignment(
       final Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfigurationProperties,
-      final QuadConsumer<Demands, TraditionalStaticAssignmentConfigurator, CustomPlanItProject, InfrastructureNetwork<?,?>> registerInitialCosts,
       final TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters) throws Exception {
-
-        
-    /* READ INITIAL COSTS */
-    if(registerInitialCosts != null) {
-      registerInitialCosts.accept(demands, taConfigurator, project, network);
-    }
-        
+                
     if (setCostParameters != null) {
       setCostParameters.accept(network, bprPhysicalCost, planItInputBuilder);
     }
@@ -221,7 +213,7 @@ public class PlanItIOTestRunner {
    * @throws Exception thrown if there is an error
    */  
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteDefaultAssignment() throws Exception {
-    return setupAndExecuteAssignment(null, null, null);
+    return setupAndExecuteAssignment(null, null);
   }   
 
   /**
@@ -233,7 +225,7 @@ public class PlanItIOTestRunner {
    */
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteWithCustomBprConfiguration(
       final TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setBprCostParameters) throws Exception {
-    return setupAndExecuteAssignment(null, null, setBprCostParameters);
+    return setupAndExecuteAssignment(null, setBprCostParameters);
   }
   
   /**
@@ -245,7 +237,7 @@ public class PlanItIOTestRunner {
    */  
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteWithCustomLinkOutputConfiguration(
       Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) throws Exception {
-    return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, null, null);    
+    return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, null);    
   }  
   
   /**
@@ -259,7 +251,7 @@ public class PlanItIOTestRunner {
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
       TriConsumer<InfrastructureNetwork<?, ?>, BPRConfigurator, InputBuilderListener> setBprCostParameters,
       Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfiguration) throws Exception {
-    return setupAndExecuteAssignment(setLinkOutputTypeConfiguration, null, setBprCostParameters);
+    return setupAndExecuteAssignment(setLinkOutputTypeConfiguration, setBprCostParameters);
   }  
    
 
