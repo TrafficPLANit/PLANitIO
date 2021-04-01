@@ -14,6 +14,7 @@ import org.planit.io.converter.network.PlanitNetworkReaderSettings;
 import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.TrackModeType;
@@ -82,7 +83,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @return final length value
    * @throws PlanItException thown if error
    */
-  protected static Double parseLengthFromLineString(XMLElementLinks.Link generatedLink, PlanitJtsUtils jtsUtils) throws PlanItException {
+  protected static Double parseLengthFromLineString(XMLElementLinks.Link generatedLink, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
     Double length = null;
     LineStringType lineStringType = generatedLink.getLineString();
     if (lineStringType != null) {
@@ -128,7 +129,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @return length (in km)
    * @throws PlanItException thrown if error
    */
-  protected static double parseLength(org.planit.xml.generated.XMLElementLinks.Link xmlLink, PlanitJtsUtils jtsUtils) throws PlanItException {
+  protected static double parseLength(org.planit.xml.generated.XMLElementLinks.Link xmlLink, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
     Double length = parseLengthElementFromLink(xmlLink);
     if(length == null) {
       /* not explicitly set, try extracting it from geometry  instead */
@@ -330,7 +331,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @throws PlanItException thrown if error
    */
   public static void parseLinkAndLinkSegments(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReaderSettings settings,
-      Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId, PlanitJtsUtils jtsUtils) throws PlanItException {
+      Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
     
     /* link segment xml id map to populate */
     if(settings.getMapToIndexLinkSegmentByXmlIds()==null) {

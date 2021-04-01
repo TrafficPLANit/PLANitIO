@@ -19,7 +19,7 @@ import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.geo.PlanitJtsUtils;
+import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.misc.CharacterUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.MotorisationModeType;
@@ -193,7 +193,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) {
     CoordinateReferenceSystem crs = null;
     if(xmlLayers.getSrsname()==null || xmlLayers.getSrsname().isBlank()) {
-      crs = PlanitJtsUtils.DEFAULT_GEOGRAPHIC_CRS;
+      crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
       LOGGER.warning(String.format("coordinate reference system not set for PLANit network, applying default %s",crs.getName().getCode()));
     }else {
       crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(xmlLayers.getSrsname());
@@ -211,7 +211,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException thrown if error
    *
    */
-  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, Map<String, Mode> modesByXmlId, PlanitJtsUtils jtsUtils ) throws PlanItException {
+  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, Map<String, Mode> modesByXmlId, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
     MacroscopicPhysicalNetwork networkLayer = network.infrastructureLayers.createNew();
@@ -274,7 +274,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     /* crs */
     CoordinateReferenceSystem crs = parseCoordinateRerefenceSystem(xmlLayers);
     network.setCoordinateReferenceSystem(crs);  
-    PlanitJtsUtils jtsUtils = new PlanitJtsUtils(network.getCoordinateReferenceSystem());
+    PlanitJtsCrsUtils jtsUtils = new PlanitJtsCrsUtils(network.getCoordinateReferenceSystem());
     
     /* layers */
     List<XMLElementInfrastructureLayer> xmlLayerList = xmlLayers.getLayer();

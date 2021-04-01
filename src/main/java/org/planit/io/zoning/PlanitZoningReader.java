@@ -13,6 +13,7 @@ import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
@@ -133,7 +134,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @param jtsUtils 
    * @throws PlanitException thrown if error 
    */
-  private static void populateConnectoidToZoneLengths(Connectoid connectoid, Connectoidtype xmlConnectoid, Point position, PlanitJtsUtils jtsUtils) throws PlanItException {       
+  private static void populateConnectoidToZoneLengths(Connectoid connectoid, Connectoidtype xmlConnectoid, Point position, PlanitJtsCrsUtils jtsUtils) throws PlanItException {       
     Double connectoidLength = null;
     
     /* Explicitly set length (apply to all access zones */
@@ -168,7 +169,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
   /**
    * geometric utility class based on network crs 
    */
-  private PlanitJtsUtils jtsUtils = null;
+  private PlanitJtsCrsUtils jtsUtils = null;
   
   /**
    * Parse common properties of a zone regardless if it is an od or transfer zone
@@ -480,7 +481,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       /* popoulate Xml memory model */
       initialiseAndParseXmlRootElement();
       
-      this.jtsUtils = new PlanitJtsUtils(macroscopicNetwork.getCoordinateReferenceSystem());           
+      this.jtsUtils = new PlanitJtsCrsUtils(macroscopicNetwork.getCoordinateReferenceSystem());           
       
       /* OD zones */
       populateODZones(nodesByXmlId);
