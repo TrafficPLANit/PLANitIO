@@ -235,7 +235,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         throw new PlanItException(String.format("provided accessNode XML id %s is invalid given available nodes in network when parsing transfer connectoid %s", ((Odconnectoid)xmlConnectoid).getNoderef(), xmlConnectoid.getId()));
       }
       /* ACCESS NODE based*/
-      theConnectoid = zoning.connectoids.registerNew(accessNode);
+      theConnectoid = zoning.odConnectoids.registerNew(accessNode);
     }else if(xmlConnectoid instanceof XMLElementTransferZoneAccess.XMLElementTransferConnectoid) {
       XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid = (XMLElementTransferZoneAccess.XMLElementTransferConnectoid) xmlConnectoid;
       if(linkSegmentsByXmlId == null) {
@@ -247,7 +247,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         throw new PlanItException(String.format("provided link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
       /* LINK SEGMENT based */
-      theConnectoid = zoning.connectoids.registerNew(linkSegment);
+      theConnectoid = zoning.transferConnectoids.registerNew(linkSegment);
       
       /* special case: when upstream node should be used */
       if(xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
