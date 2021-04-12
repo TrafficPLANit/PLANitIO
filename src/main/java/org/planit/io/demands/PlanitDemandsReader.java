@@ -17,7 +17,7 @@ import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
-import org.planit.time.TimePeriod;
+import org.planit.utils.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 import org.planit.utils.exceptions.PlanItException;

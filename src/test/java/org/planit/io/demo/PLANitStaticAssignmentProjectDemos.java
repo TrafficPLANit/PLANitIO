@@ -35,7 +35,7 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.sdinteraction.smoothing.MSASmoothingConfigurator;
 import org.planit.sdinteraction.smoothing.Smoothing;
-import org.planit.time.TimePeriod;
+import org.planit.utils.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.zoning.Zoning;
 

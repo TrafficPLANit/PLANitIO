@@ -3,7 +3,7 @@ package org.planit.io.demands;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.planit.time.TimePeriod;
+import org.planit.utils.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 

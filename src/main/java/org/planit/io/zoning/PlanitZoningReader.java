@@ -93,7 +93,9 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       case PT_VEH_STOP:
         return ConnectoidType.PT_VEHICLE_STOP;
       case TRAVELLER_ACCESS:
-        return ConnectoidType.TRAVELLER_ACCESS;       
+        return ConnectoidType.TRAVELLER_ACCESS;
+      case NONE:
+        return ConnectoidType.NONE;         
       default:
         LOGGER.warning(String.format("unknown connectoid type %s found, changed to `unknown`",xmlConnectoidType.value()));
         return ConnectoidType.UNKNOWN;
@@ -409,7 +411,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         connectoid.addAccessZone(zone);
  
         /* parse length */
-        populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessNode().getPosition(), jtsUtils);
+        populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessVertex().getPosition(), jtsUtils);
       }             
     }
   }  
