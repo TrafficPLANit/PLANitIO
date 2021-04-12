@@ -1682,6 +1682,7 @@ public class RouteChoiceTest {
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
+      runner.setGapFunctionEpsilonGap(0.0);
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
           runner.setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(setCostParameters,setOutputTypeConfigurationProperties);      
 
@@ -1811,6 +1812,7 @@ public class RouteChoiceTest {
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(true);
+      runner.setGapFunctionEpsilonGap(0.0);
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
           runner.setupAndExecuteWithCustomBprConfiguration(setCostParameters);      
 
