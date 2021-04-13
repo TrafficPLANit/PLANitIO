@@ -28,7 +28,7 @@ import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
 import org.planit.output.property.OutputProperty;
-import org.planit.time.TimePeriod;
+import org.planit.utils.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.TriFunction;
 import org.planit.utils.misc.Pair;
@@ -53,8 +53,7 @@ public class PlanItIOTestHelper {
    * object to known results stored in a Map. It generates a JUnit test failure if
    * the results maps have different contents.
    * 
-   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
-   *          results from a test run
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
    * @param iterationIndex the current iteration index
    * @param resultsMap Map containing the standard results for each time period and mode
    * @param getPositionKeys lambda function which generates the position of the key(s) in the key array
@@ -79,8 +78,7 @@ public class PlanItIOTestHelper {
         final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.CALCULATED_SPEED);
         final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.CAPACITY_PER_LANE);
         final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.NUMBER_OF_LANES);
-        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod,
-            iteration, OutputType.LINK);
+        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.LINK);
         Object obj = getPositionKeys.apply(mode, timePeriod, iteration);
         if (obj instanceof PlanItException) {
           PlanItException pe = (PlanItException) obj;
@@ -175,19 +173,17 @@ public class PlanItIOTestHelper {
    * 
    * This method uses links which are identified by the external Ids of the start and end nodes.
    *
-   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
-   *          results from a test run
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
    * @param iterationIndex the current iteration index
-   * @param resultsMap Map storing standard test results which have been generated previously,
-   *          identified by start and end node external Ids
+   * @param resultsMap Map storing standard test results which have been generated previously, identified by start and end node external Ids
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not
-   *           been saved
+   * @throws PlanItException thrown if one of the test output properties has not been saved
    */
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap)
       throws PlanItException {
+    
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
@@ -216,14 +212,11 @@ public class PlanItIOTestHelper {
    * 
    * This method uses links which are identified by link segment Ids.
    *
-   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
-   *          results from a test run
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
    * @param iterationIndex the current iteration index
-   * @param resultsMap Map storing standard test results which have been generated previously,
-   *          identified link segment Id
+   * @param resultsMap Map storing standard test results which have been generated previously, identified link segment Id
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not
-   *           been saved
+   * @throws PlanItException thrown if one of the test output properties has not been saved
    */
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingLinkSegmentId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,

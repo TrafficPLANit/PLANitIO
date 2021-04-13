@@ -29,7 +29,7 @@ import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.time.TimePeriod;
+import org.planit.utils.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.test.TestOutputDto;
@@ -102,7 +102,7 @@ public class PlanItIOTestRunner {
     if (setCostParameters != null) {
       setCostParameters.accept(network, bprPhysicalCost, planItInputBuilder);
     }
-
+    
     /* Virtual cost */
     if (useFixedConnectoidTravelTimeCost) {
       taConfigurator.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
