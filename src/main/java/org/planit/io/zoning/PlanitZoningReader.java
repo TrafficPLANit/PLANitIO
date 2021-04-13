@@ -409,7 +409,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         connectoid.addAccessZone(zone);
  
         /* parse length */
-        populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessNode().getPosition(), jtsUtils);
+        populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessVertex().getPosition(), jtsUtils);
       }             
     }
   }  
