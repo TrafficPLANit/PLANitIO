@@ -1237,9 +1237,12 @@ This test illustrates the outputs when an "impossible" set of inputs has been en
 This test uses the same network as Test 3.5.14, but now all links except 1 and 3 forbid trucks.
 This means that it is impossible to construct proper route for trucks, since there is a demand from the origin to the destination but all routes in between have at least one link along which trucks are forbidden.
 
-The resulting link costs for trucks are reported as Infinity for a links except Link 3.  This reflects the fact that trucks cannot travel along these links.
+The resulting link costs for trucks are not included except for link 3, because trucks are not allowed on those links.  This reflects the fact that trucks cannot travel along these links.
+
 The OD cost from the origin to the destination for trucks is reported as Infinity, this means trucks cannot travel along this route.
 Routes for which there is no demand but are not trivial (from the destination to the origin in this case) are also reported as having Infinity OD cost.
+
+Paths for mode truck are also not included in the output since no viable path for this mode could be generated for any od.
 
 ***Location:***
 

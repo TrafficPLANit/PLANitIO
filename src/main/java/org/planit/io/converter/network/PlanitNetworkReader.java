@@ -146,7 +146,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
       }
       PredefinedModeType modeType = PredefinedModeType.create(potentialPredefinedModeType);      
       if(!xmlMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
-        LOGGER.warning(String.format("mode %s is not registered as predefined mode but name corresponds to PLANit predefined mode, reverting to PLANit predefined mode",xmlMode.getName()));
+        LOGGER.warning(String.format("mode is not registered as predefined mode but name or xmlid corresponds to PLANit predefined mode, reverting to PLANit predefined mode %s",modeType.name()));
       }            
       if(name==null && modeType == PredefinedModeType.CUSTOM) {
         name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.modes.size()));
