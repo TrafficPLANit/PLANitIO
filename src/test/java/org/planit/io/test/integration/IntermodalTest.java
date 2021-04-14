@@ -124,14 +124,14 @@ public class IntermodalTest {
         assertEquals(odConnectoid.getAccessZones().size(),1);
         assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.CAR)),true);
         assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.BUS)),true);
-        assertEquals(odConnectoid.getLength(odConnectoid.getFirstAccessZone()),1,Precision.EPSILON_6);
+        assertEquals(odConnectoid.getLengthKm(odConnectoid.getFirstAccessZone()).get(),1,Precision.EPSILON_6);
       }
       for(DirectedConnectoid transferConnectoid : zoning.transferConnectoids) {      
         assertEquals(transferConnectoid.getAccessZones().size(),1);
         assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.CAR)),false);
         assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.BUS)),true);
         assertEquals(transferConnectoid.getType(), ConnectoidType.PT_VEHICLE_STOP);
-        assertEquals(transferConnectoid.getLength(transferConnectoid.getFirstAccessZone()),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
+        assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZone()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
         
         switch (transferConnectoid.getAccessLinkSegment().getXmlId()) {
         case linkSegment1XmlId:

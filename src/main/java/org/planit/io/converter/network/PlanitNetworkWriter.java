@@ -1,27 +1,17 @@
 package org.planit.io.converter.network;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.planit.utils.network.physical.*;
 import org.planit.utils.network.physical.macroscopic.*;
 import org.geotools.geometry.jts.JTS;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.planit.converter.BaseWriterImpl;
-import org.planit.converter.IdMapperFunctionFactory;
 import org.planit.converter.IdMapperType;
 import org.planit.converter.network.NetworkWriter;
-import org.planit.geo.PlanitOpenGisUtils;
+import org.planit.io.converter.PlanitWriterImpl;
 import org.planit.io.xml.util.EnumConversionUtil;
-import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitSchema;
 import org.planit.network.InfrastructureLayer;
 import org.planit.network.InfrastructureNetwork;
@@ -29,7 +19,7 @@ import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsUtils;
-import org.planit.utils.locale.CountryNames;
+import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.mode.PhysicalModeFeatures;
@@ -52,10 +42,8 @@ import org.planit.xml.generated.XMLElementNodes;
 import org.planit.xml.generated.XMLElementPhysicalFeatures;
 import org.planit.xml.generated.XMLElementUsabilityFeatures;
 
-import net.opengis.gml.CoordType;
 import net.opengis.gml.CoordinatesType;
 import net.opengis.gml.LineStringType;
-import net.opengis.gml.PointType;
 
 /**
  * Writer to persist a PLANit network to disk in the native PLANit format. By default the xml ids are used for writing out the ids in the XML. 
@@ -63,36 +51,14 @@ import net.opengis.gml.PointType;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,?>> implements NetworkWriter {  
+public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<?,?>> implements NetworkWriter {  
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
-  
-  /** user configurable settings for the writer */
-  protected final PlanitNetworkWriterSettings settings = new PlanitNetworkWriterSettings();
-    
-  /** id mapper for nodes */
-  private Function<Node, String> nodeIdMapper;
-  /** id mapper for links */
-  private Function<Link, String> linkIdMapper;
-  /** id mapper for link segments */
-  private Function<MacroscopicLinkSegment, String> linkSegmentIdMapper;
-  /** id mapper for link segment types */
-  private Function<MacroscopicLinkSegmentType, String> linkSegmentTypeIdMapper;
-  /** id mapper for link segment types */
-  private Function<Mode, String> modeIdMapper;  
-    
-  /** network path (file) to persist to */
-  private final String networkPath;
-  
-  /** the network XML file name */
-  private String networkFileName = DEFAULT_NETWORK_FILE_NAME;
-    
+                 
   /** XML memory model equivalent of the PLANit memory mode */
   private final XMLElementMacroscopicNetwork xmlRawNetwork;
-  
-  /** when the destination CRS differs from the network CRS all geometries require transforming, for which this transformer will be initialised */
-  private MathTransform destinationCrsTransformer = null;  
+   
     
   /** get the reference to use whenever a mode reference is encountered
    * @param mode to collect reference for
@@ -104,7 +70,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
       /* predefined modes, must utilise, their predefined Xml id/name, this overrules the mapper (if any) */
       return mode.getXmlId();  
     }else {
-      return modeIdMapper.apply(mode);
+      return getModeIdMapper().apply(mode);
     }
   }  
   
@@ -116,7 +82,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
    */
   private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
     /* id */
-    xmlLinkSegment.setId(linkSegmentIdMapper.apply(linkSegment));
+    xmlLinkSegment.setId(getLinkSegmentIdMapper().apply(linkSegment));
     /* max speed */
     xmlLinkSegment.setMaxspeed(linkSegment.getPhysicalSpeedLimitKmH());
     /* number of lanes */
@@ -124,7 +90,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     if(!linkSegment.hasLinkSegmentType()) {
       LOGGER.severe(String.format("missing link segment type on link segment %s (id:%d)", linkSegment.getExternalId(), linkSegment.getId()));      
     }else {
-      xmlLinkSegment.setTyperef(linkSegmentTypeIdMapper.apply(linkSegment.getLinkSegmentType()));  
+      xmlLinkSegment.setTyperef(getLinkSegmentTypeIdMapper().apply(linkSegment.getLinkSegmentType()));  
     }
   }  
   
@@ -161,49 +127,63 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
    *  
    * @param xmlLinkList to add link to 
    * @param link to populate from
+   * @throws PlanItException thrown if error
    */
-  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final Link link) {
+  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final Link link) throws PlanItException {
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
     /* XML id */
-    xmlLink.setId(linkIdMapper.apply(link));
+    xmlLink.setId(getLinkIdMapper().apply(link));
     
     /* external id */
     if(link.hasExternalId()) {
       xmlLink.setExternalid(link.getExternalId());
     }
     
-    /* length */
-    XMLElementLinkLengthType xmlLinkLength = new XMLElementLinkLengthType();     
-    xmlLinkLength.setUnit(LengthUnit.KM);
-    xmlLinkLength.setValue(link.getLengthKm());
-    xmlLink.setLength(xmlLinkLength);
+    /* length - only persist if it differs from the geographic length */
+    boolean useOverrideLength = true;
+    if(getGeoUtils()!= null && link.hasGeometry()) {
+      double geographicLength = getGeoUtils().getDistanceInKilometres(link.getGeometry());
+      if(Precision.isEqual(geographicLength, link.getLengthKm(), Precision.EPSILON_6)) {
+        useOverrideLength = false;
+      }
+    }
+    
+    if(useOverrideLength) {
+      XMLElementLinkLengthType xmlLinkLength = new XMLElementLinkLengthType();
+      xmlLinkLength.setUnit(LengthUnit.KM);    
+      xmlLinkLength.setValue(link.getLengthKm());
+      xmlLink.setLength(xmlLinkLength);
+    }
+    
     
     if(link.hasName()) {
       /* name */
       xmlLink.setName(link.getName());      
     }
     /* node A ref */
-    xmlLink.setNodearef(nodeIdMapper.apply(link.getNodeA()));
+    xmlLink.setNodearef(getVertexIdMapper().apply(link.getNodeA()));
     /* node B ref */
-    xmlLink.setNodebref(nodeIdMapper.apply(link.getNodeB()));    
+    xmlLink.setNodebref(getVertexIdMapper().apply(link.getNodeB()));    
     
     /* line string */
     LineString destinationLineString = link.getGeometry();
     try {
-      if(destinationCrsTransformer!=null) {
-        destinationLineString = (LineString) JTS.transform(destinationLineString, destinationCrsTransformer);
+      if(getDestinationCrsTransformer()!=null) {
+        destinationLineString = (LineString) JTS.transform(destinationLineString, getDestinationCrsTransformer());
       }
     }catch (Exception e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe(String.format("unable to construct Planit Xml link geometry for link %d (id:%d)",link.getExternalId(), link.getId()));
     }    
-    String coordinateCsvValue = PlanitJtsUtils.createCsvStringFromLineString(destinationLineString, settings.getTupleSeparator(), settings.getCommaSeparator(), settings.getDecimalFormat());
+    String coordinateCsvValue = 
+        PlanitJtsUtils.createCsvStringFromLineString(
+            destinationLineString, getSettings().getTupleSeparator(), getSettings().getCommaSeparator(), getSettings().getDecimalFormat());
     CoordinatesType xmlCoordinates = new CoordinatesType();
     xmlCoordinates.setValue(coordinateCsvValue);
-    xmlCoordinates.setCs(settings.getCommaSeparator().toString());
-    xmlCoordinates.setTs(settings.getTupleSeparator().toString());
-    xmlCoordinates.setDecimal(settings.getDecimalSeparator().toString());
+    xmlCoordinates.setCs(getSettings().getCommaSeparator().toString());
+    xmlCoordinates.setTs(getSettings().getTupleSeparator().toString());
+    xmlCoordinates.setDecimal(getSettings().getDecimalSeparator().toString());
     LineStringType xmlLineString = new LineStringType();
     xmlLineString.setCoordinates(xmlCoordinates);
         
@@ -219,8 +199,9 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
    * 
    * @param xmlNetworkLayer to populate on
    * @param links to populate from
+   * @throws PlanItException thrown if error
    */
-  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final Links<Link> links) {
+  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final Links<Link> links) throws PlanItException {
     XMLElementLinks xmlLinks = xmlNetworkLayer.getLinks(); 
     if(xmlLinks == null) {
       xmlLinks = new XMLElementLinks();
@@ -229,7 +210,9 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     
     /* link */
     final List<XMLElementLinks.Link> xmlLinkList = xmlLinks.getLink();    
-    links.forEach( link -> populateXmlLink(xmlLinkList, link));
+    for(Link link: links) {
+      populateXmlLink(xmlLinkList, link);
+    }
   } 
   
   /**
@@ -243,7 +226,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     xmlNodeList.add(xmlNode);
     
     /* Xml id */
-    xmlNode.setId(nodeIdMapper.apply(node));
+    xmlNode.setId(getVertexIdMapper().apply(node));
     
     /* external id */
     if(node.hasExternalId()) {
@@ -254,23 +237,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     xmlNode.setName(node.getName());
     
     /* location */
-    CoordType xmlCoord = new CoordType();
-    Coordinate nodeCoordinate = null;
-    try {
-      if(destinationCrsTransformer!=null) {
-        nodeCoordinate = ((Point)JTS.transform(node.getPosition(), destinationCrsTransformer)).getCoordinate();
-      }else {
-        nodeCoordinate = node.getPosition().getCoordinate();  
-      }
-    }catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to construct Planit Xml node coordinates for node %d (id:%d)",node.getExternalId(), node.getId()));
-    }
-    xmlCoord.setX(BigDecimal.valueOf(nodeCoordinate.x));
-    xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));
-    PointType xmlPointType = new PointType();
-    xmlPointType.setCoord(xmlCoord);
-    xmlNode.setPoint(xmlPointType);    
+    xmlNode.setPoint(createXmlOpenGisPointType(node.getPosition()));    
   }
 
   /**
@@ -322,7 +289,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
     
     /* Xml id */
-    xmlLinkSegmentType.setId(linkSegmentTypeIdMapper.apply(linkSegmentType));
+    xmlLinkSegmentType.setId(getLinkSegmentTypeIdMapper().apply(linkSegmentType));
     
     /* external id */
     if(linkSegmentType.hasExternalId()) {
@@ -500,61 +467,16 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     
     /* link segment types */
     populateXmlLinkSegmentTypes(xmlLayerConfiguration, linkSegmentTypes);
-  }    
-  
-
-
-  /**
-   * depending on the chosen id mapping, create the mapping functions for all id carrying entities that are persisted
-   * @throws PlanItException thrown if error
-   */
-  protected void initialiseIdMappingFunctions() throws PlanItException {
-    nodeIdMapper = IdMapperFunctionFactory.createNodeIdMappingFunction(getIdMapperType());
-    linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapperType());
-    linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapperType());
-    linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapperType());
-    modeIdMapper = IdMapperFunctionFactory.createModeIdMappingFunction(getIdMapperType());
-  }  
-  
-  /**
-   * persist the populated XML memory model to disk using JAXb
-   * @throws PlanItException thrown if error
-   */
-  protected void persist() throws PlanItException {
-    try {      
-      JAXBUtils.generateXmlFileFromObject(
-          xmlRawNetwork, XMLElementMacroscopicNetwork.class, Paths.get(networkPath, networkFileName), PlanitSchema.createPlanitSchemaUri(PlanitSchema.MACROSCOPIC_NETWORK_XSD));
-    }catch(Exception e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("unable to persist PLANit network in native format");
-    }
-  } 
-  
-  /** prepare the Crs transformer (if any) based on the user configuration settings
-   * 
-   * @param network the network extract current Crs if no user specific settings can be found
-   * @throws PlanItException thrown if error
-   */
-  protected void prepareCoordinateReferenceSystem(MacroscopicNetwork network) throws PlanItException {
-    /* CRS and transformer (if needed) */
-    CoordinateReferenceSystem destinationCrs = identifyDestinationCoordinateReferenceSystem(
-        settings.getDestinationCoordinateReferenceSystem(),settings.getCountryName(), network.getCoordinateReferenceSystem());    
-    PlanItException.throwIfNull(destinationCrs, "destination Coordinate Reference System is null, this is not allowed");
-    settings.setDestinationCoordinateReferenceSystem(destinationCrs);
-    
-    /* configure crs transformer if required, to be able to convert geometries to preferred CRS while writing */
-    if(!destinationCrs.equals(network.getCoordinateReferenceSystem())) {
-      destinationCrsTransformer = PlanitOpenGisUtils.findMathTransform(network.getCoordinateReferenceSystem(), settings.getDestinationCoordinateReferenceSystem());
-    }
-  }
+  }     
   
   /**
    * populate the network layer
    * 
    * @param xmlInfrastructureLayers to add xml layer to 
    * @param physicalNetworkLayer to populate from
+   * @throws PlanItException thrown if error
    */
-  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicPhysicalNetwork physicalNetworkLayer) {
+  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicPhysicalNetwork physicalNetworkLayer) throws PlanItException {
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
     xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer); 
     
@@ -571,8 +493,9 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
   /** populate the available network layers
    * 
    * @param network to extract layers from and populate xml
+   * @throws PlanItException thrown if error
    */
-  protected void populateXmlNetworkLayers(MacroscopicNetwork network) {
+  protected void populateXmlNetworkLayers(MacroscopicNetwork network) throws PlanItException {
     
     XMLElementInfrastructureLayers xmlInfrastructureLayers = xmlRawNetwork.getInfrastructurelayers();
     if(xmlInfrastructureLayers == null) {
@@ -581,7 +504,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     }
     
     /* crs */
-    xmlInfrastructureLayers.setSrsname(settings.getDestinationCoordinateReferenceSystem().getName().getCode());
+    xmlInfrastructureLayers.setSrsname(getSettings().getDestinationCoordinateReferenceSystem().getName().getCode());
     
     for(InfrastructureLayer networkLayer : network.infrastructureLayers) {
       if(networkLayer instanceof MacroscopicPhysicalNetwork) {
@@ -594,6 +517,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
   }  
   
 
+  /** default network file name to use */
   public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";  
   
   /** Constructor 
@@ -610,14 +534,8 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   public PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
-    super(IdMapperType.DEFAULT);
-    this.networkPath = networkPath;
+    super(IdMapperType.DEFAULT, networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
     this.xmlRawNetwork = xmlRawNetwork;
-    if(countryName!=null && !countryName.isBlank()) {
-      settings.setCountryName(countryName);
-    }else {
-      settings.setCountryName(CountryNames.WORLD);
-    }
   }
 
   /**
@@ -633,13 +551,9 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     
     /* initialise */
-    initialiseIdMappingFunctions();
-        
-    /* Crs */
-    prepareCoordinateReferenceSystem(macroscopicNetwork);
-    
-    /* log settings */
-    settings.logSettings();
+    super.initialiseIdMappingFunctions();        
+    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());    
+    super.logSettings();
     
     /* general configuration */
     populateXmlConfiguration(network.modes);
@@ -648,7 +562,7 @@ public class PlanitNetworkWriter extends BaseWriterImpl<InfrastructureNetwork<?,
     populateXmlNetworkLayers(macroscopicNetwork);
     
     /* persist */
-    persist();
+    super.persist(xmlRawNetwork, XMLElementMacroscopicNetwork.class, PlanitSchema.MACROSCOPIC_NETWORK_XSD);
   }
   
   /**

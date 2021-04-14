@@ -1,4 +1,4 @@
-package org.planit.io.zoning;
+package org.planit.io.converter.zoning;
 
 import java.util.HashMap;
 import java.util.Map;

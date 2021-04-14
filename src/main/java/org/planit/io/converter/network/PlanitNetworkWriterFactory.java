@@ -3,7 +3,7 @@ package org.planit.io.converter.network;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 
 /**
- * Factory for creating PLANitNetworkReaders
+ * Factory for creating PLANit Network writers
  * 
  * @author markr
  *
@@ -17,7 +17,7 @@ public class PlanitNetworkWriterFactory {
    * @return created network writer 
    */
   public static PlanitNetworkWriter createWriter(String networkPath, String countryName) {
-    return new PlanitNetworkWriter(networkPath, countryName, new XMLElementMacroscopicNetwork());    
+    return createWriter(networkPath, countryName, new XMLElementMacroscopicNetwork());    
   }
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format. By providing the XML memory model instance to populate
@@ -28,7 +28,7 @@ public class PlanitNetworkWriterFactory {
    * @param xmlRawNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @return created network writer 
    */
-  public static PlanitNetworkWriter createWriter(String networkPath, XMLElementMacroscopicNetwork xmlRawNetwork, String countryName) {
+  public static PlanitNetworkWriter createWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
     return new PlanitNetworkWriter(networkPath, countryName, xmlRawNetwork);    
   }    
      

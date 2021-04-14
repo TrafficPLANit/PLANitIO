@@ -1,4 +1,4 @@
-package org.planit.io.zoning;
+package org.planit.io.converter.zoning;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -206,9 +206,18 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     
     /* centroid (optional location) */
     Centroid centroid = zone.getCentroid();
-    if (xmlCentroid !=null && xmlCentroid.getPoint() != null) {
-      List<Double> value = xmlCentroid.getPoint().getPos().getValue();        
-      centroid.setPosition(PlanitJtsUtils.createPoint(value.get(0), value.get(1)));
+    if (xmlCentroid !=null) {
+      
+      /* name */
+      if(xmlCentroid.getName()!= null) {
+        centroid.setName(xmlCentroid.getName());
+      }
+      
+      /* position */
+      if(xmlCentroid.getPoint() != null) {
+        List<Double> value = xmlCentroid.getPoint().getPos().getValue();        
+        centroid.setPosition(PlanitJtsUtils.createPoint(value.get(0), value.get(1)));
+      }
     }
     
     return zone;

@@ -1,4 +1,4 @@
-package org.planit.io.intermodal;
+package org.planit.io.converter.intermodal;
 
 import java.util.Map;
 import java.util.logging.Logger;

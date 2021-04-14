@@ -8,15 +8,15 @@ import org.planit.utils.math.Precision;
 import org.planit.utils.misc.CharacterUtils;
 
 /**
- * configurable settings for the PLANit network writer
+ * configurable settings for the PLANit writer
  * 
  * @author markr
  *
  */
-public class PlanitNetworkWriterSettings {
+public class PlanitWriterSettings {
   
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriterSettings.class.getCanonicalName());
+  private static final Logger LOGGER = Logger.getLogger(PlanitWriterSettings.class.getCanonicalName());
   
   /**
    * number of decimals to use, default is Precision.DEFAULT_DECIMAL_FORMAT
