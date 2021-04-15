@@ -2,12 +2,15 @@ package org.planit.io.converter;
 
 import java.math.BigDecimal;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBElement;
 import org.geotools.geometry.jts.JTS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.planit.converter.BaseWriterImpl;
@@ -28,8 +31,12 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.zoning.Connectoid;
 import org.planit.utils.zoning.Zone;
 
+import net.opengis.gml.AbstractRingPropertyType;
 import net.opengis.gml.CoordType;
+import net.opengis.gml.LinearRingType;
+import net.opengis.gml.ObjectFactory;
 import net.opengis.gml.PointType;
+import net.opengis.gml.PolygonType;
 
 /**
  * Common functionality for writing in the native PLAnit format across different writers
@@ -71,7 +78,31 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /** id mapper for zone ids */
   private Function<Zone, String> zoneIdMapper;  
   /** id mapper for connectoid ids */
-  private Function<Connectoid, String> connectoidIdMapper;  
+  private Function<Connectoid, String> connectoidIdMapper;
+  
+  /**
+   * @param coordinate to convert to gml
+   * @return created gml coordinate
+   */
+  protected CoordType createXmlOpenGisCoordType(Coordinate coordinate) {
+    CoordType xmlCoord = new CoordType();
+    Coordinate nodeCoordinate = null;
+    try {
+      if(getDestinationCrsTransformer()!=null) {
+        nodeCoordinate = JTS.transform(coordinate, null, getDestinationCrsTransformer());
+      }else {
+        nodeCoordinate = coordinate;  
+      }
+    }catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      LOGGER.severe(String.format("unable to construct gml coordinate from %s ",coordinate.toString()));
+    }
+    
+    xmlCoord.setX(BigDecimal.valueOf(nodeCoordinate.x));
+    xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));   
+    
+    return xmlCoord;
+  }  
   
   /** create an xml open gis PointType from a JTS Point and account for any crs transformation if needed
    * 
@@ -80,25 +111,43 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */
   protected PointType createXmlOpenGisPointType(Point position) {
     
-    CoordType xmlCoord = new CoordType();
-    Coordinate nodeCoordinate = null;
-    try {
-      if(getDestinationCrsTransformer()!=null) {
-        nodeCoordinate = ((Point)JTS.transform(position, getDestinationCrsTransformer())).getCoordinate();
-      }else {
-        nodeCoordinate = position.getCoordinate();  
-      }
-    }catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to construct Planit Xml node coordinates for position %s ",position.toString()));
-    }
-    
-    xmlCoord.setX(BigDecimal.valueOf(nodeCoordinate.x));
-    xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));
+    CoordType gmlcoord = createXmlOpenGisCoordType(position.getCoordinate());
     PointType xmlPointType = new PointType();
-    xmlPointType.setCoord(xmlCoord);    
+    xmlPointType.setCoord(gmlcoord);    
 
     return xmlPointType;
+  }  
+  
+  /** create an xml open gis PolygonType from a JTS Point and account for any crs transformation if needed
+   * 
+   * @param polygon to extract from
+   * @return created PolygonType
+   */  
+  protected PolygonType createOpenGisPolygonType(Polygon polygon) {
+    ObjectFactory openGisObjectFactory = new ObjectFactory();
+    PolygonType xmlPolygonType = new PolygonType();
+    
+    /* exterior */
+    JAXBElement<AbstractRingPropertyType> xmlAbstractRingPropertyType = 
+        openGisObjectFactory.createOuterBoundaryIs(openGisObjectFactory.createAbstractRingPropertyType());
+    xmlPolygonType.setExterior(xmlAbstractRingPropertyType);    
+
+    /* linearring */
+    JAXBElement<LinearRingType> xmlLinearRingType = 
+        openGisObjectFactory.createLinearRing(openGisObjectFactory.createLinearRingType());    
+    xmlAbstractRingPropertyType.getValue().setRing(xmlLinearRingType);
+    
+    /* coordinates */
+    List<CoordType> coordList = xmlLinearRingType.getValue().getCoord();    
+    {
+      Coordinate[] coords = polygon.getExteriorRing().getCoordinates();
+      for(int index=0;index<coords.length;++index) {
+        /* coordinate */
+        coordList.add(createXmlOpenGisCoordType(coords[index]));
+      }
+    }       
+
+    return xmlPolygonType;
   }  
      
   /** prepare the Crs transformer (if any) based on the user configuration settings

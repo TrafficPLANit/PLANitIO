@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
@@ -32,12 +33,12 @@ import org.planit.utils.zoning.Zones;
 import org.planit.xml.generated.Connectoidnodelocationtype;
 import org.planit.xml.generated.Connectoidtype;
 import org.planit.xml.generated.Connectoidtypetype;
-import org.planit.xml.generated.Intermodaltype;
 import org.planit.xml.generated.Odconnectoid;
 import org.planit.xml.generated.Transferzonetype;
 import org.planit.xml.generated.XMLElementCentroid;
 import org.planit.xml.generated.XMLElementConnectoid;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
+import org.planit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
 import org.planit.xml.generated.XMLElementTransferZoneAccess;
 import org.planit.xml.generated.XMLElementTransferZones;
 import org.planit.xml.generated.XMLElementZones;
@@ -72,9 +73,13 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       case PLATFORM:
         return TransferZoneType.PLATFORM;
       case STOP_POLE:
-        return TransferZoneType.POLE;        
+        return TransferZoneType.POLE;
+      case UNKNOWN:
+        return TransferZoneType.UNKNOWN;
+      case NONE:
+        return TransferZoneType.NONE;        
       default:
-        LOGGER.warning(String.format("unknown transfer stop type %s found, changed to `unknown`",xmlTransferZone.value()));
+        LOGGER.warning(String.format("Unsupported transfer stop type %s found, changed to `unknown`",xmlTransferZone.value()));
         return TransferZoneType.UNKNOWN;
       }
     }
@@ -261,7 +266,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       theConnectoid = zoning.transferConnectoids.registerNew(linkSegment);
       
       /* special case: when upstream node should be used */
-      if(xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
+      if(xmlTransferConnectoid.getLoc()!= null && xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
         ((DirectedConnectoid)theConnectoid).setNodeAccessDownstream(false);
       }
     }
@@ -293,24 +298,28 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @return transfer zone access point references map to later be able to connect each transfer zone to the correct access points
    * @throws PlanItException thrown if error
    */
-  private void populateTransferZones(Intermodaltype xmlInterModal) throws PlanItException {
+  private void populateTransferZones(XMLElementIntermodal xmlInterModal) throws PlanItException {
     
-    /* no transfer zones */
-    if(xmlInterModal.getTransferzones() == null) {
+    /* no transfer zones */    
+    if(xmlInterModal.getValue().getTransferzones() == null) {
       return ;
     }     
+    XMLElementTransferZones xmlTransferZones = xmlInterModal.getValue().getTransferzones();
     
     /* transferzone */
-    List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZones = xmlInterModal.getTransferzones().getZone();
-    for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZones) {
+    List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZone();
+    for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZonesList) {
       /* base zone elements parsed and planit version registered */
       TransferZone transferZone = parseBaseZone(zoning.transferZones, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getCentroid());
       
       /* type */
-      transferZone.setType(parseTransferZoneType(xmlTransferzone.getType()));
+      if(xmlTransferzone.getType()!= null) {
+        transferZone.setType(parseTransferZoneType(xmlTransferzone.getType()));
+      }
             
       /* geometry */
-      populateZoneGeometry(transferZone, xmlTransferzone.getPolygon());      
+      populateZoneGeometry(transferZone, xmlTransferzone.getPolygon());     
+      /* TODO: support linestring as well for transfer zone geometry */
     }
     
   }  
@@ -322,18 +331,19 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @param linkSegmentsByXmlId to identify mapping between (transfer) connectoids and network
    * @throws PlanItException thrown if error
    */
-  private void populateTransferZoneAccess(Modes modes, Intermodaltype xmlInterModal, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
+  private void populateTransferZoneAccess(Modes modes, XMLElementIntermodal xmlInterModal, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
     
     /* no transfer zone connectoids */
-    if(xmlInterModal.getTransferzoneaccess() == null) {
+    if(xmlInterModal.getValue().getTransferzoneaccess() == null) {
       return;
     }    
+    XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlInterModal.getValue().getTransferzoneaccess();
     
     Map<String, Mode> modesByXmlId = new HashMap<String, Mode>();
     modes.forEach( mode -> modesByXmlId.put(mode.getXmlId(), mode));
     
     /* transfer zone connectoid access */
-    List<XMLElementTransferZoneAccess.XMLElementTransferConnectoid> xmlTransferConnectoids = xmlInterModal.getTransferzoneaccess().getConnectoid();
+    List<XMLElementTransferZoneAccess.XMLElementTransferConnectoid> xmlTransferConnectoids = xmlTransferZoneAccess.getConnectoid();
     for(XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid : xmlTransferConnectoids) {
       /* base connectoid */
       DirectedConnectoid connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid, null /* transfer connectoid are based on link segments*/, linkSegmentsByXmlId);
@@ -382,6 +392,25 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       }
     }        
   }
+
+  /** use the zoning crs if it is available from file, otherwise revert to the network crs. When zoning and 
+   * network crs are incompatible log to user, this is discouraged.
+   * 
+   * @param macroscopicNetwork containing the network crs
+   */
+  private void initialiseZoningCrs(MacroscopicNetwork macroscopicNetwork) {
+    CoordinateReferenceSystem crs = macroscopicNetwork.getCoordinateReferenceSystem();
+    if(getXmlRootElement().getSrsname()!=null && !getXmlRootElement().getSrsname().isBlank()) {
+      crs = createPlanitCrs(getXmlRootElement().getSrsname());
+    }
+    
+    if(!crs.equals(macroscopicNetwork.getCoordinateReferenceSystem())) {
+      LOGGER.severe(
+          String.format("zoning crs (%s) and network crs (%s) are not compatible",crs.getName(), macroscopicNetwork.getCoordinateReferenceSystem().getName()));
+    }
+    this.jtsUtils = new PlanitJtsCrsUtils(crs);
+  }
+
 
   /** settings for the zoning reader */
   protected final PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();
@@ -438,7 +467,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     }
     
     /* intermodal elements present */
-    Intermodaltype xmlInterModal = getXmlRootElement().getIntermodal();
+    XMLElementIntermodal xmlInterModal = getXmlRootElement().getIntermodal();
     
     /* transferzones */
     populateTransferZones(xmlInterModal);
@@ -492,7 +521,8 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       /* popoulate Xml memory model */
       initialiseAndParseXmlRootElement();
       
-      this.jtsUtils = new PlanitJtsCrsUtils(macroscopicNetwork.getCoordinateReferenceSystem());           
+      /* initialise and validate crs compatibility */
+      initialiseZoningCrs(macroscopicNetwork);               
       
       /* OD zones */
       populateODZones(nodesByXmlId);

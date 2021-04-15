@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.network.NetworkReader;
-import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlReader;
@@ -192,12 +191,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    */
   private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) {
     CoordinateReferenceSystem crs = null;
-    if(xmlLayers.getSrsname()==null || xmlLayers.getSrsname().isBlank()) {
-      crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
-      LOGGER.warning(String.format("coordinate reference system not set for PLANit network, applying default %s",crs.getName().getCode()));
-    }else {
-      crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(xmlLayers.getSrsname());
-    } 
+    crs = createPlanitCrs(xmlLayers.getSrsname());
     return crs;
   }    
   

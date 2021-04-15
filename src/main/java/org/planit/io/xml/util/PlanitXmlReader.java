@@ -1,8 +1,12 @@
 package org.planit.io.xml.util;
 
 import java.io.File;
+import java.util.logging.Logger;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.misc.FileUtils;
 
 /**
@@ -12,6 +16,9 @@ import org.planit.utils.misc.FileUtils;
  *
  */
 public class PlanitXmlReader<T> {
+  
+  /** the logger to use */
+  private static final Logger LOGGER = Logger.getLogger(PlanitXmlReader.class.getCanonicalName());
   
   /** network directory to look in */
   private final String networkPathDirectory;
@@ -24,6 +31,22 @@ public class PlanitXmlReader<T> {
     
   /** root element to populate */
   private T xmlRootElement;
+  
+  /** create a crs for planit native format based on passed in srs name. If no srs name is provided the default will be created
+   * 
+   * @param srsname to use
+   * @return craeted crs
+   */
+  protected CoordinateReferenceSystem createPlanitCrs(String srsname) {
+    CoordinateReferenceSystem crs = null;
+    if(srsname==null || srsname.isBlank()) {
+      crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
+      LOGGER.warning(String.format("coordinate reference system not set, applying default %s",crs.getName().getCode()));
+    }else {
+      crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(srsname);
+    } 
+    return crs;
+  }  
   
   /**
    * parse the raw XML root (and rest) from file if not already set via constructor
