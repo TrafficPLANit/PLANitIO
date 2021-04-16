@@ -16,6 +16,7 @@ import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
+import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.network.physical.Node;
@@ -26,6 +27,7 @@ import org.planit.utils.zoning.ConnectoidType;
 import org.planit.utils.zoning.DirectedConnectoid;
 import org.planit.utils.zoning.OdZone;
 import org.planit.utils.zoning.TransferZone;
+import org.planit.utils.zoning.TransferZoneGroup;
 import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.utils.zoning.Zone;
@@ -39,7 +41,9 @@ import org.planit.xml.generated.XMLElementCentroid;
 import org.planit.xml.generated.XMLElementConnectoid;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
 import org.planit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
+import org.planit.xml.generated.XMLElementTransferGroup;
 import org.planit.xml.generated.XMLElementTransferZoneAccess;
+import org.planit.xml.generated.XMLElementTransferZoneGroups;
 import org.planit.xml.generated.XMLElementTransferZones;
 import org.planit.xml.generated.XMLElementZones;
 import org.planit.zoning.Zoning;
@@ -292,6 +296,44 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     return theConnectoid;
   }
   
+  /** parse a transfer group based on provided xml element and register on zoning's transfer zone groups
+   * @param xmlTransferGroup to parse
+   * @return transfer zone group parsed(and registered)
+   */
+  private TransferZoneGroup parseTransferGroup(XMLElementTransferGroup xmlTransferGroup) {
+    /* register new */
+    TransferZoneGroup transferGroup = zoning.transferZoneGroups.registerNew();
+    
+    /* xm id */
+    transferGroup.setXmlId(xmlTransferGroup.getId());
+    
+    /* external id */
+    if(xmlTransferGroup.getExternalid()!=null && !xmlTransferGroup.getExternalid().isBlank()) {
+      transferGroup.setExternalId(xmlTransferGroup.getExternalid());
+    }
+    
+    /* name */
+    if(xmlTransferGroup.getName() != null && !xmlTransferGroup.getName().isBlank()) {
+      transferGroup.setName(xmlTransferGroup.getName());
+    }    
+    
+    /* transfer zones */
+    String[] transferZoneRefsByXmlId = StringUtils.splitByAnythingExceptAlphaNumeric(xmlTransferGroup.getTzrefs());
+    for(int index=0; index<transferZoneRefsByXmlId.length; ++index) {
+      
+      /* transfer zone */
+      String transferZoneXmlId = transferZoneRefsByXmlId[index];
+      if(!getSettings().getMapToIndexZoneByXmlIds().containsKey(transferZoneXmlId)) {
+        LOGGER.warning(String.format("Transfer zone group %s (id:%d) references transfer zone %s that is not available in the parser, trasnfer zone ignored",
+            transferGroup.getXmlId(), transferGroup.getId(), transferZoneRefsByXmlId));
+      }
+      TransferZone transferZone = (TransferZone) getSettings().getMapToIndexZoneByXmlIds().get(transferZoneXmlId);
+      transferGroup.addTransferZone(transferZone);
+    }
+    
+    return transferGroup;
+  }
+
   /** parse the transfer zones
    * 
    * @param xmlInterModal to extract them from
@@ -393,6 +435,54 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     }        
   }
 
+  /** parse the transfer zone groups from Xml element into planit memory
+   * @param xmlInterModal to parse from
+   */
+  private void populateTransferZoneGroups(XMLElementIntermodal xmlInterModal) {
+    /* no transfer zone groups */
+    if(xmlInterModal.getValue().getTransferzonegroups() == null) {
+      return;
+    }    
+    XMLElementTransferZoneGroups xmlTransferZoneGroups = xmlInterModal.getValue().getTransferzonegroups();
+    if(xmlTransferZoneGroups.getTransfergroup().isEmpty()) {
+      LOGGER.warning("Dangling transfer zone groups element, no transfer zone groups can be parsed");
+      return;
+    }
+    
+    /* transfer zone groups */
+    List<XMLElementTransferGroup> xmlTransferGroups = xmlTransferZoneGroups.getTransfergroup();
+    for(XMLElementTransferGroup xmlTransferGroup : xmlTransferGroups) {
+      /* transfer group */
+      parseTransferGroup(xmlTransferGroup);
+    }
+  }
+
+  /**
+   * parse the intermodal zones, i.e., platforms, stops, stations, etc. from Xml element into Planit memory
+   * @param modes that can be referred to
+   * 
+   * @param linkSegmentsByXmlId to identify mapping between (transfer) connectoids and network
+   * @throws PlanItException thrown if error
+   */
+  protected void populateIntermodal(Modes modes, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException{
+    if(getXmlRootElement().getIntermodal() == null) {
+      return;
+    }
+    
+    /* intermodal elements present */
+    XMLElementIntermodal xmlInterModal = getXmlRootElement().getIntermodal();
+    
+    /* transferzones */
+    populateTransferZones(xmlInterModal);
+    
+    /* transfer zone access connectoids */
+    populateTransferZoneAccess(modes, xmlInterModal, linkSegmentsByXmlId);
+    
+    /* transfer zone groups */
+    populateTransferZoneGroups(xmlInterModal);    
+  
+  }
+
   /** use the zoning crs if it is available from file, otherwise revert to the network crs. When zoning and 
    * network crs are incompatible log to user, this is discouraged.
    * 
@@ -452,29 +542,6 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessVertex().getPosition(), jtsUtils);
       }             
     }
-  }  
-  
-  /**
-   * parse the intermodal zones, i.e., platforms, stops, stations, etc. from Xml element into Planit memory
-   * @param modes that can be referred to
-   * 
-   * @param linkSegmentsByXmlId to identify mapping between (transfer) connectoids and network
-   * @throws PlanItException thrown if error
-   */
-  protected void populateIntermodal(Modes modes, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException{
-    if(getXmlRootElement().getIntermodal() == null) {
-      return;
-    }
-    
-    /* intermodal elements present */
-    XMLElementIntermodal xmlInterModal = getXmlRootElement().getIntermodal();
-    
-    /* transferzones */
-    populateTransferZones(xmlInterModal);
-    
-    /* transfer zone access connectoids */
-    populateTransferZoneAccess(modes, xmlInterModal, linkSegmentsByXmlId);
-
   }  
   
   /** constructor

@@ -26,6 +26,7 @@ import org.planit.utils.zoning.ConnectoidType;
 import org.planit.utils.zoning.DirectedConnectoid;
 import org.planit.utils.zoning.OdZone;
 import org.planit.utils.zoning.TransferZone;
+import org.planit.utils.zoning.TransferZoneGroup;
 import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.utils.zoning.Zone;
@@ -38,8 +39,10 @@ import org.planit.xml.generated.XMLElementConnectoid;
 import org.planit.xml.generated.XMLElementConnectoids;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
 import org.planit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
+import org.planit.xml.generated.XMLElementTransferGroup;
 import org.planit.xml.generated.XMLElementTransferZoneAccess;
 import org.planit.xml.generated.XMLElementTransferZoneAccess.XMLElementTransferConnectoid;
+import org.planit.xml.generated.XMLElementTransferZoneGroups;
 import org.planit.xml.generated.XMLElementTransferZones.XMLElementTransferZone;
 import org.planit.xml.generated.XMLElementTransferZones;
 import org.planit.xml.generated.XMLElementZones;
@@ -125,6 +128,67 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }    
   }  
   
+  /** populate the xml transfer group based on the planit memory model transfer zone group instance
+   * @param xmlTransferGroup to populate
+   * @param transferGroup to use
+   */
+  private void populateXmlTransferGroup(XMLElementTransferGroup xmlTransferGroup, TransferZoneGroup transferGroup) {
+    
+    if(!transferGroup.hasTransferZones()) {
+      LOGGER.warning(String.format("DISCARD: transfer zone group %s (id:%d) has no transfer zones, it will not be populated", transferGroup.getXmlId(), transferGroup.getId()));
+      return;
+    }
+    
+    /* id */
+    xmlTransferGroup.setId(getTransferZoneGroupIdMapper().apply(transferGroup));
+    
+    /* external id */
+    if(transferGroup.hasExternalId()) {
+      xmlTransferGroup.setExternalid(transferGroup.getExternalId());
+    }
+    
+    /* name */
+    if(transferGroup.hasName()) {
+      xmlTransferGroup.setName(transferGroup.getName());
+    } 
+        
+    /* transfer zones */
+    xmlTransferGroup.setTzrefs(
+        transferGroup.getTransferZones().stream().map( transferZone -> getZoneIdMapper().apply(transferZone)).collect(Collectors.joining(getSettings().getCommaSeparator().toString())));
+  }
+
+  /** populate the transfer zone groups within the intermodal xml element
+   * @param zoning to use
+   * @param xmlIntermodal to use
+   */
+  private void populateXmlTransferZoneGroups(Zoning zoning, XMLElementIntermodal xmlIntermodal) {
+    /* transfer zone groups are optional, so simply ignore when nto present */
+    if(zoning== null || zoning.transferZoneGroups.isEmpty()) {
+      return;
+    }
+    
+    if(xmlIntermodal.getValue().getTransferzonegroups()==null) {
+      xmlIntermodal.getValue().setTransferzonegroups(new XMLElementTransferZoneGroups());
+    }
+    
+    /* transfer zone groups */   
+    XMLElementTransferZoneGroups xmlTransferZoneGroups = xmlIntermodal.getValue().getTransferzonegroups();
+    for(TransferZoneGroup transferGroup : zoning.transferZoneGroups) {
+      
+      if(!transferGroup.hasTransferZones()) {
+        LOGGER.warning(String.format("DISCARD: transfer zone group %s (id:%d) is dangling", transferGroup.getXmlId(), transferGroup.getId()));
+        continue;
+      }
+      
+      /* populate transfer group */
+      XMLElementTransferGroup xmlTransferGroup = new XMLElementTransferGroup();              
+      populateXmlTransferGroup(xmlTransferGroup, transferGroup);
+                     
+      /* register */        
+      xmlTransferZoneGroups.getTransfergroup().add(xmlTransferGroup);
+    }  
+  }
+
   /** populate a transfer connectoid
    * @param xmlTransferConnectoid to populate
    * @param transferConnectoid to use
@@ -263,15 +327,6 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
       XMLElementCentroid xmlCentroid = new XMLElementCentroid();
       populateXmlCentroid(xmlCentroid, transferZone.getCentroid());
     }        
-  }
-
-  /** populate the transfer zone groups within the intermodal xml element
-   * @param zoning to use
-   * @param xmlIntermodal to use
-   */
-  private void populateXmlTransferZoneGroups(Zoning zoning, XMLElementIntermodal xmlIntermodal) {
-    // TODO Auto-generated method stub
-    
   }
 
   /** populate the transfer zone access (connectoids) within the intermodal xml element

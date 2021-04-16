@@ -29,6 +29,7 @@ import org.planit.utils.network.physical.Link;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.zoning.Connectoid;
+import org.planit.utils.zoning.TransferZoneGroup;
 import org.planit.utils.zoning.Zone;
 
 import net.opengis.gml.AbstractRingPropertyType;
@@ -79,6 +80,8 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   private Function<Zone, String> zoneIdMapper;  
   /** id mapper for connectoid ids */
   private Function<Connectoid, String> connectoidIdMapper;
+  /** id mapper for transfer zone group ids */
+  private Function<TransferZoneGroup, String> transferZoneGroupIdMapper;  
   
   /**
    * @param coordinate to convert to gml
@@ -234,6 +237,13 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */  
   protected Function<Connectoid, String> getConnectoidIdMapper(){
     return connectoidIdMapper;
+  } 
+  
+  /** get id mapper for transfer zone groups
+   * @return id mapper
+   */  
+  protected Function<TransferZoneGroup, String> getTransferZoneGroupIdMapper(){
+    return transferZoneGroupIdMapper;
   }   
   
   /** get the settings
