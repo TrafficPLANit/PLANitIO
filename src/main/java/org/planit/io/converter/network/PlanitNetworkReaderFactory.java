@@ -20,19 +20,20 @@ public class PlanitNetworkReaderFactory {
   
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 
-   * @param networkPath to use
+   * @param inputPath to use (directory only, find first compatible file)
    * @param xmlFileExtension to consider
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader createReader(String networkPath, String xmlFileExtension, InfrastructureNetwork<?,?> network) {
+  public static PlanitNetworkReader create(String inputPath, String xmlFileExtension, InfrastructureNetwork<?,?> network) {
     try {
-      return new PlanitNetworkReader(networkPath, xmlFileExtension, network);
+      return new PlanitNetworkReader(inputPath, xmlFileExtension, network);
     } catch (PlanItException e) {
       LOGGER.severe(e.getMessage());
     }    
     return null;
   }  
+    
   
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 
@@ -40,7 +41,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader createReader(XMLElementMacroscopicNetwork xmlRawNetwork, InfrastructureNetwork<?,?> network) {
+  public static PlanitNetworkReader create(XMLElementMacroscopicNetwork xmlRawNetwork, InfrastructureNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(xmlRawNetwork, network);
     } catch (PlanItException e) {

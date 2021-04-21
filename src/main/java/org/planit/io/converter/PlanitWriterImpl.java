@@ -55,7 +55,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   private final PlanitWriterSettings settings = new PlanitWriterSettings();
   
   /** path to persist to */
-  private final String path;
+  private String path;
   
   /** file to persist to */
   private String fileName;  
@@ -277,12 +277,20 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return geoUtils;
   }
   
-  /** set file name to use
+  
+  /** get file name to use
    * @param fileName to use
    */
   protected void setFileName(String fileName) {
     this.fileName = fileName;
   }  
+    
+  /** set path to use
+   * @param path to use
+   */
+  protected void setPath(String path) {
+    this.path = path;
+  }    
   
   /**
    * persist the populated XML memory model to disk using JAXb
@@ -317,4 +325,18 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   }
 
   
+  /** get file name to use
+   * @return fileName used
+   */
+  public String getFileName() {
+    return this.fileName;
+  }
+  
+  /** get path 
+   * @return path used
+   */
+  public String getPath() {
+    return this.path;
+  } 
+ 
 }

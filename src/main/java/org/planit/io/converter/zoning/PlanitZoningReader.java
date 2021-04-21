@@ -10,9 +10,11 @@ import java.util.logging.Logger;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.planit.converter.zoning.ZoningReader;
 import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
@@ -59,11 +61,11 @@ import net.opengis.gml.PolygonType;
  *
  */
 
-public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZoning>{
+public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZoning> implements ZoningReader {
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningReader.class.getCanonicalName());
-  
+    
   /** parse passed in transfer zone type
    * 
    * @param xmlTransferzoneType to parse
@@ -182,6 +184,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    */
   private PlanitJtsCrsUtils jtsUtils = null;
   
+  
   /**
    * Parse common properties of a zone regardless if it is an od or transfer zone
    * @param <T>
@@ -241,16 +244,16 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @return created connectoid
    * @throws PlanItException thrown if error
    */
-  private Connectoid parseBaseConnectoid(Connectoidtype xmlConnectoid, Map<String, Node> nodesByXmlIds, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
+  private Connectoid parseBaseConnectoid(Connectoidtype xmlConnectoid) throws PlanItException {
     Connectoid theConnectoid = null;
     
     /* CONNECTOID */
     Node accessNode = null;
     if(xmlConnectoid instanceof Odconnectoid) {
-      if(nodesByXmlIds == null) {
+      if(nodesByXmlId == null) {
         throw new PlanItException("provided nodes by XML id is null when parsing XML OD connectoid");
       }
-      accessNode = nodesByXmlIds.get( ((Odconnectoid)xmlConnectoid).getNoderef());
+      accessNode = nodesByXmlId.get( ((Odconnectoid)xmlConnectoid).getNoderef());
       if(accessNode == null) {
         throw new PlanItException(String.format("provided accessNode XML id %s is invalid given available nodes in network when parsing transfer connectoid %s", ((Odconnectoid)xmlConnectoid).getNoderef(), xmlConnectoid.getId()));
       }
@@ -388,7 +391,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     List<XMLElementTransferZoneAccess.XMLElementTransferConnectoid> xmlTransferConnectoids = xmlTransferZoneAccess.getConnectoid();
     for(XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid : xmlTransferConnectoids) {
       /* base connectoid */
-      DirectedConnectoid connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid, null /* transfer connectoid are based on link segments*/, linkSegmentsByXmlId);
+      DirectedConnectoid connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid);
       
       /* modes that are allowed access */
       String modesRef = xmlTransferConnectoid.getModes();
@@ -508,6 +511,38 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
   /** the zoning to populate */
   protected Zoning zoning;
   
+  /** the network this zoning relates to */
+  protected InfrastructureNetwork<?,?> network;
+  
+  /**
+   * mapping of nodes by xml id for quick lookups
+   */
+  protected Map<String, Node> nodesByXmlId = null; 
+
+  /**
+   * mapping of link segments by xml id for quick lookups
+   */  
+  protected Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId = null;  
+  
+  /**
+   * initialise indices if not done so by the user
+   */
+  protected void initialiseNetworkReferenceIndices(MacroscopicNetwork network) {
+    /* xml ids are unique across all layers */
+    if(nodesByXmlId == null) {
+      nodesByXmlId = new HashMap<String, Node>();
+      for(MacroscopicPhysicalNetwork layer : network.infrastructureLayers) {
+        layer.nodes.forEach( node -> nodesByXmlId.put(node.getXmlId(), node));
+      }
+    }
+    if(linkSegmentsByXmlId == null) {
+      linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
+      for(MacroscopicPhysicalNetwork layer : network.infrastructureLayers) {
+        layer.linkSegments.forEach( linkSegment -> linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
+      }
+    }
+  }  
+  
   /** set the zoning to populate
    * @param zoning to populate
    */
@@ -515,12 +550,19 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     this.zoning = zoning;
   }
   
+  /** set the network to utilise
+   * @param network to use
+   */
+  protected void setNetwork(InfrastructureNetwork<?,?> network) {
+    this.network = network;
+  }
+  
   /**
    * parse the OD zones from Xml element into Planit memory
    * @param nodesByXmlIds nodes indexed by xml id to use
    * @throws PlanItException thrown if error
    */
-  protected void populateODZones(Map<String, Node> nodesByXmlIds) throws PlanItException{
+  protected void populateODZones() throws PlanItException{
     /* zone */
     for (final XMLElementZones.Zone xmlZone : getXmlRootElement().getZones().getZone()) {
       OdZone zone = parseBaseZone(zoning.odZones, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getCentroid());
@@ -534,7 +576,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         Odconnectoid xmlOdConnectoid = xmlConnectoid.getValue();
         
         /* parse the (Od, node reference based) undirected connectoid */
-        UndirectedConnectoid connectoid = (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid, nodesByXmlIds, null);
+        UndirectedConnectoid connectoid = (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid);
         /* register zone */
         connectoid.addAccessZone(zone);
  
@@ -548,23 +590,27 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * 
    * @param pathDirectory to use
    * @param xmlFileExtension to use
+   * @param network to extract planit entities from by found references in zoning
    * @param zoning to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitZoningReader(String pathDirectory, String xmlFileExtension, Zoning zoning) throws PlanItException{   
+  protected PlanitZoningReader(String pathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{   
     super(XMLElementMacroscopicZoning.class,pathDirectory, xmlFileExtension);    
     setZoning(zoning);
+    setNetwork(network);
   }
   
   /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
    * @param xmlMacroscopicZoning to extract from
+   * @param network to extract planit entities from by found references in zoning
    * @param zoning to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitZoningReader(XMLElementMacroscopicZoning xmlMacroscopicZoning, Zoning zoning) throws PlanItException{
+  protected PlanitZoningReader(XMLElementMacroscopicZoning xmlMacroscopicZoning, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{
     super(xmlMacroscopicZoning);    
     setZoning(zoning);
+    setNetwork(network);
   }  
 
   /** read the zoning from disk
@@ -575,12 +621,19 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @return zoning parsed
    * @throws PlanItException thrown if error
    */
-  public Zoning read(InfrastructureNetwork<?,?> network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) throws PlanItException {
+  @Override  
+  public Zoning read() throws PlanItException {
+    
+    //TODO get from other source!
+    //InfrastructureNetwork<?,?> network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId
     
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("unable to read zoning, network is not compatible with Macroscopic network");
     }
-    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;
+    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;   
+
+    /* initialise the indices used, if needed */
+    initialiseNetworkReferenceIndices(macroscopicNetwork);
     
     // create and register zones, centroids and connectoids
     try {
@@ -592,7 +645,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       initialiseZoningCrs(macroscopicNetwork);               
       
       /* OD zones */
-      populateODZones(nodesByXmlId);
+      populateODZones();
       
       /* Intermodal/transfer zones, i.e., platforms, stations, etc. */
       populateIntermodal(macroscopicNetwork.modes, linkSegmentsByXmlId);
@@ -610,11 +663,40 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     return zoning;
   }
   
-
   /** settings for this reader
    * @return settings
    */
   public PlanitZoningReaderSettings getSettings() {
     return settings;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    getSettings().reset();
+    nodesByXmlId = null;
+    linkSegmentsByXmlId = null;    
+  }
+  
+  // GETTERS/SETTERS
+  
+  /** allow user to override the map containing the xml id to node mapping. If so, it avoids creating a duplicate index within the class instance
+   * if one already exists
+   * 
+   * @param nodesByXmlId to use
+   */
+  public void setNodesByXmlId(Map<String, Node> nodesByXmlId) {
+    this.nodesByXmlId = nodesByXmlId;
+  }
+
+  /** allow user to override the map containing the xml id to link segment mapping. If so, it avoids creating a duplicate index within the class instance
+   * if one already exists
+   * 
+   * @param nodesByXmlId to use
+   */  
+  public void setLinkSegmentsByXmlId(Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) {
+    this.linkSegmentsByXmlId = linkSegmentsByXmlId;
+  }  
 }

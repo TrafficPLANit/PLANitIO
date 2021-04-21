@@ -1,6 +1,7 @@
 package org.planit.io.converter.network;
 
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -524,7 +525,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    * @param networkPath to persist network on
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
-  public PlanitNetworkWriter(String networkPath, XMLElementMacroscopicNetwork xmlRawNetwork) {
+  protected PlanitNetworkWriter(String networkPath, XMLElementMacroscopicNetwork xmlRawNetwork) {
     this(networkPath,null,xmlRawNetwork);
   }  
     
@@ -533,8 +534,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    * @param countryName to optimise projection for (if available, otherwise ignore)
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
-  public PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
-    super(IdMapperType.DEFAULT, networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
+  protected PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
+    super(IdMapperType.XML, networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
     this.xmlRawNetwork = xmlRawNetwork;
   }
 
@@ -552,7 +553,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     
     /* initialise */
     super.initialiseIdMappingFunctions();        
-    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());    
+    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
+    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getPath(), getFileName()).toString()));
     super.logSettings();
     
     /* general configuration */
@@ -570,7 +572,18 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    */
   @Override
   public void reset() {
-    // TODO Auto-generated method stub    
+    xmlRawNetwork.setConfiguration(null);
+    xmlRawNetwork.setInfrastructurelayers(null);
   }  
+  
+  // GETTERS/SETTERS
+  
+  /** the country name of the network to write (if any is set)
+   * 
+   * @return countryname, null if unknown
+   */
+  public String getCountryName() {
+    return getSettings().getCountryName();
+  }
 
 }

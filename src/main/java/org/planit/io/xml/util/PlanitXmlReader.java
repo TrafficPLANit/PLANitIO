@@ -20,8 +20,8 @@ public class PlanitXmlReader<T> {
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitXmlReader.class.getCanonicalName());
   
-  /** network directory to look in */
-  private final String networkPathDirectory;
+  /** directory to look in */
+  private final String inputPathDirectory;
   
   /** xml file extension to use */
   private final String xmlFileExtension;
@@ -55,13 +55,15 @@ public class PlanitXmlReader<T> {
    */
   protected T initialiseAndParseXmlRootElement() throws PlanItException {
     if(this.xmlRootElement==null) {
-      final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(networkPathDirectory, xmlFileExtension);
-      PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",networkPathDirectory, xmlFileExtension));
+      final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
+      PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
       return JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames);
     }else { 
       return xmlRootElement;
     }
   }  
+  
+  // GETTERS /SETTERS
   
   /** Collect the root element of this reader
    * 
@@ -70,6 +72,25 @@ public class PlanitXmlReader<T> {
   protected T getXmlRootElement() {
     return xmlRootElement;
   }  
+  
+  /** the input path directory used
+   * @return directory used
+   */
+  protected String getInputPathDirectory() {
+    return this.inputPathDirectory;
+  }
+  
+  /** the xml extension used to check for within path directory used
+   * @return directory used
+   */
+  protected String getXmlFileExtension() {
+    return this.xmlFileExtension;
+  }  
+  
+  /**
+   * Default extension for XML input files
+   */
+  public static final String DEFAULT_XML_FILE_EXTENSION = ".xml";  
   
     
   /** location of where to collect Xml file and poopulate an instance of provided class
@@ -82,7 +103,7 @@ public class PlanitXmlReader<T> {
     this.clazz = clazz;
     this.xmlRootElement = null;
     this.xmlFileExtension = null;
-    this.networkPathDirectory = null;
+    this.inputPathDirectory = null;
   }
 
   /** 
@@ -94,7 +115,7 @@ public class PlanitXmlReader<T> {
     this.clazz = null;
     this.xmlRootElement = xmlRootElement;
     this.xmlFileExtension = null;
-    this.networkPathDirectory = null;
+    this.inputPathDirectory = null;
   }
  
  

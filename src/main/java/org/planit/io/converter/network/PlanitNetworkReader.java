@@ -56,7 +56,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * TODO: replace with online schema
    */
   public static final String NETWORK_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd";
-    
+      
   /** the network memory model to populate */
   private MacroscopicNetwork network;
     
@@ -285,10 +285,8 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
         /* mode used in other layer already, this is not allowed */
         throw new PlanItException("modes are only allowed to be used in a single network layer, not multiple, please check your network inputs");
       }
-    }
-    
-  }  
-  
+    }    
+  }    
 
   /** place network to populate
    * 
@@ -303,6 +301,17 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     
     this.network = (MacroscopicNetwork) network;
   }       
+    
+  /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   * 
+   * @param externalXmlRawNetwork to extract from
+   * @param network to populate
+   * @throws PlanItException  thrown if error
+   */
+  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
+    super(externalXmlRawNetwork);    
+    setNetwork(network);
+  }
   
   /** constructor
    * 
@@ -311,19 +320,8 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @param network to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
+  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
     super(XMLElementMacroscopicNetwork.class,networkPathDirectory,xmlFileExtension);    
-    setNetwork(network);
-  }
-  
-  /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
-   * 
-   * @param externalXmlRawNetwork to extract from
-   * @param network to populate
-   * @throws PlanItException  thrown if error
-   */
-  public PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
-    super(externalXmlRawNetwork);    
     setNetwork(network);
   }  
 
@@ -366,6 +364,24 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   public PlanitNetworkReaderSettings getSettings() {
     return settings;
   }
+  
+  /**
+   *provide xml file extension used for network
+   *
+   *@return xml file extension used
+   */
+  public String getXmlFileExtension() {
+    return super.getXmlFileExtension();
+  }
+  
+  /**
+   *provide input path directory used for network reader
+   *
+   *@return input path dir used
+   */
+  public String getInputPathDirectory() {
+    return super.getInputPathDirectory();
+  }  
 
   /**
    * {@inheritDoc}

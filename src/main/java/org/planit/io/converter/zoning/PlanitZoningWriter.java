@@ -1,5 +1,6 @@
 package org.planit.io.converter.zoning;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.utils.zoning.Zone;
 import org.planit.xml.generated.Connectoidnodelocationtype;
 import org.planit.xml.generated.Connectoidtypetype;
+import org.planit.xml.generated.Intermodaltype;
 import org.planit.xml.generated.Odconnectoid;
 import org.planit.xml.generated.Transferzonetype;
 import org.planit.xml.generated.XMLElementCentroid;
@@ -272,10 +274,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     if(!transferConnectoid.isNodeAccessDownstream()) {
       xmlTransferConnectoid.setLoc(Connectoidnodelocationtype.UPSTREAM);
     }
-    if( (transferConnectoid.isNodeAccessDownstream() && 
-          !transferConnectoid.getAccessNode().idEquals(transferConnectoid.getAccessLinkSegment().getDownstreamVertex()))
+    if( (transferConnectoid.isNodeAccessDownstream() && !transferConnectoid.getAccessNode().idEquals(transferConnectoid.getAccessLinkSegment().getDownstreamVertex()))
         ||
-          !transferConnectoid.getAccessNode().idEquals(transferConnectoid.getAccessLinkSegment().getUpstreamVertex())){
+        (!transferConnectoid.isNodeAccessDownstream() && !transferConnectoid.getAccessNode().idEquals(transferConnectoid.getAccessLinkSegment().getUpstreamVertex()))){
       LOGGER.warning(String.format(
           "Transfer connectoid %s (id:%d) access node location is in conflict with the registered access node", transferConnectoid.getXmlId(), transferConnectoid.getId()));
     }
@@ -579,7 +580,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
 
     XMLElementIntermodal xmlIntermodal = xmlRawZoning.getIntermodal();
     if(xmlIntermodal == null) {
-      xmlIntermodal = new XMLElementIntermodal();
+      xmlIntermodal = new XMLElementIntermodal(new Intermodaltype());
       xmlRawZoning.setIntermodal(xmlIntermodal);
     }
     
@@ -602,8 +603,8 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param countryName to optimise projection for (if available, otherwise ignore)
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
-  public PlanitZoningWriter(String zoningPath, String countryName, CoordinateReferenceSystem zoningCrs, XMLElementMacroscopicZoning xmlRawZoning) {
-    super(IdMapperType.DEFAULT, zoningPath, DEFAULT_ZONING_FILE_NAME, countryName);
+  protected PlanitZoningWriter(String zoningPath, String countryName, CoordinateReferenceSystem zoningCrs, XMLElementMacroscopicZoning xmlRawZoning) {
+    super(IdMapperType.XML, zoningPath, DEFAULT_ZONING_FILE_NAME, countryName);
     this.sourceCrs = zoningCrs;    
     this.xmlRawZoning = xmlRawZoning;
   }
@@ -612,12 +613,14 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * {@inheritDoc}
    */
   @Override
-  public void write(Zoning zoning) throws PlanItException {
+  public void write(Zoning zoning) throws PlanItException {    
+    PlanItException.throwIfNull(zoning, "Zoning is null cannot write to Planit native format");
 
     /* initialise */
     {
       super.initialiseIdMappingFunctions();    
-      super.prepareCoordinateReferenceSystem(sourceCrs);    
+      super.prepareCoordinateReferenceSystem(sourceCrs);
+      LOGGER.info(String.format("Persisting PLANit zoning to: %s",Paths.get(getPath(), getFileName()).toString()));
       super.logSettings();
       
       createZoneToConnectoidIndices(zoning); 
@@ -644,6 +647,10 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    */  
   @Override
   public void reset() {
+    xmlRawZoning.setZones(null);
+    xmlRawZoning.setIntermodal(null);
+    xmlRawZoning.setSrsname(null);
+    
     zoneToConnectoidMap.clear();    
   }
   

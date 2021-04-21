@@ -51,5 +51,13 @@ public class PlanitZoningReaderSettings {
   public void setMapToIndexConnectoidsByXmlIds(Map<String, Connectoid> xmlIdConnectoidMap) {
     this.xmlIdConnectoidMap = xmlIdConnectoidMap;
   }   
+  
+  /**
+   * reset 
+   */
+  public void reset() {
+    xmlIdZoneMap.clear();
+    xmlIdConnectoidMap.clear();
+  }
    
 }

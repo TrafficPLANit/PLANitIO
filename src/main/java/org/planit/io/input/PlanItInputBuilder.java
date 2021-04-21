@@ -21,8 +21,10 @@ import org.planit.input.InputBuilderListener;
 import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.io.converter.network.PlanitNetworkReaderFactory;
 import org.planit.io.converter.zoning.PlanitZoningReader;
+import org.planit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.planit.io.demands.PlanitDemandsReader;
 import org.planit.io.xml.util.JAXBUtils;
+import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
@@ -74,11 +76,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
   
   /** xml file extension to use */
   private final String xmlFileExtension;  
-
-  /**
-   * Default extension for XML input files
-   */
-  private static final String DEFAULT_XML_FILE_EXTENSION = ".xml";
        
   private static final String ZONING_XSD_FILE = "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd";
   private static final String DEMAND_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd";
@@ -299,7 +296,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
         
     /* create parser and read/populate the network */
-    PlanitNetworkReader reader = PlanitNetworkReaderFactory.createReader(xmlRawNetwork, network);
+    PlanitNetworkReader reader = PlanitNetworkReaderFactory.create(xmlRawNetwork, network);
     /* make sure the external ids are indexed via the input builder's already present maps */
     reader.getSettings().setMapToIndexLinkSegmentByXmlIds(sourceIdLinkSegmentMap);
     reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(sourceIdLinkSegmentTypeMap);
@@ -319,10 +316,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     
     /** delegate to the dedicated zoning reader */
-    PlanitZoningReader zoningReader = new PlanitZoningReader(xmlRawZoning, zoning);
+    PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning);
+    
+    /* update reference to currently empty maps in builder */
     zoningReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
     zoningReader.getSettings().setMapToIndexConnectoidsByXmlIds(sourceIdConnectoidMap);
-    zoningReader.read(network, sourceIdNodeMap, sourceIdLinkSegmentMap);
+    
+    /* place references to already populated network entities to avoid duplicating this index on the zoning reader */
+    zoningReader.setLinkSegmentsByXmlId(sourceIdLinkSegmentMap);
+    zoningReader.setNodesByXmlId(sourceIdNodeMap);
+    zoningReader.read();
   }
 
   /**
@@ -414,7 +417,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
    */
   public PlanItInputBuilder(final String projectPath) throws PlanItException {
-    this(projectPath, DEFAULT_XML_FILE_EXTENSION);
+    this(projectPath, PlanitXmlReader.DEFAULT_XML_FILE_EXTENSION);
   }
 
   /**

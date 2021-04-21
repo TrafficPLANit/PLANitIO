@@ -12,12 +12,12 @@ public class PlanitNetworkWriterFactory {
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format
    * 
-   * @param networkPath the file to use for persisting
+   * @param networkPath the path to use for persisting
    * @param countryName the country to base the projection method on if available
    * @return created network writer 
    */
-  public static PlanitNetworkWriter createWriter(String networkPath, String countryName) {
-    return createWriter(networkPath, countryName, new XMLElementMacroscopicNetwork());    
+  public static PlanitNetworkWriter create(String networkPath, String countryName) {
+    return create(networkPath, countryName, new XMLElementMacroscopicNetwork());    
   }
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format. By providing the XML memory model instance to populate
@@ -28,7 +28,7 @@ public class PlanitNetworkWriterFactory {
    * @param xmlRawNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @return created network writer 
    */
-  public static PlanitNetworkWriter createWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
+  public static PlanitNetworkWriter create(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
     return new PlanitNetworkWriter(networkPath, countryName, xmlRawNetwork);    
   }    
      
