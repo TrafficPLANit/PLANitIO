@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.planit.utils.time.TimePeriod;
+import org.planit.converter.ConverterReaderSettings;
+import org.planit.io.xml.util.PlanitXmlReaderSettings;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 
@@ -13,7 +15,7 @@ import org.planit.userclass.UserClass;
  * @author markr
  *
  */
-public class PlanitDemandsReaderSettings {
+public class PlanitDemandsReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
 
   /**
    * Map to store travel types by xml Id
@@ -71,6 +73,14 @@ public class PlanitDemandsReaderSettings {
    */
   public void setMapToIndexTimePeriodByXmlIds(Map<String, TimePeriod> xmlIdTimePeriodMap) {
     this.xmlIdTimePeriodMap = xmlIdTimePeriodMap;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    // TODO     
   }  
    
 }

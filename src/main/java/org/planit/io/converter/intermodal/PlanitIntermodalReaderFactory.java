@@ -2,6 +2,7 @@ package org.planit.io.converter.intermodal;
 
 import org.planit.network.InfrastructureNetwork;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.id.IdGroupingToken;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
 import org.planit.zoning.Zoning;
@@ -13,6 +14,23 @@ import org.planit.zoning.Zoning;
  *
  */
 public class PlanitIntermodalReaderFactory {
+  
+  /** factory method based on all defaults. IT is expected that the user will set the necessary settings via the exposed settings
+   * @return created reader
+   */
+  public static PlanitIntermodalReader create() throws PlanItException{
+    return create(new PlanitIntermodalReaderSettings());
+  }  
+  
+  /** Factory method absed on passed in network and zoning reader settings
+   * @param networkSettings to use
+   * @param zoningSettings to use
+   * @return created reader
+   * @throws PlanItException
+   */
+  public static PlanitIntermodalReader create(final PlanitIntermodalReaderSettings intermodalSettings) throws PlanItException{
+    return new PlanitIntermodalReader(intermodalSettings, IdGroupingToken.collectGlobalToken());
+  }
 
   
   /** factory method

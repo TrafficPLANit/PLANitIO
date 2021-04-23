@@ -20,6 +20,7 @@ import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsUtils;
+import org.planit.utils.locale.CountryNames;
 import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
@@ -59,6 +60,9 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
                  
   /** XML memory model equivalent of the PLANit memory mode */
   private final XMLElementMacroscopicNetwork xmlRawNetwork;
+  
+  /** network writer settings to use */
+  private final PlanitNetworkWriterSettings settings;
    
     
   /** get the reference to use whenever a mode reference is encountered
@@ -519,14 +523,21 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   
 
   /** default network file name to use */
-  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";  
+  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
+  
+  /** Constructor 
+   * @param xmlRawNetwork to populate with PLANit network when persisting
+   */
+  protected PlanitNetworkWriter(XMLElementMacroscopicNetwork xmlRawNetwork) {
+    this(null, CountryNames.GLOBAL, xmlRawNetwork);
+  }    
   
   /** Constructor 
    * @param networkPath to persist network on
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   protected PlanitNetworkWriter(String networkPath, XMLElementMacroscopicNetwork xmlRawNetwork) {
-    this(networkPath,null,xmlRawNetwork);
+    this(networkPath, CountryNames.GLOBAL, xmlRawNetwork);
   }  
     
   /** Constructor 
@@ -535,7 +546,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   protected PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
-    super(IdMapperType.XML, networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
+    super(IdMapperType.XML);
+    this.settings = new PlanitNetworkWriterSettings(networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
     this.xmlRawNetwork = xmlRawNetwork;
   }
 
@@ -554,8 +566,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     /* initialise */
     super.initialiseIdMappingFunctions();        
     super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
-    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getPath(), getFileName()).toString()));
-    super.logSettings();
+    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+    getSettings().logSettings();
     
     /* general configuration */
     populateXmlConfiguration(network.modes);
@@ -584,6 +596,14 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    */
   public String getCountryName() {
     return getSettings().getCountryName();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PlanitNetworkWriterSettings getSettings() {
+    return this.settings;
   }
 
 }

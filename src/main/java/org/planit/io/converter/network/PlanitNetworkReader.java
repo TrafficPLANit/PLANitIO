@@ -19,6 +19,7 @@ import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
+import org.planit.utils.id.IdGroupingToken;
 import org.planit.utils.misc.CharacterUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.MotorisationModeType;
@@ -49,7 +50,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());            
   
   /** the settings for this reader */
-  private final PlanitNetworkReaderSettings settings = new PlanitNetworkReaderSettings();
+  private final PlanitNetworkReaderSettings settings;
     
   /**
    * Default XSD files used to validate input XML files against
@@ -300,7 +301,31 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     }
     
     this.network = (MacroscopicNetwork) network;
-  }       
+  }
+  
+  /** constructor where settings are directly provided such that input information can be exracted from it
+   * 
+   * @param settings to use
+   * @param idToken to use for the network to populate
+   * @throws PlanItException  thrown if error
+   */
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken) throws PlanItException{
+    super(XMLElementMacroscopicNetwork.class);
+    this.settings = settings;
+    setNetwork(new MacroscopicNetwork(idToken));
+  }  
+  
+  /** constructor where settings are directly provided such that input information can be exracted from it
+   * 
+   * @param settings to use
+   * @param network to populate
+   * @throws PlanItException  thrown if error
+   */
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, InfrastructureNetwork<?,?> network) throws PlanItException{
+    super(XMLElementMacroscopicNetwork.class);
+    this.settings = settings;
+    setNetwork(network);
+  }  
     
   /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
@@ -309,7 +334,8 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException  thrown if error
    */
   protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
-    super(externalXmlRawNetwork);    
+    super(externalXmlRawNetwork);
+    this.settings = new PlanitNetworkReaderSettings();
     setNetwork(network);
   }
   
@@ -321,7 +347,8 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException  thrown if error
    */
   protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
-    super(XMLElementMacroscopicNetwork.class,networkPathDirectory,xmlFileExtension);    
+    super(XMLElementMacroscopicNetwork.class);
+    this.settings = new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
     setNetwork(network);
   }  
 
@@ -332,7 +359,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   public InfrastructureNetwork<?,?> read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
-    initialiseAndParseXmlRootElement();
+    initialiseAndParseXmlRootElement(getSettings().getInputPathDirectory(), getSettings().getXmlFileExtension());
     
     /* defaults */
     injectMissingDefaultsToRawXmlNetwork();       
@@ -365,24 +392,6 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     return settings;
   }
   
-  /**
-   *provide xml file extension used for network
-   *
-   *@return xml file extension used
-   */
-  public String getXmlFileExtension() {
-    return super.getXmlFileExtension();
-  }
-  
-  /**
-   *provide input path directory used for network reader
-   *
-   *@return input path dir used
-   */
-  public String getInputPathDirectory() {
-    return super.getInputPathDirectory();
-  }  
-
   /**
    * {@inheritDoc}
    */

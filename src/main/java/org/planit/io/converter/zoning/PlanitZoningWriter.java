@@ -70,6 +70,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
   private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<Zone,List<Connectoid>>();
   
+  /** settings to use */
+  private final PlanitZoningWriterSettings settings;
+  
   /** Convert planit connectoid type to xml planit connectoid type
    * @param connectoidType to convert
    * @return xml connectoid type created
@@ -604,7 +607,8 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   protected PlanitZoningWriter(String zoningPath, String countryName, CoordinateReferenceSystem zoningCrs, XMLElementMacroscopicZoning xmlRawZoning) {
-    super(IdMapperType.XML, zoningPath, DEFAULT_ZONING_FILE_NAME, countryName);
+    super(IdMapperType.XML);
+    this.settings = new PlanitZoningWriterSettings(zoningPath, DEFAULT_ZONING_FILE_NAME, countryName);
     this.sourceCrs = zoningCrs;    
     this.xmlRawZoning = xmlRawZoning;
   }
@@ -620,8 +624,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     {
       super.initialiseIdMappingFunctions();    
       super.prepareCoordinateReferenceSystem(sourceCrs);
-      LOGGER.info(String.format("Persisting PLANit zoning to: %s",Paths.get(getPath(), getFileName()).toString()));
-      super.logSettings();
+      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
       
       createZoneToConnectoidIndices(zoning); 
     }    
@@ -652,6 +655,14 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     xmlRawZoning.setSrsname(null);
     
     zoneToConnectoidMap.clear();    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PlanitZoningWriterSettings getSettings() {
+    return this.settings;
   }
   
 }

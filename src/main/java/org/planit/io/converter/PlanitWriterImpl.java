@@ -1,6 +1,7 @@
 package org.planit.io.converter;
 
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Function;
@@ -17,13 +18,12 @@ import org.planit.converter.BaseWriterImpl;
 import org.planit.converter.IdMapperFunctionFactory;
 import org.planit.converter.IdMapperType;
 import org.planit.geo.PlanitOpenGisUtils;
-import org.planit.io.converter.network.PlanitWriterSettings;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitSchema;
+import org.planit.io.xml.util.PlanitXmlWriterSettings;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.graph.Vertex;
-import org.planit.utils.locale.CountryNames;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.Link;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
@@ -50,16 +50,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitWriterImpl.class.getCanonicalName());
-
-  /** user configurable settings for the writer */
-  private final PlanitWriterSettings settings = new PlanitWriterSettings();
-  
-  /** path to persist to */
-  private String path;
-  
-  /** file to persist to */
-  private String fileName;  
-  
+      
   /** geo utils */
   private PlanitJtsCrsUtils geoUtils;
     
@@ -83,6 +74,17 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /** id mapper for transfer zone group ids */
   private Function<TransferZoneGroup, String> transferZoneGroupIdMapper;  
   
+  /** convert to xml writer settings if possible
+   * @return xml writer settings
+   * @throws PlanItException thrown if error
+   */
+  private PlanitXmlWriterSettings getSettingsAsXmlWriterSettings() throws PlanItException {
+    if(!(getSettings() instanceof PlanitXmlWriterSettings)) {
+      throw new PlanItException("planit writer settings expected to be of type PlanitXmlWriterSettings, this is not the case");
+    }
+    return ((PlanitXmlWriterSettings)getSettings());
+  }
+
   /**
    * @param coordinate to convert to gml
    * @return created gml coordinate
@@ -164,15 +166,17 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
       geoUtils = new PlanitJtsCrsUtils(sourceCrs);
     }
     
+    PlanitXmlWriterSettings xmlWriterSettings = getSettingsAsXmlWriterSettings();
+    
     /* CRS and transformer (if needed) */
-    CoordinateReferenceSystem destinationCrs = identifyDestinationCoordinateReferenceSystem(
-        getSettings().getDestinationCoordinateReferenceSystem(),getSettings().getCountryName(), sourceCrs);    
+    CoordinateReferenceSystem destinationCrs = 
+        identifyDestinationCoordinateReferenceSystem(xmlWriterSettings.getDestinationCoordinateReferenceSystem(),xmlWriterSettings.getCountryName(), sourceCrs);    
     PlanItException.throwIfNull(destinationCrs, "destination Coordinate Reference System is null, this is not allowed");
-    getSettings().setDestinationCoordinateReferenceSystem(destinationCrs);
+    xmlWriterSettings.setDestinationCoordinateReferenceSystem(destinationCrs);
     
     /* configure crs transformer if required, to be able to convert geometries to preferred CRS while writing */
     if(!destinationCrs.equals(sourceCrs)) {
-      destinationCrsTransformer = PlanitOpenGisUtils.findMathTransform(sourceCrs, settings.getDestinationCoordinateReferenceSystem());
+      destinationCrsTransformer = PlanitOpenGisUtils.findMathTransform(sourceCrs, xmlWriterSettings.getDestinationCoordinateReferenceSystem());
     }
   }
   
@@ -244,22 +248,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */  
   protected Function<TransferZoneGroup, String> getTransferZoneGroupIdMapper(){
     return transferZoneGroupIdMapper;
-  }   
-  
-  /** get the settings
-   * @return settings
-   */
-  protected PlanitWriterSettings getSettings() {
-    return settings;
-  }
-  
-  /**
-   * log settings
-   */
-  protected void logSettings() {
-    settings.logSettings();
-  }  
-  
+  }         
 
   /** get the destination crs transformer. Note it might be null and should only be collected after {@link prepareCoordinateReferenceSystem} has been invoked which determines
    * if and which transformer should be applied
@@ -276,30 +265,23 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   protected PlanitJtsCrsUtils getGeoUtils() {
     return geoUtils;
   }
-  
-  
-  /** get file name to use
-   * @param fileName to use
-   */
-  protected void setFileName(String fileName) {
-    this.fileName = fileName;
-  }  
     
-  /** set path to use
-   * @param path to use
-   */
-  protected void setPath(String path) {
-    this.path = path;
-  }    
   
   /**
    * persist the populated XML memory model to disk using JAXb
    * @throws PlanItException thrown if error
    */
   protected void persist(final Object xmlRootElement, final Class<?> rootElementClazz, final String planitSchemaName) throws PlanItException {
+    PlanitXmlWriterSettings xmlWriterSettings = getSettingsAsXmlWriterSettings();
+        
+    PlanItException.throwIf(
+        xmlWriterSettings.getOutputPathDirectory()==null || xmlWriterSettings.getOutputPathDirectory().isBlank(), "no output directory provided, unable to persist in native Planit XML format");
+    PlanItException.throwIf(
+        xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(), "no output file name provided, unable to persist in native Planit XML format");    
+    Path outputPath = Paths.get(xmlWriterSettings.getOutputPathDirectory(), xmlWriterSettings.getFileName());
+    
     try {      
-      JAXBUtils.generateXmlFileFromObject(
-          xmlRootElement, rootElementClazz, Paths.get(path, fileName), PlanitSchema.createPlanitSchemaUri(planitSchemaName));
+      JAXBUtils.generateXmlFileFromObject(xmlRootElement, rootElementClazz, outputPath, PlanitSchema.createPlanitSchemaUri(planitSchemaName));
     }catch(Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("unable to persist PLANit network in native format");
@@ -312,31 +294,10 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    * @param path to use
    * @param countryName the network applies to, used to determine destination crs (transformer) if not explicitly set
    */
-  protected PlanitWriterImpl(IdMapperType idMapperType, String path, String fileName, String countryName) {
+  protected PlanitWriterImpl(IdMapperType idMapperType) {
     super(idMapperType);
-    this.path = path;
-    this.fileName = fileName;
-    
-    if(countryName!=null && !countryName.isBlank()) {
-      settings.setCountryName(countryName);
-    }else {
-      settings.setCountryName(CountryNames.WORLD);
-    }
   }
 
-  
-  /** get file name to use
-   * @return fileName used
-   */
-  public String getFileName() {
-    return this.fileName;
-  }
-  
-  /** get path 
-   * @return path used
-   */
-  public String getPath() {
-    return this.path;
-  } 
+ 
  
 }

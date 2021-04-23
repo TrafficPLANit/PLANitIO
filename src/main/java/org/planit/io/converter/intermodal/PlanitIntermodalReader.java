@@ -22,15 +22,15 @@ import org.planit.zoning.Zoning;
  */
 public class PlanitIntermodalReader implements IntermodalReader {
   
-  /** the network reader to use */
-  protected final  PlanitNetworkReader networkReader;
-  
+  /** intermodal reader settings to use */
+  protected final PlanitIntermodalReaderSettings intermodalReaderSettings;
+    
   /** the zoning to populate */
   protected final Zoning zoningToPopulate;
   
-  /** the zoning reader to use */
-  protected PlanitZoningReader zoningReader = null;
-  
+  /** the network to populate */
+  protected final InfrastructureNetwork<?,?> networkToPopulate;  
+    
   /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model. Network and zoning instance
    * are created internally and returned upon completion
    * 
@@ -39,23 +39,34 @@ public class PlanitIntermodalReader implements IntermodalReader {
    * @param idToken to use for the network and zoning that are to be created
    * @throws PlanItException  thrown if error
    */
-  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, IdGroupingToken idToken) throws PlanItException{
-    InfrastructureNetwork<?,?> network = new MacroscopicNetwork(idToken);
-    this.networkReader = PlanitNetworkReaderFactory.create(inputPathDirectory, xmlFileExtension, network);    
-    this.zoningToPopulate = new Zoning(idToken, network.getNetworkGroupingTokenId());
-  }    
+  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, IdGroupingToken idToken) throws PlanItException{        
+    this(new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension), idToken);    
+  }   
+  
+  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model. Network and zoning instance
+   * are created internally and returned upon completion
+   * 
+   * @param settings to use
+   * @param idToken to use for the network and zoning that are to be created
+   * @throws PlanItException  thrown if error
+   */
+  protected PlanitIntermodalReader(PlanitIntermodalReaderSettings settings, IdGroupingToken idToken) throws PlanItException{        
+    this.intermodalReaderSettings = settings;
+    this.networkToPopulate = new MacroscopicNetwork(idToken);    
+    this.zoningToPopulate = new Zoning(idToken, networkToPopulate.getNetworkGroupingTokenId());
+  }  
   
   /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model
    * 
    * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for both (network.xml, zoning.xml)   * 
    * @param xmlFileExtension to use
-   * @param referenceNetwork to populate
+   * @param network to populate
    * @param zoning to populate
    * @throws PlanItException  thrown if error
    */
-  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> referenceNetwork, Zoning zoning) throws PlanItException{   
-    this.networkReader = PlanitNetworkReaderFactory.create(inputPathDirectory, xmlFileExtension, referenceNetwork);
-    this.zoningReader = PlanitZoningReaderFactory.create(inputPathDirectory, xmlFileExtension, referenceNetwork, zoning);
+  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{   
+    this.intermodalReaderSettings = new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension);
+    this.networkToPopulate = network;
     this.zoningToPopulate = zoning;
   }    
 
@@ -68,8 +79,8 @@ public class PlanitIntermodalReader implements IntermodalReader {
    * @throws PlanItException thrown if error
    */
   public PlanitIntermodalReader(XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, InfrastructureNetwork<?, ?> network, Zoning zoning) throws PlanItException {
-    this.networkReader = PlanitNetworkReaderFactory.create(xmlRawNetwork, network);
-    this.zoningReader = PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning);
+    this.intermodalReaderSettings = new PlanitIntermodalReaderSettings();
+    this.networkToPopulate = network;
     this.zoningToPopulate = zoning;
   }
 
@@ -80,12 +91,12 @@ public class PlanitIntermodalReader implements IntermodalReader {
   public Pair<InfrastructureNetwork<?, ?>, Zoning> read() throws PlanItException {
 
     /* network */
+    PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create(getSettings().getNetworkSettings(), networkToPopulate);
     InfrastructureNetwork<?, ?> referenceNetwork = networkReader.read();
         
     /* zoning */   
-    if(zoningReader == null) {
-      this.zoningReader = PlanitZoningReaderFactory.create(networkReader.getInputPathDirectory(), networkReader.getXmlFileExtension(), referenceNetwork, zoningToPopulate);
-    }
+    PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(getSettings().getZoningSettings(), referenceNetwork, zoningToPopulate);
+    
     /* adopt xml index mapping from network reader so we do not create a duplicate mapping */
     zoningReader.setLinkSegmentsByXmlId(networkReader.getSettings().getMapToIndexLinkSegmentByXmlIds());
     zoningReader.setNodesByXmlId(networkReader.getSettings().getMapToIndexNodeByXmlIds());
@@ -101,8 +112,15 @@ public class PlanitIntermodalReader implements IntermodalReader {
    */  
   @Override
   public void reset() {
-    networkReader.reset();
-    zoningReader.reset();
+    getSettings().reset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */    
+  @Override
+  public PlanitIntermodalReaderSettings getSettings() {
+    return this.intermodalReaderSettings;
   }
 
 }

@@ -4,8 +4,10 @@ import org.planit.converter.IdMapperType;
 import org.planit.converter.intermodal.IntermodalWriter;
 import org.planit.io.converter.network.PlanitNetworkWriter;
 import org.planit.io.converter.network.PlanitNetworkWriterFactory;
+import org.planit.io.converter.network.PlanitNetworkWriterSettings;
 import org.planit.io.converter.zoning.PlanitZoningWriter;
 import org.planit.io.converter.zoning.PlanitZoningWriterFactory;
+import org.planit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -21,15 +23,20 @@ import org.planit.zoning.Zoning;
  */
 public class PlanitIntermodalWriter implements IntermodalWriter {
   
-  /**
-   * The network writer to use
-   */
-  protected final PlanitNetworkWriter networkWriter;
+  /** intermodal writer settings to use */
+  protected final PlanitIntermodalWriterSettings settings;
+  
+  /** xml element to populate network on */
+  protected final  XMLElementMacroscopicNetwork xmlRawNetwork;
+  
+  /** xml element to populate zoning on */
+  protected final XMLElementMacroscopicZoning xmlRawZoning;
   
   /**
-   * The zoning writer to use
+   * the id mapper to use
    */
-  protected PlanitZoningWriter zoningWriter = null;
+  protected IdMapperType idMapper;
+
     
   /** Constructor with default country, use default destination Crs as a result.
    *  
@@ -48,7 +55,10 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    * @param xmlRawZoning to populate with PLANit zoning when persisting
    */
   protected PlanitIntermodalWriter(String outputDirectory, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning) {
-    this.networkWriter = PlanitNetworkWriterFactory.create(outputDirectory, countryName, xmlRawNetwork);
+    this.idMapper = IdMapperType.ID;
+    this.settings = new PlanitIntermodalWriterSettings(outputDirectory, countryName);
+    this.xmlRawNetwork = xmlRawNetwork;
+    this.xmlRawZoning = xmlRawZoning;
   }  
 
   /**
@@ -63,11 +73,16 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     
     /* network writer */
+    PlanitNetworkWriterSettings networkSettings = getSettings().getNetworkSettings();
+    PlanitNetworkWriter networkWriter = PlanitNetworkWriterFactory.create(networkSettings.getOutputPathDirectory(), networkSettings.getCountryName(), xmlRawNetwork);
+    networkWriter.setIdMapperType(getIdMapperType());
     networkWriter.write(network);
 
     /* zoning writer - with pt component via transfer zones */
-    zoningWriter = PlanitZoningWriterFactory.create(networkWriter.getPath(), networkWriter.getCountryName(), macroscopicNetwork.getCoordinateReferenceSystem());
-    zoningWriter.setIdMapperType(networkWriter.getIdMapperType());    
+    PlanitZoningWriterSettings zoningSettings = getSettings().getZoningSettings();
+    PlanitZoningWriter zoningWriter = 
+        PlanitZoningWriterFactory.create(zoningSettings.getOutputPathDirectory(), zoningSettings.getCountryName(), macroscopicNetwork.getCoordinateReferenceSystem());
+    zoningWriter.setIdMapperType(getIdMapperType());    
     zoningWriter.write(zoning);
   }
 
@@ -76,7 +91,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    */  
   @Override
   public IdMapperType getIdMapperType() {
-    return networkWriter.getIdMapperType();
+    return idMapper;
   }
 
   /**
@@ -84,7 +99,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    */  
   @Override
   public void setIdMapperType(IdMapperType idMapper) {
-    networkWriter.setIdMapperType(idMapper);
+    this.idMapper = idMapper;
   }
 
   /**
@@ -92,8 +107,15 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    */  
   @Override
   public void reset() {
-    networkWriter.reset();
-    zoningWriter.reset();
+    getSettings().reset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */    
+  @Override
+  public PlanitIntermodalWriterSettings getSettings() {
+    return this.settings;
   }
 
 }

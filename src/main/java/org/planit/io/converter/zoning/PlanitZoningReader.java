@@ -506,7 +506,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
 
 
   /** settings for the zoning reader */
-  protected final PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();
+  protected final PlanitZoningReaderSettings settings;
   
   /** the zoning to populate */
   protected Zoning zoning;
@@ -584,8 +584,20 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessVertex().getPosition(), jtsUtils);
       }             
     }
-  }  
+  }
   
+  /** Constructor
+   * @param settings to use
+   * @param network to extract planit entities from by found references in zoning
+   * @param zoning to populate
+   */
+  protected PlanitZoningReader(PlanitZoningReaderSettings settings, InfrastructureNetwork<?,?> network, Zoning zoning) {
+    super(XMLElementMacroscopicZoning.class);
+    this.settings = settings;
+    setZoning(zoning);
+    setNetwork(network);
+  }  
+    
   /** constructor
    * 
    * @param pathDirectory to use
@@ -595,7 +607,8 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(String pathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{   
-    super(XMLElementMacroscopicZoning.class,pathDirectory, xmlFileExtension);    
+    super(XMLElementMacroscopicZoning.class);    
+    this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);    
     setZoning(zoning);
     setNetwork(network);
   }
@@ -608,7 +621,8 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(XMLElementMacroscopicZoning xmlMacroscopicZoning, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{
-    super(xmlMacroscopicZoning);    
+    super(xmlMacroscopicZoning);
+    this.settings =  new PlanitZoningReaderSettings();
     setZoning(zoning);
     setNetwork(network);
   }  
@@ -623,10 +637,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    */
   @Override  
   public Zoning read() throws PlanItException {
-    
-    //TODO get from other source!
-    //InfrastructureNetwork<?,?> network, Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId
-    
+        
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("unable to read zoning, network is not compatible with Macroscopic network");
     }
@@ -639,7 +650,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     try {
       
       /* popoulate Xml memory model */
-      initialiseAndParseXmlRootElement();
+      initialiseAndParseXmlRootElement(getSettings().getInputPathDirectory(), getSettings().getXmlFileExtension());
       
       /* initialise and validate crs compatibility */
       initialiseZoningCrs(macroscopicNetwork);               

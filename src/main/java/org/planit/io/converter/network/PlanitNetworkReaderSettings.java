@@ -3,6 +3,8 @@ package org.planit.io.converter.network;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.planit.converter.ConverterReaderSettings;
+import org.planit.io.xml.util.PlanitXmlReaderSettings;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.Node;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
@@ -14,8 +16,8 @@ import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
  * @author markr
  *
  */
-public class PlanitNetworkReaderSettings {
-  
+public class PlanitNetworkReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
+    
   /**
    * option to provide external map to populate with xml node Ids corresponding to parsed Nodes
    */
@@ -35,6 +37,23 @@ public class PlanitNetworkReaderSettings {
    * option to provide external map to populate with xml Ids corresponding to Modes
    */
   private Map<String, Mode> modeXmlIdToModeMap = new HashMap<String, Mode>();
+  
+  /**
+   * Default constructor. Expected that the user provides the input path at some point later
+   */
+  public PlanitNetworkReaderSettings() {
+    super();
+  }
+  
+  /**
+   * Constructor.
+   * 
+   * @param inputPathDirectory to use
+   * @param xmlFileExtension to use
+   */
+  public PlanitNetworkReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
+    super(inputPathDirectory, xmlFileExtension);
+  }  
   
   /** Use provided map to index modes by xml id when parsing
    * @param modeXmlIdToModeMap to use
@@ -90,6 +109,15 @@ public class PlanitNetworkReaderSettings {
    */
   public Map<String, MacroscopicLinkSegmentType> getMapToIndexLinkSegmentTypeByXmlIds() {
     return this.linkSegmentTypeXmlIdToLinkSegmentTypeMap;
-  }  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    // TODO    
+  } 
+    
   
 }

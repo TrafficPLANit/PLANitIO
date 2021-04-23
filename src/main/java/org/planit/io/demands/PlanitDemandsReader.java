@@ -457,7 +457,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @throws PlanItException  thrown if error
    */
   public PlanitDemandsReader(String pathDirectory, String xmlFileExtension, Demands demands) throws PlanItException{   
-    super(XMLElementMacroscopicDemand.class,pathDirectory, xmlFileExtension);    
+    super(XMLElementMacroscopicDemand.class);
+    settings.setInputPathDirectory(pathDirectory);
+    settings.setXmlFileExtension(xmlFileExtension);
     setDemands(demands);
   }
   
@@ -483,7 +485,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     
     try {
       
-      initialiseAndParseXmlRootElement();
+      initialiseAndParseXmlRootElement(settings.getInputPathDirectory(), settings.getXmlFileExtension());
       
       /* configuration */
       populateDemandConfiguration(network, xmlIdModeMap);

@@ -19,13 +19,7 @@ public class PlanitXmlReader<T> {
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitXmlReader.class.getCanonicalName());
-  
-  /** directory to look in */
-  private final String inputPathDirectory;
-  
-  /** xml file extension to use */
-  private final String xmlFileExtension;
-  
+    
   /** the class to create xml root element for */
   private Class<T> clazz;
     
@@ -50,10 +44,15 @@ public class PlanitXmlReader<T> {
   
   /**
    * parse the raw XML root (and rest) from file if not already set via constructor
+   * @param inputPathDirectory to use
+   * @param xmlFileExtension to use
    * @return populated xml root element if possible based on provided input to constructor
    * @throws PlanItException thrown if error
    */
-  protected T initialiseAndParseXmlRootElement() throws PlanItException {
+  protected T initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {
+    PlanItException.throwIfNull(inputPathDirectory, "input path directory for XML reader is not provided, unable to parse");
+    PlanItException.throwIfNull(xmlFileExtension, "no XML file extension provided, unable to parse files if extension is unknown");
+    
     if(this.xmlRootElement==null) {
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
       PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
@@ -72,38 +71,20 @@ public class PlanitXmlReader<T> {
   protected T getXmlRootElement() {
     return xmlRootElement;
   }  
-  
-  /** the input path directory used
-   * @return directory used
-   */
-  protected String getInputPathDirectory() {
-    return this.inputPathDirectory;
-  }
-  
-  /** the xml extension used to check for within path directory used
-   * @return directory used
-   */
-  protected String getXmlFileExtension() {
-    return this.xmlFileExtension;
-  }  
-  
+    
   /**
    * Default extension for XML input files
    */
   public static final String DEFAULT_XML_FILE_EXTENSION = ".xml";  
   
     
-  /** location of where to collect Xml file and poopulate an instance of provided class
+  /** location of where to collect XML file and populate an instance of provided class
    * 
    * @param clazz to create root element and populate it for
-   * @param networkPathDirectory directory on where to find the file
-   * @param xmlFileExtension xml extension to use
    */
-  public PlanitXmlReader(Class<T> clazz, String networkPathDirectory, String xmlFileExtension) {
+  public PlanitXmlReader(Class<T> clazz) {
     this.clazz = clazz;
     this.xmlRootElement = null;
-    this.xmlFileExtension = null;
-    this.inputPathDirectory = null;
   }
 
   /** 
@@ -114,8 +95,6 @@ public class PlanitXmlReader<T> {
   public PlanitXmlReader(T xmlRootElement) {
     this.clazz = null;
     this.xmlRootElement = xmlRootElement;
-    this.xmlFileExtension = null;
-    this.inputPathDirectory = null;
   }
  
  
