@@ -12,6 +12,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.planit.converter.demands.DemandsReader;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlReader;
@@ -38,7 +39,7 @@ import org.planit.xml.generated.XMLElementUserClasses;
 import org.planit.xml.generated.XMLElementOdRawMatrix.Values;
 import org.planit.zoning.Zoning;
 
-public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDemand>{
+public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDemand> implements DemandsReader {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDemandsReader.class.getCanonicalName());
@@ -149,6 +150,15 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
         odDemandMatrix.setValue(originZone, destinationZone, demand);        
       }
     }
+  }
+  
+  /**
+   * check if all required settigns are indeed set by the user
+   * @throws PlanItException thrown if error
+   */
+  private void validateSettings() throws PlanItException {
+    PlanItException.throwIfNull(getSettings().getReferenceNetwork(),"Reference network is null for Planit demands reader");
+    PlanItException.throwIfNull(getSettings().getReferenceZoning(),"Reference zoning is null for Planit demands reader");
   }  
   
   /**
@@ -191,19 +201,17 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * Generate XMLElementUserClasses objects from generated configuration object and store them
    * 
    * @param demandconfiguration generated XMLElementDemandConfiguration object from demand XML input
-   * @param network the network
-   * @param sourceIdModeMap available modes by XML id
    * @return the number of user classes
    * @throws PlanItException thrown if a duplicate external Id key is found
    */
-  private int generateAndStoreUserClasses( XMLElementDemandConfiguration demandconfiguration, MacroscopicNetwork network, Map<String, Mode> sourceIdModeMap) throws PlanItException {
+  private int generateAndStoreUserClasses( XMLElementDemandConfiguration demandconfiguration) throws PlanItException {
 
     /* user classes */
     XMLElementUserClasses xmlUserclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
     
     /* generate default if absent (and no more than one mode is used) */
     if (xmlUserclasses.getUserclass().isEmpty()) {
-      PlanItException.throwIf(network.modes.size() > 1,"user classes must be explicitly defined when more than one mode is defined");
+      PlanItException.throwIf(getSettings().getReferenceNetwork().modes.size() > 1,"user classes must be explicitly defined when more than one mode is defined");
       PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
       
       XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
@@ -223,8 +231,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
       
       /* mode ref */
+      Map<String, Mode> sourceIdModeMap = getSettings().getMapToIndexModeByXmlIds();
       if (xmlUserclass.getModeref() == null) {
-        PlanItException.throwIf(network.modes.size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
+        PlanItException.throwIf(getSettings().getReferenceNetwork().modes.size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
         xmlUserclass.setModeref(sourceIdModeMap.keySet().iterator().next());          
       }
       String xmlModeIdRef = xmlUserclass.getModeref();
@@ -325,8 +334,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @param xmlIdZoneMap to obtain zones by xml id
    * @throws Exception thrown if there is an error during processing
    */
-  private static void populateDemandMatrix(final XMLElementOdMatrix xmlOdMatrix, final double pcu, ODDemandMatrix odDemandMatrix, Zones<OdZone> zones, Map<String, Zone> xmlIdZoneMap) throws PlanItException {
+  private void populateDemandMatrix(final XMLElementOdMatrix xmlOdMatrix, final double pcu, ODDemandMatrix odDemandMatrix, Zones<OdZone> zones) throws PlanItException {
     
+    Map<String, Zone> xmlIdZoneMap = getSettings().getMapToIndexZoneByXmlIds();
     if (xmlOdMatrix instanceof XMLElementOdCellByCellMatrix) {
       
       /* cell-by-cell matrix */
@@ -389,28 +399,23 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
   
   /**
    * Sets up all the configuration data from the XML demands file
-   * @param network these demands pertain to
-   * @param sourceIdModeMap to obtain modes by Xml id
-   * 
    * @throws PlanItException thrown if there is a duplicate XML Id found for any component
    */
-  protected void populateDemandConfiguration(MacroscopicNetwork network, Map<String, Mode> sourceIdModeMap) throws PlanItException {
+  protected void populateDemandConfiguration() throws PlanItException {
     
     /* configuration element */
     final XMLElementDemandConfiguration demandconfiguration = getXmlRootElement().getDemandconfiguration();
     
     generateAndStoreTravelerTypes(demandconfiguration);
-    generateAndStoreUserClasses(demandconfiguration, network, sourceIdModeMap);
+    generateAndStoreUserClasses(demandconfiguration);
     generateTimePeriodMap(demandconfiguration);
   }
   
   /**
    * parses the demand contents of the Xml
-   * @param zoning to relate the demands to
-   * @param xmlIdZoneMap to obtain zones by xml id
    * @throws PlanItException thrown if error 
    */
-  protected void populateDemandContents(Zoning zoning, Map<String, Zone> xmlIdZoneMap) throws PlanItException {
+  protected void populateDemandContents() throws PlanItException {
     final List<XMLElementOdMatrix> oddemands = getXmlRootElement().getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
     
     //final Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
@@ -437,9 +442,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
-      ODDemandMatrix odDemandMatrix = new ODDemandMatrix(zoning.odZones);
+      ODDemandMatrix odDemandMatrix = new ODDemandMatrix(getSettings().getReferenceZoning().odZones);
       /* populate */
-      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, zoning.odZones, xmlIdZoneMap);
+      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, getSettings().getReferenceZoning().odZones);
       /* register */
       ODDemandMatrix duplicate = demands.registerODDemand(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {
@@ -458,54 +463,71 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    */
   public PlanitDemandsReader(String pathDirectory, String xmlFileExtension, Demands demands) throws PlanItException{   
     super(XMLElementMacroscopicDemand.class);
-    settings.setInputPathDirectory(pathDirectory);
-    settings.setXmlFileExtension(xmlFileExtension);
+    getSettings().setInputPathDirectory(pathDirectory);
+    getSettings().setXmlFileExtension(xmlFileExtension);
     setDemands(demands);
   }
   
   /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
    * @param xmlMacroscopicDemands to extract from
-   * @param demands to populate
+   * @param network reference network for the demands to read
+   * @param zoning reference zoning for the demands to read 
+   * @param demandsToPopulate to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitDemandsReader(XMLElementMacroscopicDemand xmlMacroscopicDemands, Demands demands) throws PlanItException{
+  public PlanitDemandsReader(XMLElementMacroscopicDemand xmlMacroscopicDemands, MacroscopicNetwork network, Zoning zoning, Demands demandsToPopulate) throws PlanItException{
     super(xmlMacroscopicDemands);    
-    setDemands(demands);
+    setDemands(demandsToPopulate);
+    getSettings().setReferenceNetwork(network); 
+    getSettings().setReferenceZoning(zoning);
   }
 
   /** parse the Xml and populate the demands memory model
-   * @param network to utilise
-   * @param zoning to utilise
-   * @param xmlIdModeMap to obtain available modes by Xml id
-   * @param xmlIdZoneMap to obtain zones by Xml id
    * @throws PlanItException thrown if error
    */
-  public void read(MacroscopicNetwork network, Zoning zoning, Map<String, Mode> xmlIdModeMap, Map<String, Zone> xmlIdZoneMap) throws PlanItException {
+  @Override
+  public Demands read() throws PlanItException {
     
     try {
+      
+      /* verify completeness of inputs */
+      validateSettings();
       
       initialiseAndParseXmlRootElement(settings.getInputPathDirectory(), settings.getXmlFileExtension());
       
       /* configuration */
-      populateDemandConfiguration(network, xmlIdModeMap);
+      populateDemandConfiguration();
       
       /* demands */
-      populateDemandContents(zoning, xmlIdZoneMap);
+      populateDemandContents();
       
       /* free */
-      clearXmlContent();
+      clearXmlContent();           
 
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error when populating demands in PLANitIO",e);
     }
+    
+    return demands;
   } 
   
-  /** settings for this reader
-   * @return settings
+
+  /**
+   * {@inheritDoc}
    */
+  @Override
   public PlanitDemandsReaderSettings getSettings() {
     return settings;
   }
+
+  /**
+   * {@inheritDoc}
+   */  
+  @Override
+  public void reset() {
+    settings.reset();
+  }
+
 }
