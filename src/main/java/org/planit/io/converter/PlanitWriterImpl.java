@@ -35,6 +35,7 @@ import org.planit.utils.zoning.Zone;
 
 import net.opengis.gml.AbstractRingPropertyType;
 import net.opengis.gml.CoordType;
+import net.opengis.gml.DirectPositionType;
 import net.opengis.gml.LinearRingType;
 import net.opengis.gml.ObjectFactory;
 import net.opengis.gml.PointType;
@@ -85,6 +86,38 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     }
     return ((PlanitXmlWriterSettings)getSettings());
   }
+  
+  /** transform the coordinate absed on the destination transformer
+   * @param coordinate to transform
+   * @return transformed coordinate
+   */
+  private Coordinate getTransformedCoordinate(Coordinate coordinate) {
+    try {
+      if(getDestinationCrsTransformer()!=null) {
+        return JTS.transform(coordinate, null, getDestinationCrsTransformer());
+      }
+      return coordinate;  
+    }catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      LOGGER.severe(String.format("unable to construct gml coordinate from %s ",coordinate.toString()));
+    }
+    return null;
+  }  
+
+  /**
+   * @param Point to convert to gml
+   * @return created gml pos
+   */
+  protected DirectPositionType createXmlOpenGisDirectPositionType(Point position) {
+    Coordinate positioncoordinate = getTransformedCoordinate(position.getCoordinate());
+    
+    DirectPositionType xmlPos = new DirectPositionType();
+    xmlPos.getValue().add(positioncoordinate.x);
+    xmlPos.getValue().add(positioncoordinate.y);
+    
+    return xmlPos;
+  }  
+
 
   /**
    * @param coordinate to convert to gml
@@ -92,20 +125,10 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */
   protected CoordType createXmlOpenGisCoordType(Coordinate coordinate) {
     CoordType xmlCoord = new CoordType();
-    Coordinate nodeCoordinate = null;
-    try {
-      if(getDestinationCrsTransformer()!=null) {
-        nodeCoordinate = JTS.transform(coordinate, null, getDestinationCrsTransformer());
-      }else {
-        nodeCoordinate = coordinate;  
-      }
-    }catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to construct gml coordinate from %s ",coordinate.toString()));
-    }
     
+    Coordinate nodeCoordinate = getTransformedCoordinate(coordinate);    
     xmlCoord.setX(BigDecimal.valueOf(nodeCoordinate.x));
-    xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));   
+    xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));
     
     return xmlCoord;
   }  
@@ -117,9 +140,9 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */
   protected PointType createXmlOpenGisPointType(Point position) {
     
-    CoordType gmlcoord = createXmlOpenGisCoordType(position.getCoordinate());
+    DirectPositionType gmlDirectPos = createXmlOpenGisDirectPositionType(position);
     PointType xmlPointType = new PointType();
-    xmlPointType.setCoord(gmlcoord);    
+    xmlPointType.setPos(gmlDirectPos);    
 
     return xmlPointType;
   }  

@@ -36,6 +36,7 @@ import org.planit.xml.generated.XMLElementLinkSegmentTypes;
 import org.planit.xml.generated.XMLElementLinks;
 import org.planit.xml.generated.XMLElementNodes;
 
+import net.opengis.gml.DirectPositionListType;
 import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 
@@ -84,11 +85,18 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @throws PlanItException thown if error
    */
   protected static Double parseLengthFromLineString(XMLElementLinks.Link generatedLink, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
-    Double length = null;
+    Double length = 0.0;
+    
     LineStringType lineStringType = generatedLink.getLineString();
     if (lineStringType != null) {
+      DirectPositionListType positionList = lineStringType.getPosList();
+      if(positionList==null) {
+        LOGGER.severe(
+            String.format("Link %s has a line string without any positions, this should not happen, consider specifying a length instead, setting length to 0.0", generatedLink.getId()));
+        return length;
+      }
+      
       List<Double> posList = lineStringType.getPosList().getValue();
-      length = 0.0;
       Point startPosition = null;
       Point endPosition = null;
       for (int i = 0; i < posList.size(); i += 2) {
@@ -125,21 +133,22 @@ public class XmlMacroscopicNetworkLayerHelper {
   /** parse the length of an xmlLink based on geometry or length attribute
    * 
    * @param xmlLink to extract length from
+   * @param theLineString to extract length from (if not null) when no explicit length is set
    * @param jtsUtils to compute length from geometry
    * @return length (in km)
    * @throws PlanItException thrown if error
    */
-  protected static double parseLength(org.planit.xml.generated.XMLElementLinks.Link xmlLink, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
+  protected static double parseLength(org.planit.xml.generated.XMLElementLinks.Link xmlLink, LineString theLineString, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
     Double length = parseLengthElementFromLink(xmlLink);
-    if(length == null) {
+    if(length == null && theLineString!=null) {
       /* not explicitly set, try extracting it from geometry  instead */
-      length = parseLengthFromLineString(xmlLink, jtsUtils);
+      length = jtsUtils.getDistanceInKilometres(theLineString);
     }
     
     if (length == null) {
-      throw new PlanItException(
-          "Error in network XML file: Must define either a length or GML LineString for link from node "
-              + xmlLink.getNodearef() + " to node " + xmlLink.getNodebref());
+      LOGGER.severe(String.format(
+          "Must define either a length or GML LineString for link %s, setting length to 0.0 instead", xmlLink.getId()));
+      length = 0.0;
     }  
     
     return length;
@@ -350,13 +359,13 @@ public class XmlMacroscopicNetworkLayerHelper {
       {
         Node startNode = nodesByXmlId.get(xmlLink.getNodearef());
         Node endNode = nodesByXmlId.get(xmlLink.getNodebref());
-        double length = parseLength(xmlLink, jtsUtils);   
-        link = networkLayer.links.registerNew(startNode, endNode, length);
         
         /* geometry */
-        LineString theLineString = parseLinkGeometry(xmlLink);
+        LineString theLineString = parseLinkGeometry(xmlLink);        
+        double length = parseLength(xmlLink, theLineString, jtsUtils);   
+        link = networkLayer.links.registerNew(startNode, endNode, length);
         link.setGeometry(theLineString);
-        
+                
         /* xml id */
         if(xmlLink.getId() != null && !xmlLink.getId().isBlank()) {
           link.setXmlId(xmlLink.getId());

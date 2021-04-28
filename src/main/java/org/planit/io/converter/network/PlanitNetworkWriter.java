@@ -219,6 +219,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     xmlCoordinates.setDecimal(getSettings().getDecimalSeparator().toString());
     LineStringType xmlLineString = new LineStringType();
     xmlLineString.setCoordinates(xmlCoordinates);
+    xmlLink.setLineString(xmlLineString);
         
     /* link segments */
     populateLinkSegments(xmlLink, link);
