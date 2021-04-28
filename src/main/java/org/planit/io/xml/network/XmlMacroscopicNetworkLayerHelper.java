@@ -16,6 +16,7 @@ import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
+import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.network.physical.Link;
@@ -378,6 +379,11 @@ public class XmlMacroscopicNetworkLayerHelper {
         if(xmlLink.getExternalid() != null && !xmlLink.getExternalid().isBlank()) {
           link.setExternalId(xmlLink.getExternalid());
         }
+        
+        /* name */
+        if(!StringUtils.isNullOrBlank(xmlLink.getName())) {
+          link.setName(xmlLink.getName());
+        }        
       }      
       /** end LINK **/
       

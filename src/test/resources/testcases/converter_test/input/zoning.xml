@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<macroscopiczoning xmlns:gml="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" srsname="GDA94 / Geoscience Australia Lambert" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/macroscopiczoninginput.xsd">
+<macroscopiczoning xmlns:gml="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" srsname="EPSG:3112" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/macroscopiczoninginput.xsd">
     <intermodal>
         <transferzones>
             <zone id="0" externalid="1085097097" type="platform">
@@ -290,7 +290,7 @@
             <connectoid tzrefs="37" lsref="299" id="47" modes="7">
                 <length>0.0</length>
             </connectoid>
-            <connectoid tzrefs="38" lsref="353" id="48" modes="7">
+            <connectoid tzrefs="38" lsref="1435" id="48" modes="7">
                 <length>0.0</length>
             </connectoid>
             <connectoid tzrefs="39" lsref="1585" id="49" modes="7">

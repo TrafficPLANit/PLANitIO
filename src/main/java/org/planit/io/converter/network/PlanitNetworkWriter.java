@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.planit.utils.network.physical.*;
 import org.planit.utils.network.physical.macroscopic.*;
 import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.LineString;
 import org.planit.converter.IdMapperType;
 import org.planit.converter.network.NetworkWriter;
@@ -20,7 +19,6 @@ import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.locale.CountryNames;
 import org.planit.utils.math.Precision;
@@ -67,32 +65,6 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   private final PlanitNetworkWriterSettings settings;
    
     
-  /** extract the src name to use based on the available crs information on network and settings
-   * @return srsName to use
-   * @throws PlanItException thrown if error
-   */
-  private String extractSrsName() throws PlanItException {
-    String srsName = "";
-    if(getSettings().getDestinationCoordinateReferenceSystem().getName().getCodeSpace().equals("EPSG")) {
-      /* spatial crs based on epsg code*/
-      Integer epsgCode = null;
-      try {
-        epsgCode = CRS.lookupEpsgCode(getSettings().getDestinationCoordinateReferenceSystem(), false);
-        if(epsgCode == null) {
-          /* full scan */
-          epsgCode = CRS.lookupEpsgCode(getSettings().getDestinationCoordinateReferenceSystem(), true);
-        }
-        srsName = String.format("EPSG:%s",epsgCode.toString());
-      }catch (Exception e) {
-        LOGGER.severe(e.getMessage());
-        throw new PlanItException("Unable to extract epsg code from destination crs %s", getSettings().getDestinationCoordinateReferenceSystem().getName());
-      }      
-    }else if(!getSettings().getDestinationCoordinateReferenceSystem().equals(PlanitJtsCrsUtils.CARTESIANCRS)) {
-      throw new PlanItException("Unable to extract epsg code from destination crs %s", getSettings().getDestinationCoordinateReferenceSystem().getName());
-    }
-    return srsName;
-  }
-
   /** get the reference to use whenever a mode reference is encountered
    * @param mode to collect reference for
    * @return modeReference
@@ -113,7 +85,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    * @param xmlLinkSegment to populate
    * @param linkSegment the PLANit link segment instance to populate from
    */
-  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
+  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {   
     /* id */
     xmlLinkSegment.setId(getLinkSegmentIdMapper().apply(linkSegment));
     /* max speed */
@@ -188,8 +160,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
       xmlLinkLength.setValue(link.getLengthKm());
       xmlLink.setLength(xmlLinkLength);
     }
-    
-    
+        
     if(link.hasName()) {
       /* name */
       xmlLink.setName(link.getName());      
@@ -538,7 +509,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     }
     
     /* srs name */
-    xmlInfrastructureLayers.setSrsname(extractSrsName());
+    xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
     
     for(InfrastructureLayer networkLayer : network.infrastructureLayers) {
       if(networkLayer instanceof MacroscopicPhysicalNetwork) {

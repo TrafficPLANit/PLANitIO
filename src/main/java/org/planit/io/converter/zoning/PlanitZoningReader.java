@@ -239,8 +239,6 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * Parse the connectoid based on the XML connectoid element
    * 
    * @param xmlConnectoid to be parsed
-   * @param nodesByXmlId to identify mapping between OD zones and network (via nodes)
-   * @param linkSegmentsByXmlId to identify mapping between (transfer) connectoids and network
    * @return created connectoid
    * @throws PlanItException thrown if error
    */
@@ -492,7 +490,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @param macroscopicNetwork containing the network crs
    * @throws PlanItException thrown if error
    */
-  private void initialiseZoningCrs(MacroscopicNetwork macroscopicNetwork) throws PlanItException {
+  private void parseCoordinateReferenceSystem(MacroscopicNetwork macroscopicNetwork) throws PlanItException {
     CoordinateReferenceSystem crs = macroscopicNetwork.getCoordinateReferenceSystem();
     if(getXmlRootElement().getSrsname()!=null && !getXmlRootElement().getSrsname().isBlank()) {
       crs = createPlanitCrs(getXmlRootElement().getSrsname());
@@ -500,7 +498,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     
     if(!crs.equals(macroscopicNetwork.getCoordinateReferenceSystem())) {
       LOGGER.severe(
-          String.format("zoning crs (%s) and network crs (%s) are not compatible",crs.getName(), macroscopicNetwork.getCoordinateReferenceSystem().getName()));
+          String.format("Zoning crs (%s) and network crs (%s) are not compatible",crs.getName(), macroscopicNetwork.getCoordinateReferenceSystem().getName()));
     }
     this.jtsUtils = new PlanitJtsCrsUtils(crs);
   }
@@ -560,10 +558,16 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
   
   /**
    * parse the OD zones from Xml element into Planit memory
-   * @param nodesByXmlIds nodes indexed by xml id to use
    * @throws PlanItException thrown if error
    */
   protected void populateODZones() throws PlanItException{
+    
+    /* check if present */
+    if(getXmlRootElement().getZones()==null) {
+      LOGGER.info("No Od zones found in zoning, skip");
+      return;
+    }
+    
     /* zone */
     for (final XMLElementZones.Zone xmlZone : getXmlRootElement().getZones().getZone()) {
       OdZone zone = parseBaseZone(zoning.odZones, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getCentroid());
@@ -654,7 +658,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
       
       /* initialise and validate crs compatibility */
-      initialiseZoningCrs(macroscopicNetwork);               
+      parseCoordinateReferenceSystem(macroscopicNetwork);               
       
       /* OD zones */
       populateODZones();

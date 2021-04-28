@@ -55,7 +55,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    * @param xmlRawZoning to populate with PLANit zoning when persisting
    */
   protected PlanitIntermodalWriter(String outputDirectory, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning) {
-    this.idMapper = IdMapperType.ID;
+    this.idMapper = IdMapperType.XML;
     this.settings = new PlanitIntermodalWriterSettings(outputDirectory, countryName);
     this.xmlRawNetwork = xmlRawNetwork;
     this.xmlRawZoning = xmlRawZoning;

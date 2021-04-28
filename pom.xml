@@ -58,7 +58,27 @@
 			<artifactId>junit</artifactId>
 			<!-- only used locally for testing so not an actual dependency for using the API -->
 			<optional>true</optional>
-		</dependency>		
+		</dependency>
+		
+    <dependency>
+       <groupId>org.xmlunit</groupId>
+       <artifactId>xmlunit-core</artifactId>
+       <optional>true</optional>
+       <scope>test</scope>
+     </dependency>    	
+     
+      <dependency>
+        <groupId>org.xmlunit</groupId>
+        <artifactId>xmlunit-matchers</artifactId>
+        <optional>true</optional>
+        <scope>test</scope>        
+      </dependency> 
+      
+       <dependency>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest</artifactId>
+          <scope>test</scope>
+      </dependency>         
 
 	</dependencies>
 

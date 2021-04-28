@@ -542,10 +542,11 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   }
   
   /** make sure the zonings destination crs is set (if any)
+   * @throws PlanItException thrown if error
    */
-  private void populateCrs() {
+  private void populateCrs() throws PlanItException {
     if(getSettings().getDestinationCoordinateReferenceSystem() != null) {
-      xmlRawZoning.setSrsname(getSettings().getDestinationCoordinateReferenceSystem().getName().getCode());
+      xmlRawZoning.setSrsname(extractSrsName(getSettings()));
     }
   }  
   

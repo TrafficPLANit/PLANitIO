@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBElement;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -102,6 +103,32 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
       LOGGER.severe(String.format("unable to construct gml coordinate from %s ",coordinate.toString()));
     }
     return null;
+  }  
+  
+  /** extract the src name to use based on the available crs information on network and settings
+   * @return srsName to use
+   * @throws PlanItException thrown if error
+   */
+  protected static String extractSrsName(PlanitXmlWriterSettings xmlSettings) throws PlanItException {
+    String srsName = "";
+    if(xmlSettings.getDestinationCoordinateReferenceSystem().getName().getCodeSpace().equals("EPSG")) {
+      /* spatial crs based on epsg code*/
+      Integer epsgCode = null;
+      try {
+        epsgCode = CRS.lookupEpsgCode(xmlSettings.getDestinationCoordinateReferenceSystem(), false);
+        if(epsgCode == null) {
+          /* full scan */
+          epsgCode = CRS.lookupEpsgCode(xmlSettings.getDestinationCoordinateReferenceSystem(), true);
+        }
+        srsName = String.format("EPSG:%s",epsgCode.toString());
+      }catch (Exception e) {
+        LOGGER.severe(e.getMessage());
+        throw new PlanItException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
+      }      
+    }else if(!xmlSettings.getDestinationCoordinateReferenceSystem().equals(PlanitJtsCrsUtils.CARTESIANCRS)) {
+      throw new PlanItException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
+    }
+    return srsName;
   }  
 
   /**

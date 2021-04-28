@@ -35,13 +35,13 @@ public class PlanitXmlReader<T> {
    */
   protected CoordinateReferenceSystem createPlanitCrs(String srsName) throws PlanItException {
     CoordinateReferenceSystem crs = null;
-    if(srsName==null || srsName.isBlank()) {
+    if(StringUtils.isNullOrBlank(srsName)) {
       crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
       LOGGER.warning(String.format("coordinate reference system not set, applying default %s",crs.getName().getCode()));
     }else {
       crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(srsName);
       if(crs==null) {
-        throw new PlanItException("Srs name provided in network infrastructure layers (%s) but it could not be converted into a coordinate reference system",srsName);
+        throw new PlanItException("Srs name provided (%s) but it could not be converted into a coordinate reference system",srsName);
       }
     } 
     return crs;

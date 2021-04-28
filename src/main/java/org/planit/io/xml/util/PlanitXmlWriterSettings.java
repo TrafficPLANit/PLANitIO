@@ -68,9 +68,9 @@ public class PlanitXmlWriterSettings {
    * 
    *  @param outputPathDirectory to use
    */
-  public PlanitXmlWriterSettings(final String outputPathDirectory, final String fileName) {
+  public PlanitXmlWriterSettings(final String outputPathDirectory, final String countryName) {
     this.outputDirectory = outputPathDirectory;
-    this.setFileName(fileName);
+    this.setCountry(countryName);
   }      
   
   /**
@@ -81,7 +81,7 @@ public class PlanitXmlWriterSettings {
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String fileName, final String countryName) {
     this.outputDirectory = outputPathDirectory;
-    this.countryName = countryName;
+    this.setCountry(countryName);
     this.setFileName(fileName);
   }  
   
