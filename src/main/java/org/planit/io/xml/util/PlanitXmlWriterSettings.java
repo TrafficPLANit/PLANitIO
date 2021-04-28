@@ -20,7 +20,7 @@ public class PlanitXmlWriterSettings {
   private static final Logger LOGGER = Logger.getLogger(PlanitXmlWriterSettings.class.getCanonicalName());
 
   /** directory to persist to */
-  private String outputPathDirectory = null; 
+  private String outputDirectory = null; 
   
   /** destination country to persist for */
   private String countryName = DEFAULT_COUNTRY;  
@@ -60,7 +60,7 @@ public class PlanitXmlWriterSettings {
    *  @param outputPathDirectory to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory) {
-    this.outputPathDirectory = outputPathDirectory;
+    this.outputDirectory = outputPathDirectory;
   }
   
   /**
@@ -69,7 +69,7 @@ public class PlanitXmlWriterSettings {
    *  @param outputPathDirectory to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String fileName) {
-    this.outputPathDirectory = outputPathDirectory;
+    this.outputDirectory = outputPathDirectory;
     this.setFileName(fileName);
   }      
   
@@ -80,7 +80,7 @@ public class PlanitXmlWriterSettings {
    *  @param countryName to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String fileName, final String countryName) {
-    this.outputPathDirectory = outputPathDirectory;
+    this.outputDirectory = outputPathDirectory;
     this.countryName = countryName;
     this.setFileName(fileName);
   }  
@@ -89,27 +89,27 @@ public class PlanitXmlWriterSettings {
    * @return directory used
    */
   public String getOutputPathDirectory() {
-    return this.outputPathDirectory;
+    return this.outputDirectory;
   }
   
-  /** set the outputPathDirectory used
+  /** set the outputDirectory used
    * @param directory to use
    */
-  public void setOutputPathDirectory(String outputPathDirectory) {
-    this.outputPathDirectory = outputPathDirectory;
+  public void setOutputDirectory(String outputDirectory) {
+    this.outputDirectory = outputDirectory;
   }
 
   /** collect country name used
    * @return country name
    */
-  public String getCountryName() {
+  public String getCountry() {
     return countryName;
   }
 
   /** Set country name used
    * @param countryName to use
    */
-  public void setCountryName(String countryName) {
+  public void setCountry(String countryName) {
     this.countryName = countryName;
   }
 
@@ -225,7 +225,9 @@ public class PlanitXmlWriterSettings {
    * Reset content
    */
   public void reset() {
-    //TODO
+    this.outputDirectory = null;
+    this.fileName = null;
+    this.destinationCoordinateReferenceSystem = null;
   }  
     
 }

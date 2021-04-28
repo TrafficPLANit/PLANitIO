@@ -67,5 +67,21 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
   public  PlanitNetworkWriterSettings getNetworkSettings() {
     return networkSettings;
   } 
+    
+  /** set the outputPathDirectory used on both zoning and network settings
+   * @param directory to use
+   */
+  public void setOutputDirectory(String outputDirectory) {
+    getZoningSettings().setOutputDirectory(outputDirectory);
+    getNetworkSettings().setOutputDirectory(outputDirectory);
+  }
+
+  /** Set country name used on both zoning and network settings
+   * @param countryName to use
+   */
+  public void setCountry(String countryName) {
+    getZoningSettings().setCountry(countryName);
+    getNetworkSettings().setCountry(countryName);
+  }
   
 }

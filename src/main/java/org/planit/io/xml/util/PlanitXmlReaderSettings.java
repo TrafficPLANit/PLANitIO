@@ -12,13 +12,13 @@ public class PlanitXmlReaderSettings {
   private String inputPathDirectory;
   
   /** xml file extension to use */
-  private String xmlFileExtension = PlanitXmlReader.DEFAULT_XML_FILE_EXTENSION;    
+  private String xmlFileExtension;    
   
   /**
-   * Default constructor 
+   * Default constructor using default file extensino and user must set output dir afterwards manually
    */
   public PlanitXmlReaderSettings() {
-    
+   this(null,PlanitXmlReader.DEFAULT_XML_FILE_EXTENSION); 
   }
   
   /**
@@ -40,7 +40,7 @@ public class PlanitXmlReaderSettings {
   }
   
   /** set the input path directory used
-   * @param directory to use
+   * @param inputPathDirectory to use
    */
   public void setInputPathDirectory(String inputPathDirectory) {
     this.inputPathDirectory = inputPathDirectory;
@@ -54,7 +54,7 @@ public class PlanitXmlReaderSettings {
   } 
   
   /** the xml extension used to check for within path directory used
-   * param xmlFile extension to use
+   * @param xmlFileExtension extension to use
    */
   public void setXmlFileExtension(String xmlFileExtension) {
     this.xmlFileExtension = xmlFileExtension;

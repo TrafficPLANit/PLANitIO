@@ -43,6 +43,6 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    */
   @Override
   public void reset() {
-    setOutputPathDirectory(null);
+    super.reset();
   } 
 }

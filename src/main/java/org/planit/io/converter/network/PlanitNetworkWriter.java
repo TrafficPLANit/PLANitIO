@@ -595,7 +595,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    * @return countryname, null if unknown
    */
   public String getCountryName() {
-    return getSettings().getCountryName();
+    return getSettings().getCountry();
   }
 
   /**

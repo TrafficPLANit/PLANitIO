@@ -1,5 +1,6 @@
 package org.planit.io.converter.intermodal;
 
+import org.planit.utils.locale.CountryNames;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
 
@@ -12,15 +13,23 @@ import org.planit.xml.generated.XMLElementMacroscopicZoning;
  */
 public class PlanitIntermodalWriterFactory {
   
+  /** Default factory method. Create a PLANitIntermodalWriter which can persist a PLANit network and zoning in the native PLANit XML format. 
+   * We assume the user sets the output directory and destination country afterwards
+   * 
+   * @return created Planit native format network writer 
+   */
+  public static PlanitIntermodalWriter create() {
+    return create(null);    
+  }    
+  
   /** Create a PLANitIntermodalWriter which can persist a PLANit network and zoning in the native PLANit XML format. No destination country is provided, so we assume the current
    * Crs for persisting
    * 
    * @param outputDirectory the path to use for persisting
-   * @param countryName the country to base the projection method on if available
    * @return created network writer 
    */
   public static PlanitIntermodalWriter create(String outputDirectory) {
-    return create(outputDirectory, null);    
+    return create(outputDirectory, CountryNames.GLOBAL);    
   }  
   
   /** Create a PLANitIntermodalWriter which can persist a PLANit network and zoning in the native PLANit XML format

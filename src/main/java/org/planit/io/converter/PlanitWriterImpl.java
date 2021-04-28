@@ -1,6 +1,7 @@
 package org.planit.io.converter;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -170,7 +171,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     
     /* CRS and transformer (if needed) */
     CoordinateReferenceSystem destinationCrs = 
-        identifyDestinationCoordinateReferenceSystem(xmlWriterSettings.getDestinationCoordinateReferenceSystem(),xmlWriterSettings.getCountryName(), sourceCrs);    
+        identifyDestinationCoordinateReferenceSystem(xmlWriterSettings.getDestinationCoordinateReferenceSystem(),xmlWriterSettings.getCountry(), sourceCrs);    
     PlanItException.throwIfNull(destinationCrs, "destination Coordinate Reference System is null, this is not allowed");
     xmlWriterSettings.setDestinationCoordinateReferenceSystem(destinationCrs);
     
@@ -277,14 +278,26 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     PlanItException.throwIf(
         xmlWriterSettings.getOutputPathDirectory()==null || xmlWriterSettings.getOutputPathDirectory().isBlank(), "no output directory provided, unable to persist in native Planit XML format");
     PlanItException.throwIf(
-        xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(), "no output file name provided, unable to persist in native Planit XML format");    
+        xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(), "no output file name provided, unable to persist in native Planit XML format");
+    Path outputDir = Paths.get(xmlWriterSettings.getOutputPathDirectory());
     Path outputPath = Paths.get(xmlWriterSettings.getOutputPathDirectory(), xmlWriterSettings.getFileName());
+    
+    /* try to create the directory if it does not exist */
+    
+    try { 
+      if(!Files.exists(outputDir)) {
+        Files.createDirectory(outputDir);
+      }
+    }catch(Exception e) {
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputPathDirectory()).toAbsolutePath()));      
+    }
     
     try {      
       JAXBUtils.generateXmlFileFromObject(xmlRootElement, rootElementClazz, outputPath, PlanitSchema.createPlanitSchemaUri(planitSchemaName));
     }catch(Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("unable to persist PLANit network in native format");
+      throw new PlanItException("Unable to persist PLANit network in native format");
     }
   }   
    
