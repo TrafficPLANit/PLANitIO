@@ -8,6 +8,7 @@ import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.misc.FileUtils;
+import org.planit.utils.misc.StringUtils;
 
 /**
  * Serves as a base class for readers of PLANit Xml files of which the root element is of type T
@@ -28,16 +29,20 @@ public class PlanitXmlReader<T> {
   
   /** create a crs for planit native format based on passed in srs name. If no srs name is provided the default will be created
    * 
-   * @param srsname to use
+   * @param srsName to use
    * @return craeted crs
+   * @throws PlanItException thrown if error
    */
-  protected CoordinateReferenceSystem createPlanitCrs(String srsname) {
+  protected CoordinateReferenceSystem createPlanitCrs(String srsName) throws PlanItException {
     CoordinateReferenceSystem crs = null;
-    if(srsname==null || srsname.isBlank()) {
+    if(srsName==null || srsName.isBlank()) {
       crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
       LOGGER.warning(String.format("coordinate reference system not set, applying default %s",crs.getName().getCode()));
     }else {
-      crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(srsname);
+      crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(srsName);
+      if(crs==null) {
+        throw new PlanItException("Srs name provided in network infrastructure layers (%s) but it could not be converted into a coordinate reference system",srsName);
+      }
     } 
     return crs;
   }  
@@ -49,17 +54,16 @@ public class PlanitXmlReader<T> {
    * @return populated xml root element if possible based on provided input to constructor
    * @throws PlanItException thrown if error
    */
-  protected T initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {
+  protected void initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {
     PlanItException.throwIfNull(inputPathDirectory, "input path directory for XML reader is not provided, unable to parse");
     PlanItException.throwIfNull(xmlFileExtension, "no XML file extension provided, unable to parse files if extension is unknown");
     
     if(this.xmlRootElement==null) {
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
       PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
-      return JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames);
-    }else { 
-      return xmlRootElement;
-    }
+      setXmlRootElement(JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames));
+    } 
+    
   }  
   
   // GETTERS /SETTERS
@@ -71,6 +75,14 @@ public class PlanitXmlReader<T> {
   protected T getXmlRootElement() {
     return xmlRootElement;
   }  
+  
+  /** set the root element of this reader
+   * 
+   * @param xmlRootElement to use
+   */
+  protected void setXmlRootElement(T xmlRootElement) {
+    this.xmlRootElement = xmlRootElement;
+  }    
     
   /**
    * Default extension for XML input files

@@ -490,8 +490,9 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * network crs are incompatible log to user, this is discouraged.
    * 
    * @param macroscopicNetwork containing the network crs
+   * @throws PlanItException thrown if error
    */
-  private void initialiseZoningCrs(MacroscopicNetwork macroscopicNetwork) {
+  private void initialiseZoningCrs(MacroscopicNetwork macroscopicNetwork) throws PlanItException {
     CoordinateReferenceSystem crs = macroscopicNetwork.getCoordinateReferenceSystem();
     if(getXmlRootElement().getSrsname()!=null && !getXmlRootElement().getSrsname().isBlank()) {
       crs = createPlanitCrs(getXmlRootElement().getSrsname());
@@ -650,7 +651,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     try {
       
       /* popoulate Xml memory model */
-      initialiseAndParseXmlRootElement(getSettings().getInputPathDirectory(), getSettings().getXmlFileExtension());
+      initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
       
       /* initialise and validate crs compatibility */
       initialiseZoningCrs(macroscopicNetwork);               

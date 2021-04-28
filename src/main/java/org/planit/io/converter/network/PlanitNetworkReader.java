@@ -189,8 +189,9 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * parse the CRS from the raw XML or utilise the default if not present
    * 
    * @param xmlLayers element from which ot parse crs
+   * @throws PlanItException thorwn if error
    */
-  private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) {
+  private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) throws PlanItException {
     CoordinateReferenceSystem crs = null;
     crs = createPlanitCrs(xmlLayers.getSrsname());
     return crs;
@@ -359,7 +360,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   public InfrastructureNetwork<?,?> read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
-    initialiseAndParseXmlRootElement(getSettings().getInputPathDirectory(), getSettings().getXmlFileExtension());
+    initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
     
     /* defaults */
     injectMissingDefaultsToRawXmlNetwork();       

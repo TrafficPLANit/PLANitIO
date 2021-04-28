@@ -9,7 +9,7 @@ package org.planit.io.xml.util;
 public class PlanitXmlReaderSettings {
 
   /** directory to look in */
-  private String inputPathDirectory;
+  private String inputDirectory;
   
   /** xml file extension to use */
   private String xmlFileExtension;    
@@ -24,26 +24,26 @@ public class PlanitXmlReaderSettings {
   /**
    * Constructor
    * 
-   *  @param inputPathDirectory to use
+   *  @param inputDirectory to use
    *  @param xmlFileExtension to use
    */
-  public PlanitXmlReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
-    this.inputPathDirectory = inputPathDirectory;
+  public PlanitXmlReaderSettings(final String inputDirectory, final String xmlFileExtension) {
+    this.inputDirectory = inputDirectory;
     this.xmlFileExtension = xmlFileExtension;
   }  
   
   /** the input path directory used
    * @return directory used
    */
-  public String getInputPathDirectory() {
-    return this.inputPathDirectory;
+  public String getInputDirectory() {
+    return this.inputDirectory;
   }
   
   /** set the input path directory used
-   * @param inputPathDirectory to use
+   * @param inputDirectory to use
    */
-  public void setInputPathDirectory(String inputPathDirectory) {
-    this.inputPathDirectory = inputPathDirectory;
+  public void setInputDirectory(String inputDirectory) {
+    this.inputDirectory = inputDirectory;
   }  
   
   /** the xml extension used to check for within path directory used

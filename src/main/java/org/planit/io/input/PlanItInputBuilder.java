@@ -302,7 +302,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(sourceIdLinkSegmentTypeMap);
     reader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
     reader.getSettings().setMapToIndexNodeByXmlIds(sourceIdNodeMap);
-    reader.getSettings().setInputPathDirectory(projectPath);
+    reader.getSettings().setInputDirectory(projectPath);
     network = (MacroscopicNetwork) reader.read();        
   }
 
@@ -322,7 +322,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /* update reference to currently empty maps in builder */
     zoningReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
     zoningReader.getSettings().setMapToIndexConnectoidsByXmlIds(sourceIdConnectoidMap);
-    zoningReader.getSettings().setInputPathDirectory(projectPath);
+    zoningReader.getSettings().setInputDirectory(projectPath);
     
     /* place references to already populated network entities to avoid duplicating this index on the zoning reader */
     zoningReader.setLinkSegmentsByXmlId(sourceIdLinkSegmentMap);
@@ -353,7 +353,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     demandsReader.getSettings().setMapToIndexTimePeriodByXmlIds(sourceIdTimePeriodMap);
     demandsReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
     demandsReader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
-    demandsReader.getSettings().setInputPathDirectory(projectPath);
+    demandsReader.getSettings().setInputDirectory(projectPath);
     demandsReader.read();    
   }
 

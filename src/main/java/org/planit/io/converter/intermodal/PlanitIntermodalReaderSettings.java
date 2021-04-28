@@ -70,11 +70,11 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
   }
   
   /** set the input path directory used for both zoning and network settings
-   * @param inputPathDirectory to use
+   * @param inputDirectory to use
    */
-  public void setInputPathDirectory(String inputPathDirectory) {
-    getNetworkSettings().setInputPathDirectory(inputPathDirectory);
-    getZoningSettings().setInputPathDirectory(inputPathDirectory);
+  public void setInputDirectory(String inputDirectory) {
+    getNetworkSettings().setInputDirectory(inputDirectory);
+    getZoningSettings().setInputDirectory(inputDirectory);
   }    
 
  

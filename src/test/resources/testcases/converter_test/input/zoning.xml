@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<macroscopiczoning xmlns:gml="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" srsname="GDA94 / Geoscience Australia Lambert" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/macroscopiczoninginput.xsd">
+    <intermodal>
+        <transferzones>
+            <zone id="0" externalid="1085097097" type="platform">
+                <name>Stand A, Circular Quay, Alfred Street</name>
+            </zone>
+            <zone id="1" externalid="1085097099" type="platform">
+                <name>Circular Quay</name>
+            </zone>
+            <zone id="2" externalid="1263263402" type="platform">
+                <name>Stand A</name>
+            </zone>
+            <zone id="3" externalid="1263263448" type="platform"/>
+            <zone id="4" externalid="1263263479" type="platform">
+                <name>Stand A</name>
+            </zone>
+            <zone id="5" externalid="1263263493" type="platform">
+                <name>D</name>
+            </zone>
+            <zone id="6" externalid="1263263506" type="platform">
+                <name>E</name>
+            </zone>
+            <zone id="7" externalid="1263263520" type="platform">
+                <name>F</name>
+            </zone>
+            <zone id="8" externalid="1263263539" type="platform">
+                <name>G</name>
+            </zone>
+            <zone id="9" externalid="1354677119" type="platform"/>
+            <zone id="10" externalid="1354677120" type="platform">
+                <name>Stand M, Wynyard</name>
+            </zone>
+            <zone id="11" externalid="1354677121" type="platform"/>
+            <zone id="12" externalid="2686079229" type="platform"/>
+            <zone id="13" externalid="2784763255" type="platform">
+                <name>Barrack St</name>
+            </zone>
+            <zone id="14" externalid="2784763256" type="platform">
+                <name>Stand Q, Wynyard</name>
+            </zone>
+            <zone id="15" externalid="3174323910" type="platform">
+                <name>Lang Park</name>
+            </zone>
+            <zone id="16" externalid="3814697123" type="platform">
+                <name>Stand C, Martin Place, Elizabeth Street</name>
+            </zone>
+            <zone id="17" externalid="3814704459" type="platform">
+                <name>Museum of Sydney</name>
+            </zone>
+            <zone id="18" externalid="3814704461" type="platform">
+                <name>Stand C, Phillip Street</name>
+            </zone>
+            <zone id="19" externalid="3814715779" type="platform">
+                <name>Stand E, Martin Place, Elizabeth Street</name>
+            </zone>
+            <zone id="20" externalid="3814715780" type="platform">
+                <name>Museum of Sydney</name>
+            </zone>
+            <zone id="21" externalid="3820122295" type="platform">
+                <name>Kent Street before Napoleon Street</name>
+            </zone>
+            <zone id="22" externalid="3820122296" type="platform">
+                <name>Market St</name>
+            </zone>
+            <zone id="23" externalid="4010650292" type="platform">
+                <name>Stand B, Martin Place</name>
+            </zone>
+            <zone id="24" externalid="4010650293" type="platform">
+                <name>Royal Botanic Gardens</name>
+            </zone>
+            <zone id="25" externalid="4341871592" type="platform">
+                <name>Stand H, Wynyard Station</name>
+            </zone>
+            <zone id="26" externalid="4731525721" type="platform">
+                <name>Stand R, Wynyard</name>
+            </zone>
+            <zone id="27" externalid="4736120228" type="platform">
+                <name>Erskine Street Terminus (288, 290, 292)</name>
+            </zone>
+            <zone id="28" externalid="4737145122" type="platform">
+                <name>Stand U, Wynyard</name>
+            </zone>
+            <zone id="29" externalid="4737170024" type="platform">
+                <name>Stand T, Wynyard</name>
+            </zone>
+            <zone id="30" externalid="4737196921" type="platform">
+                <name>Stand S, Wynyard Station</name>
+            </zone>
+            <zone id="31" externalid="4737206823" type="platform">
+                <name>King St (613X, 614X, 615X, 616X)</name>
+            </zone>
+            <zone id="32" externalid="4743071525" type="platform">
+                <name>King Street Wharf Terminus (252, 261)</name>
+            </zone>
+            <zone id="33" externalid="4743071526" type="platform">
+                <name>Barangaroo Reserve</name>
+            </zone>
+            <zone id="34" externalid="4743071527" type="platform">
+                <name>Barangaroo Reserve</name>
+            </zone>
+            <zone id="35" externalid="4743099622" type="platform">
+                <name>King Street Wharf, Erskine St (252, 261)</name>
+            </zone>
+            <zone id="36" externalid="4743099623" type="platform">
+                <name>Barangaroo South</name>
+            </zone>
+            <zone id="37" externalid="4743099624" type="platform">
+                <name>Roslyn Packer Theatre</name>
+            </zone>
+            <zone id="38" externalid="4743099625" type="platform">
+                <name>High Lane</name>
+            </zone>
+            <zone id="39" externalid="4743123721" type="platform">
+                <name>Roslyn Packer Theatre</name>
+            </zone>
+            <zone id="40" externalid="4743123722" type="platform">
+                <name>Observatory Hill (311)</name>
+            </zone>
+            <zone id="41" externalid="4743126721" type="platform">
+                <name>Millers Point Terminus (311)</name>
+            </zone>
+            <zone id="42" externalid="4748558524" type="platform">
+                <name>Walsh Bay Terminus (324, 325)</name>
+            </zone>
+            <zone id="43" externalid="4809848324" type="platform">
+                <name>Art Gallery of NSW</name>
+            </zone>
+            <zone id="44" externalid="4809854923" type="platform">
+                <name>Art Gallery of NSW</name>
+            </zone>
+            <zone id="45" externalid="4928568457" type="platform">
+                <name>Stand F, Martin Place, Elizabeth Street</name>
+            </zone>
+            <zone id="46" externalid="5441345821" type="platform">
+                <name>Stand G, Martin Place, Castlereagh St</name>
+            </zone>
+            <zone id="47" externalid="701216855" type="platform"/>
+            <zone id="48" externalid="701216856" type="platform"/>
+            <zone id="49" externalid="702219814" type="platform"/>
+            <zone id="50" externalid="702219822" type="platform">
+                <name>Circular Quay</name>
+            </zone>
+            <zone id="51" externalid="702219824" type="platform">
+                <name>Circular Quay</name>
+            </zone>
+        </transferzones>
+        <transferzoneaccess>
+            <connectoid tzrefs="51" lsref="900" id="0" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="51" lsref="1515" id="1" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="50" lsref="904" id="2" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="50" lsref="1517" id="3" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="51" lsref="907" id="4" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="51" lsref="1518" id="5" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="47" lsref="1520" id="6" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="48" lsref="1521" id="7" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="49" lsref="953" id="8" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="49" lsref="1523" id="9" modes="9">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="0" lsref="316" id="10" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="1" lsref="301" id="11" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="2" lsref="244" id="12" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="2" lsref="415" id="13" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="3" lsref="1525" id="14" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="4" lsref="1525" id="15" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="5" lsref="1525" id="16" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="6,7" lsref="1525" id="17" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="8" lsref="1525" id="18" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="9" lsref="1535" id="19" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="10" lsref="618" id="20" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="11" lsref="618" id="21" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="12" lsref="614" id="22" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="13" lsref="1159" id="23" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="14" lsref="1545" id="24" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="15" lsref="1547" id="25" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="16" lsref="1022" id="26" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="17" lsref="1549" id="27" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="18" lsref="536" id="28" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="19" lsref="1551" id="29" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="20" lsref="1554" id="30" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="21" lsref="238" id="31" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="22" lsref="747" id="32" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="23" lsref="1557" id="33" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="24" lsref="1015" id="34" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="25" lsref="1561" id="35" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="26" lsref="827" id="36" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="27" lsref="282" id="37" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="28" lsref="1565" id="38" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="29" lsref="1116" id="39" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="30" lsref="1189" id="40" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="31" lsref="1112" id="41" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="32" lsref="242" id="42" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="33" lsref="277" id="43" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="34" lsref="1037" id="44" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="35" lsref="1577" id="45" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="36" lsref="673" id="46" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="37" lsref="299" id="47" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="38" lsref="1493" id="48" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="39" lsref="1585" id="49" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="40" lsref="398" id="50" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="40" lsref="453" id="51" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="41" lsref="1587" id="52" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="42" lsref="297" id="53" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="43" lsref="1156" id="54" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="44" lsref="1155" id="55" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="45" lsref="332" id="56" modes="7">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="46" lsref="1595" id="57" modes="7">
+                <length>0.0</length>
+            </connectoid>
+        </transferzoneaccess>
+        <transferzonegroups/>
+    </intermodal>
+</macroscopiczoning>
