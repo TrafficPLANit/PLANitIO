@@ -371,8 +371,8 @@ public class XmlMacroscopicNetworkLayerHelper {
         if(xmlLink.getId() != null && !xmlLink.getId().isBlank()) {
           link.setXmlId(xmlLink.getId());
         }else {
-          LOGGER.fine(String.format("link id absent, generating internal id instead (node a: %s, node b: %s)",link.getNodeA().getXmlId(), link.getNodeB().getXmlId()));
-          link.setXmlId(String.valueOf(link.getId()));
+          LOGGER.severe("DISCARD: Link has no (XML) id, unable to include link");
+          continue;          
         }         
         
         /* external id */
@@ -407,8 +407,8 @@ public class XmlMacroscopicNetworkLayerHelper {
         if(xmlLinkSegment.getId() != null && !xmlLinkSegment.getId().isBlank()) {
           linkSegment.setXmlId(xmlLinkSegment.getId());
         }else {
-          LOGGER.warning("link segment has no xml id, applying internal id instead");
-          linkSegment.setXmlId(Long.toString(linkSegment.getId()));
+          LOGGER.severe("DISCARD: Link segment has no (XML) id, unable to include link segment");
+          continue;
         }
         
         /* external id */

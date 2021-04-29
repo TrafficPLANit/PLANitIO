@@ -19,6 +19,7 @@ import org.planit.io.converter.PlanitWriterImpl;
 import org.planit.io.xml.util.PlanitSchema;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.math.Precision;
+import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.zoning.Centroid;
@@ -138,6 +139,10 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param transferGroup to use
    */
   private void populateXmlTransferGroup(XMLElementTransferGroup xmlTransferGroup, TransferZoneGroup transferGroup) {
+    if(xmlTransferGroup==null) {
+      LOGGER.severe(String.format("Unable to add transfer zone group %s (id:%d) to xml element, xml element is null", transferGroup.getXmlId(), transferGroup.getId()));
+      return;
+    }
     
     if(!transferGroup.hasTransferZones()) {
       LOGGER.warning(String.format("DISCARD: transfer zone group %s (id:%d) has no transfer zones, it will not be populated", transferGroup.getXmlId(), transferGroup.getId()));
@@ -146,6 +151,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     
     /* id */
     xmlTransferGroup.setId(getTransferZoneGroupIdMapper().apply(transferGroup));
+    if(StringUtils.isNullOrBlank(xmlTransferGroup.getId())) {
+      LOGGER.severe(String.format("Transfer zone group id for XML not set successfully for planit transfer zone group %s (id:%d)",transferGroup.getXmlId(), transferGroup.getId()));
+    }
     
     /* external id */
     if(transferGroup.hasExternalId()) {
@@ -423,6 +431,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   private void populateXmlConnectoidBase(org.planit.xml.generated.Connectoidtype xmlConnectoidBase, Connectoid connectoid, Optional<Double> length, Collection<Mode> accessModes) throws PlanItException {
     /* id */
     xmlConnectoidBase.setId(getConnectoidIdMapper().apply(connectoid));
+    if(StringUtils.isNullOrBlank(xmlConnectoidBase.getId())){
+      LOGGER.severe(String.format("Connectoid id for xml remains null for connectoid (id:%d), this is not allowed",connectoid.getId()));
+    }
     
     /* external id */
     if(connectoid.hasExternalId()) {

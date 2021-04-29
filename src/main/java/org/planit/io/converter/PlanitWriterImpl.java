@@ -236,13 +236,14 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    * @throws PlanItException thrown if error
    */
   protected void initialiseIdMappingFunctions() throws PlanItException {
-    vertexIdMapper = IdMapperFunctionFactory.createVertexIdMappingFunction(getIdMapperType());
-    linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapperType());
-    linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapperType());
-    linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapperType());
-    modeIdMapper = IdMapperFunctionFactory.createModeIdMappingFunction(getIdMapperType());
-    zoneIdMapper = IdMapperFunctionFactory.createZoneIdMappingFunction(getIdMapperType());
-    connectoidIdMapper = IdMapperFunctionFactory.createConnectoidIdMappingFunction(getIdMapperType());
+    this.vertexIdMapper = IdMapperFunctionFactory.createVertexIdMappingFunction(getIdMapperType());
+    this.linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapperType());
+    this.linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapperType());
+    this.linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapperType());
+    this.modeIdMapper = IdMapperFunctionFactory.createModeIdMappingFunction(getIdMapperType());
+    this.zoneIdMapper = IdMapperFunctionFactory.createZoneIdMappingFunction(getIdMapperType());
+    this.connectoidIdMapper = IdMapperFunctionFactory.createConnectoidIdMappingFunction(getIdMapperType());
+    this.transferZoneGroupIdMapper = IdMapperFunctionFactory.createTransferZoneGroupIdMappingFunction(getIdMapperType());
   } 
   
   /** get id mapper for nodes

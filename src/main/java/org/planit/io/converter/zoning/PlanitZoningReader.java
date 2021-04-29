@@ -191,30 +191,37 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    * @param zones to register on
    * @param xmlId to use
    * @param externalId to use (can be null)
+   * @param name to use (can be null)
    * @param xmlCentroid to extract centroid from
    * @return created and registered Planit zone
    * @throws PlanItException thrown if error
    */
-  private <T extends Zone> T parseBaseZone(Zones<T> zones, String xmlId, String externalId, XMLElementCentroid xmlCentroid) throws PlanItException {
+  private <T extends Zone> T parseBaseZone(Zones<T> zones, String xmlId, String externalId, String name, XMLElementCentroid xmlCentroid) throws PlanItException {
     /* create zone */
     T zone = zones.registerNew();
     
     /* xml id */
-    if(xmlId != null && !xmlId.isBlank()) {
+    if(!StringUtils.isNullOrBlank(xmlId)) {
       zone.setXmlId(xmlId);
     }else {
-      throw new PlanItException("zone cannot be parsed, its (XML) id is not set");
+      throw new PlanItException("Zone cannot be parsed, its (XML) id is not set");
     }
     /* all zones regardless of subtype are expected to have unique ids */
     Zone duplicatezone = settings.getMapToIndexZoneByXmlIds().put(xmlId, zone);
     if(duplicatezone != null) {
-      throw new PlanItException(String.format("zone with duplicate (XML) id %s found, this is not allowed",xmlId));
+      throw new PlanItException(String.format("Zone with duplicate (XML) id %s found, this is not allowed",xmlId));
     }
     
     /* external id */        
     if(externalId != null && !externalId.isBlank()) {
       zone.setExternalId(externalId);  
-    }                  
+    }  
+    
+    /* name */
+    if(!StringUtils.isNullOrBlank(name)) {
+      zone.setName(name);
+    }    
+      
     
     /* centroid (optional location) */
     Centroid centroid = zone.getCentroid();
@@ -244,6 +251,15 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
    */
   private Connectoid parseBaseConnectoid(Connectoidtype xmlConnectoid) throws PlanItException {
     Connectoid theConnectoid = null;
+    
+    /* xml id */
+    String xmlId = null;
+    if(!StringUtils.isNullOrBlank(xmlConnectoid.getId())) {
+      xmlId = xmlConnectoid.getId();
+    }else {
+      LOGGER.severe("DISCARd: Parsed connectoid has no (XML) id");
+      return null;
+    }    
     
     /* CONNECTOID */
     Node accessNode = null;
@@ -275,12 +291,8 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         ((DirectedConnectoid)theConnectoid).setNodeAccessDownstream(false);
       }
     }
-    
-    /* xml id */
-    if(xmlConnectoid.getId() != null && !xmlConnectoid.getId().isBlank()) {
-      theConnectoid.setXmlId(xmlConnectoid.getId());
-    }
-    
+    theConnectoid.setXmlId(xmlId);
+        
     /* external id */
     if(xmlConnectoid.getExternalid() != null && !xmlConnectoid.getExternalid().isBlank()) {
       theConnectoid.setExternalId(xmlConnectoid.getExternalid());
@@ -353,7 +365,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZone();
     for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZonesList) {
       /* base zone elements parsed and planit version registered */
-      TransferZone transferZone = parseBaseZone(zoning.transferZones, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getCentroid());
+      TransferZone transferZone = parseBaseZone(zoning.transferZones, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getName(), xmlTransferzone.getCentroid());
       
       /* type */
       if(xmlTransferzone.getType()!= null) {
@@ -391,11 +403,12 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       /* base connectoid */
       DirectedConnectoid connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid);
       
+      
       /* modes that are allowed access */
       String modesRef = xmlTransferConnectoid.getModes();
       Collection<Mode> allowedModes = null;
       boolean implicitAllModesAllowed = true;
-      if(modesRef != null && !modesRef.isBlank()) {        
+      if(!StringUtils.isNullOrBlank(modesRef)) {        
         /* capture explicit referenced modes by xml id */
         implicitAllModesAllowed = false;
         allowedModes = new HashSet<Mode>();
@@ -431,7 +444,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
                         
       Connectoid duplicateConnectoid = settings.getMapToIndexConnectoidsByXmlIds().put(connectoid.getXmlId(), connectoid);
       if(duplicateConnectoid != null) {
-        throw new PlanItException(String.format("(od/transfer) connectoid id %s used not unique across project, thsi is not allowed",connectoid.getXmlId())); 
+        throw new PlanItException(String.format("(od/transfer) connectoid id %s used not unique across project, this is not allowed",connectoid.getXmlId())); 
       }
     }        
   }
@@ -570,7 +583,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     
     /* zone */
     for (final XMLElementZones.Zone xmlZone : getXmlRootElement().getZones().getZone()) {
-      OdZone zone = parseBaseZone(zoning.odZones, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getCentroid());
+      OdZone zone = parseBaseZone(zoning.odZones, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
       
       /* geometry */
       populateZoneGeometry(zone, xmlZone.getPolygon());      
