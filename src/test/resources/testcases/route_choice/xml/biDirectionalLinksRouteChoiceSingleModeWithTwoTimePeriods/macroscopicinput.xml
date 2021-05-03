@@ -98,7 +98,7 @@
 					<node id="24" />
 				</nodes>
 				<links>
-					<link nodearef="12" nodebref="9">
+					<link id="1" nodearef="12" nodebref="9">
 						<linksegment id="1" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -106,8 +106,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>2.9</length>
-					</link>				
-					<link nodearef="12" nodebref="11">
+					</link>
+					<link id="2" nodearef="12" nodebref="11">
 						<linksegment id="3" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -115,8 +115,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>3</length>
-					</link>				
-					<link nodearef="12" nodebref="16">
+					</link>
+					<link id="3" nodearef="12" nodebref="16">
 						<linksegment id="5" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -124,8 +124,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="9" nodebref="10">
+					</link>
+					<link id="4" nodearef="9" nodebref="10">
 						<linksegment id="7" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -133,8 +133,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>2.9</length>
-					</link>			
-					<link nodearef="9" nodebref="13">
+					</link>
+					<link id="5" nodearef="9" nodebref="13">
 						<linksegment id="9" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -142,8 +142,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="10" nodebref="11">
+					</link>
+					<link id="6" nodearef="10" nodebref="11">
 						<linksegment id="11" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -151,8 +151,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>3</length>
-					</link>			
-					<link nodearef="10" nodebref="14">
+					</link>
+					<link id="7" nodearef="10" nodebref="14">
 						<linksegment id="13" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -160,8 +160,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="11" nodebref="15">
+					</link>
+					<link id="8" nodearef="11" nodebref="15">
 						<linksegment id="15" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -169,8 +169,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="1" nodebref="5">
+					</link>
+					<link id="9" nodearef="1" nodebref="5">
 						<linksegment id="17" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -178,8 +178,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="1" nodebref="4">
+					</link>
+					<link id="10" nodearef="1" nodebref="4">
 						<linksegment id="19" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -187,8 +187,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>0.9</length>
-					</link>				
-					<link nodearef="1" nodebref="2">
+					</link>
+					<link id="11" nodearef="1" nodebref="2">
 						<linksegment id="21" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -196,8 +196,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>0.9</length>
-					</link>			
-					<link nodearef="2" nodebref="6">
+					</link>
+					<link id="12" nodearef="2" nodebref="6">
 						<linksegment id="23" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -205,8 +205,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="2" nodebref="3">
+					</link>
+					<link id="13" nodearef="2" nodebref="3">
 						<linksegment id="25" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -214,8 +214,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="3" nodebref="7">
+					</link>
+					<link id="14" nodearef="3" nodebref="7">
 						<linksegment id="27" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -223,8 +223,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="3" nodebref="4">
+					</link>
+					<link id="15" nodearef="3" nodebref="4">
 						<linksegment id="29" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -232,8 +232,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="4" nodebref="8">
+					</link>
+					<link id="16" nodearef="4" nodebref="8">
 						<linksegment id="31" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -241,8 +241,8 @@
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="16" nodebref="23">
+					</link>
+					<link id="17" nodearef="16" nodebref="23">
 						<linksegment id="33" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -250,8 +250,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="23" nodebref="8">
+					</link>
+					<link id="18" nodearef="23" nodebref="8">
 						<linksegment id="35" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -259,8 +259,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="13" nodebref="21">
+					</link>
+					<link id="19" nodearef="13" nodebref="21">
 						<linksegment id="37" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -268,8 +268,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="21" nodebref="5">
+					</link>
+					<link id="20" nodearef="21" nodebref="5">
 						<linksegment id="39" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -277,8 +277,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="14" nodebref="22">
+					</link>
+					<link id="21" nodearef="14" nodebref="22">
 						<linksegment id="41" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -286,8 +286,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="22" nodebref="6">
+					</link>
+					<link id="21" nodearef="22" nodebref="6">
 						<linksegment id="43" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -295,8 +295,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>			
-					<link nodearef="15" nodebref="24">
+					</link>
+					<link id="22" nodearef="15" nodebref="24">
 						<linksegment id="45" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -304,8 +304,8 @@
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
 						<length>1</length>
-					</link>				
-					<link nodearef="24" nodebref="7">
+					</link>
+					<link id="23" nodearef="24" nodebref="7">
 						<linksegment id="47" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -326,7 +326,7 @@
 			<zone id="1">
 				<centroid>
 					<name>1</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
@@ -339,12 +339,12 @@
 			<zone id="2">
 				<centroid>
 					<name>2</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="22">
+					<connectoid id="2" noderef="22">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
@@ -352,7 +352,7 @@
 			<zone id="3">
 				<centroid>
 					<name>3</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
@@ -365,7 +365,7 @@
 			<zone id="4">
 				<centroid>
 					<name>4</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>

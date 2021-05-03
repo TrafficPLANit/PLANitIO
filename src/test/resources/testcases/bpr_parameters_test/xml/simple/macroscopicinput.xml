@@ -66,31 +66,31 @@
 					<node id="6" />
 				</nodes>
 				<links>
-					<link nodearef="1" nodebref="2">
+					<link id="1" nodearef="1" nodebref="2">
 						<linksegment id="1" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>10</length>
 					</link>
-					<link nodearef="2" nodebref="3">
+					<link id="2" nodearef="2" nodebref="3">
 						<linksegment id="2" dir="a_b" typeref="2">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>10</length>
 					</link>
-					<link nodearef="3" nodebref="4">
+					<link id="3" nodearef="3" nodebref="4">
 						<linksegment id="3" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>10</length>
 					</link>
-					<link nodearef="4" nodebref="5">
+					<link id="4" nodearef="4" nodebref="5">
 						<linksegment id="4" dir="a_b" typeref="2">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>10</length>
 					</link>
-					<link nodearef="5" nodebref="6">
+					<link id="5" nodearef="5" nodebref="6">
 						<linksegment id="5" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -107,7 +107,7 @@
 					<name>Start Zone</name>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="1">
+					<connectoid id="1" noderef="1">
 					</connectoid>
 				</connectoids>
 			</zone>
@@ -116,7 +116,7 @@
 					<name>Finish Zone</name>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="6">
+					<connectoid id="2" noderef="6">
 					</connectoid>
 				</connectoids>
 			</zone>

@@ -86,44 +86,44 @@
 					<node id="12" />
 				</nodes>
 				<links>
-					<link nodearef="11" nodebref="1">
-						<linksegment id="1" dir="a_b" typeref="1">
+					<link id="1" nodearef="11" nodebref="1">
+						<linksegment id="1" externalid="one" dir="a_b" typeref="1">
 							<numberoflanes>3</numberoflanes>
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link nodearef="1" nodebref="4">
-						<linksegment id="2" dir="a_b" typeref="2">
+					<link id="2" nodearef="1" nodebref="4">
+						<linksegment id="2"  externalid="two" dir="a_b" typeref="2">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link nodearef="4" nodebref="12">
-						<linksegment id="3" dir="a_b" typeref="1">
+					<link id="3" nodearef="4" nodebref="12">
+						<linksegment id="3" externalid="three" dir="a_b" typeref="1">
 							<numberoflanes>3</numberoflanes>
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link nodearef="1" nodebref="2">
-						<linksegment id="4" dir="a_b" typeref="1">
+					<link id="4" nodearef="1" nodebref="2">
+						<linksegment id="4" externalid="four" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>2</length>
 					</link>
-					<link nodearef="2" nodebref="4">
-						<linksegment id="5" dir="a_b" typeref="1">
+					<link id="5" nodearef="2" nodebref="4">
+						<linksegment id="5" externalid="five" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>2</length>
 					</link>
-					<link nodearef="1" nodebref="3">
-						<linksegment id="6" dir="a_b" typeref="1">
+					<link id="6" nodearef="1" nodebref="3">
+						<linksegment id="6" externalid="six" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link nodearef="3" nodebref="4">
-						<linksegment id="7" dir="a_b" typeref="1">
+					<link id="7" nodearef="3" nodebref="4">
+						<linksegment id="7" externalid="seven" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
@@ -137,12 +137,12 @@
 			<zone id="31">
 				<centroid>
 					<name>1</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="11">
+					<connectoid id="1" noderef="11">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
@@ -150,12 +150,12 @@
 			<zone id="27">
 				<centroid>
 					<name>2</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="12">
+					<connectoid id="2" noderef="12">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>

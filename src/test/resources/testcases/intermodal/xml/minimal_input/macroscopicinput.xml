@@ -47,12 +47,12 @@
 					<node id="3" />
 				</nodes>
 				<links>
-					<link nodearef="1" nodebref="2">
+					<link id="1" nodearef="1" nodebref="2">
 						<linksegment id="1" dir="a_b" />
 						<linksegment id="2" dir="b_a" />
 						<length>10</length>
 					</link>
-					<link nodearef="2" nodebref="3">
+					<link id="2" nodearef="2" nodebref="3">
 						<linksegment id="3" dir="a_b" />
 						<linksegment id="4" dir="b_a" />
 						<length>10</length>

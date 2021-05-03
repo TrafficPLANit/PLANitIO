@@ -3,7 +3,7 @@
 	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
 	<macroscopicdemand>
 		<demandconfiguration>
-			<travellertypes>															<!-- optional, if not present, single default traveller type assumed -->
+			<travellertypes>								
 				<travellertype id="2">
 					<name>default2</name>
 				</travellertype>
@@ -31,8 +31,8 @@
 	<macroscopicnetwork>
 		<configuration>         
 			<modes>                   
-				<mode id="1">																        <!-- mandatory, for referencing -->
-					<name>Basic</name>														<!-- optional -->
+				<mode id="1">									
+					<name>Basic</name>					
 					<maxspeed>1</maxspeed>
 				</mode>
 			</modes>
@@ -40,11 +40,10 @@
 		<infrastructurelayers>
 			<layer id="road">
 				<layerconfiguration>
-					<linksegmenttypes>                                                                    <!-- optional, if omitted all link segments are assumed to be of the same 
-							default link segment type -->
-						<linksegmenttype id="1">                                                       <!-- mandatory, for referencing -->
-							<name>Standard</name>													<!-- optional -->
-							<capacitylane>2000</capacitylane>									<!-- optional, has default -->
+					<linksegmenttypes>         
+						<linksegmenttype id="1"> 
+							<name>Standard</name>		
+							<capacitylane>2000</capacitylane>
 						</linksegmenttype>
 					</linksegmenttypes>
 				</layerconfiguration>
@@ -53,7 +52,7 @@
 					<node id="2" />
 				</nodes>
 				<links>
-					<link nodearef="1" nodebref="2">
+					<link id="1" nodearef="1" nodebref="2">
 						<linksegment id="1" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
@@ -71,24 +70,24 @@
 			<zone id="1">
 				<centroid>
 					<name>1</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>		
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="1">
+					<connectoid id="1" noderef="1">
 					</connectoid>
 				</connectoids>
 			</zone>
 			<zone id="2">
 				<centroid>
 					<name>2</name>
-					<gml:Point>									<!-- Mandatory Location of the centroid -->
+					<gml:Point>						
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="2">
+					<connectoid id="2" noderef="2">
 					</connectoid>
 				</connectoids>
 			</zone>

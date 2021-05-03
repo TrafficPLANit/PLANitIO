@@ -28,7 +28,7 @@
 					<node id="2" />
 				</nodes>
 				<links>
-					<link nodearef="1" nodebref="2">
+					<link id="1" nodearef="1" nodebref="2">
 						<linksegment id="1" dir="a_b" />
 						<linksegment id="2" dir="b_a" />
 						<length>10</length>
@@ -48,7 +48,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="1" />
+					<connectoid id="1" noderef="1" />
 				</connectoids>
 			</zone>
 			<zone id="2">
@@ -59,7 +59,7 @@
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid noderef="2" />
+					<connectoid id="2" noderef="2" />
 				</connectoids>
 			</zone>
 		</zones>
