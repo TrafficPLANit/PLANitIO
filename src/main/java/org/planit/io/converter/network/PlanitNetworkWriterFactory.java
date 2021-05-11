@@ -11,11 +11,20 @@ import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 public class PlanitNetworkWriterFactory {
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format witha ll defaults. It is expected the user sets the required
-   * minium confiugration afterwards to be able to persist
+   * minimum configuration afterwards to be able to persist
    * 
    */
   public static PlanitNetworkWriter create() {
     return new PlanitNetworkWriter(new XMLElementMacroscopicNetwork());    
+  }  
+  
+  /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format
+   * 
+   * @param networkPath the path to use for persisting
+   * @return created network writer 
+   */
+  public static PlanitNetworkWriter create(String networkPath) {
+    return create(networkPath, null);    
   }  
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format

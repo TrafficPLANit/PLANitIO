@@ -1,5 +1,6 @@
 package org.planit.io.converter.intermodal;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.ConverterWriterSettings;
 import org.planit.io.converter.network.PlanitNetworkWriterSettings;
 import org.planit.io.converter.zoning.PlanitZoningWriterSettings;
@@ -83,5 +84,15 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     getZoningSettings().setCountry(countryName);
     getNetworkSettings().setCountry(countryName);
   }
+  
+  /** Set the destination Crs to use (if not set, network's native Crs will be used, unless the user has specified a
+   * specific country for which we have a more appropriate Crs registered) 
+   * 
+   * @param destinationCoordinateReferenceSystem to use
+   */
+  public void setDestinationCoordinateReferenceSystem(CoordinateReferenceSystem destinationCoordinateReferenceSystem) {
+    getZoningSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
+    getNetworkSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
+  }  
   
 }

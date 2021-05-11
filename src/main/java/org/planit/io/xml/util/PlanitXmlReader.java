@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.planit.geo.PlanitOpenGisUtils;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.geo.PlanitCrsUtils;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.StringUtils;
@@ -39,7 +39,7 @@ public class PlanitXmlReader<T> {
       crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
       LOGGER.warning(String.format("coordinate reference system not set, applying default %s",crs.getName().getCode()));
     }else {
-      crs = PlanitOpenGisUtils.createCoordinateReferenceSystem(srsName);
+      crs = PlanitCrsUtils.createCoordinateReferenceSystem(srsName);
       if(crs==null) {
         throw new PlanItException("Srs name provided (%s) but it could not be converted into a coordinate reference system",srsName);
       }
