@@ -28,7 +28,7 @@ import org.planit.io.xml.util.PlanitXmlReader;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
-import org.planit.output.property.LinkCostOutputProperty;
+import org.planit.output.property.LinkSegmentCostOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
@@ -239,7 +239,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         case DOWNSTREAM_NODE_XML_ID:
           downstreamNodeXmlIdPresent = true;
           break;
-        case LINK_COST:
+        case LINK_SEGMENT_COST:
           costPresent = true;
       }
     }
@@ -277,7 +277,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final Mode mode = getModeBySourceId(modeXmlId);
     PlanItException.throwIf(mode == null, "mode xml id not available in configuration");
     
-    final double cost = Double.parseDouble(record.get(LinkCostOutputProperty.NAME));
+    final double cost = Double.parseDouble(record.get(LinkSegmentCostOutputProperty.NAME));
     initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
   }
   

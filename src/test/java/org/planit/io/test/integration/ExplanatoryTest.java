@@ -688,7 +688,7 @@ public class ExplanatoryTest {
           linkOutputTypeConfiguration.addProperty(OutputProperty.NUMBER_OF_LANES);
           linkOutputTypeConfiguration.addProperty(OutputProperty.LENGTH);
           linkOutputTypeConfiguration.addProperty(OutputProperty.CALCULATED_SPEED);
-          linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_COST);
+          linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_COST);
           linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
           linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_XML_ID);
           linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);  

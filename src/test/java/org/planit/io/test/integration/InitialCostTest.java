@@ -21,7 +21,7 @@ import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.logging.Logging;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
-import org.planit.output.property.LinkCostOutputProperty;
+import org.planit.output.property.LinkSegmentCostOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
 import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
@@ -78,7 +78,7 @@ public class InitialCostTest {
       CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String linkSegmentXmlIdHeader = LinkSegmentXmlIdOutputProperty.NAME;
-      String costHeader = LinkCostOutputProperty.NAME;
+      String costHeader = LinkSegmentCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
         /* compare */
         String modeXmlId = record.get(modeHeader);
@@ -117,7 +117,7 @@ public class InitialCostTest {
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String upstreamNodeXmlIdHeader = UpstreamNodeXmlIdOutputProperty.NAME;
       String downstreamNodeXmlIdHeader = DownstreamNodeXmlIdOutputProperty.NAME;
-      String costHeader = LinkCostOutputProperty.NAME;
+      String costHeader = LinkSegmentCostOutputProperty.NAME;
       for (CSVRecord record : parser) {
         /* compare */
         String modeXmlId =record.get(modeHeader);

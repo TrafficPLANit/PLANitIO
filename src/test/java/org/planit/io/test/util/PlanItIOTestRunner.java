@@ -184,19 +184,28 @@ public class PlanItIOTestRunner {
          * these would not be set anymore in the original situation, but here they are, so this might cause some differences in results
          * Once verified, remove this comment
          */
+        linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_ID);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_LOCATION);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_ID);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_LOCATION);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.CAPACITY_PER_LANE);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.NUMBER_OF_LANES);
+        linkOutputTypeConfiguration.addProperty(OutputProperty.LENGTH);
         linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
-        linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
         linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
         
         /* OD OUTPUT CONFIGURATION */
         final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration = (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
         originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
         originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
-        originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
 
         /* PATH OUTPUT CONFIGURATION */
         final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
-        pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);        
+        pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
+        pathOutputTypeConfiguration.addProperty(OutputProperty.RUN_ID);
+        
       }
       
     }catch(PlanItException e) {
