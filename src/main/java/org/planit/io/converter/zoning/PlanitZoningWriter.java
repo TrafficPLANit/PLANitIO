@@ -326,11 +326,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     /* polygon/linestring - point is handled via centroid */
     if(transferZone.hasGeometry()) {
       if(transferZone.getGeometry() instanceof Polygon) {
-        xmlTransferZone.setPolygon(createOpenGisPolygonType((Polygon)transferZone.getGeometry()));
-      }else if(transferZone.getGeometry() instanceof LineString) {
-        /* TODO: implement support for this, requires change of xsd see issue #8 in PlanitXMLGenerator */
-        LOGGER.severe(String.format("persisting of transfer zone %s (id:%d) with line string geometry not yet supported", 
-            transferZone.getXmlId(), transferZone.getId()));
+        xmlTransferZone.setPolygon(createGmlPolygonType((Polygon)transferZone.getGeometry()));
+      }else if(transferZone.getGeometry() instanceof LineString) {        
+        xmlTransferZone.setLineString(createGmlLineStringType((LineString)transferZone.getGeometry()));
       }
     }   
     
@@ -416,7 +414,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     
     /* position */
     if(centroid.hasPosition()) {            
-      xmlCentroid.setPoint(createXmlOpenGisPointType(centroid.getPosition()));
+      xmlCentroid.setPoint(createGmlPointType(centroid.getPosition()));
     }
   }
   
@@ -525,7 +523,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     
     /* polygon */
     if(odZone.hasGeometry() && odZone.getGeometry() instanceof Polygon) {
-      xmlOdZone.setPolygon(createOpenGisPolygonType((Polygon)odZone.getGeometry()));
+      xmlOdZone.setPolygon(createGmlPolygonType((Polygon)odZone.getGeometry()));
     }
     
     /* connectoids */

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -50,6 +51,8 @@ import org.planit.xml.generated.XMLElementTransferZones;
 import org.planit.xml.generated.XMLElementZones;
 import org.planit.zoning.Zoning;
 
+import net.opengis.gml.CoordinatesType;
+import net.opengis.gml.LineStringType;
 import net.opengis.gml.LinearRingType;
 import net.opengis.gml.PolygonType;
 
@@ -116,10 +119,13 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
   
   /**pt to parse the geometry of the zone if any is provided
    * 
-   * @param transferZone to populate geomtry on
-   * @param xmlTransferzone to extract it from
+   * @param Zone to populate geometry on
+   * @param polygon to extract it from, or
+   * @param linestring to extract it from
+   * @throws PlanItException thrown if error
    */
-  private static void populateZoneGeometry(Zone zone, PolygonType xmlPolygon) {
+  private static void populateZoneGeometry(Zone zone, PolygonType xmlPolygon, LineStringType xmlLineString) throws PlanItException {
+    Geometry geometry = null;
     if(xmlPolygon != null) {
       if(xmlPolygon.getExterior() == null) {
         LOGGER.warning(String.format("zones only support polygon geometries with an outer exterior, however this is missing for zone %s",zone.getXmlId()));
@@ -129,13 +135,30 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
         }else if(xmlPolygon.getExterior().getValue().getRing().getValue() instanceof LinearRingType) {
           /* found the actual content */
           LinearRingType xmlLinearRing = (LinearRingType) xmlPolygon.getExterior().getValue().getRing().getValue();
-          Polygon geometry = PlanitJtsUtils.create2DPolygon(xmlLinearRing.getPosList().getValue());
-          zone.setGeometry(geometry);
+          geometry = PlanitJtsUtils.create2DPolygon(xmlLinearRing.getPosList().getValue());
         }else {
           LOGGER.warning(String.format("expected linear ring within polygon exterior element for zone %s, but different ring type was encountered",zone.getXmlId()));  
         }                    
       }
+    }else if(xmlLineString != null) {
+      if(xmlLineString.getCoordinates() != null) {
+        CoordinatesType ct = xmlLineString.getCoordinates();
+        geometry = PlanitJtsUtils.createLineStringFromCsvString(ct.getValue(), ct.getTs(), ct.getCs());
+      }else if(xmlLineString.getPosList()!=null) {
+        geometry = PlanitJtsUtils.createLineString(xmlLineString.getPosList().getValue());
+      }
     }
+    zone.setGeometry(geometry);    
+  }  
+  
+  /** Parse the geometry of the zone if any is provided
+   * 
+   * @param zone to populate geometry on
+   * @param xmlPolygon to extract it from
+   * @throws PlanItException thrown if error
+   */
+  private static void populateZoneGeometry(Zone zone, PolygonType xmlPolygon) throws PlanItException {
+    populateZoneGeometry(zone, xmlPolygon, null);
   }  
   
   /** given the passed in connectoid, xml connectoid information and reference position (if any) determine the length
@@ -373,8 +396,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
       }
             
       /* geometry */
-      populateZoneGeometry(transferZone, xmlTransferzone.getPolygon());     
-      /* TODO: support linestring as well for transfer zone geometry */
+      populateZoneGeometry(transferZone, xmlTransferzone.getPolygon(), xmlTransferzone.getLineString());     
     }
     
   }  

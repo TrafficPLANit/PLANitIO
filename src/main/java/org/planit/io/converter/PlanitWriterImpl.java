@@ -1,17 +1,15 @@
 package org.planit.io.converter;
 
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBElement;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -19,12 +17,13 @@ import org.opengis.referencing.operation.MathTransform;
 import org.planit.converter.BaseWriterImpl;
 import org.planit.converter.IdMapperFunctionFactory;
 import org.planit.converter.IdMapperType;
-import org.planit.geo.PlanitOpenGisUtils;
+import org.planit.io.geo.PlanitGmlUtils;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitSchema;
 import org.planit.io.xml.util.PlanitXmlWriterSettings;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
+import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.graph.Vertex;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.physical.Link;
@@ -34,11 +33,10 @@ import org.planit.utils.zoning.Connectoid;
 import org.planit.utils.zoning.TransferZoneGroup;
 import org.planit.utils.zoning.Zone;
 
-import net.opengis.gml.AbstractRingPropertyType;
 import net.opengis.gml.CoordType;
+import net.opengis.gml.CoordinatesType;
 import net.opengis.gml.DirectPositionType;
-import net.opengis.gml.LinearRingType;
-import net.opengis.gml.ObjectFactory;
+import net.opengis.gml.LineStringType;
 import net.opengis.gml.PointType;
 import net.opengis.gml.PolygonType;
 
@@ -92,7 +90,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    * @param coordinate to transform
    * @return transformed coordinate
    */
-  private Coordinate getTransformedCoordinate(Coordinate coordinate) {
+  private Coordinate getTransformedCoordinate(final Coordinate coordinate) {
     try {
       if(getDestinationCrsTransformer()!=null) {
         return JTS.transform(coordinate, null, getDestinationCrsTransformer());
@@ -100,10 +98,33 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
       return coordinate;  
     }catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to construct gml coordinate from %s ",coordinate.toString()));
+      LOGGER.severe(String.format("unable to transform coordinate from %s ",coordinate.toString()));
     }
     return null;
   }  
+  
+  /** transform the coordinate absed on the destination transformer
+   * @param coordinates to transform
+   * @return transformed coordinates (if no conversion is required, input is returned
+   */
+  private Coordinate[] getTransformedCoordinates(final Coordinate[] coordinates) {
+    Coordinate[] transformedCoordinates = null;
+    try {
+      if(getDestinationCrsTransformer()!=null) {
+        
+        transformedCoordinates = new Coordinate[coordinates.length];
+        for(int index = 0; index < coordinates.length ; ++index) {
+          transformedCoordinates[index] = JTS.transform(coordinates[index], null, getDestinationCrsTransformer());
+        }
+      }else {
+        transformedCoordinates = coordinates;
+      }
+    }catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      LOGGER.severe(String.format("unable to transform coordinates from %s ",coordinates.toString()));
+    }
+    return transformedCoordinates;
+  }   
   
   /** extract the src name to use based on the available crs information on network and settings
    * @return srsName to use
@@ -132,80 +153,68 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   }  
 
   /**
-   * @param Point to convert to gml
+   * @param Point to convert to gml and transform if needed
    * @return created gml pos
    */
-  protected DirectPositionType createXmlOpenGisDirectPositionType(Point position) {
+  protected DirectPositionType createGmlDirectPositionType(Point position) {
     Coordinate positioncoordinate = getTransformedCoordinate(position.getCoordinate());
-    
-    DirectPositionType xmlPos = new DirectPositionType();
-    xmlPos.getValue().add(positioncoordinate.x);
-    xmlPos.getValue().add(positioncoordinate.y);
-    
-    return xmlPos;
+    return PlanitGmlUtils.createGmlDirectPositionType(positioncoordinate);
   }  
 
 
   /**
-   * @param coordinate to convert to gml
+   * @param coordinate to convert to gml and trasform if needed
    * @return created gml coordinate
    */
-  protected CoordType createXmlOpenGisCoordType(Coordinate coordinate) {
-    CoordType xmlCoord = new CoordType();
-    
-    Coordinate nodeCoordinate = getTransformedCoordinate(coordinate);    
-    xmlCoord.setX(BigDecimal.valueOf(nodeCoordinate.x));
-    xmlCoord.setY(BigDecimal.valueOf(nodeCoordinate.y));
-    
-    return xmlCoord;
+  protected CoordType createGmlCoordType(Coordinate coordinate) {
+    Coordinate nodeCoordinate = getTransformedCoordinate(coordinate);
+    return PlanitGmlUtils.createGmlCoordType(nodeCoordinate);    
   }  
   
-  /** create an xml open gis PointType from a JTS Point and account for any crs transformation if needed
+  /** create a GML PointType from a JTS Point and account for any crs transformation if needed
    * 
    * @param position to extract from
    * @return created PointType
    */
-  protected PointType createXmlOpenGisPointType(Point position) {
-    
-    DirectPositionType gmlDirectPos = createXmlOpenGisDirectPositionType(position);
-    PointType xmlPointType = new PointType();
-    xmlPointType.setPos(gmlDirectPos);    
-
-    return xmlPointType;
+  protected PointType createGmlPointType(Point position) {
+    Coordinate pointCoordinate = getTransformedCoordinate(position.getCoordinate());
+    return PlanitGmlUtils.createGmlPointType(pointCoordinate);
   }  
   
-  /** create an xml open gis PolygonType from a JTS Point and account for any crs transformation if needed
+  /** create a GML PolygonType from a JTS Polygon and account for any crs transformation if needed
    * 
    * @param polygon to extract from
    * @return created PolygonType
    */  
-  protected PolygonType createOpenGisPolygonType(Polygon polygon) {
-    ObjectFactory openGisObjectFactory = new ObjectFactory();
-    PolygonType xmlPolygonType = new PolygonType();
-    
-    /* exterior */
-    JAXBElement<AbstractRingPropertyType> xmlAbstractRingPropertyType = 
-        openGisObjectFactory.createOuterBoundaryIs(openGisObjectFactory.createAbstractRingPropertyType());
-    xmlPolygonType.setExterior(xmlAbstractRingPropertyType);    
+  protected PolygonType createGmlPolygonType(Polygon polygon) {
+    Coordinate[] transformedCoordinates = getTransformedCoordinates(polygon.getCoordinates());
+    return PlanitGmlUtils.createGmlPolygonType(transformedCoordinates);
+  } 
+  
+  /** create a GML LineStringType from a JTS LineStringand account for any crs transformation if needed
+   * 
+   * @param lineString to extract from
+   * @return created LineStringType
+   * @throws PlanItException thrown if error
+   */  
+  protected LineStringType createGmlLineStringType(LineString lineString) {
+    /* transformed coords */
+    Coordinate[] transformedCoordinates = getTransformedCoordinates(lineString.getCoordinates());
 
-    /* linearring */
-    JAXBElement<LinearRingType> xmlLinearRingType = 
-        openGisObjectFactory.createLinearRing(openGisObjectFactory.createLinearRingType());    
-    xmlAbstractRingPropertyType.getValue().setRing(xmlLinearRingType);
+    /* gml coords*/
+    PlanitXmlWriterSettings xmlSettings = null;
+    try {
+      xmlSettings = getSettingsAsXmlWriterSettings();
+    } catch (PlanItException e) {
+      LOGGER.severe("settings not available as XML writer settings, this shouldn't happen");
+    }
+    CoordinatesType coordsType = PlanitGmlUtils.createGmlCoordinatesType(
+        transformedCoordinates, xmlSettings.getCommaSeparator(), xmlSettings.getDecimalSeparator(), xmlSettings.getDecimalFormat(), xmlSettings.getTupleSeparator());
     
-    /* coordinates */
-    List<CoordType> coordList = xmlLinearRingType.getValue().getCoord();    
-    {
-      Coordinate[] coords = polygon.getExteriorRing().getCoordinates();
-      for(int index=0;index<coords.length;++index) {
-        /* coordinate */
-        coordList.add(createXmlOpenGisCoordType(coords[index]));
-      }
-    }       
-
-    return xmlPolygonType;
-  }  
-     
+    /* gml line string */
+    return PlanitGmlUtils.createGmlLineStringType(coordsType);
+  }   
+       
   /** prepare the Crs transformer (if any) based on the user configuration settings
    * 
    * @param sourceCrs the crs used for the source material of this writer
@@ -227,7 +236,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     
     /* configure crs transformer if required, to be able to convert geometries to preferred CRS while writing */
     if(!destinationCrs.equals(sourceCrs)) {
-      destinationCrsTransformer = PlanitOpenGisUtils.findMathTransform(sourceCrs, xmlWriterSettings.getDestinationCoordinateReferenceSystem());
+      destinationCrsTransformer = PlanitJtsUtils.findMathTransform(sourceCrs, xmlWriterSettings.getDestinationCoordinateReferenceSystem());
     }
   }
   

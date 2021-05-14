@@ -7,8 +7,6 @@ import java.util.logging.Logger;
 
 import org.planit.utils.network.physical.*;
 import org.planit.utils.network.physical.macroscopic.*;
-import org.geotools.geometry.jts.JTS;
-import org.locationtech.jts.geom.LineString;
 import org.planit.converter.IdMapperType;
 import org.planit.converter.network.NetworkWriter;
 import org.planit.io.converter.PlanitWriterImpl;
@@ -19,7 +17,6 @@ import org.planit.network.InfrastructureNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.locale.CountryNames;
 import org.planit.utils.math.Precision;
 import org.planit.utils.mode.Mode;
@@ -43,9 +40,6 @@ import org.planit.xml.generated.XMLElementModes;
 import org.planit.xml.generated.XMLElementNodes;
 import org.planit.xml.generated.XMLElementPhysicalFeatures;
 import org.planit.xml.generated.XMLElementUsabilityFeatures;
-
-import net.opengis.gml.CoordinatesType;
-import net.opengis.gml.LineStringType;
 
 /**
  * Writer to persist a PLANit network to disk in the native PLANit format. By default the xml ids are used for writing out the ids in the XML. 
@@ -171,26 +165,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     xmlLink.setNodebref(getVertexIdMapper().apply(link.getNodeB()));    
     
     /* line string */
-    LineString destinationLineString = link.getGeometry();
-    try {
-      if(getDestinationCrsTransformer()!=null) {
-        destinationLineString = (LineString) JTS.transform(destinationLineString, getDestinationCrsTransformer());
-      }
-    }catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to construct Planit Xml link geometry for link %d (id:%d)",link.getExternalId(), link.getId()));
-    }    
-    String coordinateCsvValue = 
-        PlanitJtsUtils.createCsvStringFromLineString(
-            destinationLineString, getSettings().getTupleSeparator(), getSettings().getCommaSeparator(), getSettings().getDecimalFormat());
-    CoordinatesType xmlCoordinates = new CoordinatesType();
-    xmlCoordinates.setValue(coordinateCsvValue);
-    xmlCoordinates.setCs(getSettings().getCommaSeparator().toString());
-    xmlCoordinates.setTs(getSettings().getTupleSeparator().toString());
-    xmlCoordinates.setDecimal(getSettings().getDecimalSeparator().toString());
-    LineStringType xmlLineString = new LineStringType();
-    xmlLineString.setCoordinates(xmlCoordinates);
-    xmlLink.setLineString(xmlLineString);
+    xmlLink.setLineString(createGmlLineStringType(link.getGeometry()));
         
     /* link segments */
     populateLinkSegments(xmlLink, link);
@@ -242,7 +217,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     xmlNode.setName(node.getName());
     
     /* location */
-    xmlNode.setPoint(createXmlOpenGisPointType(node.getPosition()));    
+    xmlNode.setPoint(createGmlPointType(node.getPosition()));    
   }
 
   /**
