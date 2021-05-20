@@ -18,7 +18,7 @@ public class PlanitZoningWriterFactory {
    * @param zoningCrs crs used by the zoning
    * @return created zoning writer 
    */
-  public static PlanitZoningWriter create(String zoningPath, String countryName, CoordinateReferenceSystem zoningCrs) {
+  public static PlanitZoningWriter create(final String zoningPath, final String countryName, final CoordinateReferenceSystem zoningCrs) {
     return create(zoningPath, countryName, zoningCrs, new XMLElementMacroscopicZoning());    
   }
   
@@ -31,7 +31,7 @@ public class PlanitZoningWriterFactory {
    * @param xmlRawZoning, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @return created network writer 
    */
-  public static PlanitZoningWriter create(String zoningPath, String countryName, CoordinateReferenceSystem zoningCrs, XMLElementMacroscopicZoning xmlRawZoning) {
+  public static PlanitZoningWriter create(final String zoningPath, final String countryName, final CoordinateReferenceSystem zoningCrs, final XMLElementMacroscopicZoning xmlRawZoning) {
     return new PlanitZoningWriter(zoningPath, countryName, zoningCrs, xmlRawZoning);    
   }    
      

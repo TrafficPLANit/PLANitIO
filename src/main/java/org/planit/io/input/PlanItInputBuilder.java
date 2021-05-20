@@ -55,34 +55,29 @@ public class PlanItInputBuilder extends InputBuilderListener {
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanItInputBuilder.class.getCanonicalName());
   
-  /**
-   * Generated object to store demand input data
-   */
+  /** Generated object to store demand input data */
   private XMLElementMacroscopicDemand xmlRawDemand;
 
-  /**
-   * Generated object to store zoning input data
-   */
+  /** Generated object to store zoning input data */
   private XMLElementMacroscopicZoning xmlRawZoning;
   
-  /**
-   * Generated object to store network input data
-   */  
+  /** Generated object to store network input data */  
   private XMLElementMacroscopicNetwork xmlRawNetwork;  
     
   
-  /** project path to use */
+  /** Project path to use */
   private final String projectPath;
   
-  /** xml file extension to use */
+  /** XML file extension to use */
   private final String xmlFileExtension;  
        
+  /** Reference to zoning schema location */
   private static final String ZONING_XSD_FILE = "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd";
+  
+  /** Reference to demand schema location */
   private static final String DEMAND_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd";
 
-  /**
-   * The default separator that is assumed when no separator is provided
-   */
+  /** The default separator that is assumed when no separator is provided */
   public static final String DEFAULT_SEPARATOR = ",";
 
   /**
@@ -93,9 +88,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param networkXmlFileLocation location of the network input XML file
    * @throws PlanItException thrown if there is an error during reading the files
    */
-  private void createGeneratedClassesFromXmlLocations(final File zoningXmlFileLocation,
-      final File demandXmlFileLocation,
-      final File networkXmlFileLocation) throws PlanItException {
+  private void createGeneratedClassesFromXmlLocations(final File zoningXmlFileLocation, final File demandXmlFileLocation, final File networkXmlFileLocation) throws PlanItException {
     try {
       xmlRawZoning = (XMLElementMacroscopicZoning) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
       xmlRawDemand = (XMLElementMacroscopicDemand) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
@@ -112,8 +105,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * This method checks if a single file contains all components of the of project; network, demand, and zoning. 
    * If no single file is found, it then checks for separate files, one for each type of input.
    *
-   * @throws PlanItException thrown if not all of network, demand and zoning input
-   *           data are available
+   * @throws PlanItException thrown if not all of network, demand and zoning input data are available
    */
   private void parseXmlRawInputs() throws PlanItException {
     final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension);
@@ -131,8 +123,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * inputs is available, and reads it if it is.
    *
    * @param xmlFileNames array of names of XML files in the input directory
-   * @return true if a single file containing all the inputs has been found and
-   *         read, false otherwise
+   * @return true if a single file containing all the inputs has been found and read, false otherwise
    */
   private boolean parseXmlRawInputsFromSingleFile(final File[] xmlFileNames) {
     
@@ -150,8 +141,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Populate the generated input objects from three separate XML files
    *
    * @param xmlFileNames array of names of XML files in the input directory
-   * @return true if input demand, zoning and network file are found in
-   *         xmlFileNames, false otherwise
+   * @return true if input demand, zoning and network file are found in xmlFileNames, false otherwise
    */
   private boolean parseXmlRawInputSeparateFiles(final File[] xmlFileNames) {
     xmlRawZoning = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicZoning.class, xmlFileNames);
@@ -161,22 +151,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
   }
 
   /**
-   * Populate the generated input objects from three separate XML files by
-   * validating the input files first.
+   * Populate the generated input objects from three separate XML files by validating the input files first.
    *
-   * This file does the same task as setInputFilesSeparateFiles(), it does it in a
-   * different way. This method runs much more slowly than
-   * setInputFilesSeparateFiles(), it takes about 60 times as long for the same
-   * input data sets.
+   * This file does the same task as setInputFilesSeparateFiles(), it does it in a different way. This method runs much more slowly than
+   * setInputFilesSeparateFiles(), it takes about 60 times as long for the same input data sets.
    *
    * @param projectPath the name of the project path directory
-   * @throws PlanItException thrown if one or more of the input objects could not
-   *           be populated from the XML files in the project
-   *           directory
+   * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files in the project directory
    */
   @SuppressWarnings("unused")
-  private void setInputFilesSeparateFilesWithValidation(final String projectPath, final File[] xmlFileNames)
-      throws PlanItException {
+  private void setInputFilesSeparateFilesWithValidation(final String projectPath, final File[] xmlFileNames) throws PlanItException {
+    
     boolean foundZoningFile = false;
     File zoningFileName = null;
     boolean foundNetworkFile = false;
@@ -263,10 +248,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Set the initial link segment cost for the specified link segment using values
    * in the CSV initial segment costs file
    *
-   * @param initialLinkSegmentCost the InitialLinkSegmentCost object to store the
-   *          cost value
-   * @param record the record in the CSV input file to get the
-   *          data value from
+   * @param initialLinkSegmentCost the InitialLinkSegmentCost object to store the cost value
+   * @param record the record in the CSV input file to get the data value from
    * @param linkSegment the current link segment
    * @throws PlanItException thrown if error
    */

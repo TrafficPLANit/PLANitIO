@@ -59,9 +59,10 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   private final PlanitNetworkWriterSettings settings;
    
     
-  /** get the reference to use whenever a mode reference is encountered
+  /** Get the reference to use whenever a mode reference is encountered
+   * 
    * @param mode to collect reference for
-   * @return modeReference
+   * @return modeReference for the mode
    */
   private String getXmlModeReference(Mode mode) {
     /* Xml id */
@@ -122,7 +123,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }
   
   /**
-   *  populate the xml /<link/> element
+   * Populate the xml /<link/> element
    *  
    * @param xmlLinkList to add link to 
    * @param link to populate from
@@ -175,7 +176,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   
   
   /**
-   * populate the xml /<links/> element
+   * Populate the xml /<links/> element
    * 
    * @param xmlNetworkLayer to populate on
    * @param links to populate from
@@ -196,7 +197,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   } 
   
   /**
-   *  populate the xml /<node/> element
+   *  Populate the xml /<node/> element
    * 
    * @param xmlNodeList to add node to
    * @param node to populate from
@@ -221,7 +222,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }
 
   /**
-   * populate the xml /<nodes/> element
+   * Populate the xml /<nodes/> element
    * 
    * @param xmlNetworkLayer to populate on
    * @param nodes to populate from
@@ -239,7 +240,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }
   
   /**
-   *  populate the xml link segment type modes' /<mode/> element containing the mode specific properties of 
+   *  Populate the xml link segment type modes' /<mode/> element containing the mode specific properties of 
    *  this link segment type
    *  
    * @param xmlModeAccessList to add mode properties to 
@@ -260,7 +261,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }  
   
   /**
-   *  populate the xml /<linksegmenttype/> element
+   *  Populate the xml /<linksegmenttype/> element
    *  
    * @param xmlLinkSegmentTypeList to add link segment type to 
    * @param linkSegmentType to populate from
@@ -296,7 +297,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     xmlLinkSegmentTypeList.add(xmlLinkSegmentType);
   }   
   
-  /** populate the xml </linksegmenttypes/> element
+  /** Populate the xml </linksegmenttypes/> element
+   * 
    * @param xmlLayerConfiguration to populate on
    * @param linkSegmentTypes to populate from
    */
@@ -312,7 +314,9 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     linkSegmentTypes.forEach( linkSegmentType -> populateXmlLinkSegmentType(xmlLinkSegmentTypeList, linkSegmentType));
   }  
   
-  /** populate the xml </physicalfeatures/> element
+  /** Populate the xml </physicalfeatures/> element
+   * 
+   * @param xmlMode the mode to populate
    * @param physicalModeFeatures to populate from
    */  
   private void populateModePhysicalFeatures(XMLElementModes.Mode xmlMode, PhysicalModeFeatures physicalModeFeatures) {   
@@ -336,7 +340,9 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     
   }  
   
-  /** populate the xml </usability features/> element
+  /** Populate the xml </usability features/> element
+   * 
+   * @param xmlMode the mode to populate
    * @param usabilityModeFeatures to populate from
    */    
   private void populateModeUsabilityFeatures(XMLElementModes.Mode xmlMode, UsabilityModeFeatures usabilityModeFeatures) {
@@ -400,7 +406,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     xmlModesList.add(xmlMode);
   }  
 
-  /** populate the xml </modes/> element
+  /** Populate the xml </modes/> element
+   * 
    * @param modes to populate from
    */
   private void populateXmlModes(Modes modes) {
@@ -416,7 +423,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }          
 
   /**
-   * populate the link configuration for this network, i.e., the modes
+   * Populate the link configuration for this network, i.e., the modes
    * 
    * @param modes to use to populate the XML elements
    */
@@ -433,7 +440,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }  
   
   /**
-   * populate the layer configuration for this network, i.e., link segment types
+   * Populate the layer configuration for this network, i.e., link segment types
    * 
    * @param xmlNetworkLayer to add types to
    * @param linkSegmentTypes to use to populate the XML elements
@@ -450,7 +457,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }     
   
   /**
-   * populate the network layer
+   * Populate the network layer
    * 
    * @param xmlInfrastructureLayers to add xml layer to 
    * @param physicalNetworkLayer to populate from
@@ -470,7 +477,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.nodes);      
   }  
   
-  /** populate the available network layers
+  /** Populate the available network layers
    * 
    * @param network to extract layers from and populate xml
    * @throws PlanItException thrown if error
@@ -501,6 +508,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
   
   /** Constructor 
+   * 
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   protected PlanitNetworkWriter(XMLElementMacroscopicNetwork xmlRawNetwork) {
@@ -508,6 +516,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }    
   
   /** Constructor 
+   * 
    * @param networkPath to persist network on
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
@@ -516,6 +525,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   }  
     
   /** Constructor 
+   * 
    * @param networkPath to persist network on
    * @param countryName to optimise projection for (if available, otherwise ignore)
    * @param xmlRawNetwork to populate with PLANit network when persisting
@@ -565,14 +575,6 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   
   // GETTERS/SETTERS
   
-  /** the country name of the network to write (if any is set)
-   * 
-   * @return countryname, null if unknown
-   */
-  public String getCountryName() {
-    return getSettings().getCountry();
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -580,5 +582,13 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
   public PlanitNetworkWriterSettings getSettings() {
     return this.settings;
   }
+  
+  /** the country name of the network to write (if any is set)
+   * 
+   * @return countryname, null if unknown
+   */
+  public String getCountryName() {
+    return getSettings().getCountry();
+  }  
 
 }

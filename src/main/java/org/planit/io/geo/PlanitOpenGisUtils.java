@@ -60,8 +60,14 @@ public class PlanitOpenGisUtils {
    * Geodetic calculator to construct distances between points. It is assumed the network CRS is geodetic in nature.
    */
   private GeodeticCalculator geodeticDistanceCalculator;
+  
+  /** geometry builder, holds crs ad well as factory methods to construct other factories*/
   private GeometryBuilder geometryBuilder;
+  
+  /** factory for geometries */
   private GeometryFactory geometryFactory;
+  
+  /** factory for positions */
   private PositionFactory positionFactory;
 
   /**
@@ -82,7 +88,7 @@ public class PlanitOpenGisUtils {
    * 
    * @param coordinateReferenceSystem OpenGIS CoordinateReferenceSystem object containing geometry
    */
-  public PlanitOpenGisUtils(CoordinateReferenceSystem coordinateReferenceSystem) {
+  public PlanitOpenGisUtils(final CoordinateReferenceSystem coordinateReferenceSystem) {
     geometryBuilder = new GeometryBuilder(coordinateReferenceSystem);
     geometryFactory = geometryBuilder.getGeometryFactory();
     positionFactory = geometryBuilder.getPositionFactory();
@@ -101,8 +107,9 @@ public class PlanitOpenGisUtils {
    * @return distance in metres between the points
    * @throws PlanItException thrown if there is an error
    */
-  public double getDistanceInMetres(Position startPosition, Position endPosition) throws PlanItException {
-    // not threadsafe
+  public double getDistanceInMetres(final Position startPosition, final Position endPosition) throws PlanItException {
+    
+    // not thread safe
     try {
       if (geodeticDistanceCalculator != null) {
         // ellipsoid crs
@@ -130,7 +137,7 @@ public class PlanitOpenGisUtils {
    * @return distance in kilometres between the points
    * @throws PlanItException thrown if there is an error
    */
-  public double getDistanceInKilometres(Position startPosition, Position endPosition) throws PlanItException {
+  public double getDistanceInKilometres(final Position startPosition, final Position endPosition) throws PlanItException {
     return getDistanceInMetres(startPosition, endPosition) / 1000.0;
   }
 
@@ -142,7 +149,7 @@ public class PlanitOpenGisUtils {
    * @return distance in kilometres between the points
    * @throws PlanItException thrown if there is an error
    */
-  public double getDistanceInKilometres(Vertex vertexA, Vertex vertexB) throws PlanItException {
+  public double getDistanceInKilometres(final Vertex vertexA, final Vertex vertexB) throws PlanItException {
     DirectPosition positionA = JTS.toDirectPosition(vertexA.getPosition().getCoordinate(), geometryBuilder.getCoordinateReferenceSystem());
     DirectPosition positionB = JTS.toDirectPosition(vertexB.getPosition().getCoordinate(), geometryBuilder.getCoordinateReferenceSystem());
     return getDistanceInMetres(positionA, positionB) / 1000.0;
@@ -170,7 +177,7 @@ public class PlanitOpenGisUtils {
    * @throws PlanItException thrown if there is an error
    */
   @SuppressWarnings("unchecked")
-  public LineString convertToOpenGisLineString(org.locationtech.jts.geom.LineString jtsLineString) throws PlanItException {
+  public LineString convertToOpenGisLineString(final org.locationtech.jts.geom.LineString jtsLineString) throws PlanItException {
     Coordinate[] coordinates = jtsLineString.getCoordinates();
     List<? extends Position> positionList = (List<? extends Position>) convertToDirectPositions(coordinates);
     return geometryFactory.createLineString((List<Position>) positionList);
@@ -183,7 +190,7 @@ public class PlanitOpenGisUtils {
    * @return LineString GeoTools MultiLineString output object
    * @throws PlanItException thrown if there is an error
    */
-  public LineString convertToOpenGisLineString(MultiLineString jtsMultiLineString) throws PlanItException {
+  public LineString convertToOpenGisLineString(final MultiLineString jtsMultiLineString) throws PlanItException {
     PlanItException.throwIf(((MultiLineString) jtsMultiLineString).getNumGeometries() > 1, "MultiLineString contains multiple LineStrings");
 
     return convertToOpenGisLineString((org.locationtech.jts.geom.LineString) ((MultiLineString) jtsMultiLineString).getGeometryN(0));
@@ -196,7 +203,7 @@ public class PlanitOpenGisUtils {
    * @return created line string
    * @throws PlanItException thrown if error
    */
-  public LineString createLineString(List<Double> coordinateList) throws PlanItException {
+  public LineString createLineString(final List<Double> coordinateList) throws PlanItException {
     PlanItException.throwIf(coordinateList.size() % 2 != 0, "coordinate list must contain an even number of entries to correctly identify (x,y) pairs");
     Iterator<Double> iter = coordinateList.iterator();
     List<Position> positionList = new ArrayList<Position>(coordinateList.size() / 2);
@@ -207,7 +214,7 @@ public class PlanitOpenGisUtils {
   }
 
   /**
-   * Based on the csv string construct a line string
+   * Based on the CSV string construct a line string
    * 
    * @param value the values containing the x,y coordinates in the crs of this instance
    * @param ts    tuple separating character
@@ -215,7 +222,7 @@ public class PlanitOpenGisUtils {
    * @return the LineString created from the String
    * @throws PlanItException thrown if error
    */
-  public LineString createLineString(String value, char ts, char cs) throws PlanItException {
+  public LineString createLineString(final String value, char ts, char cs) throws PlanItException {
     List<Double> coordinateDoubleList = new ArrayList<Double>();
     String[] tupleString = value.split("[" + ts + "]");
     for (int index = 0; index < tupleString.length; ++index) {
@@ -237,12 +244,12 @@ public class PlanitOpenGisUtils {
    * @return created line string
    * @throws PlanItException thrown if error
    */
-  public LineString createLineStringFromPositions(List<Position> positionList) throws PlanItException {
+  public LineString createLineStringFromPositions(final List<Position> positionList) throws PlanItException {
     return geometryFactory.createLineString(positionList);
   }
 
   /**
-   * Based on the csv string construct a line string
+   * Based on the CSV string construct a line string
    * 
    * @param value the values containing the x,y coordinates in the crs of this instance
    * @param ts    tuple separating string (which must be a a character)
@@ -250,7 +257,7 @@ public class PlanitOpenGisUtils {
    * @return the LineString created from the String
    * @throws PlanItException thrown if error
    */
-  public LineString createLineStringFromCsvString(String value, String ts, String cs) throws PlanItException {
+  public LineString createLineStringFromCsvString(final String value, String ts, String cs) throws PlanItException {
     if (ts.length() > 1 || cs.length() > 1) {
       PlanItException.throwIf(ts.length() > 1, String.format("tuple separating string to create LineString is not a single character but %s", ts));
       PlanItException.throwIf(cs.length() > 1, String.format("comma separating string to create LineString is not a single character but %s", cs));
@@ -265,7 +272,7 @@ public class PlanitOpenGisUtils {
    * @return List of GeoTools Position objects
    * @throws PlanItException thrown if there is an error
    */
-  public List<DirectPosition> convertToDirectPositions(Coordinate[] coordinates) throws PlanItException {
+  public List<DirectPosition> convertToDirectPositions(final Coordinate[] coordinates) throws PlanItException {
     List<DirectPosition> positionList = new ArrayList<DirectPosition>(coordinates.length);
     for (Coordinate coordinate : coordinates) {
       positionList.add(createDirectPosition(coordinate.x, coordinate.y));
@@ -280,7 +287,7 @@ public class PlanitOpenGisUtils {
    * @return length in km
    * @throws PlanItException thrown if error
    */
-  public double getDistanceInKilometres(LineString geometry) throws PlanItException {
+  public double getDistanceInKilometres(final LineString geometry) throws PlanItException {
 
     PointArray pointArray = geometry.getControlPoints();
     int numberOfPoints = pointArray.size();
@@ -303,12 +310,12 @@ public class PlanitOpenGisUtils {
   /**
    * Find the closest explicit sample point registered on the line string compared to the passed in position
    * 
-   * @param toMatch    position to egt closest to
+   * @param toMatch    position to get closest to
    * @param lineString to sample ordinates from to check
    * @return closest ordinate (position) on line string to passed in toMatch position
    * @throws PlanItException thrown if error
    */
-  public Position getClosestSamplePointOnLineString(Position toMatch, LineString lineString) throws PlanItException {
+  public Position getClosestSamplePointOnLineString(final Position toMatch, final LineString lineString) throws PlanItException {
     if (lineString != null && toMatch != null) {
       double minDistance = Double.POSITIVE_INFINITY;
       Position minDistancePosition = null;

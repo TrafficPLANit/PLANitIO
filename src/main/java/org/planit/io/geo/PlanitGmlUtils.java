@@ -22,7 +22,7 @@ import org.locationtech.jts.geom.LineString;
 import org.planit.utils.geo.PlanitJtsUtils;
 
 /**
- * Utilities specific to Gml
+ * Utilities specific to GML
  * 
  * @author markr
  *
@@ -41,7 +41,7 @@ public class PlanitGmlUtils {
    * @param tupleSeparator to use 
    */
   public static CoordinatesType createGmlCoordinatesType(
-      Coordinate[] coordinates, Character commaSeparator, Character decimalSeparator, DecimalFormat decimalFormat, Character tupleSeparator) {  
+      final Coordinate[] coordinates, final Character commaSeparator, final Character decimalSeparator, final DecimalFormat decimalFormat, final Character tupleSeparator) {  
 
     /* coordinates value */
     String coordinateCsvValue = PlanitJtsUtils.createCsvStringFromCoordinates(coordinates, tupleSeparator, commaSeparator, decimalFormat);
@@ -57,10 +57,11 @@ public class PlanitGmlUtils {
   }
   
   /** Create a coordType instance based on provided JTS coordinate
+   * 
    * @param coordinate to convert
    * @return coordType created 
    */
-  public static CoordType createGmlCoordType(Coordinate coordinate) {
+  public static CoordType createGmlCoordType(final Coordinate coordinate) {
     CoordType gmlCoordType = new CoordType();
         
     gmlCoordType.setX(BigDecimal.valueOf(coordinate.x));
@@ -70,10 +71,11 @@ public class PlanitGmlUtils {
   }  
   
   /** Create a list of coordType instances based on provided JTS coordinates
+   * 
    * @param coordinates to convert
    * @return coordtype list
    */
-  public static List<CoordType> createGmlCoordList(Coordinate[] coordinates) {
+  public static List<CoordType> createGmlCoordList(final Coordinate[] coordinates) {
       
     /* coordinates */
     List<CoordType> coordList = new ArrayList<CoordType>(coordinates.length);    
@@ -86,12 +88,12 @@ public class PlanitGmlUtils {
     return coordList;
   }   
   
-  /**Convert coordinate to DirectPositionType
+  /** Convert coordinate to DirectPositionType
    * 
-   * @param coordinate to convert to gml direct position
-   * @return created gml pos
+   * @param coordinate to convert to GML direct position
+   * @return created GML pos
    */
-  public static DirectPositionType createGmlDirectPositionType(Coordinate coordinate) {
+  public static DirectPositionType createGmlDirectPositionType(final Coordinate coordinate) {
     
     DirectPositionType gmlPos = new DirectPositionType();
     gmlPos.getValue().add(coordinate.x);
@@ -100,28 +102,27 @@ public class PlanitGmlUtils {
     return gmlPos;
   }   
   
-  /**Convert coordinate to PointType
+  /** Convert coordinate to PointType
    * 
    * @param coordinate to convert
    */
-  public static PointType createGmlPointType(Coordinate coordinate) {
+  public static PointType createGmlPointType(final Coordinate coordinate) {
     DirectPositionType gmlDirectPos = createGmlDirectPositionType(coordinate);
     PointType gmlPointType = new PointType();
     gmlPointType.setPos(gmlDirectPos);
     return gmlPointType;
   }   
   
-  /**
-   * Takes a JTS line string and converts it to GML LineStringType.
+  /** Takes a JTS line string and converts it to GML LineStringType.
    *   
-  * @param coordinates array of coordinates
-  * @param commaSeparator to use
-  * @param decimalSeparator to use
-  * @param decimalFormat to use
-  * @param tupleSeparator to use   
-  */
-  public static LineStringType createGmlLineStringType(LineString lineString, 
-      Character commaSeparator, Character decimalSeparator, DecimalFormat decimalFormat, Character tupleSeparator) {  
+   * @param coordinates array of coordinates
+   * @param commaSeparator to use
+   * @param decimalSeparator to use
+   * @param decimalFormat to use
+   * @param tupleSeparator to use   
+   */
+  public static LineStringType createGmlLineStringType(final LineString lineString, 
+      final Character commaSeparator, final Character decimalSeparator, final DecimalFormat decimalFormat, final Character tupleSeparator) {  
 
     /* coordinates type */
     CoordinatesType coordinatesType = createGmlCoordinatesType(lineString.getCoordinates(), commaSeparator, decimalSeparator, decimalFormat, tupleSeparator);
@@ -139,7 +140,7 @@ public class PlanitGmlUtils {
   * @param decimalFormat to use
   * @param tupleSeparator to use   
   */
-  public static LineStringType createGmlLineStringType(CoordinatesType coordsType) {  
+  public static LineStringType createGmlLineStringType(final CoordinatesType coordsType) {  
     
     /* line string type */
     LineStringType xmlLineString = new LineStringType();
@@ -150,7 +151,7 @@ public class PlanitGmlUtils {
   
   /** create a GML PolygonType from a JTS Polygon
    * 
-   * @param outerBoundaryCoordinates of the jts polygon, e.g. last coordinate is equal to first and at least three coordinates
+   * @param outerBoundaryCoordinates of the JTS polygon, e.g. last coordinate is equal to first and at least three coordinates
    * @return created PolygonType
    */  
   public static PolygonType createGmlPolygonType(Coordinate[] outerBoundaryCoordinates) {

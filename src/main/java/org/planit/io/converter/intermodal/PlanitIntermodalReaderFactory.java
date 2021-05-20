@@ -26,7 +26,7 @@ public class PlanitIntermodalReaderFactory {
    * @param networkSettings to use
    * @param zoningSettings to use
    * @return created reader
-   * @throws PlanItException
+   * @throws PlanItException thrown if error
    */
   public static PlanitIntermodalReader create(final PlanitIntermodalReaderSettings intermodalSettings) throws PlanItException{
     return new PlanitIntermodalReader(intermodalSettings, IdGroupingToken.collectGlobalToken());

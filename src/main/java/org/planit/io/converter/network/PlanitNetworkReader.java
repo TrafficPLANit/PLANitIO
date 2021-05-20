@@ -85,7 +85,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   /** parse the usability component of the mode xml element. It is assumed they should be present, if not default values are created
    * @param generatedMode mode to extract information from
    * @return usabilityFeatures that are parsed
-   * @throws PlanItException 
+   * @throws PlanItException thrown if error
    */
   private UsabilityModeFeatures parseUsabilityModeFeatures(org.planit.xml.generated.XMLElementModes.Mode generatedMode) throws PlanItException {
     if(generatedMode.getUsabilityfeatures() == null) {
@@ -101,7 +101,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   /** parse the physical features component of the mode xml element. It is assumed they should be present, if not default values are created
    * @param generatedMode mode to extract information from
    * @return physicalFeatures that are parsed
-   * @throws PlanItException 
+   * @throws PlanItException thrown if error
    */  
   private PhysicalModeFeatures parsePhysicalModeFeatures(org.planit.xml.generated.XMLElementModes.Mode generatedMode) throws PlanItException {
     if(generatedMode.getPhysicalfeatures() == null) {
@@ -188,8 +188,8 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   /**
    * parse the CRS from the raw XML or utilise the default if not present
    * 
-   * @param xmlLayers element from which ot parse crs
-   * @throws PlanItException thorwn if error
+   * @param xmlLayers element from which to parse crs
+   * @throws PlanItException thrown if error
    */
   private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) throws PlanItException {
     CoordinateReferenceSystem crs = null;
@@ -260,7 +260,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   
   /** parse the various network layers
    * 
-   * @param modesByXmlId the already parsed modes by xml id
+   * @param modesByXmlId the already parsed modes by XML id
    * @throws PlanItException thrown if error
    */
   private void parseNetworkLayers(Map<String, Mode> modesByXmlId) throws PlanItException {
@@ -290,7 +290,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     }    
   }    
 
-  /** place network to populate
+  /** Place network to populate
    * 
    * @param network to populate
    * @throws PlanItException thrown if error
@@ -304,7 +304,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     this.network = (MacroscopicNetwork) network;
   }
   
-  /** constructor where settings are directly provided such that input information can be exracted from it
+  /** Constructor where settings are directly provided such that input information can be exracted from it
    * 
    * @param settings to use
    * @param idToken to use for the network to populate
@@ -316,11 +316,11 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     setNetwork(new MacroscopicNetwork(idToken));
   }  
   
-  /** constructor where settings are directly provided such that input information can be exracted from it
+  /** Constructor where settings are directly provided such that input information can be exracted from it
    * 
    * @param settings to use
    * @param network to populate
-   * @throws PlanItException  thrown if error
+   * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, InfrastructureNetwork<?,?> network) throws PlanItException{
     super(XMLElementMacroscopicNetwork.class);
@@ -328,11 +328,11 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     setNetwork(network);
   }  
     
-  /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
    * @param externalXmlRawNetwork to extract from
    * @param network to populate
-   * @throws PlanItException  thrown if error
+   * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
     super(externalXmlRawNetwork);
@@ -340,12 +340,12 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     setNetwork(network);
   }
   
-  /** constructor
+  /** Constructor
    * 
    * @param networkPathDirectory to use
    * @param xmlFileExtension to use
    * @param network to populate
-   * @throws PlanItException  thrown if error
+   * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
     super(XMLElementMacroscopicNetwork.class);
@@ -400,8 +400,5 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   public void reset() {
     // TODO Auto-generated method stub    
   }
-
-
-
 
 }

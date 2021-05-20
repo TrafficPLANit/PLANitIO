@@ -19,32 +19,32 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
   }
   
   /**
-   * Default constructor
+   * Constructor
    * 
-   * @param outputPathDirectory
+   * @param outputPathDirectory to use
    */
-  public PlanitZoningWriterSettings(String outputPathDirectory) {
+  public PlanitZoningWriterSettings(final String outputPathDirectory) {
     super(outputPathDirectory);
   }
   
   /**
-   * Default constructor
+   * Constructor
    * 
-   * @param outputPathDirectory
+   * @param outputPathDirectory to use
    * @param countryName to use
    */
-  public PlanitZoningWriterSettings(String outputPathDirectory, String countryName) {
+  public PlanitZoningWriterSettings(final String outputPathDirectory, final String countryName) {
     super(outputPathDirectory, null, countryName);
   }  
   
   /**
-   * Default constructor
+   * Constructor
    * 
    * @param outputPathDirectory to use
    * @param outputFileName to use
    * @param countryName to use
    */
-  public PlanitZoningWriterSettings(String outputPathDirectory, String outputFileName, String countryName) {
+  public PlanitZoningWriterSettings(final String outputPathDirectory, final String outputFileName, final String countryName) {
     super(outputPathDirectory, outputFileName, countryName);
   }  
 

@@ -15,7 +15,7 @@ import org.planit.zoning.Zoning;
  */
 public class PlanitZoningReaderFactory {
   
-  /** factory method wit all default, expected that user configures the settings afterwards to reach minimum requirements for successful parsing
+  /** Factory method wit all default, expected that user configures the settings afterwards to reach minimum requirements for successful parsing
    *  (input dir especially)
    */
   public static PlanitZoningReader create() throws PlanItException{
@@ -26,7 +26,7 @@ public class PlanitZoningReaderFactory {
   }  
 
   
-  /** factory method
+  /** Factory method
    * 
    * @param pathDirectory to use
    * @param xmlFileExtension to use
@@ -35,22 +35,24 @@ public class PlanitZoningReaderFactory {
    * @return created reader
    * @throws PlanItException  thrown if error
    */
-  public static PlanitZoningReader create(String pathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{
+  public static PlanitZoningReader create(
+      final String pathDirectory, final String xmlFileExtension, final InfrastructureNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     return create(new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension),network, zoning);
   }
   
-  /**Factory method
+  /** Factory method
    * 
    * @param zoningSettings to use
    * @param referenceNetwork to use
    * @param zoningToPopulate to use
    * @return created reader
    */
-  public static PlanitZoningReader create(PlanitZoningReaderSettings zoningSettings, InfrastructureNetwork<?, ?> referenceNetwork, Zoning zoningToPopulate) {
+  public static PlanitZoningReader create(
+      final PlanitZoningReaderSettings zoningSettings, final InfrastructureNetwork<?, ?> referenceNetwork, final Zoning zoningToPopulate) {
     return new PlanitZoningReader(zoningSettings, referenceNetwork, zoningToPopulate);
   }  
   
-  /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Factory method where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
    * @param xmlRawZoning to extract from
    * @param network to extract references from (if any)
@@ -58,7 +60,8 @@ public class PlanitZoningReaderFactory {
    * @return created reader
    * @throws PlanItException  thrown if error
    */
-  public static  PlanitZoningReader create(XMLElementMacroscopicZoning xmlRawZoning, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{
+  public static  PlanitZoningReader create(
+      final XMLElementMacroscopicZoning xmlRawZoning, final InfrastructureNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     return new PlanitZoningReader(xmlRawZoning, network, zoning);
   }
 

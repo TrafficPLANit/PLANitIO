@@ -51,23 +51,26 @@ public class PlanitZoningReaderSettings extends PlanitXmlReaderSettings implemen
   }  
   
   /** Use provided map to index zones by xml id when parsing
+   * 
    * @param xmlIdZoneMap to use
    */
-  public void setMapToIndexZoneByXmlIds(Map<String, Zone> xmlIdZoneMap) {
+  public void setMapToIndexZoneByXmlIds(final Map<String, Zone> xmlIdZoneMap) {
     this.xmlIdZoneMap = xmlIdZoneMap;
   } 
   
-  /** map to index connectoids by xml id when parsing
+  /** Map to index connectoids by XML id when parsing
+   * 
    * @return zoneXmlIdToNodeMap to use
    */
   protected Map<String, Connectoid> getMapToIndexConnectoidsByXmlIds() {
     return this.xmlIdConnectoidMap;
   }     
   
-  /** Use provided map to index connectoids by xml id when parsing
+  /** Use provided map to index connectoids by XML id when parsing
+   * 
    * @param xmlIdConnectoidMap to use
    */
-  public void setMapToIndexConnectoidsByXmlIds(Map<String, Connectoid> xmlIdConnectoidMap) {
+  public void setMapToIndexConnectoidsByXmlIds(final Map<String, Connectoid> xmlIdConnectoidMap) {
     this.xmlIdConnectoidMap = xmlIdConnectoidMap;
   }   
   

@@ -25,7 +25,7 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
   }
   
   /**
-   * Default constructor
+   * Constructor
    * 
    * @param outputPathDirectory to use
    * @param countryName to use
@@ -35,7 +35,7 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
   }  
     
   /**
-   * Default constructor
+   * Constructor
    * 
    * @param outputPathDirectory to use
    * @param fileName to use

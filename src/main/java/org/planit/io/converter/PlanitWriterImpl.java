@@ -41,11 +41,11 @@ import net.opengis.gml.PointType;
 import net.opengis.gml.PolygonType;
 
 /**
- * Common functionality for writing in the native PLAnit format across different writers
+ * Common functionality for writing in the native PLANit format across different writers
  * 
  * @author markr
  *
- * @param <T>
+ * @param <T> type to generate with this writer
  */
 public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   
