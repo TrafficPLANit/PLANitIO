@@ -47,15 +47,6 @@ public class PlanitOpenGisUtils {
    */
   public static final CoordinateReferenceSystem CARTESIANCRS = PlanitJtsCrsUtils.CARTESIANCRS;
 
-  /*
-   * the geotools gt-epsg-hsql dependency tries to take over the logging and the formatting of the logging. It is initialised whenever {@code CRS.decode} is invoked from some of
-   * this class' static methods. Therefore, here we programmatically disable this unwanted behaviour
-   */
-  static {
-    Logger.getLogger("org.hsqldb").setLevel(Level.WARNING);
-    System.setProperty("hsqldb.reconfig_logging", "false");
-  }
-
   /**
    * Geodetic calculator to construct distances between points. It is assumed the network CRS is geodetic in nature.
    */
