@@ -13,7 +13,6 @@ Projects need to be built from Maven before they can be run. The common maven co
 ## PLANitXMLGenerator
 
 This project relies on PLANitXMLGenerator to provide the Java classes that are compatible with the underlying XML schemas and inputs that are parsed. Whenever the schema changes re-generate the classes via this separate project. If you do not, a mismatch between the used classes and the underlying xml input occurs causing failure in parsing PLANit inputs.
-
  
 ## Testing Documentation ##
 
@@ -21,3 +20,7 @@ The "docs" directory contains the documents:-
 
 - *Unit Tests and Integration Tests.md*, which describes the test suite which has been written to PLANitIO;
 - *Generating JavaDoc for a Java Project in Eclipse.md*, which explains how to create the documentation for the Java code.
+
+## Git Branching model
+
+We adopt GitFlow as per https://nvie.com/posts/a-successful-git-branching-model/
