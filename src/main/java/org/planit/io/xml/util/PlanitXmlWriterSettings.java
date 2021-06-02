@@ -66,7 +66,8 @@ public class PlanitXmlWriterSettings {
   /**
    * Constructor
    * 
-   *  @param outputPathDirectory to use
+   * @param outputPathDirectory to use
+   * @param countryName to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String countryName) {
     this.outputDirectory = outputPathDirectory;
@@ -77,6 +78,7 @@ public class PlanitXmlWriterSettings {
    * Constructor
    * 
    *  @param outputPathDirectory to use
+   *  @param fileName to use
    *  @param countryName to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String fileName, final String countryName) {
@@ -85,21 +87,24 @@ public class PlanitXmlWriterSettings {
     this.setFileName(fileName);
   }  
   
-  /** the outputPathDirectory used
+  /** The outputPathDirectory used
+   * 
    * @return directory used
    */
   public String getOutputPathDirectory() {
     return this.outputDirectory;
   }
   
-  /** set the outputDirectory used
-   * @param directory to use
+  /** Set the outputDirectory used
+   * 
+   * @param outputDirectory to use
    */
   public void setOutputDirectory(String outputDirectory) {
     this.outputDirectory = outputDirectory;
   }
 
-  /** collect country name used
+  /** Collect country name used
+   * 
    * @return country name
    */
   public String getCountry() {
@@ -107,20 +112,23 @@ public class PlanitXmlWriterSettings {
   }
 
   /** Set country name used
+   * 
    * @param countryName to use
    */
   public void setCountry(String countryName) {
     this.countryName = countryName;
   }
 
-  /** collect the file name to use
+  /** Collect the file name to use
+   * 
    * @return file name to use
    */
   public String getFileName() {
     return fileName;
   }
 
-  /** set the file name to use
+  /** Set the file name to use
+   * 
    * @param fileName to use
    */
   public void setFileName(String fileName) {
@@ -139,14 +147,15 @@ public class PlanitXmlWriterSettings {
     
   }  
 
-  /** collect number of decimals used in writing coordinates
+  /** Collect number of decimals used in writing coordinates
+   * 
    * @return number of decimals used
    */
   public DecimalFormat getDecimalFormat() {
     return decimalFormat;
   }
 
-  /** set number of decimals used in writing coordinates
+  /** Set number of decimals used in writing coordinates
    * 
    * @param decimalFormat number of decimals
    */
@@ -154,7 +163,7 @@ public class PlanitXmlWriterSettings {
     this.decimalFormat = decimalFormat;
   }
   
-  /** separator to use for tuples of coordinates that are being persisted
+  /** Separator to use for tuples of coordinates that are being persisted
    * 
    * @return separator
    */
@@ -163,7 +172,7 @@ public class PlanitXmlWriterSettings {
   }
 
   /**
-   *  set separator 
+   *  Set separator 
    *  
    * @param tupleSeparator to use
    */
@@ -171,7 +180,7 @@ public class PlanitXmlWriterSettings {
     this.tupleSeparator = tupleSeparator;
   }
   
-  /** separator to use for separating x,y entries of a single coordinate that is being persisted
+  /** Separator to use for separating x,y entries of a single coordinate that is being persisted
    * 
    * @return separator
    */  
@@ -179,7 +188,7 @@ public class PlanitXmlWriterSettings {
     return commaSeparator;
   }
 
-  /** set separator
+  /** Set separator
    * 
    * @param commaSeparator to use
    */
@@ -187,7 +196,7 @@ public class PlanitXmlWriterSettings {
     this.commaSeparator = commaSeparator;
   }
   
-  /** separator to use for separating decimals from unit changes
+  /** Separator to use for separating decimals from unit changes
    * 
    * @return separator
    */   
@@ -196,7 +205,7 @@ public class PlanitXmlWriterSettings {
   }
 
   /**
-   * set separator
+   * Set separator
    * 
    * @param decimalSeparator to use
    */
@@ -205,7 +214,8 @@ public class PlanitXmlWriterSettings {
   }
   
   
-  /** collect the destination Crs
+  /** Collect the destination Crs
+   * 
    * @return destination Crs
    */
   public CoordinateReferenceSystem getDestinationCoordinateReferenceSystem() {

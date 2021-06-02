@@ -27,16 +27,17 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
   }
   
   /**
-   * constructor
+   * Constructor
    * 
    * @param outputDirectory to use
+   * @param countyName to use
    */
   public PlanitIntermodalWriterSettings(final String outputDirectory, final String countryName) {
     this(new PlanitNetworkWriterSettings(outputDirectory, countryName), new PlanitZoningWriterSettings(outputDirectory, countryName));
   }      
   
   /**
-   * constructor
+   * Constructor
    * 
    * @param networkSettings to use
    * @param zoningSettings to use
@@ -56,6 +57,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
   }
 
   /** Collect zoning settings
+   * 
    * @return zoning settings
    */
   public PlanitZoningWriterSettings getZoningSettings() {
@@ -63,14 +65,16 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
   }
 
   /** Collect network settings
+   * 
    * @return network settings
    */
   public  PlanitNetworkWriterSettings getNetworkSettings() {
     return networkSettings;
   } 
     
-  /** set the outputPathDirectory used on both zoning and network settings
-   * @param directory to use
+  /** Set the outputPathDirectory used on both zoning and network settings
+   * 
+   * @param outputDirectory to use
    */
   public void setOutputDirectory(String outputDirectory) {
     getZoningSettings().setOutputDirectory(outputDirectory);
@@ -78,6 +82,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
   }
 
   /** Set country name used on both zoning and network settings
+   * 
    * @param countryName to use
    */
   public void setCountry(String countryName) {

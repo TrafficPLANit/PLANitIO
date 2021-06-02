@@ -5,7 +5,7 @@ import org.planit.io.converter.network.PlanitNetworkReaderSettings;
 import org.planit.io.converter.zoning.PlanitZoningReaderSettings;
 
 /**
- * Settings of planit intermodal reader
+ * Settings of PLANit intermodal reader
  * 
  * @author markr
  *
@@ -26,17 +26,17 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
   }
   
   /**
-   * constructor
+   * Constructor
    * 
    * @param inputPathDirectory to use
-   * @param xmlExtension to use
+   * @param xmlFileExtension to use
    */
   public PlanitIntermodalReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
     this(new PlanitNetworkReaderSettings(inputPathDirectory, xmlFileExtension), new PlanitZoningReaderSettings(inputPathDirectory, xmlFileExtension));
   }      
   
   /**
-   * constructor
+   * Constructor
    * 
    * @param networkSettings to use
    * @param zoningSettings to use

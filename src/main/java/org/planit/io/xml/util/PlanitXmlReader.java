@@ -48,10 +48,10 @@ public class PlanitXmlReader<T> {
   }  
   
   /**
-   * parse the raw XML root (and rest) from file if not already set via constructor
+   * Parse the raw XML root (and rest) from file if not already set via constructor
+   * 
    * @param inputPathDirectory to use
    * @param xmlFileExtension to use
-   * @return populated xml root element if possible based on provided input to constructor
    * @throws PlanItException thrown if error
    */
   protected void initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {

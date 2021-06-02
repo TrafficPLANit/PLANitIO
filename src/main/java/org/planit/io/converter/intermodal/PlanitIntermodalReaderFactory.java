@@ -15,16 +15,18 @@ import org.planit.zoning.Zoning;
  */
 public class PlanitIntermodalReaderFactory {
   
-  /** factory method based on all defaults. IT is expected that the user will set the necessary settings via the exposed settings
+  /** Factory method based on all defaults. IT is expected that the user will set the necessary settings via the exposed settings
+   * 
    * @return created reader
+   * @throws PlanItException thrown if error
    */
   public static PlanitIntermodalReader create() throws PlanItException{
     return create(new PlanitIntermodalReaderSettings());
   }  
   
   /** Factory method absed on passed in network and zoning reader settings
-   * @param networkSettings to use
-   * @param zoningSettings to use
+   * 
+   * @param intermodalSettings to use
    * @return created reader
    * @throws PlanItException thrown if error
    */
@@ -33,12 +35,13 @@ public class PlanitIntermodalReaderFactory {
   }
 
   
-  /** factory method
+  /** Factory method
    * 
    * @param pathDirectory to use
    * @param xmlFileExtension to use
    * @param network to extract references from (if any)
    * @param zoning to populate
+   * @return created reader
    * @throws PlanItException  thrown if error
    */
   public static PlanitIntermodalReader create(String pathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{   
@@ -47,9 +50,11 @@ public class PlanitIntermodalReaderFactory {
   
   /** constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
+   * @param xmlRawNetwork to extract from
    * @param xmlRawZoning to extract from
    * @param network to extract references from (if any)
    * @param zoning to populate
+   * @return created reader
    * @throws PlanItException  thrown if error
    */
   public static  PlanitIntermodalReader create(XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, InfrastructureNetwork<?,?> network, Zoning zoning) throws PlanItException{

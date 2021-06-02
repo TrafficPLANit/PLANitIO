@@ -39,6 +39,7 @@ public class PlanitGmlUtils {
    * @param decimalSeparator to use
    * @param decimalFormat to use
    * @param tupleSeparator to use 
+   * @return created GML coordinates type instance
    */
   public static CoordinatesType createGmlCoordinatesType(
       final Coordinate[] coordinates, final Character commaSeparator, final Character decimalSeparator, final DecimalFormat decimalFormat, final Character tupleSeparator) {  
@@ -105,6 +106,7 @@ public class PlanitGmlUtils {
   /** Convert coordinate to PointType
    * 
    * @param coordinate to convert
+   * @return created GML point type
    */
   public static PointType createGmlPointType(final Coordinate coordinate) {
     DirectPositionType gmlDirectPos = createGmlDirectPositionType(coordinate);
@@ -115,7 +117,7 @@ public class PlanitGmlUtils {
   
   /** Takes a JTS line string and converts it to GML LineStringType.
    *   
-   * @param coordinates array of coordinates
+   * @param lineString to extract from
    * @param commaSeparator to use
    * @param decimalSeparator to use
    * @param decimalFormat to use
@@ -135,10 +137,7 @@ public class PlanitGmlUtils {
    * Takes a JTS line string and converts it to GML LineStringType.
    *   
   * @param coordsType to use
-  * @param commaSeparator to use
-  * @param decimalSeparator to use
-  * @param decimalFormat to use
-  * @param tupleSeparator to use   
+  * @return created GML LineStringType instance   
   */
   public static LineStringType createGmlLineStringType(final CoordinatesType coordsType) {  
     
@@ -149,7 +148,7 @@ public class PlanitGmlUtils {
     return xmlLineString;
   }
   
-  /** create a GML PolygonType from a JTS Polygon
+  /** Create a GML PolygonType from a JTS Polygon
    * 
    * @param outerBoundaryCoordinates of the JTS polygon, e.g. last coordinate is equal to first and at least three coordinates
    * @return created PolygonType

@@ -17,6 +17,8 @@ public class PlanitZoningReaderFactory {
   
   /** Factory method wit all default, expected that user configures the settings afterwards to reach minimum requirements for successful parsing
    *  (input dir especially)
+   *  
+   * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create() throws PlanItException{
     PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();
@@ -32,7 +34,7 @@ public class PlanitZoningReaderFactory {
    * @param xmlFileExtension to use
    * @param network to extract references from (if any)
    * @param zoning to populate
-   * @return created reader
+   * @return created PLANit zoning reader
    * @throws PlanItException  thrown if error
    */
   public static PlanitZoningReader create(
@@ -45,7 +47,7 @@ public class PlanitZoningReaderFactory {
    * @param zoningSettings to use
    * @param referenceNetwork to use
    * @param zoningToPopulate to use
-   * @return created reader
+   * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create(
       final PlanitZoningReaderSettings zoningSettings, final InfrastructureNetwork<?, ?> referenceNetwork, final Zoning zoningToPopulate) {
@@ -57,7 +59,7 @@ public class PlanitZoningReaderFactory {
    * @param xmlRawZoning to extract from
    * @param network to extract references from (if any)
    * @param zoning to populate
-   * @return created reader
+   * @return created PLANit zoning reader
    * @throws PlanItException  thrown if error
    */
   public static  PlanitZoningReader create(

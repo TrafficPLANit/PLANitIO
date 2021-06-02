@@ -686,9 +686,6 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
 
   /** Read the zoning from disk
    * 
-   * @param network this zoning is compatible with
-   * @param nodesByXmlId to identify mapping between OD zones and network (via nodes)
-   * @param linkSegmentsByXmlId to identify mapping between (transfer) connectoids and network
    * @return zoning parsed
    * @throws PlanItException thrown if error
    */
@@ -751,7 +748,7 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
   
   // GETTERS/SETTERS
   
-  /** allow user to override the map containing the xml id to node mapping. If so, it avoids creating a duplicate index within the class instance
+  /** Allow user to override the map containing the xml id to node mapping. If so, it avoids creating a duplicate index within the class instance
    * if one already exists
    * 
    * @param nodesByXmlId to use
@@ -760,10 +757,10 @@ public class PlanitZoningReader extends PlanitXmlReader<XMLElementMacroscopicZon
     this.nodesByXmlId = nodesByXmlId;
   }
 
-  /** allow user to override the map containing the xml id to link segment mapping. If so, it avoids creating a duplicate index within the class instance
+  /** Allow user to override the map containing the xml id to link segment mapping. If so, it avoids creating a duplicate index within the class instance
    * if one already exists
    * 
-   * @param nodesByXmlId to use
+   * @param linkSegmentsByXmlId to use
    */  
   public void setLinkSegmentsByXmlId(final Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId) {
     this.linkSegmentsByXmlId = linkSegmentsByXmlId;

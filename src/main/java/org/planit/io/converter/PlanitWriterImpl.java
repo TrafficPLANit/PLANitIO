@@ -103,7 +103,8 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return null;
   }  
   
-  /** transform the coordinate absed on the destination transformer
+  /** Transform the coordinate absed on the destination transformer
+   * 
    * @param coordinates to transform
    * @return transformed coordinates (if no conversion is required, input is returned
    */
@@ -126,7 +127,9 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return transformedCoordinates;
   }   
   
-  /** extract the src name to use based on the available crs information on network and settings
+  /** Extract the src name to use based on the available crs information on network and settings
+   * 
+   * @param xmlSettings to use
    * @return srsName to use
    * @throws PlanItException thrown if error
    */
@@ -152,9 +155,10 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return srsName;
   }  
 
-  /**
-   * @param Point to convert to gml and transform if needed
-   * @return created gml pos
+  /** Create a position type based on point location 
+   * 
+   * @param position to convert to GML and transform if needed
+   * @return created GML pos
    */
   protected DirectPositionType createGmlDirectPositionType(Point position) {
     Coordinate positioncoordinate = getTransformedCoordinate(position.getCoordinate());
@@ -162,16 +166,17 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   }  
 
 
-  /**
-   * @param coordinate to convert to gml and trasform if needed
-   * @return created gml coordinate
+  /** Create a GML coord type from the provided coordinate
+   * 
+   * @param coordinate to convert to GML and transform if needed
+   * @return created GML coordinate
    */
   protected CoordType createGmlCoordType(Coordinate coordinate) {
     Coordinate nodeCoordinate = getTransformedCoordinate(coordinate);
     return PlanitGmlUtils.createGmlCoordType(nodeCoordinate);    
   }  
   
-  /** create a GML PointType from a JTS Point and account for any crs transformation if needed
+  /** Create a GML PointType from a JTS Point and account for any crs transformation if needed
    * 
    * @param position to extract from
    * @return created PointType
@@ -191,11 +196,10 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return PlanitGmlUtils.createGmlPolygonType(transformedCoordinates);
   } 
   
-  /** create a GML LineStringType from a JTS LineStringand account for any crs transformation if needed
+  /** Create a GML LineStringType from a JTS LineStringand account for any crs transformation if needed
    * 
    * @param lineString to extract from
    * @return created LineStringType
-   * @throws PlanItException thrown if error
    */  
   protected LineStringType createGmlLineStringType(LineString lineString) {
     /* transformed coords */
@@ -329,7 +333,11 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     
   
   /**
-   * persist the populated XML memory model to disk using JAXb
+   * Persist the populated XML memory model to disk using JAXb
+   * 
+   * @param xmlRootElement to persist from
+   * @param rootElementClazz the type of the root element object
+   * @param planitSchemaName schema the XML complies with
    * @throws PlanItException thrown if error
    */
   protected void persist(final Object xmlRootElement, final Class<?> rootElementClazz, final String planitSchemaName) throws PlanItException {
@@ -362,10 +370,9 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   }   
    
   
-  /** constructor
+  /** Constructor
+   * 
    * @param idMapperType to use
-   * @param path to use
-   * @param countryName the network applies to, used to determine destination crs (transformer) if not explicitly set
    */
   protected PlanitWriterImpl(IdMapperType idMapperType) {
     super(idMapperType);

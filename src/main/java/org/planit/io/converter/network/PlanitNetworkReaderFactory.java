@@ -29,6 +29,7 @@ public class PlanitNetworkReaderFactory {
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 
    * @param idToken to use for network
+   * @return created PLANit network reader
    */
   public static PlanitNetworkReader create(final IdGroupingToken idToken) {
     return create(new PlanitNetworkReaderSettings(), new MacroscopicNetwork(idToken));    
@@ -38,6 +39,7 @@ public class PlanitNetworkReaderFactory {
    *  defaults for any right hand driving country
    * 
    * @param inputDirectory to use (directory only, find first compatible file)
+   * @return created PLANit network reader
    */
   public static PlanitNetworkReader create(final String inputDirectory) {
     PlanitNetworkReader networkReader = create();
@@ -48,6 +50,7 @@ public class PlanitNetworkReaderFactory {
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 
    * @param settings to use
+   * @return created PLANit network reader
    */
   public static PlanitNetworkReader create(final PlanitNetworkReaderSettings settings) {
     return create(settings, new MacroscopicNetwork(IdGroupingToken.collectGlobalToken()));
@@ -57,6 +60,7 @@ public class PlanitNetworkReaderFactory {
    * 
    * @param settings to use
    * @param network to use
+   * @return created PLANit network reader
    */
   public static PlanitNetworkReader create(final PlanitNetworkReaderSettings settings, final InfrastructureNetwork<?,?> network) {
     try {
