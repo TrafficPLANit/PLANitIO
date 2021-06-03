@@ -122,6 +122,7 @@ public class PlanitGmlUtils {
    * @param decimalSeparator to use
    * @param decimalFormat to use
    * @param tupleSeparator to use   
+   * @return created GML LineStringType instance
    */
   public static LineStringType createGmlLineStringType(final LineString lineString, 
       final Character commaSeparator, final Character decimalSeparator, final DecimalFormat decimalFormat, final Character tupleSeparator) {  

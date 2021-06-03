@@ -19,6 +19,7 @@ public class PlanitZoningReaderFactory {
    *  (input dir especially)
    *  
    * @return created PLANit zoning reader
+   * @throws PlanItException thrown if error
    */
   public static PlanitZoningReader create() throws PlanItException{
     PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();

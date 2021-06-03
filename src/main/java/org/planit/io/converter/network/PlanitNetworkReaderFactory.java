@@ -21,6 +21,8 @@ public class PlanitNetworkReaderFactory {
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReaderFactory.class.getCanonicalName());
   
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+   * 
+   * @return created PLANit network reader
    */
   public static PlanitNetworkReader create() {
     return create(IdGroupingToken.collectGlobalToken());

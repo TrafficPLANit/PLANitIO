@@ -30,7 +30,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    * Constructor
    * 
    * @param outputDirectory to use
-   * @param countyName to use
+   * @param countryName to use
    */
   public PlanitIntermodalWriterSettings(final String outputDirectory, final String countryName) {
     this(new PlanitNetworkWriterSettings(outputDirectory, countryName), new PlanitZoningWriterSettings(outputDirectory, countryName));
