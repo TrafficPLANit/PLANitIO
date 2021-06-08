@@ -1,20 +1,20 @@
 package org.planit.io.converter.network;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.planit.converter.network.NetworkReader;
+import org.planit.converter.network.NetworkReaderBase;
 import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
-import org.planit.io.xml.util.PlanitXmlReader;
+import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.InfrastructureLayer;
 import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TopologicalLayer;
+import org.planit.network.TopologicalNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -29,8 +29,7 @@ import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.mode.UsabilityModeFeatures;
 import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
-import org.planit.utils.network.physical.Node;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
@@ -44,20 +43,17 @@ import org.planit.xml.generated.XMLElementModes;
  * @author gman, markr
  *
  */
-public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNetwork> implements NetworkReader {
+public class PlanitNetworkReader extends NetworkReaderBase {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());            
   
   /** the settings for this reader */
   private final PlanitNetworkReaderSettings settings;
-    
-  /**
-   * Default XSD files used to validate input XML files against
-   * TODO: replace with online schema
-   */
-  public static final String NETWORK_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicnetworkinput.xsd";
-      
+  
+  /** parses the xml content in JAXB memory format */
+  private final PlanitXmlJaxbParser<XMLElementMacroscopicNetwork> xmlParser;
+          
   /** the network memory model to populate */
   private MacroscopicNetwork network;
     
@@ -65,19 +61,20 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * Update the XML macroscopic network element to include default values for any properties not included in the input file
    */
   private void injectMissingDefaultsToRawXmlNetwork() {
-    if (getXmlRootElement().getConfiguration() == null) {
-      getXmlRootElement().setConfiguration(new XMLElementConfiguration());
+    XMLElementMacroscopicNetwork rootElement = xmlParser.getXmlRootElement();
+    if (xmlParser.getXmlRootElement().getConfiguration() == null) {
+      rootElement.setConfiguration(new XMLElementConfiguration());
     }
     
     //if no modes defined, create single mode with default values
-    if (getXmlRootElement().getConfiguration().getModes() == null) {
-      getXmlRootElement().getConfiguration().setModes(new XMLElementModes());
+    if (rootElement.getConfiguration().getModes() == null) {
+      rootElement.getConfiguration().setModes(new XMLElementModes());
       XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
       // default in absence of any modes is the predefined CAR mode
       xmlElementMode.setPredefined(true);
       xmlElementMode.setName(PredefinedModeType.CAR.value());
       xmlElementMode.setId(Mode.DEFAULT_XML_ID);
-      getXmlRootElement().getConfiguration().getModes().getMode().add(xmlElementMode);
+      rootElement.getConfiguration().getModes().getMode().add(xmlElementMode);
     }
            
    }  
@@ -118,18 +115,12 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   
   /**
    * Reads mode types from input file, register them on the network and also populate mapping based on XML ids
-   * @return map with modesByXmlId 
+   * 
    * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
    */
-  private Map<String, Mode> parseModes() throws PlanItException {
-
-    /* populate if referenced later on by xml id */
-    if(settings.getMapToIndexModeByXmlIds()==null) {
-      settings.setMapToIndexModeByXmlIds(new HashMap<String, Mode>());
-    }
-    Map<String, Mode> modesByXmlId = settings.getMapToIndexModeByXmlIds();    
+  private void parseModes() throws PlanItException {   
     
-    final XMLElementConfiguration xmlGeneralConfiguration = getXmlRootElement().getConfiguration();    
+    final XMLElementConfiguration xmlGeneralConfiguration = xmlParser.getXmlRootElement().getConfiguration();    
     for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {
       
       /* xml id */
@@ -175,14 +166,12 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
       
       /* xml id */
       mode.setXmlId(modeXmlId);
-      final Mode prevValue = modesByXmlId.put(mode.getXmlId(), mode);
-      if (prevValue!=null) {
+      final boolean exists = addModeToSourceIdMap(mode.getXmlId(), mode);
+      if (exists) {
         String errorMessage = "duplicate mode xml id " + mode.getXmlId() + " found in network file";
         throw new PlanItException(errorMessage);
       }
     }
-    
-    return modesByXmlId;
   }  
   
   /**
@@ -193,7 +182,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    */
   private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) throws PlanItException {
     CoordinateReferenceSystem crs = null;
-    crs = createPlanitCrs(xmlLayers.getSrsname());
+    crs = PlanitXmlJaxbParser.createPlanitCrs(xmlLayers.getSrsname());
     return crs;
   }    
   
@@ -201,13 +190,12 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * parse the network layer
    * 
    * @param xmlLayer layer to extract from
-   * @param modesByXmlId modes to reference
    * @param jtsUtils to use
    * @return parsed network layer
    * @throws PlanItException thrown if error
    *
    */
-  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, Map<String, Mode> modesByXmlId, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
+  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
     MacroscopicPhysicalNetwork networkLayer = network.infrastructureLayers.createNew();
@@ -230,8 +218,9 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
       String xmlSupportedModes = xmlLayer.getModes();
       String[] modeRefs = xmlSupportedModes.split(CharacterUtils.COMMA.toString());
       for(String mode : Arrays.asList(modeRefs)) {
-        if(modesByXmlId.containsKey(mode)) {
-          networkLayer.registerSupportedMode(modesByXmlId.get(mode));
+        Mode planitMode = getModeBySourceId(mode);
+        if(planitMode != null) {
+          networkLayer.registerSupportedMode(planitMode);
         }else {
           LOGGER.severe(String.format("mode %s is not present on the network, ignored on network layer", mode));
         }
@@ -247,24 +236,23 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
       xmlLayer.setLayerconfiguration(new XMLElementLayerConfiguration());
       xmlLayerconfiguration = xmlLayer.getLayerconfiguration();
     }
-    Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId = XmlMacroscopicNetworkLayerHelper.parseLinkSegmentTypes(xmlLayerconfiguration, networkLayer, settings, modesByXmlId);
+    XmlMacroscopicNetworkLayerHelper.parseLinkSegmentTypes(xmlLayerconfiguration, networkLayer, this);
     
     /* parse nodes */
-    Map<String, Node> nodesByXmlId = XmlMacroscopicNetworkLayerHelper.parseNodes(xmlLayer, networkLayer, settings);                  
+    XmlMacroscopicNetworkLayerHelper.parseNodes(xmlLayer, networkLayer, this);                  
          
     /* parse links, link segments */
-    XmlMacroscopicNetworkLayerHelper.parseLinkAndLinkSegments(xmlLayer, networkLayer, settings, nodesByXmlId, linkSegmentTypesByXmlId, jtsUtils);
+    XmlMacroscopicNetworkLayerHelper.parseLinkAndLinkSegments(xmlLayer, networkLayer, this, jtsUtils);
     
     return networkLayer;
   }  
   
-  /** parse the various network layers
+  /** Parse the various network layers
    * 
-   * @param modesByXmlId the already parsed modes by XML id
    * @throws PlanItException thrown if error
    */
-  private void parseNetworkLayers(Map<String, Mode> modesByXmlId) throws PlanItException {
-    XMLElementInfrastructureLayers xmlLayers = getXmlRootElement().getInfrastructurelayers();
+  private void parseNetworkLayers() throws PlanItException {
+    XMLElementInfrastructureLayers xmlLayers = xmlParser.getXmlRootElement().getInfrastructurelayers();
     PlanItException.throwIfNull(xmlLayers, "infrastructurelayers element not present in network file");
     
     /* crs */
@@ -278,7 +266,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     for(XMLElementInfrastructureLayer xmlLayer : xmlLayerList) {
       
       /*layer */
-      InfrastructureLayer layer = parseNetworkLayer(xmlLayer, modesByXmlId, jtsUtils);
+      InfrastructureLayer layer = parseNetworkLayer(xmlLayer, jtsUtils);
       
       /* validate supported modes */
       int prevSize = usedModes.size();
@@ -311,7 +299,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException  thrown if error
    */
   protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken) throws PlanItException{
-    super(XMLElementMacroscopicNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = settings;
     setNetwork(new MacroscopicNetwork(idToken));
   }  
@@ -323,7 +311,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, InfrastructureNetwork<?,?> network) throws PlanItException{
-    super(XMLElementMacroscopicNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = settings;
     setNetwork(network);
   }  
@@ -335,7 +323,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
-    super(externalXmlRawNetwork);
+    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(externalXmlRawNetwork);
     this.settings = new PlanitNetworkReaderSettings();
     setNetwork(network);
   }
@@ -348,10 +336,13 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
    * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
-    super(XMLElementMacroscopicNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
     setNetwork(network);
   }  
+  
+  /** Default XSD files used to validate input XML files against, TODO: move to properties file */
+  public static final String NETWORK_XSD_FILE = "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicnetworkinput.xsd";  
 
   /**
    * {@inheritDoc}
@@ -360,7 +351,7 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   public InfrastructureNetwork<?,?> read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
-    initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+    xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
     
     /* defaults */
     injectMissingDefaultsToRawXmlNetwork();       
@@ -368,13 +359,13 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
     try {
       
       /* parse modes*/
-      Map<String, Mode> modesByXmlId = parseModes();
+      parseModes();
 
       /* parse layers */
-      parseNetworkLayers(modesByXmlId);
+      parseNetworkLayers();
       
       /* free xml content */
-      clearXmlContent();
+      xmlParser.clearXmlContent();
       
     } catch (PlanItException e) {
       throw e;
@@ -394,11 +385,33 @@ public class PlanitNetworkReader extends PlanitXmlReader<XMLElementMacroscopicNe
   }
   
   /**
+   * returns the link segment by a given external id Extremely slow, because it is not indexed at the moment
+   * 
+   * @param network    to look in
+   * @param externalId to look for
+   * @return link segment
+   */
+  public MacroscopicLinkSegment getLinkSegmentByExternalId(TopologicalNetwork<?,?> network, String externalId) {
+    for (TopologicalLayer layer : network.infrastructureLayers) {
+      if (layer instanceof MacroscopicPhysicalNetwork) {
+        MacroscopicLinkSegment linkSegment = ((MacroscopicPhysicalNetwork) layer).linkSegments.getByExternalId(externalId);
+        if (linkSegment != null) {
+          return linkSegment;
+        }
+      }
+    }
+    return null;
+  }  
+  
+  /**
    * {@inheritDoc}
    */
   @Override
   public void reset() {
     // TODO Auto-generated method stub    
   }
+  
+  
+
 
 }

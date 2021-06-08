@@ -11,15 +11,15 @@ import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.StringUtils;
 
 /**
- * Serves as a base class for readers of PLANit Xml files of which the root element is of type T
+ * Serves as a base class for readers of PLANit XML files of which the root element is of type T
  * 
  * @author markr
  *
  */
-public class PlanitXmlReader<T> {
+public class PlanitXmlJaxbParser<T> {
   
   /** the logger to use */
-  private static final Logger LOGGER = Logger.getLogger(PlanitXmlReader.class.getCanonicalName());
+  private static final Logger LOGGER = Logger.getLogger(PlanitXmlJaxbParser.class.getCanonicalName());
     
   /** the class to create xml root element for */
   private Class<T> clazz;
@@ -27,13 +27,13 @@ public class PlanitXmlReader<T> {
   /** root element to populate */
   private T xmlRootElement;
   
-  /** create a crs for planit native format based on passed in srs name. If no srs name is provided the default will be created
+  /** Create a crs based on passed in srs name. If no srs name is provided the default will be created
    * 
    * @param srsName to use
    * @return craeted crs
    * @throws PlanItException thrown if error
    */
-  protected CoordinateReferenceSystem createPlanitCrs(String srsName) throws PlanItException {
+  public static CoordinateReferenceSystem createPlanitCrs(String srsName) throws PlanItException {
     CoordinateReferenceSystem crs = null;
     if(StringUtils.isNullOrBlank(srsName)) {
       crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
@@ -54,7 +54,7 @@ public class PlanitXmlReader<T> {
    * @param xmlFileExtension to use
    * @throws PlanItException thrown if error
    */
-  protected void initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {
+  public void initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {
     PlanItException.throwIfNull(inputPathDirectory, "input path directory for XML reader is not provided, unable to parse");
     PlanItException.throwIfNull(xmlFileExtension, "no XML file extension provided, unable to parse files if extension is unknown");
     
@@ -64,26 +64,8 @@ public class PlanitXmlReader<T> {
       setXmlRootElement(JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames));
     } 
     
-  }  
-  
-  // GETTERS /SETTERS
-  
-  /** Collect the root element of this reader
-   * 
-   * @return root element
-   */
-  protected T getXmlRootElement() {
-    return xmlRootElement;
-  }  
-  
-  /** set the root element of this reader
-   * 
-   * @param xmlRootElement to use
-   */
-  protected void setXmlRootElement(T xmlRootElement) {
-    this.xmlRootElement = xmlRootElement;
-  }    
-    
+  }        
+ 
   /**
    * Default extension for XML input files
    */
@@ -94,7 +76,7 @@ public class PlanitXmlReader<T> {
    * 
    * @param clazz to create root element and populate it for
    */
-  public PlanitXmlReader(Class<T> clazz) {
+  public PlanitXmlJaxbParser(Class<T> clazz) {
     this.clazz = clazz;
     this.xmlRootElement = null;
   }
@@ -104,10 +86,29 @@ public class PlanitXmlReader<T> {
    * 
    * @param xmlRootElement to use
    */
-  public PlanitXmlReader(T xmlRootElement) {
+  public PlanitXmlJaxbParser(T xmlRootElement) {
     this.clazz = null;
     this.xmlRootElement = xmlRootElement;
   }
+  
+  // GETTERS /SETTERS
+  
+  /** Collect the root element of this reader
+   * 
+   * @return root element
+   */
+  public T getXmlRootElement() {
+    return xmlRootElement;
+  }  
+  
+  /** Set the root element of this reader
+   * 
+   * @param xmlRootElement to use
+   */
+  public void setXmlRootElement(T xmlRootElement) {
+    this.xmlRootElement = xmlRootElement;
+  }    
+      
  
  
   /**

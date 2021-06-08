@@ -14,10 +14,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.planit.input.InputBuilderListener;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.io.test.util.PlanItIOTestRunner;
+import org.planit.io.test.util.PlanItInputBuilder4Testing;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
@@ -100,13 +100,13 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -170,12 +170,12 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setPersistZeroFlow(true); // <--
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -239,12 +239,12 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("2");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("2");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -308,12 +308,12 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -443,12 +443,12 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseSpeedBasedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -512,12 +512,12 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseSpeedBasedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -604,12 +604,12 @@ public class ExplanatoryTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();     
       runner.setPersistZeroFlow(false);      
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());

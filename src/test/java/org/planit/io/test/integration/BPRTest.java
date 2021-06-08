@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRConfigurator;
-import org.planit.input.InputBuilderListener;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.io.test.util.PlanItIOTestRunner;
+import org.planit.io.test.util.PlanItInputBuilder4Testing;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 
@@ -115,13 +115,13 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParametersConsumer = 
+      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParametersConsumer = 
           (network, bpr, inputBuilderListener) -> {
-            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
+            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId("1");
             if(macroscopiclinkSegmentType == null) {
               fail("link segment type not present");
             }
-            Mode mode = inputBuilderListener.getModeBySourceId("1");
+            Mode mode = inputBuilderListener.getModeByXmlId("1");
             if(mode == null) {
               fail("link segment type not present");
             }            
@@ -145,12 +145,13 @@ public class BPRTest {
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();
   
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteWithCustomBprConfiguration(setCostParametersConsumer);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = 
+          runner.setupAndExecuteWithCustomBprConfiguration(setCostParametersConsumer);
       
       /* verify outcome */      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();  
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
            
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());

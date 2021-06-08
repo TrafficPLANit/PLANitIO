@@ -1,7 +1,6 @@
 package org.planit.io.xml.network;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.planit.io.converter.network.PlanitNetworkReaderSettings;
+import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -209,42 +208,26 @@ public class XmlMacroscopicNetworkLayerHelper {
   
   /* PUBLIC */
   
-  /** parse the link segment types
+  /** Parse the link segment types
    * 
    * @param xmlLayerconfiguration to extract them from
    * @param networkLayer to register them on
-   * @param settings to draw configruation from
-   * @param modesByXmlId modes indexed by their xml id
-   * @return parsed types
+   * @param networkReader to register types on by source id
    * @throws PlanItException thrown if error
    */
-  public static Map<String, MacroscopicLinkSegmentType> parseLinkSegmentTypes(
-      XMLElementLayerConfiguration xmlLayerconfiguration, 
-      MacroscopicPhysicalNetwork networkLayer, 
-      PlanitNetworkReaderSettings settings, 
-      Map<String, Mode> modesByXmlId ) throws PlanItException {
+  public static void parseLinkSegmentTypes(XMLElementLayerConfiguration xmlLayerconfiguration, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReader networkReader) throws PlanItException {
     
     /* link segment types */
     if(xmlLayerconfiguration.getLinksegmenttypes() == null) {
       /* inject default */
       injectDefaultLinkSegmentType(xmlLayerconfiguration);
     }
-    
-    /* register by xml id */
-    if(settings.getMapToIndexLinkSegmentTypeByXmlIds()==null) {
-      settings.setMapToIndexLinkSegmentTypeByXmlIds(new HashMap<String, MacroscopicLinkSegmentType>());
-    }
-    Map<String, MacroscopicLinkSegmentType>  segmentTypeByXmlId = settings.getMapToIndexLinkSegmentTypeByXmlIds();  
-           
-
+                     
     List<XMLElementLinkSegmentType> xmlLinkSegmentTypes = xmlLayerconfiguration.getLinksegmenttypes().getLinksegmenttype();       
     for(XMLElementLinkSegmentType xmlLinkSegmentType : xmlLinkSegmentTypes) {
       
       /* xml id */
-      String xmlId = xmlLinkSegmentType.getId();      
-      if (segmentTypeByXmlId.containsKey(xmlId)) {
-        throw new PlanItException("duplicate link segment type id " + xmlId + " found in network");
-      }
+      String xmlId = xmlLinkSegmentType.getId();
       
       /* external id */
       String externalId = null;
@@ -259,11 +242,15 @@ public class XmlMacroscopicNetworkLayerHelper {
       /* max density */
       double maximumDensityPcuPerKm = (xmlLinkSegmentType.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : xmlLinkSegmentType.getMaxdensitylane();
       
+      if (networkReader.getLinkSegmentTypeBySourceId(xmlId) != null) {
+        throw new PlanItException("duplicate link segment type id " + xmlId + " found in network");
+      }      
       /* create and register */
-      MacroscopicLinkSegmentType linkSegmentType = networkLayer.linkSegmentTypes.createAndRegisterNew(name, capacityPcuPerHour, maximumDensityPcuPerKm);
+      final MacroscopicLinkSegmentType linkSegmentType = networkLayer.linkSegmentTypes.createAndRegisterNew(name, capacityPcuPerHour, maximumDensityPcuPerKm);
       linkSegmentType.setXmlId(xmlId);
       linkSegmentType.setExternalId(externalId);
-      segmentTypeByXmlId.put(xmlId, linkSegmentType);
+      
+      networkReader.addLinkSegmentTypeToSourceIdMap(xmlId, linkSegmentType);
             
       /* mode properties, only set when allowed, otherwise not */
       Collection<Mode> thePlanitModes = new HashSet<Mode>();            
@@ -271,17 +258,16 @@ public class XmlMacroscopicNetworkLayerHelper {
         List<Accessmode> xmlModes = xmlLinkSegmentType.getAccess().getMode();
         for (Accessmode xmlMode : xmlModes) {                  
           /* mode properties */
-          parseLinkSegmentTypeModeProperties(xmlMode, linkSegmentType, modesByXmlId);                                 
+          parseLinkSegmentTypeModeProperties(xmlMode, linkSegmentType, networkReader.getAllModesBySourceId());                                 
         }          
       }else {
         /* all ROAD modes allowed */
-        thePlanitModes = modesByXmlId.values().stream().filter( 
+        thePlanitModes = networkReader.getAllModesBySourceId().values().stream().filter( 
             mode -> mode.getPhysicalFeatures().getTrackType() == TrackModeType.ROAD).collect(Collectors.toSet());
         thePlanitModes.forEach( planitMode -> linkSegmentType.addModeProperties(planitMode, MacroscopicModePropertiesFactory.create(planitMode.getMaximumSpeedKmH())));
       }
     }
  
-    return segmentTypeByXmlId;
   }   
     
   /**
@@ -289,17 +275,12 @@ public class XmlMacroscopicNetworkLayerHelper {
    * 
    * return nodesByExternalIdToPopulate map for reference
    * @param xmlLayer to extract from
-   * @param settings to base configuration on
+   * @param networkReader to register nodes on by source id
    * @param networkLayer to populate
    * @return parsed nodes
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
-  public static Map<String, Node> parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReaderSettings settings) throws PlanItException {
-    /* register by xml id */
-    if(settings.getMapToIndexNodeByXmlIds()==null) {
-      settings.setMapToIndexNodeByXmlIds(new HashMap<String, Node>());
-    }
-    Map<String, Node>  nodesByXmlId = settings.getMapToIndexNodeByXmlIds();    
+  public static void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReader networkReader) throws PlanItException {  
         
     /* parse nodes */
     for (XMLElementNodes.Node xmlNode : xmlLayer.getNodes().getNode()) {
@@ -323,31 +304,22 @@ public class XmlMacroscopicNetworkLayerHelper {
         Point centrePointGeometry = PlanitJtsUtils.createPoint(posValues.get(0), posValues.get(1));
         node.setPosition(centrePointGeometry);
       }
-      final Node prevValue = nodesByXmlId.put(node.getXmlId(), node);
-      if(prevValue != null) {
-       throw new PlanItException("Duplicate node external id " + node.getXmlId() + " found in network file");
+      boolean exists = networkReader.addNodeToSourceIdMap(node.getXmlId(), node);
+      if(exists) {
+       throw new PlanItException("Duplicate node external id %s found in network file", node.getXmlId());
       }
     }
-    return nodesByXmlId;
   }  
   
   /** parse link and link segments
    * @param xmlLayer layer to extract them from
    * @param networkLayer to register them on
-   * @param settings to take configuration from
-   * @param nodesByXmlId parsed nodes indexed by xml id
-   * @param linkSegmentTypesByXmlId parsed link segment types by xml id
+   * @param networkReader to register links and link segments on by source id
    * @param jtsUtils for length calculations absed on crs
    * @throws PlanItException thrown if error
    */
-  public static void parseLinkAndLinkSegments(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReaderSettings settings,
-      Map<String, Node> nodesByXmlId, Map<String, MacroscopicLinkSegmentType> linkSegmentTypesByXmlId, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
-    
-    /* link segment xml id map to populate */
-    if(settings.getMapToIndexLinkSegmentByXmlIds()==null) {
-      settings.setMapToIndexLinkSegmentByXmlIds(new HashMap<String, MacroscopicLinkSegment>());
-    }
-    Map<String, MacroscopicLinkSegment> linkSegmentsByXmlId = settings.getMapToIndexLinkSegmentByXmlIds();              
+  public static void parseLinkAndLinkSegments(
+      XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReader networkReader, PlanitJtsCrsUtils jtsUtils) throws PlanItException {                
 
     /* links */
     XMLElementLinks xmlLinks = xmlLayer.getLinks();
@@ -358,8 +330,8 @@ public class XmlMacroscopicNetworkLayerHelper {
       /** LINK **/
       Link link = null;
       {
-        Node startNode = nodesByXmlId.get(xmlLink.getNodearef());
-        Node endNode = nodesByXmlId.get(xmlLink.getNodebref());
+        Node startNode = networkReader.getNodeBySourceId(xmlLink.getNodearef());
+        Node endNode = networkReader.getNodeBySourceId(xmlLink.getNodebref());
         
         /* geometry */
         LineString theLineString = parseLinkGeometry(xmlLink);        
@@ -424,9 +396,9 @@ public class XmlMacroscopicNetworkLayerHelper {
         int noLanes = (xmlLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES : xmlLinkSegment.getNumberoflanes().intValue();        
         linkSegment.setNumberOfLanes(noLanes);   
         
-        final MacroscopicLinkSegment duplicate = linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment);
-        if(duplicate != null) {
-          throw new PlanItException("Duplicate link segment xml id " + linkSegment.getXmlId() + " found in network");        
+        final boolean duplicate = networkReader.addLinkSegmentToSourceIdMap(linkSegment.getXmlId(), linkSegment);
+        if(duplicate) {
+          throw new PlanItException("Duplicate link segment xml id %s found in network", linkSegment.getXmlId() );        
         }
         
         /** LINK SEGMENT TYPE **/
@@ -434,7 +406,7 @@ public class XmlMacroscopicNetworkLayerHelper {
         /* link segment type xml id */
         String linkSegmentTypeXmlId = null;
         if (xmlLinkSegment.getTyperef() == null) {
-          if (linkSegmentTypesByXmlId.keySet().size() > 1) {
+          if (networkLayer.linkSegmentTypes.size() > 1) {
             throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment type defined, but there is more than one possible link segment type");
           }
           linkSegmentTypeXmlId = networkLayer.linkSegmentTypes.getFirst().getXmlId();
@@ -443,9 +415,9 @@ public class XmlMacroscopicNetworkLayerHelper {
         }  
         
         /* register type on link */
-        MacroscopicLinkSegmentType linkSegmentType = linkSegmentTypesByXmlId.get(linkSegmentTypeXmlId);
+        MacroscopicLinkSegmentType linkSegmentType = networkReader.getLinkSegmentTypeBySourceId(linkSegmentTypeXmlId);
         if(linkSegmentType == null) {
-          throw new PlanItException(String.format("link segment type %s, unknown, cannot be registered on link segment %s",linkSegmentsByXmlId,linkSegment));
+          throw new PlanItException(String.format("link segment type %s, unknown, cannot be registered on link segment %s",linkSegmentTypeXmlId,linkSegment));
         }
         linkSegment.setLinkSegmentType(linkSegmentType);    
         

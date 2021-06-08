@@ -16,8 +16,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.test.util.PlanItIOTestRunner;
+import org.planit.io.test.util.PlanItInputBuilder4Testing;
 import org.planit.logging.Logging;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
@@ -68,7 +68,7 @@ public class InitialCostTest {
     try {
       
       /* planit */
-      PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+      PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
@@ -82,7 +82,7 @@ public class InitialCostTest {
       for (CSVRecord record : parser) {
         /* compare */
         String modeXmlId = record.get(modeHeader);
-        Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
+        Mode mode = planItInputBuilder.getModeByXmlId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
         String linkSegmentXmlId = record.get(linkSegmentXmlIdHeader);
         MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentByXmlId(linkSegmentXmlId);
@@ -106,7 +106,7 @@ public class InitialCostTest {
     String initialCostsFileLocationMissingRows = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs1.csv";
     try {
       /* planit */
-      PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+      PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
       InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
@@ -121,7 +121,7 @@ public class InitialCostTest {
       for (CSVRecord record : parser) {
         /* compare */
         String modeXmlId =record.get(modeHeader);
-        Mode mode = planItInputBuilder.getModeBySourceId(modeXmlId);
+        Mode mode = planItInputBuilder.getModeByXmlId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
         String upstreamNodeXmlId = record.get(upstreamNodeXmlIdHeader);
         String downstreamNodeXmlId = record.get(downstreamNodeXmlIdHeader);

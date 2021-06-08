@@ -12,10 +12,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.planit.converter.demands.DemandsReader;
+import org.planit.converter.demands.DemandsReaderBase;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
-import org.planit.io.xml.util.PlanitXmlReader;
+import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.utils.time.TimePeriod;
@@ -45,13 +45,16 @@ import org.planit.zoning.Zoning;
  * @author markr
  *
  */
-public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDemand> implements DemandsReader {
+public class PlanitDemandsReader extends DemandsReaderBase {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDemandsReader.class.getCanonicalName());
   
   /** list of reserved characters used */
-  private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});  
+  private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
+  
+  /** parses the xml content in JAXB memory format */
+  private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;  
   
   /**
    * Generate default traveller type if none defined in XML files
@@ -202,9 +205,9 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       if(xmlTravellertype.getExternalid() != null && !xmlTravellertype.getExternalid().isBlank()) {
         travelerType.setExternalId(xmlTravellertype.getExternalid());
       }      
-      
-      final TravelerType duplicateTravelerType = settings.getMapToIndexTravelerTypeByXmlIds().put(travelerType.getXmlId(), travelerType);
-      PlanItException.throwIf(duplicateTravelerType!=null, "duplicate traveler type xml id " + travelerType.getXmlId() + " found in demands");
+            
+      boolean duplicate = addTravelerTypeToSourceIdMap(travelerType.getXmlId(), travelerType);
+      PlanItException.throwIf(duplicate, "Duplicate traveler type xml id %s found in demands", travelerType.getXmlId());
     }
   }
   
@@ -236,7 +239,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
         PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1,
             String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
-        PlanItException.throwIf(settings.getMapToIndexTravelerTypeByXmlIds().get(xmlUserclass.getTravellertyperef()) == null, 
+        PlanItException.throwIf(getTravelerTypeBySourceId(xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
       PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
@@ -254,7 +257,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       /* traveller type ref */
       String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
       xmlUserclass.setTravellertyperef(travellerTypeXmlIdRef);
-      TravelerType travellerType = settings.getMapToIndexTravelerTypeByXmlIds().get(travellerTypeXmlIdRef);
+      TravelerType travellerType = getTravelerTypeBySourceId(travellerTypeXmlIdRef);
                  
       UserClass userClass = demands.userClasses.createAndRegisterNewUserClass(xmlUserclass.getName(), userClassMode, travellerType);
       
@@ -268,8 +271,8 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
         userClass.setExternalId(xmlUserclass.getExternalid());
       }        
       
-      final UserClass duplicateUserClass = settings.getMapToIndexUserClassByXmlIds().put(userClass.getXmlId(), userClass);
-      PlanItException.throwIf(duplicateUserClass!=null, "duplicate user class xml id " + userClass.getXmlId() + " found in demands");
+      final boolean duplicate = addUserClassToSourceIdMap(userClass.getXmlId(), userClass);
+      PlanItException.throwIf(duplicate, "Duplicate user class xml id %s found in demands", userClass.getXmlId());
     }
     return xmlUserclasses.getUserclass().size();
   }  
@@ -329,8 +332,8 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
         timePeriod.setExternalId(xmlTimePeriod.getExternalid());
       }         
       
-      final TimePeriod duplicateTimePeriod = settings.getMapToIndexTimePeriodByXmlIds().put(timePeriod.getXmlId(), timePeriod);
-      PlanItException.throwIf(duplicateTimePeriod!=null, "duplicate time period xml id " + timePeriod.getXmlId() + " found in demands");
+      final boolean duplicate = addTimePeriodToSourceIdMap(timePeriod.getXmlId(), timePeriod);
+      PlanItException.throwIf(duplicate, "Duplicate time period XML id %s found in demands", timePeriod.getXmlId() );
     }
   }  
   
@@ -417,7 +420,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
   protected void populateDemandConfiguration() throws PlanItException {
     
     /* configuration element */
-    final XMLElementDemandConfiguration demandconfiguration = getXmlRootElement().getDemandconfiguration();
+    final XMLElementDemandConfiguration demandconfiguration = xmlParser.getXmlRootElement().getDemandconfiguration();
     
     generateAndStoreTravelerTypes(demandconfiguration);
     generateAndStoreUserClasses(demandconfiguration);
@@ -430,10 +433,8 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @throws PlanItException thrown if error 
    */
   protected void populateDemandContents() throws PlanItException {
-    final List<XMLElementOdMatrix> oddemands = getXmlRootElement().getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
-    
-    //final Map<Mode, Map<TimePeriod, ODDemandMatrix>> demandsPerTimePeriodAndMode = initializeDemandsPerTimePeriodAndMode(demands, zones, inputBuilderListener);
-    
+    final List<XMLElementOdMatrix> oddemands = xmlParser.getXmlRootElement().getOddemands().getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix();
+        
     /* od matrix */
     for (final XMLElementOdMatrix xmlOdMatrix : oddemands) {
       
@@ -444,7 +445,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
         userClass = demands.userClasses.getFirst();
       }else {
         final String userClassXmlIdRef = xmlOdMatrix.getUserclassref();
-        userClass = settings.getMapToIndexUserClassByXmlIds().get(userClassXmlIdRef);        
+        userClass = getUserClassBySourceId(userClassXmlIdRef);        
       }
       PlanItException.throwIf(userClass==null, "referenced user class on od matrix not available");
       final Mode mode = userClass.getMode();
@@ -452,7 +453,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       /* time period ref */
       final String timePeriodXmlIdRef = xmlOdMatrix.getTimeperiodref();
       PlanItException.throwIf(timePeriodXmlIdRef==null, "time period must always be referenced on od matrix");
-      final TimePeriod timePeriod = settings.getMapToIndexTimePeriodByXmlIds().get(timePeriodXmlIdRef);
+      final TimePeriod timePeriod = getTimePeriodBySourceId(timePeriodXmlIdRef);
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
@@ -467,6 +468,8 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
     }
   }  
   
+  /** Reference to demand schema location TODO: move to properties file*/
+  public static final String DEMAND_XSD_FILE = "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicdemandinput.xsd";  
 
   /** Constructor
    * 
@@ -475,8 +478,8 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    * @param demands to populate
    * @throws PlanItException  thrown if error
    */
-  public PlanitDemandsReader(final String pathDirectory, final String xmlFileExtension, final Demands demands) throws PlanItException{   
-    super(XMLElementMacroscopicDemand.class);
+  public PlanitDemandsReader(final String pathDirectory, final String xmlFileExtension, final Demands demands) throws PlanItException{
+    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicDemand>(XMLElementMacroscopicDemand.class);
     getSettings().setInputDirectory(pathDirectory);
     getSettings().setXmlFileExtension(xmlFileExtension);
     setDemands(demands);
@@ -492,8 +495,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
    */
   public PlanitDemandsReader(
       final XMLElementMacroscopicDemand xmlMacroscopicDemands, final MacroscopicNetwork network, final Zoning zoning, final Demands demandsToPopulate) throws PlanItException{
-    
-    super(xmlMacroscopicDemands);    
+    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicDemand>(xmlMacroscopicDemands);
     setDemands(demandsToPopulate);
     getSettings().setReferenceNetwork(network); 
     getSettings().setReferenceZoning(zoning);
@@ -511,7 +513,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       /* verify completeness of inputs */
       validateSettings();
       
-      initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
+      xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
       
       /* configuration */
       populateDemandConfiguration();
@@ -520,7 +522,7 @@ public class PlanitDemandsReader extends PlanitXmlReader<XMLElementMacroscopicDe
       populateDemandContents();
       
       /* free */
-      clearXmlContent();           
+      xmlParser.clearXmlContent();           
 
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());

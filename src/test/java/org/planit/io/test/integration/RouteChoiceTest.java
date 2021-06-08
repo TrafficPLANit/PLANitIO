@@ -13,10 +13,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRConfigurator;
-import org.planit.input.InputBuilderListener;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.io.test.util.PlanItIOTestRunner;
+import org.planit.io.test.util.PlanItInputBuilder4Testing;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
@@ -155,13 +155,13 @@ public class RouteChoiceTest {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */        
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -320,13 +320,13 @@ public class RouteChoiceTest {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */        
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -742,13 +742,13 @@ public class RouteChoiceTest {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -840,13 +840,13 @@ public class RouteChoiceTest {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -1069,13 +1069,13 @@ public class RouteChoiceTest {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      TimePeriod timePeriod1 = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod1, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod1).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -1193,7 +1193,7 @@ public class RouteChoiceTest {
       linkSegmentByNodeResults.get(timePeriod1).get(mode1).get(node24XmlId).put(node7XmlId, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
 
-      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodBySourceId("1");
+      TimePeriod timePeriod2 = testOutputDto.getC().getTimePeriodByXmlId("1");
       
       linkSegmentByNodeResults.put(timePeriod2, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod2).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -1534,9 +1534,9 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
-        Mode mode = inputBuilderListener.getModeBySourceId("2");
+      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParameters = (physicalNetwork, bpr, inputBuilderListener) -> {
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId("1");
+        Mode mode = inputBuilderListener.getModeByXmlId("2");
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
       
@@ -1546,13 +1546,13 @@ public class RouteChoiceTest {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.setGapFunctionEpsilonGap(0.0);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = runner.setupAndExecuteWithCustomBprConfiguration(setCostParameters);      
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteWithCustomBprConfiguration(setCostParameters);      
 
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      Mode mode2 = testOutputDto.getC().getModeBySourceId("2");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      Mode mode2 = testOutputDto.getC().getModeByXmlId("2");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -1657,10 +1657,10 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = (network,
+      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParameters = (network,
           bpr, inputBuilderListener) -> {
-        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
-        Mode mode = inputBuilderListener.getModeBySourceId("2");
+        MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId("1");
+        Mode mode = inputBuilderListener.getModeByXmlId("2");
         bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
       };
 
@@ -1683,15 +1683,15 @@ public class RouteChoiceTest {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.setGapFunctionEpsilonGap(0.0);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = 
           runner.setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(setCostParameters,setOutputTypeConfigurationProperties);      
 
       /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      Mode mode2 = testOutputDto.getC().getModeBySourceId("2");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      Mode mode2 = testOutputDto.getC().getModeByXmlId("2");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
 
       linkSegmentByIdResults.put(timePeriod, new TreeMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>());
       linkSegmentByIdResults.get(timePeriod).put(mode1, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
@@ -1800,10 +1800,10 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
-      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, InputBuilderListener> setCostParameters = 
+      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParameters = 
           (network,bpr, inputBuilderListener) -> {
-            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeBySourceId("1");
-            Mode mode = inputBuilderListener.getModeBySourceId("2");
+            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId("1");
+            Mode mode = inputBuilderListener.getModeByXmlId("2");
             bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
           };
           
@@ -1813,15 +1813,15 @@ public class RouteChoiceTest {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(true);
       runner.setGapFunctionEpsilonGap(0.0);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, InputBuilderListener> testOutputDto = 
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = 
           runner.setupAndExecuteWithCustomBprConfiguration(setCostParameters);      
 
       /* compare results */          
 
       //TODO - Comparisons with MemoryOutputFormatter have been commented out due to insufficient time to configure them      
-      Mode mode1 = testOutputDto.getC().getModeBySourceId("1");
-      Mode mode2 = testOutputDto.getC().getModeBySourceId("2");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodBySourceId("0");
+      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
+      Mode mode2 = testOutputDto.getC().getModeByXmlId("2");
+      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());

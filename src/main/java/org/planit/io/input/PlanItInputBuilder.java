@@ -24,7 +24,7 @@ import org.planit.io.converter.zoning.PlanitZoningReader;
 import org.planit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.planit.io.demands.PlanitDemandsReader;
 import org.planit.io.xml.util.JAXBUtils;
-import org.planit.io.xml.util.PlanitXmlReader;
+import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
@@ -54,7 +54,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanItInputBuilder.class.getCanonicalName());
-  
+    
   /** Generated object to store demand input data */
   private XMLElementMacroscopicDemand xmlRawDemand;
 
@@ -69,17 +69,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private final String projectPath;
   
   /** XML file extension to use */
-  private final String xmlFileExtension;  
-       
-  /** Reference to zoning schema location */
-  private static final String ZONING_XSD_FILE = "src\\main\\resources\\xsd\\macroscopiczoninginput.xsd";
-  
-  /** Reference to demand schema location */
-  private static final String DEMAND_XSD_FILE = "src\\main\\resources\\xsd\\macroscopicdemandinput.xsd";
-
-  /** The default separator that is assumed when no separator is provided */
-  public static final String DEFAULT_SEPARATOR = ",";
-
+  private final String xmlFileExtension;
+   
+           
   /**
    * Populate the input objects from specified XML files
    *
@@ -169,19 +161,19 @@ public class PlanItInputBuilder extends InputBuilderListener {
     boolean foundDemandFile = false;
     File demandFileName = null;
     for (int i = 0; i < xmlFileNames.length; i++) {
-      if (zoningFileName==null && validateXmlInputFile(xmlFileNames[i], ZONING_XSD_FILE)) {
+      if (zoningFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitZoningReader.ZONING_XSD_FILE)) {
           zoningFileName = xmlFileNames[i];
       }
       if (networkFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitNetworkReader.NETWORK_XSD_FILE)) {
           networkFileName = xmlFileNames[i];
       }
-      if (demandFileName==null && validateXmlInputFile(xmlFileNames[i], DEMAND_XSD_FILE)) {
+      if (demandFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitDemandsReader.DEMAND_XSD_FILE)) {
           demandFileName = xmlFileNames[i];
       }
     }
-    PlanItException.throwIf(zoningFileName==null, "Failed to find a valid zoning input file in the project directory " + projectPath);
-    PlanItException.throwIf(networkFileName==null, "Failed to find a valid network input file in the project directory " + projectPath);
-    PlanItException.throwIf(demandFileName==null, "Failed to find a valid demand input file in the project directory " + projectPath);
+    PlanItException.throwIfNull(zoningFileName, "Failed to find a valid zoning input file in directory %s", projectPath);
+    PlanItException.throwIfNull(networkFileName, "Failed to find a valid network input file in directory %s", projectPath);
+    PlanItException.throwIfNull(demandFileName, "Failed to find a valid demand input file in directory %s", projectPath);
     
     LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + zoningFileName + " provides the zoning input data.");
     LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + networkFileName + " provides the network input data.");
@@ -257,12 +249,37 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final MacroscopicLinkSegment linkSegment) throws PlanItException {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
-    final Mode mode = getModeBySourceId(modeXmlId);
+    final Mode mode = getPlanitNetworkReader().getModeBySourceId(modeXmlId);
     PlanItException.throwIf(mode == null, "mode xml id not available in configuration");
     
     final double cost = Double.parseDouble(record.get(LinkSegmentCostOutputProperty.NAME));
     initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
   }
+  
+  /** get PLANit network reader instance
+   * 
+   * @return PLANit network reader
+   */
+  protected PlanitNetworkReader getPlanitNetworkReader() {
+    return (PlanitNetworkReader)getNetworkReader();
+  }
+  
+  /** get PLANit zoning reader instance
+   * 
+   * @return PLANit zoning reader
+   */
+  protected PlanitZoningReader getPlanitZoningReader() {
+    return (PlanitZoningReader) getZoningReader();
+  }  
+  
+  /** get PLANit demands reader instance
+   * 
+   * @return PLANit demands reader
+   */
+  protected PlanitDemandsReader getPlanitDemandsReader() {
+    return (PlanitDemandsReader) getDemandsReader();
+  }  
+     
   
   /**
    * Creates the macroscopic network object from the data in the input file
@@ -279,14 +296,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
         
     /* create parser and read/populate the network */
-    PlanitNetworkReader reader = PlanitNetworkReaderFactory.create(xmlRawNetwork, network);
-    /* make sure the external ids are indexed via the input builder's already present maps */
-    reader.getSettings().setMapToIndexLinkSegmentByXmlIds(sourceIdLinkSegmentMap);
-    reader.getSettings().setMapToIndexLinkSegmentTypeByXmlIds(sourceIdLinkSegmentTypeMap);
-    reader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
-    reader.getSettings().setMapToIndexNodeByXmlIds(sourceIdNodeMap);
-    reader.getSettings().setInputDirectory(projectPath);
-    network = (MacroscopicNetwork) reader.read();        
+    this.setNetworkReader(PlanitNetworkReaderFactory.create(xmlRawNetwork, network));
+    getPlanitNetworkReader().getSettings().setInputDirectory(projectPath);
+    network = (MacroscopicNetwork) getNetworkReader().read();        
   }
 
   /**
@@ -300,17 +312,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     
     /** delegate to the dedicated zoning reader */
-    PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning);
-    
-    /* update reference to currently empty maps in builder */
-    zoningReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
-    zoningReader.getSettings().setMapToIndexConnectoidsByXmlIds(sourceIdConnectoidMap);
-    zoningReader.getSettings().setInputDirectory(projectPath);
+    this.setZoningReader(PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning));
+    getPlanitZoningReader().getSettings().setInputDirectory(projectPath);
     
     /* place references to already populated network entities to avoid duplicating this index on the zoning reader */
-    zoningReader.setLinkSegmentsByXmlId(sourceIdLinkSegmentMap);
-    zoningReader.setNodesByXmlId(sourceIdNodeMap);
-    zoningReader.read();
+    getPlanitZoningReader().setLinkSegmentsByXmlId(getPlanitNetworkReader().getAllLinkSegmentsBySourceId());
+    getPlanitZoningReader().setNodesByXmlId(getPlanitNetworkReader().getAllNodesBySourceId());
+    getZoningReader().read();
   }
 
   /**
@@ -330,14 +338,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
     final MacroscopicNetwork network = (MacroscopicNetwork) parameter2;
     
     /* delegate to the dedicated demands reader */
-    PlanitDemandsReader demandsReader = new PlanitDemandsReader(xmlRawDemand, network, zoning, demands);
-    demandsReader.getSettings().setMapToIndexTravelerTypeByXmlIds(sourceIdTravelerTypeMap);
-    demandsReader.getSettings().setMapToIndexUserClassByXmlIds(sourceIdUserClassMap);
-    demandsReader.getSettings().setMapToIndexTimePeriodByXmlIds(sourceIdTimePeriodMap);
-    demandsReader.getSettings().setMapToIndexZoneByXmlIds(sourceIdZoneMap);
-    demandsReader.getSettings().setMapToIndexModeByXmlIds(sourceIdModeMap);
-    demandsReader.getSettings().setInputDirectory(projectPath);
-    demandsReader.read();    
+    this.setDemandsReader(new PlanitDemandsReader(xmlRawDemand, network, zoning, demands));
+    getPlanitDemandsReader().getSettings().setMapToIndexZoneByXmlIds(getPlanitZoningReader().getAllZonesBySourceId());
+    getPlanitDemandsReader().getSettings().setMapToIndexModeByXmlIds(getPlanitNetworkReader().getAllModesBySourceId());
+    getPlanitDemandsReader().getSettings().setInputDirectory(projectPath);
+    getPlanitDemandsReader().read();    
   }
 
   /**
@@ -370,15 +375,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
         switch (linkIdentificationMethod) {
           case LINK_SEGMENT_EXTERNAL_ID:
             final String externalId = record.get(LinkSegmentExternalIdOutputProperty.NAME);                
-            linkSegment = getLinkSegmentByExternalId(network, externalId);           
+            linkSegment = getPlanitNetworkReader().getLinkSegmentByExternalId(network, externalId);           
             break;            
           case LINK_SEGMENT_XML_ID:
             final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
-            linkSegment = getLinkSegmentByXmlId(xmlId);
+            linkSegment = getPlanitNetworkReader().getLinkSegmentBySourceId(xmlId);
             break;          
           case UPSTREAM_NODE_XML_ID:
-            final Node startNode = getNodeByXmlId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
-            final Node endNode = getNodeByXmlId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
+            final Node startNode = getPlanitNetworkReader().getNodeBySourceId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
+            final Node endNode = getPlanitNetworkReader().getNodeBySourceId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
             linkSegment = startNode.getLinkSegment(endNode);
             break;
           default:
@@ -395,6 +400,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
       throw new PlanItException("Error when initialising link segment costs in PLANitIO",e);
     }
   }
+  
+  /** The default separator that is assumed when no separator is provided */
+  public static final String DEFAULT_SEPARATOR = ",";  
 
 
   /**
@@ -405,7 +413,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
    */
   public PlanItInputBuilder(final String projectPath) throws PlanItException {
-    this(projectPath, PlanitXmlReader.DEFAULT_XML_FILE_EXTENSION);
+    this(projectPath, PlanitXmlJaxbParser.DEFAULT_XML_FILE_EXTENSION);
   }
 
   /**

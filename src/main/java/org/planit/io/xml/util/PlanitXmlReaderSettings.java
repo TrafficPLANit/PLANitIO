@@ -18,7 +18,7 @@ public class PlanitXmlReaderSettings {
    * Default constructor using default file extensino and user must set output dir afterwards manually
    */
   public PlanitXmlReaderSettings() {
-   this(null,PlanitXmlReader.DEFAULT_XML_FILE_EXTENSION); 
+   this(null,PlanitXmlJaxbParser.DEFAULT_XML_FILE_EXTENSION); 
   }
   
   /**
