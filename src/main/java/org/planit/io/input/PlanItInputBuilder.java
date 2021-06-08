@@ -22,6 +22,7 @@ import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.io.converter.network.PlanitNetworkReaderFactory;
 import org.planit.io.converter.zoning.PlanitZoningReader;
 import org.planit.io.converter.zoning.PlanitZoningReaderFactory;
+import org.planit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.planit.io.demands.PlanitDemandsReader;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
@@ -316,8 +317,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
     getPlanitZoningReader().getSettings().setInputDirectory(projectPath);
     
     /* place references to already populated network entities to avoid duplicating this index on the zoning reader */
-    getPlanitZoningReader().setLinkSegmentsByXmlId(getPlanitNetworkReader().getAllLinkSegmentsBySourceId());
-    getPlanitZoningReader().setNodesByXmlId(getPlanitNetworkReader().getAllNodesBySourceId());
+    ((PlanitZoningReaderSettings)getPlanitZoningReader().getSettings()).setLinkSegmentsByXmlId(getPlanitNetworkReader().getAllLinkSegmentsBySourceId());
+    ((PlanitZoningReaderSettings)getPlanitZoningReader().getSettings()).setNodesByXmlId(getPlanitNetworkReader().getAllNodesBySourceId());
     getZoningReader().read();
   }
 
