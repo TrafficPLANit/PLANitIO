@@ -5,16 +5,16 @@
   	
 	<parent>
     <groupId>org.planit.parentpom</groupId>
-    <artifactId>PLANitParentPom</artifactId>
+    <artifactId>planit-parentpom</artifactId>
 		<version>0.2.1a1</version>
 	</parent>
 
 	<groupId>org.planit.io</groupId>
-	<artifactId>PLANitIO</artifactId>
+	<artifactId>planit-io</artifactId>
 	<description>PlanIt Code for default input and output</description>
 	<packaging>jar</packaging>
 
-	<name>PLANitIO</name>
+	<name>planit-io</name>
 	<url>https://github.com/TrafficPLANit/planitio</url>
 	
 	<!-- license based on the one published on the website -->
@@ -32,19 +32,19 @@
 		<!-- version inherited from parent -->
 		<dependency>
 			<groupId>org.planit.utils</groupId>
-			<artifactId>PLANitUtils</artifactId>
+			<artifactId>planit-utils</artifactId>
 		</dependency>
 
 		<!-- version inherited from parent -->
 		<dependency>
 			<groupId>org.planit</groupId>
-			<artifactId>PLANit</artifactId>
+			<artifactId>planit-core</artifactId>
 		</dependency>
 	
 		<!-- version inherited from parent -->
 		<dependency>
 			<groupId>org.planit.xml</groupId>
-			<artifactId>PLANitXMLGenerator</artifactId>
+			<artifactId>planit-xmlgenerator</artifactId>
 		</dependency>		
 
 		<dependency>
