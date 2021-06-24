@@ -93,7 +93,7 @@ public class PLANitDynamicAssignmentProjectDemos {
           // MNL for path choice
           suePathChoice.createAndRegisterLogitModel(LogitChoiceModel.MNL);
           // register a fixed od path set
-          suePathChoice.setOdPathMatrix(project.odPathSets.getFirstOdPathSets().getFirstOdPathMatrix());
+          suePathChoice.setOdPathMatrix(project.odPathSets.getFirst().getFirstOdPathMatrix());
 
           // Output formatter: MEMORY
           eLTM.registerOutputFormatter(memoryOutputFormatter);

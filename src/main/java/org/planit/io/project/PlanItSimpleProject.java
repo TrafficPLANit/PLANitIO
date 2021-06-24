@@ -131,8 +131,8 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    */
   public TrafficAssignmentConfigurator<? extends TrafficAssignment> createAndRegisterTrafficAssignment(
       final String trafficAssignmentType) throws PlanItException {
-    
-    PlanItException.throwIf(super.assignmentBuilders.hasRegisteredAssignmentBuilders(), "this type of PLANit project only allows a single assignment per project");
+            
+    PlanItException.throwIf(this.assignmentBuilders.isEmpty(), "this type of PLANit project only allows a single assignment per project");
     return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
   }
 
@@ -161,7 +161,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    */
   @Override
   public void executeAllTrafficAssignments() throws PlanItException {
-    if (super.assignmentBuilders.hasRegisteredAssignmentBuilders()) {
+    if (super.assignmentBuilders.isEmpty()) {
       super.executeAllTrafficAssignments();
     } else {
       LOGGER.info(LoggingUtils.createProjectPrefix(this.id)
