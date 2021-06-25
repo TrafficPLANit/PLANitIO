@@ -699,6 +699,14 @@ public class PlanitZoningReader extends ZoningReaderBase {
       /* popoulate Xml memory model */
       xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
       
+      /* xml id */
+      String zoningXmlId = xmlParser.getXmlRootElement().getId();
+      if(StringUtils.isNullOrBlank(zoningXmlId)) {
+        LOGGER.warning(String.format("Zoning has no XML id defined, adopting internally generated id %d instead",zoning.getId()));
+        zoningXmlId = String.valueOf(zoning.getId());
+      }
+      zoning.setXmlId(zoningXmlId);      
+      
       /* initialise and validate crs compatibility */
       parseCoordinateReferenceSystem(macroscopicNetwork);               
       

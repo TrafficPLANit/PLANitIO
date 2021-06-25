@@ -21,6 +21,7 @@ import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.id.IdGroupingToken;
 import org.planit.utils.misc.CharacterUtils;
+import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.MotorisationModeType;
 import org.planit.utils.mode.PhysicalModeFeatures;
@@ -353,6 +354,14 @@ public class PlanitNetworkReader extends NetworkReaderBase {
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
     
+    /* xml id */
+    String networkXmlId = xmlParser.getXmlRootElement().getId();
+    if(StringUtils.isNullOrBlank(networkXmlId)) {
+      LOGGER.warning(String.format("Network has no XML id defined, adopting internally generated id %d instead",network.getId()));
+      networkXmlId = String.valueOf(network.getId());
+    }
+    network.setXmlId(networkXmlId);
+            
     /* defaults */
     injectMissingDefaultsToRawXmlNetwork();       
     

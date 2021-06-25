@@ -559,6 +559,19 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }    
   }
   
+  /** Populate the XML id of the XML zoning element
+   * 
+   * @param zoning to extract XML id from
+   */
+  private void populateXmlId(Zoning zoning) {
+    /* xml id */    
+    if(!zoning.hasXmlId()) {
+      LOGGER.warning(String.format("Zoning has no XML id defined, adopting internally generated id %d instead",zoning.getId()));
+      zoning.setXmlId(String.valueOf(zoning.getId()));
+    }
+    xmlRawZoning.setId(zoning.getXmlId());
+  }
+
   /** Make sure the zonings destination crs is set (if any)
    * 
    * @throws PlanItException thrown if error
@@ -648,7 +661,10 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
       LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
       
       createZoneToConnectoidIndices(zoning); 
-    }    
+    }
+    
+    /* xml id */
+    populateXmlId(zoning);
     
     /* crs */
     populateCrs();

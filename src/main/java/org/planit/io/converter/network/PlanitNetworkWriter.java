@@ -422,6 +422,19 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     modes.forEach( mode -> populateXmlMode(xmlModesList, mode));        
   }          
 
+  /** Populate the XML id of the XML network element
+   * 
+   * @param network to extract XML id from
+   */
+  private void populateXmlId(MacroscopicNetwork network) {
+    /* xml id */    
+    if(!network.hasXmlId()) {
+      LOGGER.warning(String.format("Network has no XML id defined, adopting internally generated id %d instead",network.getId()));
+      network.setXmlId(String.valueOf(network.getId()));
+    }
+    xmlRawNetwork.setId(network.getXmlId());
+  }
+
   /**
    * Populate the link configuration for this network, i.e., the modes
    * 
@@ -553,6 +566,9 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
     LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
+    
+    /* xml id */
+    populateXmlId(macroscopicNetwork);
     
     /* general configuration */
     populateXmlConfiguration(network.modes);

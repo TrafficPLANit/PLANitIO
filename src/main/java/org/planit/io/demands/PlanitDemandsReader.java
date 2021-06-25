@@ -22,6 +22,7 @@ import org.planit.utils.time.TimePeriod;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.zoning.OdZone;
 import org.planit.utils.zoning.Zone;
@@ -514,6 +515,14 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       validateSettings();
       
       xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
+      
+      /* xml id */
+      String demandsXmlId = xmlParser.getXmlRootElement().getId();
+      if(StringUtils.isNullOrBlank(demandsXmlId)) {
+        LOGGER.warning(String.format("Demands has no XML id defined, adopting internally generated id %d instead",demands.getId()));
+        demandsXmlId = String.valueOf(demands.getId());
+      }
+      demands.setXmlId(demandsXmlId);        
       
       /* configuration */
       populateDemandConfiguration();
