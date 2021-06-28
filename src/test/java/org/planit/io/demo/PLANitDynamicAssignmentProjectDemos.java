@@ -71,7 +71,7 @@ public class PLANitDynamicAssignmentProjectDemos {
           // INITIALISE OUTPUT FORMATTERS
           final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
           // route sets are defined on the project level and linked to a network layer, zoning combination
-          project.createAndRegisterOdPathSets(theNetwork.infrastructureLayers.getFirst(), zoning, routeInputPath);
+          project.createAndRegisterOdPathSets(theNetwork.transportLayers.getFirst(), zoning, routeInputPath);
 
           //:TODO: to be implemented
           // alternatively paths can be generated with a route generator

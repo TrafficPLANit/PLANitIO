@@ -12,7 +12,7 @@ import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.zoning.ZoningReaderBase;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -557,7 +557,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
   protected Zoning zoning;
   
   /** the network this zoning relates to */
-  protected InfrastructureNetwork<?,?> network;
+  protected TransportLayerNetwork<?,?> network;
     
   /**
    * initialise indices if not done so by the user
@@ -568,13 +568,13 @@ public class PlanitZoningReader extends ZoningReaderBase {
     /* xml ids are unique across all layers */
     if(settings.nodesByXmlId == null) {
       settings.nodesByXmlId = new HashMap<String, Node>();
-      for(MacroscopicPhysicalNetwork layer : network.infrastructureLayers) {
+      for(MacroscopicPhysicalNetwork layer : network.transportLayers) {
         layer.nodes.forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
       }
     }
     if(settings.linkSegmentsByXmlId == null) {
       settings.linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
-      for(MacroscopicPhysicalNetwork layer : network.infrastructureLayers) {
+      for(MacroscopicPhysicalNetwork layer : network.transportLayers) {
         layer.linkSegments.forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
       }
     }
@@ -592,7 +592,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
    * 
    * @param network to use
    */
-  protected void setNetwork(final InfrastructureNetwork<?,?> network) {
+  protected void setNetwork(final TransportLayerNetwork<?,?> network) {
     this.network = network;
   }
   
@@ -639,7 +639,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
    * @param zoning to populate
    */
   protected PlanitZoningReader(
-      final PlanitZoningReaderSettings settings, final InfrastructureNetwork<?,?> network, final Zoning zoning) {
+      final PlanitZoningReaderSettings settings, final TransportLayerNetwork<?,?> network, final Zoning zoning) {
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);
     this.settings = settings;
     setZoning(zoning);
@@ -655,7 +655,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
    * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final String pathDirectory, final String xmlFileExtension, final InfrastructureNetwork<?,?> network, final Zoning zoning) throws PlanItException{   
+      final String pathDirectory, final String xmlFileExtension, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{   
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);  
     this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);    
     setZoning(zoning);
@@ -670,7 +670,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
    * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final InfrastructureNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(xmlMacroscopicZoning);
     this.settings =  new PlanitZoningReaderSettings();
     setZoning(zoning);

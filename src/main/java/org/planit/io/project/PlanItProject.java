@@ -4,7 +4,7 @@ import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.TrafficAssignmentConfigurator;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.exceptions.PlanItException;
@@ -48,7 +48,7 @@ public class PlanItProject extends CustomPlanItProject {
       String trafficAssignmentType, 
       Demands theDemands,
       Zoning theZoning, 
-      final InfrastructureNetwork<?,?> theNetwork) throws PlanItException {
+      final TransportLayerNetwork<?,?> theNetwork) throws PlanItException {
     
     /* delegate */
     TrafficAssignmentConfigurator<? extends TrafficAssignment> taConfigurator = 

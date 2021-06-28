@@ -8,7 +8,7 @@ import org.planit.io.converter.network.PlanitNetworkWriterSettings;
 import org.planit.io.converter.zoning.PlanitZoningWriter;
 import org.planit.io.converter.zoning.PlanitZoningWriterFactory;
 import org.planit.io.converter.zoning.PlanitZoningWriterSettings;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
@@ -65,7 +65,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    * {@inheritDoc}
    */
   @Override
-  public void write(InfrastructureNetwork<?, ?> network, Zoning zoning) throws PlanItException {
+  public void write(TransportLayerNetwork<?, ?> network, Zoning zoning) throws PlanItException {
     
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("PLANit intermodal writer currently only supports macroscopic networks");

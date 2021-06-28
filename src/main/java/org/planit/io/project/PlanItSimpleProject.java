@@ -9,7 +9,7 @@ import org.planit.assignment.TrafficAssignmentConfigurator;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.project.CustomPlanItProject;
@@ -150,7 +150,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       final String trafficAssignmentType,
       final Demands theDemands,
       final Zoning theZoning,
-      final InfrastructureNetwork<?,?> theNetwork)
+      final TransportLayerNetwork<?,?> theNetwork)
       throws PlanItException {
     throw new PlanItException(
         "a simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");

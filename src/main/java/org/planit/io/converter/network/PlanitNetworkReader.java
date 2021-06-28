@@ -11,8 +11,8 @@ import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
-import org.planit.network.InfrastructureLayer;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayer;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.TopologicalLayer;
 import org.planit.network.TopologicalNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
@@ -196,10 +196,10 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @throws PlanItException thrown if error
    *
    */
-  private InfrastructureLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
+  private TransportLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
-    MacroscopicPhysicalNetwork networkLayer = network.infrastructureLayers.createNew();
+    MacroscopicPhysicalNetwork networkLayer = network.transportLayers.createNew();
     
     /* xml id */
     if(xmlLayer.getId() != null && !xmlLayer.getId().isBlank()) {
@@ -267,7 +267,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
     for(XMLElementInfrastructureLayer xmlLayer : xmlLayerList) {
       
       /*layer */
-      InfrastructureLayer layer = parseNetworkLayer(xmlLayer, jtsUtils);
+      TransportLayer layer = parseNetworkLayer(xmlLayer, jtsUtils);
       
       /* validate supported modes */
       int prevSize = usedModes.size();
@@ -284,7 +284,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected void setNetwork(final InfrastructureNetwork<?,?> network) throws PlanItException {
+  protected void setNetwork(final TransportLayerNetwork<?,?> network) throws PlanItException {
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
@@ -311,7 +311,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, InfrastructureNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, TransportLayerNetwork<?,?> network) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = settings;
     setNetwork(network);
@@ -323,7 +323,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, InfrastructureNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, TransportLayerNetwork<?,?> network) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(externalXmlRawNetwork);
     this.settings = new PlanitNetworkReaderSettings();
     setNetwork(network);
@@ -336,7 +336,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, InfrastructureNetwork<?,?> network) throws PlanItException{   
+  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, TransportLayerNetwork<?,?> network) throws PlanItException{   
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
     setNetwork(network);
@@ -349,7 +349,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * {@inheritDoc}
    */
   @Override
-  public InfrastructureNetwork<?,?> read() throws PlanItException {
+  public TransportLayerNetwork<?,?> read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
@@ -401,7 +401,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @return link segment
    */
   public MacroscopicLinkSegment getLinkSegmentByExternalId(TopologicalNetwork<?,?> network, String externalId) {
-    for (TopologicalLayer layer : network.infrastructureLayers) {
+    for (TopologicalLayer layer : network.transportLayers) {
       if (layer instanceof MacroscopicPhysicalNetwork) {
         MacroscopicLinkSegment linkSegment = ((MacroscopicPhysicalNetwork) layer).linkSegments.getByExternalId(externalId);
         if (linkSegment != null) {

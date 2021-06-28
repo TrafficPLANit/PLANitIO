@@ -21,8 +21,8 @@ import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.zoning.Zoning;
 import org.planit.logging.Logging;
-import org.planit.network.InfrastructureLayer;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayer;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.project.CustomPlanItProject;
@@ -92,9 +92,9 @@ public class IntermodalTest {
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
       /* NETWORK */
-      final InfrastructureNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+      final TransportLayerNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      assertEquals(network.infrastructureLayers.size(), 1);
+      assertEquals(network.transportLayers.size(), 1);
       assertEquals(network.modes.size(), 2);
       assertEquals(network.modes.containsPredefinedMode(PredefinedModeType.CAR), true);
       assertEquals(network.modes.containsPredefinedMode(PredefinedModeType.BUS), true);
@@ -102,9 +102,9 @@ public class IntermodalTest {
       /* only single layer for both modes */
       assertTrue((network instanceof MacroscopicNetwork));
       MacroscopicNetwork macroNetwork = MacroscopicNetwork.class.cast(network);      
-      assertEquals(macroNetwork.getInfrastructureLayerByMode(macroNetwork.modes.get(0)),macroNetwork.getInfrastructureLayerByMode(macroNetwork.modes.get(1)));
+      assertEquals(macroNetwork.getLayerByMode(macroNetwork.modes.get(0)),macroNetwork.getLayerByMode(macroNetwork.modes.get(1)));
       
-      InfrastructureLayer layer = macroNetwork.getInfrastructureLayerByMode(macroNetwork.modes.get(0));
+      TransportLayer layer = macroNetwork.getLayerByMode(macroNetwork.modes.get(0));
       assertEquals(layer.getXmlId(),"road");
       assertFalse(!(layer instanceof MacroscopicPhysicalNetwork));
       MacroscopicPhysicalNetwork macroNetworklayer = (MacroscopicPhysicalNetwork) layer;

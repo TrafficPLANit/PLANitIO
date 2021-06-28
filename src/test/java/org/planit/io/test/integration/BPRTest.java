@@ -20,7 +20,7 @@ import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.project.CustomPlanItProject;
@@ -115,7 +115,7 @@ public class BPRTest {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<InfrastructureNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParametersConsumer = 
+      TriConsumer<TransportLayerNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParametersConsumer = 
           (network, bpr, inputBuilderListener) -> {
             MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId("1");
             if(macroscopiclinkSegmentType == null) {

@@ -1,6 +1,6 @@
 package org.planit.io.converter.zoning;
 
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
@@ -39,7 +39,7 @@ public class PlanitZoningReaderFactory {
    * @throws PlanItException  thrown if error
    */
   public static PlanitZoningReader create(
-      final String pathDirectory, final String xmlFileExtension, final InfrastructureNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final String pathDirectory, final String xmlFileExtension, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     return create(new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension),network, zoning);
   }
   
@@ -51,7 +51,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create(
-      final PlanitZoningReaderSettings zoningSettings, final InfrastructureNetwork<?, ?> referenceNetwork, final Zoning zoningToPopulate) {
+      final PlanitZoningReaderSettings zoningSettings, final TransportLayerNetwork<?, ?> referenceNetwork, final Zoning zoningToPopulate) {
     return new PlanitZoningReader(zoningSettings, referenceNetwork, zoningToPopulate);
   }  
   
@@ -64,7 +64,7 @@ public class PlanitZoningReaderFactory {
    * @throws PlanItException  thrown if error
    */
   public static  PlanitZoningReader create(
-      final XMLElementMacroscopicZoning xmlRawZoning, final InfrastructureNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final XMLElementMacroscopicZoning xmlRawZoning, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     return new PlanitZoningReader(xmlRawZoning, network, zoning);
   }
 

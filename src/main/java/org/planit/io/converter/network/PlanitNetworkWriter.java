@@ -12,8 +12,8 @@ import org.planit.converter.network.NetworkWriter;
 import org.planit.io.converter.PlanitWriterImpl;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitSchema;
-import org.planit.network.InfrastructureLayer;
-import org.planit.network.InfrastructureNetwork;
+import org.planit.network.TransportLayer;
+import org.planit.network.TransportLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -47,7 +47,7 @@ import org.planit.xml.generated.XMLElementUsabilityFeatures;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<?,?>> implements NetworkWriter {  
+public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<?,?>> implements NetworkWriter {  
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
@@ -506,7 +506,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
     /* srs name */
     xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
     
-    for(InfrastructureLayer networkLayer : network.infrastructureLayers) {
+    for(TransportLayer networkLayer : network.transportLayers) {
       if(networkLayer instanceof MacroscopicPhysicalNetwork) {
         MacroscopicPhysicalNetwork physicalNetworkLayer = ((MacroscopicPhysicalNetwork)networkLayer);
         populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
@@ -553,7 +553,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<InfrastructureNetwork<
    * {@inheritDoc}
    */
   @Override
-  public void write(InfrastructureNetwork<?,?> network) throws PlanItException {
+  public void write(TransportLayerNetwork<?,?> network) throws PlanItException {
     
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
