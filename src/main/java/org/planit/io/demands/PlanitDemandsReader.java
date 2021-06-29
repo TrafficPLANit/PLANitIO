@@ -195,7 +195,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
     for (XMLElementTravellerTypes.Travellertype xmlTravellertype : xmlTravellertypes.getTravellertype()) {
             
       /* PLANit traveller type */
-      TravelerType travelerType = demands.travelerTypes.createAndRegisterNewTravelerType(xmlTravellertype.getName());
+      TravelerType travelerType = demands.travelerTypes.createAndRegisterNew(xmlTravellertype.getName());
       
       /* xml id */
       if(xmlTravellertype.getId() != null && !xmlTravellertype.getId().isBlank()) {
@@ -227,7 +227,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
     /* generate default if absent (and no more than one mode is used) */
     if (xmlUserclasses.getUserclass().isEmpty()) {
       PlanItException.throwIf(getSettings().getReferenceNetwork().modes.size() > 1,"user classes must be explicitly defined when more than one mode is defined");
-      PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
+      PlanItException.throwIf(demands.travelerTypes.size() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
       
       XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
       xmlUserClass.setTravellertyperef(demands.travelerTypes.getFirst().getXmlId());
@@ -237,7 +237,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
     /* USER CLASS */
     for (XMLElementUserClasses.Userclass xmlUserclass : xmlUserclasses.getUserclass()) {
       if(xmlUserclass.getTravellertyperef()==null) {
-        PlanItException.throwIf(demands.travelerTypes.getNumberOfTravelerTypes() > 1,
+        PlanItException.throwIf(demands.travelerTypes.size() > 1,
             String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
         PlanItException.throwIf(getTravelerTypeBySourceId(xmlUserclass.getTravellertyperef()) == null, 

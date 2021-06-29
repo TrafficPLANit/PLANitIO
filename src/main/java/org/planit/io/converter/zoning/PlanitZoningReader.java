@@ -13,16 +13,16 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.zoning.ZoningReaderBase;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.TransportLayerNetwork;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
-import org.planit.utils.network.physical.Node;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.physical.Node;
 import org.planit.utils.zoning.Centroid;
 import org.planit.utils.zoning.Connectoid;
 import org.planit.utils.zoning.ConnectoidType;
@@ -568,13 +568,13 @@ public class PlanitZoningReader extends ZoningReaderBase {
     /* xml ids are unique across all layers */
     if(settings.nodesByXmlId == null) {
       settings.nodesByXmlId = new HashMap<String, Node>();
-      for(MacroscopicPhysicalNetwork layer : network.transportLayers) {
+      for(MacroscopicPhysicalLayer layer : network.transportLayers) {
         layer.nodes.forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
       }
     }
     if(settings.linkSegmentsByXmlId == null) {
       settings.linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
-      for(MacroscopicPhysicalNetwork layer : network.transportLayers) {
+      for(MacroscopicPhysicalLayer layer : network.transportLayers) {
         layer.linkSegments.forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
       }
     }

@@ -27,8 +27,8 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 
 /**
  * JUnit test cases for BPR tests for TraditionalStaticAssignment

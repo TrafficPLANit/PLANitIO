@@ -21,14 +21,14 @@ import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.zoning.Zoning;
 import org.planit.logging.Logging;
-import org.planit.network.TransportLayer;
 import org.planit.network.TransportLayerNetwork;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.math.Precision;
 import org.planit.utils.mode.PredefinedModeType;
+import org.planit.utils.network.layer.TransportLayer;
 
 /**
  * JUnit test cases for explanatory tests for TraditionalStaticAssignment
@@ -106,8 +106,8 @@ public class IntermodalTest {
       
       TransportLayer layer = macroNetwork.getLayerByMode(macroNetwork.modes.get(0));
       assertEquals(layer.getXmlId(),"road");
-      assertFalse(!(layer instanceof MacroscopicPhysicalNetwork));
-      MacroscopicPhysicalNetwork macroNetworklayer = (MacroscopicPhysicalNetwork) layer;
+      assertFalse(!(layer instanceof MacroscopicPhysicalLayer));
+      MacroscopicPhysicalLayer macroNetworklayer = (MacroscopicPhysicalLayer) layer;
       assertEquals(macroNetworklayer.nodes.size(),3);
       assertEquals(macroNetworklayer.links.size(),2);
       assertEquals(macroNetworklayer.linkSegments.size(),4);

@@ -11,12 +11,10 @@ import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
-import org.planit.network.TransportLayer;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.TopologicalLayer;
-import org.planit.network.TopologicalNetwork;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
+import org.planit.network.TopologicalLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.id.IdGroupingToken;
@@ -30,7 +28,9 @@ import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.mode.UsabilityModeFeatures;
 import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.TopologicalLayer;
+import org.planit.utils.network.layer.TransportLayer;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
@@ -199,7 +199,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
   private TransportLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
-    MacroscopicPhysicalNetwork networkLayer = network.transportLayers.createNew();
+    MacroscopicPhysicalLayer networkLayer = network.transportLayers.createAndRegisterNew();
     
     /* xml id */
     if(xmlLayer.getId() != null && !xmlLayer.getId().isBlank()) {
@@ -228,7 +228,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
       }      
     }else {
       /* absent, so register all modes (check if this is valid is to be executed by caller */
-      networkLayer.registerSupportedModes(network.modes.setOf());
+      networkLayer.registerSupportedModes(network.modes.copyOfValuesAsSet());
     }
     
     /* link segment types */
@@ -400,10 +400,10 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @param externalId to look for
    * @return link segment
    */
-  public MacroscopicLinkSegment getLinkSegmentByExternalId(TopologicalNetwork<?,?> network, String externalId) {
+  public MacroscopicLinkSegment getLinkSegmentByExternalId(TopologicalLayerNetwork<?,?> network, String externalId) {
     for (TopologicalLayer layer : network.transportLayers) {
-      if (layer instanceof MacroscopicPhysicalNetwork) {
-        MacroscopicLinkSegment linkSegment = ((MacroscopicPhysicalNetwork) layer).linkSegments.getByExternalId(externalId);
+      if (layer instanceof MacroscopicPhysicalLayer) {
+        MacroscopicLinkSegment linkSegment = ((MacroscopicPhysicalLayer) layer).linkSegments.getByExternalId(externalId);
         if (linkSegment != null) {
           return linkSegment;
         }

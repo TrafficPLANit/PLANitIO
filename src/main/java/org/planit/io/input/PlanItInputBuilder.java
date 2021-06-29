@@ -39,8 +39,8 @@ import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.physical.Node;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.physical.Node;
 
 /**
  * Class which reads inputs from XML input files

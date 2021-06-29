@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.planit.converter.ConverterReaderSettings;
 import org.planit.io.xml.util.PlanitXmlReaderSettings;
-import org.planit.utils.network.physical.Node;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.physical.Node;
 
 /**
  * Settings for the PLANit zoning reader

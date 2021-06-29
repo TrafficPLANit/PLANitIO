@@ -21,7 +21,7 @@ import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.math.Precision;
 import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.zoning.Centroid;
 import org.planit.utils.zoning.Connectoid;
 import org.planit.utils.zoning.ConnectoidType;

@@ -5,6 +5,15 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.planit.utils.network.layer.TransportLayer;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentTypes;
+import org.planit.utils.network.layer.macroscopic.MacroscopicModeProperties;
+import org.planit.utils.network.layer.physical.Link;
+import org.planit.utils.network.layer.physical.Links;
+import org.planit.utils.network.layer.physical.Node;
+import org.planit.utils.network.layer.physical.Nodes;
 import org.planit.utils.network.physical.*;
 import org.planit.utils.network.physical.macroscopic.*;
 import org.planit.converter.IdMapperType;
@@ -12,10 +21,9 @@ import org.planit.converter.network.NetworkWriter;
 import org.planit.io.converter.PlanitWriterImpl;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitSchema;
-import org.planit.network.TransportLayer;
 import org.planit.network.TransportLayerNetwork;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
 import org.planit.network.macroscopic.MacroscopicNetwork;
-import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.locale.CountryNames;
 import org.planit.utils.math.Precision;
@@ -476,7 +484,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * @param physicalNetworkLayer to populate from
    * @throws PlanItException thrown if error
    */
-  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicPhysicalNetwork physicalNetworkLayer) throws PlanItException {
+  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicPhysicalLayer physicalNetworkLayer) throws PlanItException {
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
     xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer); 
     
@@ -507,8 +515,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
     
     for(TransportLayer networkLayer : network.transportLayers) {
-      if(networkLayer instanceof MacroscopicPhysicalNetwork) {
-        MacroscopicPhysicalNetwork physicalNetworkLayer = ((MacroscopicPhysicalNetwork)networkLayer);
+      if(networkLayer instanceof MacroscopicPhysicalLayer) {
+        MacroscopicPhysicalLayer physicalNetworkLayer = ((MacroscopicPhysicalLayer)networkLayer);
         populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
       }else {
         LOGGER.severe(String.format("unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));

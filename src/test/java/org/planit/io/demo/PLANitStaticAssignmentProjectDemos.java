@@ -143,7 +143,7 @@ public class PLANitStaticAssignmentProjectDemos {
       final PlanItSimpleProject simpleProject = new PlanItSimpleProject();
       
       // * NEW *
-      TimePeriod theTimePeriod = simpleProject.getDemands().timePeriods.getTimePeriodById(0);  
+      TimePeriod theTimePeriod = simpleProject.getDemands().timePeriods.getFirst();  
       InitialLinkSegmentCost initialLinkSegmentCost = 
           simpleProject.createAndRegisterInitialLinkSegmentCost(
               simpleProject.getNetwork(),"<insert the initial cost CSV file path here>", theTimePeriod);  
@@ -205,7 +205,7 @@ public class PLANitStaticAssignmentProjectDemos {
           simpleProject.createAndRegisterInitialLinkSegmentCost(simpleProject.getNetwork(),initialCostCSVPath1);
         
       // * NEW * intial cost WITH time period
-      TimePeriod theTimePeriod = simpleProject.getDemands().timePeriods.getTimePeriodById(0);  
+      TimePeriod theTimePeriod = simpleProject.getDemands().timePeriods.getFirst();  
       InitialLinkSegmentCost initialLinkSegmentCostTimePeriod = 
           simpleProject.createAndRegisterInitialLinkSegmentCost(simpleProject.getNetwork(),initialCostCSVPath2, theTimePeriod);      
     

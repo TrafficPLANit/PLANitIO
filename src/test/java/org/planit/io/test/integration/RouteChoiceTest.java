@@ -31,7 +31,7 @@ import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 
 /**
  * JUnit test case for TraditionalStaticAssignment

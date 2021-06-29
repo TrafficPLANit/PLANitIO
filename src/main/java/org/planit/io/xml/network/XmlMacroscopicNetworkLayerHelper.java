@@ -10,20 +10,20 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.planit.io.converter.network.PlanitNetworkReader;
-import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
-import org.planit.network.macroscopic.physical.MacroscopicPhysicalNetwork;
+import org.planit.network.layer.macroscopic.MacroscopicModePropertiesFactory;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.TrackModeType;
-import org.planit.utils.network.physical.Link;
-import org.planit.utils.network.physical.LinkSegment;
-import org.planit.utils.network.physical.Node;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.physical.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
+import org.planit.utils.network.layer.macroscopic.MacroscopicModeProperties;
+import org.planit.utils.network.layer.physical.Link;
+import org.planit.utils.network.layer.physical.LinkSegment;
+import org.planit.utils.network.layer.physical.Node;
 import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
 import org.planit.xml.generated.LengthUnit;
@@ -215,7 +215,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param networkReader to register types on by source id
    * @throws PlanItException thrown if error
    */
-  public static void parseLinkSegmentTypes(XMLElementLayerConfiguration xmlLayerconfiguration, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReader networkReader) throws PlanItException {
+  public static void parseLinkSegmentTypes(XMLElementLayerConfiguration xmlLayerconfiguration, MacroscopicPhysicalLayer networkLayer, PlanitNetworkReader networkReader) throws PlanItException {
     
     /* link segment types */
     if(xmlLayerconfiguration.getLinksegmenttypes() == null) {
@@ -280,7 +280,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @return parsed nodes
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
-  public static void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReader networkReader) throws PlanItException {  
+  public static void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalLayer networkLayer, PlanitNetworkReader networkReader) throws PlanItException {  
         
     /* parse nodes */
     for (XMLElementNodes.Node xmlNode : xmlLayer.getNodes().getNode()) {
@@ -319,7 +319,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @throws PlanItException thrown if error
    */
   public static void parseLinkAndLinkSegments(
-      XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalNetwork networkLayer, PlanitNetworkReader networkReader, PlanitJtsCrsUtils jtsUtils) throws PlanItException {                
+      XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalLayer networkLayer, PlanitNetworkReader networkReader, PlanitJtsCrsUtils jtsUtils) throws PlanItException {                
 
     /* links */
     XMLElementLinks xmlLinks = xmlLayer.getLinks();

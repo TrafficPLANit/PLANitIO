@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.planit.network.macroscopic.physical.MacroscopicModePropertiesFactory;
+import org.planit.network.layer.macroscopic.MacroscopicModePropertiesFactory;
 import org.planit.utils.mode.Mode;
-import org.planit.utils.network.physical.macroscopic.MacroscopicModeProperties;
+import org.planit.utils.network.layer.macroscopic.MacroscopicModeProperties;
 
 /**
  * Helper class used to create MacroscopicLinkSegmentType objects for XML input
