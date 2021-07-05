@@ -12,7 +12,7 @@ import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayerImpl;
 import org.planit.network.TopologicalLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -199,7 +199,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
   private TransportLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
-    MacroscopicPhysicalLayer networkLayer = network.transportLayers.createAndRegisterNew();
+    MacroscopicPhysicalLayerImpl networkLayer = network.transportLayers.createAndRegisterNew();
     
     /* xml id */
     if(xmlLayer.getId() != null && !xmlLayer.getId().isBlank()) {
@@ -402,8 +402,8 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    */
   public MacroscopicLinkSegment getLinkSegmentByExternalId(TopologicalLayerNetwork<?,?> network, String externalId) {
     for (TopologicalLayer layer : network.transportLayers) {
-      if (layer instanceof MacroscopicPhysicalLayer) {
-        MacroscopicLinkSegment linkSegment = ((MacroscopicPhysicalLayer) layer).linkSegments.getByExternalId(externalId);
+      if (layer instanceof MacroscopicPhysicalLayerImpl) {
+        MacroscopicLinkSegment linkSegment = ((MacroscopicPhysicalLayerImpl) layer).linkSegments.getByExternalId(externalId);
         if (linkSegment != null) {
           return linkSegment;
         }

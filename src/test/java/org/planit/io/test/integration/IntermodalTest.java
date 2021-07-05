@@ -22,7 +22,7 @@ import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.zoning.Zoning;
 import org.planit.logging.Logging;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayerImpl;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.id.IdGenerator;
@@ -106,8 +106,8 @@ public class IntermodalTest {
       
       TransportLayer layer = macroNetwork.getLayerByMode(macroNetwork.modes.get(0));
       assertEquals(layer.getXmlId(),"road");
-      assertFalse(!(layer instanceof MacroscopicPhysicalLayer));
-      MacroscopicPhysicalLayer macroNetworklayer = (MacroscopicPhysicalLayer) layer;
+      assertFalse(!(layer instanceof MacroscopicPhysicalLayerImpl));
+      MacroscopicPhysicalLayerImpl macroNetworklayer = (MacroscopicPhysicalLayerImpl) layer;
       assertEquals(macroNetworklayer.nodes.size(),3);
       assertEquals(macroNetworklayer.links.size(),2);
       assertEquals(macroNetworklayer.linkSegments.size(),4);

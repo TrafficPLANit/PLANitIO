@@ -13,7 +13,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.zoning.ZoningReaderBase;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayer;
+import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayerImpl;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
@@ -568,13 +568,13 @@ public class PlanitZoningReader extends ZoningReaderBase {
     /* xml ids are unique across all layers */
     if(settings.nodesByXmlId == null) {
       settings.nodesByXmlId = new HashMap<String, Node>();
-      for(MacroscopicPhysicalLayer layer : network.transportLayers) {
+      for(MacroscopicPhysicalLayerImpl layer : network.transportLayers) {
         layer.nodes.forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
       }
     }
     if(settings.linkSegmentsByXmlId == null) {
       settings.linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
-      for(MacroscopicPhysicalLayer layer : network.transportLayers) {
+      for(MacroscopicPhysicalLayerImpl layer : network.transportLayers) {
         layer.linkSegments.forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
       }
     }
