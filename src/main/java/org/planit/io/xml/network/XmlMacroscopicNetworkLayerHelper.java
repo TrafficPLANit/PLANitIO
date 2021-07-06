@@ -11,7 +11,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.network.layer.macroscopic.MacroscopicModePropertiesFactory;
-import org.planit.network.layer.macroscopic.MacroscopicPhysicalLayerImpl;
+import org.planit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
@@ -215,7 +215,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param networkReader to register types on by source id
    * @throws PlanItException thrown if error
    */
-  public static void parseLinkSegmentTypes(XMLElementLayerConfiguration xmlLayerconfiguration, MacroscopicPhysicalLayerImpl networkLayer, PlanitNetworkReader networkReader) throws PlanItException {
+  public static void parseLinkSegmentTypes(XMLElementLayerConfiguration xmlLayerconfiguration, MacroscopicNetworkLayerImpl networkLayer, PlanitNetworkReader networkReader) throws PlanItException {
     
     /* link segment types */
     if(xmlLayerconfiguration.getLinksegmenttypes() == null) {
@@ -280,7 +280,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @return parsed nodes
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
-  public static void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalLayerImpl networkLayer, PlanitNetworkReader networkReader) throws PlanItException {  
+  public static void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayerImpl networkLayer, PlanitNetworkReader networkReader) throws PlanItException {  
         
     /* parse nodes */
     for (XMLElementNodes.Node xmlNode : xmlLayer.getNodes().getNode()) {
@@ -319,7 +319,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @throws PlanItException thrown if error
    */
   public static void parseLinkAndLinkSegments(
-      XMLElementInfrastructureLayer xmlLayer, MacroscopicPhysicalLayerImpl networkLayer, PlanitNetworkReader networkReader, PlanitJtsCrsUtils jtsUtils) throws PlanItException {                
+      XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayerImpl networkLayer, PlanitNetworkReader networkReader, PlanitJtsCrsUtils jtsUtils) throws PlanItException {                
 
     /* links */
     XMLElementLinks xmlLinks = xmlLayer.getLinks();
