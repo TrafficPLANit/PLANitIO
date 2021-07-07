@@ -58,7 +58,7 @@ public class InitialCostTest {
   /**
    * Tests that the values of an initial costs file are read in by start and end
    * node and registered by PlanItProject and the stored values match the expected
-   * ones by link xml Id
+   * ones by link XML Id
    */
   @Test
   public void test_reading_initial_cost_values() {

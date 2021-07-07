@@ -13,7 +13,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.zoning.ZoningReaderBase;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
@@ -22,6 +21,7 @@ import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.physical.Node;
 import org.planit.utils.zoning.Centroid;
 import org.planit.utils.zoning.Connectoid;
@@ -33,7 +33,6 @@ import org.planit.utils.zoning.TransferZoneGroup;
 import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.utils.zoning.Zone;
-import org.planit.utils.zoning.Zones;
 import org.planit.xml.generated.Connectoidnodelocationtype;
 import org.planit.xml.generated.Connectoidtype;
 import org.planit.xml.generated.Connectoidtypetype;
@@ -227,10 +226,8 @@ public class PlanitZoningReader extends ZoningReaderBase {
    * @return created and registered Planit zone
    * @throws PlanItException thrown if error
    */
-  private <T extends Zone> T parseBaseZone(
-      final Zones<T> zones, final String xmlId, final String externalId, final String name, final XMLElementCentroid xmlCentroid) throws PlanItException {
-    /* create zone */
-    T zone = zones.registerNew();
+  private void parseBaseZone(
+      final Zone zone, final String xmlId, final String externalId, final String name, final XMLElementCentroid xmlCentroid) throws PlanItException {
     
     /* xml id */
     if(!StringUtils.isNullOrBlank(xmlId)) {
@@ -270,8 +267,6 @@ public class PlanitZoningReader extends ZoningReaderBase {
         centroid.setPosition(PlanitJtsUtils.createPoint(value.get(0), value.get(1)));
       }
     }
-    
-    return zone;
   }  
   
   /**
@@ -304,7 +299,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
         throw new PlanItException(String.format("provided accessNode XML id %s is invalid given available nodes in network when parsing transfer connectoid %s", ((Odconnectoid)xmlConnectoid).getNoderef(), xmlConnectoid.getId()));
       }
       /* ACCESS NODE based*/
-      theConnectoid = zoning.odConnectoids.registerNew(accessNode);
+      theConnectoid = zoning.odConnectoids.getFactory().registerNew(accessNode);
     }else if(xmlConnectoid instanceof XMLElementTransferZoneAccess.XMLElementTransferConnectoid) {
       XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid = (XMLElementTransferZoneAccess.XMLElementTransferConnectoid) xmlConnectoid;
       if(settings.linkSegmentsByXmlId == null) {
@@ -316,7 +311,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
         throw new PlanItException(String.format("provided link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
       /* LINK SEGMENT based */
-      theConnectoid = zoning.transferConnectoids.registerNew(linkSegment);
+      theConnectoid = zoning.transferConnectoids.getFactory().registerNew(linkSegment);
       
       /* special case: when upstream node should be used */
       if(xmlTransferConnectoid.getLoc()!= null && xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
@@ -348,7 +343,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
    */
   private TransferZoneGroup parseTransferGroup(final XMLElementTransferGroup xmlTransferGroup) {
     /* register new */
-    TransferZoneGroup transferGroup = zoning.transferZoneGroups.registerNew();
+    TransferZoneGroup transferGroup = zoning.transferZoneGroups.getFactory().registerNew();
     
     /* xm id */
     transferGroup.setXmlId(xmlTransferGroup.getId());
@@ -397,8 +392,9 @@ public class PlanitZoningReader extends ZoningReaderBase {
     /* transferzone */
     List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZone();
     for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZonesList) {
-      /* base zone elements parsed and planit version registered */
-      TransferZone transferZone = parseBaseZone(zoning.transferZones, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getName(), xmlTransferzone.getCentroid());
+      /* base zone elements parsed and PLANit version registered */
+      TransferZone transferZone = zoning.transferZones.getFactory().registerNew();
+      parseBaseZone(transferZone, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getName(), xmlTransferzone.getCentroid());
       
       /* type */
       if(xmlTransferzone.getType()!= null) {
@@ -568,14 +564,14 @@ public class PlanitZoningReader extends ZoningReaderBase {
     /* xml ids are unique across all layers */
     if(settings.nodesByXmlId == null) {
       settings.nodesByXmlId = new HashMap<String, Node>();
-      for(MacroscopicNetworkLayerImpl layer : network.transportLayers) {
-        layer.nodes.forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
+      for(MacroscopicNetworkLayer layer : network.transportLayers) {
+        layer.getNodes().forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
       }
     }
     if(settings.linkSegmentsByXmlId == null) {
       settings.linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
-      for(MacroscopicNetworkLayerImpl layer : network.transportLayers) {
-        layer.linkSegments.forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
+      for(MacroscopicNetworkLayer layer : network.transportLayers) {
+        layer.getLinkSegments().forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
       }
     }
   }  
@@ -611,7 +607,9 @@ public class PlanitZoningReader extends ZoningReaderBase {
     
     /* zone */
     for (final XMLElementZones.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZone()) {
-      OdZone zone = parseBaseZone(zoning.odZones, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
+      /* create zone */
+      OdZone zone = zoning.odZones.getFactory().registerNew();
+      parseBaseZone(zone, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
       
       /* geometry */
       populateZoneGeometry(zone, xmlZone.getPolygon());      

@@ -14,8 +14,6 @@ import org.planit.utils.network.layer.physical.Link;
 import org.planit.utils.network.layer.physical.Links;
 import org.planit.utils.network.layer.physical.Node;
 import org.planit.utils.network.layer.physical.Nodes;
-import org.planit.utils.network.physical.*;
-import org.planit.utils.network.physical.macroscopic.*;
 import org.planit.converter.IdMapperType;
 import org.planit.converter.network.NetworkWriter;
 import org.planit.io.converter.PlanitWriterImpl;
@@ -190,7 +188,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * @param links to populate from
    * @throws PlanItException thrown if error
    */
-  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final Links<Link> links) throws PlanItException {
+  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final Links links) throws PlanItException {
     XMLElementLinks xmlLinks = xmlNetworkLayer.getLinks(); 
     if(xmlLinks == null) {
       xmlLinks = new XMLElementLinks();
@@ -235,7 +233,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * @param xmlNetworkLayer to populate on
    * @param nodes to populate from
    */  
-  private void populateXmlNodes(final XMLElementInfrastructureLayer xmlNetworkLayer, Nodes<Node> nodes) {
+  private void populateXmlNodes(final XMLElementInfrastructureLayer xmlNetworkLayer, Nodes nodes) {
     XMLElementNodes xmlNodes = xmlNetworkLayer.getNodes(); 
     if(xmlNodes == null) {
       xmlNodes = new XMLElementNodes();

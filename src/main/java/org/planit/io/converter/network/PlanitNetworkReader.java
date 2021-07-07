@@ -12,8 +12,6 @@ import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
-import org.planit.network.TopologicalLayerNetwork;
 import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
@@ -28,9 +26,9 @@ import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.mode.UsabilityModeFeatures;
 import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
-import org.planit.utils.network.layer.TopologicalLayer;
 import org.planit.utils.network.layer.TransportLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.network.layer.macroscopic.MacroscopicNetworkLayer;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
@@ -52,7 +50,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
   /** the settings for this reader */
   private final PlanitNetworkReaderSettings settings;
   
-  /** parses the xml content in JAXB memory format */
+  /** parses the XML content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementMacroscopicNetwork> xmlParser;
           
   /** the network memory model to populate */
@@ -147,7 +145,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
       Mode mode = null;
       if(modeType != PredefinedModeType.CUSTOM) {
         /* predefined mode use factory, ignore other attributes (if any) */
-        mode = this.network.modes.registerNew(modeType);
+        mode = this.network.modes.getFactory().registerNew(modeType);
       }else {
         
         /* custom mode, parse all components to correctly configure the custom mode */
@@ -157,7 +155,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
         PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(xmlMode);
         UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(xmlMode);        
                 
-        mode = this.network.modes.registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
+        mode = this.network.modes.getFactory().registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
       }     
             
       /* external id*/
@@ -199,7 +197,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
   private TransportLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
-    MacroscopicNetworkLayerImpl networkLayer = network.transportLayers.createAndRegisterNew();
+    MacroscopicNetworkLayer networkLayer = network.transportLayers.createAndRegisterNew();
     
     /* xml id */
     if(xmlLayer.getId() != null && !xmlLayer.getId().isBlank()) {
@@ -394,19 +392,18 @@ public class PlanitNetworkReader extends NetworkReaderBase {
   }
   
   /**
-   * returns the link segment by a given external id Extremely slow, because it is not indexed at the moment
+   * returns the first link segment for which the given external id matches. Extremely slow, because it is not indexed at the moment. Also
+   * external ids are not guaranteed to be unique so if multiple matches exist problems may arise
    * 
    * @param network    to look in
    * @param externalId to look for
    * @return link segment
    */
-  public MacroscopicLinkSegment getLinkSegmentByExternalId(TopologicalLayerNetwork<?,?> network, String externalId) {
-    for (TopologicalLayer layer : network.transportLayers) {
-      if (layer instanceof MacroscopicNetworkLayerImpl) {
-        MacroscopicLinkSegment linkSegment = ((MacroscopicNetworkLayerImpl) layer).linkSegments.getByExternalId(externalId);
-        if (linkSegment != null) {
-          return linkSegment;
-        }
+  public MacroscopicLinkSegment getLinkSegmentByExternalId(MacroscopicNetwork network, String externalId) {
+    for (MacroscopicNetworkLayer layer : network.transportLayers) {
+      MacroscopicLinkSegment firstMatch = layer.getLinkSegments().findFirst( ls -> externalId.equals(ls.getExternalId()));
+      if (firstMatch != null) {
+        return firstMatch;
       }
     }
     return null;
