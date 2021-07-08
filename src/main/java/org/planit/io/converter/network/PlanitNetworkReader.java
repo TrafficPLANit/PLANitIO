@@ -11,8 +11,8 @@ import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.id.IdGroupingToken;
@@ -26,9 +26,9 @@ import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.mode.UsabilityModeFeatures;
 import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
+import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.TransportLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.layer.macroscopic.MacroscopicNetworkLayer;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
@@ -139,13 +139,13 @@ public class PlanitNetworkReader extends NetworkReaderBase {
         LOGGER.warning(String.format("mode is not registered as predefined mode but name or xmlid corresponds to PLANit predefined mode, reverting to PLANit predefined mode %s",modeType.name()));
       }            
       if(name==null && modeType == PredefinedModeType.CUSTOM) {
-        name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.modes.size()));
+        name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.getModes().size()));
       }
                  
       Mode mode = null;
       if(modeType != PredefinedModeType.CUSTOM) {
         /* predefined mode use factory, ignore other attributes (if any) */
-        mode = this.network.modes.getFactory().registerNew(modeType);
+        mode = this.network.getModes().getFactory().registerNew(modeType);
       }else {
         
         /* custom mode, parse all components to correctly configure the custom mode */
@@ -155,7 +155,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
         PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(xmlMode);
         UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(xmlMode);        
                 
-        mode = this.network.modes.getFactory().registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
+        mode = this.network.getModes().getFactory().registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
       }     
             
       /* external id*/
@@ -197,7 +197,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
   private TransportLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
-    MacroscopicNetworkLayer networkLayer = network.transportLayers.createAndRegisterNew();
+    MacroscopicNetworkLayer networkLayer = network.getTransportLayers().getFactory().registerNew();
     
     /* xml id */
     if(xmlLayer.getId() != null && !xmlLayer.getId().isBlank()) {
@@ -226,7 +226,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
       }      
     }else {
       /* absent, so register all modes (check if this is valid is to be executed by caller */
-      networkLayer.registerSupportedModes(network.modes.copyOfValuesAsSet());
+      networkLayer.registerSupportedModes(network.getModes().copyOfValuesAsSet());
     }
     
     /* link segment types */
@@ -400,7 +400,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * @return link segment
    */
   public MacroscopicLinkSegment getLinkSegmentByExternalId(MacroscopicNetwork network, String externalId) {
-    for (MacroscopicNetworkLayer layer : network.transportLayers) {
+    for (MacroscopicNetworkLayer layer : network.getTransportLayers()) {
       MacroscopicLinkSegment firstMatch = layer.getLinkSegments().findFirst( ls -> externalId.equals(ls.getExternalId()));
       if (firstMatch != null) {
         return firstMatch;

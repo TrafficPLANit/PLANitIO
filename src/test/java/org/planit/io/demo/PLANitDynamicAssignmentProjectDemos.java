@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 import org.planit.demands.Demands;
 import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.eltm.ELTM;
 import org.planit.assignment.eltm.ELTMConfigurator;
-import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.path.choice.PathChoice;
 import org.planit.path.choice.StochasticPathChoiceConfigurator;
@@ -71,7 +71,7 @@ public class PLANitDynamicAssignmentProjectDemos {
           // INITIALISE OUTPUT FORMATTERS
           final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
           // route sets are defined on the project level and linked to a network layer, zoning combination
-          project.createAndRegisterOdPathSets(theNetwork.transportLayers.getFirst(), zoning, routeInputPath);
+          project.createAndRegisterOdPathSets(theNetwork.getTransportLayers().getFirst(), zoning, routeInputPath);
 
           //:TODO: to be implemented
           // alternatively paths can be generated with a route generator

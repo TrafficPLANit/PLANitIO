@@ -12,16 +12,16 @@ import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.zoning.ZoningReaderBase;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
+import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.layer.macroscopic.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.physical.Node;
 import org.planit.utils.zoning.Centroid;
 import org.planit.utils.zoning.Connectoid;
@@ -564,13 +564,13 @@ public class PlanitZoningReader extends ZoningReaderBase {
     /* xml ids are unique across all layers */
     if(settings.nodesByXmlId == null) {
       settings.nodesByXmlId = new HashMap<String, Node>();
-      for(MacroscopicNetworkLayer layer : network.transportLayers) {
+      for(MacroscopicNetworkLayer layer : network.getTransportLayers()) {
         layer.getNodes().forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
       }
     }
     if(settings.linkSegmentsByXmlId == null) {
       settings.linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
-      for(MacroscopicNetworkLayer layer : network.transportLayers) {
+      for(MacroscopicNetworkLayer layer : network.getTransportLayers()) {
         layer.getLinkSegments().forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
       }
     }
@@ -712,7 +712,7 @@ public class PlanitZoningReader extends ZoningReaderBase {
       populateODZones();
       
       /* Intermodal/transfer zones, i.e., platforms, stations, etc. */
-      populateIntermodal(macroscopicNetwork.modes, settings.linkSegmentsByXmlId);
+      populateIntermodal(macroscopicNetwork.getModes(), settings.linkSegmentsByXmlId);
       
       /* free */
       xmlParser.clearXmlContent();

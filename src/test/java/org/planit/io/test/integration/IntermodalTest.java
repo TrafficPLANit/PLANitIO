@@ -21,9 +21,9 @@ import org.planit.utils.zoning.TransferZoneType;
 import org.planit.utils.zoning.UndirectedConnectoid;
 import org.planit.zoning.Zoning;
 import org.planit.logging.Logging;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
-import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.layer.MacroscopicNetworkLayerImpl;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.math.Precision;
@@ -94,23 +94,23 @@ public class IntermodalTest {
       /* NETWORK */
       final TransportLayerNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
-      assertEquals(network.transportLayers.size(), 1);
-      assertEquals(network.modes.size(), 2);
-      assertEquals(network.modes.containsPredefinedMode(PredefinedModeType.CAR), true);
-      assertEquals(network.modes.containsPredefinedMode(PredefinedModeType.BUS), true);
+      assertEquals(network.getTransportLayers().size(), 1);
+      assertEquals(network.getModes().size(), 2);
+      assertEquals(network.getModes().containsPredefinedMode(PredefinedModeType.CAR), true);
+      assertEquals(network.getModes().containsPredefinedMode(PredefinedModeType.BUS), true);
 
       /* only single layer for both modes */
       assertTrue((network instanceof MacroscopicNetwork));
       MacroscopicNetwork macroNetwork = MacroscopicNetwork.class.cast(network);      
-      assertEquals(macroNetwork.getLayerByMode(macroNetwork.modes.get(0)),macroNetwork.getLayerByMode(macroNetwork.modes.get(1)));
+      assertEquals(macroNetwork.getLayerByMode(macroNetwork.getModes().get(0)),macroNetwork.getLayerByMode(macroNetwork.getModes().get(1)));
       
-      TransportLayer layer = macroNetwork.getLayerByMode(macroNetwork.modes.get(0));
+      TransportLayer layer = macroNetwork.getLayerByMode(macroNetwork.getModes().get(0));
       assertEquals(layer.getXmlId(),"road");
       assertFalse(!(layer instanceof MacroscopicNetworkLayerImpl));
       MacroscopicNetworkLayerImpl macroNetworklayer = (MacroscopicNetworkLayerImpl) layer;
-      assertEquals(macroNetworklayer.nodes.size(),3);
-      assertEquals(macroNetworklayer.links.size(),2);
-      assertEquals(macroNetworklayer.linkSegments.size(),4);
+      assertEquals(macroNetworklayer.getNumberOfNodes(),3);
+      assertEquals(macroNetworklayer.getNumberOfLinks(),2);
+      assertEquals(macroNetworklayer.getNumberOfLinkSegments(),4);
       assertEquals(macroNetworklayer.getSupportedModes().size(),2);
       
       /* ZONING */
@@ -122,14 +122,14 @@ public class IntermodalTest {
       
       for(UndirectedConnectoid odConnectoid : zoning.odConnectoids) {
         assertEquals(odConnectoid.getAccessZones().size(),1);
-        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.CAR)),true);
-        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.BUS)),true);
+        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.CAR)),true);
+        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.BUS)),true);
         assertEquals(odConnectoid.getLengthKm(odConnectoid.getFirstAccessZone()).get(),1,Precision.EPSILON_6);
       }
       for(DirectedConnectoid transferConnectoid : zoning.transferConnectoids) {      
         assertEquals(transferConnectoid.getAccessZones().size(),1);
-        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.CAR)),false);
-        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.modes.get(PredefinedModeType.BUS)),true);
+        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.CAR)),false);
+        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.BUS)),true);
         assertEquals(transferConnectoid.getType(), ConnectoidType.PT_VEHICLE_STOP);
         assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZone()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
         

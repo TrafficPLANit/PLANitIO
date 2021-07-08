@@ -16,7 +16,7 @@ import org.planit.converter.demands.DemandsReaderBase;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
-import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.utils.time.TimePeriod;
 import org.planit.userclass.TravelerType;
@@ -226,7 +226,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
     
     /* generate default if absent (and no more than one mode is used) */
     if (xmlUserclasses.getUserclass().isEmpty()) {
-      PlanItException.throwIf(getSettings().getReferenceNetwork().modes.size() > 1,"user classes must be explicitly defined when more than one mode is defined");
+      PlanItException.throwIf(getSettings().getReferenceNetwork().getModes().size() > 1,"user classes must be explicitly defined when more than one mode is defined");
       PlanItException.throwIf(demands.travelerTypes.size() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
       
       XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
@@ -248,7 +248,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       /* mode ref */
       Map<String, Mode> sourceIdModeMap = getSettings().getMapToIndexModeByXmlIds();
       if (xmlUserclass.getModeref() == null) {
-        PlanItException.throwIf(getSettings().getReferenceNetwork().modes.size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
+        PlanItException.throwIf(getSettings().getReferenceNetwork().getModes().size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
         xmlUserclass.setModeref(sourceIdModeMap.keySet().iterator().next());          
       }
       String xmlModeIdRef = xmlUserclass.getModeref();

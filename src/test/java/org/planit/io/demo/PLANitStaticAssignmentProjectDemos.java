@@ -19,8 +19,8 @@ import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.Network;
-import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.configuration.ODOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
@@ -391,7 +391,7 @@ public class PLANitStaticAssignmentProjectDemos {
       
       // * NEW *
       MemoryOutputIterator outputIterator = memoryOutputFormatter.getIterator(
-          network.modes.getFirst(), 
+          network.getModes().getFirst(), 
           demands.timePeriods.getFirst(), 
           memoryOutputFormatter.getLastIteration(), 
           OutputType.LINK);

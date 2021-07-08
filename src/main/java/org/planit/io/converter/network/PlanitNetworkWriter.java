@@ -19,9 +19,9 @@ import org.planit.converter.network.NetworkWriter;
 import org.planit.io.converter.PlanitWriterImpl;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitSchema;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
-import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.layer.MacroscopicNetworkLayerImpl;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.locale.CountryNames;
 import org.planit.utils.math.Precision;
@@ -490,10 +490,10 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     populateXmlLayerConfiguration(xmlNetworkLayer, physicalNetworkLayer.linkSegmentTypes);
 
     /* links */
-    populateXmlLinks(xmlNetworkLayer, physicalNetworkLayer.links);
+    populateXmlLinks(xmlNetworkLayer, physicalNetworkLayer.getLinks());
         
     /* nodes */
-    populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.nodes);      
+    populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());      
   }  
   
   /** Populate the available network layers
@@ -512,7 +512,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     /* srs name */
     xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
     
-    for(TransportLayer networkLayer : network.transportLayers) {
+    for(TransportLayer networkLayer : network.getTransportLayers()) {
       if(networkLayer instanceof MacroscopicNetworkLayerImpl) {
         MacroscopicNetworkLayerImpl physicalNetworkLayer = ((MacroscopicNetworkLayerImpl)networkLayer);
         populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
@@ -577,7 +577,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     populateXmlId(macroscopicNetwork);
     
     /* general configuration */
-    populateXmlConfiguration(network.modes);
+    populateXmlConfiguration(network.getModes());
     
     /* network layers */
     populateXmlNetworkLayers(macroscopicNetwork);

@@ -1,7 +1,7 @@
 package org.planit.io.converter.zoning;
 
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.macroscopic.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;

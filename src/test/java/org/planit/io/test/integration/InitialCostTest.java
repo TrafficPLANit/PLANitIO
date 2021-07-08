@@ -19,7 +19,7 @@ import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.io.test.util.PlanItInputBuilder4Testing;
 import org.planit.logging.Logging;
-import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkSegmentCostOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;

@@ -7,7 +7,7 @@ import org.planit.utils.zoning.Zone;
 import org.planit.zoning.Zoning;
 import org.planit.converter.ConverterReaderSettings;
 import org.planit.io.xml.util.PlanitXmlReaderSettings;
-import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.MacroscopicNetwork;
 
 /**
  * Settings for the PLANit zoning reader

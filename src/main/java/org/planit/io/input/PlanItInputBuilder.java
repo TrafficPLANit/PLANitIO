@@ -26,7 +26,7 @@ import org.planit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.planit.io.demands.PlanitDemandsReader;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
-import org.planit.network.macroscopic.MacroscopicNetwork;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkSegmentCostOutputProperty;
