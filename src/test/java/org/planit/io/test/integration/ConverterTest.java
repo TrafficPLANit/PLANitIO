@@ -48,7 +48,7 @@ public class ConverterTest {
   }
   
   /**
-   * Test that reading a planit network in native format and then writing it results in the same
+   * Test that reading a PLANit network in native format and then writing it results in the same
    * files as the original input that was read.
    */
   @Test
