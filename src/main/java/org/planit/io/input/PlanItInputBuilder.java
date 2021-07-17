@@ -11,7 +11,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.djutils.event.EventInterface;
-import org.planit.assignment.TrafficAssignmentComponentFactory;
+import org.planit.component.PlanitComponentFactory;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
@@ -460,7 +460,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   @Override
   public void notify(final EventInterface event) throws RemoteException {
     // registered for create notifications
-    if (event.getType() == TrafficAssignmentComponentFactory.TRAFFICCOMPONENT_CREATE) {
+    if (event.getType() == PlanitComponentFactory.TRAFFICCOMPONENT_CREATE) {
       final Object[] content = (Object[]) event.getContent();
       final Object projectComponent = content[0];
       // the content consists of the actual traffic assignment component and an array of object
