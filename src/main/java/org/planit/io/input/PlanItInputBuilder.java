@@ -11,7 +11,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.djutils.event.EventInterface;
+import org.planit.component.PlanitComponent;
 import org.planit.component.PlanitComponentFactory;
+import org.planit.component.event.PlanitComponentEvent;
+import org.planit.component.event.PopulateComponentEvent;
+import org.planit.component.event.PopulateDemandsEvent;
+import org.planit.component.event.PopulateNetworkEvent;
+import org.planit.component.event.PopulateZoningEvent;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
@@ -455,35 +461,31 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Whenever a project component is created this method will be invoked
    *
    * @param event event containing the created (and empty) project component
-   * @throws RemoteException thrown if there is an error
+   * @throws PlanItException thrown if error
    */
   @Override
-  public void notify(final EventInterface event) throws RemoteException {
+  public void onPlanitComponentEvent(PlanitComponentEvent event) throws PlanItException {
     // registered for create notifications
-    if (event.getType() == PlanitComponentFactory.TRAFFICCOMPONENT_CREATE) {
-      final Object[] content = (Object[]) event.getContent();
-      final Object projectComponent = content[0];
-      // the content consists of the actual traffic assignment component and an array of object
-      // parameters (second parameter)
-      final Object[] parameters = (Object[]) content[1];
-      try {
-        if (projectComponent instanceof MacroscopicNetwork) {
-          populateMacroscopicNetwork((MacroscopicNetwork) projectComponent);
-        } else if (projectComponent instanceof Zoning) {
-          PlanItException.throwIf(!(parameters[0] instanceof MacroscopicNetwork), "Parameter of call to populateZoning() is not of class PhysicalNetwork");
-          final MacroscopicNetwork physicalNetwork = (MacroscopicNetwork) parameters[0];
-          populateZoning((Zoning) projectComponent, physicalNetwork);
-        } else if (projectComponent instanceof Demands) {
-          populateDemands((Demands) projectComponent, parameters[0], parameters[1]);
-        } else if (projectComponent instanceof InitialPhysicalCost) {
-          populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, parameters[0], parameters[1]);
-        } else {
-          LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
-              + " which is not handled by PlanItInputBuilder.");
-        }
-      } catch (final PlanItException e) {
-        LOGGER.severe(e.getMessage());
-        throw new RemoteException("Rethrowing as remote exception in notify", e);
+    if (event.getType().equals(PopulateNetworkEvent.EVENT_TYPE)) {
+      populateMacroscopicNetwork(((PopulateNetworkEvent)event).getNetworkToPopulate());
+    }else if(event.getType().equals(PopulateZoningEvent.EVENT_TYPE)){
+      PopulateZoningEvent zoningEvent = ((PopulateZoningEvent) event);
+      populateZoning(zoningEvent.getZoningToPopulate(), zoningEvent.getParentNetwork());
+    }else if(event.getType().equals(PopulateDemandsEvent.EVENT_TYPE)){
+      PopulateDemandsEvent demandsEvent = ((PopulateDemandsEvent) event);
+      populateDemands(demandsEvent.getDemandsToPopulate(), demandsEvent.getParentZoning(), demandsEvent.getParentNetwork());
+    } else {
+      
+      /* generic case */
+      PopulateComponentEvent populateComponentEvent = (PopulateComponentEvent)event;
+      final PlanitComponent<?> projectComponent = populateComponentEvent.getComponentToPopulate();
+      final Object[] content = populateComponentEvent.getAdditionalContent();
+
+      if (projectComponent instanceof InitialPhysicalCost) {
+        populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, content[0], content[1]);
+      } else {
+        LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
+            + " which is not handled by PlanItInputBuilder.");
       }
     }
   }
