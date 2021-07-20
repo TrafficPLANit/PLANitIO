@@ -3,23 +3,18 @@ package org.planit.io.input;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
-import java.rmi.RemoteException;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.djutils.event.EventInterface;
-import org.planit.component.PlanitComponent;
-import org.planit.component.PlanitComponentFactory;
 import org.planit.component.event.PlanitComponentEvent;
-import org.planit.component.event.PopulateComponentEvent;
 import org.planit.component.event.PopulateDemandsEvent;
+import org.planit.component.event.PopulateInitialLinkSegmentCostEvent;
 import org.planit.component.event.PopulateNetworkEvent;
 import org.planit.component.event.PopulateZoningEvent;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.physical.initial.InitialPhysicalCost;
 import org.planit.demands.Demands;
 import org.planit.xml.generated.*;
 import org.planit.zoning.Zoning;
@@ -55,9 +50,6 @@ import org.planit.utils.network.layer.physical.Node;
  *
  */
 public class PlanItInputBuilder extends InputBuilderListener {
-
-  /** generated UID */
-  private static final long serialVersionUID = -8928911341112445424L;
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanItInputBuilder.class.getCanonicalName());
@@ -356,22 +348,18 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Populate the initial link segment cost from a CSV file
    *
    * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
-   * @param parameter1 previously created network object
-   * @param parameter2 CSV file containing the initial link segment cost values
+   * @param network created network object
+   * @param fileName CSV file containing the initial link segment cost values
    * @throws PlanItException thrown if error
    */
-  protected void populateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost,
-      final Object parameter1, final Object parameter2)
-      throws PlanItException {
+  protected void populateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final MacroscopicNetwork network, final String fileName) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Initial Link Segment Costs");
     
     /* verify */
-    PlanItException.throwIf(!(parameter1 instanceof MacroscopicNetwork),"Parameter 1 of call to populateInitialLinkSegments() is not of class MacroscopicNetwork");
-    PlanItException.throwIf(!(parameter2 instanceof String), "Parameter 2 of call to populateInitialLinkSegments() is not a file name");
+    PlanItException.throwIfNull(network,"parent network for initial link segment cost is null");
+    PlanItException.throwIfNull(fileName, "file location for initial link segment cost is null");
         
     /* parse */
-    final MacroscopicNetwork network = (MacroscopicNetwork) parameter1;
-    final String fileName = (String) parameter2;
     try {
       final Reader in = new FileReader(fileName);
       final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
@@ -474,19 +462,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }else if(event.getType().equals(PopulateDemandsEvent.EVENT_TYPE)){
       PopulateDemandsEvent demandsEvent = ((PopulateDemandsEvent) event);
       populateDemands(demandsEvent.getDemandsToPopulate(), demandsEvent.getParentZoning(), demandsEvent.getParentNetwork());
-    } else {
-      
+    }else if(event.getType().equals(PopulateInitialLinkSegmentCostEvent.EVENT_TYPE)){
+      PopulateInitialLinkSegmentCostEvent initialCostEvent = ((PopulateInitialLinkSegmentCostEvent) event);
+      populateInitialLinkSegmentCost(initialCostEvent.getInitialLinkSegmentCostToPopulate(), initialCostEvent.getParentNetwork(), initialCostEvent.getFileName());
+    } else {      
       /* generic case */
-      PopulateComponentEvent populateComponentEvent = (PopulateComponentEvent)event;
-      final PlanitComponent<?> projectComponent = populateComponentEvent.getComponentToPopulate();
-      final Object[] content = populateComponentEvent.getAdditionalContent();
-
-      if (projectComponent instanceof InitialPhysicalCost) {
-        populateInitialLinkSegmentCost((InitialLinkSegmentCost) projectComponent, content[0], content[1]);
-      } else {
-        LOGGER.fine("Event component is " + projectComponent.getClass().getCanonicalName()
-            + " which is not handled by PlanItInputBuilder.");
-      }
+      LOGGER.fine("Event component " + event.getClass().getCanonicalName() + " ignored by PlanItInputBuilder");
     }
   }
 
