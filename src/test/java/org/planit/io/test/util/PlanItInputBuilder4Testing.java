@@ -17,12 +17,6 @@ import org.planit.utils.time.TimePeriod;
  *
  */
 public class PlanItInputBuilder4Testing extends PlanItInputBuilder {
- 
-  /**
-   * generated UID 
-   */
-  private static final long serialVersionUID = -4900762369711666311L;
-  
   
   /** the logger */
   @SuppressWarnings("unused")
