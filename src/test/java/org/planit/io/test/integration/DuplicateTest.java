@@ -38,10 +38,10 @@ public class DuplicateTest {
   }
   
   /**
-   * Test that a duplicate external Id for a Link Segment Type is flagged as a error
+   * Test that a duplicate XML Id for a Link Segment Type is flagged as a error
    */
   @Test
-  public void test_duplicate_link_segment_type_external_id() {
+  public void test_duplicate_link_segment_type_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentTypeXmlId";
       String description = "testDuplicateLinkSegmentType";
@@ -49,7 +49,7 @@ public class DuplicateTest {
       /* run test */
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
-      fail("Exception for duplicate link segment type external Id was not thrown");
+      fail("Exception for duplicate link segment type XML Id was not thrown");
     } catch (Exception e) {
       LOGGER.severe("EXCEPTION=CORRECT");
       assertTrue(true);
@@ -57,10 +57,10 @@ public class DuplicateTest {
   }
 
   /**
-   * Test that a duplicate external Id for a Link Segment is flagged as a error
+   * Test that a duplicate XML Id for a Link Segment is flagged as a error
    */
   @Test
-  public void test_duplicate_link_segment_external_id() {
+  public void test_duplicate_link_segment_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentXmlId";
       String description = "testDuplicateLinkSegment";
@@ -73,17 +73,17 @@ public class DuplicateTest {
       runner.setupAndExecuteDefaultAssignment();
       
       LOGGER.setLevel(oldLevel);
-      fail("Exception for duplicate link segment external Id was not thrown");
+      fail("Exception for duplicate link segment XML Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
     }
   }
 
   /**
-   * Test that a duplicate external Id for a Node is flagged as a error
+   * Test that a duplicate XML Id for a Node is flagged as a error
    */
   @Test
-  public void test_duplicate_node_external_id() {
+  public void test_duplicate_node_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateNodeXmlId";
       String description = "testDuplicateNode";
@@ -94,17 +94,17 @@ public class DuplicateTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
-      fail("Exception for duplicate node external Id was not thrown");
+      fail("Exception for duplicate node XML Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
     }
   }
 
   /**
-   * Test that a duplicate external Id for a Mode is flagged as a error
+   * Test that a duplicate XML Id for a Mode is flagged as a error
    */
   @Test
-  public void test_duplicate_mode_external_id() {
+  public void test_duplicate_mode_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateModeXmlId";
       String description = "testDuplicateMode";
@@ -115,17 +115,17 @@ public class DuplicateTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
-      fail("Exception for duplicate mode external Id was not thrown");
+      fail("Exception for duplicate mode XML Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
     }
   }
 
   /**
-   * Test that a duplicate external Id for a Zone is flagged as a error
+   * Test that a duplicate XML Id for a Zone is flagged as a error
    */
   @Test
-  public void test_duplicate_zone_external_id() {
+  public void test_duplicate_zone_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateZoneXmlId";
       String description = "testDuplicateZone";
@@ -136,17 +136,17 @@ public class DuplicateTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
-      fail("Exception for duplicate zone external Id was not thrown");
+      fail("Exception for duplicate zone XML Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
     }
   }
 
   /**
-   * Test that a duplicate external Id for a Time Period is flagged as a error
+   * Test that a duplicate XML Id for a Time Period is flagged as a error
    */
   @Test
-  public void test_duplicate_time_period_external_id() {
+  public void test_duplicate_time_period_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateTimePeriodXmlId";
       String description = "testDuplicateTimePeriod";
@@ -157,17 +157,17 @@ public class DuplicateTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
-      fail("Exception for duplicate time period external Id was not thrown");
+      fail("Exception for duplicate time period XML Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
     }
   }
 
   /**
-   * Test that a duplicate external Id for a Time Period is flagged as a error
+   * Test that a duplicate XML Id for a User class is flagged as a error
    */
   @Test
-  public void test_duplicate_user_class_external_id() {
+  public void test_duplicate_user_class_xml_id() {
     try {
       String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateUserClassXmlId";
       String description = "testDuplicateUserClass";
@@ -178,7 +178,7 @@ public class DuplicateTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
-      fail("Exception for duplicate user class external Id was not thrown");
+      fail("Exception for duplicate user class XML Id was not thrown");
     } catch (Exception e) {
       assertTrue(true);
     }

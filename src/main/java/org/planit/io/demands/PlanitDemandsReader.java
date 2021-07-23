@@ -243,7 +243,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
         PlanItException.throwIf(getTravelerTypeBySourceId(xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
-      PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
+      PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class %s has no mode specified, but more than one mode possible", xmlUserclass.getId() );
       
       /* mode ref */
       Map<String, Mode> sourceIdModeMap = getSettings().getMapToIndexModeByXmlIds();
@@ -253,7 +253,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       }
       String xmlModeIdRef = xmlUserclass.getModeref();
       Mode userClassMode = sourceIdModeMap.get(xmlModeIdRef);
-      PlanItException.throwIf(userClassMode == null,"User class " + xmlUserclass.getId() + " refers to mode " + xmlModeIdRef + " which has not been defined");
+      PlanItException.throwIf(userClassMode == null,"User class %s refers to mode %s which has not been defined", xmlUserclass.getId(), xmlModeIdRef );
            
       /* traveller type ref */
       String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
@@ -273,7 +273,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       }        
       
       final boolean duplicate = addUserClassToSourceIdMap(userClass.getXmlId(), userClass);
-      PlanItException.throwIf(duplicate, "Duplicate user class xml id %s found in demands", userClass.getXmlId());
+      PlanItException.throwIf(duplicate, "Duplicate user class XML id %s found in demands", userClass.getXmlId());
     }
     return xmlUserclasses.getUserclass().size();
   }  

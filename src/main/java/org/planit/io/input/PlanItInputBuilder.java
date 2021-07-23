@@ -324,18 +324,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Populates the Demands object from the input file
    *
    * @param demands the Demands object to be populated from the input data
-   * @param parameter1 Zoning object previously defined
-   * @param parameter2 PhysicalNetwork object previously defined
+   * @param zoning Zoning object previously defined
+   * @param network network object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateDemands( Demands demands, final Object parameter1, final Object parameter2) throws PlanItException {
-    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");
-    PlanItException.throwIf(!(parameter1 instanceof Zoning),"Parameter 1 of call to populateDemands() is not of class Zoning");
-    PlanItException.throwIf(!(parameter2 instanceof MacroscopicNetwork),"Parameter 2 of call to populateDemands() is not of class MacroscopicNetwork");     
-    
-    final Zoning zoning = (Zoning) parameter1;
-    final MacroscopicNetwork network = (MacroscopicNetwork) parameter2;
-    
+  protected void populateDemands( Demands demands, final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");     
+       
     /* delegate to the dedicated demands reader */
     this.setDemandsReader(new PlanitDemandsReader(xmlRawDemand, network, zoning, demands));
     getPlanitDemandsReader().getSettings().setMapToIndexZoneByXmlIds(getPlanitZoningReader().getAllZonesBySourceId());
