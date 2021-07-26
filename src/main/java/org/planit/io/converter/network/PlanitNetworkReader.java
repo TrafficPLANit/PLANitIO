@@ -384,9 +384,11 @@ public class PlanitNetworkReader extends NetworkReaderBase {
     return network;
   }
 
-  /** collect settings for this reader
-   * @return settings
+
+  /**
+   * {@inheritDoc}
    */
+  @Override
   public PlanitNetworkReaderSettings getSettings() {
     return settings;
   }
