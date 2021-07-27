@@ -54,16 +54,15 @@ public class PlanitXmlJaxbParser<T> {
    * @param xmlFileExtension to use
    * @throws PlanItException thrown if error
    */
-  public void initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {
-    PlanItException.throwIfNull(inputPathDirectory, "input path directory for XML reader is not provided, unable to parse");
-    PlanItException.throwIfNull(xmlFileExtension, "no XML file extension provided, unable to parse files if extension is unknown");
-    
+  public void initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {    
     if(this.xmlRootElement==null) {
+      PlanItException.throwIfNull(inputPathDirectory, "Input path directory for XML reader is not provided, unable to parse");
+      PlanItException.throwIfNull(xmlFileExtension, "No XML file extension provided, unable to parse files if extension is unknown");
+      
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
       PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
       setXmlRootElement(JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames));
-    } 
-    
+    }     
   }        
  
   /**

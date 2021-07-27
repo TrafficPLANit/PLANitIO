@@ -1,0 +1,81 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!-- Demand component -->
+	<macroscopicdemand>
+	  <id>1</id>
+		<demandconfiguration>
+			<timeperiods>
+				<timeperiod id="0">
+					<duration>3600</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="0">
+				<o ref="1">
+					<d ref="2">1000</d>
+				</o>
+			</odcellbycellmatrix>
+		</oddemands>
+	</macroscopicdemand>
+
+	<!-- Physical network component -->
+	<macroscopicnetwork>
+	  <id>1</id>
+		<infrastructurelayers>
+			<layer id="road">
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+				</nodes>
+				<links>
+					<link id="1" nodearef="1" nodebref="2">
+						<linksegment id="1" dir="a_b" />
+						<linksegment id="2" dir="b_a" />
+						<length>10</length>
+					</link>
+				</links>
+			</layer>
+		</infrastructurelayers>
+	</macroscopicnetwork>
+	
+	<!-- service network with a single leg (l1) on network link 1 via leg segment ls1 (link segment 2 indirectly via link and direction) -->
+  <servicenetwork>
+    <id>1</id>
+    <parentnetwork>1</parentnetwork>
+    <servicenetworklayer id="1" networklayerref="road">
+    <servicenodes>
+      <servicenode id="s1" noderef="1" />
+      <servicenode id="s2" noderef="2" />
+    </servicenodes>
+    <servicelegs>
+      <leg id="l1" nodearef="s1" nodebref="s2" lrefs="1">
+         <legsegment id="ls1" dir="b_a" />         
+      </leg>
+    </servicelegs>
+  </servicenetworklayer>
+</servicenetwork>	
+
+	<!-- zoning structure component -->
+	<macroscopiczoning>
+		<zones>
+		  <id>1</id>
+			<zone id="1">
+				<centroid>
+					<name>Zone 1 centroid</name>
+				</centroid>
+				<connectoids>
+					<connectoid id="1" noderef="1" />
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<centroid>
+					<name>Zone 2 centroid</name>
+				</centroid>
+				<connectoids>
+					<connectoid id="2" noderef="2" />
+				</connectoids>
+			</zone>
+		</zones>
+	</macroscopiczoning>		
+</PLANit>

@@ -226,7 +226,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
       }      
     }else {
       /* absent, so register all modes (check if this is valid is to be executed by caller */
-      networkLayer.registerSupportedModes(network.getModes().copyOfValuesAsSet());
+      networkLayer.registerSupportedModes(network.getModes().valuesAsNewSet());
     }
     
     /* link segment types */

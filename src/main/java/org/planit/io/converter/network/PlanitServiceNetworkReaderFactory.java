@@ -4,10 +4,9 @@ import java.util.logging.Logger;
 
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
-import org.planit.network.TransportLayerNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
-import org.planit.xml.generated.XMLElementMacroscopicNetwork;
+import org.planit.xml.generated.XMLElementServiceNetwork;
 
 
 /**
@@ -58,7 +57,7 @@ public class PlanitServiceNetworkReaderFactory {
    * @return created service network reader
    */
   public static PlanitServiceNetworkReader create(final PlanitServiceNetworkReaderSettings settings) {
-    return create(settings, new ServiceNetwork(IdGroupingToken.collectGlobalToken()));
+    return create(settings, new ServiceNetwork(IdGroupingToken.collectGlobalToken(), settings.getParentNetwork()));
   }   
   
   /** Create a Service Network Reader for given (empty) service network and given settings
@@ -100,7 +99,7 @@ public class PlanitServiceNetworkReaderFactory {
    * @param serviceNetwork to populate
    * @return created PLANit service network reader
    */
-  public static PlanitServiceNetworkReader create(final XMLElementMacroscopicNetwork xmlRawServiceNetwork, final ServiceNetwork serviceNetwork) {
+  public static PlanitServiceNetworkReader create(final XMLElementServiceNetwork xmlRawServiceNetwork, final ServiceNetwork serviceNetwork) {
     try {
       return new PlanitServiceNetworkReader(xmlRawServiceNetwork, serviceNetwork);
     } catch (PlanItException e) {

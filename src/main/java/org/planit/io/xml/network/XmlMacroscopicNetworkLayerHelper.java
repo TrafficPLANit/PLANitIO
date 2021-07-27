@@ -330,22 +330,31 @@ public class XmlMacroscopicNetworkLayerHelper {
       /** LINK **/
       Link link = null;
       {
+        /* xml id */
+        if(StringUtils.isNullOrBlank(xmlLink.getId())) {
+          LOGGER.severe("IGNORE: Link has no (XML) id, unable to include link");
+          continue;          
+        }          
+        String xmlId = xmlLink.getId();
+        
+        if(StringUtils.isNullOrBlank(xmlLink.getNodearef())){
+          LOGGER.warning(String.format("IGNORE: No node A reference present on link %s",xmlId));
+          continue;
+        }        
         Node startNode = networkReader.getNodeBySourceId(xmlLink.getNodearef());
+
+        if(StringUtils.isNullOrBlank(xmlLink.getNodebref())){
+          LOGGER.warning(String.format("IGNORE: No node B reference present on link %s",xmlId));
+          continue;
+        }         
         Node endNode = networkReader.getNodeBySourceId(xmlLink.getNodebref());
         
         /* geometry */
         LineString theLineString = parseLinkGeometry(xmlLink);        
         double length = parseLength(xmlLink, theLineString, jtsUtils);   
         link = networkLayer.getLinks().getFactory().registerNew(startNode, endNode, length);
-        link.setGeometry(theLineString);
-                
-        /* xml id */
-        if(xmlLink.getId() != null && !xmlLink.getId().isBlank()) {
-          link.setXmlId(xmlLink.getId());
-        }else {
-          LOGGER.severe("DISCARD: Link has no (XML) id, unable to include link");
-          continue;          
-        }         
+        link.setXmlId(xmlLink.getId());
+        link.setGeometry(theLineString);                      
         
         /* external id */
         if(xmlLink.getExternalid() != null && !xmlLink.getExternalid().isBlank()) {

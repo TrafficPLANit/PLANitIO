@@ -562,14 +562,14 @@ public class PlanitZoningReader extends ZoningReaderBase {
    */
   protected void initialiseNetworkReferenceIndices(final MacroscopicNetwork network) {
     /* xml ids are unique across all layers */
-    if(settings.nodesByXmlId == null) {
-      settings.nodesByXmlId = new HashMap<String, Node>();
+    if(settings.nodesByXmlId == null || settings.nodesByXmlId.isEmpty()) {      
+      settings.setNodesByXmlId(new HashMap<String, Node>());
       for(MacroscopicNetworkLayer layer : network.getTransportLayers()) {
         layer.getNodes().forEach( node -> settings.nodesByXmlId.put(node.getXmlId(), node));
       }
     }
-    if(settings.linkSegmentsByXmlId == null) {
-      settings.linkSegmentsByXmlId = new HashMap<String, MacroscopicLinkSegment>();
+    if(settings.linkSegmentsByXmlId == null || settings.linkSegmentsByXmlId.isEmpty()) {
+      settings.setLinkSegmentsByXmlId(new HashMap<String, MacroscopicLinkSegment>());
       for(MacroscopicNetworkLayer layer : network.getTransportLayers()) {
         layer.getLinkSegments().forEach( linkSegment -> settings.linkSegmentsByXmlId.put(linkSegment.getXmlId(), linkSegment));
       }
