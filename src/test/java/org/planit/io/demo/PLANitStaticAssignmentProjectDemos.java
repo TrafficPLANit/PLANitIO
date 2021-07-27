@@ -1,8 +1,5 @@
 package org.planit.io.demo;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -47,6 +44,8 @@ import org.planit.zoning.Zoning;
  * 
  * Note: if any of the demos no longer work or do not compile, fix them here but also in the Example section of the Java manual website as these are all
  * copies of those examples.
+ * 
+ * TODO: somehow include assertions and include in testing cycle, this is currently not done yet except for the getting started demo
  *
  * @author markr
  *
@@ -544,28 +543,6 @@ public class PLANitStaticAssignmentProjectDemos {
       project.executeAllTrafficAssignments();
   }  
   
-  /**
-   * The Getting started with servuce network support demo as provided on the website. We let it throw an exception instead of catching it because it is the 
-   * only runnable test of the bunch and is called from the integration tests to ensure it remains runnable.
-   * 
-   *  It must be a viable example because it is used in the getting started on the website. Hence it is part of the testing cycle to ensure it remains up to date
-   *  and viable. If any issues are found that require changing the demo, they should also be reflected in the getting started on the website
-   *  
-   * @throws PlanItException thrown when error
-   */
-  public static void gettingStartedWithServiceNetworkDemo(String overrideProjectPath) throws PlanItException {
-      // PROJECT INSTANCE
-      final PlanItSimpleProject project = new PlanItSimpleProject(overrideProjectPath);
-           
-      assertTrue(!project.getNetwork().getTransportLayers().isEmpty());
-      assertTrue(!project.getZoning().odZones.isEmpty());
-      assertTrue(!project.getZoning().transferZones.isEmpty());
-      assertTrue(!project.getZoning().odConnectoids.isEmpty());
-      assertTrue(!project.getZoning().transferConnectoids.isEmpty());
-      assertTrue(project.hasServiceNetwork());
-      //TODO add more checks + add to website
-  }   
-
   /**
    * Setup a minimum configuration standard traditional static assignment:
    * - Use the full fledged configuration objects, but

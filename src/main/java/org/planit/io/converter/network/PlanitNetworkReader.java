@@ -347,7 +347,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
    * {@inheritDoc}
    */
   @Override
-  public TransportLayerNetwork<?,?> read() throws PlanItException {
+  public MacroscopicNetwork read() throws PlanItException {
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());

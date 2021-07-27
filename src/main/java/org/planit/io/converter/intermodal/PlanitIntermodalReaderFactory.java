@@ -1,6 +1,6 @@
 package org.planit.io.converter.intermodal;
 
-import org.planit.network.TransportLayerNetwork;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
@@ -44,7 +44,7 @@ public class PlanitIntermodalReaderFactory {
    * @return created reader
    * @throws PlanItException  thrown if error
    */
-  public static PlanitIntermodalReader create(String pathDirectory, String xmlFileExtension, TransportLayerNetwork<?,?> network, Zoning zoning) throws PlanItException{   
+  public static PlanitIntermodalReader create(String pathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning) throws PlanItException{   
     return new PlanitIntermodalReader(pathDirectory, xmlFileExtension, network, zoning);
   }
   
@@ -57,7 +57,7 @@ public class PlanitIntermodalReaderFactory {
    * @return created reader
    * @throws PlanItException  thrown if error
    */
-  public static  PlanitIntermodalReader create(XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, TransportLayerNetwork<?,?> network, Zoning zoning) throws PlanItException{
+  public static  PlanitIntermodalReader create(XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, MacroscopicNetwork network, Zoning zoning) throws PlanItException{
     return new PlanitIntermodalReader(xmlRawNetwork, xmlRawZoning, network, zoning);
   }
 }

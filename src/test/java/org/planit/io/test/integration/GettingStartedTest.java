@@ -14,7 +14,7 @@ import org.planit.utils.id.IdGenerator;
 /**
  * Test the getting started demo example
  * 
- * @author mraa2518
+ * @author markr
  *
  */
 public class GettingStartedTest {
