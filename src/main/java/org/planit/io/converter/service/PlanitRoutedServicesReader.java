@@ -1,36 +1,18 @@
 package org.planit.io.converter.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import org.planit.converter.network.NetworkReaderImpl;
 import org.planit.converter.service.RoutedServicesReader;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
-import org.planit.network.ServiceNetwork;
 import org.planit.service.routed.RoutedServices;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
-import org.planit.utils.misc.CharacterUtils;
 import org.planit.utils.misc.StringUtils;
-import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.ServiceNetworkLayer;
-import org.planit.utils.network.layer.physical.Link;
-import org.planit.utils.network.layer.physical.Node;
-import org.planit.utils.network.layer.physical.Nodes;
 import org.planit.utils.network.layer.service.ServiceLeg;
-import org.planit.utils.network.layer.service.ServiceLegSegment;
-import org.planit.utils.network.layer.service.ServiceNode;
-import org.planit.utils.wrapper.MapWrapper;
-import org.planit.utils.wrapper.MapWrapperImpl;
-import org.planit.xml.generated.Direction;
 import org.planit.xml.generated.XMLElementRoutedServices;
-import org.planit.xml.generated.XMLElementServiceLeg;
-import org.planit.xml.generated.XMLElementServiceLegs;
-import org.planit.xml.generated.XMLElementServiceNetwork;
-import org.planit.xml.generated.XMLElementServiceNetworkLayer;
-import org.planit.xml.generated.XMLElementServiceNodes;
 
 /**
  * Implementation of a routed service reader in the PLANit XML native format
@@ -38,10 +20,10 @@ import org.planit.xml.generated.XMLElementServiceNodes;
  * @author markr
  *
  */
-public class PlanitRoutedServiceReader implements RoutedServicesReader {
+public class PlanitRoutedServicesReader implements RoutedServicesReader {
   
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServiceReader.class.getCanonicalName());            
+  private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesReader.class.getCanonicalName());            
   
   /** the settings for this reader */
   private final PlanitRoutedServicesReaderSettings settings;
@@ -52,12 +34,26 @@ public class PlanitRoutedServiceReader implements RoutedServicesReader {
   /** the routed services to populate */
   private final RoutedServices routedServices;
       
+  /** Parse the available routed services layers defined in this XML file
+   * 
+   * @throws PlanItException thrown if error
+   */
+  private void parseRoutedServiceLayers() throws PlanItException{
+    throw new PlanItException("TODO not yet implemented");
+  }
+
   /**
    * In XML files we use the XML ids for referencing parent network entities. In memory internal ids are used for indexing, therefore
    * we keep a separate indices by XML within the reader to be able to quickly find entities by XML id if needed
    */
   private void initialiseParentNetworkReferenceIndices() {
-    // TODO     
+    if(!settings.hasParentLegsByXmlId()) {      
+      for(ServiceNetworkLayer layer : routedServices.getParentNetwork().getTransportLayers()) {
+        settings.setParentLegsByXmlId(layer, new HashMap<String, ServiceLeg>());        
+        Map<String,ServiceLeg> legsByXmlId = settings.getParentLegsByXmlId(layer);
+        layer.getLegs().forEach( leg -> legsByXmlId.put(leg.getXmlId(), leg));
+      }
+    }
   }
 
   /** Constructor where settings are directly provided such that input information can be extracted from it
@@ -66,7 +62,7 @@ public class PlanitRoutedServiceReader implements RoutedServicesReader {
    * @param settings to use
    * @throws PlanItException  thrown if error
    */
-  protected PlanitRoutedServiceReader(IdGroupingToken idToken, PlanitRoutedServicesReaderSettings settings) throws PlanItException{
+  protected PlanitRoutedServicesReader(IdGroupingToken idToken, PlanitRoutedServicesReaderSettings settings) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
     this.settings = settings;
     this.routedServices = new RoutedServices(idToken, settings.getParentNetwork());
@@ -78,7 +74,7 @@ public class PlanitRoutedServiceReader implements RoutedServicesReader {
    * @param routedServices to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitRoutedServiceReader(PlanitRoutedServicesReaderSettings settings, RoutedServices routedServices) throws PlanItException{
+  protected PlanitRoutedServicesReader(PlanitRoutedServicesReaderSettings settings, RoutedServices routedServices) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
     this.settings = settings;
     this.routedServices = routedServices;
@@ -93,7 +89,7 @@ public class PlanitRoutedServiceReader implements RoutedServicesReader {
    * @param routedServices to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitRoutedServiceReader(XMLElementRoutedServices populatedXmlRawRoutedServices, RoutedServices routedServices) throws PlanItException{
+  protected PlanitRoutedServicesReader(XMLElementRoutedServices populatedXmlRawRoutedServices, RoutedServices routedServices) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(populatedXmlRawRoutedServices);
     this.settings = new PlanitRoutedServicesReaderSettings(routedServices.getParentNetwork());
     this.routedServices = routedServices;
@@ -106,7 +102,7 @@ public class PlanitRoutedServiceReader implements RoutedServicesReader {
    * @param routedServices to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitRoutedServiceReader(String inputPathDirectory, String xmlFileExtension, RoutedServices routedServices) throws PlanItException{   
+  protected PlanitRoutedServicesReader(String inputPathDirectory, String xmlFileExtension, RoutedServices routedServices) throws PlanItException{   
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
     this.settings = new PlanitRoutedServicesReaderSettings(routedServices.getParentNetwork(), inputPathDirectory, xmlFileExtension);
     this.routedServices = routedServices;
@@ -139,10 +135,10 @@ public class PlanitRoutedServiceReader implements RoutedServicesReader {
       initialiseParentNetworkReferenceIndices();      
 
       /* parse content */
-      //TODO
+      parseRoutedServiceLayers();
       
       /* free XML content after parsing */
-      xmlParser.clearXmlContent();
+      xmlParser.clearXmlContent();           
       
     } catch (PlanItException e) {
       throw e;

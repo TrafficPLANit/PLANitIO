@@ -1,10 +1,12 @@
 package org.planit.io.converter.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.planit.converter.ConverterReaderSettings;
 import org.planit.io.xml.util.PlanitXmlReaderSettings;
 import org.planit.network.ServiceNetwork;
+import org.planit.utils.network.layer.ServiceNetworkLayer;
 import org.planit.utils.network.layer.service.ServiceLeg;
 
 /**
@@ -21,13 +23,24 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
   /**
    * mapping of parent legs by XML id for quick lookups (optionally externally set)
    */
-  private Map<String, ServiceLeg> parentLegsByXmlId; 
+  private final Map<ServiceNetworkLayer, Map<String, ServiceLeg>> parentLegsByXmlId;
+  
+  /**
+   * Check if parent legs by XML id are present (for any layer) 
+   * 
+   * @param true when at least one is available, false otherwise
+   */
+  protected boolean hasParentLegsByXmlId() {
+    return parentLegsByXmlId.isEmpty();
+  }   
   
   /**
    * Collect the parent legs indexed by their XML id
+   * 
+   * @param layer for which we collect the alternatively indexed entities
    */
-  protected Map<String, ServiceLeg> getParentLegsByXmlId() {
-    return this.parentLegsByXmlId;
+  protected Map<String, ServiceLeg> getParentLegsByXmlId(final ServiceNetworkLayer layer) {
+    return parentLegsByXmlId.get(layer);
   }      
         
   /**
@@ -38,7 +51,7 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
   public PlanitRoutedServicesReaderSettings(final ServiceNetwork parentNetwork) {
     super();
     this.parentNetwork = parentNetwork;
-    this.parentLegsByXmlId = null;
+    this.parentLegsByXmlId = new HashMap<ServiceNetworkLayer,Map<String, ServiceLeg>>();
   }  
   
   /**
@@ -59,7 +72,7 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
    */
   @Override
   public void reset() {
-    parentLegsByXmlId = null;
+    parentLegsByXmlId.clear();
   } 
 
   /** Collect the parent service network for these routed services
@@ -71,11 +84,12 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
   }
   
   /** Allow user to override the map for XML id to parent leg mapping. If so, the reader will not create its own mapping but instead uses the provided mapping
+   * @param layer 
    * 
    * @param parentLegsByXmlId to use
    */
-  public void setParentLegsByXmlId(final Map<String, ServiceLeg> parentLegsByXmlId) {
-    this.parentLegsByXmlId = parentLegsByXmlId;
+  public void setParentLegsByXmlId(ServiceNetworkLayer layer, final Map<String, ServiceLeg> parentLegsByXmlId) {
+    this.parentLegsByXmlId.put(layer,parentLegsByXmlId);
   }     
   
 }

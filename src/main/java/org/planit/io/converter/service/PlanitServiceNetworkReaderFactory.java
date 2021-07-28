@@ -10,7 +10,7 @@ import org.planit.xml.generated.XMLElementServiceNetwork;
 
 
 /**
- * Factory for creating PplanitServiceNetworkReaders
+ * Factory for creating PlanitServiceNetworkReaders
  * 
  * @author markr
  *
@@ -20,7 +20,7 @@ public class PlanitServiceNetworkReaderFactory {
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkReaderFactory.class.getCanonicalName());
   
-  /** Create a PLANitNetworkReader which will create a service network
+  /** Create a PLANitServiceNetworkReader
    * 
    * @param parentNetwork the parent network the service network is assumed to be built upon
    * @return created service network reader
@@ -29,7 +29,7 @@ public class PlanitServiceNetworkReaderFactory {
     return create(IdGroupingToken.collectGlobalToken(), parentNetwork);
   }   
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitServiceNetworkReader based on custom id token
    * 
    * @param idToken to use for service network id generation
    * @param parentNetwork the network the service network is assumed to be built upon  
@@ -39,7 +39,7 @@ public class PlanitServiceNetworkReaderFactory {
     return create(new PlanitServiceNetworkReaderSettings(parentNetwork), new ServiceNetwork(idToken, parentNetwork));    
   }
   
-  /** Create a ServiceNetworkReader which creates a service network based on provided location and parent network
+  /** Create a PLANitServiceNetworkReader sourced from given input directory
    * 
    * @param inputDirectory to use (directory only, find first compatible file)
    * @param parentNetwork the network the service network is assumed to be built upon
@@ -51,7 +51,7 @@ public class PlanitServiceNetworkReaderFactory {
     return serviceNetworkReader;
   }  
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitServiceNetworkReader based on given settings which in turn contain information on location and parent network to use
    * 
    * @param settings to use
    * @return created service network reader
