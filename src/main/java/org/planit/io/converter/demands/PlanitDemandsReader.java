@@ -1,4 +1,4 @@
-package org.planit.io.demands;
+package org.planit.io.converter.demands;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

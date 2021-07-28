@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.planit.converter.network.NetworkReaderBase;
+import org.planit.converter.network.NetworkReaderImpl;
 import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
@@ -42,7 +42,7 @@ import org.planit.xml.generated.XMLElementModes;
  * @author gman, markr
  *
  */
-public class PlanitNetworkReader extends NetworkReaderBase {
+public class PlanitNetworkReader extends NetworkReaderImpl {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());            

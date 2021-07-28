@@ -8,18 +8,14 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.planit.io.converter.intermodal.PlanitIntermodalReader;
-import org.planit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.io.converter.network.PlanitNetworkReaderFactory;
-import org.planit.io.converter.network.PlanitServiceNetworkReader;
-import org.planit.io.converter.network.PlanitServiceNetworkReaderFactory;
+import org.planit.io.converter.service.PlanitServiceNetworkReader;
+import org.planit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.planit.logging.Logging;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
 import org.planit.utils.id.IdGenerator;
-import org.planit.utils.misc.Pair;
-import org.planit.zoning.Zoning;
 
 /**
  * Test being able to read and write service networks
@@ -60,11 +56,11 @@ public class ServiceNetworkTest {
       networkReader.getSettings().setInputDirectory(INPUT_DIR);      
       MacroscopicNetwork parentNetwork = networkReader.read();
       
-      
-      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);
-      
+      /* the service network */
+      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);      
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
+      /* tests */
       assertTrue(serviceNetwork.getTransportLayers().size()==1);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().size()==2);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().getByXmlId("s1")!=null);

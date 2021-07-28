@@ -1,4 +1,4 @@
 /**
  * Classes used to process the Java classes generated from XSD files
  */
-package org.planit.io.demands;
+package org.planit.io.converter.demands;

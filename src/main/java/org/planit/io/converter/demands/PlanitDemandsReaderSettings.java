@@ -1,4 +1,4 @@
-package org.planit.io.demands;
+package org.planit.io.converter.demands;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package org.planit.io.converter.network;
+package org.planit.io.converter.service;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package org.planit.io.converter.network;
+package org.planit.io.converter.service;
 
 import java.util.logging.Logger;
 
@@ -83,9 +83,9 @@ public class PlanitServiceNetworkReaderFactory {
    * @param serviceNetwork to populate
    * @return created service network reader
    */
-  public static PlanitNetworkReader create(final String inputDirectory, final String xmlFileExtension, final ServiceNetwork serviceNetwork) {
+  public static PlanitServiceNetworkReader create(final String inputDirectory, final String xmlFileExtension, final ServiceNetwork serviceNetwork) {
     try {
-      return new PlanitNetworkReader(inputDirectory, xmlFileExtension, serviceNetwork);
+      return new PlanitServiceNetworkReader(inputDirectory, xmlFileExtension, serviceNetwork);
     } catch (PlanItException e) {
       LOGGER.severe(e.getMessage());
     }    
