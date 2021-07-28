@@ -133,7 +133,8 @@ public class JAXBUtils {
     }
   }
 
-  /** create populated instance of class based from the first compatible potential files
+  /** Create populated instance of class based from the first compatible potential files
+   * 
    * @param <T> raw XML to find
    * @param clazz of type T
    * @param potentialXmlFileNames to search among
@@ -145,7 +146,8 @@ public class JAXBUtils {
       File currFileName = potentialXmlFileNames[i];
       if (result==null) {
         try {
-          result = clazz.cast(JAXBUtils.generateObjectFromXml(clazz, currFileName));
+          Object parsedXmlContent = JAXBUtils.generateObjectFromXml(clazz, currFileName);
+          result = clazz.cast(parsedXmlContent);
         } catch (final Exception e) {
           /* ok, just try next */   
         }                  

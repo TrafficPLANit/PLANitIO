@@ -1,5 +1,6 @@
 package org.planit.io.test.integration;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.logging.Logger;
@@ -9,14 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.io.converter.intermodal.PlanitIntermodalReader;
 import org.planit.io.converter.intermodal.PlanitIntermodalReaderFactory;
+import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.io.converter.network.PlanitNetworkReaderFactory;
 import org.planit.io.converter.network.PlanitServiceNetworkReader;
 import org.planit.io.converter.network.PlanitServiceNetworkReaderFactory;
-import org.planit.io.demo.PLANitStaticAssignmentProjectDemos;
 import org.planit.logging.Logging;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
-import org.planit.network.TransportLayerNetwork;
 import org.planit.utils.id.IdGenerator;
 import org.planit.utils.misc.Pair;
 import org.planit.zoning.Zoning;
@@ -55,19 +55,25 @@ public class ServiceNetworkTest {
     try {
       final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
       
-      //TODO: for now no reader capable of parsing network, zoning and services exists, so instead use intermodal 
-      // + separate service network reader. Ideally, we would also have one that can include service network as well
-      //   do this after we also have routed services reader so we have a better overview on this
-      PlanitIntermodalReader intermodalReader = PlanitIntermodalReaderFactory.create();
-      intermodalReader.getSettings().setInputDirectory(INPUT_DIR);      
-      Pair<MacroscopicNetwork, Zoning> resultPair = intermodalReader.read();
+      /* parent network */
+      PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
+      networkReader.getSettings().setInputDirectory(INPUT_DIR);      
+      MacroscopicNetwork parentNetwork = networkReader.read();
       
       
-      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, resultPair.first());
+      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);
       
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
-      //TODO: add assertions on result!
+      assertTrue(serviceNetwork.getTransportLayers().size()==1);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().size()==2);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().getByXmlId("s1")!=null);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().getByXmlId("s2")!=null);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().size()==1);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().getByXmlId("l1")!=null);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().size()==1);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1")!=null);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1").getParentLeg().getXmlId().equals("l1"));
       
     }catch(Exception e){
       e.printStackTrace();

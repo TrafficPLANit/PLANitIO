@@ -32,22 +32,25 @@ public class PlanitXmlReaderSettings {
     this.xmlFileExtension = xmlFileExtension;
   }  
   
-  /** the input path directory used
+  /** The input path directory used
+   * 
    * @return directory used
    */
   public String getInputDirectory() {
     return this.inputDirectory;
   }
   
-  /** set the input path directory used
+  /** Set the input path directory used
+   * 
    * @param inputDirectory to use
    */
   public void setInputDirectory(String inputDirectory) {
     this.inputDirectory = inputDirectory;
   }  
   
-  /** the xml extension used to check for within path directory used
-   * @return xml file extension used
+  /** the XML extension used to check for within path directory used
+   * 
+   * @return XML file extension used
    */
   public String getXmlFileExtension() {
     return this.xmlFileExtension;

@@ -1,23 +1,5 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<!-- Demand component -->
-	<macroscopicdemand>
-	  <id>1</id>
-		<demandconfiguration>
-			<timeperiods>
-				<timeperiod id="0">
-					<duration>3600</duration>
-				</timeperiod>
-			</timeperiods>
-		</demandconfiguration>
-		<oddemands>
-			<odcellbycellmatrix timeperiodref="0">
-				<o ref="1">
-					<d ref="2">1000</d>
-				</o>
-			</odcellbycellmatrix>
-		</oddemands>
-	</macroscopicdemand>
 
 	<!-- Physical network component -->
 	<macroscopicnetwork>
@@ -41,18 +23,18 @@
 	
 	<!-- service network with a single leg (l1) on network link 1 via leg segment ls1 (link segment 2 indirectly via link and direction) -->
   <servicenetwork>
-    <id>1</id>
+    <id>service_network</id>
     <parentnetwork>1</parentnetwork>
-    <servicenetworklayer id="1" networklayerref="road">
-    <servicenodes>
-      <servicenode id="s1" noderef="1" />
-      <servicenode id="s2" noderef="2" />
-    </servicenodes>
-    <servicelegs>
-      <leg id="l1" nodearef="s1" nodebref="s2" lrefs="1">
-         <legsegment id="ls1" dir="b_a" />         
-      </leg>
-    </servicelegs>
+    <servicenetworklayer id="service_layer" parentlayerref="road">
+	    <servicenodes>
+	      <servicenode id="s1" noderef="1" />
+	      <servicenode id="s2" noderef="2" />
+	    </servicenodes>
+	    <servicelegs>
+	      <leg id="l1" nodearef="s1" nodebref="s2" lrefs="1">
+	         <legsegment id="ls1" dir="b_a" />         
+	      </leg>
+	    </servicelegs>
   </servicenetworklayer>
 </servicenetwork>	
 

@@ -351,6 +351,7 @@ public class PlanitNetworkReader extends NetworkReaderBase {
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML network could be parsed into memory, abort");
     
     /* xml id */
     String networkXmlId = xmlParser.getXmlRootElement().getId();

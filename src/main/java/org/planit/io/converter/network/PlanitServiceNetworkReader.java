@@ -108,7 +108,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderBase {
           LOGGER.warning(String.format("Service leg %s in service layer %s references unknown parent link %s", xmlId, serviceNetworkLayer.getXmlId(), xmlParentLinkRef));
           valid=false;
           continue;
-        }
+        }                
         parentLinksInOrder.add(linkInLeg);
       }
       if(!valid) {
@@ -118,6 +118,9 @@ public class PlanitServiceNetworkReader extends NetworkReaderBase {
                  
       /* instance */
       ServiceLeg serviceLeg = serviceNetworkLayer.getLegs().getFactory().registerNew(startNode, endNode, parentLinksInOrder, registerLegsOnServiceNodes);
+      if(!serviceLeg.validate()) {
+        throw new PlanItException("Invalid service network file, inconsistency detected in service leg (%s) definition",serviceLeg.getXmlId());
+      }
       serviceLeg.setXmlId(xmlId);      
             
       /* external id*/
@@ -139,12 +142,14 @@ public class PlanitServiceNetworkReader extends NetworkReaderBase {
    * @throws PlanItException thrown if error
    */    
   private void parseLegSegmentsOfLeg(ServiceNetworkLayer serviceNetworkLayer, ServiceLeg serviceLeg, XMLElementServiceLeg xmlServiceLeg) throws PlanItException {
+
     PlanItException.throwIfNull(xmlServiceLeg, "No service leg element available to extract leg segments from");    
     List<XMLElementServiceLeg.Legsegment> xmlLegSegments = xmlServiceLeg.getLegsegment();
     PlanItException.throwIf(xmlLegSegments==null || xmlLegSegments.isEmpty(), "No service leg segments available on service network layer %s", serviceNetworkLayer.getXmlId());
     PlanItException.throwIf(xmlLegSegments.size()>2, "No more than two service leg segments allowed per service leg (one per direction) on service leg %s on service layer %s", serviceLeg.getXmlId(), serviceNetworkLayer.getXmlId());            
     
     /* leg segments */
+    boolean registerLegSegmentsOnLegAndNode = true;
     for(XMLElementServiceLeg.Legsegment xmlLegSegment : xmlLegSegments) {
       
       /* XML id */
@@ -162,7 +167,9 @@ public class PlanitServiceNetworkReader extends NetworkReaderBase {
       }   
                                       
       /* instance */
-      ServiceLegSegment serviceLegSegment = serviceNetworkLayer.getLegSegments().getFactory().registerNew(serviceLeg, xmlDirection.equals(Direction.A_B) ? true : false);
+      boolean isDirectionAb = xmlDirection.equals(Direction.A_B) ? true : false;
+      ServiceLegSegment serviceLegSegment = serviceNetworkLayer.getLegSegments().getFactory().registerNew(
+          serviceLeg, isDirectionAb, registerLegSegmentsOnLegAndNode);
       serviceLegSegment.setXmlId(xmlId);
       
       /* external id*/
@@ -296,6 +303,13 @@ public class PlanitServiceNetworkReader extends NetworkReaderBase {
         layer.getNodes().forEach( node -> settings.getParentNodesByXmlId().put(node.getXmlId(), node));
       }
     }
+    /* XML link ids are to be unique across all layers */    
+    if(settings.getParentLinksByXmlId() == null || settings.getParentLinksByXmlId().isEmpty()) {      
+      settings.setParentLinksByXmlId(new HashMap<String, Link>());
+      for(MacroscopicNetworkLayer layer : serviceNetwork.getParentNetwork().getTransportLayers()) {
+        layer.getLinks().forEach( link -> settings.getParentLinksByXmlId().put(link.getXmlId(), link));
+      }
+    }    
   }
 
   /** Constructor where settings are directly provided such that input information can be extracted from it
@@ -361,6 +375,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderBase {
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML service network could be parsed into memory, abort");
     
     /* XML id */
     String xmlId = xmlParser.getXmlRootElement().getId();

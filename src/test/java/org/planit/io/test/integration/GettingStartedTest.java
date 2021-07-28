@@ -49,20 +49,5 @@ public class GettingStartedTest {
       fail(e.getMessage());
     }
   }
-  
-  /**
-   * call getting started demo with services and make sure it at least runs. This makes sure this same getting started demo on the website 
-   * also runs. If any issues are found that require changing the demo, they should also be reflected in the getting started on the website 
-   */
-  @Test
-  public void gettingStartedTestWithServices() {
-    try {
-      PLANitStaticAssignmentProjectDemos.gettingStartedDemo("src\\test\\resources\\testcases\\getting_started\\service");
-    }catch(Exception e){
-      e.printStackTrace();
-      LOGGER.severe(e.getMessage());
-      fail(e.getMessage());
-    }
-  }  
 
 }

@@ -9,7 +9,6 @@ import org.planit.io.converter.zoning.PlanitZoningWriter;
 import org.planit.io.converter.zoning.PlanitZoningWriterFactory;
 import org.planit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.planit.network.MacroscopicNetwork;
-import org.planit.network.TransportLayerNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
 import org.planit.xml.generated.XMLElementMacroscopicZoning;
@@ -65,18 +64,13 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
    * {@inheritDoc}
    */
   @Override
-  public void write(TransportLayerNetwork<?, ?> network, Zoning zoning) throws PlanItException {
-    
-    if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("PLANit intermodal writer currently only supports macroscopic networks");
-    }
-    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
+  public void write(MacroscopicNetwork macroscopicNetwork, Zoning zoning) throws PlanItException {
     
     /* network writer */
     PlanitNetworkWriterSettings networkSettings = getSettings().getNetworkSettings();
     PlanitNetworkWriter networkWriter = PlanitNetworkWriterFactory.create(networkSettings.getOutputPathDirectory(), networkSettings.getCountry(), xmlRawNetwork);
     networkWriter.setIdMapperType(getIdMapperType());
-    networkWriter.write(network);
+    networkWriter.write(macroscopicNetwork);
 
     /* zoning writer - with pt component via transfer zones */
     PlanitZoningWriterSettings zoningSettings = getSettings().getZoningSettings();

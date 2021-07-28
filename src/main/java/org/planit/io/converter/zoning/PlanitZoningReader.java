@@ -694,8 +694,9 @@ public class PlanitZoningReader extends ZoningReaderBase {
     // create and register zones, centroids and connectoids
     try {
       
-      /* popoulate Xml memory model */
+      /* populate Xml memory model */
       xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+      PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML zoning could be parsed into memory, abort");
       
       /* xml id */
       String zoningXmlId = xmlParser.getXmlRootElement().getId();
