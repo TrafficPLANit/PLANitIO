@@ -1,28 +1,46 @@
 package org.planit.io.converter.service;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.planit.converter.service.RoutedServicesReader;
+import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.service.routed.RoutedModeServices;
 import org.planit.service.routed.RoutedService;
 import org.planit.service.routed.RoutedServiceTripInfo;
 import org.planit.service.routed.RoutedServices;
 import org.planit.service.routed.RoutedServicesLayer;
+import org.planit.service.routed.RoutedTrip;
+import org.planit.service.routed.RoutedTripDeparture;
+import org.planit.service.routed.RoutedTripDepartures;
+import org.planit.service.routed.RoutedTripFrequency;
+import org.planit.service.routed.RoutedTripSchedule;
+import org.planit.service.routed.RoutedTripScheduleImpl;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
+import org.planit.utils.misc.CharacterUtils;
 import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.layer.ServiceNetworkLayer;
 import org.planit.utils.network.layer.service.ServiceLeg;
+import org.planit.utils.unit.UnitUtils;
+import org.planit.utils.unit.Units;
+import org.planit.xml.generated.TimeUnit;
+import org.planit.xml.generated.XMLElementDepartures;
+import org.planit.xml.generated.XMLElementRelativeTimings;
 import org.planit.xml.generated.XMLElementRoutedServices;
 import org.planit.xml.generated.XMLElementRoutedServices.Servicelayers;
 import org.planit.xml.generated.XMLElementRoutedServicesLayer;
 import org.planit.xml.generated.XMLElementRoutedTrip;
+import org.planit.xml.generated.XMLElementRoutedTrip.Frequency;
 import org.planit.xml.generated.XMLElementRoutedTrips;
+import org.planit.xml.generated.XMLElementSchedule;
 import org.planit.xml.generated.XMLElementService;
 import org.planit.xml.generated.XMLElementServices;
 
@@ -46,45 +64,204 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
   /** the routed services to populate */
   private final RoutedServices routedServices;
   
-  /** Parse the trips definition for a given routed service in this XML file
+  /** Parse a schedule based trip for the given routed service
    * 
-   * @param xmlTrips to extract trips from
-   * @param routedService the memory model version to populate
+   * @param xmlScheduledefinition to extract from
+   * @param routedTrip to populate
+   * @param routedServicesLayer to use
+   * @throws PlanItException thrown if error
    */  
-  private void parseRoutedTripsForService(XMLElementRoutedTrips xmlTrips, RoutedService routedService) {
-    List<XMLElementRoutedTrip> xmlTripsList = xmlTrips.getTrip();
-    if(xmlTripsList==null || xmlTripsList.isEmpty()) {
-      LOGGER.warning(String.format("Routed service %s has no trip entries defined", routedService.getXmlId()));
+  private void parseScheduleBasedTrip(final XMLElementSchedule xmlScheduledefinition, final RoutedTripSchedule routedTrip, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
+
+    /* XML departures */
+    XMLElementDepartures xmlDepartures = xmlScheduledefinition.getDepartures();
+    if(xmlDepartures==null || xmlDepartures.getDeparture()==null || xmlDepartures.getDeparture().isEmpty()) {
+      LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no departures defined",routedTrip.getXmlId()));
       return;
-    }  
+    }
     
-    /* trip definitions*/
-    for(XMLElementRoutedTrip xmlTrip : xmlTripsList) {
-                  
-      /* instance */
-      RoutedServiceTripInfo tripInfo = routedService.getTrips().getFactory().registerNew();
+    /* departures */
+    RoutedTripDepartures routedTripDepartures = routedTrip.getDepartures();
+    for(XMLElementDepartures.Departure xmlDeparture : xmlDepartures.getDeparture()) {
+      /* departure */
       
       /* XML id */
-      String xmlId = xmlTrip.getId();
+      String xmlId = xmlDeparture.getId();
       if(StringUtils.isNullOrBlank(xmlId)) {
-        LOGGER.warning(String.format("Routed Service %s has trip without XML id defined, use generated id instead", routedService.getXmlId()));
-        xmlId = String.valueOf(tripInfo.getId());
+        LOGGER.warning(String.format("IGNORE: A routed trip %s has no XML id defined for a departure, departure removed", routedTrip.getXmlId()));
+        continue;
       }
-      tripInfo.setXmlId(xmlId);      
+      
+      /* departure time */
+      XMLGregorianCalendar xmlDepartureTime = xmlDeparture.getTime();
+      if(xmlDepartureTime==null) {
+        LOGGER.warning(String.format("IGNORE: A routed trip %s has no departure time defined for its departure element, departure removed", routedTrip.getXmlId()));
+        continue;        
+      }
+      LocalTime departureTime = xmlDepartureTime.toGregorianCalendar().toZonedDateTime().toLocalTime();            
+      /* instance */
+      RoutedTripDeparture departure = routedTripDepartures.getFactory().registerNew(departureTime);
+      departure.setXmlId(xmlId);
       
       /* external id*/
-      if(!StringUtils.isNullOrBlank(xmlTrip.getExternalid())) {
-        tripInfo.setExternalId(xmlTrip.getExternalid());
+      if(!StringUtils.isNullOrBlank(xmlDeparture.getExternalid())) {
+        departure.setExternalId(xmlDeparture.getExternalid());
       }   
     }
+    
+    /* XML relative leg timings */
+    XMLElementRelativeTimings xmlRelativeLegTimings = xmlScheduledefinition.getReltimings();
+    if(xmlRelativeLegTimings==null || xmlRelativeLegTimings.getLeg()==null || xmlRelativeLegTimings.getLeg().isEmpty()) {
+      LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no relative timings for its legs defined",routedTrip.getXmlId()));
+      return;
+    }    
+    
+    /* default dwell time */    
+    final XMLGregorianCalendar xmlDefaultDwellTime= xmlRelativeLegTimings.getDwelltime();;
+    PlanItException.throwIfNull(xmlDefaultDwellTime, "Default dwell time for scheduled routed service trips should be available but it is not");
+    LocalTime defaultDwellTime = xmlDefaultDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();
+    /* set on implementation so it can be used for persistence later on if required, not used in memory model */
+    ((RoutedTripScheduleImpl)routedTrip).setDefaultDwellTime(defaultDwellTime);
+    
+    /* relative leg timings */
+    boolean validTimings = true;
+    Map<String, ServiceLeg> parentLegsByXmlId = settings.getParentLegsByXmlId(routedServicesLayer.getParentLayer());    
+    for( XMLElementRelativeTimings.Leg xmlRelativeTimingLeg : xmlRelativeLegTimings.getLeg()) {
+      /* leg timing */
+      String xmlLegRef = xmlRelativeTimingLeg.getRef();
+      if(StringUtils.isNullOrBlank(xmlLegRef)) {
+        LOGGER.warning(String.format("IGNORE: Schedule based trip %s has relative timing for leg without reference to service leg",routedTrip.getXmlId()));
+        validTimings = false;
+        break;
+      }
+
+      /* leg reference */
+      ServiceLeg parentLeg = parentLegsByXmlId.get(xmlLegRef);
+      if(parentLeg==null) {
+        LOGGER.warning(String.format("IGNORE: Unavailable leg referenced %s in scheduled trip %s leg timing ",xmlLegRef, routedTrip.getXmlId()));
+        validTimings = false;
+        break;
+      }
+      xmlRelativeTimingLeg.getDuration();
+      
+      /* scheduled duration of leg */
+      final XMLGregorianCalendar xmlScheduledLegDuration = xmlRelativeTimingLeg.getDuration();
+      if(xmlScheduledLegDuration==null) {
+        LOGGER.warning(String.format("IGNORE: A scheduled trip %s its leg timing %s has no valid duration", routedTrip.getXmlId(), parentLeg.getXmlId()));
+        validTimings = false;
+        break;        
+      }
+      LocalTime duration = xmlScheduledLegDuration.toGregorianCalendar().toZonedDateTime().toLocalTime();    
+      
+      /* scheduled dwell time of leg */
+      XMLGregorianCalendar xmlScheduledDwellTime= xmlRelativeTimingLeg.getDwelltime();
+      if(xmlScheduledDwellTime==null) {
+        xmlScheduledDwellTime = xmlDefaultDwellTime; 
+      }
+      LocalTime dwellTime = xmlScheduledDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();       
+      
+      /* instance on schedule */
+      routedTrip.addRelativeLegTiming(parentLeg, duration, dwellTime);
+    }
+    
+    if(!validTimings) {
+      routedTrip.clearRelativeLegTimings();
+    }
+  }
+
+  /** Parse a frequency based trip for the given routed service
+   * 
+   * @param xmlFrequency to extract from
+   * @param routedTrip to populate
+   * @param routedServicesLayer to use
+   * @throws PlanItException thrown if error
+   */    
+  private void parseFrequencyBasedTrip(final Frequency xmlFrequency, final RoutedTripFrequency routedTrip, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
+    /* leg references */
+    String xmlLegRefs = xmlFrequency.getLegrefs();
+    if(StringUtils.isNullOrBlank(xmlLegRefs)) {
+      LOGGER.warning(String.format("IGNORE: Frequency based trip %s has no references to underlying service legs",routedTrip.getXmlId()));
+      return;
+    }
+
+    /* add legs to trip */
+    Map<String, ServiceLeg> parentLegsByXmlId = settings.getParentLegsByXmlId(routedServicesLayer.getParentLayer());    
+    String[] xmlLegRefsArray = xmlLegRefs.split(CharacterUtils.COMMA.toString());
+    for(int index=0;index<xmlLegRefs.length();++index) {
+      
+      ServiceLeg parentLeg = parentLegsByXmlId.get(xmlLegRefsArray[index]);
+      if(parentLeg==null) {
+        LOGGER.warning(String.format("IGNORE: Unavailable leg referenced %s in trip %s",xmlLegRefsArray[index], routedTrip.getXmlId()));
+        routedTrip.clearLegs();
+      }
+      routedTrip.addLeg(parentLeg);
+    }
+    
+    /* unit of frequency */
+    TimeUnit xmlTimeUnit = xmlFrequency.getUnit();    
+    PlanItException.throwIfNull(xmlTimeUnit,"Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
+    Units xmlFromUnit = EnumConversionUtil.xmlToPlanit(xmlTimeUnit);
+    
+    /* XML frequency */
+    double xmlNonNormalisedFrequency = xmlFrequency.getValue();
+    if(xmlNonNormalisedFrequency<=0) {
+      LOGGER.warning(String.format("IGNORE: Invalid or absent frequency for trip %s, please specify a valid frequency (>0)",routedTrip.getXmlId()));
+      return;
+    }
+    
+    /* apply conversion in opposite direction since frequency is the inverse of a "normal" time value, e.g. 1 per hour, should become 1/3600 per second and not 3600 */ 
+    double frequencyPerHour = UnitUtils.convert(Units.HOUR, xmlFromUnit, xmlNonNormalisedFrequency);
+    
+    /* frequency */
+    routedTrip.setFrequencyPerHour(frequencyPerHour);
+  }
+
+  /** Parse the various trips (frequency or schedule based) for the given routed service
+   * 
+   * @param xmlTrip to populate
+   * @param routedService to extract from
+   * @param routedServicesLayer to use
+   * @throws PlanItException thrown if error
+   */
+  private void parseRoutedTripInfo(final XMLElementRoutedTrip xmlTrip, final RoutedService routedService, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
+    /* populate trip information on tripInfo */
+    RoutedServiceTripInfo tripInfo = routedService.getTripInfo();
+        
+    /* XML id */
+    String xmlId = xmlTrip.getId();
+    if(StringUtils.isNullOrBlank(xmlId)) {
+      LOGGER.warning(String.format("IGNORE: A trip on Routed service %s has no XML id defined", routedService.getXmlId()));
+      return;
+    }
+    
+    RoutedTrip routedTrip = null;
+    if(xmlTrip.getFrequency()!=null) {
+      routedTrip = tripInfo.getFrequencyBasedTrips().getFactory().registerNew();
+      routedTrip.setXmlId(xmlId);
+      parseFrequencyBasedTrip(xmlTrip.getFrequency(), (RoutedTripFrequency) routedTrip, routedServicesLayer);
+    }else if(xmlTrip.getScheduledefinition() != null) {
+      routedTrip = tripInfo.getScheduleBasedTrips().getFactory().registerNew();
+      routedTrip.setXmlId(xmlId);
+      parseScheduleBasedTrip(xmlTrip.getScheduledefinition(), (RoutedTripSchedule) routedTrip, routedServicesLayer);      
+    }else {
+      LOGGER.warning(String.format("IGNORE: Trip %s on Routed service %s has neither schedule nor frequency defined", xmlId, routedService.getXmlId()));
+      return;      
+    }
+              
+    /* external id*/
+    if(!StringUtils.isNullOrBlank(xmlTrip.getExternalid())) {
+      routedTrip.setExternalId(xmlTrip.getExternalid());
+    }     
   }
 
   /** Parse the services for a single supported mode on the given routed services layer defined in this XML file
    * 
    * @param xmlServices to extract services from
    * @param servicesByMode the memory model version to populate
+   * @param routedServicesLayer to use
+   * @throws PlanItException thrown if error
    */  
-  private void parseRoutedModeServicesWithinLayer(XMLElementServices xmlServices, RoutedModeServices servicesByMode) {
+  private void parseRoutedModeServicesWithinLayer(final XMLElementServices xmlServices, final RoutedModeServices servicesByMode, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
     /* services */
     List<XMLElementService> xmlServicesList = xmlServices.getService();
     if(xmlServicesList == null || xmlServicesList.isEmpty()) {
@@ -126,16 +303,17 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       }       
       
       /* trips definitions*/
-      List<XMLElementRoutedTrips> xmlTripsList = xmlRoutedService.getTrips();
-      if(xmlTripsList==null || xmlTripsList.isEmpty()) {
+      XMLElementRoutedTrips xmlTripsList = xmlRoutedService.getTrips();
+      if(xmlTripsList==null) {
         LOGGER.warning(String.format("Routed service %s has no trips defined", routedService.getXmlId()));
         return;
       }
-      
-      /* trips */
-      for(XMLElementRoutedTrips xmlTrips : xmlTripsList) {
-        parseRoutedTripsForService(xmlTrips, routedService);
-      }
+            
+      /* trip definitions*/
+      for(XMLElementRoutedTrip xmlTrip : xmlTripsList.getTrip()) {
+        /* routed trip info */
+        parseRoutedTripInfo(xmlTrip, routedService, routedServicesLayer);
+      }      
     }
   }
 
@@ -180,7 +358,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       
       /* container for services for mode */
       RoutedModeServices servicesByMode = routedServicesLayer.getServicesByMode(supportedMode);
-      parseRoutedModeServicesWithinLayer(xmlModeServices, servicesByMode);
+      parseRoutedModeServicesWithinLayer(xmlModeServices, servicesByMode, routedServicesLayer);
     }
 
   }
