@@ -29,6 +29,16 @@ public class PlanitXmlJaxbParser<T> {
   private T xmlRootElement;
   
   /**
+   * Find out which of the eligible sub-elements matches the desired type. Currently the following options are supported:
+   * 
+   * <ul>
+   * <li>macroscopicnetwork</li>
+   * <li>macroscopiczoning</li>
+   * <li>macroscopicdemand</li>
+   * <li>servicenetwork</li>
+   * <li>routedservices</li>
+   * </ul>
+   * 
    * @param xmlRawPLANitAll to extract desired (sub) root element from
    * @return direct child acting as root element of PLANit root element of encompassing parsed XML file, null if no match
    * is found
@@ -44,6 +54,8 @@ public class PlanitXmlJaxbParser<T> {
       return (T) xmlRawPLANitAll.getMacroscopicdemand();
     }else if (xmlRawPLANitAll.getServicenetwork()!=null && xmlRawPLANitAll.getServicenetwork().getClass().equals(clazz)) {
       return (T) xmlRawPLANitAll.getServicenetwork();
+    }else if (xmlRawPLANitAll.getRoutedservices()!=null && xmlRawPLANitAll.getRoutedservices().getClass().equals(clazz)) {
+      return (T) xmlRawPLANitAll.getRoutedservices();
     }
     
     return null;

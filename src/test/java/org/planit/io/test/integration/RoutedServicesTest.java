@@ -10,20 +10,25 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.io.converter.network.PlanitNetworkReaderFactory;
+import org.planit.io.converter.service.PlanitRoutedServicesReader;
+import org.planit.io.converter.service.PlanitRoutedServicesReaderFactory;
 import org.planit.io.converter.service.PlanitServiceNetworkReader;
 import org.planit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.planit.logging.Logging;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
+import org.planit.service.routed.RoutedModeServices;
+import org.planit.service.routed.RoutedServices;
 import org.planit.utils.id.IdGenerator;
+import org.planit.utils.mode.PredefinedModeType;
 
 /**
- * Test being able to read and write service networks
+ * Test being able to read and write routed services on top of a service network
  * 
  * @author markr
  *
  */
-public class ServiceNetworkTest {
+public class RoutedServicesTest {
 
   /** the logger */
   private static Logger LOGGER = null;
@@ -31,7 +36,7 @@ public class ServiceNetworkTest {
   @BeforeClass
   public static void setUp() throws Exception {
     if (LOGGER == null) {
-      LOGGER = Logging.createLogger(ServiceNetworkTest.class);
+      LOGGER = Logging.createLogger(RoutedServicesTest.class);
     } 
   }
 
@@ -42,12 +47,12 @@ public class ServiceNetworkTest {
   }
   
   /**
-   * TODO: in the future include a service network example in the getting started but as long as we do not have a PT assignment module
+   * TODO: in the future include a routed services example in the getting started but as long as we do not have a PT assignment module
    * this is quite pointless. For now however we already put the resources under the getting started to remind ourselves this should happen
    * at some point 
    */
   @Test
-  public void gettingStartedTestWithServices() {
+  public void gettingStartedTestWithRoutedServices() {
     try {
       final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
       
@@ -60,16 +65,20 @@ public class ServiceNetworkTest {
       PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);      
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
-      /* tests */
-      assertTrue(serviceNetwork.getTransportLayers().size()==1);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().size()==2);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().getByXmlId("s1")!=null);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().getByXmlId("s2")!=null);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().size()==1);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().getByXmlId("l1")!=null);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().size()==1);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1")!=null);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1").getParentLeg().getXmlId().equals("l1"));
+      /* the routed services */
+      PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(INPUT_DIR, serviceNetwork);      
+      RoutedServices routedServices = routedServicesReader.read();       
+      
+      /* general tests on the routed service top-level classes */
+      assertTrue(routedServices.getLayers().size()==1);
+      assertTrue(routedServices.getLayers().getFirst().getParentLayer().getXmlId().equals(serviceNetwork.getXmlId()));
+      assertTrue(parentNetwork.getModes().get(PredefinedModeType.BUS)!=null);
+      assertTrue(routedServices.getLayers().getFirst().getServicesByMode(parentNetwork.getModes().get(PredefinedModeType.BUS))!=null);
+      RoutedModeServices busServices = routedServices.getLayers().getFirst().getServicesByMode(parentNetwork.getModes().get(PredefinedModeType.BUS));
+      assertTrue(busServices.getMode().equals(parentNetwork.getModes().get(PredefinedModeType.BUS)));
+      assertTrue(busServices.size()==2);
+      /* run assertions on the service entries themselves*/
+      //TODO
       
     }catch(Exception e){
       e.printStackTrace();

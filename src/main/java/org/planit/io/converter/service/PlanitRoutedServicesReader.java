@@ -28,7 +28,7 @@ import org.planit.utils.misc.CharacterUtils;
 import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.layer.ServiceNetworkLayer;
-import org.planit.utils.network.layer.service.ServiceLeg;
+import org.planit.utils.network.layer.service.ServiceLegSegment;
 import org.planit.utils.unit.UnitUtils;
 import org.planit.utils.unit.Units;
 import org.planit.xml.generated.TimeUnit;
@@ -39,8 +39,8 @@ import org.planit.xml.generated.XMLElementRoutedServices.Servicelayers;
 import org.planit.xml.generated.XMLElementRoutedServicesLayer;
 import org.planit.xml.generated.XMLElementRoutedTrip;
 import org.planit.xml.generated.XMLElementRoutedTrip.Frequency;
+import org.planit.xml.generated.XMLElementRoutedTrip.Schedule;
 import org.planit.xml.generated.XMLElementRoutedTrips;
-import org.planit.xml.generated.XMLElementSchedule;
 import org.planit.xml.generated.XMLElementService;
 import org.planit.xml.generated.XMLElementServices;
 
@@ -66,15 +66,15 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
   
   /** Parse a schedule based trip for the given routed service
    * 
-   * @param xmlScheduledefinition to extract from
+   * @param xmlSchedule to extract from
    * @param routedTrip to populate
    * @param routedServicesLayer to use
    * @throws PlanItException thrown if error
    */  
-  private void parseScheduleBasedTrip(final XMLElementSchedule xmlScheduledefinition, final RoutedTripSchedule routedTrip, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
+  private void parseScheduleBasedTrip(final Schedule xmlSchedule, final RoutedTripSchedule routedTrip, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
 
     /* XML departures */
-    XMLElementDepartures xmlDepartures = xmlScheduledefinition.getDepartures();
+    XMLElementDepartures xmlDepartures = xmlSchedule.getDepartures();
     if(xmlDepartures==null || xmlDepartures.getDeparture()==null || xmlDepartures.getDeparture().isEmpty()) {
       LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no departures defined",routedTrip.getXmlId()));
       return;
@@ -110,7 +110,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     }
     
     /* XML relative leg timings */
-    XMLElementRelativeTimings xmlRelativeLegTimings = xmlScheduledefinition.getReltimings();
+    XMLElementRelativeTimings xmlRelativeLegTimings = xmlSchedule.getReltimings();
     if(xmlRelativeLegTimings==null || xmlRelativeLegTimings.getLeg()==null || xmlRelativeLegTimings.getLeg().isEmpty()) {
       LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no relative timings for its legs defined",routedTrip.getXmlId()));
       return;
@@ -125,20 +125,20 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     
     /* relative leg timings */
     boolean validTimings = true;
-    Map<String, ServiceLeg> parentLegsByXmlId = settings.getParentLegsByXmlId(routedServicesLayer.getParentLayer());    
+    Map<String, ServiceLegSegment> parentLegSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(routedServicesLayer.getParentLayer());    
     for( XMLElementRelativeTimings.Leg xmlRelativeTimingLeg : xmlRelativeLegTimings.getLeg()) {
-      /* leg timing */
-      String xmlLegRef = xmlRelativeTimingLeg.getRef();
-      if(StringUtils.isNullOrBlank(xmlLegRef)) {
-        LOGGER.warning(String.format("IGNORE: Schedule based trip %s has relative timing for leg without reference to service leg",routedTrip.getXmlId()));
+      /* leg (segment) timing */
+      String xmlLegSegmentRef = xmlRelativeTimingLeg.getLsref();
+      if(StringUtils.isNullOrBlank(xmlLegSegmentRef)) {
+        LOGGER.warning(String.format("IGNORE: Schedule based trip %s has relative timing for leg (segment) without reference to service leg segment",routedTrip.getXmlId()));
         validTimings = false;
         break;
       }
 
       /* leg reference */
-      ServiceLeg parentLeg = parentLegsByXmlId.get(xmlLegRef);
-      if(parentLeg==null) {
-        LOGGER.warning(String.format("IGNORE: Unavailable leg referenced %s in scheduled trip %s leg timing ",xmlLegRef, routedTrip.getXmlId()));
+      ServiceLegSegment parentLegSegment = parentLegSegmentsByXmlId.get(xmlLegSegmentRef);
+      if(parentLegSegment==null) {
+        LOGGER.warning(String.format("IGNORE: Unavailable leg segment referenced %s in scheduled trip %s leg timing ",xmlLegSegmentRef, routedTrip.getXmlId()));
         validTimings = false;
         break;
       }
@@ -147,7 +147,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       /* scheduled duration of leg */
       final XMLGregorianCalendar xmlScheduledLegDuration = xmlRelativeTimingLeg.getDuration();
       if(xmlScheduledLegDuration==null) {
-        LOGGER.warning(String.format("IGNORE: A scheduled trip %s its leg timing %s has no valid duration", routedTrip.getXmlId(), parentLeg.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: A scheduled trip %s its directional leg timing %s has no valid duration", routedTrip.getXmlId(), parentLegSegment.getXmlId()));
         validTimings = false;
         break;        
       }
@@ -161,7 +161,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       LocalTime dwellTime = xmlScheduledDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();       
       
       /* instance on schedule */
-      routedTrip.addRelativeLegTiming(parentLeg, duration, dwellTime);
+      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, duration, dwellTime);
     }
     
     if(!validTimings) {
@@ -177,24 +177,24 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
    * @throws PlanItException thrown if error
    */    
   private void parseFrequencyBasedTrip(final Frequency xmlFrequency, final RoutedTripFrequency routedTrip, final RoutedServicesLayer routedServicesLayer) throws PlanItException {
-    /* leg references */
-    String xmlLegRefs = xmlFrequency.getLegrefs();
+    /* leg segment references */
+    String xmlLegRefs = xmlFrequency.getLsrefs();
     if(StringUtils.isNullOrBlank(xmlLegRefs)) {
-      LOGGER.warning(String.format("IGNORE: Frequency based trip %s has no references to underlying service legs",routedTrip.getXmlId()));
+      LOGGER.warning(String.format("IGNORE: Frequency based trip %s has no references to underlying service leg segments",routedTrip.getXmlId()));
       return;
     }
 
     /* add legs to trip */
-    Map<String, ServiceLeg> parentLegsByXmlId = settings.getParentLegsByXmlId(routedServicesLayer.getParentLayer());    
+    Map<String, ServiceLegSegment> parentLegSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(routedServicesLayer.getParentLayer());    
     String[] xmlLegRefsArray = xmlLegRefs.split(CharacterUtils.COMMA.toString());
     for(int index=0;index<xmlLegRefs.length();++index) {
       
-      ServiceLeg parentLeg = parentLegsByXmlId.get(xmlLegRefsArray[index]);
-      if(parentLeg==null) {
-        LOGGER.warning(String.format("IGNORE: Unavailable leg referenced %s in trip %s",xmlLegRefsArray[index], routedTrip.getXmlId()));
+      ServiceLegSegment parentLegSegment = parentLegSegmentsByXmlId.get(xmlLegRefsArray[index]);
+      if(parentLegSegment==null) {
+        LOGGER.warning(String.format("IGNORE: Unavailable directed leg referenced %s in trip %s",xmlLegRefsArray[index], routedTrip.getXmlId()));
         routedTrip.clearLegs();
       }
-      routedTrip.addLeg(parentLeg);
+      routedTrip.addLegSegment(parentLegSegment);
     }
     
     /* unit of frequency */
@@ -230,7 +230,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     /* XML id */
     String xmlId = xmlTrip.getId();
     if(StringUtils.isNullOrBlank(xmlId)) {
-      LOGGER.warning(String.format("IGNORE: A trip on Routed service %s has no XML id defined", routedService.getXmlId()));
+      LOGGER.warning(String.format("IGNORE: A trip on routed service (%s) has no XML id defined", routedService.getXmlId()));
       return;
     }
     
@@ -239,12 +239,12 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       routedTrip = tripInfo.getFrequencyBasedTrips().getFactory().registerNew();
       routedTrip.setXmlId(xmlId);
       parseFrequencyBasedTrip(xmlTrip.getFrequency(), (RoutedTripFrequency) routedTrip, routedServicesLayer);
-    }else if(xmlTrip.getScheduledefinition() != null) {
+    }else if(xmlTrip.getSchedule() != null) {
       routedTrip = tripInfo.getScheduleBasedTrips().getFactory().registerNew();
       routedTrip.setXmlId(xmlId);
-      parseScheduleBasedTrip(xmlTrip.getScheduledefinition(), (RoutedTripSchedule) routedTrip, routedServicesLayer);      
+      parseScheduleBasedTrip(xmlTrip.getSchedule(), (RoutedTripSchedule) routedTrip, routedServicesLayer);      
     }else {
-      LOGGER.warning(String.format("IGNORE: Trip %s on Routed service %s has neither schedule nor frequency defined", xmlId, routedService.getXmlId()));
+      LOGGER.warning(String.format("IGNORE: Trip (%s) on routed service (%s) has neither schedule nor frequency defined", xmlId, routedService.getXmlId()));
       return;      
     }
               
@@ -341,8 +341,9 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
           LOGGER.severe(String.format("IGNORE: routed services layer %s services element has no supported mode specified",routedServicesLayer.getXmlId()));
           return;
         }else {
-          /* only single mode on layer, so use that */
+          /* only single mode on layer, so use that */          
           modeXmlRef = routedServicesLayer.getParentLayer().getFirstSupportedMode().getXmlId();
+          LOGGER.info(String.format("routed services layer %s has no explicit supported mode specified, using only available mode %s instead",routedServicesLayer.getXmlId(), modeXmlRef));
         }
       } 
       
@@ -436,13 +437,13 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
    * we keep a separate indices by XML within the reader to be able to quickly find entities by XML id if needed
    */
   private void initialiseParentNetworkReferenceIndices() {
-    if(!settings.hasParentLegsByXmlId()) {      
+    if(!settings.hasParentLegSegmentsByXmlId()) {      
       for(ServiceNetworkLayer layer : routedServices.getParentNetwork().getTransportLayers()) {
-        settings.setParentLegsByXmlId(layer, new HashMap<String, ServiceLeg>());        
-        Map<String,ServiceLeg> legsByXmlId = settings.getParentLegsByXmlId(layer);
-        layer.getLegs().forEach( leg -> legsByXmlId.put(leg.getXmlId(), leg));
+        settings.setParentLegSegmentsByXmlId(layer, new HashMap<String, ServiceLegSegment>());        
+        Map<String,ServiceLegSegment> legSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(layer);
+        layer.getLegSegments().forEach( legSegment -> legSegmentsByXmlId.put(legSegment.getXmlId(), legSegment));
       }
-    }
+    }    
   }
 
   /** Constructor where settings are directly provided such that input information can be extracted from it
