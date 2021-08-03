@@ -112,14 +112,16 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     /* XML relative leg timings */
     XMLElementRelativeTimings xmlRelativeLegTimings = xmlSchedule.getReltimings();
     if(xmlRelativeLegTimings==null || xmlRelativeLegTimings.getLeg()==null || xmlRelativeLegTimings.getLeg().isEmpty()) {
-      LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no relative timings for its legs defined",routedTrip.getXmlId()));
+      LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no relative timings (reltimings=) for its legs defined",routedTrip.getXmlId()));
       return;
     }    
     
-    /* default dwell time */    
-    final XMLGregorianCalendar xmlDefaultDwellTime= xmlRelativeLegTimings.getDwelltime();;
-    PlanItException.throwIfNull(xmlDefaultDwellTime, "Default dwell time for scheduled routed service trips should be available but it is not");
-    LocalTime defaultDwellTime = xmlDefaultDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();
+    /* default dwell time */
+    //TODO: for some reason the xsd's default dwell time of 00:00:00 is not populated by JAXB so we do it programmatically here for now
+    LocalTime defaultDwellTime = LocalTime.MIN;
+    if(xmlRelativeLegTimings.getDwelltime()!=null) {
+      defaultDwellTime = xmlRelativeLegTimings.getDwelltime().toGregorianCalendar().toZonedDateTime().toLocalTime();      
+    }
     /* set on implementation so it can be used for persistence later on if required, not used in memory model */
     ((RoutedTripScheduleImpl)routedTrip).setDefaultDwellTime(defaultDwellTime);
     
@@ -130,7 +132,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       /* leg (segment) timing */
       String xmlLegSegmentRef = xmlRelativeTimingLeg.getLsref();
       if(StringUtils.isNullOrBlank(xmlLegSegmentRef)) {
-        LOGGER.warning(String.format("IGNORE: Schedule based trip %s has relative timing for leg (segment) without reference to service leg segment",routedTrip.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Schedule based trip %s has relative timing for leg (segment) without reference to service leg segment, attribute lsref= missing",routedTrip.getXmlId()));
         validTimings = false;
         break;
       }
@@ -138,7 +140,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       /* leg reference */
       ServiceLegSegment parentLegSegment = parentLegSegmentsByXmlId.get(xmlLegSegmentRef);
       if(parentLegSegment==null) {
-        LOGGER.warning(String.format("IGNORE: Unavailable leg segment referenced %s in scheduled trip %s leg timing ",xmlLegSegmentRef, routedTrip.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Unavailable leg segment referenced lsref=%s in scheduled trip %s leg timing ",xmlLegSegmentRef, routedTrip.getXmlId()));
         validTimings = false;
         break;
       }
@@ -155,13 +157,13 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       
       /* scheduled dwell time of leg */
       XMLGregorianCalendar xmlScheduledDwellTime= xmlRelativeTimingLeg.getDwelltime();
-      if(xmlScheduledDwellTime==null) {
-        xmlScheduledDwellTime = xmlDefaultDwellTime; 
-      }
-      LocalTime dwellTime = xmlScheduledDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();       
+      LocalTime localDwellTime = ((RoutedTripScheduleImpl)routedTrip).getDefaultDwellTime(); 
+      if(xmlScheduledDwellTime!=null) {
+        localDwellTime = xmlScheduledDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();  
+      }             
       
       /* instance on schedule */
-      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, duration, dwellTime);
+      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, duration, localDwellTime);
     }
     
     if(!validTimings) {
@@ -187,7 +189,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     /* add legs to trip */
     Map<String, ServiceLegSegment> parentLegSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(routedServicesLayer.getParentLayer());    
     String[] xmlLegRefsArray = xmlLegRefs.split(CharacterUtils.COMMA.toString());
-    for(int index=0;index<xmlLegRefs.length();++index) {
+    for(int index=0;index<xmlLegRefsArray.length;++index) {
       
       ServiceLegSegment parentLegSegment = parentLegSegmentsByXmlId.get(xmlLegRefsArray[index]);
       if(parentLegSegment==null) {

@@ -1,5 +1,7 @@
 package org.planit.io.test.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -18,8 +20,15 @@ import org.planit.logging.Logging;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
 import org.planit.service.routed.RoutedModeServices;
+import org.planit.service.routed.RoutedService;
+import org.planit.service.routed.RoutedServiceTripInfo;
 import org.planit.service.routed.RoutedServices;
+import org.planit.service.routed.RoutedTripFrequency;
+import org.planit.service.routed.RoutedTripSchedule;
+import org.planit.service.routed.RoutedTripsFrequency;
+import org.planit.service.routed.RoutedTripsSchedule;
 import org.planit.utils.id.IdGenerator;
+import org.planit.utils.math.Precision;
 import org.planit.utils.mode.PredefinedModeType;
 
 /**
@@ -71,14 +80,42 @@ public class RoutedServicesTest {
       
       /* general tests on the routed service top-level classes */
       assertTrue(routedServices.getLayers().size()==1);
-      assertTrue(routedServices.getLayers().getFirst().getParentLayer().getXmlId().equals(serviceNetwork.getXmlId()));
+      assertTrue(routedServices.getParentNetwork().getXmlId().equals(serviceNetwork.getXmlId()));
+      assertTrue(routedServices.getLayers().getFirst().getParentLayer().getXmlId().equals(serviceNetwork.getTransportLayers().getFirst().getXmlId()));
       assertTrue(parentNetwork.getModes().get(PredefinedModeType.BUS)!=null);
       assertTrue(routedServices.getLayers().getFirst().getServicesByMode(parentNetwork.getModes().get(PredefinedModeType.BUS))!=null);
       RoutedModeServices busServices = routedServices.getLayers().getFirst().getServicesByMode(parentNetwork.getModes().get(PredefinedModeType.BUS));
       assertTrue(busServices.getMode().equals(parentNetwork.getModes().get(PredefinedModeType.BUS)));
       assertTrue(busServices.size()==2);
       /* run assertions on the service entries themselves*/
-      //TODO
+      
+      RoutedService line4Service = busServices.findFirst( service -> service.getXmlId().equals("line_4"));
+      assertNotNull(line4Service);
+      assertEquals(line4Service.getName(),"4");
+      assertEquals(line4Service.getNameDescription(),"city to beach");
+      assertEquals(line4Service.getServiceDescription(),"bus line running from the city to the beach directly");
+      assertNotNull(line4Service.getTripInfo());
+      RoutedServiceTripInfo line4TripInfo = line4Service.getTripInfo();
+      assertEquals(line4TripInfo.hasScheduleBasedTrips(),true);
+      assertEquals(line4TripInfo.hasFrequencyBasedTrips(),true);
+      assertNotNull(line4TripInfo.getFrequencyBasedTrips());
+      RoutedTripsFrequency line4FrequencyTrips = line4TripInfo.getFrequencyBasedTrips();
+      assertEquals(line4FrequencyTrips.size(),1);
+      assertNotNull(line4FrequencyTrips.getFirst());
+      RoutedTripFrequency frequencyEntry = line4FrequencyTrips.getFirst();
+      assertEquals(frequencyEntry.getFrequencyPerHour(),3, Precision.EPSILON_6);
+      assertEquals(frequencyEntry.getNumberOfLegSegments(),1);
+      assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLastLegSegment()));
+      assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLegSegment(0)));
+      
+      assertNotNull(line4TripInfo.getScheduleBasedTrips());
+      RoutedTripsSchedule line4ScheduledTrips = line4TripInfo.getScheduleBasedTrips();
+      assertEquals(line4ScheduledTrips.size(),1);
+      assertNotNull(line4ScheduledTrips.getFirst());
+      RoutedTripSchedule scheduleEntry = line4ScheduledTrips.getFirst();
+      assertNotNull(scheduleEntry.getDepartures());
+      assertEquals(scheduleEntry.getRelativeLegTimingsSize(),1);
+      //TODO: finalise assertions
       
     }catch(Exception e){
       e.printStackTrace();
