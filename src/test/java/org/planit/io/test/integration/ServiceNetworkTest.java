@@ -67,7 +67,7 @@ public class ServiceNetworkTest {
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getServiceNodes().getByXmlId("s2")!=null);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().size()==1);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().getByXmlId("l1")!=null);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().size()==1);
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().size()==2);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1")!=null);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1").getParentLeg().getXmlId().equals("l1"));
       

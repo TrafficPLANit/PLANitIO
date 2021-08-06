@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalTime;
 import java.util.logging.Logger;
 
 import org.junit.AfterClass;
@@ -19,10 +20,12 @@ import org.planit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.planit.logging.Logging;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
+import org.planit.service.routed.RelativeLegTiming;
 import org.planit.service.routed.RoutedModeServices;
 import org.planit.service.routed.RoutedService;
 import org.planit.service.routed.RoutedServiceTripInfo;
 import org.planit.service.routed.RoutedServices;
+import org.planit.service.routed.RoutedTripDepartures;
 import org.planit.service.routed.RoutedTripFrequency;
 import org.planit.service.routed.RoutedTripSchedule;
 import org.planit.service.routed.RoutedTripsFrequency;
@@ -114,8 +117,18 @@ public class RoutedServicesTest {
       assertNotNull(line4ScheduledTrips.getFirst());
       RoutedTripSchedule scheduleEntry = line4ScheduledTrips.getFirst();
       assertNotNull(scheduleEntry.getDepartures());
+      RoutedTripDepartures scheduleDepartures = scheduleEntry.getDepartures();
+      assertEquals(scheduleDepartures.size(),2);
+      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep1")));
+      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep2")));
       assertEquals(scheduleEntry.getRelativeLegTimingsSize(),1);
-      //TODO: finalise assertions
+      assertNotNull(scheduleEntry.getRelativeLegTiming(0));
+      RelativeLegTiming relTiming = scheduleEntry.getRelativeLegTiming(0);
+      assertEquals(relTiming.getDuration(),LocalTime.of(0, 3));
+      assertEquals(relTiming.getDwellTime(),LocalTime.of(0, 1));
+      assertNotNull(relTiming.getParentLegSegment());
+      assertEquals(relTiming.getParentLegSegment().getXmlId(),"ls1");
+
       
     }catch(Exception e){
       e.printStackTrace();
