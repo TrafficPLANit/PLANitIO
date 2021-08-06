@@ -13,6 +13,8 @@ import org.planit.component.event.PlanitComponentEvent;
 import org.planit.component.event.PopulateDemandsEvent;
 import org.planit.component.event.PopulateInitialLinkSegmentCostEvent;
 import org.planit.component.event.PopulateNetworkEvent;
+import org.planit.component.event.PopulateRoutedServicesEvent;
+import org.planit.component.event.PopulateServiceNetworkEvent;
 import org.planit.component.event.PopulateZoningEvent;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
 import org.planit.demands.Demands;
@@ -22,12 +24,17 @@ import org.planit.input.InputBuilderListener;
 import org.planit.io.converter.demands.PlanitDemandsReader;
 import org.planit.io.converter.network.PlanitNetworkReader;
 import org.planit.io.converter.network.PlanitNetworkReaderFactory;
+import org.planit.io.converter.service.PlanitRoutedServicesReader;
+import org.planit.io.converter.service.PlanitRoutedServicesReaderFactory;
+import org.planit.io.converter.service.PlanitServiceNetworkReader;
+import org.planit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.planit.io.converter.zoning.PlanitZoningReader;
 import org.planit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.planit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.MacroscopicNetwork;
+import org.planit.network.ServiceNetwork;
 import org.planit.output.property.BaseOutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkSegmentCostOutputProperty;
@@ -36,6 +43,7 @@ import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
 import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
+import org.planit.service.routed.RoutedServices;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.LoggingUtils;
@@ -61,7 +69,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private XMLElementMacroscopicZoning xmlRawZoning;
   
   /** Generated object to store network input data */  
-  private XMLElementMacroscopicNetwork xmlRawNetwork;  
+  private XMLElementMacroscopicNetwork xmlRawNetwork;
+  
+  /** Generated object to store optional service network input data */
+  private XMLElementServiceNetwork xmlRawServiceNetwork = null;
+  
+  /** Generated object to store optional routed services input data */
+  private XMLElementRoutedServices xmlRawRoutedServices = null;    
     
   
   /** Project path to use */
@@ -93,7 +107,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   /**
    * Read the input XML file(s) 
    *
-   * This method checks if a single file contains all components of the of project; network, demand, and zoning. 
+   * This method checks if a single file contains all mandatory components of a project; network, demand, and zoning. 
    * If no single file is found, it then checks for separate files, one for each type of input.
    *
    * @throws PlanItException thrown if not all of network, demand and zoning input data are available
@@ -123,6 +137,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
       xmlRawZoning = xmlRawPLANitAll.getMacroscopiczoning();
       xmlRawNetwork = xmlRawPLANitAll.getMacroscopicnetwork();
       xmlRawDemand = xmlRawPLANitAll.getMacroscopicdemand();
+      if(xmlRawPLANitAll.getServicenetwork()!=null) {
+        xmlRawServiceNetwork= xmlRawPLANitAll.getServicenetwork();
+      }
+      if(xmlRawPLANitAll.getRoutedservices()!=null) {
+        xmlRawRoutedServices = xmlRawPLANitAll.getRoutedservices();
+      }      
       return true;
     }
     return false;
@@ -153,30 +173,41 @@ public class PlanItInputBuilder extends InputBuilderListener {
   @SuppressWarnings("unused")
   private void setInputFilesSeparateFilesWithValidation(final String projectPath, final File[] xmlFileNames) throws PlanItException {
     
-    boolean foundZoningFile = false;
     File zoningFileName = null;
-    boolean foundNetworkFile = false;
     File networkFileName = null;
-    boolean foundDemandFile = false;
     File demandFileName = null;
+    boolean serviceNetworkFileDone = false;
+    boolean routedServicesFileDone = false;
     for (int i = 0; i < xmlFileNames.length; i++) {
       if (zoningFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitZoningReader.ZONING_XSD_FILE)) {
           zoningFileName = xmlFileNames[i];
+          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + zoningFileName + " provides the zoning input data.");
+          continue;
       }
       if (networkFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitNetworkReader.NETWORK_XSD_FILE)) {
           networkFileName = xmlFileNames[i];
+          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + networkFileName + " provides the network input data.");
+          continue;
       }
       if (demandFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitDemandsReader.DEMAND_XSD_FILE)) {
           demandFileName = xmlFileNames[i];
+          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +demandFileName + " provides the demand input data.");          
+          continue;
       }
+      if (!serviceNetworkFileDone && validateXmlInputFile(xmlFileNames[i], PlanitServiceNetworkReader.SERVICE_NETWORK_XSD_FILE)) {
+        serviceNetworkFileDone = true;
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +xmlFileNames[i] + " provides the service network input data.");
+        continue;
+      }
+      if (!routedServicesFileDone && validateXmlInputFile(xmlFileNames[i], PlanitRoutedServicesReader.ROUTED_SERVICES_XSD_FILE)) {
+        routedServicesFileDone = true;
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +xmlFileNames[i] + " provides the routed services input data.");
+        continue;
+      }      
     }
     PlanItException.throwIfNull(zoningFileName, "Failed to find a valid zoning input file in directory %s", projectPath);
     PlanItException.throwIfNull(networkFileName, "Failed to find a valid network input file in directory %s", projectPath);
-    PlanItException.throwIfNull(demandFileName, "Failed to find a valid demand input file in directory %s", projectPath);
-    
-    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + zoningFileName + " provides the zoning input data.");
-    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + networkFileName + " provides the network input data.");
-    LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +demandFileName + " provides the demand input data.");
+    PlanItException.throwIfNull(demandFileName, "Failed to find a valid demand input file in directory %s", projectPath);     
 
     createGeneratedClassesFromXmlLocations(zoningFileName, demandFileName, networkFileName);
   }
@@ -278,6 +309,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
   protected PlanitDemandsReader getPlanitDemandsReader() {
     return (PlanitDemandsReader) getDemandsReader();
   }  
+  
+  /** get PLANit service network reader instance
+   * 
+   * @return PLANit service reader
+   */
+  protected PlanitServiceNetworkReader getPlanitServiceNetworkReader() {
+    return (PlanitServiceNetworkReader) getServiceNetworkReader();
+  }    
      
   
   /**
@@ -337,6 +376,65 @@ public class PlanItInputBuilder extends InputBuilderListener {
     getPlanitDemandsReader().getSettings().setMapToIndexModeByXmlIds(getPlanitNetworkReader().getAllModesBySourceId());
     getPlanitDemandsReader().getSettings().setInputDirectory(projectPath);
     getPlanitDemandsReader().read();    
+  }
+
+  /** Populate the routed services based on the local XML file if it can be found.
+   * 
+   * @param routedServicesToPopulate to instance to populate
+   * @throws PlanItException thrown if error
+   */
+  protected void populateRoutedServices(final RoutedServices routedServicesToPopulate) throws PlanItException {
+    
+    /* parse raw inputs if not already done, because routed services are optional, they have not been parsed unless they were part of
+     * a combined input XML that contained other parts of the definitions */
+    if(xmlRawRoutedServices == null) {
+      xmlRawRoutedServices = (XMLElementRoutedServices ) JAXBUtils.generateInstanceFromXml(XMLElementRoutedServices.class, FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
+    }
+    if(xmlRawRoutedServices == null) {
+      LOGGER.severe("Unable to locate routed services XML input");
+      return;
+    }
+    
+    /* prep reader */
+    PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(xmlRawRoutedServices, routedServicesToPopulate);
+    /* TODO: we do not set the parent leg segments by XML id based on the servicenetwork reader because:
+    * 1) they are not tracked, 2) it avoids a dependency between readers. We shold remove all of these dependencies
+    * for other readers as well by having the readers ONLY in scope while populating their component and then resetting the XML raw element and reader
+    * then we should lay indicaes on the used entities only within the reader, this takes a little bit more time, but is memory friendly and much less complicated */
+    //if(getPlanitServiceNetworkReader()==null) {
+    //  LOGGER.severe("no service network reader available, this should not happen when populating routed services");
+    // }
+    //TODO: we do not set the parent leg segments by XML id
+    //routedServicesReader.getSettings().setParentLegSegmentsByXmlId(layer, getServiceNetworkReader());
+    
+    routedServicesReader.read();
+  }
+
+  /** Populate the service network based on the local XML file if it can be found.
+   * 
+   * @param serviceNetworkToPopulate to instance to populate
+   * @throws PlanItException thrown if error
+   */  
+  protected void populateServiceNetwork(final ServiceNetwork serviceNetworkToPopulate) throws PlanItException {
+    
+    /* parse raw inputs if not already done, because routed services are optional, they have not been parsed unless they were part of
+     * a combined input XML that contained other parts of the definitions */
+    if(xmlRawServiceNetwork== null) {
+      xmlRawServiceNetwork = (XMLElementServiceNetwork ) JAXBUtils.generateInstanceFromXml(XMLElementServiceNetwork.class, FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
+    }
+    if(xmlRawServiceNetwork == null) {
+      LOGGER.severe("Unable to locate service network XML input");
+      return;
+    }
+    
+    /* prep reader */
+    PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(xmlRawServiceNetwork, serviceNetworkToPopulate);
+    serviceNetworkReader.getSettings().setParentLinksByXmlId(getPlanitNetworkReader().getAllLinksBySourceId());
+    serviceNetworkReader.getSettings().setParentNodesByXmlId(getPlanitNetworkReader().getAllNodesBySourceId());
+    setServiceNetworkReader(serviceNetworkReader);
+    
+    /* perform parse action */
+    serviceNetworkReader.read();    
   }
 
   /**
@@ -460,6 +558,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }else if(event.getType().equals(PopulateInitialLinkSegmentCostEvent.EVENT_TYPE)){
       PopulateInitialLinkSegmentCostEvent initialCostEvent = ((PopulateInitialLinkSegmentCostEvent) event);
       populateInitialLinkSegmentCost(initialCostEvent.getInitialLinkSegmentCostToPopulate(), initialCostEvent.getParentNetwork(), initialCostEvent.getFileName());
+    }else if(event.getType().equals(PopulateServiceNetworkEvent.EVENT_TYPE)){
+      PopulateServiceNetworkEvent serviceNetworkEvent = ((PopulateServiceNetworkEvent) event);
+      populateServiceNetwork(serviceNetworkEvent.getServiceNetworkToPopulate());
+    }else if(event.getType().equals(PopulateRoutedServicesEvent.EVENT_TYPE)){
+      PopulateRoutedServicesEvent routedServicesEvent = ((PopulateRoutedServicesEvent) event);
+      populateRoutedServices(routedServicesEvent.getRoutedServicesToPopulate());
     } else {      
       /* generic case */
       LOGGER.fine("Event component " + event.getClass().getCanonicalName() + " ignored by PlanItInputBuilder");

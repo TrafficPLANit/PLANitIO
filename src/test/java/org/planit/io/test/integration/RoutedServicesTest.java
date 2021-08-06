@@ -1,6 +1,7 @@
 package org.planit.io.test.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -17,9 +18,12 @@ import org.planit.io.converter.service.PlanitRoutedServicesReader;
 import org.planit.io.converter.service.PlanitRoutedServicesReaderFactory;
 import org.planit.io.converter.service.PlanitServiceNetworkReader;
 import org.planit.io.converter.service.PlanitServiceNetworkReaderFactory;
+import org.planit.io.input.PlanItInputBuilder;
 import org.planit.logging.Logging;
 import org.planit.network.MacroscopicNetwork;
+import org.planit.network.Network;
 import org.planit.network.ServiceNetwork;
+import org.planit.project.CustomPlanItProject;
 import org.planit.service.routed.RelativeLegTiming;
 import org.planit.service.routed.RoutedModeServices;
 import org.planit.service.routed.RoutedService;
@@ -136,5 +140,34 @@ public class RoutedServicesTest {
       fail(e.getMessage());
     }
   }  
+  
+  /**
+   * Instead of using converters, we go through a PLANit project instead, which is was most users would likely do. Here we simply test
+   * if this process works without throwing exceptions and yielding non-null results.
+   */
+  @Test
+  public void routedServicesViaPlanitProject() {  
+    final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
+    
+    try {
+      final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(INPUT_DIR));
+      
+      /* physical network needed for service network... */
+      MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);
+      assertNotNull(network);
+      /* service network needed for routed services... */
+      ServiceNetwork serviceNetwork = project.createAndRegisterServiceNetwork(network);
+      assertNotNull(serviceNetwork);
+      assertFalse(serviceNetwork.getTransportLayers().isEmpty());
+      RoutedServices routedServices = project.createAndRegisterRoutedServices(serviceNetwork);
+      assertNotNull(routedServices);
+      assertFalse(routedServices.getLayers().isEmpty());
+
+    }catch(Exception e) {
+      e.printStackTrace();
+      LOGGER.severe(e.getMessage());      
+      fail();
+    }
+  }
 
 }

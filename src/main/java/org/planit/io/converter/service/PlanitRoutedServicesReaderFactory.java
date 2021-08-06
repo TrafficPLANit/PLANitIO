@@ -96,7 +96,7 @@ public class PlanitRoutedServicesReaderFactory {
   /** Create a PlanitRoutedServicesReader for given XML root element and routed services to populate
    * 
    * @param xmlRawRoutedServices the raw routed services based on the JAXB parser
-   * @param serviceNetwork to populate
+   * @param routedServices to populate
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final XMLElementRoutedServices xmlRawRoutedServices, final RoutedServices routedServices) {

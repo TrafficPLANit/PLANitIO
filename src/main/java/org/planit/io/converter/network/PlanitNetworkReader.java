@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.planit.converter.network.NetworkReaderImpl;
-import org.planit.io.xml.network.XmlMacroscopicNetworkLayerHelper;
+import org.planit.io.xml.network.physical.macroscopic.XmlMacroscopicNetworkLayerHelper;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;

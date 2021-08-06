@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.planit.converter.network.NetworkReaderImpl;
+import org.planit.converter.service.ServiceNetworkReader;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.ServiceNetwork;
 import org.planit.utils.exceptions.PlanItException;
@@ -35,7 +36,7 @@ import org.planit.xml.generated.XMLElementServiceNodes;
  * @author markr
  *
  */
-public class PlanitServiceNetworkReader extends NetworkReaderImpl {
+public class PlanitServiceNetworkReader extends NetworkReaderImpl implements ServiceNetworkReader {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkReader.class.getCanonicalName());            

@@ -1,4 +1,4 @@
-package org.planit.io.xml.network;
+package org.planit.io.xml.network.physical.macroscopic;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -364,6 +364,11 @@ public class XmlMacroscopicNetworkLayerHelper {
         /* name */
         if(!StringUtils.isNullOrBlank(xmlLink.getName())) {
           link.setName(xmlLink.getName());
+        }        
+        
+        final boolean duplicate = networkReader.addLinkToSourceIdMap(link.getXmlId(), link);
+        if(duplicate) {
+          throw new PlanItException("Duplicate link xml id %s found in network", link.getXmlId() );        
         }        
       }      
       /** end LINK **/
