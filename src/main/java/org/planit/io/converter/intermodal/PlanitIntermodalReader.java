@@ -96,9 +96,6 @@ public class PlanitIntermodalReader implements IntermodalReader {
     /* zoning */   
     PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(getSettings().getZoningSettings(), referenceNetwork, zoningToPopulate);
     
-    /* adopt xml index mapping from network reader so we do not create a duplicate mapping */
-    zoningReader.getSettings().setLinkSegmentsByXmlId(networkReader.getAllLinkSegmentsBySourceId());
-    zoningReader.getSettings().setNodesByXmlId(networkReader.getAllNodesBySourceId());
     /* parse */
     Zoning zoning = zoningReader.read();
     

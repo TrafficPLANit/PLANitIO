@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.cost.physical.BPRConfigurator;
+import org.planit.demands.Demands;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.io.test.util.PlanItInputBuilder4Testing;
@@ -20,6 +21,7 @@ import org.planit.utils.test.LinkSegmentExpectedResultsDto;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
@@ -27,6 +29,7 @@ import org.planit.project.CustomPlanItProject;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.mode.Mode;
+import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 
@@ -117,16 +120,17 @@ public class BPRTest {
   
       TriConsumer<TransportLayerNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParametersConsumer = 
           (network, bpr, inputBuilderListener) -> {
-            MacroscopicLinkSegmentType macroscopiclinkSegmentType = inputBuilderListener.getLinkSegmentTypeByXmlId("1");
-            if(macroscopiclinkSegmentType == null) {
-              fail("link segment type not present");
-            }
-            Mode mode = inputBuilderListener.getModeByXmlId("1");
+            Mode mode = network.getModes().getByXmlId("1");
             if(mode == null) {
               fail("link segment type not present");
-            }            
+            }                               
+            MacroscopicNetworkLayer layer = (MacroscopicNetworkLayer)network.getLayerByMode(mode);
+            MacroscopicLinkSegmentType macroscopiclinkSegmentType = layer.getLinkSegmentTypes().getByXmlId("1");
+            if(macroscopiclinkSegmentType == null) {
+              fail("link segment type not present");
+            }          
             bpr.setDefaultParameters(macroscopiclinkSegmentType, mode, 0.8, 4.5);
-            MacroscopicLinkSegment linkSegment = (MacroscopicLinkSegment) inputBuilderListener.getLinkSegmentByXmlId("3");
+            MacroscopicLinkSegment linkSegment = layer.getLinkSegments().getByXmlId("3");
             bpr.setParameters(linkSegment, mode, 1.0, 5.0);
       };
       
@@ -149,9 +153,11 @@ public class BPRTest {
           runner.setupAndExecuteWithCustomBprConfiguration(setCostParametersConsumer);
       
       /* verify outcome */      
-      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();  
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));
            
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());

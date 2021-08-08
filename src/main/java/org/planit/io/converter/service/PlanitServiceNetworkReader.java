@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.planit.converter.network.NetworkReaderImpl;
 import org.planit.converter.service.ServiceNetworkReader;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
@@ -104,7 +105,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       ArrayList<Link> parentLinksInOrder = new ArrayList<Link>(parentLinkRefsArray.length);
       for(int index=0;index<parentLinkRefsArray.length;++index) {
         String xmlParentLinkRef = parentLinkRefsArray[index];
-        Link linkInLeg = settings.getParentLinksByXmlId().get(xmlParentLinkRef);
+        Link linkInLeg = getBySourceId(Link.class, xmlParentLinkRef);
         if(linkInLeg==null) {
           LOGGER.warning(String.format("Service leg %s in service layer %s references unknown parent link %s", xmlId, serviceNetworkLayer.getXmlId(), xmlParentLinkRef));
           valid=false;
@@ -212,13 +213,13 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
         continue;
       }                      
            
-      if(!settings.getParentNodesByXmlId().containsKey(parentNodeXmlId)) {
+      if(getBySourceId(Node.class, parentNodeXmlId) == null) {
         LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s references unknown parent node %s", xmlId, serviceNetworkLayer.getXmlId(), parentNodeXmlId));
         continue;
       }
       
       /* instance */
-      ServiceNode serviceNode = serviceNetworkLayer.getServiceNodes().getFactory().registerNew(settings.getParentNodesByXmlId().get(parentNodeXmlId));
+      ServiceNode serviceNode = serviceNetworkLayer.getServiceNodes().getFactory().registerNew(getBySourceId(Node.class,parentNodeXmlId));
       serviceNode.setXmlId(xmlId);
       
       /* external id*/
@@ -290,29 +291,21 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       /*layer */
       parseServiceNetworkLayer(xmlLayer);
     } 
-  }    
+  }  
   
   /**
-   * In XML files we use the XML ids for referencing parent network entities. In memory internal ids are used for indexing, therefore
-   * we keep a separate indices by XML within the reader to be able to quickly find entities by XML id if needed
+   * initialise the XML id trackers and populate them for the network references, 
+   * so we can lay indices on the XML id as well for quick lookups
+   * 
+   * @param network
    */
-  private void initialiseParentNetworkReferenceIndices() {
-    /* XML node ids are to be unique across all layers */
-    if(settings.getParentNodesByXmlId() == null || settings.getParentNodesByXmlId().isEmpty()) {      
-      settings.setParentNodesByXmlId(new HashMap<String, Node>());
-      for(MacroscopicNetworkLayer layer : serviceNetwork.getParentNetwork().getTransportLayers()) {
-        layer.getNodes().forEach( node -> settings.getParentNodesByXmlId().put(node.getXmlId(), node));
-      }
-    }
-    /* XML link ids are to be unique across all layers */    
-    if(settings.getParentLinksByXmlId() == null || settings.getParentLinksByXmlId().isEmpty()) {      
-      settings.setParentLinksByXmlId(new HashMap<String, Link>());
-      for(MacroscopicNetworkLayer layer : serviceNetwork.getParentNetwork().getTransportLayers()) {
-        layer.getLinks().forEach( link -> settings.getParentLinksByXmlId().put(link.getXmlId(), link));
-      }
-    }    
-  }
-
+  private void initialiseParentXmlIdTrackers(MacroscopicNetwork network) {    
+    initialiseSourceIdMap(Node.class, Node::getXmlId);
+    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Node.class).addAll(layer.getNodes()));    
+    initialiseSourceIdMap(Link.class, Link::getXmlId);
+    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Link.class).addAll(layer.getLinks()));
+  }   
+  
   /** Constructor where settings are directly provided such that input information can be extracted from it
    * 
    * @param idToken to use for the service network to populate
@@ -376,7 +369,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML service network could be parsed into memory, abort");
+    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML service network could be parsed into memory, abort");     
     
     /* XML id */
     String xmlId = xmlParser.getXmlRootElement().getId();
@@ -399,7 +392,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     try {
       
       /* initialise the indices used, if needed */
-      initialiseParentNetworkReferenceIndices();      
+      initialiseParentXmlIdTrackers(getSettings().getParentNetwork());   
 
       /* parse layers */
       parseServiceNetworkLayers();

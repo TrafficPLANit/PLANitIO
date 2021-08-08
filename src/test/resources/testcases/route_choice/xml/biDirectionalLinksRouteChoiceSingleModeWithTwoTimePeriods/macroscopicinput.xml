@@ -287,7 +287,7 @@
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link id="21" nodearef="22" nodebref="6">
+					<link id="22" nodearef="22" nodebref="6">
 						<linksegment id="43" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -296,7 +296,7 @@
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link id="22" nodearef="15" nodebref="24">
+					<link id="23" nodearef="15" nodebref="24">
 						<linksegment id="45" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>
@@ -305,7 +305,7 @@
 						</linksegment>
 						<length>1</length>
 					</link>
-					<link id="23" nodearef="24" nodebref="7">
+					<link id="24" nodearef="24" nodebref="7">
 						<linksegment id="47" dir="a_b" typeref="2">
 							<numberoflanes>10</numberoflanes>
 						</linksegment>

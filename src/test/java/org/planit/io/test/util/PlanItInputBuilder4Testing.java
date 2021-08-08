@@ -4,11 +4,6 @@ import java.util.logging.Logger;
 
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.mode.Mode;
-import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.utils.network.layer.physical.Node;
-import org.planit.utils.time.TimePeriod;
 
 /**
  * Class which reads inputs from XML input files
@@ -45,58 +40,5 @@ public class PlanItInputBuilder4Testing extends PlanItInputBuilder {
   public PlanItInputBuilder4Testing(final String projectPath, final String xmlFileExtension) throws PlanItException {
     super(projectPath, xmlFileExtension);    
   }
-
-   
-  
-  /**
-   * returns the link segment by a given XML id, only accessible directly for testing purposes
-   * 
-   * @param network    to look in
-   * @param XmlId to look for
-   * @return link segment
-   */
-  public MacroscopicLinkSegment getLinkSegmentByXmlId(String XmlId) {
-    return this.getPlanitNetworkReader().getLinkSegmentBySourceId(XmlId);
-  } 
-  
-  /**
-   * returns the link segment type by a given XML id, only accessible directly for testing purposes
-   * 
-   * @param XmlId to look for
-   * @return link segment type found
-   */
-  public MacroscopicLinkSegmentType getLinkSegmentTypeByXmlId(String XmlId) {
-    return this.getPlanitNetworkReader().getLinkSegmentTypeBySourceId(XmlId);
-  }
-
-  /**
-   * returns the mode by a given XML id, only accessible directly for testing purposes
-   * 
-   * @param XmlId to look for
-   * @return mode found
-   */  
-  public Mode getModeByXmlId(String XmlId) {
-    return this.getPlanitNetworkReader().getModeBySourceId(XmlId);
-  }
-
-  /**
-   * returns the time period by a given XML id, only accessible directly for testing purposes
-   * 
-   * @param XmlId to look for
-   * @return time period found
-   */    
-  public TimePeriod getTimePeriodByXmlId(String xmlId) {
-    return this.getPlanitDemandsReader().getTimePeriodBySourceId(xmlId);
-  }
-
-  /**
-   * returns the node by a given XML id, only accessible directly for testing purposes
-   * 
-   * @param XmlId to look for
-   * @return node found
-   */      
-  public Node getNodeByXmlId(String nodeXmlId) {
-    return getPlanitNetworkReader().getNodeBySourceId(nodeXmlId);
-  }  
 
 }

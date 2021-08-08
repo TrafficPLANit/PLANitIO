@@ -5,20 +5,21 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.planit.converter.demands.DemandsReaderBase;
+import org.planit.converter.BaseReaderImpl;
+import org.planit.converter.demands.DemandsReader;
 import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.od.odmatrix.demand.ODDemandMatrix;
 import org.planit.utils.time.TimePeriod;
+import org.planit.utils.wrapper.MapWrapper;
 import org.planit.userclass.TravelerType;
 import org.planit.userclass.UserClass;
 import org.planit.utils.exceptions.PlanItException;
@@ -46,7 +47,7 @@ import org.planit.zoning.Zoning;
  * @author markr
  *
  */
-public class PlanitDemandsReader extends DemandsReaderBase {
+public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements DemandsReader {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDemandsReader.class.getCanonicalName());
@@ -56,6 +57,31 @@ public class PlanitDemandsReader extends DemandsReaderBase {
   
   /** parses the xml content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;  
+  
+  /**
+   * initialise the XML id trackers and populate them for the network and or zoning references, 
+   * so we can lay indices on the XML id as well for quick lookups
+   * 
+   * @param network to use
+   * @param zoning to use
+   */
+  private void initialiseParentXmlIdTrackers(MacroscopicNetwork network, Zoning zoning) {    
+    initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
+    
+    initialiseSourceIdMap(Zone.class, Zone::getXmlId);
+    getSourceIdContainer(Zone.class).addAll(zoning.odZones);
+    getSourceIdContainer(Zone.class).addAll(zoning.transferZones);
+  } 
+  
+  /**
+   * initialise the XML id trackers of generated PLANit entit types so we can lay indices on the XML id as well for quick lookups
+   * 
+   */
+  private void initialiseXmlIdTrackers() {    
+    initialiseSourceIdMap(UserClass.class, UserClass::getXmlId);   
+    initialiseSourceIdMap(TravelerType.class, TravelerType::getXmlId);
+    initialiseSourceIdMap(TimePeriod.class, TimePeriod::getXmlId);
+  }   
   
   /**
    * Generate default traveller type if none defined in XML files
@@ -207,8 +233,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
         travelerType.setExternalId(xmlTravellertype.getExternalid());
       }      
             
-      boolean duplicate = addTravelerTypeToSourceIdMap(travelerType.getXmlId(), travelerType);
-      PlanItException.throwIf(duplicate, "Duplicate traveler type xml id %s found in demands", travelerType.getXmlId());
+      registerBySourceId(TravelerType.class, travelerType);      
     }
   }
   
@@ -240,25 +265,25 @@ public class PlanitDemandsReader extends DemandsReaderBase {
         PlanItException.throwIf(demands.travelerTypes.size() > 1,
             String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
-        PlanItException.throwIf(getTravelerTypeBySourceId(xmlUserclass.getTravellertyperef()) == null, 
+        PlanItException.throwIf(getBySourceId(TravelerType.class, xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
       PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class %s has no mode specified, but more than one mode possible", xmlUserclass.getId() );
       
       /* mode ref */
-      Map<String, Mode> sourceIdModeMap = getSettings().getMapToIndexModeByXmlIds();
+      MapWrapper<?, Mode> modesByXmlId = getSourceIdContainer(Mode.class);      
       if (xmlUserclass.getModeref() == null) {
         PlanItException.throwIf(getSettings().getReferenceNetwork().getModes().size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
-        xmlUserclass.setModeref(sourceIdModeMap.keySet().iterator().next());          
+        xmlUserclass.setModeref((String)modesByXmlId.getKeyByValue(modesByXmlId.getFirst()));          
       }
       String xmlModeIdRef = xmlUserclass.getModeref();
-      Mode userClassMode = sourceIdModeMap.get(xmlModeIdRef);
+      Mode userClassMode = getBySourceId(Mode.class, xmlModeIdRef);
       PlanItException.throwIf(userClassMode == null,"User class %s refers to mode %s which has not been defined", xmlUserclass.getId(), xmlModeIdRef );
            
       /* traveller type ref */
       String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
       xmlUserclass.setTravellertyperef(travellerTypeXmlIdRef);
-      TravelerType travellerType = getTravelerTypeBySourceId(travellerTypeXmlIdRef);
+      TravelerType travellerType = getBySourceId(TravelerType.class, travellerTypeXmlIdRef);
                  
       UserClass userClass = demands.userClasses.createAndRegisterNewUserClass(xmlUserclass.getName(), userClassMode, travellerType);
       
@@ -272,8 +297,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
         userClass.setExternalId(xmlUserclass.getExternalid());
       }        
       
-      final boolean duplicate = addUserClassToSourceIdMap(userClass.getXmlId(), userClass);
-      PlanItException.throwIf(duplicate, "Duplicate user class XML id %s found in demands", userClass.getXmlId());
+      registerBySourceId(UserClass.class, userClass);
     }
     return xmlUserclasses.getUserclass().size();
   }  
@@ -333,8 +357,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
         timePeriod.setExternalId(xmlTimePeriod.getExternalid());
       }         
       
-      final boolean duplicate = addTimePeriodToSourceIdMap(timePeriod.getXmlId(), timePeriod);
-      PlanItException.throwIf(duplicate, "Duplicate time period XML id %s found in demands", timePeriod.getXmlId() );
+      registerBySourceId(TimePeriod.class, timePeriod);
     }
   }  
   
@@ -351,7 +374,8 @@ public class PlanitDemandsReader extends DemandsReaderBase {
   private void populateDemandMatrix(
       final XMLElementOdMatrix xmlOdMatrix, final double pcu, ODDemandMatrix odDemandMatrix, Zones<OdZone> zones) throws PlanItException {
     
-    Map<String, Zone> xmlIdZoneMap = getSettings().getMapToIndexZoneByXmlIds();
+    @SuppressWarnings("unchecked")
+    MapWrapper<String, Zone> xmlIdZoneMap = (MapWrapper<String,Zone>)getSourceIdContainer(Zone.class);
     if (xmlOdMatrix instanceof XMLElementOdCellByCellMatrix) {
       
       /* cell-by-cell matrix */
@@ -446,7 +470,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
         userClass = demands.userClasses.getFirst();
       }else {
         final String userClassXmlIdRef = xmlOdMatrix.getUserclassref();
-        userClass = getUserClassBySourceId(userClassXmlIdRef);        
+        userClass = getBySourceId(UserClass.class, userClassXmlIdRef);        
       }
       PlanItException.throwIf(userClass==null, "referenced user class on od matrix not available");
       final Mode mode = userClass.getMode();
@@ -454,7 +478,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       /* time period ref */
       final String timePeriodXmlIdRef = xmlOdMatrix.getTimeperiodref();
       PlanItException.throwIf(timePeriodXmlIdRef==null, "time period must always be referenced on od matrix");
-      final TimePeriod timePeriod = getTimePeriodBySourceId(timePeriodXmlIdRef);
+      final TimePeriod timePeriod = getBySourceId(TimePeriod.class, timePeriodXmlIdRef);
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
@@ -513,6 +537,9 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       
       /* verify completeness of inputs */
       validateSettings();
+            
+      initialiseParentXmlIdTrackers(settings.getReferenceNetwork(), settings.getReferenceZoning());
+      initialiseXmlIdTrackers();
       
       xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
       
@@ -534,6 +561,7 @@ public class PlanitDemandsReader extends DemandsReaderBase {
       xmlParser.clearXmlContent();           
 
     } catch (final Exception e) {
+      e.printStackTrace();
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error when populating demands in PLANitIO",e);
     }

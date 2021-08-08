@@ -1,16 +1,16 @@
 package org.planit.io.converter.service;
 
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.planit.converter.BaseReaderImpl;
 import org.planit.converter.service.RoutedServicesReader;
 import org.planit.io.xml.util.EnumConversionUtil;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
+import org.planit.network.ServiceNetwork;
 import org.planit.service.routed.RoutedModeServices;
 import org.planit.service.routed.RoutedService;
 import org.planit.service.routed.RoutedServiceTripInfo;
@@ -50,7 +50,7 @@ import org.planit.xml.generated.XMLElementServices;
  * @author markr
  *
  */
-public class PlanitRoutedServicesReader implements RoutedServicesReader {
+public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> implements RoutedServicesReader {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesReader.class.getCanonicalName());            
@@ -63,6 +63,17 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
   
   /** the routed services to populate */
   private final RoutedServices routedServices;
+  
+  /**
+   * initialise the XML id trackers and populate them for the parent PLANit references, 
+   * so we can lay indices on the XML id as well for quick lookups
+   * 
+   * @param network parent service network
+   */
+  private void initialiseParentXmlIdTrackers(ServiceNetwork network) {    
+    initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId);
+    network.getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));    
+  }    
   
   /** Parse a schedule based trip for the given routed service
    * 
@@ -126,8 +137,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     ((RoutedTripScheduleImpl)routedTrip).setDefaultDwellTime(defaultDwellTime);
     
     /* relative leg timings */
-    boolean validTimings = true;
-    Map<String, ServiceLegSegment> parentLegSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(routedServicesLayer.getParentLayer());    
+    boolean validTimings = true;   
     for( XMLElementRelativeTimings.Leg xmlRelativeTimingLeg : xmlRelativeLegTimings.getLeg()) {
       /* leg (segment) timing */
       String xmlLegSegmentRef = xmlRelativeTimingLeg.getLsref();
@@ -138,7 +148,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       }
 
       /* leg reference */
-      ServiceLegSegment parentLegSegment = parentLegSegmentsByXmlId.get(xmlLegSegmentRef);
+      ServiceLegSegment parentLegSegment = getBySourceId(ServiceLegSegment.class, xmlLegSegmentRef);
       if(parentLegSegment==null) {
         LOGGER.warning(String.format("IGNORE: Unavailable leg segment referenced lsref=%s in scheduled trip %s leg timing ",xmlLegSegmentRef, routedTrip.getXmlId()));
         validTimings = false;
@@ -186,12 +196,11 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
       return;
     }
 
-    /* add legs to trip */
-    Map<String, ServiceLegSegment> parentLegSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(routedServicesLayer.getParentLayer());    
+    /* add legs to trip */    
     String[] xmlLegRefsArray = xmlLegRefs.split(CharacterUtils.COMMA.toString());
     for(int index=0;index<xmlLegRefsArray.length;++index) {
       
-      ServiceLegSegment parentLegSegment = parentLegSegmentsByXmlId.get(xmlLegRefsArray[index]);
+      ServiceLegSegment parentLegSegment = getBySourceId(ServiceLegSegment.class, xmlLegRefsArray[index]);
       if(parentLegSegment==null) {
         LOGGER.warning(String.format("IGNORE: Unavailable directed leg referenced %s in trip %s",xmlLegRefsArray[index], routedTrip.getXmlId()));
         routedTrip.clearLegs();
@@ -434,20 +443,6 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     } 
   }
 
-  /**
-   * In XML files we use the XML ids for referencing parent network entities. In memory internal ids are used for indexing, therefore
-   * we keep a separate indices by XML within the reader to be able to quickly find entities by XML id if needed
-   */
-  private void initialiseParentNetworkReferenceIndices() {
-    if(!settings.hasParentLegSegmentsByXmlId()) {      
-      for(ServiceNetworkLayer layer : routedServices.getParentNetwork().getTransportLayers()) {
-        settings.setParentLegSegmentsByXmlId(layer, new HashMap<String, ServiceLegSegment>());        
-        Map<String,ServiceLegSegment> legSegmentsByXmlId = settings.getParentLegSegmentsByXmlId(layer);
-        layer.getLegSegments().forEach( legSegment -> legSegmentsByXmlId.put(legSegment.getXmlId(), legSegment));
-      }
-    }    
-  }
-
   /** Constructor where settings are directly provided such that input information can be extracted from it
    * 
    * @param idToken to use for the service network to populate
@@ -524,7 +519,7 @@ public class PlanitRoutedServicesReader implements RoutedServicesReader {
     try {
       
       /* initialise the indices used, if needed */
-      initialiseParentNetworkReferenceIndices();      
+      initialiseParentXmlIdTrackers(getSettings().getParentNetwork());      
 
       /* parse content */
       parseRoutedServiceLayers();

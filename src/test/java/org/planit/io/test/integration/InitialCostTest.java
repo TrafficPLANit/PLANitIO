@@ -82,10 +82,10 @@ public class InitialCostTest {
       for (CSVRecord record : parser) {
         /* compare */
         String modeXmlId = record.get(modeHeader);
-        Mode mode = planItInputBuilder.getModeByXmlId(modeXmlId);
+        Mode mode = network.getModes().getByXmlId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
         String linkSegmentXmlId = record.get(linkSegmentXmlIdHeader);
-        MacroscopicLinkSegment linkSegment = planItInputBuilder.getLinkSegmentByXmlId(linkSegmentXmlId);
+        MacroscopicLinkSegment linkSegment = network.getLayerByMode(mode).getLinkSegments().getByXmlId(linkSegmentXmlId);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }
       in.close();
@@ -121,12 +121,12 @@ public class InitialCostTest {
       for (CSVRecord record : parser) {
         /* compare */
         String modeXmlId =record.get(modeHeader);
-        Mode mode = planItInputBuilder.getModeByXmlId(modeXmlId);
+        Mode mode = network.getModes().getByXmlId(modeXmlId);
         double cost = Double.parseDouble(record.get(costHeader));
         String upstreamNodeXmlId = record.get(upstreamNodeXmlIdHeader);
         String downstreamNodeXmlId = record.get(downstreamNodeXmlIdHeader);
-        Node startNode = planItInputBuilder.getNodeByXmlId(upstreamNodeXmlId);
-        Node endNode = planItInputBuilder.getNodeByXmlId(downstreamNodeXmlId);
+        Node startNode =  network.getLayerByMode(mode).getNodes().getByXmlId(upstreamNodeXmlId);
+        Node endNode = network.getLayerByMode(mode).getNodes().getByXmlId(downstreamNodeXmlId);
         final MacroscopicLinkSegment linkSegment = startNode.getLinkSegment(endNode);
         assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
       }

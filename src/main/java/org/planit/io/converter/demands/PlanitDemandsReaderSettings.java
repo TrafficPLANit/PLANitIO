@@ -1,9 +1,5 @@
 package org.planit.io.converter.demands;
 
-import java.util.Map;
-
-import org.planit.utils.mode.Mode;
-import org.planit.utils.zoning.Zone;
 import org.planit.zoning.Zoning;
 import org.planit.converter.ConverterReaderSettings;
 import org.planit.io.xml.util.PlanitXmlReaderSettings;
@@ -25,33 +21,7 @@ public class PlanitDemandsReaderSettings extends PlanitXmlReaderSettings impleme
   /**
    * Reference zoning to use when demands relate to zoning entities
    */  
-  protected Zoning referenceZoning;
-    
-  /**
-   * Map which stores references to modes by XML Id
-   */  
-  protected Map<String, Mode> xmlIdModeMap;
-  
-  /**
-   * Map which stores references to zones by XML Id
-   */  
-   protected Map<String, Zone> xmlIdZoneMap;  
-      
-  /** Map to zones by XML id when parsing
-   * 
-   * @return xmlIdZoneMap
-   */
-  protected Map<String, Zone> getMapToIndexZoneByXmlIds() {
-    return this.xmlIdZoneMap;
-  }  
-  
-  /** Map to modes by XML id when parsing
-   * 
-   * @return xmlIdModeMap
-   */
-  protected Map<String, Mode> getMapToIndexModeByXmlIds() {
-    return this.xmlIdModeMap;
-  }    
+  protected Zoning referenceZoning;    
   
   /** Collect reference network used
    * 
@@ -76,23 +46,7 @@ public class PlanitDemandsReaderSettings extends PlanitXmlReaderSettings impleme
   public void reset() {
     // TODO     
   }    
-    
-  /** Use provided map to index zones by XML id when parsing
-   * 
-   * @param xmlIdZoneMap to use
-   */
-  public void setMapToIndexZoneByXmlIds(final Map<String, Zone> xmlIdZoneMap) {
-    this.xmlIdZoneMap = xmlIdZoneMap;
-  }
-  
-  /** Use provided map to index modes by xml id when parsing
-   * 
-   * @param xmlIdModeMap to use
-   */
-  public void setMapToIndexModeByXmlIds(final Map<String, Mode> xmlIdModeMap) {
-    this.xmlIdModeMap = xmlIdModeMap;
-  }  
-   
+       
   /** Set reference network to use
    * 
    * @param referenceNetwork to use

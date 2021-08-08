@@ -3,6 +3,8 @@ package org.planit.io.input;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -30,7 +32,6 @@ import org.planit.io.converter.service.PlanitServiceNetworkReader;
 import org.planit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.planit.io.converter.zoning.PlanitZoningReader;
 import org.planit.io.converter.zoning.PlanitZoningReaderFactory;
-import org.planit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.MacroscopicNetwork;
@@ -45,11 +46,14 @@ import org.planit.output.property.OutputProperty;
 import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
 import org.planit.service.routed.RoutedServices;
 import org.planit.utils.exceptions.PlanItException;
+import org.planit.utils.graph.Vertex;
 import org.planit.utils.misc.FileUtils;
 import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
+import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.planit.utils.network.layer.physical.Node;
+import org.planit.utils.wrapper.MapWrapper;
+import org.planit.utils.wrapper.MapWrapperImpl;
 
 /**
  * Class which reads inputs from XML input files
@@ -279,45 +283,19 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final MacroscopicLinkSegment linkSegment) throws PlanItException {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
-    final Mode mode = getPlanitNetworkReader().getModeBySourceId(modeXmlId);
-    PlanItException.throwIf(mode == null, "mode xml id not available in configuration");
-    
+    Mode matchMode = null;
+    for(Mode  mode : linkSegment.getAllowedModes()) {
+      if(mode.getXmlId().equals(modeXmlId)) {
+        matchMode = mode;
+        break;
+      }
+    }
+    if(matchMode == null) {
+     throw new PlanItException("mode xml id not suported by link segment used for initial link segment cost"); 
+    }
     final double cost = Double.parseDouble(record.get(LinkSegmentCostOutputProperty.NAME));
-    initialLinkSegmentCost.setSegmentCost(mode, linkSegment, cost);
-  }
-  
-  /** get PLANit network reader instance
-   * 
-   * @return PLANit network reader
-   */
-  protected PlanitNetworkReader getPlanitNetworkReader() {
-    return (PlanitNetworkReader)getNetworkReader();
-  }
-  
-  /** get PLANit zoning reader instance
-   * 
-   * @return PLANit zoning reader
-   */
-  protected PlanitZoningReader getPlanitZoningReader() {
-    return (PlanitZoningReader) getZoningReader();
-  }  
-  
-  /** get PLANit demands reader instance
-   * 
-   * @return PLANit demands reader
-   */
-  protected PlanitDemandsReader getPlanitDemandsReader() {
-    return (PlanitDemandsReader) getDemandsReader();
-  }  
-  
-  /** get PLANit service network reader instance
-   * 
-   * @return PLANit service reader
-   */
-  protected PlanitServiceNetworkReader getPlanitServiceNetworkReader() {
-    return (PlanitServiceNetworkReader) getServiceNetworkReader();
-  }    
-     
+    initialLinkSegmentCost.setSegmentCost(matchMode, linkSegment, cost);
+  }         
   
   /**
    * Creates the macroscopic network object from the data in the input file
@@ -334,9 +312,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
         
     /* create parser and read/populate the network */
-    this.setNetworkReader(PlanitNetworkReaderFactory.create(xmlRawNetwork, network));
-    getPlanitNetworkReader().getSettings().setInputDirectory(projectPath);
-    network = (MacroscopicNetwork) getNetworkReader().read();        
+    PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create(xmlRawNetwork, network);
+    networkReader.getSettings().setInputDirectory(projectPath);
+    networkReader.read();  
+    
+    xmlRawNetwork=null;
   }
 
   /**
@@ -350,13 +330,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
     
     /** delegate to the dedicated zoning reader */
-    this.setZoningReader(PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning));
-    getPlanitZoningReader().getSettings().setInputDirectory(projectPath);
+    PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning);
+    zoningReader.getSettings().setInputDirectory(projectPath);    
+    zoningReader.read();
     
-    /* place references to already populated network entities to avoid duplicating this index on the zoning reader */
-    ((PlanitZoningReaderSettings)getPlanitZoningReader().getSettings()).setLinkSegmentsByXmlId(getPlanitNetworkReader().getAllLinkSegmentsBySourceId());
-    ((PlanitZoningReaderSettings)getPlanitZoningReader().getSettings()).setNodesByXmlId(getPlanitNetworkReader().getAllNodesBySourceId());
-    getZoningReader().read();
+    xmlRawZoning = null;
   }
 
   /**
@@ -371,11 +349,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");     
        
     /* delegate to the dedicated demands reader */
-    this.setDemandsReader(new PlanitDemandsReader(xmlRawDemand, network, zoning, demands));
-    getPlanitDemandsReader().getSettings().setMapToIndexZoneByXmlIds(getPlanitZoningReader().getAllZonesBySourceId());
-    getPlanitDemandsReader().getSettings().setMapToIndexModeByXmlIds(getPlanitNetworkReader().getAllModesBySourceId());
-    getPlanitDemandsReader().getSettings().setInputDirectory(projectPath);
-    getPlanitDemandsReader().read();    
+    PlanitDemandsReader demandsReader = new PlanitDemandsReader(xmlRawDemand, network, zoning, demands);
+    demandsReader.getSettings().setInputDirectory(projectPath);
+    demandsReader.read();
+    
+    xmlRawDemand = null;
   }
 
   /** Populate the routed services based on the local XML file if it can be found.
@@ -396,18 +374,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
     
     /* prep reader */
-    PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(xmlRawRoutedServices, routedServicesToPopulate);
-    /* TODO: we do not set the parent leg segments by XML id based on the servicenetwork reader because:
-    * 1) they are not tracked, 2) it avoids a dependency between readers. We shold remove all of these dependencies
-    * for other readers as well by having the readers ONLY in scope while populating their component and then resetting the XML raw element and reader
-    * then we should lay indicaes on the used entities only within the reader, this takes a little bit more time, but is memory friendly and much less complicated */
-    //if(getPlanitServiceNetworkReader()==null) {
-    //  LOGGER.severe("no service network reader available, this should not happen when populating routed services");
-    // }
-    //TODO: we do not set the parent leg segments by XML id
-    //routedServicesReader.getSettings().setParentLegSegmentsByXmlId(layer, getServiceNetworkReader());
-    
+    PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(xmlRawRoutedServices, routedServicesToPopulate);  
     routedServicesReader.read();
+    
+    xmlRawRoutedServices = null;
   }
 
   /** Populate the service network based on the local XML file if it can be found.
@@ -429,12 +399,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
     
     /* prep reader */
     PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(xmlRawServiceNetwork, serviceNetworkToPopulate);
-    serviceNetworkReader.getSettings().setParentLinksByXmlId(getPlanitNetworkReader().getAllLinksBySourceId());
-    serviceNetworkReader.getSettings().setParentNodesByXmlId(getPlanitNetworkReader().getAllNodesBySourceId());
-    setServiceNetworkReader(serviceNetworkReader);
-    
+    serviceNetworkReader.getSettings().setInputDirectory(projectPath);
     /* perform parse action */
-    serviceNetworkReader.read();    
+    serviceNetworkReader.read();
+    
+    xmlRawServiceNetwork = null;
   }
 
   /**
@@ -457,31 +426,62 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Reader in = new FileReader(fileName);
       final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       final Set<String> headers = parser.getHeaderMap().keySet();
+      
+      /* lay index by reference method */
       final OutputProperty linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);
-      for (final CSVRecord record : parser) {
-        MacroscopicLinkSegment linkSegment = null;
+      if(linkIdentificationMethod.equals(OutputProperty.UPSTREAM_NODE_XML_ID)) {
+        
+        /* special case requiring double key */
+        Map<String, Map<String, MacroscopicLinkSegment>> indexByIdentificationMethod = new HashMap<String, Map<String, MacroscopicLinkSegment>>();
+        for( MacroscopicNetworkLayer layer : network.getTransportLayers()) {
+          for(MacroscopicLinkSegment linkSegment : layer.getLinkSegments()) {
+            Vertex upstreamNode = linkSegment.getUpstreamVertex();
+            indexByIdentificationMethod.putIfAbsent(upstreamNode.getXmlId(), new HashMap<String, MacroscopicLinkSegment>());
+            indexByIdentificationMethod.get(upstreamNode.getXmlId()).put(linkSegment.getDownstreamVertex().getXmlId(), linkSegment);
+          }
+        }
+        
+        /* parse */
+        for (final CSVRecord record : parser) {
+          MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(record.get(DownstreamNodeXmlIdOutputProperty.NAME));         
+          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
+          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
+        }
+        
+      }else {
+        /* single key mapping */
+        MapWrapper<Object, MacroscopicLinkSegment> indexByIdentificationMethod = null;
+        String identificationColumnName = null;    
         switch (linkIdentificationMethod) {
           case LINK_SEGMENT_EXTERNAL_ID:
-            final String externalId = record.get(LinkSegmentExternalIdOutputProperty.NAME);                
-            linkSegment = getPlanitNetworkReader().getLinkSegmentByExternalId(network, externalId);           
+            indexByIdentificationMethod = 
+              new MapWrapperImpl<Object, MacroscopicLinkSegment>(
+                  new HashMap<Object,MacroscopicLinkSegment>(), MacroscopicLinkSegment::getExternalId);
+            identificationColumnName = LinkSegmentExternalIdOutputProperty.NAME;
             break;            
           case LINK_SEGMENT_XML_ID:
-            final String xmlId = record.get(LinkSegmentXmlIdOutputProperty.NAME);
-            linkSegment = getPlanitNetworkReader().getLinkSegmentBySourceId(xmlId);
+            indexByIdentificationMethod = 
+            new MapWrapperImpl<Object, MacroscopicLinkSegment>(
+                new HashMap<Object,MacroscopicLinkSegment>(), MacroscopicLinkSegment::getXmlId);
+            identificationColumnName = LinkSegmentXmlIdOutputProperty.NAME;
             break;          
-          case UPSTREAM_NODE_XML_ID:
-            final Node startNode = getPlanitNetworkReader().getNodeBySourceId(record.get(UpstreamNodeXmlIdOutputProperty.NAME));
-            final Node endNode = getPlanitNetworkReader().getNodeBySourceId(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
-            linkSegment = startNode.getLinkSegment(endNode);
-            break;
           default:
             throw new PlanItException("Invalid Output Property "
                 + BaseOutputProperty.convertToBaseOutputProperty(linkIdentificationMethod).getName()
                 + " found in header of Initial Link Segment Cost CSV file");
-       }
-       PlanItException.throwIf(linkSegment == null, String.format("failed to find link segment for record %d", record.getRecordNumber() ));        
-       setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);        
-      }
+        }    
+        /* lay index */
+        for(MacroscopicNetworkLayer layer : network.getTransportLayers()) {
+          indexByIdentificationMethod.addAll(layer.getLinkSegments());
+        }
+        
+        /* parse */
+        for (final CSVRecord record : parser) {
+          MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(identificationColumnName));          
+          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
+          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
+        }
+      }   
       in.close();
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());

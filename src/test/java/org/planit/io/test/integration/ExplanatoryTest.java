@@ -15,12 +15,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.planit.utils.test.LinkSegmentExpectedResultsDto;
+import org.planit.demands.Demands;
 import org.planit.io.test.util.PlanItIOTestHelper;
 import org.planit.io.test.util.PlanItIOTestRunner;
 import org.planit.io.test.util.PlanItInputBuilder4Testing;
 import org.planit.utils.test.TestOutputDto;
 
 import org.planit.logging.Logging;
+import org.planit.network.MacroscopicNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
@@ -105,8 +107,10 @@ public class ExplanatoryTest {
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));      
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -174,8 +178,10 @@ public class ExplanatoryTest {
 
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -243,8 +249,10 @@ public class ExplanatoryTest {
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("2");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("2")); 
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -312,8 +320,10 @@ public class ExplanatoryTest {
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -447,8 +457,10 @@ public class ExplanatoryTest {
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -516,8 +528,10 @@ public class ExplanatoryTest {
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -608,8 +622,10 @@ public class ExplanatoryTest {
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
-      Mode mode1 = testOutputDto.getC().getModeByXmlId("1");
-      TimePeriod timePeriod = testOutputDto.getC().getTimePeriodByXmlId("0");
+      MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
+      Mode mode1 = network.getModes().getByXmlId("1");
+      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
