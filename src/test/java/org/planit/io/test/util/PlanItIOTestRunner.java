@@ -319,7 +319,7 @@ public class PlanItIOTestRunner {
    * @throws PlanItException thrown if error
    */  
   public void registerInitialLinkSegmentCostByTimePeriod(String timePeriodXmlId, String initialCostLocation) throws PlanItException {
-    TimePeriod timePeriod = demands.timePeriods.getTimePeriodByXmlId(timePeriodXmlId);
+    TimePeriod timePeriod = demands.timePeriods.getByXmlId(timePeriodXmlId);
     final InitialLinkSegmentCostPeriod initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
     taConfigurator.registerInitialLinkSegmentCost(initialCost);    
   }
