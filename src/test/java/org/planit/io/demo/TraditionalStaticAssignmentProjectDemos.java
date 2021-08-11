@@ -50,10 +50,10 @@ import org.planit.zoning.Zoning;
  * @author markr
  *
  */
-public class PLANitStaticAssignmentProjectDemos {
+public class TraditionalStaticAssignmentProjectDemos {
 
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PLANitStaticAssignmentProjectDemos.class.getCanonicalName());
+  private static final Logger LOGGER = Logger.getLogger(TraditionalStaticAssignmentProjectDemos.class.getCanonicalName());
 
   /**
    * Setup a stock standard traditional static assignment

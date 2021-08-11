@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.planit.io.demo.PLANitStaticAssignmentProjectDemos;
+import org.planit.io.demo.TraditionalStaticAssignmentProjectDemos;
 import org.planit.logging.Logging;
 import org.planit.utils.id.IdGenerator;
 
@@ -42,7 +42,7 @@ public class GettingStartedTest {
   @Test
   public void gettingStartedTest() {
     try {
-      PLANitStaticAssignmentProjectDemos.gettingStartedDemo("src\\test\\resources\\testcases\\getting_started\\base");
+      TraditionalStaticAssignmentProjectDemos.gettingStartedDemo("src\\test\\resources\\testcases\\getting_started\\base");
     }catch(Exception e){
       e.printStackTrace();
       LOGGER.severe(e.getMessage());

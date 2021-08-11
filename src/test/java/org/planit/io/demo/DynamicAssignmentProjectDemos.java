@@ -7,8 +7,8 @@ import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.assignment.TrafficAssignment;
-import org.planit.assignment.eltm.ELTM;
-import org.planit.assignment.eltm.ELTMConfigurator;
+import org.planit.assignment.eltm.EventBasedLtm;
+import org.planit.assignment.eltm.EventBasedLtmConfigurator;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.path.choice.PathChoice;
 import org.planit.path.choice.StochasticPathChoiceConfigurator;
@@ -24,10 +24,10 @@ import org.planit.zoning.Zoning;
  * @author markr
  *
  */
-public class PLANitDynamicAssignmentProjectDemos {
+public class DynamicAssignmentProjectDemos {
   
     /** the logger */
-    private static final Logger LOGGER = Logger.getLogger(PLANitDynamicAssignmentProjectDemos.class.getCanonicalName());   
+    private static final Logger LOGGER = Logger.getLogger(DynamicAssignmentProjectDemos.class.getCanonicalName());   
 
     /**
      * Setup a stock standard eLTM assignment
@@ -42,8 +42,8 @@ public class PLANitDynamicAssignmentProjectDemos {
           
           //TODO: not great that we must register it separately as an option. Probably better to simply
           //allow any implementation of the registered (meta)types and not bother with the actual implemented subclasses
-          project.registerEligibleTrafficComponentClass(ELTM.class);
-          project.createAndRegisterTrafficAssignment(ELTM.class.getCanonicalName());
+          project.registerEligibleTrafficComponentClass(EventBasedLtm.class);
+          project.createAndRegisterTrafficAssignment(EventBasedLtm.class.getCanonicalName());
 
             project.executeAllTrafficAssignments();
         } catch (final PlanItException e) {
@@ -77,8 +77,8 @@ public class PLANitDynamicAssignmentProjectDemos {
           // alternatively paths can be generated with a route generator
               
 
-          final ELTMConfigurator eLTM = 
-              (ELTMConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.ELTM, demands, zoning, theNetwork);
+          final EventBasedLtmConfigurator eLTM = 
+              (EventBasedLtmConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.ELTM, demands, zoning, theNetwork);
 
           // CREATE/REGISTER ASSIGNMENT COMPONENTS
 
