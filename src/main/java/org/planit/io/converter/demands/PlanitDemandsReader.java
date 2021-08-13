@@ -17,7 +17,7 @@ import org.planit.demands.Demands;
 import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.MacroscopicNetwork;
-import org.planit.od.odmatrix.demand.ODDemandMatrix;
+import org.planit.od.demand.OdDemandMatrix;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.wrapper.MapWrapper;
 import org.planit.userclass.TravelerType;
@@ -136,7 +136,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square matrix
    */
   private static void populateDemandMatrixRawForEqualSeparators(final Values values, final String separator,
-      final double pcu, ODDemandMatrix odDemandMatrix, final Zones<?> zones) throws PlanItException {
+      final double pcu, OdDemandMatrix odDemandMatrix, final Zones<?> zones) throws PlanItException {
     
     final String[] allValuesAsString = values.getValue().split(separator);
     final int size = allValuesAsString.length;
@@ -171,7 +171,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square matrix
    */
   private static void populateDemandMatrixRawDifferentSeparators(final Values values, final String originSeparator,
-      final String destinationSeparator, final double pcu, ODDemandMatrix odDemandMatrix, final Zones<OdZone> zones) throws PlanItException {
+      final String destinationSeparator, final double pcu, OdDemandMatrix odDemandMatrix, final Zones<OdZone> zones) throws PlanItException {
     
     final String[] originRows = values.getValue().split(originSeparator);
     final int noRows = originRows.length;
@@ -372,7 +372,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    * @throws PlanItException thrown if there is an error during processing
    */
   private void populateDemandMatrix(
-      final XMLElementOdMatrix xmlOdMatrix, final double pcu, ODDemandMatrix odDemandMatrix, Zones<OdZone> zones) throws PlanItException {
+      final XMLElementOdMatrix xmlOdMatrix, final double pcu, OdDemandMatrix odDemandMatrix, Zones<OdZone> zones) throws PlanItException {
     
     @SuppressWarnings("unchecked")
     MapWrapper<String, Zone> xmlIdZoneMap = (MapWrapper<String,Zone>)getSourceIdContainer(Zone.class);
@@ -482,11 +482,11 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
-      ODDemandMatrix odDemandMatrix = new ODDemandMatrix(getSettings().getReferenceZoning().odZones);
+      OdDemandMatrix odDemandMatrix = new OdDemandMatrix(getSettings().getReferenceZoning().odZones);
       /* populate */
       populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, getSettings().getReferenceZoning().odZones);
       /* register */
-      ODDemandMatrix duplicate = demands.registerODDemand(timePeriod, mode, odDemandMatrix);
+      OdDemandMatrix duplicate = demands.registerODDemand(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {
         throw new PlanItException(String.format("multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
       }

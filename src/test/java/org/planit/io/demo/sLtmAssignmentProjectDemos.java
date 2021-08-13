@@ -1,44 +1,23 @@
 package org.planit.io.demo;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.planit.assignment.TrafficAssignment;
-import org.planit.assignment.sltm.StaticLtmConfigurator;
-import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
-import org.planit.cost.physical.BPRConfigurator;
-import org.planit.cost.physical.BPRLinkTravelTimeCost;
-import org.planit.cost.physical.AbstractPhysicalCost;
-import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
-import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
-import org.planit.cost.virtual.SpeedVirtualCostConfigurator;
-import org.planit.cost.virtual.AbstractVirtualCost;
+import org.planit.assignment.ltm.LtmConfigurator;
+import org.planit.assignment.ltm.sltm.StaticLtmConfigurator;
+import org.planit.cost.physical.PhysicalCost;
 import org.planit.demands.Demands;
-import org.planit.gap.LinkBasedRelativeGapConfigurator;
 import org.planit.io.input.PlanItInputBuilder;
-import org.planit.io.output.formatter.PlanItOutputFormatter;
-import org.planit.io.project.PlanItProject;
 import org.planit.io.project.PlanItSimpleProject;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.Network;
-import org.planit.output.configuration.LinkOutputTypeConfiguration;
-import org.planit.output.configuration.ODOutputTypeConfiguration;
-import org.planit.output.configuration.PathOutputTypeConfiguration;
-import org.planit.output.enums.ODSkimSubOutputType;
 import org.planit.output.enums.OutputType;
-import org.planit.output.enums.PathOutputIdentificationType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
 import org.planit.output.formatter.OutputFormatter;
 import org.planit.output.property.OutputProperty;
 import org.planit.project.CustomPlanItProject;
-import org.planit.sdinteraction.smoothing.MSASmoothing;
-import org.planit.sdinteraction.smoothing.MSASmoothingConfigurator;
-import org.planit.sdinteraction.smoothing.Smoothing;
 import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
-import org.planit.utils.time.TimePeriod;
-import org.planit.utils.exceptions.PlanItException;
 import org.planit.zoning.Zoning;
 
 /**
@@ -116,7 +95,8 @@ public class sLtmAssignmentProjectDemos {
       
       // sLTM might compute cost on a per link or per path basis. Likely this can be a setting as well as it does not require any information
       // from links (unlike BPR link configuration with link parameters), but possibly it would be good to add
-      //createAndRegisterPhysicalCost(TODO)
+      // for now we create a new type, FREEFLOW which always returns the free flow cost
+      createAndRegisterPhysicalCost(PhysicalCost.FREEFLOW);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -153,7 +133,7 @@ public class sLtmAssignmentProjectDemos {
       OutputFormatter defaultOutputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
       MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.MEMORY_OUTPUT_FORMATTER);
 
-      StaticLtmConfigurator ta = (StaticLtmConfigurator) 
+      LtmConfigurator ta = (LtmConfigurator) 
           project.createAndRegisterTrafficAssignment(
             TrafficAssignment.SLTM, demands, zoning, network);
       
