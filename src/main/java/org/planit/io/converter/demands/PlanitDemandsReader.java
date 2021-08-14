@@ -18,6 +18,7 @@ import org.planit.io.input.PlanItInputBuilder;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.od.demand.OdDemandMatrix;
+import org.planit.od.demand.OdDemands;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.wrapper.MapWrapper;
 import org.planit.userclass.TravelerType;
@@ -486,7 +487,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       /* populate */
       populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, getSettings().getReferenceZoning().odZones);
       /* register */
-      OdDemandMatrix duplicate = demands.registerODDemand(timePeriod, mode, odDemandMatrix);
+      OdDemands duplicate = demands.registerOdDemand(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {
         throw new PlanItException(String.format("multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
       }

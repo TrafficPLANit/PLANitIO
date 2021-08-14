@@ -3,7 +3,6 @@ package org.planit.io.demo;
 import java.util.logging.Logger;
 
 import org.planit.assignment.TrafficAssignment;
-import org.planit.assignment.ltm.LtmConfigurator;
 import org.planit.assignment.ltm.sltm.StaticLtmConfigurator;
 import org.planit.cost.physical.PhysicalCost;
 import org.planit.demands.Demands;
@@ -96,7 +95,7 @@ public class sLtmAssignmentProjectDemos {
       // sLTM might compute cost on a per link or per path basis. Likely this can be a setting as well as it does not require any information
       // from links (unlike BPR link configuration with link parameters), but possibly it would be good to add
       // for now we create a new type, FREEFLOW which always returns the free flow cost
-      createAndRegisterPhysicalCost(PhysicalCost.FREEFLOW);
+      sLtm.createAndRegisterPhysicalCost(PhysicalCost.FREEFLOW);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -133,7 +132,7 @@ public class sLtmAssignmentProjectDemos {
       OutputFormatter defaultOutputFormatter = project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
       MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.MEMORY_OUTPUT_FORMATTER);
 
-      LtmConfigurator ta = (LtmConfigurator) 
+      StaticLtmConfigurator ta = (StaticLtmConfigurator) 
           project.createAndRegisterTrafficAssignment(
             TrafficAssignment.SLTM, demands, zoning, network);
       
