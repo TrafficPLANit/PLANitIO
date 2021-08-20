@@ -42,27 +42,27 @@
 							<name>Capacity1500</name>							
 							<capacitylane>1500</capacitylane>			
 							<access>
-								<mode ref="1">											
+								<accessgroup moderefs="1">											
 									<maxspeed>100</maxspeed>					
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 						<linksegmenttype id="2">
 							<name>Capacity2000</name>							
 							<capacitylane>2000</capacitylane>			
 							<access>
-								<mode ref="1">											
+								<accessgroup moderefs="1">											
 									<maxspeed>100</maxspeed>					
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 						<linksegmenttype id="3">
 							<name>Capacity2500</name>							
 							<capacitylane>2500</capacitylane>			
 							<access>
-								<mode ref="1">											
+								<accessgroup moderefs="1">											
 									<maxspeed>100</maxspeed>					
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 					</linksegmenttypes>

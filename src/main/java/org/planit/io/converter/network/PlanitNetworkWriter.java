@@ -3,13 +3,16 @@ package org.planit.io.converter.network;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.planit.utils.network.layer.TransportLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentTypes;
-import org.planit.utils.network.layer.macroscopic.MacroscopicModeProperties;
+import org.planit.utils.network.layer.macroscopic.AccessGroupProperties;
 import org.planit.utils.network.layer.physical.Link;
 import org.planit.utils.network.layer.physical.Links;
 import org.planit.utils.network.layer.physical.Node;
@@ -29,9 +32,9 @@ import org.planit.utils.mode.Mode;
 import org.planit.utils.mode.Modes;
 import org.planit.utils.mode.PhysicalModeFeatures;
 import org.planit.utils.mode.UsabilityModeFeatures;
-import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
 import org.planit.xml.generated.LengthUnit;
+import org.planit.xml.generated.XMLElementAccessGroup;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
@@ -39,6 +42,7 @@ import org.planit.xml.generated.XMLElementLayerConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;
 import org.planit.xml.generated.XMLElementLinkSegment;
 import org.planit.xml.generated.XMLElementLinkSegmentType;
+import org.planit.xml.generated.XMLElementLinkSegmentType.Access;
 import org.planit.xml.generated.XMLElementLinkSegmentTypes;
 import org.planit.xml.generated.XMLElementLinks;
 import org.planit.xml.generated.XMLElementMacroscopicNetwork;
@@ -249,21 +253,24 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    *  Populate the xml link segment type modes' /<mode/> element containing the mode specific properties of 
    *  this link segment type
    *  
-   * @param xmlModeAccessList to add mode properties to 
-   * @param modeProperties to populate from
+   * @param xmlAccess to add mode access to 
+   * @param accessGroupProperties to populate from
    */   
-  private void populateLinkSegmentTypeModeProperties(List<Accessmode> xmlModeAccessList, Mode mode, MacroscopicModeProperties modeProperties) {
-    Accessmode xmlModeAccess = new Accessmode();
-
+  private void populateLinkSegmentTypeAccessGroupProperties(Access xmlAccess, AccessGroupProperties accessGroupProperties) {
+    List<XMLElementAccessGroup> accessGroupList = xmlAccess.getAccessgroup();
+    XMLElementAccessGroup xmlAccessGroup = new XMLElementAccessGroup();
+    
     /* mode ref id */
-    xmlModeAccess.setRef(getXmlModeReference(mode));
+    Set<Mode> accessModes = accessGroupProperties.getAccessModes();
+    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode)).collect(Collectors.joining(","));
+    xmlAccessGroup.setModerefs(modeRefs);
     
     /* critical speed */
-    xmlModeAccess.setCritspeed(modeProperties.getCriticalSpeedKmH());
+    xmlAccessGroup.setCritspeed(accessGroupProperties.getCriticalSpeedKmH());
     /* maximum speed */
-    xmlModeAccess.setMaxspeed(modeProperties.getMaximumSpeedKmH());
+    xmlAccessGroup.setMaxspeed(accessGroupProperties.getMaximumSpeedKmH());
     
-    xmlModeAccessList.add(xmlModeAccess);
+    accessGroupList.add(xmlAccessGroup);
   }  
   
   /**
@@ -291,19 +298,26 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     xmlLinkSegmentType.setName(linkSegmentType.getName());
     
     /* mode properties */
-    XMLElementLinkSegmentType.Access xmlAccessModes = xmlLinkSegmentType.getAccess();
-    if(xmlAccessModes == null) {
-      xmlAccessModes = new XMLElementLinkSegmentType.Access();
-      xmlLinkSegmentType.setAccess(xmlAccessModes);
+    XMLElementLinkSegmentType.Access xmlTypeAccess = xmlLinkSegmentType.getAccess();
+    if(xmlTypeAccess == null) {
+      xmlTypeAccess = new XMLElementLinkSegmentType.Access();
+      xmlLinkSegmentType.setAccess(xmlTypeAccess);
     }
-    List<Accessmode> xmlModeAccessList = xmlAccessModes.getMode();
-    /* mode property entry */
-    linkSegmentType.getAvailableModes().forEach( mode -> populateLinkSegmentTypeModeProperties(xmlModeAccessList, mode, linkSegmentType.getModeProperties(mode)));
-    
+
+    /* only apply once per access properties since it may be referenced by multiple modes */
+    Set<Mode> processedModes = new TreeSet<Mode>();
+    for(Mode accessMode : linkSegmentType.getAvailableModes()) {
+      if(!processedModes.contains(accessMode)) {
+        AccessGroupProperties accessProperties = linkSegmentType.getAccessProperties(accessMode);
+        processedModes.addAll(accessProperties.getAccessModes());
+        populateLinkSegmentTypeAccessGroupProperties(xmlTypeAccess, accessProperties);
+      }
+    }
+        
     xmlLinkSegmentTypeList.add(xmlLinkSegmentType);
   }   
   
-  /** Populate the xml </linksegmenttypes/> element
+  /** Populate the XML </linksegmenttypes/> element
    * 
    * @param xmlLayerConfiguration to populate on
    * @param linkSegmentTypes to populate from

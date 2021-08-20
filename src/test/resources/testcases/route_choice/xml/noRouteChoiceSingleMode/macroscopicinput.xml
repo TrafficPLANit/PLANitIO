@@ -68,18 +68,18 @@
 							<name>Standard</name>		
 							<capacitylane>2000</capacitylane>						
 							<access>                                     
-								<mode ref="1">														
+								<accessgroup>														
 									<maxspeed>100</maxspeed>								
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 						<linksegmenttype id="2">
 							<name>Link 2</name>													
 							<capacitylane>1000</capacitylane>						
 							<access>					                            
-								<mode ref="1">														
+								<accessgroup>														
 									<maxspeed>100</maxspeed>								
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 					</linksegmenttypes>

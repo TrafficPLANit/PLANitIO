@@ -37,13 +37,13 @@
 	<macroscopicnetwork>
 		<configuration>
 			<modes>
-				<mode id="1">																<!-- mandatory attributes, for referencing -->
-					<name>Cars</name>														<!-- optional -->
-					<pcu>1</pcu>															<!-- optional, default available -->
+				<mode id="1">													
+					<name>Cars</name>										
+					<pcu>1</pcu>												
 				</mode>
-				<mode id="2">																<!-- mandatory attributes, for referencing -->
-					<name>Trucks</name>														<!-- optional -->
-					<pcu>2.5</pcu>															<!-- optional, default available -->
+				<mode id="2">													
+					<name>Trucks</name>									
+					<pcu>2.5</pcu>											
 				</mode>
 			</modes>
 		</configuration>
@@ -52,27 +52,24 @@
 				<layerconfiguration>
 					<linksegmenttypes>
 						<linksegmenttype id="1">
-							<name>Standard</name>													<!-- optional -->
-							<capacitylane>1200</capacitylane>										<!-- optional, has default -->
+							<name>Standard</name>						
+							<capacitylane>1200</capacitylane>
 							<access>
-								<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-										is assumed to be banned from the link segment -->
-									<maxspeed>60</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-								</mode>
-								<mode ref="2">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-										is assumed to be banned from the link segment -->
-									<maxspeed>50</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-								</mode>
+								<accessgroup moderefs="1">									
+									<maxspeed>60</maxspeed>				
+								</accessgroup>
+								<accessgroup moderefs="2">
+									<maxspeed>50</maxspeed>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 						<linksegmenttype id="2">
-							<name>NoTrucks</name>													<!-- optional -->
-							<capacitylane>1200</capacitylane>										<!-- optional, has default -->
+							<name>NoTrucks</name>											
+							<capacitylane>1200</capacitylane>					
 							<access>
-								<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-										is assumed to be banned from the link segment -->
-									<maxspeed>60</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-								</mode>
+								<accessgroup moderefs="1">													
+									<maxspeed>60</maxspeed>								
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 					</linksegmenttypes>

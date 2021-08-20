@@ -2,7 +2,7 @@ package org.planit.io.converter.network;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -19,7 +19,7 @@ import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.MacroscopicModePropertiesFactory;
+import org.planit.network.layer.macroscopic.LinkSegmentTypeAccessPropertiesFactory;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
@@ -38,12 +38,12 @@ import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.TransportLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.utils.network.layer.macroscopic.MacroscopicModeProperties;
+import org.planit.utils.network.layer.macroscopic.AccessGroupProperties;
 import org.planit.utils.network.layer.physical.Link;
 import org.planit.utils.network.layer.physical.LinkSegment;
 import org.planit.utils.network.layer.physical.Node;
-import org.planit.xml.generated.Accessmode;
 import org.planit.xml.generated.Direction;
+import org.planit.xml.generated.XMLElementAccessGroup;
 import org.planit.xml.generated.XMLElementConfiguration;
 import org.planit.xml.generated.XMLElementInfrastructureLayer;
 import org.planit.xml.generated.XMLElementInfrastructureLayers;
@@ -318,6 +318,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       /* inject default */
       XmlMacroscopicNetworkLayerHelper.injectDefaultLinkSegmentType(xmlLayerconfiguration);
     }
+    
+    double defaultMaxSpeedKph = Double.MAX_VALUE;
+    for(Mode mode : networkLayer.getSupportedModes()) {
+      defaultMaxSpeedKph = Math.max(defaultMaxSpeedKph, mode.getMaximumSpeedKmH());
+    }
                      
     List<XMLElementLinkSegmentType> xmlLinkSegmentTypes = xmlLayerconfiguration.getLinksegmenttypes().getLinksegmenttype();       
     for(XMLElementLinkSegmentType xmlLinkSegmentType : xmlLinkSegmentTypes) {
@@ -344,20 +349,21 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       linkSegmentType.setExternalId(externalId);
       
       registerBySourceId(MacroscopicLinkSegmentType.class, linkSegmentType);
+      
+      /* only road going modes are added by default if no access groups are specified */
+      Collection<Mode> supportedDefaultRoadModes = networkLayer.getSupportedModes().stream().filter( 
+          mode -> mode.getPhysicalFeatures().getTrackType() == TrackModeType.ROAD).collect(Collectors.toSet());
             
-      /* mode properties, only set when allowed, otherwise not */
-      Collection<Mode> thePlanitModes = new HashSet<Mode>();            
+      /* mode properties, only set when allowed, otherwise not */       
       if(xmlLinkSegmentType.getAccess() != null) {
-        List<Accessmode> xmlModes = xmlLinkSegmentType.getAccess().getMode();
-        for (Accessmode xmlMode : xmlModes) {                  
-          /* mode properties */
-          parseLinkSegmentTypeModeProperties(xmlMode, linkSegmentType);                                 
+        List<XMLElementAccessGroup> xmlAccessGroups = xmlLinkSegmentType.getAccess().getAccessgroup();
+        for (XMLElementAccessGroup xmlAccessGroup : xmlAccessGroups) {                  
+          /* mode access properties */
+          parseLinkSegmentTypeAccessProperties(xmlAccessGroup, linkSegmentType, supportedDefaultRoadModes, defaultMaxSpeedKph);                                 
         }          
       }else {
-        /* all ROAD modes allowed */        
-        thePlanitModes = getSourceIdContainer(Mode.class).toCollection().stream().filter( 
-            mode -> mode.getPhysicalFeatures().getTrackType() == TrackModeType.ROAD).collect(Collectors.toSet());
-        thePlanitModes.forEach( planitMode -> linkSegmentType.addModeProperties(planitMode, MacroscopicModePropertiesFactory.create(planitMode.getMaximumSpeedKmH())));
+        /* all ROAD modes allowed */
+        parseLinkSegmentTypeAccessProperties(null /*results in supportedDefaultRoadModes mode access in single group*/, linkSegmentType, supportedDefaultRoadModes, defaultMaxSpeedKph);
       }
     }
  
@@ -365,32 +371,50 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   
   /** parse the mode properties for given link segment type and populate the helper with them
   *
-  * @param xmlMode to extract information from on (TODO:ugly, helper should be removed)
+  * @param xmlAccessGroupProperties to extract information from on (TODO:ugly, helper should be removed)
   * @param linkSegmentType to register mode properties on
+   * @param defaultModes to allow when no modes are specified
+  * @param defaultMaxSpeed to use
   * @throws PlanItException thrown if error
   */
- public void parseLinkSegmentTypeModeProperties(Accessmode xmlMode, MacroscopicLinkSegmentType linkSegmentType) throws PlanItException{
-   /* mode ref */
-   String modeXmlRefId = xmlMode.getRef();   
-   Mode thePlanitMode = getBySourceId(Mode.class, modeXmlRefId);
-   PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%s) does not exist in PLANit parser",modeXmlRefId));    
+ public void parseLinkSegmentTypeAccessProperties(XMLElementAccessGroup xmlAccessGroupProperties, MacroscopicLinkSegmentType linkSegmentType, final Collection<Mode> defaultModes, double defaultMaxSpeed) throws PlanItException{
    
-   /* planit mode speed settings*/
-   double maxSpeed = thePlanitMode.getMaximumSpeedKmH();
+   /* access modes */
+   Collection<Mode> accessModes = null;
+   double maxSpeed = defaultMaxSpeed;
+   if(xmlAccessGroupProperties==null || xmlAccessGroupProperties.getModerefs()==null) {
+     /* all default modes allowed */
+     accessModes = defaultModes;
+   }else {
+     String[] xmlModesRefArray = xmlAccessGroupProperties.getModerefs().split(",");
+     accessModes = new TreeSet<Mode>();
+     for(int index = 0 ;index < xmlModesRefArray.length;++index) {
+       Mode thePlanitMode = getBySourceId(Mode.class, xmlModesRefArray[index]);
+       PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%s) does not exist in PLANit parser",xmlModesRefArray[index]));
+       maxSpeed = Math.max(maxSpeed, thePlanitMode.getMaximumSpeedKmH());
+       accessModes.add(thePlanitMode);
+     }      
+   }    
+   
    /* crit speed */
-   double critSpeed = Math.min(maxSpeed, MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED_KMH);
+   double critSpeed = Math.min(maxSpeed, AccessGroupProperties.DEFAULT_CRITICAL_SPEED_KMH);
    
    /* mode properties link segment type speed settings */
-   if(xmlMode != null) {
+   if(xmlAccessGroupProperties != null) {
      
-     maxSpeed = (xmlMode.getMaxspeed() == null) ? thePlanitMode.getMaximumSpeedKmH() : xmlMode.getMaxspeed();                          
-     critSpeed = (xmlMode.getCritspeed() == null) ? MacroscopicModeProperties.DEFAULT_CRITICAL_SPEED_KMH  : xmlMode.getCritspeed();
+     maxSpeed = (xmlAccessGroupProperties.getMaxspeed() == null) ? maxSpeed : xmlAccessGroupProperties.getMaxspeed();                          
+     critSpeed = (xmlAccessGroupProperties.getCritspeed() == null) ? AccessGroupProperties.DEFAULT_CRITICAL_SPEED_KMH  : xmlAccessGroupProperties.getCritspeed();
      /* critical speed can never exceed max speed, so cap it if needed */
      critSpeed = Math.min(maxSpeed, critSpeed);
    }
    
+   Collection<Mode> alreadyAllowedModes = linkSegmentType.getAvailableModes();
+   if(!Collections.disjoint(alreadyAllowedModes, accessModes)) {
+     LOGGER.warning(String.format("Access (mode) groups for link segment type %s have overlapping modes, undefined behaviour of which properties prevail for duplicate modes",linkSegmentType.getXmlId()));
+   }
+   
    /* register */
-   linkSegmentType.addModeProperties(thePlanitMode, MacroscopicModePropertiesFactory.create(maxSpeed, critSpeed));    
+   linkSegmentType.setAccessProperties(LinkSegmentTypeAccessPropertiesFactory.create(maxSpeed, critSpeed, accessModes));    
  }    
     
   /**

@@ -41,18 +41,18 @@
 							<name>Slow</name>													
 							<capacitylane>1000</capacitylane>					
 							<access>                                   
-								<mode ref="1">													
+								<accessgroup moderefs="1">													
 									<maxspeed>10</maxspeed>								
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 						<linksegmenttype id="2">                    
 							<name>Fast</name>													
 							<capacitylane>1000</capacitylane>							
 							<access>                                       
-								<mode ref="1">															
+								<accessgroup moderefs="1">															
 									<maxspeed>20</maxspeed>										
-								</mode>
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 					</linksegmenttypes>

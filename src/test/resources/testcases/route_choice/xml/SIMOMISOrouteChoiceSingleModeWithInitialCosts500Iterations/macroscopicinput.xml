@@ -28,9 +28,9 @@
 	<macroscopicnetwork>
 		<configuration>
 			<modes>
-				<mode id="1">																<!-- mandatory attributes, for referencing -->
-					<name>Basic</name>														<!-- optional -->
-					<pcu>1</pcu>															<!-- optional, default available -->
+				<mode id="1">																
+					<name>Basic</name>												
+					<pcu>1</pcu>															
 				</mode>
 			</modes>
 		</configuration>
@@ -39,13 +39,12 @@
 				<layerconfiguration>
 					<linksegmenttypes>
 						<linksegmenttype id="1">
-							<name>Standard</name>													<!-- optional -->
-							<capacitylane>1200</capacitylane>										<!-- optional, has default -->
+							<name>Standard</name>									
+							<capacitylane>1200</capacitylane>			
 							<access>
-								<mode ref="1">															<!-- optional, when 0 it refers to all modes, when a mode is absent the mode 
-										is assumed to be banned from the link segment -->
-									<maxspeed>60</maxspeed>												<!-- mandatory, should be lower or equal than link max speed when present -->
-								</mode>
+								<accessgroup>											
+									<maxspeed>60</maxspeed>	
+								</accessgroup>
 							</access>
 						</linksegmenttype>
 					</linksegmenttypes>

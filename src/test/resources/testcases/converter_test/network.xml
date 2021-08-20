@@ -170,38 +170,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>800.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="1" externalid="unclassified">
@@ -209,38 +209,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="2" externalid="primary_link">
@@ -248,38 +248,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1400.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="3" externalid="rail">
@@ -287,10 +287,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>10000.0</capacitylane>
                         <access>
-                            <mode ref="train">
+                            <accessgroup moderefs="train">
 <maxspeed>70.0</maxspeed>
 <critspeed>70.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="4" externalid="tertiary">
@@ -298,38 +298,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1000.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="5" externalid="living_street">
@@ -337,38 +337,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="6" externalid="light_rail">
@@ -376,14 +376,14 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>10000.0</capacitylane>
                         <access>
-                            <mode ref="tram">
+                            <accessgroup moderefs="tram">
 <maxspeed>40.0</maxspeed>
 <critspeed>40.0</critspeed>
-                            </mode>
-                            <mode ref="light_rail">
+                            </accessgroup>
+                            <accessgroup moderefs="light_rail">
 <maxspeed>70.0</maxspeed>
 <critspeed>70.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="7" externalid="motorway_link">
@@ -391,30 +391,30 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1800.0</capacitylane>
                         <access>
-                            <mode ref="motor_bike">
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="8" externalid="trunk">
@@ -422,38 +422,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>2000.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="9" externalid="motorway">
@@ -461,30 +461,30 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>2000.0</capacitylane>
                         <access>
-                            <mode ref="motor_bike">
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>90.0</maxspeed>
 <critspeed>90.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>90.0</maxspeed>
 <critspeed>90.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="10" externalid="secondary">
@@ -492,38 +492,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1200.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="11" externalid="residential">
@@ -531,38 +531,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="12" externalid="subway">
@@ -570,10 +570,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>10000.0</capacitylane>
                         <access>
-                            <mode ref="subway">
+                            <accessgroup moderefs="subway">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="13" externalid="road">
@@ -581,38 +581,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>0.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="14" externalid="service">
@@ -620,38 +620,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="15" externalid="pedestrian">
@@ -659,14 +659,14 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="16" externalid="secondary_link">
@@ -674,38 +674,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1000.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="17" externalid="track">
@@ -713,38 +713,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="18" externalid="tram">
@@ -752,14 +752,14 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>10000.0</capacitylane>
                         <access>
-                            <mode ref="tram">
+                            <accessgroup moderefs="tram">
 <maxspeed>40.0</maxspeed>
 <critspeed>40.0</critspeed>
-                            </mode>
-                            <mode ref="light_rail">
+                            </accessgroup>
+                            <accessgroup moderefs="light_rail">
 <maxspeed>70.0</maxspeed>
 <critspeed>70.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="19" externalid="trunk_link">
@@ -767,38 +767,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1700.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="20" externalid="primary">
@@ -806,38 +806,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="21" externalid="motorway_link">
@@ -851,10 +851,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="23" externalid="motorway">
@@ -868,10 +868,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1000.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="25" externalid="secondary">
@@ -879,10 +879,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1200.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="26" externalid="unclassified">
@@ -890,34 +890,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="27" externalid="unclassified">
@@ -925,10 +925,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="28" externalid="pedestrian">
@@ -936,10 +936,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="29" externalid="secondary">
@@ -947,34 +947,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1200.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="30" externalid="unclassified">
@@ -982,22 +982,22 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="31" externalid="residential">
@@ -1005,10 +1005,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="32" externalid="motorway_link">
@@ -1016,34 +1016,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1800.0</capacitylane>
                         <access>
-                            <mode ref="bicycle">
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>80.0</maxspeed>
 <critspeed>80.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="33" externalid="primary">
@@ -1051,10 +1051,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="34" externalid="residential">
@@ -1062,34 +1062,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="35" externalid="service">
@@ -1097,14 +1097,14 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="36" externalid="primary">
@@ -1112,34 +1112,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>60.0</maxspeed>
 <critspeed>60.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="37" externalid="service">
@@ -1153,10 +1153,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>800.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="39" externalid="service">
@@ -1164,34 +1164,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>600.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>20.0</maxspeed>
 <critspeed>20.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="40" externalid="tertiary">
@@ -1199,22 +1199,22 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1000.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>50.0</maxspeed>
 <critspeed>50.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="41" externalid="motorway">
@@ -1222,34 +1222,34 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>2000.0</capacitylane>
                         <access>
-                            <mode ref="bicycle">
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>90.0</maxspeed>
 <critspeed>90.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>90.0</maxspeed>
 <critspeed>90.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="42" externalid="tertiary">
@@ -1269,38 +1269,38 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>2000.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
-                            <mode ref="bicycle">
+                            </accessgroup>
+                            <accessgroup moderefs="bicycle">
 <maxspeed>15.0</maxspeed>
 <critspeed>15.0</critspeed>
-                            </mode>
-                            <mode ref="motor_bike">
+                            </accessgroup>
+                            <accessgroup moderefs="motor_bike">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="car">
+                            </accessgroup>
+                            <accessgroup moderefs="car">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="goods">
+                            </accessgroup>
+                            <accessgroup moderefs="goods">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
-                            <mode ref="hgv">
+                            </accessgroup>
+                            <accessgroup moderefs="hgv">
 <maxspeed>90.0</maxspeed>
 <critspeed>90.0</critspeed>
-                            </mode>
-                            <mode ref="lhgv">
+                            </accessgroup>
+                            <accessgroup moderefs="lhgv">
 <maxspeed>90.0</maxspeed>
 <critspeed>90.0</critspeed>
-                            </mode>
-                            <mode ref="bus">
+                            </accessgroup>
+                            <accessgroup moderefs="bus">
 <maxspeed>100.0</maxspeed>
 <critspeed>100.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="45" externalid="primary_link">
@@ -1308,10 +1308,10 @@
                         <maxdensitylane>180.0</maxdensitylane>
                         <capacitylane>1400.0</capacitylane>
                         <access>
-                            <mode ref="pedestrian">
+                            <accessgroup moderefs="pedestrian">
 <maxspeed>5.0</maxspeed>
 <critspeed>5.0</critspeed>
-                            </mode>
+                            </accessgroup>
                         </access>
                     </linksegmenttype>
                     <linksegmenttype id="46" externalid="residential">
