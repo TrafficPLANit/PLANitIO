@@ -19,7 +19,7 @@ import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.mode.ModeFeaturesFactory;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
-import org.planit.network.layer.macroscopic.LinkSegmentTypeAccessPropertiesFactory;
+import org.planit.network.layer.macroscopic.AccessGroupPropertiesFactory;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
@@ -414,7 +414,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    }
    
    /* register */
-   linkSegmentType.setAccessProperties(LinkSegmentTypeAccessPropertiesFactory.create(maxSpeed, critSpeed, accessModes));    
+   linkSegmentType.setAccessGroupProperties(AccessGroupPropertiesFactory.create(maxSpeed, critSpeed, accessModes));    
  }    
     
   /**
