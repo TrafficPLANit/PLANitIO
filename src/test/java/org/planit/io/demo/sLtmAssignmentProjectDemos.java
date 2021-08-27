@@ -67,7 +67,7 @@ public class sLtmAssignmentProjectDemos {
 
       /* disable the use of storage capacities on links, resulting in a point queue model version of sLTM */
       StaticLtmConfigurator sLtm = (StaticLtmConfigurator) project.createAndRegisterTrafficAssignment(TrafficAssignment.SLTM);
-      sLtm.disableLinkStorageConstraints();      
+      sLtm.disableLinkStorageConstraints(true);      
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
