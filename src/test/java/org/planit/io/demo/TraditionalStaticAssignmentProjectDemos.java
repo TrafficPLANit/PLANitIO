@@ -22,9 +22,9 @@ import org.planit.io.project.PlanItSimpleProject;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.Network;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
-import org.planit.output.configuration.ODOutputTypeConfiguration;
+import org.planit.output.configuration.OdOutputTypeConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
-import org.planit.output.enums.ODSkimSubOutputType;
+import org.planit.output.enums.OdSkimSubOutputType;
 import org.planit.output.enums.OutputType;
 import org.planit.output.enums.PathOutputIdentificationType;
 import org.planit.output.formatter.MemoryOutputFormatter;
@@ -496,10 +496,10 @@ public class TraditionalStaticAssignmentProjectDemos {
       ta.registerOutputFormatter(project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER));
            
       // * NEW *
-      ODOutputTypeConfiguration odOutputConfiguration = (ODOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
+      OdOutputTypeConfiguration odOutputConfiguration = (OdOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       
       // * NEW *
-      odOutputConfiguration.activateOdSkimOutputType(ODSkimSubOutputType.COST);
+      odOutputConfiguration.activateOdSkimOutputType(OdSkimSubOutputType.COST);
       odOutputConfiguration.removeProperty(OutputProperty.RUN_ID);
 
       project.executeAllTrafficAssignments();
@@ -609,8 +609,8 @@ public class TraditionalStaticAssignmentProjectDemos {
           ta.activateOutput(OutputType.LINK);
       linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
       // OD outputs: ON + example configuration
-      final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration =
-          (ODOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
+      final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration =
+          (OdOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
       originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
       // PATH outputs: ON + example configuration

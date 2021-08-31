@@ -16,10 +16,10 @@ import org.planit.io.output.formatter.PlanItOutputFormatter;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.TransportLayerNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
-import org.planit.output.configuration.ODOutputTypeConfiguration;
+import org.planit.output.configuration.OdOutputTypeConfiguration;
 import org.planit.output.configuration.OutputConfiguration;
 import org.planit.output.configuration.PathOutputTypeConfiguration;
-import org.planit.output.enums.ODSkimSubOutputType;
+import org.planit.output.enums.OdSkimSubOutputType;
 import org.planit.output.enums.OutputType;
 import org.planit.output.enums.PathOutputIdentificationType;
 import org.planit.output.formatter.MemoryOutputFormatter;
@@ -196,8 +196,8 @@ public class PlanItIOTestRunner {
         linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
         
         /* OD OUTPUT CONFIGURATION */
-        final ODOutputTypeConfiguration originDestinationOutputTypeConfiguration = (ODOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
-        originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(ODSkimSubOutputType.NONE);
+        final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
+        originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(OdSkimSubOutputType.NONE);
         originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
 
         /* PATH OUTPUT CONFIGURATION */
