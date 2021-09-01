@@ -65,8 +65,8 @@ public class DynamicAssignmentProjectDemos {
 
           // INITIALISE INPUTS
           final MacroscopicNetwork theNetwork          = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-          final Zoning zoning                               = project.createAndRegisterZoning(theNetwork);
-          final Demands demands                             = project.createAndRegisterDemands(zoning, theNetwork);
+          final Zoning zoning                          = project.createAndRegisterZoning(theNetwork);
+          final Demands demands                        = project.createAndRegisterDemands(zoning, theNetwork);
 
           // INITIALISE OUTPUT FORMATTERS
           final MemoryOutputFormatter memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
