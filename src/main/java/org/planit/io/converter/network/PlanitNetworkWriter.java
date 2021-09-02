@@ -291,9 +291,13 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     }
     
     /* capacity */
-    xmlLinkSegmentType.setCapacitylane(linkSegmentType.getCapacityPerLane());
+    if(linkSegmentType.isCapacityPerLaneSet()) {
+      xmlLinkSegmentType.setCapacitylane(linkSegmentType.getCapacityPerLane());
+    }
     /* max density */
-    xmlLinkSegmentType.setMaxdensitylane(linkSegmentType.getMaximumDensityPerLane());
+    if(linkSegmentType.isMaximumDensityPerLaneSet()) {
+      xmlLinkSegmentType.setMaxdensitylane(linkSegmentType.getMaximumDensityPerLane());
+    }
     /* name */
     xmlLinkSegmentType.setName(linkSegmentType.getName());
     

@@ -338,10 +338,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       
       /* name */
       String name = xmlLinkSegmentType.getName();
-      /* capacity */
-      double capacityPcuPerHour = (xmlLinkSegmentType.getCapacitylane() == null) ? MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE  : xmlLinkSegmentType.getCapacitylane();
-      /* max density */
-      double maximumDensityPcuPerKm = (xmlLinkSegmentType.getMaxdensitylane() == null) ? LinkSegment.MAXIMUM_DENSITY  : xmlLinkSegmentType.getMaxdensitylane();
+      /* capacity (may be null in which case the default is returned if required or it is retrieved elsewhere via for example the fundamental diagram which is able to
+       * deliver a better estimate based on the free flow speed and FD shape) */
+      Double capacityPcuPerHour = xmlLinkSegmentType.getCapacitylane();
+      /* max density (may be null) */
+      Double maximumDensityPcuPerKm = xmlLinkSegmentType.getMaxdensitylane();
         
       /* create and register */
       final MacroscopicLinkSegmentType linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(name, capacityPcuPerHour, maximumDensityPcuPerKm);
