@@ -266,9 +266,14 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     xmlAccessGroup.setModerefs(modeRefs);
     
     /* critical speed */
-    xmlAccessGroup.setCritspeed(accessGroupProperties.getCriticalSpeedKmH());
+    if(accessGroupProperties.isCriticalSpeedKmHSet()) {
+      xmlAccessGroup.setCritspeed(accessGroupProperties.getCriticalSpeedKmH());
+    }
+    
     /* maximum speed */
-    xmlAccessGroup.setMaxspeed(accessGroupProperties.getMaximumSpeedKmH());
+    if(accessGroupProperties.isMaximumSpeedKmHSet()) {
+      xmlAccessGroup.setMaxspeed(accessGroupProperties.getMaximumSpeedKmH());
+    }
     
     accessGroupList.add(xmlAccessGroup);
   }  
@@ -291,12 +296,12 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     }
     
     /* capacity */
-    if(linkSegmentType.isCapacityPerLaneSet()) {
-      xmlLinkSegmentType.setCapacitylane(linkSegmentType.getCapacityPerLane());
+    if(linkSegmentType.isExplicitCapacityPerLaneSet()) {
+      xmlLinkSegmentType.setCapacitylane(linkSegmentType.getExplicitCapacityPerLane());
     }
     /* max density */
-    if(linkSegmentType.isMaximumDensityPerLaneSet()) {
-      xmlLinkSegmentType.setMaxdensitylane(linkSegmentType.getMaximumDensityPerLane());
+    if(linkSegmentType.isExplicitMaximumDensityPerLaneSet()) {
+      xmlLinkSegmentType.setMaxdensitylane(linkSegmentType.getExplicitMaximumDensityPerLane());
     }
     /* name */
     xmlLinkSegmentType.setName(linkSegmentType.getName());
@@ -310,7 +315,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
 
     /* only apply once per access properties since it may be referenced by multiple modes */
     Set<Mode> processedModes = new TreeSet<Mode>();
-    for(Mode accessMode : linkSegmentType.getAvailableModes()) {
+    for(Mode accessMode : linkSegmentType.getAllowedModes()) {
       if(!processedModes.contains(accessMode)) {
         AccessGroupProperties accessProperties = linkSegmentType.getAccessProperties(accessMode);
         processedModes.addAll(accessProperties.getAccessModes());

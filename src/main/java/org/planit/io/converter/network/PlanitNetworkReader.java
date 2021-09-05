@@ -360,11 +360,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         List<XMLElementAccessGroup> xmlAccessGroups = xmlLinkSegmentType.getAccess().getAccessgroup();
         for (XMLElementAccessGroup xmlAccessGroup : xmlAccessGroups) {                  
           /* mode access properties */
-          parseLinkSegmentTypeAccessProperties(xmlAccessGroup, linkSegmentType, supportedDefaultRoadModes, defaultMaxSpeedKph);                                 
+          parseLinkSegmentTypeAccessProperties(xmlAccessGroup, linkSegmentType, supportedDefaultRoadModes);                                 
         }          
       }else {
         /* all ROAD modes allowed */
-        parseLinkSegmentTypeAccessProperties(null /*results in supportedDefaultRoadModes mode access in single group*/, linkSegmentType, supportedDefaultRoadModes, defaultMaxSpeedKph);
+        parseLinkSegmentTypeAccessProperties(null /*results in supportedDefaultRoadModes mode access in single group*/, linkSegmentType, supportedDefaultRoadModes);
       }
     }
  
@@ -375,14 +375,12 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   * @param xmlAccessGroupProperties to extract information from on (TODO:ugly, helper should be removed)
   * @param linkSegmentType to register mode properties on
    * @param defaultModes to allow when no modes are specified
-  * @param defaultMaxSpeed to use
   * @throws PlanItException thrown if error
   */
- public void parseLinkSegmentTypeAccessProperties(XMLElementAccessGroup xmlAccessGroupProperties, MacroscopicLinkSegmentType linkSegmentType, final Collection<Mode> defaultModes, double defaultMaxSpeed) throws PlanItException{
+ public void parseLinkSegmentTypeAccessProperties(XMLElementAccessGroup xmlAccessGroupProperties, MacroscopicLinkSegmentType linkSegmentType, final Collection<Mode> defaultModes) throws PlanItException{
    
    /* access modes */
    Collection<Mode> accessModes = null;
-   double maxSpeed = defaultMaxSpeed;
    if(xmlAccessGroupProperties==null || xmlAccessGroupProperties.getModerefs()==null) {
      /* all default modes allowed */
      accessModes = defaultModes;
@@ -392,30 +390,33 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
      for(int index = 0 ;index < xmlModesRefArray.length;++index) {
        Mode thePlanitMode = getBySourceId(Mode.class, xmlModesRefArray[index]);
        PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%s) does not exist in PLANit parser",xmlModesRefArray[index]));
-       maxSpeed = Math.max(maxSpeed, thePlanitMode.getMaximumSpeedKmH());
        accessModes.add(thePlanitMode);
      }      
    }    
    
-   /* crit speed */
-   double critSpeed = Math.min(maxSpeed, AccessGroupProperties.DEFAULT_CRITICAL_SPEED_KMH);
-   
-   /* mode properties link segment type speed settings */
-   if(xmlAccessGroupProperties != null) {
-     
-     maxSpeed = (xmlAccessGroupProperties.getMaxspeed() == null) ? maxSpeed : xmlAccessGroupProperties.getMaxspeed();                          
-     critSpeed = (xmlAccessGroupProperties.getCritspeed() == null) ? AccessGroupProperties.DEFAULT_CRITICAL_SPEED_KMH  : xmlAccessGroupProperties.getCritspeed();
-     /* critical speed can never exceed max speed, so cap it if needed */
-     critSpeed = Math.min(maxSpeed, critSpeed);
-   }
-   
-   Collection<Mode> alreadyAllowedModes = linkSegmentType.getAvailableModes();
+   Collection<Mode> alreadyAllowedModes = linkSegmentType.getAllowedModes();
    if(!Collections.disjoint(alreadyAllowedModes, accessModes)) {
      LOGGER.warning(String.format("Access (mode) groups for link segment type %s have overlapping modes, undefined behaviour of which properties prevail for duplicate modes",linkSegmentType.getXmlId()));
+   }   
+      
+   /* mode properties link segment type speed settings */
+   AccessGroupProperties groupProperties = null;
+   if(xmlAccessGroupProperties != null) {
+     
+     if(xmlAccessGroupProperties.getMaxspeed() != null && xmlAccessGroupProperties.getCritspeed() != null) {
+       groupProperties = AccessGroupPropertiesFactory.create(xmlAccessGroupProperties.getMaxspeed(), xmlAccessGroupProperties.getCritspeed(), accessModes);
+     }else if(xmlAccessGroupProperties.getMaxspeed() != null) {
+       groupProperties = AccessGroupPropertiesFactory.create(xmlAccessGroupProperties.getMaxspeed(), accessModes);
+     }else if(xmlAccessGroupProperties.getCritspeed() != null) {
+       LOGGER.warning(String.format("IGNORE: Not allowed to only set a critical speed for an access group (link segment type %s)",linkSegmentType.getXmlId()));
+     }          
    }
    
-   /* register */
-   linkSegmentType.setAccessGroupProperties(AccessGroupPropertiesFactory.create(maxSpeed, critSpeed, accessModes));    
+   if(groupProperties==null) {
+     /* register without setting any speed information, which means they are to be derived from the mode and or links most restrictive information on-the-fly instead*/
+     groupProperties = AccessGroupPropertiesFactory.create(accessModes);   
+   }
+   linkSegmentType.setAccessGroupProperties(groupProperties);       
  }    
     
   /**

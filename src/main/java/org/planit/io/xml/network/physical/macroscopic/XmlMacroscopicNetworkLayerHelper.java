@@ -141,12 +141,10 @@ public class XmlMacroscopicNetworkLayerHelper {
     if (xmlLayerConfiguration.getLinksegmenttypes() == null) {
       /* crete entry */
       xmlLayerConfiguration.setLinksegmenttypes(new XMLElementLinkSegmentTypes());
-      /* create defautl type */
+      /* create default type */
       XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(MacroscopicLinkSegmentType.DEFAULT_XML_ID);
-      xmlLinkSegmentType.setCapacitylane(MacroscopicLinkSegmentType.DEFAULT_CAPACITY_LANE);
-      xmlLinkSegmentType.setMaxdensitylane(LinkSegment.MAXIMUM_DENSITY);
       xmlLayerConfiguration.getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
     }
   }

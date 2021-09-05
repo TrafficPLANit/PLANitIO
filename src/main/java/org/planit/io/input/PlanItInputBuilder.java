@@ -548,20 +548,26 @@ public class PlanItInputBuilder extends InputBuilderListener {
   public void onPlanitComponentEvent(PlanitComponentEvent event) throws PlanItException {
     // registered for create notifications
     if (event.getType().equals(PopulateNetworkEvent.EVENT_TYPE)) {
+      /* NETWORK */
       populateMacroscopicNetwork(((PopulateNetworkEvent)event).getNetworkToPopulate());
     }else if(event.getType().equals(PopulateZoningEvent.EVENT_TYPE)){
+      /* ZONING */
       PopulateZoningEvent zoningEvent = ((PopulateZoningEvent) event);
       populateZoning(zoningEvent.getZoningToPopulate(), zoningEvent.getParentNetwork());
     }else if(event.getType().equals(PopulateDemandsEvent.EVENT_TYPE)){
+      /* DEMANDS */
       PopulateDemandsEvent demandsEvent = ((PopulateDemandsEvent) event);
       populateDemands(demandsEvent.getDemandsToPopulate(), demandsEvent.getParentZoning(), demandsEvent.getParentNetwork());
     }else if(event.getType().equals(PopulateInitialLinkSegmentCostEvent.EVENT_TYPE)){
+      /* INITIAL COST */
       PopulateInitialLinkSegmentCostEvent initialCostEvent = ((PopulateInitialLinkSegmentCostEvent) event);
       populateInitialLinkSegmentCost(initialCostEvent.getInitialLinkSegmentCostToPopulate(), initialCostEvent.getParentNetwork(), initialCostEvent.getFileName());
     }else if(event.getType().equals(PopulateServiceNetworkEvent.EVENT_TYPE)){
+      /* SERVICE NETWORK */
       PopulateServiceNetworkEvent serviceNetworkEvent = ((PopulateServiceNetworkEvent) event);
       populateServiceNetwork(serviceNetworkEvent.getServiceNetworkToPopulate());
     }else if(event.getType().equals(PopulateRoutedServicesEvent.EVENT_TYPE)){
+      /* ROUTED SERVICES */
       PopulateRoutedServicesEvent routedServicesEvent = ((PopulateRoutedServicesEvent) event);
       populateRoutedServices(routedServicesEvent.getRoutedServicesToPopulate());
     } else {      
