@@ -8,7 +8,6 @@ import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfig
 import org.planit.cost.physical.AbstractPhysicalCost;
 import org.planit.cost.physical.BPRConfigurator;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.planit.demands.Demands;
@@ -320,8 +319,8 @@ public class PlanItIOTestRunner {
    */  
   public void registerInitialLinkSegmentCostByTimePeriod(String timePeriodXmlId, String initialCostLocation) throws PlanItException {
     TimePeriod timePeriod = demands.timePeriods.getByXmlId(timePeriodXmlId);
-    final InitialLinkSegmentCostPeriod initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
-    taConfigurator.registerInitialLinkSegmentCost(initialCost);    
+    final InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
+    taConfigurator.registerInitialLinkSegmentCost(timePeriod, initialCost.getTimePeriodCosts(timePeriod));    
   }
 
 }

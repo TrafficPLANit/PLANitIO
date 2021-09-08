@@ -1,15 +1,12 @@
 package org.planit.io.demo;
 
-import java.util.List;
 import java.util.logging.Logger;
-
 import org.planit.assignment.TrafficAssignment;
 import org.planit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.planit.cost.physical.BPRConfigurator;
 import org.planit.cost.physical.BPRLinkTravelTimeCost;
 import org.planit.cost.physical.AbstractPhysicalCost;
 import org.planit.cost.physical.initial.InitialLinkSegmentCost;
-import org.planit.cost.physical.initial.InitialLinkSegmentCostPeriod;
 import org.planit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.planit.cost.virtual.SpeedVirtualCostConfigurator;
 import org.planit.cost.virtual.AbstractVirtualCost;
@@ -119,6 +116,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       // Create a  PLANit project with all the default settings
       final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
       
+      /* parse initial costs from source without filtering on specific time period information*/
       InitialLinkSegmentCost initialLinkSegmentCost = project.createAndRegisterInitialLinkSegmentCost(
           project.getNetwork(), initialCostCSVPath);
       
@@ -127,7 +125,7 @@ public class TraditionalStaticAssignmentProjectDemos {
           (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
               TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
 
-      // register initial link segment costs for all time periods
+      // register all parsed initial link segment costs in a 1:1 fashion on the assignment
       ta.registerInitialLinkSegmentCost(initialLinkSegmentCost);
 
       project.executeAllTrafficAssignments();
@@ -154,42 +152,14 @@ public class TraditionalStaticAssignmentProjectDemos {
           simpleProject.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
       // * NEW *
-      taBuilder.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCost);
+      taBuilder.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCost.getTimePeriodCosts(theTimePeriod));
       
       simpleProject.executeAllTrafficAssignments();
         
     } catch (final Exception e) {
       // do something
     }
-  }   
-  
-  /**
-   * Setup a project with the initial costs by demands
-   */
-  public static void initialCostWithDemandsDemo() {
-    try{
-      
-      final PlanItSimpleProject simpleProject = new PlanItSimpleProject();
-      
-      // * NEW * source time periods from Demands instance and register initial costs on each one
-      List<InitialLinkSegmentCostPeriod> initialLinkSegmentCosts = 
-          simpleProject.createAndRegisterInitialLinkSegmentCost(
-              simpleProject.getNetwork(),"<insert the initial cost CSV file path here>", simpleProject.getDemands());  
-
-      TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
-          simpleProject.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
-      
-      // * NEW * register for all available time periods
-      for(InitialLinkSegmentCostPeriod initialCost : initialLinkSegmentCosts) {
-        ta.registerInitialLinkSegmentCost(initialCost.getTimePeriod(), initialCost);
-      }
-      
-      simpleProject.executeAllTrafficAssignments();
-        
-    } catch (final Exception e) {
-      // do something
-    }
-  }   
+  }     
   
   /**
    * Setup a project with the initial costs by time period and without time period
@@ -214,9 +184,9 @@ public class TraditionalStaticAssignmentProjectDemos {
       TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
           simpleProject.createAndRegisterTrafficAssignment(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       
-      // * NEW * register with and without time period
-      ta.registerInitialLinkSegmentCost(initialLinkSegmentCostNoTimePeriod);
-      ta.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCostTimePeriod);
+      // * NEW * register with and without time period using a 1:1 mapping between parsed and applied time periods
+      ta.registerInitialLinkSegmentCost(initialLinkSegmentCostNoTimePeriod.getTimePeriodAgnosticCosts());
+      ta.registerInitialLinkSegmentCost(theTimePeriod, initialLinkSegmentCostTimePeriod.getTimePeriodCosts(theTimePeriod));
       
       simpleProject.executeAllTrafficAssignments();
         
