@@ -8,7 +8,6 @@ import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.geo.PlanitJtsCrsUtils;
 import org.planit.utils.geo.PlanitJtsUtils;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.planit.utils.network.layer.physical.LinkSegment;
 import org.planit.xml.generated.LengthUnit;
 import org.planit.xml.generated.XMLElementLayerConfiguration;
 import org.planit.xml.generated.XMLElementLinkLengthType;

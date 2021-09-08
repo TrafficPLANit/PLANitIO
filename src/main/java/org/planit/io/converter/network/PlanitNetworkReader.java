@@ -345,7 +345,16 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       Double maximumDensityPcuPerKm = xmlLinkSegmentType.getMaxdensitylane();
         
       /* create and register */
-      final MacroscopicLinkSegmentType linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(name, capacityPcuPerHour, maximumDensityPcuPerKm);
+      MacroscopicLinkSegmentType linkSegmentType = null;
+      if(xmlLinkSegmentType.getCapacitylane() !=null && xmlLinkSegmentType.getMaxdensitylane()!=null) {
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(name, capacityPcuPerHour, maximumDensityPcuPerKm);
+      }else if(xmlLinkSegmentType.getCapacitylane() !=null ) {
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNewWithCapacity(name, capacityPcuPerHour);
+      }else if(xmlLinkSegmentType.getMaxdensitylane()!=null) {
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNewWithMaxDensity(name, maximumDensityPcuPerKm);
+      }else {
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(name);
+      }
       linkSegmentType.setXmlId(xmlId);
       linkSegmentType.setExternalId(externalId);
       

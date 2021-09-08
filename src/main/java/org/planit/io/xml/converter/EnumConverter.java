@@ -59,10 +59,14 @@ public interface EnumConverter {
 		switch (units) {
 		case VEH_KM:
 			return Unitsvalues.VEH_KM;
+    case PCU_KM:
+      return Unitsvalues.PCU_KM;			
 		case NONE:
 			return Unitsvalues.NONE;
 		case VEH_HOUR:
 			return Unitsvalues.VEH_H;
+    case PCU_HOUR:
+      return Unitsvalues.PCU_H;			
 		case KM_HOUR:
 			return Unitsvalues.KM_H;
 		case HOUR:
