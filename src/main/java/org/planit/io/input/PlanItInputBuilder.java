@@ -36,13 +36,13 @@ import org.planit.io.xml.util.JAXBUtils;
 import org.planit.io.xml.util.PlanitXmlJaxbParser;
 import org.planit.network.MacroscopicNetwork;
 import org.planit.network.ServiceNetwork;
-import org.planit.output.property.BaseOutputProperty;
+import org.planit.output.property.OutputProperty;
 import org.planit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.planit.output.property.LinkSegmentCostOutputProperty;
 import org.planit.output.property.LinkSegmentExternalIdOutputProperty;
 import org.planit.output.property.LinkSegmentXmlIdOutputProperty;
 import org.planit.output.property.ModeXmlIdOutputProperty;
-import org.planit.output.property.OutputProperty;
+import org.planit.output.property.OutputPropertyType;
 import org.planit.output.property.UpstreamNodeXmlIdOutputProperty;
 import org.planit.service.routed.RoutedServices;
 import org.planit.utils.exceptions.PlanItException;
@@ -225,7 +225,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if there is an error reading the file
    */
   @SuppressWarnings("incomplete-switch")
-  private OutputProperty getInitialCostLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
+  private OutputPropertyType getInitialCostLinkIdentificationMethod(final Set<String> headers) throws PlanItException {
     boolean linkSegmentXmlIdPresent = false;
     boolean linkSegmentExternalIdPresent = false;
     boolean upstreamNodeXmlIdPresent = false;
@@ -233,7 +233,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     boolean modeXmlIdPresent = false;
     boolean costPresent = false;
     for (final String header : headers) {
-      final OutputProperty outputProperty = OutputProperty.fromHeaderName(header);
+      final OutputPropertyType outputProperty = OutputPropertyType.fromHeaderName(header);
       switch (outputProperty) {
         case LINK_SEGMENT_XML_ID:
           linkSegmentXmlIdPresent = true;
@@ -258,13 +258,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanItException.throwIf(!modeXmlIdPresent, "Mode xml Id not present in initial link segment costs file");
    
     if (linkSegmentXmlIdPresent) {
-      return OutputProperty.LINK_SEGMENT_XML_ID;
+      return OutputPropertyType.LINK_SEGMENT_XML_ID;
     }
     if (linkSegmentExternalIdPresent) {
-      return OutputProperty.LINK_SEGMENT_EXTERNAL_ID;
+      return OutputPropertyType.LINK_SEGMENT_EXTERNAL_ID;
     }    
     if (upstreamNodeXmlIdPresent && downstreamNodeXmlIdPresent) {
-      return OutputProperty.UPSTREAM_NODE_XML_ID;
+      return OutputPropertyType.UPSTREAM_NODE_XML_ID;
     }
     
     throw new PlanItException("Links not correctly identified in initial link segment costs file");
@@ -428,8 +428,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Set<String> headers = parser.getHeaderMap().keySet();
       
       /* lay index by reference method */
-      final OutputProperty linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);
-      if(linkIdentificationMethod.equals(OutputProperty.UPSTREAM_NODE_XML_ID)) {
+      final OutputPropertyType linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);
+      if(linkIdentificationMethod.equals(OutputPropertyType.UPSTREAM_NODE_XML_ID)) {
         
         /* special case requiring double key */
         Map<String, Map<String, MacroscopicLinkSegment>> indexByIdentificationMethod = new HashMap<String, Map<String, MacroscopicLinkSegment>>();
@@ -467,7 +467,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
             break;          
           default:
             throw new PlanItException("Invalid Output Property "
-                + BaseOutputProperty.convertToBaseOutputProperty(linkIdentificationMethod).getName()
+                + OutputProperty.of(linkIdentificationMethod).getName()
                 + " found in header of Initial Link Segment Cost CSV file");
         }    
         /* lay index */

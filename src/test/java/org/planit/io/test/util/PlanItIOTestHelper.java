@@ -27,7 +27,7 @@ import org.planit.io.xml.util.JAXBUtils;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
-import org.planit.output.property.OutputProperty;
+import org.planit.output.property.OutputPropertyType;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.TriFunction;
@@ -72,12 +72,12 @@ public class PlanItIOTestHelper {
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
         Object innerMap = resultsMap.get(timePeriod).get(mode);
 
-        final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.FLOW);
-        final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_COST);
-        final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LENGTH);
-        final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.CALCULATED_SPEED);
-        final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.CAPACITY_PER_LANE);
-        final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.NUMBER_OF_LANES);
+        final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.FLOW);
+        final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_COST);
+        final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.LENGTH);
+        final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.CALCULATED_SPEED);
+        final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.CAPACITY_PER_LANE);
+        final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.NUMBER_OF_LANES);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.LINK);
         Object obj = getPositionKeys.apply(mode, timePeriod, iteration);
         if (obj instanceof PlanItException) {
@@ -129,18 +129,18 @@ public class PlanItIOTestHelper {
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod,?> map, OutputType outputType) throws PlanItException {
     boolean pass = true;
     int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
-    OutputProperty outputProperty = OutputProperty.PATH_STRING;
+    OutputPropertyType outputProperty = OutputPropertyType.PATH_STRING;
     if (outputType.equals(OutputType.OD)) {
       iteration--;
-      outputProperty = OutputProperty.OD_COST;
+      outputProperty = OutputPropertyType.OD_COST;
     }
     for (TimePeriod timePeriod : map.keySet()) {
       @SuppressWarnings("unchecked") Map<Mode, Map<String, Map<String, ?>>> mapPerTimePeriod = (Map<Mode, Map<String, Map<String, ?>>>) map.get(timePeriod);
       for (Mode mode : mapPerTimePeriod.keySet()) {
         Map<String, Map<String, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
         final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty);
-        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.ORIGIN_ZONE_XML_ID);
-        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputProperty.DESTINATION_ZONE_XML_ID);
+        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ORIGIN_ZONE_XML_ID);
+        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.DESTINATION_ZONE_XML_ID);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, outputType);       
         while (memoryOutputIterator.hasNext()) {
           memoryOutputIterator.next();
@@ -187,8 +187,8 @@ public class PlanItIOTestHelper {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-          final int downstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.DOWNSTREAM_NODE_XML_ID);
-          final int upstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.UPSTREAM_NODE_XML_ID);
+          final int downstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
+          final int upstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.UPSTREAM_NODE_XML_ID);
           return Pair.of(downstreamNodeXmlIdPosition, upstreamNodeXmlIdPosition);
           } catch (PlanItException e) {
             return e;
@@ -225,7 +225,7 @@ public class PlanItIOTestHelper {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
           try {
-            final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
+            final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
          return Pair.of(linkSegmentIdPosition, 0);
           } catch (PlanItException e) {
             return e;

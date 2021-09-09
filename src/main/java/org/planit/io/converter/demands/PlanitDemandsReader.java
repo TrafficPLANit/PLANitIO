@@ -487,7 +487,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       /* populate */
       populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, getSettings().getReferenceZoning().odZones);
       /* register */
-      OdDemands duplicate = demands.registerOdDemand(timePeriod, mode, odDemandMatrix);
+      OdDemands duplicate = demands.registerOdDemandPcuHour(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {
         throw new PlanItException(String.format("multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
       }

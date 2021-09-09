@@ -23,10 +23,11 @@ import org.planit.output.enums.OutputType;
 import org.planit.output.enums.PathOutputIdentificationType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.OutputFormatter;
-import org.planit.output.property.OutputProperty;
+import org.planit.output.property.OutputPropertyType;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.utils.time.TimePeriod;
+import org.planit.utils.unit.Units;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.test.TestOutputDto;
@@ -182,27 +183,31 @@ public class PlanItIOTestRunner {
          * these would not be set anymore in the original situation, but here they are, so this might cause some differences in results
          * Once verified, remove this comment
          */
-        linkOutputTypeConfiguration.addProperty(OutputProperty.MODE_ID);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_ID);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.DOWNSTREAM_NODE_LOCATION);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_ID);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.UPSTREAM_NODE_LOCATION);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.LINK_SEGMENT_ID);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.CAPACITY_PER_LANE);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.NUMBER_OF_LANES);
-        linkOutputTypeConfiguration.addProperty(OutputProperty.LENGTH);
-        linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
-        linkOutputTypeConfiguration.removeProperty(OutputProperty.MAXIMUM_SPEED);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_ID);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_ID);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_LOCATION);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_ID);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_LOCATION);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_ID);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.CAPACITY_PER_LANE);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.NUMBER_OF_LANES);
+        linkOutputTypeConfiguration.addProperty(OutputPropertyType.LENGTH);
+        linkOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
+        linkOutputTypeConfiguration.removeProperty(OutputPropertyType.MAXIMUM_SPEED);
+        
+        /* for this test we prefer to get out flows and capacities in vehicles rather than pcus (no difference in result with pcu=1, only in metadata)*/
+        linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.CAPACITY_PER_LANE, Units.VEH_HOUR);
+        linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.FLOW, Units.VEH_HOUR);
         
         /* OD OUTPUT CONFIGURATION */
         final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
         originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(OdSkimSubOutputType.NONE);
-        originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
+        originDestinationOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
 
         /* PATH OUTPUT CONFIGURATION */
         final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
         pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
-        pathOutputTypeConfiguration.addProperty(OutputProperty.RUN_ID);
+        pathOutputTypeConfiguration.addProperty(OutputPropertyType.RUN_ID);
         
       }
       

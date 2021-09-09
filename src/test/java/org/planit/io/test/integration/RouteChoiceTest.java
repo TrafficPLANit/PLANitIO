@@ -26,7 +26,7 @@ import org.planit.network.TransportLayerNetwork;
 import org.planit.output.configuration.LinkOutputTypeConfiguration;
 import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
-import org.planit.output.property.OutputProperty;
+import org.planit.output.property.OutputPropertyType;
 import org.planit.project.CustomPlanItProject;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
@@ -1683,9 +1683,9 @@ public class RouteChoiceTest {
       Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties = (
           linkOutputTypeConfiguration) -> {
         try {
-          linkOutputTypeConfiguration.removeProperty(OutputProperty.DOWNSTREAM_NODE_XML_ID);
-          linkOutputTypeConfiguration.removeProperty(OutputProperty.UPSTREAM_NODE_XML_ID);
-          linkOutputTypeConfiguration.addProperty(OutputProperty.MAXIMUM_SPEED);          
+          linkOutputTypeConfiguration.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
+          linkOutputTypeConfiguration.removeProperty(OutputPropertyType.UPSTREAM_NODE_XML_ID);
+          linkOutputTypeConfiguration.addProperty(OutputPropertyType.MAXIMUM_SPEED);          
         } catch (PlanItException e) {
           e.printStackTrace();
           LOGGER.severe(e.getMessage());

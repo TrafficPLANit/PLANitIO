@@ -27,7 +27,7 @@ import org.planit.output.enums.PathOutputIdentificationType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
 import org.planit.output.formatter.OutputFormatter;
-import org.planit.output.property.OutputProperty;
+import org.planit.output.property.OutputPropertyType;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.sdinteraction.smoothing.MSASmoothingConfigurator;
@@ -369,9 +369,9 @@ public class TraditionalStaticAssignmentProjectDemos {
           OutputType.LINK);
       
       // * NEW *
-      int idPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
-      int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.FLOW);
-      int linkSegmentCostPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_COST);
+      int idPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
+      int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.FLOW);
+      int linkSegmentCostPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_COST);
       
       // * NEW *
       while(outputIterator.hasNext()) {
@@ -439,8 +439,8 @@ public class TraditionalStaticAssignmentProjectDemos {
       PathOutputTypeConfiguration pathOutputConfiguration = (PathOutputTypeConfiguration) ta.activateOutput(OutputType.PATH);
       
       // * NEW *
-      pathOutputConfiguration.removeProperty(OutputProperty.RUN_ID);
-      pathOutputConfiguration.addProperty(OutputProperty.MODE_ID);
+      pathOutputConfiguration.removeProperty(OutputPropertyType.RUN_ID);
+      pathOutputConfiguration.addProperty(OutputPropertyType.MODE_ID);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -470,7 +470,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       
       // * NEW *
       odOutputConfiguration.activateOdSkimOutputType(OdSkimSubOutputType.COST);
-      odOutputConfiguration.removeProperty(OutputProperty.RUN_ID);
+      odOutputConfiguration.removeProperty(OutputPropertyType.RUN_ID);
 
       project.executeAllTrafficAssignments();
     } catch (final Exception e) {
@@ -577,12 +577,12 @@ public class TraditionalStaticAssignmentProjectDemos {
       // link outputs: ON + example configuration
       final LinkOutputTypeConfiguration linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) 
           ta.activateOutput(OutputType.LINK);
-      linkOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_ID);
+      linkOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_ID);
       // OD outputs: ON + example configuration
       final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration =
           (OdOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
-      originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.TIME_PERIOD_XML_ID);
-      originDestinationOutputTypeConfiguration.removeProperty(OutputProperty.RUN_ID);
+      originDestinationOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
+      originDestinationOutputTypeConfiguration.removeProperty(OutputPropertyType.RUN_ID);
       // PATH outputs: ON + example configuration
       final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) 
           ta.activateOutput(OutputType.PATH);

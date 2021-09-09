@@ -14,7 +14,7 @@ import org.planit.output.enums.OutputType;
 import org.planit.output.formatter.MemoryOutputFormatter;
 import org.planit.output.formatter.MemoryOutputIterator;
 import org.planit.output.formatter.OutputFormatter;
-import org.planit.output.property.OutputProperty;
+import org.planit.output.property.OutputPropertyType;
 import org.planit.project.CustomPlanItProject;
 import org.planit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.planit.zoning.Zoning;
@@ -150,9 +150,9 @@ public class sLtmAssignmentProjectDemos {
           OutputType.LINK);
       
       // * NEW *
-      int idPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_ID);
-      int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.FLOW);
-      int linkSegmentCostPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputProperty.LINK_SEGMENT_COST);
+      int idPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
+      int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.FLOW);
+      int linkSegmentCostPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_COST);
       
       // * NEW *
       while(outputIterator.hasNext()) {

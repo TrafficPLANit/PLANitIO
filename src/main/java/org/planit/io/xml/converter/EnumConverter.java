@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import org.planit.xml.generated.Typevalues;
 import org.planit.xml.generated.Unitsvalues;
-import org.planit.output.enums.Type;
+import org.planit.output.enums.DataType;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.unit.Units;
 
@@ -27,7 +27,7 @@ public interface EnumConverter {
 	 * @return value of generated Typevalues enumeration
 	 * @throws PlanItException thrown if a value of Type enumeration is not included in the XSD enumeration definition
 	 */
-	public static Typevalues convertFromPlanItToXmlGeneratedType(Type type) throws PlanItException {
+	public static Typevalues convertFromPlanItToXmlGeneratedType(DataType type) throws PlanItException {
 		switch (type) {
 		case DOUBLE:
 			return Typevalues.DOUBLE;

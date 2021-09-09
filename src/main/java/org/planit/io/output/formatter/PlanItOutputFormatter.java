@@ -40,7 +40,7 @@ import org.planit.output.enums.SubOutputTypeEnum;
 import org.planit.output.formatter.CsvFileOutputFormatter;
 import org.planit.output.formatter.CsvTextFileOutputFormatter;
 import org.planit.output.formatter.XmlTextFileOutputFormatter;
-import org.planit.output.property.BaseOutputProperty;
+import org.planit.output.property.OutputProperty;
 import org.planit.utils.time.TimePeriod;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.id.IdGroupingToken;
@@ -186,13 +186,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param outputProperties sorted set of output properties to be included in the output
    * @return generated Columns object
    */
-  private XMLElementColumns getGeneratedColumnsFromProperties(final SortedSet<BaseOutputProperty> outputProperties) throws PlanItException {
+  private XMLElementColumns getGeneratedColumnsFromProperties(final SortedSet<OutputProperty> outputProperties) throws PlanItException {
     XMLElementColumns generatedColumns = new XMLElementColumns();
-    for (BaseOutputProperty outputProperty : outputProperties) {
+    for (OutputProperty outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
       generatedColumn.setName(outputProperty.getName());
-      generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty.getUnits()));
-      generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getType()));
+      generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty.getDefaultUnits()));
+      generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
       generatedColumns.getColumn().add(generatedColumn);
     }
     return generatedColumns;
@@ -262,7 +262,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
       XMLElementOutputConfiguration outputconfiguration = getXmlOutputConfiguration(outputAdapter, timePeriod);
       metadata.get(currentOutputType).setOutputconfiguration(outputconfiguration);
-      SortedSet<BaseOutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
+      SortedSet<OutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
       metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
