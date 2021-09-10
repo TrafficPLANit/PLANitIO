@@ -27,7 +27,7 @@ import org.planit.output.property.OutputPropertyType;
 import org.planit.project.CustomPlanItProject;
 import org.planit.sdinteraction.smoothing.MSASmoothing;
 import org.planit.utils.time.TimePeriod;
-import org.planit.utils.unit.Units;
+import org.planit.utils.unit.Unit;
 import org.planit.utils.exceptions.PlanItException;
 import org.planit.utils.functionalinterface.TriConsumer;
 import org.planit.utils.test.TestOutputDto;
@@ -196,8 +196,8 @@ public class PlanItIOTestRunner {
         linkOutputTypeConfiguration.removeProperty(OutputPropertyType.MAXIMUM_SPEED);
         
         /* for this test we prefer to get out flows and capacities in vehicles rather than pcus (no difference in result with pcu=1, only in metadata)*/
-        linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.CAPACITY_PER_LANE, Units.VEH_HOUR);
-        linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.FLOW, Units.VEH_HOUR);
+        linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.CAPACITY_PER_LANE, Unit.VEH_HOUR);
+        linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.FLOW, Unit.VEH_HOUR);
         
         /* OD OUTPUT CONFIGURATION */
         final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);

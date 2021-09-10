@@ -1590,12 +1590,12 @@ public class RouteChoiceTest {
       linkSegmentByNodeResults.get(timePeriod).get(mode2).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       linkSegmentByNodeResults.get(timePeriod).get(mode2).put(node4XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       linkSegmentByNodeResults.get(timePeriod).get(mode2).put(node12XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node1XmlId).put(node11XmlId, new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732, 3600.0, 1.0, 15.705194));
-      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332, 1200.0, 2.0, 32.8228128));
-      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639, 1200.0, 1.0, 16.296231));
-      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node4XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332, 1200.0, 2.0, 32.8228128));
-      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node4XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639, 1200.0, 1.0, 16.296231));
-      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node12XmlId).put(node4XmlId, new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732, 3600.0, 1.0, 15.705194));
+      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node1XmlId).put(node11XmlId, new LinkSegmentExpectedResultsDto(11, 1, 600, 0.0636732, 3600.0, 1.0, 15.705194));
+      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 434.4, 0.0609332, 1200.0, 2.0, 32.8228128));
+      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node3XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 3, 165.6, 0.0613639, 1200.0, 1.0, 16.296231));
+      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node4XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 4, 434.4, 0.0609332, 1200.0, 2.0, 32.8228128));
+      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node4XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 165.6, 0.0613639, 1200.0, 1.0, 16.296231));
+      linkSegmentByNodeResults.get(timePeriod).get(mode2).get(node12XmlId).put(node4XmlId, new LinkSegmentExpectedResultsDto(4, 12, 600, 0.0636732, 3600.0, 1.0, 15.705194));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, linkSegmentByNodeResults);
       
       pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
@@ -1727,17 +1727,17 @@ public class RouteChoiceTest {
       linkSegmentByIdResults.get(timePeriod).get(mode1).put(linkSegment6Id, new LinkSegmentExpectedResultsDto(3, 4, 1068, 0.0360526,
           1200.0, 1.0, 27.7372551));
       linkSegmentByIdResults.get(timePeriod).put(mode2, new TreeMap<Long, LinkSegmentExpectedResultsDto>());
-      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment0Id, new LinkSegmentExpectedResultsDto(11, 1, 1500, 0.0636732,
+      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment0Id, new LinkSegmentExpectedResultsDto(11, 1, 600, 0.0636732,
           3600.0, 1.0, 15.705194));
-      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment2Id, new LinkSegmentExpectedResultsDto(4, 12, 1500, 0.0636732,
+      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment2Id, new LinkSegmentExpectedResultsDto(4, 12, 600, 0.0636732,
           3600.0, 1.0, 15.705194));
-      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment3Id, new LinkSegmentExpectedResultsDto(1, 2, 1086, 0.0609332,
+      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment3Id, new LinkSegmentExpectedResultsDto(1, 2, 434.4, 0.0609332,
           1200.0, 2.0, 32.8228128));
-      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment4Id, new LinkSegmentExpectedResultsDto(2, 4, 1086, 0.0609332,
+      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment4Id, new LinkSegmentExpectedResultsDto(2, 4, 434.4, 0.0609332,
           1200.0, 2.0, 32.8228128));
-      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment5Id, new LinkSegmentExpectedResultsDto(1, 3, 414, 0.0613639,
+      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment5Id, new LinkSegmentExpectedResultsDto(1, 3, 165.6, 0.0613639,
           1200.0, 1.0, 16.296231));
-      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment6Id, new LinkSegmentExpectedResultsDto(3, 4, 414, 0.0613639,
+      linkSegmentByIdResults.get(timePeriod).get(mode2).put(linkSegment6Id, new LinkSegmentExpectedResultsDto(3, 4, 165.6, 0.0613639,
           1200.0, 1.0, 16.296231));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingLinkSegmentId(memoryOutputFormatter, maxIterations,
           linkSegmentByIdResults);

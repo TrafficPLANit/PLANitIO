@@ -52,6 +52,7 @@ import org.planit.utils.misc.LoggingUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.layer.MacroscopicNetworkLayer;
 import org.planit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.planit.utils.time.TimePeriod;
 import org.planit.utils.wrapper.MapWrapper;
 import org.planit.utils.wrapper.MapWrapperImpl;
 
@@ -277,13 +278,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param initialLinkSegmentCost the InitialLinkSegmentCost object to store the cost value
    * @param record the record in the CSV input file to get the data value from
    * @param linkSegment the current link segment
+   * @param timePeriod to use (may be null)
    * @throws PlanItException thrown if error
    */
   private void setInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
-      final MacroscopicLinkSegment linkSegment) throws PlanItException {
+      final MacroscopicLinkSegment linkSegment, final TimePeriod timePeriod) throws PlanItException {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
+
+    /* mode check */
     Mode matchMode = null;
+    //TODO: slow! create mapping by source id one-off and use that instead
     for(Mode  mode : linkSegment.getAllowedModes()) {
       if(mode.getXmlId().equals(modeXmlId)) {
         matchMode = mode;
@@ -293,8 +298,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
     if(matchMode == null) {
      throw new PlanItException("mode xml id not suported by link segment used for initial link segment cost"); 
     }
+    
     final double cost = Double.parseDouble(record.get(LinkSegmentCostOutputProperty.NAME));
-    initialLinkSegmentCost.setSegmentCost(matchMode, linkSegment, cost);
+    
+    if(timePeriod==null) {
+      initialLinkSegmentCost.setSegmentCost(matchMode, linkSegment, cost);
+    }else {
+      initialLinkSegmentCost.setSegmentCost(timePeriod, matchMode, linkSegment, cost);
+    }
   }         
   
   /**
@@ -409,13 +420,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
   /**
    * Populate the initial link segment cost from a CSV file
    *
-   * @param initialLinkSegmentCost InitialLinkSegmentCost object to be populated
-   * @param network created network object
-   * @param fileName CSV file containing the initial link segment cost values
+   * @param initialCostEvent to extract context from to populate its component that it carries
    * @throws PlanItException thrown if error
    */
-  protected void populateInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final MacroscopicNetwork network, final String fileName) throws PlanItException {
+  protected void populateInitialLinkSegmentCost(final PopulateInitialLinkSegmentCostEvent initialCostEvent) throws PlanItException {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Initial Link Segment Costs");
+    
+    MacroscopicNetwork network = initialCostEvent.getParentNetwork();
+    String fileName = initialCostEvent.getFileName();
     
     /* verify */
     PlanItException.throwIfNull(network,"parent network for initial link segment cost is null");
@@ -427,6 +439,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       final Set<String> headers = parser.getHeaderMap().keySet();
       
+      /* populate this */
+      InitialLinkSegmentCost initialLinkSegmentCost = initialCostEvent.getInitialLinkSegmentCostToPopulate();
+
       /* lay index by reference method */
       final OutputPropertyType linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);
       if(linkIdentificationMethod.equals(OutputPropertyType.UPSTREAM_NODE_XML_ID)) {
@@ -445,7 +460,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         for (final CSVRecord record : parser) {
           MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(record.get(DownstreamNodeXmlIdOutputProperty.NAME));         
           PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
-          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
+          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
         }
         
       }else {
@@ -478,8 +493,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
         /* parse */
         for (final CSVRecord record : parser) {
           MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(identificationColumnName));          
-          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
-          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment);
+          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());
+          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());          
         }
       }   
       in.close();
@@ -561,7 +576,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }else if(event.getType().equals(PopulateInitialLinkSegmentCostEvent.EVENT_TYPE)){
       /* INITIAL COST */
       PopulateInitialLinkSegmentCostEvent initialCostEvent = ((PopulateInitialLinkSegmentCostEvent) event);
-      populateInitialLinkSegmentCost(initialCostEvent.getInitialLinkSegmentCostToPopulate(), initialCostEvent.getParentNetwork(), initialCostEvent.getFileName());
+      populateInitialLinkSegmentCost(initialCostEvent);
     }else if(event.getType().equals(PopulateServiceNetworkEvent.EVENT_TYPE)){
       /* SERVICE NETWORK */
       PopulateServiceNetworkEvent serviceNetworkEvent = ((PopulateServiceNetworkEvent) event);

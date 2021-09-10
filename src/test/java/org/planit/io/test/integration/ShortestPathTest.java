@@ -163,7 +163,7 @@ public class ShortestPathTest {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       /* two initial costs, second one is the one that should be used in the end */
-      runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv");
+      //runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs.csv");
       runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\basicShortestPathAlgorithm\\xml\\AtoB\\initial_link_segment_costs1.csv");
       runner.setupAndExecuteDefaultAssignment();       
       

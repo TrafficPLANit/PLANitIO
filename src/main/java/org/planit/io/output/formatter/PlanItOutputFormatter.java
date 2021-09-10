@@ -191,7 +191,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     for (OutputProperty outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
       generatedColumn.setName(outputProperty.getName());
-      generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty.getDefaultUnits()));
+      generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
       generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
       generatedColumns.getColumn().add(generatedColumn);
     }

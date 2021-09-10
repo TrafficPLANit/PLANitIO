@@ -5,8 +5,9 @@ import java.util.logging.Logger;
 import org.planit.xml.generated.Typevalues;
 import org.planit.xml.generated.Unitsvalues;
 import org.planit.output.enums.DataType;
+import org.planit.output.property.OutputProperty;
 import org.planit.utils.exceptions.PlanItException;
-import org.planit.utils.unit.Units;
+import org.planit.utils.unit.Unit;
 
 /**
  * Utility methods to convert enumerations from the PLANit org.planit.output.enums package into enumerations generated from the output XSD file
@@ -51,32 +52,36 @@ public interface EnumConverter {
 	/**
 	 * Convert values from Units enumeration in PLANit project to generated Unitsvalues enumeration
 	 * 
-	 * @param units value of Units enumeration
+	 * @param outputProperty value of Units enumeration
 	 * @return value of generated Unitsvalues enumeration
 	 * @throws PlanItException thrown if a value of Units enumeration is not included in the XSD enumeration definition
 	 */
-	public static Unitsvalues convertFromPlanItToXmlGeneratedUnits(Units units) throws PlanItException {
-		switch (units) {
-		case VEH_KM:
+	public static Unitsvalues convertFromPlanItToXmlGeneratedUnits(OutputProperty outputProperty) throws PlanItException {
+		Unit outputPropertyUnit = outputProperty.getDefaultUnit();
+	  if(outputProperty.supportsUnitOverride() && outputProperty.isUnitOverride()) {
+	    outputPropertyUnit = outputProperty.getOverrideUnit();
+		}
+	  
+	  if(outputPropertyUnit.equals(Unit.VEH_KM)){
 			return Unitsvalues.VEH_KM;
-    case PCU_KM:
-      return Unitsvalues.PCU_KM;			
-		case NONE:
+		}else if(outputPropertyUnit.equals(Unit.PCU_KM)){
+      return Unitsvalues.PCU_KM;	
+    }else if(outputPropertyUnit.equals(Unit.NONE)){
 			return Unitsvalues.NONE;
-		case VEH_HOUR:
+    }else if(outputPropertyUnit.equals(Unit.VEH_HOUR)){
 			return Unitsvalues.VEH_H;
-    case PCU_HOUR:
+    }else if(outputPropertyUnit.equals(Unit.PCU_HOUR)) {
       return Unitsvalues.PCU_H;			
-		case KM_HOUR:
+    }else if(outputPropertyUnit.equals(Unit.KM_HOUR)) {
 			return Unitsvalues.KM_H;
-		case HOUR:
+    }else if(outputPropertyUnit.equals(Unit.HOUR)) {
 			return Unitsvalues.H;
-		case KM:
+    }else if(outputPropertyUnit.equals(Unit.KM)) {
 			return Unitsvalues.KM;
-		case SRS:
+    }else if(outputPropertyUnit.equals(Unit.SRS)) {
 			return Unitsvalues.SRS;
-		default:
-      throw new PlanItException("Units type " + units.value() + " has not been defined in the unitsvalues simple type in the output XSD file.");
+    }else{
+      throw new PlanItException("Units type " + outputProperty.toString() + " has not been defined in the unitsvalues simple type in the output XSD file.");
 		}
 	}
 

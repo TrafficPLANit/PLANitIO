@@ -5,7 +5,7 @@ import org.planit.utils.mode.MotorisationModeType;
 import org.planit.utils.mode.TrackModeType;
 import org.planit.utils.mode.UseOfModeType;
 import org.planit.utils.mode.VehicularModeType;
-import org.planit.utils.unit.Units;
+import org.planit.utils.unit.Unit;
 import org.planit.xml.generated.MotorisationType;
 import org.planit.xml.generated.TimeUnit;
 import org.planit.xml.generated.TrackType;
@@ -173,15 +173,15 @@ public class EnumConversionUtil {
    * @return result
    * @throws PlanItException thrown if error
    */
-  public static Units xmlToPlanit(final TimeUnit xmlTimeUnitType) throws PlanItException {
+  public static org.planit.utils.unit.TimeUnit xmlToPlanit(final TimeUnit xmlTimeUnitType) throws PlanItException {
     
     switch (xmlTimeUnitType) {
     case H:
-      return Units.HOUR;
+      return Unit.HOUR;
     case MIN:
-      return Units.MINUTE;
+      return Unit.MINUTE;
     case S:
-      return Units.SECOND;       
+      return Unit.SECOND;       
     default:
       throw new PlanItException(String.format("mapping from XML TimeUnit %s to PLANit Units type unavailable",xmlTimeUnitType.toString()));
     }
@@ -193,15 +193,14 @@ public class EnumConversionUtil {
    * @return result
    * @throws PlanItException thrown if error
    */  
-  public static TimeUnit planitToXml(Units planitTimeUnit) throws PlanItException {
-    switch (planitTimeUnit) {
-    case HOUR:
+  public static TimeUnit planitToXml(Unit planitTimeUnit) throws PlanItException {
+    if(planitTimeUnit.equals(Unit.HOUR)) {      
       return TimeUnit.H;
-    case MINUTE:
+    }else if(planitTimeUnit.equals(Unit.MINUTE)){
       return TimeUnit.MIN;
-    case SECOND:
+    }else if(planitTimeUnit.equals(Unit.SECOND)) {
       return TimeUnit.S;    
-    default:
+    }else{
       throw new PlanItException(String.format("mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
     }
   }

@@ -29,8 +29,7 @@ import org.planit.utils.misc.StringUtils;
 import org.planit.utils.mode.Mode;
 import org.planit.utils.network.layer.ServiceNetworkLayer;
 import org.planit.utils.network.layer.service.ServiceLegSegment;
-import org.planit.utils.unit.UnitUtils;
-import org.planit.utils.unit.Units;
+import org.planit.utils.unit.Unit;
 import org.planit.xml.generated.TimeUnit;
 import org.planit.xml.generated.XMLElementDepartures;
 import org.planit.xml.generated.XMLElementRelativeTimings;
@@ -211,7 +210,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     /* unit of frequency */
     TimeUnit xmlTimeUnit = xmlFrequency.getUnit();    
     PlanItException.throwIfNull(xmlTimeUnit,"Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
-    Units xmlFromUnit = EnumConversionUtil.xmlToPlanit(xmlTimeUnit);
+    org.planit.utils.unit.TimeUnit planitFrequencyTimeUnit = EnumConversionUtil.xmlToPlanit(xmlTimeUnit);
     
     /* XML frequency */
     double xmlNonNormalisedFrequency = xmlFrequency.getValue();
@@ -221,7 +220,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     }
     
     /* apply conversion in opposite direction since frequency is the inverse of a "normal" time value, e.g. 1 per hour, should become 1/3600 per second and not 3600 */ 
-    double frequencyPerHour = UnitUtils.convert(Units.HOUR, xmlFromUnit, xmlNonNormalisedFrequency);
+    double frequencyPerHour = Unit.HOUR.convertTo(planitFrequencyTimeUnit, xmlNonNormalisedFrequency);
     
     /* frequency */
     routedTrip.setFrequencyPerHour(frequencyPerHour);

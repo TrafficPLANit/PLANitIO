@@ -484,7 +484,7 @@ Test that PlanItProject reads in the values of one initial costs file.
 
 ![alt text](./images/Diagram_for_Basic_Test_Cases.jpg "Basic Network")
 
-- This test has a demand of 1 unit, with Node A in the diagram being the origin.  It calcuates the lowest cost path to Node B.  
+- This test has a demand of 1 unit, with Node A in the diagram being the origin.  It calculates the lowest cost path to Node B.  
 - It can be found from hand calculation that the lowest cost path has a total cost of 85. 
 
 ***Location:***
@@ -1173,7 +1173,7 @@ The travel demand from 1 to 2 is set to:-
 
 - Simulation time period is 1 h.
 
-The result after 500 iterations using regular MSA smoothing yield the following (mode specific) link flow rate:
+The result after 500 iterations using regular MSA smoothing yield the following  link flow rates in pcu/hs. In the test we write truck volumes in veh/h, so the truck flows are converted and lower, namely flow/2.5 resulting in 600 trucks/h and a split of 165.6 and 434.4:
 
 |Car Flows|Truck Flows|
 |-------------------------|-------------------------|
