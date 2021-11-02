@@ -86,7 +86,7 @@ public class InitialCostTest {
         double cost = Double.parseDouble(record.get(costHeader));
         String linkSegmentXmlId = record.get(linkSegmentXmlIdHeader);
         MacroscopicLinkSegment linkSegment = network.getLayerByMode(mode).getLinkSegments().getByXmlId(linkSegmentXmlId);
-        assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
+        assertEquals(cost, initialCost.getGeneralisedCost(mode, linkSegment), 0.0001);
       }
       in.close();
     } catch (final Exception e) {
@@ -128,7 +128,7 @@ public class InitialCostTest {
         Node startNode =  network.getLayerByMode(mode).getNodes().getByXmlId(upstreamNodeXmlId);
         Node endNode = network.getLayerByMode(mode).getNodes().getByXmlId(downstreamNodeXmlId);
         final MacroscopicLinkSegment linkSegment = startNode.getLinkSegment(endNode);
-        assertEquals(cost, initialCost.getSegmentCost(mode, linkSegment), 0.0001);
+        assertEquals(cost, initialCost.getGeneralisedCost(mode, linkSegment), 0.0001);
       }
       in.close();
     } catch (final Exception e) {
