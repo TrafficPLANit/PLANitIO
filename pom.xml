@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
   	
 	<parent>
-    <groupId>org.planit.parentpom</groupId>
+    <groupId>org.goplanit.parentpom</groupId>
     <artifactId>planit-parentpom</artifactId>
 		<version>0.2.1a1</version>
 	</parent>
 
-	<groupId>org.planit.io</groupId>
+	<groupId>org.goplanit.io</groupId>
 	<artifactId>planit-io</artifactId>
 	<description>PlanIt Code for default input and output</description>
 	<packaging>jar</packaging>
@@ -31,19 +31,19 @@
 
 		<!-- version inherited from parent -->
 		<dependency>
-			<groupId>org.planit.utils</groupId>
+			<groupId>org.goplanit.utils</groupId>
 			<artifactId>planit-utils</artifactId>
 		</dependency>
 
 		<!-- version inherited from parent -->
 		<dependency>
-			<groupId>org.planit</groupId>
+			<groupId>org.goplanit</groupId>
 			<artifactId>planit-core</artifactId>
 		</dependency>
 	
 		<!-- version inherited from parent -->
 		<dependency>
-			<groupId>org.planit.xml</groupId>
+			<groupId>org.goplanit.xml</groupId>
 			<artifactId>planit-xmlgenerator</artifactId>
 		</dependency>		
 
