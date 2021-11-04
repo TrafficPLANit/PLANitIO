@@ -85,9 +85,9 @@
 								externalid="some_external_ref_opp">
 								<schedule>
 									<departures>
-										<departure id="1" time="08:00:00" />
-										<departure id="2" time="08:50:00" />
-										<departure id="3" time="09:30:00" />
+										<departure id="dep1" time="08:00:00" />
+										<departure id="dep2" time="08:50:00" />
+										<departure id="dep3" time="09:30:00" />
 									</departures>
 									<reltimings>
 										<leg lsref="ls2" duration="00:03:00" dwelltime="00:02:00" />

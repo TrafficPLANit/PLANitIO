@@ -115,23 +115,26 @@ public class RoutedServicesTest {
       assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLastLegSegment()));
       assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLegSegment(0)));
       
-      assertNotNull(line4TripInfo.getScheduleBasedTrips());
-      RoutedTripsSchedule line4ScheduledTrips = line4TripInfo.getScheduleBasedTrips();
-      assertEquals(line4ScheduledTrips.size(),1);
-      assertNotNull(line4ScheduledTrips.getFirst());
-      RoutedTripSchedule scheduleEntry = line4ScheduledTrips.getFirst();
+      RoutedService line4OppService = busServices.findFirst( service -> service.getXmlId().equals("line_4_opp"));
+      RoutedServiceTripInfo line4OppTripInfo = line4OppService.getTripInfo();
+      assertNotNull(line4OppTripInfo.getScheduleBasedTrips());
+      RoutedTripsSchedule line4OppScheduledTrips = line4OppTripInfo.getScheduleBasedTrips();
+      assertEquals(line4OppScheduledTrips.size(),1);
+      assertNotNull(line4OppScheduledTrips.getFirst());
+      RoutedTripSchedule scheduleEntry = line4OppScheduledTrips.getFirst();
       assertNotNull(scheduleEntry.getDepartures());
       RoutedTripDepartures scheduleDepartures = scheduleEntry.getDepartures();
-      assertEquals(scheduleDepartures.size(),2);
+      assertEquals(scheduleDepartures.size(),3);
       assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep1")));
       assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep2")));
+      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep3")));
       assertEquals(scheduleEntry.getRelativeLegTimingsSize(),1);
       assertNotNull(scheduleEntry.getRelativeLegTiming(0));
       RelativeLegTiming relTiming = scheduleEntry.getRelativeLegTiming(0);
       assertEquals(relTiming.getDuration(),LocalTime.of(0, 3));
-      assertEquals(relTiming.getDwellTime(),LocalTime.of(0, 1));
+      assertEquals(relTiming.getDwellTime(),LocalTime.of(0, 2));
       assertNotNull(relTiming.getParentLegSegment());
-      assertEquals(relTiming.getParentLegSegment().getXmlId(),"ls1");
+      assertEquals(relTiming.getParentLegSegment().getXmlId(),"ls2");
 
       
     }catch(Exception e){
