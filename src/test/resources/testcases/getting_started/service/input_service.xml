@@ -67,20 +67,7 @@
 						<namedescription>city to beach</namedescription>
 						<servicedescription>bus line running from the city to the beach directly</servicedescription>
 						<trips>
-							<!-- in this example we have both frequency based trips and some additional 
-								explicitly scheduled trips -->
-							<trip id="scheduled_trips_line4"
-								externalid="some_external_ref">
-								<schedule>
-									<departures>
-										<departure id="dep1" time="07:00:00" />
-										<departure id="dep2" time="09:50:00" />
-									</departures>
-									<reltimings dwelltime="00:30:00">
-										<leg lsref="ls1" duration="00:03:00" dwelltime="00:01:00" />
-									</reltimings>
-								</schedule>
-							</trip>
+							<!-- in this example we frequency based trips -->
 							<trip id="frequency_based_trips_line_4"
 								externalid="some_external_ref">
 								<frequency lsrefs="ls1" unit="h">3</frequency>
@@ -91,8 +78,7 @@
 					<service id="line_4_opp">
 						<name>4</name>
 						<namedescription>beach to city</namedescription>
-						<servicedescription>bus line running from the beach to the city
-							directly</servicedescription>
+						<servicedescription>bus line running from the beach to the city directly</servicedescription>
 						<trips>
 							<!-- in this example we have only explicitly scheduled trips -->
 							<trip id="scheduled_trips_line4_opp"
