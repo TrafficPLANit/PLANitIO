@@ -80,7 +80,7 @@ public class PlanitRoutedServicesReaderFactory {
    * 
    * @param inputDirectory to use (directory only, find first compatible file)
    * @param xmlFileExtension to consider
-   * @param serviceNetwork to populate
+   * @param routedServices to populate
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final String inputDirectory, final String xmlFileExtension, final RoutedServices routedServices) {

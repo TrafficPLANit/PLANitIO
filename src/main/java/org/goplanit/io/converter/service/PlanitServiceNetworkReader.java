@@ -312,7 +312,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @param settings to use
    * @throws PlanItException  thrown if error
    */
-  protected PlanitServiceNetworkReader(IdGroupingToken idToken, PlanitServiceNetworkReaderSettings settings) throws PlanItException{
+  protected PlanitServiceNetworkReader(final IdGroupingToken idToken, final PlanitServiceNetworkReaderSettings settings) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
     this.settings = settings;
     this.serviceNetwork = new ServiceNetwork(idToken, settings.getParentNetwork());
@@ -321,10 +321,10 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
   /** Constructor where settings and service network are directly provided
    * 
    * @param settings to use
-   * @param network to populate
+   * @param serviceNetwork to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitServiceNetworkReader(PlanitServiceNetworkReaderSettings settings, ServiceNetwork serviceNetwork) throws PlanItException{
+  protected PlanitServiceNetworkReader(final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
     this.settings = settings;
     this.serviceNetwork = serviceNetwork;
@@ -339,7 +339,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @param serviceNetwork to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitServiceNetworkReader(XMLElementServiceNetwork populatedXmlRawServiceNetwork, ServiceNetwork serviceNetwork) throws PlanItException{
+  protected PlanitServiceNetworkReader(final XMLElementServiceNetwork populatedXmlRawServiceNetwork, final ServiceNetwork serviceNetwork) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(populatedXmlRawServiceNetwork);
     this.settings = new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork());
     this.serviceNetwork = serviceNetwork;

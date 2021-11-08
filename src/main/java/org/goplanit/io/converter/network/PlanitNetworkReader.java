@@ -431,10 +431,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   /**
    * Create and register nodes on the network
    * 
-   * return nodesByExternalIdToPopulate map for reference
    * @param xmlLayer to extract from
    * @param networkLayer to populate
-   * @return parsed nodes
    * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
   public void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) throws PlanItException {  

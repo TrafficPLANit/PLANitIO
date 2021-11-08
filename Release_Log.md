@@ -2,6 +2,20 @@
 
 PLANitIO  Releases
 
+## 0.3.0
+
+* refactored tests so we have a runner class that wraps the assignment and a helper class for the csv comparisons #14
+* update default mode to car and use factory method in PLANit + update xsd so this can be persisted as well #8
+* add support for parsing/writing transferzonegroups #16
+* network writer does not persist crs properly. Should store epsg code, but stores name instead. this has been fixed #19
+* coordinate reference system on zoning XML element is never parsed nor is content converted to network CRS. this has been fixed #12
+* added tests for validating the correctness of reader/writer of intermodal component of zoning #15
+* implemented intermodal writer to support direct persistence of both network and (transfer)zoning analogous to intermodal reader #18
+* updated artifact id to conform with how this generally is setup, i.e. <application>-<subrepo> #21
+* parsing of initial costs is unnecessarily slow. this has been improved #5
+* add service network that can be defined on top of a physical network to represent service legs and service nodes (planit/#62)
+* update packages to conform to new domain org.goplanit.* #23
+
 ## 0.2.0
 
 * add LICENSE.TXT to each repository so it is clearly licensed (planit/#33)
