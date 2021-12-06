@@ -20,10 +20,8 @@ import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.utils.network.layer.TransportLayer;
 import org.goplanit.utils.zoning.Connectoid;
 import org.goplanit.utils.zoning.ConnectoidType;
-import org.goplanit.utils.zoning.DirectedConnectoid;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.TransferZoneType;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
 import org.goplanit.zoning.Zoning;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -120,13 +118,13 @@ public class IntermodalTest {
       assertEquals(zoning.getNumberOfCentroids(),5); /* defaults should have been created */
       assertEquals(zoning.getNumberOfConnectoids(),5); /* one per zone + one transfer connectoid per node */
       
-      for(UndirectedConnectoid odConnectoid : zoning.odConnectoids) {
+      for(var odConnectoid : zoning.getOdConnectoids()) {
         assertEquals(odConnectoid.getAccessZones().size(),1);
         assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.CAR)),true);
         assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.BUS)),true);
         assertEquals(odConnectoid.getLengthKm(odConnectoid.getFirstAccessZone()).get(),1,Precision.EPSILON_6);
       }
-      for(DirectedConnectoid transferConnectoid : zoning.transferConnectoids) {      
+      for(var transferConnectoid : zoning.getTransferConnectoids()) {      
         assertEquals(transferConnectoid.getAccessZones().size(),1);
         assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.CAR)),false);
         assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.BUS)),true);

@@ -69,7 +69,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   private final CoordinateReferenceSystem sourceCrs;
   
   /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
-  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<Zone,List<Connectoid>>();
+  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
   
   /** settings to use */
   private final PlanitZoningWriterSettings settings;
@@ -123,14 +123,14 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param zoning to base mapping on
    */
   private void createZoneToConnectoidIndices(final Zoning zoning) {
-    for(Connectoid connectoid : zoning.odConnectoids) {
-      for(Zone zone : connectoid.getAccessZones()) {
+    for(var connectoid : zoning.getOdConnectoids()) {
+      for(var zone : connectoid.getAccessZones()) {
         zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<Connectoid>(1));
         zoneToConnectoidMap.get(zone).add(connectoid);
       }
     }
-    for(Connectoid connectoid : zoning.transferConnectoids) {
-      for(Zone zone : connectoid.getAccessZones()) {
+    for(var connectoid : zoning.getTransferConnectoids()) {
+      for(var zone : connectoid.getAccessZones()) {
         zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<Connectoid>(1));
         zoneToConnectoidMap.get(zone).add(connectoid);
       }
@@ -351,7 +351,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @throws PlanItException thrown if error
    */
   private void populateXmlTransferZoneAccess(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) throws PlanItException {
-    if(zoning== null || zoning.transferConnectoids.isEmpty()) {
+    if(zoning== null || zoning.getTransferConnectoids().isEmpty()) {
       LOGGER.severe("transfer zone access should not be persisted when no transfer connectoids exist on the zoning");
       return;
     }
@@ -361,8 +361,8 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }
     
     /* transfer zone access */   
-    XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlIntermodal.getValue().getTransferzoneaccess();
-    for(DirectedConnectoid transferConnectoid : zoning.transferConnectoids) {
+    var xmlTransferZoneAccess = xmlIntermodal.getValue().getTransferzoneaccess();
+    for(var transferConnectoid : zoning.getTransferConnectoids()) {
       
       if(!transferConnectoid.hasAccessZones()) {
         LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) is dangling", transferConnectoid.getXmlId(), transferConnectoid.getId()));
@@ -374,7 +374,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
       }
       
       /* populate od connectoid */
-      XMLElementTransferConnectoid xmlTransferConnectoidBase = new XMLElementTransferConnectoid();              
+      var xmlTransferConnectoidBase = new XMLElementTransferConnectoid();              
       populateXmlTransferConnectoid(xmlTransferConnectoidBase, transferConnectoid);
                      
       /* register */        
@@ -389,7 +389,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param xmlIntermodal to use
    */  
   private void populateXmlTransferZones(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) {
-    if(zoning==null || zoning.transferConnectoids.isEmpty()) {
+    if(zoning==null || zoning.getTransferConnectoids().isEmpty()) {
       LOGGER.severe("transfer zones should not be persisted when no transfer zones exist on the zoning");
       return;
     }
@@ -399,8 +399,8 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }
     
     /* transfer zones */
-    XMLElementTransferZones xmlTransferZones = xmlIntermodal.getValue().getTransferzones();
-    for(TransferZone transferZone : zoning.transferZones) {
+    var xmlTransferZones = xmlIntermodal.getValue().getTransferzones();
+    for(var transferZone : zoning.transferZones) {
       
       /* transfer zone */
       populateXmlTransferZone(transferZone, zoning, xmlTransferZones);
@@ -484,7 +484,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
           odConnectoid.getXmlId(), odConnectoid.getId(), accessZone.getXmlId(), accessZone.getId()));
     }
     
-    Odconnectoid xmlOdConnectoid = new Odconnectoid();
+    var xmlOdConnectoid = new Odconnectoid();
     xmlConnectoid.setValue(xmlOdConnectoid);    
     
     /* populate extension pertaining to od connectoid */       
@@ -506,7 +506,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
       return;
     }
     
-    org.goplanit.xml.generated.XMLElementZones.Zone xmlOdZone = new XMLElementZones.Zone();
+    var xmlOdZone = new XMLElementZones.Zone();
     xmlRawZoning.getZones().getZone().add(xmlOdZone);
     
     /* (xml) id */
@@ -536,21 +536,21 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }
     
     /* connectoids */
-    XMLElementConnectoids xmlConnectoids = new XMLElementConnectoids();
+    var xmlConnectoids = new XMLElementConnectoids();
     xmlOdZone.setConnectoids(xmlConnectoids);
     for(Connectoid connectoid : zoneToConnectoidMap.get(odZone)) {
             
       /* od zones in xml only record their undirected connectoids at this point in time since they allow access froma ll incoming link(segment)s */
       if(connectoid instanceof UndirectedConnectoid) {
         
-        UndirectedConnectoid odConnectoid = (UndirectedConnectoid)connectoid;
+        var odConnectoid = (UndirectedConnectoid)connectoid;
         if(!odConnectoid.hasAccessZone(odZone)) {
           LOGGER.severe(String.format("od conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone", 
               odConnectoid.getXmlId(), odConnectoid.getId(), odZone.getXmlId(), odZone.getId()));
         }
         
         /* populate od connectoid */
-        XMLElementConnectoid xmlOdConnectoidBase = new XMLElementConnectoid();              
+        var xmlOdConnectoidBase = new XMLElementConnectoid();              
         populateXmlOdConnectoid(xmlOdConnectoidBase, odConnectoid, odZone);
                        
         /* register */        
@@ -590,13 +590,13 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   private void populateXmlOdZones(final Zoning zoning) throws PlanItException {
     if(!zoning.odZones.isEmpty()) {
 
-      XMLElementZones xmlOdZones = xmlRawZoning.getZones();
+      var xmlOdZones = xmlRawZoning.getZones();
       if(xmlOdZones == null) {
         xmlOdZones = new XMLElementZones();
         xmlRawZoning.setZones(xmlOdZones);
       }
       
-      for(OdZone odZone : zoning.odZones) {
+      for(var odZone : zoning.odZones) {
         /* modes */
         populateXmlOdZone(zoning, odZone); 
       }
@@ -609,12 +609,12 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @throws PlanItException thrown if error
    */  
   private void populateXmlIntermodal(final Zoning zoning) throws PlanItException {
-    if(zoning.transferZones.isEmpty() && zoning.transferConnectoids.isEmpty()) {
+    if(zoning.transferZones.isEmpty() && zoning.getTransferConnectoids().isEmpty()) {
       LOGGER.severe("Transfer zones and/or connectoids should be present when creating intermodal xml elements, but they are empty, abort");
       return;
     }
 
-    XMLElementIntermodal xmlIntermodal = xmlRawZoning.getIntermodal();
+    var xmlIntermodal = xmlRawZoning.getIntermodal();
     if(xmlIntermodal == null) {
       xmlIntermodal = new XMLElementIntermodal(new Intermodaltype());
       xmlRawZoning.setIntermodal(xmlIntermodal);
@@ -673,7 +673,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     populateXmlOdZones(zoning);
     
     /* intermodal zones */
-    if(!zoning.transferZones.isEmpty() || !zoning.transferConnectoids.isEmpty()) {
+    if(!zoning.transferZones.isEmpty() || !zoning.getTransferConnectoids().isEmpty()) {
       populateXmlIntermodal(zoning);
     }
     

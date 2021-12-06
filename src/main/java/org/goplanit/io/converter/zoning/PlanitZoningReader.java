@@ -314,7 +314,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         throw new PlanItException(String.format("provided accessNode XML id %s is invalid given available nodes in network when parsing transfer connectoid %s", ((Odconnectoid)xmlConnectoid).getNoderef(), xmlConnectoid.getId()));
       }
       /* ACCESS NODE based*/
-      theConnectoid = zoning.odConnectoids.getFactory().registerNew(accessNode);
+      theConnectoid = zoning.getOdConnectoids().getFactory().registerNew(accessNode);
     }else if(xmlConnectoid instanceof XMLElementTransferZoneAccess.XMLElementTransferConnectoid) {
       XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid = (XMLElementTransferZoneAccess.XMLElementTransferConnectoid) xmlConnectoid;                  
       String xmlLinkSegmentRef = xmlTransferConnectoid.getLsref();
@@ -323,7 +323,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         throw new PlanItException(String.format("provided link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
       /* LINK SEGMENT based */
-      theConnectoid = zoning.transferConnectoids.getFactory().registerNew(linkSegment);
+      theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(linkSegment);
       
       /* special case: when upstream node should be used */
       if(xmlTransferConnectoid.getLoc()!= null && xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
