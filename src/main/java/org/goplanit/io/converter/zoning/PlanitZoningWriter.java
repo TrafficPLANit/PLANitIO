@@ -233,7 +233,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
         Optional<Double> currLengthKm = transferConnectoid.getLengthKm(zone);
         if(lengthKm == null) {
           lengthKm = currLengthKm.get();
-        }else if(currLengthKm.isPresent() && !Precision.isEqual(lengthKm, currLengthKm.get(), Precision.EPSILON_6)) {
+        }else if(currLengthKm.isPresent() && !Precision.equal(lengthKm, currLengthKm.get(), Precision.EPSILON_6)) {
           /* TODO: should be rectified in xml format xsd and implementation see issue #12 in PlanitXMLGenerator */
           LOGGER.warning(String.format(
               "Transfer connectoid %s (id:%d) has different lengths specified for different access zones it services, this is not yet supported in the Planit XML format, choosing first available length %.2f",

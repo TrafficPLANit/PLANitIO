@@ -154,7 +154,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     boolean useOverrideLength = true;
     if(getGeoUtils()!= null && link.hasGeometry()) {
       double geographicLength = getGeoUtils().getDistanceInKilometres(link.getGeometry());
-      if(Precision.isEqual(geographicLength, link.getLengthKm(), Precision.EPSILON_6)) {
+      if(Precision.equal(geographicLength, link.getLengthKm(), Precision.EPSILON_6)) {
         useOverrideLength = false;
       }
     }
