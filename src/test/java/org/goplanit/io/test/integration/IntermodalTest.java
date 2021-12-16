@@ -12,7 +12,7 @@ import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.TransportLayerNetwork;
-import org.goplanit.network.layer.MacroscopicNetworkLayerImpl;
+import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.math.Precision;

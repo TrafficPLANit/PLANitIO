@@ -15,7 +15,7 @@ import org.goplanit.io.xml.util.EnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.TransportLayerNetwork;
-import org.goplanit.network.layer.MacroscopicNetworkLayerImpl;
+import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;

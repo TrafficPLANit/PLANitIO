@@ -610,7 +610,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     super();
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = settings;
-    setNetwork(new MacroscopicNetwork(idToken));
+    setNetwork(MacroscopicNetwork.create(idToken));
   }  
   
   /** Constructor where settings are directly provided such that input information can be exracted from it

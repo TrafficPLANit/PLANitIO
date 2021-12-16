@@ -51,7 +51,7 @@ public class PlanitIntermodalReader implements IntermodalReader {
    */
   protected PlanitIntermodalReader(PlanitIntermodalReaderSettings settings, IdGroupingToken idToken) throws PlanItException{        
     this.intermodalReaderSettings = settings;
-    this.networkToPopulate = new MacroscopicNetwork(idToken);    
+    this.networkToPopulate = MacroscopicNetwork.create(idToken);    
     this.zoningToPopulate = new Zoning(idToken, networkToPopulate.getNetworkGroupingTokenId());
   }  
   

@@ -136,7 +136,7 @@ public class XmlMacroscopicNetworkLayerHelper {
   /**
    * in case no link segment types are defined on the layer, we inject a default link segment type
    *
-   * @param xmlLayerConfiguration to inject xml entry into
+   * @param xmlLayerConfiguration to inject XML entry into
    */
   public static void injectDefaultLinkSegmentType(XMLElementLayerConfiguration xmlLayerConfiguration) {
     if (xmlLayerConfiguration.getLinksegmenttypes() == null) {
