@@ -23,7 +23,7 @@ public class PlanitZoningReaderFactory {
    */
   public static PlanitZoningReader create() throws PlanItException{
     PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();
-    MacroscopicNetwork networkToPopulate = MacroscopicNetwork.create(IdGroupingToken.collectGlobalToken());
+    MacroscopicNetwork networkToPopulate = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
     Zoning zoningToPopulate = new Zoning(IdGroupingToken.collectGlobalToken(), networkToPopulate.getNetworkGroupingTokenId());
     return create(settings, networkToPopulate, zoningToPopulate);
   }  
