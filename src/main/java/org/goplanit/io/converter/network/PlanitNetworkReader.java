@@ -502,7 +502,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         /* geometry */
         LineString theLineString = XmlMacroscopicNetworkLayerHelper.parseLinkGeometry(xmlLink);        
         double length = XmlMacroscopicNetworkLayerHelper.parseLength(xmlLink, theLineString, jtsUtils);   
-        link = networkLayer.getLinks().getFactory().registerNew(startNode, endNode, length);
+        link = networkLayer.getLinks().getFactory().registerNew(startNode, endNode, length, true /* register on nodes */);
         link.setXmlId(xmlLink.getId());
         link.setGeometry(theLineString);                      
         
@@ -575,7 +575,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         /* register type on link */
         MacroscopicLinkSegmentType linkSegmentType = getBySourceId(MacroscopicLinkSegmentType.class, linkSegmentTypeXmlId);
         if(linkSegmentType == null) {
-          throw new PlanItException(String.format("link segment type %s, unknown, cannot be registered on link segment %s",linkSegmentTypeXmlId,linkSegment));
+          throw new PlanItException(String.format("Link segment type %s, unknown, cannot be registered on link segment %s",linkSegmentTypeXmlId,linkSegment));
         }
         linkSegment.setLinkSegmentType(linkSegmentType);    
         
