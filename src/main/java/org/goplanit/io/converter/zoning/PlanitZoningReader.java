@@ -11,7 +11,7 @@ import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
@@ -560,7 +560,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   protected Zoning zoning;
   
   /** the network this zoning relates to */
-  protected TransportLayerNetwork<?,?> network;
+  protected LayeredNetwork<?,?> network;
       
   /** Set the zoning to populate
    * 
@@ -574,7 +574,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param network to use
    */
-  protected void setNetwork(final TransportLayerNetwork<?,?> network) {
+  protected void setNetwork(final LayeredNetwork<?,?> network) {
     this.network = network;
   }
   
@@ -623,7 +623,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param zoning to populate
    */
   protected PlanitZoningReader(
-      final PlanitZoningReaderSettings settings, final TransportLayerNetwork<?,?> network, final Zoning zoning) {
+      final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);
     this.settings = settings;
     setZoning(zoning);
@@ -639,7 +639,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final String pathDirectory, final String xmlFileExtension, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{   
+      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{   
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);  
     this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);    
     setZoning(zoning);
@@ -654,7 +654,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(xmlMacroscopicZoning);
     this.settings =  new PlanitZoningReaderSettings();
     setZoning(zoning);

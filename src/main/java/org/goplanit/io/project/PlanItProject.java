@@ -4,7 +4,7 @@ import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.TrafficAssignmentConfigurator;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.input.PlanItInputBuilder;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.exceptions.PlanItException;
@@ -48,7 +48,7 @@ public class PlanItProject extends CustomPlanItProject {
       String trafficAssignmentType, 
       Demands theDemands,
       Zoning theZoning, 
-      final TransportLayerNetwork<?,?> theNetwork) throws PlanItException {
+      final LayeredNetwork<?,?> theNetwork) throws PlanItException {
     
     /* delegate */
     TrafficAssignmentConfigurator<? extends TrafficAssignment> taConfigurator = 

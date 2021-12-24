@@ -14,7 +14,7 @@ import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.EnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.locale.CountryNames;
@@ -23,7 +23,7 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
 import org.goplanit.utils.mode.UsabilityModeFeatures;
-import org.goplanit.utils.network.layer.TransportLayer;
+import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
@@ -57,7 +57,7 @@ import org.goplanit.xml.generated.XMLElementLinkSegmentType.Access;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<?,?>> implements NetworkWriter {  
+public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {  
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
@@ -535,7 +535,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     /* srs name */
     xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
     
-    for(TransportLayer networkLayer : network.getTransportLayers()) {
+    for(NetworkLayer networkLayer : network.getTransportLayers()) {
       if(networkLayer instanceof MacroscopicNetworkLayerImpl) {
         MacroscopicNetworkLayerImpl physicalNetworkLayer = ((MacroscopicNetworkLayerImpl)networkLayer);
         populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
@@ -582,7 +582,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * {@inheritDoc}
    */
   @Override
-  public void write(TransportLayerNetwork<?,?> network) throws PlanItException {
+  public void write(LayeredNetwork<?,?> network) throws PlanItException {
     
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {

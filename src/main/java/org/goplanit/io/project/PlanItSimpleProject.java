@@ -10,7 +10,7 @@ import org.goplanit.demands.Demands;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.exceptions.PlanItException;
@@ -150,7 +150,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       final String trafficAssignmentType,
       final Demands theDemands,
       final Zoning theZoning,
-      final TransportLayerNetwork<?,?> theNetwork)
+      final LayeredNetwork<?,?> theNetwork)
       throws PlanItException {
     throw new PlanItException(
         "a simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");

@@ -11,13 +11,13 @@ import org.goplanit.demands.Demands;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.mode.PredefinedModeType;
-import org.goplanit.utils.network.layer.TransportLayer;
+import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.zoning.Connectoid;
 import org.goplanit.utils.zoning.ConnectoidType;
 import org.goplanit.utils.zoning.TransferZone;
@@ -90,7 +90,7 @@ public class IntermodalTest {
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
       /* NETWORK */
-      final TransportLayerNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+      final LayeredNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
 
       assertEquals(network.getTransportLayers().size(), 1);
       assertEquals(network.getModes().size(), 2);
@@ -102,7 +102,7 @@ public class IntermodalTest {
       MacroscopicNetwork macroNetwork = MacroscopicNetwork.class.cast(network);      
       assertEquals(macroNetwork.getLayerByMode(macroNetwork.getModes().get(0)),macroNetwork.getLayerByMode(macroNetwork.getModes().get(1)));
       
-      TransportLayer layer = macroNetwork.getLayerByMode(macroNetwork.getModes().get(0));
+      NetworkLayer layer = macroNetwork.getLayerByMode(macroNetwork.getModes().get(0));
       assertEquals(layer.getXmlId(),"road");
       assertFalse(!(layer instanceof MacroscopicNetworkLayerImpl));
       MacroscopicNetworkLayerImpl macroNetworklayer = (MacroscopicNetworkLayerImpl) layer;

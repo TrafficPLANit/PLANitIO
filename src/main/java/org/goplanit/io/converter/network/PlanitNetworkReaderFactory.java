@@ -3,7 +3,7 @@ package org.goplanit.io.converter.network;
 import java.util.logging.Logger;
 
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
@@ -64,7 +64,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to use
    * @return created PLANit network reader
    */
-  public static PlanitNetworkReader create(final PlanitNetworkReaderSettings settings, final TransportLayerNetwork<?,?> network) {
+  public static PlanitNetworkReader create(final PlanitNetworkReaderSettings settings, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(settings, network);
     } catch (PlanItException e) {
@@ -81,7 +81,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader create(final String inputDirectory, final String xmlFileExtension, final TransportLayerNetwork<?,?> network) {
+  public static PlanitNetworkReader create(final String inputDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(inputDirectory, xmlFileExtension, network);
     } catch (PlanItException e) {
@@ -97,7 +97,7 @@ public class PlanitNetworkReaderFactory {
    * @param network to populate
    * @return created PLANit reader
    */
-  public static PlanitNetworkReader create(final XMLElementMacroscopicNetwork xmlRawNetwork, final TransportLayerNetwork<?,?> network) {
+  public static PlanitNetworkReader create(final XMLElementMacroscopicNetwork xmlRawNetwork, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(xmlRawNetwork, network);
     } catch (PlanItException e) {

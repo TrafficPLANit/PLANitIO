@@ -15,7 +15,7 @@ import org.goplanit.io.xml.util.EnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.mode.ModeFeaturesFactory;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.layer.macroscopic.AccessGroupPropertiesFactory;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
@@ -32,7 +32,7 @@ import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.mode.UseOfModeType;
 import org.goplanit.utils.mode.VehicularModeType;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
-import org.goplanit.utils.network.layer.TransportLayer;
+import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
@@ -232,7 +232,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     for(XMLElementInfrastructureLayer xmlLayer : xmlLayerList) {
       
       /*layer */
-      TransportLayer layer = parseNetworkLayer(xmlLayer, jtsUtils);
+      NetworkLayer layer = parseNetworkLayer(xmlLayer, jtsUtils);
       
       /* validate supported modes */
       int prevSize = usedModes.size();
@@ -253,7 +253,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @throws PlanItException thrown if error
    *
    */
-  private TransportLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
+  private NetworkLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
     
     /* create layer */
     MacroscopicNetworkLayer networkLayer = network.getTransportLayers().getFactory().registerNew();
@@ -591,7 +591,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected void setNetwork(final TransportLayerNetwork<?,?> network) throws PlanItException {
+  protected void setNetwork(final LayeredNetwork<?,?> network) throws PlanItException {
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
@@ -619,7 +619,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, TransportLayerNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network) throws PlanItException{
     super();
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = settings;
@@ -632,7 +632,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, TransportLayerNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network) throws PlanItException{
     super();
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(externalXmlRawNetwork);
     this.settings = new PlanitNetworkReaderSettings();
@@ -646,7 +646,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, TransportLayerNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network) throws PlanItException{
     super();
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
     this.settings = new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension);

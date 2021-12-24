@@ -13,7 +13,7 @@ import org.goplanit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
 import org.goplanit.output.configuration.OdOutputTypeConfiguration;
 import org.goplanit.output.configuration.OutputConfiguration;
@@ -95,7 +95,7 @@ public class PlanItIOTestRunner {
    */
   protected TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteAssignment(
       final Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfigurationProperties,
-      final TriConsumer<TransportLayerNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParameters) throws Exception {
+      final TriConsumer<LayeredNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParameters) throws Exception {
                 
     if (setCostParameters != null) {
       setCostParameters.accept(network, bprPhysicalCost, planItInputBuilder);
@@ -236,7 +236,7 @@ public class PlanItIOTestRunner {
    * @throws Exception thrown if there is an error
    */
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomBprConfiguration(
-      final TriConsumer<TransportLayerNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters) throws Exception {
+      final TriConsumer<LayeredNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters) throws Exception {
     return setupAndExecuteAssignment(null, setBprCostParameters);
   }
   
@@ -261,7 +261,7 @@ public class PlanItIOTestRunner {
    * @throws Exception thrown if there is an error
    */    
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
-      TriConsumer<TransportLayerNetwork<?, ?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters,
+      TriConsumer<LayeredNetwork<?, ?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters,
       Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfiguration) throws Exception {
     return setupAndExecuteAssignment(setLinkOutputTypeConfiguration, setBprCostParameters);
   }  
