@@ -102,7 +102,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
   public PlanItSimpleProject(final String projectPath) throws PlanItException {
     // use the default input builder
     super(new PlanItInputBuilder(projectPath));
-    LOGGER.info(LoggingUtils.createProjectPrefix(this.id) + String.format("searching for input files in: %s", Paths.get(
+    LOGGER.info(LoggingUtils.projectPrefix(this.id) + String.format("searching for input files in: %s", Paths.get(
         projectPath).toAbsolutePath().toString()));
     initialiseSimpleProject();
   }
@@ -164,7 +164,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     if (super.assignmentBuilders.isEmpty()) {
       super.executeAllTrafficAssignments();
     } else {
-      LOGGER.info(LoggingUtils.createProjectPrefix(this.id)
+      LOGGER.info(LoggingUtils.projectPrefix(this.id)
           + "no traffic assignment has been registered yet, ignoring execution");
     }
   }

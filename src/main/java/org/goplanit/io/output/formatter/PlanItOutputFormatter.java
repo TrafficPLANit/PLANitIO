@@ -108,7 +108,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @return loggingPrefix
    */
   private String createLoggingPrefix() {
-    return LoggingUtils.createOutputFormatterPrefix(this.id);
+    return LoggingUtils.outputFormatterPrefix(this.id);
   }
   
   /** Create the logging prefix to use for assignment specific logging messages
@@ -116,7 +116,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @return loggingPrefix
    */
   private String createLoggingPrefix(long runId) {
-    return LoggingUtils.createRunIdPrefix(runId) +createLoggingPrefix();
+    return LoggingUtils.runIdPrefix(runId) +createLoggingPrefix();
   }  
   
   /**
