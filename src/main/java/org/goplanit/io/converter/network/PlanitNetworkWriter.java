@@ -19,6 +19,7 @@ import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
@@ -67,6 +68,9 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
   
   /** network writer settings to use */
   private final PlanitNetworkWriterSettings settings;
+  
+  /* track logging prefix for current layer */
+  private String currLayerLogPrefix;
    
     
   /** Get the reference to use whenever a mode reference is encountered
@@ -176,7 +180,9 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     xmlLink.setNodebref(getVertexIdMapper().apply(link.getNodeB()));    
     
     /* line string */
-    xmlLink.setLineString(createGmlLineStringType(link.getGeometry()));
+    if(link.hasGeometry()) {
+      xmlLink.setLineString(createGmlLineStringType(link.getGeometry()));
+    }
         
     /* link segments */
     populateLinkSegments(xmlLink, link);
@@ -507,15 +513,36 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
    */
   protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicNetworkLayerImpl physicalNetworkLayer) throws PlanItException {
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
-    xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer); 
+    xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer);
     
-    /* layer configuration */
+    /* XML id */
+    xmlNetworkLayer.setId(physicalNetworkLayer.getXmlId());
+    
+    /* External id */
+    if(physicalNetworkLayer.hasExternalId()) {
+      xmlNetworkLayer.setExternalid(physicalNetworkLayer.getExternalId());
+    }
+    
+    /* supported modes */
+    if(!physicalNetworkLayer.hasSupportedModes()) {
+      LOGGER.severe(String.format("%s Network layer has no supported modes, skip persistence",currLayerLogPrefix));
+      return;
+    }
+    String xmlModesStr = physicalNetworkLayer.getSupportedModes().stream().map( m -> m.getXmlId()).collect(Collectors.joining(","));
+    xmlNetworkLayer.setModes(xmlModesStr);
+    LOGGER.info(String.format("%s supported modes: %s", currLayerLogPrefix, xmlModesStr));
+        
+    /* layer configuration */    
+    LOGGER.info(String.format("%s Link segment types: %d", currLayerLogPrefix, physicalNetworkLayer.linkSegmentTypes.size()));
     populateXmlLayerConfiguration(xmlNetworkLayer, physicalNetworkLayer.linkSegmentTypes);
 
     /* links */
+    LOGGER.info(String.format("%s Links: %d", currLayerLogPrefix, physicalNetworkLayer.getLinks().size()));
+    LOGGER.info(String.format("%s Link segments: %d", currLayerLogPrefix, physicalNetworkLayer.getLinkSegments().size()));
     populateXmlLinks(xmlNetworkLayer, physicalNetworkLayer.getLinks());
         
     /* nodes */
+    LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
     populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());      
   }  
   
@@ -535,12 +562,21 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     /* srs name */
     xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
     
+    LOGGER.info("Network layers:" + network.getTransportLayers().size());
     for(NetworkLayer networkLayer : network.getTransportLayers()) {
       if(networkLayer instanceof MacroscopicNetworkLayerImpl) {
         MacroscopicNetworkLayerImpl physicalNetworkLayer = ((MacroscopicNetworkLayerImpl)networkLayer);
+        
+        /* XML id */
+        if(physicalNetworkLayer.getXmlId() == null) {
+          LOGGER.warning(String.format("Network layer has no XML id defined, adopting internally generated id %d instead",physicalNetworkLayer.getId()));
+          physicalNetworkLayer.setXmlId(String.valueOf(physicalNetworkLayer.getId()));
+        }
+        this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+physicalNetworkLayer.getXmlId());        
+                        
         populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
       }else {
-        LOGGER.severe(String.format("unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));
+        LOGGER.severe(String.format("Unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));
       }
     }
   }  
@@ -614,6 +650,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
    */
   @Override
   public void reset() {
+    currLayerLogPrefix = null;
     xmlRawNetwork.setConfiguration(null);
     xmlRawNetwork.setInfrastructurelayers(null);
   }  

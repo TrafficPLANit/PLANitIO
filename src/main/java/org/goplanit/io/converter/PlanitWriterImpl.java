@@ -127,7 +127,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return transformedCoordinates;
   }   
   
-  /** Extract the src name to use based on the available crs information on network and settings
+  /** Extract the srs name to use based on the available crs information on network and settings
    * 
    * @param xmlSettings to use
    * @return srsName to use
@@ -135,7 +135,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */
   protected static String extractSrsName(PlanitXmlWriterSettings xmlSettings) throws PlanItException {
     String srsName = "";
-    if(xmlSettings.getDestinationCoordinateReferenceSystem().getName().getCodeSpace().equals("EPSG")) {
+    if("EPSG".equals(xmlSettings.getDestinationCoordinateReferenceSystem().getName().getCodeSpace())) {
       /* spatial crs based on epsg code*/
       Integer epsgCode = null;
       try {
