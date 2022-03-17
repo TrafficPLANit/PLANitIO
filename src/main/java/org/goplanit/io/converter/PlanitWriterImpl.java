@@ -16,6 +16,8 @@ import org.goplanit.io.geo.PlanitGmlUtils;
 import org.goplanit.io.xml.util.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.userclass.TravellerType;
+import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
@@ -24,6 +26,7 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.network.layer.physical.Link;
+import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.utils.zoning.Connectoid;
 import org.goplanit.utils.zoning.TransferZoneGroup;
 import org.goplanit.utils.zoning.Zone;
@@ -74,7 +77,13 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /** id mapper for connectoid ids */
   private Function<Connectoid, String> connectoidIdMapper;
   /** id mapper for transfer zone group ids */
-  private Function<TransferZoneGroup, String> transferZoneGroupIdMapper;  
+  private Function<TransferZoneGroup, String> transferZoneGroupIdMapper;
+  /** id mapper for traveller type ids */
+  private Function<TravellerType, String> travellerTypeIdMapper;
+  /** id mapper for time period ids */
+  private Function<TimePeriod, String> timePeriodIdMapper;
+  /** id mapper for user class ids */
+  private Function<UserClass, String> userClassIdMapper;   
   
   /** convert to xml writer settings if possible
    * @return xml writer settings
@@ -258,6 +267,9 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     this.zoneIdMapper = IdMapperFunctionFactory.createZoneIdMappingFunction(getIdMapperType());
     this.connectoidIdMapper = IdMapperFunctionFactory.createConnectoidIdMappingFunction(getIdMapperType());
     this.transferZoneGroupIdMapper = IdMapperFunctionFactory.createTransferZoneGroupIdMappingFunction(getIdMapperType());
+    this.travellerTypeIdMapper = IdMapperFunctionFactory.createTravellerTypeIdMappingFunction(getIdMapperType());
+    this.timePeriodIdMapper = IdMapperFunctionFactory.createTimePeriodIdMappingFunction(getIdMapperType());
+    this.userClassIdMapper = IdMapperFunctionFactory.createUserClassIdMappingFunction(getIdMapperType());
   } 
   
   /** get id mapper for nodes
@@ -286,6 +298,49 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */  
   protected Function<MacroscopicLinkSegmentType, String> getLinkSegmentTypeIdMapper(){
     return linkSegmentTypeIdMapper;
+  }   
+  
+  /** get id mapper for traveller types
+   * @return id mapper
+   */  
+  protected Function<TravellerType, String> getTravellerTypeIdMapper(){
+    return travellerTypeIdMapper;
+  }    
+  
+  /** get id mapper for time periods
+   * @return id mapper
+   */  
+  protected Function<TimePeriod, String> getTimePeriodIdMapper(){
+    return timePeriodIdMapper;
+  }     
+  
+  /** get id mapper for user classes
+   * @return id mapper
+   */  
+  protected Function<UserClass, String> getUserClassIdMapper(){
+    return userClassIdMapper;
+  }     
+  
+  /** Get the reference to use whenever a mode reference is encountered
+   * 
+   * @param mode to collect reference for
+   * @return modeReference for the mode
+   */
+  protected String getXmlModeReference(Mode mode) {
+    String modeReference = null;
+    
+    if(mode.isPredefinedModeType()) {
+      /* predefined modes, must utilise, their predefined XML id/name, this overrules the mapper (if any) */
+      modeReference = mode.getXmlId();  
+    }else {
+      modeReference = getModeIdMapper().apply(mode);
+    }
+    
+    if(modeReference == null) {
+      LOGGER.severe(String.format("mode reference cound not be obtained for mode %s", mode.toString()));
+    }
+    
+    return modeReference;
   }   
   
   /** get id mapper for modes

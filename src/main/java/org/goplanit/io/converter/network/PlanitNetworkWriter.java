@@ -70,23 +70,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
   private final PlanitNetworkWriterSettings settings;
   
   /* track logging prefix for current layer */
-  private String currLayerLogPrefix;
-   
-    
-  /** Get the reference to use whenever a mode reference is encountered
-   * 
-   * @param mode to collect reference for
-   * @return modeReference for the mode
-   */
-  private String getXmlModeReference(Mode mode) {
-    /* Xml id */
-    if(mode.isPredefinedModeType()) {
-      /* predefined modes, must utilise, their predefined Xml id/name, this overrules the mapper (if any) */
-      return mode.getXmlId();  
-    }else {
-      return getModeIdMapper().apply(mode);
-    }
-  }  
+  private String currLayerLogPrefix;       
   
   /**
    * populate a single xml link segment element based on the passed in PLANit link segment

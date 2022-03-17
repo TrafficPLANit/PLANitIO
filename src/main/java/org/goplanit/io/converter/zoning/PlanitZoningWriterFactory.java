@@ -29,7 +29,7 @@ public class PlanitZoningWriterFactory {
    * @param countryName the country to base the projection method on if available
    * @param zoningCrs crs used by the zoning
    * @param xmlRawZoning, use this specific xml memory model equivalent in this instance before marshalling via JAXb
-   * @return created network writer 
+   * @return created zoning writer 
    */
   public static PlanitZoningWriter create(final String zoningPath, final String countryName, final CoordinateReferenceSystem zoningCrs, final XMLElementMacroscopicZoning xmlRawZoning) {
     return new PlanitZoningWriter(zoningPath, countryName, zoningCrs, xmlRawZoning);    

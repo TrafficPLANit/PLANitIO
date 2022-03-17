@@ -19,7 +19,7 @@ import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.od.demand.OdDemandMatrix;
 import org.goplanit.od.demand.OdDemands;
-import org.goplanit.userclass.TravelerType;
+import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.misc.StringUtils;
@@ -80,7 +80,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */
   private void initialiseXmlIdTrackers() {    
     initialiseSourceIdMap(UserClass.class, UserClass::getXmlId);   
-    initialiseSourceIdMap(TravelerType.class, TravelerType::getXmlId);
+    initialiseSourceIdMap(TravellerType.class, TravellerType::getXmlId);
     initialiseSourceIdMap(TimePeriod.class, TimePeriod::getXmlId);
   }   
   
@@ -91,8 +91,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */
   private static XMLElementTravellerTypes.Travellertype generateDefaultXMLTravellerType() {
     XMLElementTravellerTypes.Travellertype xmlTravellerType = new XMLElementTravellerTypes.Travellertype();
-    xmlTravellerType.setId(TravelerType.DEFAULT_XML_ID);
-    xmlTravellerType.setName(TravelerType.DEFAULT_NAME);
+    xmlTravellerType.setId(TravellerType.DEFAULT_XML_ID);
+    xmlTravellerType.setName(TravellerType.DEFAULT_NAME);
     return xmlTravellerType;
   }  
   
@@ -107,7 +107,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     xmlUserclass.setName(UserClass.DEFAULT_NAME);
     xmlUserclass.setId(UserClass.DEFAULT_XML_ID);
     xmlUserclass.setModeref(Mode.DEFAULT_XML_ID);
-    xmlUserclass.setTravellertyperef(TravelerType.DEFAULT_XML_ID);
+    xmlUserclass.setTravellertyperef(TravellerType.DEFAULT_XML_ID);
     return xmlUserclass;
   }  
   
@@ -222,7 +222,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     for (XMLElementTravellerTypes.Travellertype xmlTravellertype : xmlTravellertypes.getTravellertype()) {
             
       /* PLANit traveller type */
-      TravelerType travelerType = demands.travelerTypes.createAndRegisterNew(xmlTravellertype.getName());
+      TravellerType travelerType = demands.travelerTypes.createAndRegisterNew(xmlTravellertype.getName());
       
       /* xml id */
       if(xmlTravellertype.getId() != null && !xmlTravellertype.getId().isBlank()) {
@@ -234,7 +234,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
         travelerType.setExternalId(xmlTravellertype.getExternalid());
       }      
             
-      registerBySourceId(TravelerType.class, travelerType);      
+      registerBySourceId(TravellerType.class, travelerType);      
     }
   }
   
@@ -266,7 +266,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
         PlanItException.throwIf(demands.travelerTypes.size() > 1,
             String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
-        PlanItException.throwIf(getBySourceId(TravelerType.class, xmlUserclass.getTravellertyperef()) == null, 
+        PlanItException.throwIf(getBySourceId(TravellerType.class, xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
       PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class %s has no mode specified, but more than one mode possible", xmlUserclass.getId() );
@@ -282,9 +282,9 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       PlanItException.throwIf(userClassMode == null,"User class %s refers to mode %s which has not been defined", xmlUserclass.getId(), xmlModeIdRef );
            
       /* traveller type ref */
-      String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
+      String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravellerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
       xmlUserclass.setTravellertyperef(travellerTypeXmlIdRef);
-      TravelerType travellerType = getBySourceId(TravelerType.class, travellerTypeXmlIdRef);
+      TravellerType travellerType = getBySourceId(TravellerType.class, travellerTypeXmlIdRef);
                  
       UserClass userClass = demands.userClasses.createAndRegisterNewUserClass(xmlUserclass.getName(), userClassMode, travellerType);
       
@@ -490,7 +490,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       /* register */
       OdDemands duplicate = demands.registerOdDemandPcuHour(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {
-        throw new PlanItException(String.format("multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
+        throw new PlanItException(String.format("Multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
       }
     }
   }  
