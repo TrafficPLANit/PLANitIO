@@ -355,7 +355,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   private TransferZoneGroup parseTransferGroup(final XMLElementTransferGroup xmlTransferGroup) {
     /* register new */
-    TransferZoneGroup transferGroup = zoning.transferZoneGroups.getFactory().registerNew();
+    TransferZoneGroup transferGroup = zoning.getTransferZoneGroups().getFactory().registerNew();
     
     /* xm id */
     transferGroup.setXmlId(xmlTransferGroup.getId());
@@ -405,7 +405,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZone();
     for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZonesList) {
       /* base zone elements parsed and PLANit version registered */
-      TransferZone transferZone = zoning.transferZones.getFactory().registerNew();
+      TransferZone transferZone = zoning.getTransferZones().getFactory().registerNew();
       parseBaseZone(transferZone, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getName(), xmlTransferzone.getCentroid());
       
       /* type */
@@ -594,7 +594,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     /* zone */
     for (final XMLElementZones.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZone()) {
       /* create zone */
-      OdZone zone = zoning.odZones.getFactory().registerNew();
+      OdZone zone = zoning.getOdZones().getFactory().registerNew();
       parseBaseZone(zone, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
       
       /* geometry */

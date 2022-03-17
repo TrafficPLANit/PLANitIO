@@ -113,8 +113,8 @@ public class IntermodalTest {
       
       /* ZONING */
       final Zoning zoning = project.createAndRegisterZoning(network);
-      assertEquals(zoning.odZones.size(),2);
-      assertEquals(zoning.transferZones.size(),3);
+      assertEquals(zoning.getOdZones().size(),2);
+      assertEquals(zoning.getTransferZones().size(),3);
       assertEquals(zoning.getNumberOfCentroids(),5); /* defaults should have been created */
       assertEquals(zoning.getNumberOfConnectoids(),5); /* one per zone + one transfer connectoid per node */
       

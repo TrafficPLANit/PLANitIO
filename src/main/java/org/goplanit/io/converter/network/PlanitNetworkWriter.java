@@ -622,7 +622,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItException("Currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
     }    
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     

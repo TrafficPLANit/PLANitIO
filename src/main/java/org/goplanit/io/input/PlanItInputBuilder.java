@@ -125,7 +125,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       success = parseXmlRawInputSeparateFiles(xmlFileNames);
     }
     
-    PlanItException.throwIf(!success, String.format("The directory %s does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network",projectPath));
+    PlanItException.throwIf(!success, String.format("Directory %s does not contain file with all inputs nor separate files for zoning, demand, and network",projectPath));
   }
 
   /**

@@ -70,8 +70,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
     
     initialiseSourceIdMap(Zone.class, Zone::getXmlId);
-    getSourceIdContainer(Zone.class).addAll(zoning.odZones);
-    getSourceIdContainer(Zone.class).addAll(zoning.transferZones);
+    getSourceIdContainer(Zone.class).addAll(zoning.getOdZones());
+    getSourceIdContainer(Zone.class).addAll(zoning.getTransferZones());
   } 
   
   /**
@@ -483,9 +483,10 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
-      OdDemandMatrix odDemandMatrix = new OdDemandMatrix(getSettings().getReferenceZoning().odZones);
+      var odZones = getSettings().getReferenceZoning().getOdZones();
+      OdDemandMatrix odDemandMatrix = new OdDemandMatrix(odZones);
       /* populate */
-      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, getSettings().getReferenceZoning().odZones);
+      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, odZones);
       /* register */
       OdDemands duplicate = demands.registerOdDemandPcuHour(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {

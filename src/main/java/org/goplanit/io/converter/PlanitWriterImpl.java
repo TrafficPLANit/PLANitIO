@@ -1,5 +1,6 @@
 package org.goplanit.io.converter;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -354,9 +355,10 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     
     try { 
       if(!Files.exists(outputDir)) {
-        Files.createDirectory(outputDir);
+        // Files.createDirectory(outputDir.toAbsolutePath().normalize()); //<- preferred but for some reason doesn't always work with more than one subdir missing
+        new File(outputDir.toAbsolutePath().normalize().toString()).mkdirs();
       }
-    }catch(Exception e) {
+    }catch(Exception e) {      
       LOGGER.severe(e.getMessage());
       throw new PlanItException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputPathDirectory()).toAbsolutePath()));      
     }

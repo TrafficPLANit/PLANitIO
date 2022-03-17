@@ -15,7 +15,7 @@ import org.goplanit.zoning.Zoning;
  * PLANit project which is nothing more than a CustomPlanItProject without any custom configuration pre-embedded. So, it allows
  * maximum flexibility for users.
  * 
- * It does assume the PLANit default input format and registers the PLANit default output formatter automtically
+ * It does assume the PLANit default input format and registers the PLANit default output formatter automatically
  * 
  * @author markr, gman6028
  *
