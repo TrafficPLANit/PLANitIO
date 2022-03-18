@@ -286,7 +286,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       xmlUserclass.setTravellertyperef(travellerTypeXmlIdRef);
       TravellerType travellerType = getBySourceId(TravellerType.class, travellerTypeXmlIdRef);
                  
-      UserClass userClass = demands.userClasses.createAndRegisterNewUserClass(xmlUserclass.getName(), userClassMode, travellerType);
+      UserClass userClass = demands.userClasses.createAndRegister(xmlUserclass.getName(), userClassMode, travellerType);
       
       /* xml id */
       if(xmlUserclass.getId() != null && !xmlUserclass.getId().isBlank()) {

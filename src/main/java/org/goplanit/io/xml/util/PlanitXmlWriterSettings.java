@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.CharacterUtils;
+import org.goplanit.utils.misc.StringUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -47,6 +48,23 @@ public class PlanitXmlWriterSettings {
   
   /** the coordinate reference system used for writing entities of this network */
   protected CoordinateReferenceSystem destinationCoordinateReferenceSystem = null;    
+  
+  /** Validate the settings
+   * 
+   * @return true when valid, false otherwise
+   */
+  protected boolean validate() {
+    if(StringUtils.isNullOrBlank(outputDirectory)) {
+      LOGGER.severe("PLANit output directory is not provided, unable to continue");
+      return false;
+    }
+    if(StringUtils.isNullOrBlank(fileName)) {
+      LOGGER.severe("PLANit output file name is not provided, unable to continue");
+      return false;
+    }    
+    /* other settings are not always mandatory */
+    return true;
+  }    
   
   /**
    * Default constructor 
@@ -147,7 +165,7 @@ public class PlanitXmlWriterSettings {
     
   }  
 
-  /** Collect number of decimals used in writing coordinates
+  /** Collect number of decimals used in writing double values
    * 
    * @return number of decimals used
    */
@@ -155,7 +173,7 @@ public class PlanitXmlWriterSettings {
     return decimalFormat;
   }
 
-  /** Set number of decimals used in writing coordinates
+  /** Set number of decimals used in writing double values 
    * 
    * @param decimalFormat number of decimals
    */

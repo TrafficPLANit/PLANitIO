@@ -635,7 +635,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     populateXmlTransferZoneGroups(zoning, xmlIntermodal);
   }  
   
-  /** default network file name to use */
+  /** default zoning file name to use */
   public static final String DEFAULT_ZONING_FILE_NAME = "zoning.xml";  
     
   /** Constructor 
