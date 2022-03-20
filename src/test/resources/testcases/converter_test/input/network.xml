@@ -162,7 +162,7 @@
         </modes>
     </configuration>
     <infrastructurelayers srsname="EPSG:3112">
-        <layer>
+        <layer id="0">
             <layerconfiguration>
                 <linksegmenttypes>
                     <linksegmenttype id="0" externalid="tertiary_link">

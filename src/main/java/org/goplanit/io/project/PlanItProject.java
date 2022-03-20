@@ -4,6 +4,7 @@ import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.TrafficAssignmentConfigurator;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.input.PlanItInputBuilder;
+import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.project.CustomPlanItProject;
@@ -23,9 +24,9 @@ import org.goplanit.zoning.Zoning;
 public class PlanItProject extends CustomPlanItProject {
   
   /**
-   * the default output formatter registered on the project and subsequent assignment
+   * the default PLANit output formatter registered on the project and subsequent assignment
    */
-  private final OutputFormatter defaultOutputFormatter; 
+  private final PlanItOutputFormatter defaultOutputFormatter; 
   
   /** Constructor taking project path where to find all project input files
 	 * 
@@ -36,7 +37,7 @@ public class PlanItProject extends CustomPlanItProject {
 		super(new PlanItInputBuilder(projectPath));
 
 		/* default output formatter */
-     defaultOutputFormatter = createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
+     defaultOutputFormatter = (PlanItOutputFormatter) createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
 	}
 	
 	
@@ -58,5 +59,13 @@ public class PlanItProject extends CustomPlanItProject {
     taConfigurator.registerOutputFormatter(defaultOutputFormatter);
     return taConfigurator;    
   }	
+  
+  /** Access to the default output formatter
+   * 
+   * @return PLANit output formatter
+   */
+  public PlanItOutputFormatter getDefaultOutputFormatter() {
+    return defaultOutputFormatter;
+  }
 
 }

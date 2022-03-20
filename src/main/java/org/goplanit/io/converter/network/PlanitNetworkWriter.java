@@ -493,9 +493,10 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
    * 
    * @param xmlInfrastructureLayers to add xml layer to 
    * @param physicalNetworkLayer to populate from
+   * @param network to extract from
    * @throws PlanItException thrown if error
    */
-  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicNetworkLayerImpl physicalNetworkLayer) throws PlanItException {
+  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicNetworkLayerImpl physicalNetworkLayer, MacroscopicNetwork network) throws PlanItException {
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
     xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer);
     
@@ -512,9 +513,12 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
       LOGGER.severe(String.format("%s Network layer has no supported modes, skip persistence",currLayerLogPrefix));
       return;
     }
+    
     String xmlModesStr = physicalNetworkLayer.getSupportedModes().stream().map( m -> m.getXmlId()).collect(Collectors.joining(","));
-    xmlNetworkLayer.setModes(xmlModesStr);
     LOGGER.info(String.format("%s supported modes: %s", currLayerLogPrefix, xmlModesStr));
+    if(network.getTransportLayers().size()>1) {      
+      xmlNetworkLayer.setModes(xmlModesStr);      
+    }
         
     /* layer configuration */    
     LOGGER.info(String.format("%s Link segment types: %d", currLayerLogPrefix, physicalNetworkLayer.linkSegmentTypes.size()));
@@ -558,7 +562,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
         }
         this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+physicalNetworkLayer.getXmlId());        
                         
-        populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
+        populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer, network);
       }else {
         LOGGER.severe(String.format("Unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));
       }
