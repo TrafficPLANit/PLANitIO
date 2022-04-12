@@ -27,7 +27,6 @@ import org.goplanit.xml.generated.Durationunit;
 import org.goplanit.xml.generated.XMLElementDemandConfiguration;
 import org.goplanit.xml.generated.XMLElementDuration;
 import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
 import org.goplanit.xml.generated.XMLElementOdDemands;
 import org.goplanit.xml.generated.XMLElementOdRawMatrix;
 import org.goplanit.xml.generated.XMLElementTimePeriods;
