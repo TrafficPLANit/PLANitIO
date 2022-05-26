@@ -2,6 +2,7 @@ package org.goplanit.io.test.integration;
 
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import org.goplanit.io.demo.TraditionalStaticAssignmentProjectDemos;
@@ -42,7 +43,8 @@ public class GettingStartedTest {
   @Test
   public void gettingStartedTest() {
     try {
-      TraditionalStaticAssignmentProjectDemos.gettingStartedDemo("src\\test\\resources\\testcases\\getting_started\\base");
+      var path = Path.of("src","test","resources","testcases","getting_started","base");
+      TraditionalStaticAssignmentProjectDemos.gettingStartedDemo(path.toAbsolutePath().toString());
     }catch(Exception e){
       e.printStackTrace();
       LOGGER.severe(e.getMessage());
