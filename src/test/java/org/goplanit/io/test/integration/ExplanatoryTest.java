@@ -3,6 +3,7 @@ package org.goplanit.io.test.integration;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -39,6 +40,8 @@ import org.junit.Test;
  *
  */
 public class ExplanatoryTest {
+
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
 
   /** the logger */
   private static Logger LOGGER = null;
@@ -82,7 +85,8 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_original() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
+
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","original").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -154,7 +158,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_report_zero_outputs() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\reportZeroOutputs";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","reportZeroOutputs").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -225,7 +229,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_time_period_xml_id_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\timePeriodXmlIdTest";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","timePeriodXmlIdTest").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_2_2.csv";
       String odCsvFileName = "Time_Period_2_1.csv";
@@ -296,7 +300,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_traveller_type_ref_missing_from_user_class() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypeMissingFromUserClass";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","travellerTypeMissingFromUserClass").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -367,7 +371,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_traveller_types_but_no_user_classes() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypesButNoUserClasses";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","travellerTypesButNoUserClasses").toAbsolutePath().toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -389,7 +393,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_not_specified_which_traveller_type_being_used() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\notSpecifiedWhichTravellerTypeBeingUsed";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","notSpecifiedWhichTravellerTypeBeingUsed").toAbsolutePath().toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -411,7 +415,8 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_reference_to_missing_traveller_type() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\referenceToMissingTravellerType";
+
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","referenceToMissingTravellerType").toAbsolutePath().toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -433,7 +438,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_no_geolocation_elements() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\noGeolocationElements";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","noGeolocationElements").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -504,7 +509,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_no_geolocation_elements_with_length_1() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\noGeolocationElementsWithLength1";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","noGeolocationElementsWithLength1").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -575,7 +580,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_link_segments_in_same_direction() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\linkSegmentsInSameDirection";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","linkSegmentsInSameDirection").toAbsolutePath().toString();
       String description = "explanatory";
       
       Level oldLevel = LOGGER.getLevel();
@@ -598,7 +603,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_defaults() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\defaults";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","defaults").toAbsolutePath().toString();
       String description = "explanatory";
       String csvFileName = "_2.csv";
       String odCsvFileName = "_1.csv";
@@ -668,7 +673,8 @@ public class ExplanatoryTest {
    */
   @Test
   public void test_explanatory_attempt_to_change_locked_formatter() {
-    String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
+
+    String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","original").toAbsolutePath().toString();
     String description = "explanatory";
     String csvFileName = "Time_Period_1_2.csv";
     String odCsvFileName = "Time_Period_1_1.csv";
