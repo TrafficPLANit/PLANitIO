@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import org.goplanit.demands.Demands;
@@ -38,7 +39,11 @@ public class IntermodalTest {
 
   /** the logger */
   private static Logger LOGGER = null;
-  
+
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path intermodalTestCasePath = Path.of(testCasePath.toString(),"intermodal", "xml");
+
+
   @SuppressWarnings("unused")
   private static final String odZone1XmlId = "1";
   @SuppressWarnings("unused")
@@ -84,8 +89,8 @@ public class IntermodalTest {
   @Test
   public void test_intermodal_minimal_input() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\intermodal\\xml\\minimal_input\\";
-      
+      final String projectPath = Path.of(intermodalTestCasePath.toString(),"minimal_input").toString();
+
       final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
