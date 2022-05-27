@@ -314,26 +314,26 @@ public class PlanItIOTestHelper {
    */
   public static boolean compareFiles(final String file1, final String file2, final boolean printFilesOnFalse) throws IOException {
     final var charSetName = "utf-8";
-    final File f1 = new File(file1);
-    if(Files.notExists(Path.of(file1))){
-      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",file1));
-      FileUtils.listFiles(Path.of(file1).getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+    final Path f1 = Path.of(file1).toAbsolutePath();
+    if(Files.notExists(f1)){
+      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",f1));
+      FileUtils.listFiles(f1.getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
       return false;
     }
-    final File f2 = new File(file2);
-    if(Files.notExists(Path.of(file2))){
-      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",file1));
-      FileUtils.listFiles(Path.of(file2).getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+    final Path f2 = Path.of(file2).toAbsolutePath();
+    if(Files.notExists(f2)){
+      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",f2));
+      FileUtils.listFiles(f2.getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
       return false;
     }
 
-    final boolean contentEquals = FileUtils.contentEqualsIgnoreEOL(f1, f2, charSetName);
+    final boolean contentEquals = FileUtils.contentEqualsIgnoreEOL(f1.toFile(), f2.toFile(), charSetName);
     if(!contentEquals && printFilesOnFalse) {
       LOGGER.warning("FILE NOT THE SAME: Printing contents for comparison");
       LOGGER.warning("File 1:");
-      LOGGER.warning(FileUtils.readFileToString(f1, charSetName));
+      LOGGER.warning(FileUtils.readFileToString(f1.toFile(), charSetName));
       LOGGER.warning("File 2:");
-      LOGGER.warning(FileUtils.readFileToString(f2, charSetName));
+      LOGGER.warning(FileUtils.readFileToString(f2.toFile(), charSetName));
     }
     return contentEquals;
   }
