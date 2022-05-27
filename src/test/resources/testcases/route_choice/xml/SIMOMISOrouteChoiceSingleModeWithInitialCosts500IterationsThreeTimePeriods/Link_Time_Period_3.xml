@@ -16,7 +16,7 @@
     <simulation>
         <iteration>
             <nr>500</nr>
-            <csvdata type="Link">.\Link_RunId_0_test2initialCosts500IterationsThreeTimePeriods_Time_Period_3_500.csv</csvdata>
+            <csvdata type="Link">Link_RunId_0_test2initialCosts500IterationsThreeTimePeriods_Time_Period_3_500.csv</csvdata>
         </iteration>
     </simulation>
     <columns>

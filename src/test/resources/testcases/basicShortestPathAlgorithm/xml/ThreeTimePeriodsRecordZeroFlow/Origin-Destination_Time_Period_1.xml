@@ -16,7 +16,7 @@
     <simulation>
         <iteration>
             <nr>1</nr>
-            <csvdata type="Cost">.\Origin-Destination_RunId_0_testBasic13_Time_Period_1_1.csv</csvdata>
+            <csvdata type="Cost">Origin-Destination_RunId_0_testBasic13_Time_Period_1_1.csv</csvdata>
         </iteration>
     </simulation>
     <columns>

@@ -16,7 +16,7 @@
     <simulation>
         <iteration>
             <nr>2</nr>
-            <csvdata type="Path">.\Path_RunId_0_testBasic2_Time_Period_1_2.csv</csvdata>
+            <csvdata type="Path">Path_RunId_0_testBasic2_Time_Period_1_2.csv</csvdata>
         </iteration>
     </simulation>
     <columns>
