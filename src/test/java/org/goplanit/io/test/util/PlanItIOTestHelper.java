@@ -316,15 +316,15 @@ public class PlanItIOTestHelper {
     final var charSetName = "utf-8";
     final File f1 = new File(file1);
     final File f2 = new File(file2);
-    final boolean result = FileUtils.contentEqualsIgnoreEOL(f1, f2, charSetName);
-    if(false && printFilesOnFalse) {
+    final boolean contentEquals = FileUtils.contentEqualsIgnoreEOL(f1, f2, charSetName);
+    if(!contentEquals && printFilesOnFalse) {
       LOGGER.warning("FILE NOT THE SAME: Printing contents for comparison");
       LOGGER.warning("File 1:");
       LOGGER.warning(FileUtils.readFileToString(f1, charSetName));
       LOGGER.warning("File 2:");
       LOGGER.warning(FileUtils.readFileToString(f2, charSetName));
     }
-    return result;
+    return contentEquals;
   }
 
   /**
@@ -454,6 +454,7 @@ public class PlanItIOTestHelper {
    * @param xmlFileName name of XML file containing run results
    * @throws Exception thrown if there is an error
    */
+
   public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
                                                       String csvFileName, String xmlFileName) throws Exception {
 
@@ -471,12 +472,13 @@ public class PlanItIOTestHelper {
    * @param printFilesOnFalse when comparison returns false we can print the files when set to true, otherwise not
    * @throws Exception thrown if there is an error
    */
+
   public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
       String csvFileName, String xmlFileName, boolean printFilesOnFalse) throws Exception {
     
     String fullCsvFileNameWithoutDescription = Path.of(projectPath, outputType.value() + "_" + csvFileName).toString();
     String fullCsvFileNameWithDescription =  Path.of(projectPath, outputType.value() + "_" + description + "_" + csvFileName).toString();
-    
+
     assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription, printFilesOnFalse));
     deleteFile(outputType, projectPath, description, csvFileName);
     
