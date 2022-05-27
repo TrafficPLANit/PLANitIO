@@ -315,7 +315,18 @@ public class PlanItIOTestHelper {
   public static boolean compareFiles(final String file1, final String file2, final boolean printFilesOnFalse) throws IOException {
     final var charSetName = "utf-8";
     final File f1 = new File(file1);
+    if(Files.notExists(Path.of(file1))){
+      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",file1));
+      FileUtils.listFiles(Path.of(file1).getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+      return false;
+    }
     final File f2 = new File(file2);
+    if(Files.notExists(Path.of(file2))){
+      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",file1));
+      FileUtils.listFiles(Path.of(file2).getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+      return false;
+    }
+
     final boolean contentEquals = FileUtils.contentEqualsIgnoreEOL(f1, f2, charSetName);
     if(!contentEquals && printFilesOnFalse) {
       LOGGER.warning("FILE NOT THE SAME: Printing contents for comparison");

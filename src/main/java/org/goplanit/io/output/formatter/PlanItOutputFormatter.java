@@ -328,7 +328,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       throw e;
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when createing CSV file name and file in PLANitIO OutputFormatter", e);
+      throw new PlanItException("Error when creating CSV file name and file in PLANitIO OutputFormatter", e);
     }
 
     return csvFileName;
