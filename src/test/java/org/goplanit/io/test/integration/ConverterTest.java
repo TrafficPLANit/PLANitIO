@@ -2,6 +2,7 @@ package org.goplanit.io.test.integration;
 
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
@@ -34,6 +35,8 @@ public class ConverterTest {
   /** the logger */
   private static Logger LOGGER = null;
 
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+
   @BeforeClass
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -54,8 +57,8 @@ public class ConverterTest {
   @Test
   public void test_planit_2_planit_network_converter() {
     try {
-      final String projectPath = "src\\test\\resources\\testcases\\converter_test";
-      final String inputPath = projectPath+"\\input";
+      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String inputPath = Path.of(projectPath, "input").toString();
       
       /* reader */
       PlanitNetworkReader planitReader = PlanitNetworkReaderFactory.create();
@@ -70,8 +73,8 @@ public class ConverterTest {
       /* use non-deprecated hamcrest version instead of junit for comparing */
       org.hamcrest.MatcherAssert.assertThat(
           /* xml unit functionality comparing the two files */
-          Input.fromFile(projectPath+"\\network.xml"), 
-          CompareMatcher.isSimilarTo(Input.fromFile(inputPath+"\\network.xml")));
+          Input.fromFile(Path.of(projectPath, "network.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"network.xml").toString())));
       
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -87,8 +90,8 @@ public class ConverterTest {
   @Test
   public void test_planit_2_planit_intermodal_converter() {
     try {
-      final String projectPath = "src\\test\\resources\\testcases\\converter_test";
-      final String inputPath = projectPath+"\\input";
+      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String inputPath = Path.of(projectPath, "input").toString();
       
       /* reader */
       PlanitIntermodalReader planitReader = PlanitIntermodalReaderFactory.create();
@@ -103,14 +106,14 @@ public class ConverterTest {
       /* use non-deprecated hamcrest version instead of junit for comparing */
       org.hamcrest.MatcherAssert.assertThat(
           /* xml unit functionality comparing the two files */
-          Input.fromFile(projectPath+"\\network.xml"), 
-          CompareMatcher.isSimilarTo(Input.fromFile(inputPath+"\\network.xml")));    
+          Input.fromFile(Path.of(projectPath, "network.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"network.xml").toString())));
       
       /* use non-deprecated hamcrest version instead of junit for comparing */
       org.hamcrest.MatcherAssert.assertThat(
           /* xml unit functionality comparing the two files */
-          Input.fromFile(projectPath+"\\zoning.xml"), 
-          CompareMatcher.isSimilarTo(Input.fromFile(inputPath+"\\zoning.xml")));       
+          Input.fromFile(Path.of(projectPath,"zoning.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"zoning.xml").toString())));
       
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());

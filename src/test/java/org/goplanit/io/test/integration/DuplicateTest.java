@@ -3,6 +3,7 @@ package org.goplanit.io.test.integration;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +25,8 @@ public class DuplicateTest {
   /** the logger */
   private static Logger LOGGER = null;
 
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+
   @BeforeClass
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -43,7 +46,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_link_segment_type_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentTypeXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateLinkSegmentTypeXmlId").toString();
       String description = "testDuplicateLinkSegmentType";
       
       /* run test */
@@ -62,7 +65,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_link_segment_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateLinkSegmentXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateLinkSegmentXmlId").toString();
       String description = "testDuplicateLinkSegment";
 
       Level oldLevel = LOGGER.getLevel();
@@ -85,7 +88,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_node_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateNodeXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateNodeXmlId").toString();
       String description = "testDuplicateNode";
 
       Level oldLevel = LOGGER.getLevel();
@@ -106,7 +109,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_mode_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateModeXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateModeXmlId").toString();
       String description = "testDuplicateMode";
 
       Level oldLevel = LOGGER.getLevel();
@@ -127,7 +130,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_zone_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateZoneXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateZoneXmlId").toString();
       String description = "testDuplicateZone";
 
       Level oldLevel = LOGGER.getLevel();
@@ -148,7 +151,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_time_period_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateTimePeriodXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateTimePeriodXmlId").toString();
       String description = "testDuplicateTimePeriod";
 
       Level oldLevel = LOGGER.getLevel();
@@ -169,7 +172,7 @@ public class DuplicateTest {
   @Test
   public void test_duplicate_user_class_xml_id() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\duplicate_tests\\xml\\duplicateUserClassXmlId";
+      final String projectPath = Path.of(testCasePath.toString(),"duplicate_tests", "xml","duplicateUserClassXmlId").toString();
       String description = "testDuplicateUserClass";
 
       Level oldLevel = LOGGER.getLevel();

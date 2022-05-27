@@ -280,7 +280,7 @@ public class PlanItIOTestHelper {
   public static void deleteFile(final String fileName) throws Exception {
     try {
       final String rootPath = System.getProperty("user.dir");
-      final Path path = FileSystems.getDefault().getPath(rootPath + "\\" + fileName);
+      Path path =  !fileName.startsWith(rootPath) ? Path.of(rootPath, fileName) : Path.of(fileName);
       Files.delete(path);
     }catch(NoSuchFileException e) {
       LOGGER.fine(String.format("File cannot be deleted, it does not exist; %s", fileName));
@@ -297,7 +297,7 @@ public class PlanItIOTestHelper {
    */
   public static void deleteFile(final OutputType outputType, final String projectPath, final String description,
       final String fileName) throws Exception {
-    deleteFile(projectPath + "\\" + outputType.value() + "_" + description + "_" + fileName);
+    deleteFile(Path.of(projectPath, outputType.value() + "_" + description + "_" + fileName).toString());
   }
 
   /**
@@ -449,14 +449,14 @@ public class PlanItIOTestHelper {
   public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
       String csvFileName, String xmlFileName) throws Exception {
     
-    String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
-    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + csvFileName;
+    String fullCsvFileNameWithoutDescription = Path.of(projectPath, outputType.value() + "_" + csvFileName).toString();
+    String fullCsvFileNameWithDescription =  Path.of(projectPath, outputType.value() + "_" + description + "_" + csvFileName).toString();
     
     assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription));
     deleteFile(outputType, projectPath, description, csvFileName);
     
-    String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
-    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + xmlFileName;
+    String fullXmlFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + xmlFileName).toString();
+    String fullXmlFileNameWithDescription = Path.of( projectPath , outputType.value() + "_" + description + "_" + xmlFileName).toString();
     assertTrue(isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription, fullXmlFileNameWithDescription));
     deleteFile(outputType, projectPath, description, xmlFileName);
   }

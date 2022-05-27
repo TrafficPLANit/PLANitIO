@@ -44,7 +44,7 @@ public class GettingStartedTest {
   public void gettingStartedTest() {
     try {
       var path = Path.of("src","test","resources","testcases","getting_started","base");
-      TraditionalStaticAssignmentProjectDemos.gettingStartedDemo(path.toAbsolutePath().toString());
+      TraditionalStaticAssignmentProjectDemos.gettingStartedDemo(path.toString());
     }catch(Exception e){
       e.printStackTrace();
       LOGGER.severe(e.getMessage());

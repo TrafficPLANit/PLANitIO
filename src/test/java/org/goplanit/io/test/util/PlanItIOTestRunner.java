@@ -262,8 +262,8 @@ public class PlanItIOTestRunner {
    */    
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
       TriConsumer<LayeredNetwork<?, ?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters,
-      Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfiguration) throws Exception {
-    return setupAndExecuteAssignment(setLinkOutputTypeConfiguration, setBprCostParameters);
+      Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) throws Exception {
+    return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, setBprCostParameters);
   }  
    
 
