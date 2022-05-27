@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.logging.Logger;
 
@@ -49,6 +50,9 @@ public class RoutedServicesTest {
   /** the logger */
   private static Logger LOGGER = null;
 
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path routedServicesTestCasePath = Path.of(testCasePath.toString(),"getting_started", "service");
+
   @BeforeClass
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -70,19 +74,17 @@ public class RoutedServicesTest {
   @Test
   public void gettingStartedTestWithRoutedServices() {
     try {
-      final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
-      
       /* parent network */
       PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
-      networkReader.getSettings().setInputDirectory(INPUT_DIR);      
+      networkReader.getSettings().setInputDirectory(routedServicesTestCasePath.toString());
       MacroscopicNetwork parentNetwork = networkReader.read();
       
       /* the service network */
-      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);      
+      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(routedServicesTestCasePath.toString(), parentNetwork);
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
       /* the routed services */
-      PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(INPUT_DIR, serviceNetwork);      
+      PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(routedServicesTestCasePath.toString(), serviceNetwork);
       RoutedServices routedServices = routedServicesReader.read();       
       
       /* general tests on the routed service top-level classes */
@@ -150,10 +152,9 @@ public class RoutedServicesTest {
    */
   @Test
   public void routedServicesViaPlanitProject() {  
-    final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
-    
+
     try {
-      final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(INPUT_DIR));
+      final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(routedServicesTestCasePath.toString()));
       
       /* physical network needed for service network... */
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);

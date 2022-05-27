@@ -3,6 +3,7 @@ package org.goplanit.io.test.integration;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import org.goplanit.io.converter.network.PlanitNetworkReader;
@@ -28,6 +29,9 @@ public class ServiceNetworkTest {
   /** the logger */
   private static Logger LOGGER = null;
 
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path serviceNetworkTestCasePath = Path.of(testCasePath.toString(),"getting_started", "service");
+
   @BeforeClass
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -49,15 +53,13 @@ public class ServiceNetworkTest {
   @Test
   public void gettingStartedTestWithServices() {
     try {
-      final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
-      
       /* parent network */
       PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
-      networkReader.getSettings().setInputDirectory(INPUT_DIR);      
+      networkReader.getSettings().setInputDirectory(serviceNetworkTestCasePath.toString());
       MacroscopicNetwork parentNetwork = networkReader.read();
       
       /* the service network */
-      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);      
+      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(serviceNetworkTestCasePath.toString(), parentNetwork);
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
       /* tests */
