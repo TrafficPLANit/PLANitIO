@@ -308,13 +308,22 @@ public class PlanItIOTestHelper {
    *
    * @param file1 location of the first file to be compared
    * @param file2 location of the second file to be compared
+   * @param printFilesOnFalse when comparison returns false we can print the files when set to true, otherwise not
    * @return true if the contents of the two files are exactly equal, false otherwise
    * @throws IOException thrown if there is an error opening one of the files
    */
-  public static boolean compareFiles(final String file1, final String file2) throws IOException {
+  public static boolean compareFiles(final String file1, final String file2, final boolean printFilesOnFalse) throws IOException {
+    final var charSetName = "utf-8";
     final File f1 = new File(file1);
     final File f2 = new File(file2);
-    final boolean result = FileUtils.contentEqualsIgnoreEOL(f1, f2, "utf-8");
+    final boolean result = FileUtils.contentEqualsIgnoreEOL(f1, f2, charSetName);
+    if(false && printFilesOnFalse) {
+      LOGGER.warning("FILE NOT THE SAME: Printing contents for comparison");
+      LOGGER.warning("File 1:");
+      LOGGER.warning(FileUtils.readFileToString(f1, charSetName));
+      LOGGER.warning("File 2:");
+      LOGGER.warning(FileUtils.readFileToString(f2, charSetName));
+    }
     return result;
   }
 
@@ -437,22 +446,38 @@ public class PlanItIOTestHelper {
 
   /**
    * Run assertions which confirm that results files contain the correct data, and
-   * then remove the results files
-   * 
+   * then remove the results files, when files differ, always print the two files for comparison
+   *
    * @param projectPath project directory containing the input files
    * @param description description used in temporary output file names
    * @param csvFileName name of CSV file containing run results
    * @param xmlFileName name of XML file containing run results
    * @throws Exception thrown if there is an error
    */
- 
   public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
-      String csvFileName, String xmlFileName) throws Exception {
+                                                      String csvFileName, String xmlFileName) throws Exception {
+
+    runFileEqualAssertionsAndCleanUp(outputType, projectPath, description, csvFileName, xmlFileName, true);
+  }
+
+  /**
+   * Run assertions which confirm that results files contain the correct data, and
+   * then remove the results files
+   * 
+   * @param projectPath project directory containing the input files
+   * @param description description used in temporary output file names
+   * @param csvFileName name of CSV file containing run results
+   * @param xmlFileName name of XML file containing run results
+   * @param printFilesOnFalse when comparison returns false we can print the files when set to true, otherwise not
+   * @throws Exception thrown if there is an error
+   */
+  public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
+      String csvFileName, String xmlFileName, boolean printFilesOnFalse) throws Exception {
     
     String fullCsvFileNameWithoutDescription = Path.of(projectPath, outputType.value() + "_" + csvFileName).toString();
     String fullCsvFileNameWithDescription =  Path.of(projectPath, outputType.value() + "_" + description + "_" + csvFileName).toString();
     
-    assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription));
+    assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription, printFilesOnFalse));
     deleteFile(outputType, projectPath, description, csvFileName);
     
     String fullXmlFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + xmlFileName).toString();

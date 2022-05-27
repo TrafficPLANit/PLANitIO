@@ -79,7 +79,7 @@ public class BPRTest {
     String fullCsvFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + csvFileName).toString();
     String fullCsvFileNameWithDescription = Path.of(projectPath , outputType.value() + "_" + description + "_"+ csvFileName).toString();
 
-    assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription));
+    assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription, true));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, csvFileName);
 
     String fullXmlFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + xmlFileName).toString();
