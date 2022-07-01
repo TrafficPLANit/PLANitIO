@@ -19,7 +19,16 @@ public class PlanitNetworkReaderSettings extends PlanitXmlReaderSettings impleme
   public PlanitNetworkReaderSettings() {
     super();
   }
-  
+
+  /**
+   * Constructor.
+   *
+   * @param inputPathDirectory to use
+   */
+  public PlanitNetworkReaderSettings(final String inputPathDirectory) {
+    super(inputPathDirectory);
+  }
+
   /**
    * Constructor.
    * 

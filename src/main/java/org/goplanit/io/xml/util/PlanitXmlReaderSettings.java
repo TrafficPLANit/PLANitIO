@@ -12,15 +12,26 @@ public class PlanitXmlReaderSettings {
   private String inputDirectory;
   
   /** xml file extension to use */
-  private String xmlFileExtension;    
+  private String xmlFileExtension;
+
+  public static String DEFAULT_XML_EXTENSION = ".xml";
   
   /**
    * Default constructor using default file extensino and user must set output dir afterwards manually
    */
   public PlanitXmlReaderSettings() {
-   this(null,PlanitXmlJaxbParser.DEFAULT_XML_FILE_EXTENSION); 
+   this(null,DEFAULT_XML_EXTENSION);
   }
-  
+
+  /**
+   * Constructor
+   *
+   *  @param inputDirectory to use
+   */
+  public PlanitXmlReaderSettings(final String inputDirectory) {
+    this(inputDirectory, DEFAULT_XML_EXTENSION);
+  }
+
   /**
    * Constructor
    * 

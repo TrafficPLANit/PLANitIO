@@ -304,7 +304,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     }
 
     /* only apply once per access properties since it may be referenced by multiple modes */
-    Set<Mode> processedModes = new TreeSet<Mode>();
+    Set<Mode> processedModes = new TreeSet<>();
     for(Mode accessMode : linkSegmentType.getAllowedModes()) {
       if(!processedModes.contains(accessMode)) {
         AccessGroupProperties accessProperties = linkSegmentType.getAccessProperties(accessMode);

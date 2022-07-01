@@ -24,7 +24,16 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
   public PlanitIntermodalReaderSettings() {
     this(new PlanitNetworkReaderSettings(),new PlanitZoningReaderSettings());
   }
-  
+
+  /**
+   * Constructor
+   *
+   * @param inputPathDirectory to use
+   */
+  public PlanitIntermodalReaderSettings(final String inputPathDirectory) {
+    this(new PlanitNetworkReaderSettings(inputPathDirectory), new PlanitZoningReaderSettings(inputPathDirectory));
+  }
+
   /**
    * Constructor
    * 

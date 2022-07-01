@@ -395,10 +395,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
      accessModes = defaultModes;
    }else {
      String[] xmlModesRefArray = xmlAccessGroupProperties.getModerefs().split(",");
-     accessModes = new TreeSet<Mode>();
+     accessModes = new TreeSet<>();
      for(int index = 0 ;index < xmlModesRefArray.length;++index) {
        Mode thePlanitMode = getBySourceId(Mode.class, xmlModesRefArray[index]);
-       PlanItException.throwIfNull(thePlanitMode, String.format("referenced mode (xml id:%s) does not exist in PLANit parser",xmlModesRefArray[index]));
+       PlanItException.throwIfNull(thePlanitMode, String.format("Referenced mode (xml id:%s) does not exist in PLANit parser",xmlModesRefArray[index]));
        accessModes.add(thePlanitMode);
      }      
    }    
