@@ -97,7 +97,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   
   /** Convert PLANit connectoid type to XML PLANit connectoid type
    * 
-   * @param connectoidType to convert
+   * @param transferZoneType to convert
    * @return xml connectoid type created
    */
   private static Transferzonetype createXmlTransferZoneType(final TransferZoneType transferZoneType) {
@@ -339,9 +339,10 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }   
     
     /* centroid */
-    if(transferZone.hasCentroid()) {
+    if(transferZone.hasCentroid() && transferZone.getCentroid().hasPosition()) {
       XMLElementCentroid xmlCentroid = new XMLElementCentroid();
       populateXmlCentroid(xmlCentroid, transferZone.getCentroid());
+      xmlTransferZone.setCentroid(xmlCentroid);
     }        
   }
 
@@ -429,7 +430,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   
   /** Populate the generic part of any connectoid
    * 
-   * @param xmlConnectoid to populate
+   * @param xmlConnectoidBase to populate
    * @param connectoid the planit connectoid to extract from
    * @param lengthKm when present the length is set, when not, it is omitted (default assumed)
    * @param accessModes to use, when null it is left out (default), otherwise these modes are set as explicitly allowed access modes
