@@ -139,7 +139,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * 
    * @param serviceNetworkLayer to extract service leg segments to
    * @param serviceLeg the parent leg
-   * @param xmlServiceleg to extract segment(s) from
+   * @param xmlServiceLeg to extract segment(s) from
    * 
    * @throws PlanItException thrown if error
    */    
