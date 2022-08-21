@@ -19,6 +19,7 @@ import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
 import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.graph.Vertex;
@@ -141,9 +142,8 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    * 
    * @param xmlSettings to use
    * @return srsName to use
-   * @throws PlanItException thrown if error
    */
-  protected static String extractSrsName(PlanitXmlWriterSettings xmlSettings) throws PlanItException {
+  protected static String extractSrsName(PlanitXmlWriterSettings xmlSettings) {
     String srsName = "";
     if("EPSG".equals(xmlSettings.getDestinationCoordinateReferenceSystem().getName().getCodeSpace())) {
       /* spatial crs based on epsg code*/
@@ -157,10 +157,10 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
         srsName = String.format("EPSG:%s",epsgCode.toString());
       }catch (Exception e) {
         LOGGER.severe(e.getMessage());
-        throw new PlanItException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
+        throw new PlanItRunTimeException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
       }      
     }else if(!xmlSettings.getDestinationCoordinateReferenceSystem().equals(PlanitJtsCrsUtils.CARTESIANCRS)) {
-      throw new PlanItException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
+      throw new PlanItRunTimeException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
     }
     return srsName;
   }  

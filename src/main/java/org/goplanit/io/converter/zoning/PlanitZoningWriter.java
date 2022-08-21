@@ -32,7 +32,6 @@ import org.goplanit.utils.zoning.Zone;
 import org.goplanit.xml.generated.Connectoidnodelocationtype;
 import org.goplanit.xml.generated.Connectoidtypetype;
 import org.goplanit.xml.generated.Intermodaltype;
-import org.goplanit.xml.generated.Odconnectoid;
 import org.goplanit.xml.generated.Transferzonetype;
 import org.goplanit.xml.generated.XMLElementCentroid;
 import org.goplanit.xml.generated.XMLElementConnectoid;
@@ -486,15 +485,14 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
       LOGGER.severe(String.format("od conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone", 
           odConnectoid.getXmlId(), odConnectoid.getId(), accessZone.getXmlId(), accessZone.getId()));
     }
+
+    xmlConnectoid.setType(Connectoidtypetype.TRAVELLER_ACCESS);
     
-    var xmlOdConnectoid = new Odconnectoid();
-    xmlConnectoid.setValue(xmlOdConnectoid);    
-    
-    /* populate extension pertaining to od connectoid */       
-    xmlOdConnectoid.setNoderef(getVertexIdMapper().apply(odConnectoid.getAccessVertex()));    
+    /* populate extension pertaining to od connectoid */
+    xmlConnectoid.setNoderef(getVertexIdMapper().apply(odConnectoid.getAccessVertex()));
     
     /* populate base pertaining to any connectoid*/
-    populateXmlConnectoidBase(xmlOdConnectoid, odConnectoid, odConnectoid.getLengthKm(accessZone), odConnectoid.getExplicitlyAllowedModes(accessZone));            
+    populateXmlConnectoidBase(xmlConnectoid, odConnectoid, odConnectoid.getLengthKm(accessZone), odConnectoid.getExplicitlyAllowedModes(accessZone));
   }   
 
   /** Populate an XML origin-destination zone
@@ -576,10 +574,8 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   }
 
   /** Make sure the zonings destination crs is set (if any)
-   * 
-   * @throws PlanItException thrown if error
    */
-  private void populateCrs() throws PlanItException {
+  private void populateCrs(){
     if(getSettings().getDestinationCoordinateReferenceSystem() != null) {
       xmlRawZoning.setSrsname(extractSrsName(getSettings()));
     }

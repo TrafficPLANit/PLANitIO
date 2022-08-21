@@ -29,6 +29,7 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
+import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.unit.Unit;
 import org.goplanit.xml.generated.TimeUnit;
 import org.goplanit.xml.generated.XMLElementDepartures;
@@ -103,14 +104,14 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       }
       
       /* departure time */
-      XMLGregorianCalendar xmlDepartureTime = xmlDeparture.getTime();
-      if(xmlDepartureTime==null) {
+      String extendedDepartureTime = xmlDeparture.getTime();
+      if(extendedDepartureTime==null) {
         LOGGER.warning(String.format("IGNORE: A routed trip %s has no departure time defined for its departure element, departure removed", routedTrip.getXmlId()));
         continue;        
       }
-      LocalTime departureTime = xmlDepartureTime.toGregorianCalendar().toZonedDateTime().toLocalTime();            
+      var parsedDepartureTime = ExtendedLocalTime.of(extendedDepartureTime);
       /* instance */
-      RoutedTripDeparture departure = routedTripDepartures.getFactory().registerNew(departureTime);
+      RoutedTripDeparture departure = routedTripDepartures.getFactory().registerNew(parsedDepartureTime);
       departure.setXmlId(xmlId);
       
       /* external id*/
