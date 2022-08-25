@@ -6,9 +6,13 @@ import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.network.ServiceNetwork;
+import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.Pair;
+import org.goplanit.utils.misc.Quadruple;
 import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
 import org.goplanit.zoning.Zoning;
@@ -119,4 +123,22 @@ public class PlanitIntermodalReader implements IntermodalReader {
     return this.intermodalReaderSettings;
   }
 
+  /**
+   * Currently no support for this yet on the PLANit side. To be implemented in the future
+   * @return false
+   */
+  @Override
+  public boolean supportServiceConversion() {
+    return false;
+  }
+
+  /**
+   * Currently no support yet for this feature
+   *
+   * @return created network, zoning, service network and services
+   */
+  @Override
+  public Quadruple<MacroscopicNetwork, Zoning, ServiceNetwork, RoutedServices> readWithServices() {
+    throw new PlanItRunTimeException("Support for service reader as part of Intermodal reader not yet supported in PLANitIntermodalReader");
+  }
 }

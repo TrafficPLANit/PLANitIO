@@ -8,7 +8,7 @@ import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
 import org.goplanit.zoning.Zoning;
 
 /**
- * Factory class for creating zoning reader in the native PLANit format
+ * Factory class for creating intermodal reader in the native PLANit format
  * 
  * @author markr
  *
