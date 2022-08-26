@@ -22,6 +22,7 @@ import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.MotorisationModeType;
@@ -685,6 +686,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
 
       /* parse layers */
       parseNetworkLayers();
+
+      /* log stats */
+      network.logInfo(LoggingUtils.networkPrefix(network.getId()));
       
       /* free xml content */
       xmlParser.clearXmlContent();

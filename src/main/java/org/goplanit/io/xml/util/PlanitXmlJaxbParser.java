@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.misc.FileUtils;
@@ -126,20 +127,17 @@ public class PlanitXmlJaxbParser<T> {
   /** Create a crs based on passed in srs name. If no srs name is provided the default will be created
    * 
    * @param srsName to use
-   * @return craeted crs
-   * @throws PlanItException thrown if error
+   * @return created crs
    */
-  public static CoordinateReferenceSystem createPlanitCrs(String srsName) throws PlanItException {
+  public static CoordinateReferenceSystem createPlanitCrs(String srsName) {
     CoordinateReferenceSystem crs = null;
     if(StringUtils.isNullOrBlank(srsName)) {
       crs = PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS;
-      LOGGER.warning(String.format("coordinate reference system not set, applying default %s",crs.getName().getCode()));
+      LOGGER.warning(String.format("Coordinate reference system not set, applying default %s",crs.getName().getCode()));
     }else {
       crs = PlanitCrsUtils.createCoordinateReferenceSystem(srsName);
-      if(crs==null) {
-        throw new PlanItException("Srs name provided (%s) but it could not be converted into a coordinate reference system",srsName);
-      }
-    } 
+      PlanItRunTimeException.throwIfNull(crs, "Srs name provided (%s) but it could not be converted into a coordinate reference system",srsName);
+    }
     return crs;
   }
 
