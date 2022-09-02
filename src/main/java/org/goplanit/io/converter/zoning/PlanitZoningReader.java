@@ -16,6 +16,7 @@ import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
+import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
@@ -409,6 +410,11 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       /* type */
       if(xmlTransferzone.getType()!= null) {
         transferZone.setType(parseTransferZoneType(xmlTransferzone.getType()));
+      }
+
+      /* platform names */
+      if(xmlTransferzone.getPlatforms()!=null){
+        transferZone.addTransferZonePlatformNames(xmlTransferzone.getPlatforms().split(CharacterUtils.COMMA.toString()));
       }
             
       /* geometry */

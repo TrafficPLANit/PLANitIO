@@ -16,6 +16,7 @@ import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.math.Precision;
+import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
@@ -321,7 +322,12 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     /* name */
     if(transferZone.hasName()) {
       xmlTransferZone.setName(transferZone.getName());
-    } 
+    }
+
+    /* platform names */
+    if(transferZone.hasPlatformNames()){
+      xmlTransferZone.setPlatforms(String.join(CharacterUtils.COMMA.toString(),transferZone.getTransferZonePlatformNames()));
+    }
     
     /* type */
     if(!transferZone.getTransferZoneType().equals(TransferZoneType.NONE)) {
