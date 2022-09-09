@@ -25,10 +25,7 @@ import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
 import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.NetworkLayer;
-import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentTypes;
+import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.Links;
 import org.goplanit.utils.network.layer.physical.Node;
@@ -97,7 +94,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
    * @param xmlLink to populate link segments on
    * @param link to populate link segments from
    */
-  private void populateLinkSegments(XMLElementLinks.Link xmlLink, Link link) {
+  private void populateLinkSegments(XMLElementLinks.Link xmlLink, MacroscopicLink link) {
     List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegment();
     
     if(link.hasLinkSegmentAb()) {      
@@ -127,7 +124,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
    * @param link to populate from
    * @throws PlanItException thrown if error
    */
-  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final Link link) throws PlanItException {
+  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final MacroscopicLink link) throws PlanItException {
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
     /* XML id */
@@ -182,7 +179,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
    * @param links to populate from
    * @throws PlanItException thrown if error
    */
-  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final Links links) throws PlanItException {
+  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final MacroscopicLinks links) throws PlanItException {
     XMLElementLinks xmlLinks = xmlNetworkLayer.getLinks(); 
     if(xmlLinks == null) {
       xmlLinks = new XMLElementLinks();
@@ -191,7 +188,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     
     /* link */
     final List<XMLElementLinks.Link> xmlLinkList = xmlLinks.getLink();    
-    for(Link link: links) {
+    for(var link: links) {
       populateXmlLink(xmlLinkList, link);
     }
   } 

@@ -35,6 +35,7 @@ import org.goplanit.utils.mode.VehicularModeType;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
+import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.network.layer.physical.Link;
@@ -479,7 +480,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     for (XMLElementLinks.Link xmlLink : xmlLinks.getLink()) {
       
       /** LINK **/
-      Link link = null;
+      MacroscopicLink link = null;
       {
         /* xml id */
         if(StringUtils.isNullOrBlank(xmlLink.getId())) {
