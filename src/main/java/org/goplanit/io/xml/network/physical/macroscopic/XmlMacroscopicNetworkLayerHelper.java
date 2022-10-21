@@ -94,9 +94,8 @@ public class XmlMacroscopicNetworkLayerHelper {
    * 
    * @param generatedLink XML link
    * @return created LineString if any, null if not present
-   * @throws PlanItException thrown if error
    */
-  public static LineString parseLinkGeometry(org.goplanit.xml.generated.XMLElementLinks.Link generatedLink) throws PlanItException {
+  public static LineString parseLinkGeometry(org.goplanit.xml.generated.XMLElementLinks.Link generatedLink) {
     /* geometry of link */
     if(generatedLink.getLineString()!=null) {
       LineStringType lst = generatedLink.getLineString();
@@ -115,9 +114,8 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param theLineString to extract length from (if not null) when no explicit length is set
    * @param jtsUtils to compute length from geometry
    * @return length (in km)
-   * @throws PlanItException thrown if error
    */
-  public static double parseLength(org.goplanit.xml.generated.XMLElementLinks.Link xmlLink, LineString theLineString, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
+  public static double parseLength(org.goplanit.xml.generated.XMLElementLinks.Link xmlLink, LineString theLineString, PlanitJtsCrsUtils jtsUtils) {
     Double length = parseLengthElementFromLink(xmlLink);
     if(length == null && theLineString!=null) {
       /* not explicitly set, try extracting it from geometry  instead */

@@ -10,6 +10,7 @@ import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.xml.generated.XMLElementPLANit;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**

@@ -19,9 +19,9 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.csv.CSVPrinter;
-import org.goplanit.io.xml.converter.EnumConverter;
+import org.goplanit.io.xml.converter.XmlEnumConverter;
 import org.goplanit.io.xml.util.ApplicationProperties;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.output.adapter.OutputAdapter;
 import org.goplanit.output.configuration.OutputConfiguration;
@@ -188,8 +188,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     for (OutputProperty outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
       generatedColumn.setName(outputProperty.getName());
-      generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
-      generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
+      generatedColumn.setUnits(XmlEnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
+      generatedColumn.setType(XmlEnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
       generatedColumns.getColumn().add(generatedColumn);
     }
     return generatedColumns;

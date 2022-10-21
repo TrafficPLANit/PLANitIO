@@ -30,7 +30,7 @@ import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;

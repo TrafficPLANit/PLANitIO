@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -17,7 +16,7 @@ import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.io.FileUtils;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.formatter.MemoryOutputIterator;

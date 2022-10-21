@@ -13,7 +13,7 @@ import org.goplanit.converter.BaseWriterImpl;
 import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
 import org.goplanit.io.geo.PlanitGmlUtils;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
 import org.goplanit.userclass.TravellerType;
