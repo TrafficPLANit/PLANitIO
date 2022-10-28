@@ -516,7 +516,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         /* name */
         if(!StringUtils.isNullOrBlank(xmlLink.getName())) {
           link.setName(xmlLink.getName());
-        }        
+        }
+
+        /* validate link */
+        link.validate();
             
         registerBySourceId(Link.class, link);
       }      

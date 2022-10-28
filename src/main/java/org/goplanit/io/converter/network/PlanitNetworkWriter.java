@@ -97,7 +97,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
   private void populateLinkSegments(XMLElementLinks.Link xmlLink, MacroscopicLink link) {
     List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegment();
     
-    if(link.hasLinkSegmentAb()) {      
+    if(link.hasLinkSegmentAb()) {
+      link.getLinkSegmentAb().validate();
       XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
       /* direction A->B */
       xmlLinkSegment.setDir(Direction.A_B);
@@ -105,6 +106,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
       xmlLinkSegments.add(xmlLinkSegment);
     }
     if(link.hasLinkSegmentBa()) {
+      link.getLinkSegmentBa().validate();
       XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
       /* direction B->A */
       xmlLinkSegment.setDir(Direction.B_A);
@@ -189,6 +191,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     /* link */
     final List<XMLElementLinks.Link> xmlLinkList = xmlLinks.getLink();    
     for(var link: links) {
+      link.validate();
       populateXmlLink(xmlLinkList, link);
     }
   } 
