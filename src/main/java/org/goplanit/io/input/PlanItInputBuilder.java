@@ -18,7 +18,7 @@ import org.goplanit.component.event.PopulateNetworkEvent;
 import org.goplanit.component.event.PopulateRoutedServicesEvent;
 import org.goplanit.component.event.PopulateServiceNetworkEvent;
 import org.goplanit.component.event.PopulateZoningEvent;
-import org.goplanit.cost.physical.initial.InitialLinkSegmentCost;
+import org.goplanit.cost.physical.initial.InitialMacroscopicLinkSegmentCost;
 import org.goplanit.demands.Demands;
 import org.goplanit.input.InputBuilderListener;
 import org.goplanit.io.converter.demands.PlanitDemandsReader;
@@ -281,8 +281,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param timePeriod to use (may be null)
    * @throws PlanItException thrown if error
    */
-  private void setInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
-      final MacroscopicLinkSegment linkSegment, final TimePeriod timePeriod) throws PlanItException {
+  private void setInitialLinkSegmentCost(final InitialMacroscopicLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
+                                         final MacroscopicLinkSegment linkSegment, final TimePeriod timePeriod) throws PlanItException {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
 
@@ -440,7 +440,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Set<String> headers = parser.getHeaderMap().keySet();
       
       /* populate this */
-      InitialLinkSegmentCost initialLinkSegmentCost = initialCostEvent.getInitialLinkSegmentCostToPopulate();
+      var initialLinkSegmentCost = initialCostEvent.getInitialLinkSegmentCostToPopulate();
 
       /* lay index by reference method */
       final OutputPropertyType linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);

@@ -7,7 +7,6 @@ import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
 import org.goplanit.cost.physical.BPRConfigurator;
-import org.goplanit.cost.physical.initial.InitialLinkSegmentCost;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.goplanit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.goplanit.demands.Demands;
@@ -312,7 +311,7 @@ public class PlanItIOTestRunner {
    * @throws PlanItException thrown if error
    */
   public void registerInitialLinkSegmentCost(String initialCostLocation) throws PlanItException {
-    InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation);
+    var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation);
     taConfigurator.registerInitialLinkSegmentCost(initialCost);
   }
 
@@ -324,7 +323,7 @@ public class PlanItIOTestRunner {
    */  
   public void registerInitialLinkSegmentCostByTimePeriod(String timePeriodXmlId, String initialCostLocation) throws PlanItException {
     TimePeriod timePeriod = demands.timePeriods.getByXmlId(timePeriodXmlId);
-    final InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
+    final var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
     taConfigurator.registerInitialLinkSegmentCost(timePeriod, initialCost.getTimePeriodCosts(timePeriod));    
   }
 

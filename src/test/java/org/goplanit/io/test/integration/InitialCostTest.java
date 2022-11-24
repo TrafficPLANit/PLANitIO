@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.goplanit.cost.physical.initial.InitialLinkSegmentCost;
 import org.goplanit.io.test.util.PlanItIOTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
@@ -75,7 +74,7 @@ public class InitialCostTest {
       PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       
       /* reference */
       Reader in = new FileReader(initialCostsFileLocationXmlId);
@@ -114,7 +113,7 @@ public class InitialCostTest {
       PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       
       /* reference */
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
