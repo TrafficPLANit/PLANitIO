@@ -17,6 +17,7 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.physical.Link;
+import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
 import org.goplanit.utils.network.layer.service.ServiceLeg;
@@ -91,39 +92,10 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
         continue;
       }      
       ServiceNode endNode = serviceNodesByXmlId.get(xmlServiceLeg.getNodebref());      
-      
-      /* parent link refs comprising the leg */
-      String parentLinkRefs = xmlServiceLeg.getLrefs();
-      if(StringUtils.isNullOrBlank(parentLinkRefs)) {
-        LOGGER.warning(String.format("IGNORE: Service leg %s in service layer %s has no parent links that define the leg", xmlId, serviceNetworkLayer.getXmlId()));
-        continue;
-      }  
-      
-      /* parent links in memory model */
-      String[] parentLinkRefsArray = parentLinkRefs.split(CharacterUtils.COMMA.toString());
-      boolean valid = true;
-      ArrayList<Link> parentLinksInOrder = new ArrayList<Link>(parentLinkRefsArray.length);
-      for(int index=0;index<parentLinkRefsArray.length;++index) {
-        String xmlParentLinkRef = parentLinkRefsArray[index];
-        Link linkInLeg = getBySourceId(Link.class, xmlParentLinkRef);
-        if(linkInLeg==null) {
-          LOGGER.warning(String.format("Service leg %s in service layer %s references unknown parent link %s", xmlId, serviceNetworkLayer.getXmlId(), xmlParentLinkRef));
-          valid=false;
-          continue;
-        }                
-        parentLinksInOrder.add(linkInLeg);
-      }
-      if(!valid) {
-        LOGGER.warning(String.format("IGNORE: Service leg %s in service layer %s invalid", xmlId, serviceNetworkLayer.getXmlId()));
-        continue;
-      }
-                 
+
       /* instance */
-      ServiceLeg serviceLeg = serviceNetworkLayer.getLegs().getFactory().registerNew(startNode, endNode, parentLinksInOrder, registerLegsOnServiceNodes);
-      if(!serviceLeg.validate()) {
-        throw new PlanItException("Invalid service network file, inconsistency detected in service leg (%s) definition",serviceLeg.getXmlId());
-      }
-      serviceLeg.setXmlId(xmlId);      
+      ServiceLeg serviceLeg = serviceNetworkLayer.getLegs().getFactory().registerNew(startNode, endNode, registerLegsOnServiceNodes);
+      serviceLeg.setXmlId(xmlId);
             
       /* external id*/
       if(!StringUtils.isNullOrBlank(xmlServiceLeg.getExternalid())) {
@@ -132,6 +104,10 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       
       /* service leg segment(s) */
       parseLegSegmentsOfLeg(serviceNetworkLayer, serviceLeg, xmlServiceLeg);
+
+      if(!serviceLeg.validate()) {
+        throw new PlanItException("Invalid service network file, inconsistency detected in service leg (%s) definition",serviceLeg.getXmlId());
+      }
     }
   }
 
@@ -177,7 +153,33 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       /* external id*/
       if(!StringUtils.isNullOrBlank(xmlLegSegment.getExternalid())) {
         serviceLegSegment.setExternalId(xmlLegSegment.getExternalid());
-      }  
+      }
+
+      /* parent link segment refs comprising the leg segment*/
+      String parentLinkRefs = xmlLegSegment.getLsrefs();
+      if(StringUtils.isNullOrBlank(parentLinkRefs)) {
+        LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s has no parent link segments that define the leg segment", xmlId, serviceNetworkLayer.getXmlId()));
+        continue;
+      }
+
+      /* parent link segments in memory model */
+      String[] parentLinkSegmentsRefsArray = parentLinkRefs.split(CharacterUtils.COMMA.toString());
+      boolean valid = true;
+      ArrayList<LinkSegment> parentLinksInOrder = new ArrayList<>(parentLinkSegmentsRefsArray.length);
+      for(int index=0;index<parentLinkSegmentsRefsArray.length;++index) {
+        String xmlParentLinkSegmentRef = parentLinkSegmentsRefsArray[index];
+        LinkSegment linkSegmentInLeg = getBySourceId(LinkSegment.class, xmlParentLinkSegmentRef);
+        if(linkSegmentInLeg==null) {
+          LOGGER.warning(String.format("Service leg segment %s in service layer %s references unknown parent link segment %s", xmlId, serviceNetworkLayer.getXmlId(), xmlParentLinkSegmentRef));
+          valid=false;
+          continue;
+        }
+        parentLinksInOrder.add(linkSegmentInLeg);
+      }
+      if(!valid) {
+        LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s invalid", xmlId, serviceNetworkLayer.getXmlId()));
+        continue;
+      }
     }
   }
 
@@ -302,8 +304,8 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
   private void initialiseParentXmlIdTrackers(MacroscopicNetwork network) {    
     initialiseSourceIdMap(Node.class, Node::getXmlId);
     network.getTransportLayers().forEach( layer -> getSourceIdContainer(Node.class).addAll(layer.getNodes()));    
-    initialiseSourceIdMap(Link.class, Link::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Link.class).addAll(layer.getLinks()));
+    initialiseSourceIdMap(LinkSegment.class, LinkSegment::getXmlId);
+    network.getTransportLayers().forEach( layer -> getSourceIdContainer(LinkSegment.class).addAll(layer.getLinkSegments()));
   }   
   
   /** Constructor where settings are directly provided such that input information can be extracted from it
