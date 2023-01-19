@@ -16,7 +16,6 @@ import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
-import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
@@ -354,7 +353,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @param serviceNetwork to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitServiceNetworkReader(String networkPathDirectory, String xmlFileExtension, ServiceNetwork serviceNetwork) throws PlanItException{   
+  protected PlanitServiceNetworkReader(String networkPathDirectory, String xmlFileExtension, ServiceNetwork serviceNetwork) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
     this.settings = new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork(), networkPathDirectory, xmlFileExtension);
     this.serviceNetwork = serviceNetwork;

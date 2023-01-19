@@ -36,7 +36,7 @@ public class PlanitServiceNetworkReaderFactory {
    * @return created service network reader
    */
   public static PlanitServiceNetworkReader create(final IdGroupingToken idToken, MacroscopicNetwork parentNetwork) {
-    return create(new PlanitServiceNetworkReaderSettings(parentNetwork), new ServiceNetwork(idToken, parentNetwork));    
+    return create(new PlanitServiceNetworkReaderSettings(parentNetwork), new ServiceNetwork(idToken, parentNetwork));
   }
   
   /** Create a PLANitServiceNetworkReader sourced from given input directory

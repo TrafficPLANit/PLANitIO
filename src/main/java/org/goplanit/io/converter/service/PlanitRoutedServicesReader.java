@@ -70,7 +70,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * 
    * @param network parent service network
    */
-  private void initialiseParentXmlIdTrackers(ServiceNetwork network) {    
+  private void initialiseParentXmlIdTrackers(ServiceNetwork network) {
     initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId);
     network.getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));    
   }    
