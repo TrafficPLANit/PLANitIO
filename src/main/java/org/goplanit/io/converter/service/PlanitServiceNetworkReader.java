@@ -15,7 +15,7 @@ import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
-import org.goplanit.utils.network.layer.ServiceNetworkLayer;
+import org.goplanit.utils.network.layer.RoutedServiceLayer;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
@@ -53,19 +53,19 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       
   /** Parse service legs from XML to memory model
    * 
-   * @param serviceNetworkLayer to extract service legs to
+   * @param routedServiceLayer to extract service legs to
    * @param xmlServicelegs to extract from
    * 
    * @throws PlanItException thrown if error
    */  
-  private void parseServiceLegs(ServiceNetworkLayer serviceNetworkLayer, XMLElementServiceLegs xmlServicelegs) throws PlanItException {
-    PlanItException.throwIfNull(xmlServicelegs, "No service legs element available on service network layer %s", serviceNetworkLayer.getXmlId());
+  private void parseServiceLegs(RoutedServiceLayer routedServiceLayer, XMLElementServiceLegs xmlServicelegs) throws PlanItException {
+    PlanItException.throwIfNull(xmlServicelegs, "No service legs element available on service network layer %s", routedServiceLayer.getXmlId());
     List<XMLElementServiceLeg> xmlServiceLegList = xmlServicelegs.getLeg();
-    PlanItException.throwIf(xmlServiceLegList==null || xmlServiceLegList.isEmpty(), "No service leg available on service network layer %s", serviceNetworkLayer.getXmlId());
+    PlanItException.throwIf(xmlServiceLegList==null || xmlServiceLegList.isEmpty(), "No service leg available on service network layer %s", routedServiceLayer.getXmlId());
     
     /* create map indexed by XML id based on service nodes */
     MapWrapper<String, ServiceNode> serviceNodesByXmlId = new MapWrapperImpl<String, ServiceNode>(
-        new HashMap<String,ServiceNode>(), ServiceNode::getXmlId, serviceNetworkLayer.getServiceNodes());
+        new HashMap<String,ServiceNode>(), ServiceNode::getXmlId, routedServiceLayer.getServiceNodes());
     
     /* service leg */
     final boolean registerLegsOnServiceNodes = true;
@@ -74,7 +74,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       /* XML id */
       String xmlId = xmlServiceLeg.getId();
       if(StringUtils.isNullOrBlank(xmlId)) {
-        LOGGER.warning(String.format("IGNORE: Service leg in service layer %s has no XML id defined", serviceNetworkLayer.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Service leg in service layer %s has no XML id defined", routedServiceLayer.getXmlId()));
         continue;
       }
       
@@ -93,7 +93,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       ServiceNode endNode = serviceNodesByXmlId.get(xmlServiceLeg.getNodebref());      
 
       /* instance */
-      ServiceLeg serviceLeg = serviceNetworkLayer.getLegs().getFactory().registerNew(startNode, endNode, registerLegsOnServiceNodes);
+      ServiceLeg serviceLeg = routedServiceLayer.getLegs().getFactory().registerNew(startNode, endNode, registerLegsOnServiceNodes);
       serviceLeg.setXmlId(xmlId);
             
       /* external id*/
@@ -102,7 +102,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       }    
       
       /* service leg segment(s) */
-      parseLegSegmentsOfLeg(serviceNetworkLayer, serviceLeg, xmlServiceLeg);
+      parseLegSegmentsOfLeg(routedServiceLayer, serviceLeg, xmlServiceLeg);
 
       if(!serviceLeg.validate()) {
         throw new PlanItException("Invalid service network file, inconsistency detected in service leg (%s) definition",serviceLeg.getXmlId());
@@ -112,18 +112,18 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
 
   /** Parse a service leg's service leg segments from XML to memory model
    * 
-   * @param serviceNetworkLayer to extract service leg segments to
+   * @param routedServiceLayer to extract service leg segments to
    * @param serviceLeg the parent leg
    * @param xmlServiceLeg to extract segment(s) from
    * 
    * @throws PlanItException thrown if error
    */    
-  private void parseLegSegmentsOfLeg(ServiceNetworkLayer serviceNetworkLayer, ServiceLeg serviceLeg, XMLElementServiceLeg xmlServiceLeg) throws PlanItException {
+  private void parseLegSegmentsOfLeg(RoutedServiceLayer routedServiceLayer, ServiceLeg serviceLeg, XMLElementServiceLeg xmlServiceLeg) throws PlanItException {
 
     PlanItException.throwIfNull(xmlServiceLeg, "No service leg element available to extract leg segments from");    
     List<XMLElementServiceLeg.Legsegment> xmlLegSegments = xmlServiceLeg.getLegsegment();
-    PlanItException.throwIf(xmlLegSegments==null || xmlLegSegments.isEmpty(), "No service leg segments available on service network layer %s", serviceNetworkLayer.getXmlId());
-    PlanItException.throwIf(xmlLegSegments.size()>2, "No more than two service leg segments allowed per service leg (one per direction) on service leg %s on service layer %s", serviceLeg.getXmlId(), serviceNetworkLayer.getXmlId());            
+    PlanItException.throwIf(xmlLegSegments==null || xmlLegSegments.isEmpty(), "No service leg segments available on service network layer %s", routedServiceLayer.getXmlId());
+    PlanItException.throwIf(xmlLegSegments.size()>2, "No more than two service leg segments allowed per service leg (one per direction) on service leg %s on service layer %s", serviceLeg.getXmlId(), routedServiceLayer.getXmlId());
     
     /* leg segments */
     boolean registerLegSegmentsOnLegAndNode = true;
@@ -145,7 +145,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
                                       
       /* instance */
       boolean isDirectionAb = xmlDirection.equals(Direction.A_B) ? true : false;
-      ServiceLegSegment serviceLegSegment = serviceNetworkLayer.getLegSegments().getFactory().registerNew(
+      ServiceLegSegment serviceLegSegment = routedServiceLayer.getLegSegments().getFactory().registerNew(
           serviceLeg, isDirectionAb, registerLegSegmentsOnLegAndNode);
       serviceLegSegment.setXmlId(xmlId);
       
@@ -157,7 +157,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       /* parent link segment refs comprising the leg segment*/
       String parentLinkRefs = xmlLegSegment.getLsrefs();
       if(StringUtils.isNullOrBlank(parentLinkRefs)) {
-        LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s has no parent link segments that define the leg segment", xmlId, serviceNetworkLayer.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s has no parent link segments that define the leg segment", xmlId, routedServiceLayer.getXmlId()));
         continue;
       }
 
@@ -169,14 +169,14 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
         String xmlParentLinkSegmentRef = parentLinkSegmentsRefsArray[index];
         LinkSegment linkSegmentInLeg = getBySourceId(LinkSegment.class, xmlParentLinkSegmentRef);
         if(linkSegmentInLeg==null) {
-          LOGGER.warning(String.format("Service leg segment %s in service layer %s references unknown parent link segment %s", xmlId, serviceNetworkLayer.getXmlId(), xmlParentLinkSegmentRef));
+          LOGGER.warning(String.format("Service leg segment %s in service layer %s references unknown parent link segment %s", xmlId, routedServiceLayer.getXmlId(), xmlParentLinkSegmentRef));
           valid=false;
           continue;
         }
         parentLinksInOrder.add(linkSegmentInLeg);
       }
       if(!valid) {
-        LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s invalid", xmlId, serviceNetworkLayer.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s invalid", xmlId, routedServiceLayer.getXmlId()));
         continue;
       }
     }
@@ -184,43 +184,43 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
 
   /** Parse service nodes from XML to memory model
    * 
-   * @param serviceNetworkLayer to extract service nodes to
+   * @param routedServiceLayer to extract service nodes to
    * @param xmlServicenodes to extract from
    * 
    * @throws PlanItException thrown if error
    */
-  private void parseServiceNodes(ServiceNetworkLayer serviceNetworkLayer, XMLElementServiceNodes xmlServicenodes) throws PlanItException {
-    PlanItException.throwIfNull(xmlServicenodes, "No service nodes element available on service network layer %s", serviceNetworkLayer.getXmlId());
+  private void parseServiceNodes(RoutedServiceLayer routedServiceLayer, XMLElementServiceNodes xmlServicenodes) throws PlanItException {
+    PlanItException.throwIfNull(xmlServicenodes, "No service nodes element available on service network layer %s", routedServiceLayer.getXmlId());
     List<XMLElementServiceNodes.Servicenode> xmlServiceNodeList = xmlServicenodes.getServicenode();
-    PlanItException.throwIf(xmlServiceNodeList==null || xmlServiceNodeList.isEmpty(), "No service node available on service network layer %s", serviceNetworkLayer.getXmlId());
-    MacroscopicNetworkLayer parentLayer = serviceNetworkLayer.getParentNetworkLayer();
-    PlanItException.throwIf(parentLayer==null || parentLayer.isEmpty(), "No parent layer or empty parent layer for service network layer %s", serviceNetworkLayer.getXmlId());
+    PlanItException.throwIf(xmlServiceNodeList==null || xmlServiceNodeList.isEmpty(), "No service node available on service network layer %s", routedServiceLayer.getXmlId());
+    MacroscopicNetworkLayer parentLayer = routedServiceLayer.getParentNetworkLayer();
+    PlanItException.throwIf(parentLayer==null || parentLayer.isEmpty(), "No parent layer or empty parent layer for service network layer %s", routedServiceLayer.getXmlId());
     Nodes parentNodes = parentLayer.getNodes();
-    PlanItException.throwIf(parentNodes==null || parentNodes.isEmpty(), "No parent nodes or empty parent nodes for service network layer %s", serviceNetworkLayer.getXmlId());    
+    PlanItException.throwIf(parentNodes==null || parentNodes.isEmpty(), "No parent nodes or empty parent nodes for service network layer %s", routedServiceLayer.getXmlId());
     
     for(XMLElementServiceNodes.Servicenode xmlServiceNode : xmlServiceNodeList) {
                 
       /* XML id */
       String xmlId = xmlServiceNode.getId();
       if(StringUtils.isNullOrBlank(xmlId)) {
-        LOGGER.warning(String.format("IGNORE: Service node in service layer %s has no XML id defined", serviceNetworkLayer.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Service node in service layer %s has no XML id defined", routedServiceLayer.getXmlId()));
         continue;
       }
       
       /* parent node XML id*/
       String parentNodeXmlId = xmlServiceNode.getNoderef();
       if(StringUtils.isNullOrBlank(parentNodeXmlId)) {
-        LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s has no parent node XML id reference defined", xmlId, serviceNetworkLayer.getXmlId()));
+        LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s has no parent node XML id reference defined", xmlId, routedServiceLayer.getXmlId()));
         continue;
       }                      
            
       if(getBySourceId(Node.class, parentNodeXmlId) == null) {
-        LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s references unknown parent node %s", xmlId, serviceNetworkLayer.getXmlId(), parentNodeXmlId));
+        LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s references unknown parent node %s", xmlId, routedServiceLayer.getXmlId(), parentNodeXmlId));
         continue;
       }
       
       /* instance */
-      ServiceNode serviceNode = serviceNetworkLayer.getServiceNodes().getFactory().registerNew(getBySourceId(Node.class,parentNodeXmlId));
+      ServiceNode serviceNode = routedServiceLayer.getServiceNodes().getFactory().registerNew(getBySourceId(Node.class,parentNodeXmlId));
       serviceNode.setXmlId(xmlId);
       
       /* external id*/
@@ -239,7 +239,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @return parsed layer
    * @throws PlanItException thrown if error
    */
-  private ServiceNetworkLayer parseServiceNetworkLayer(XMLElementServiceNetworkLayer xmlLayer ) throws PlanItException {
+  private RoutedServiceLayer parseServiceNetworkLayer(XMLElementServiceNetworkLayer xmlLayer ) throws PlanItException {
         
     /* parent layer XML id */
     String parentLayerXmlId = xmlLayer.getParentlayerref();
@@ -252,28 +252,28 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     }
     
     /* memory model instance */
-    ServiceNetworkLayer serviceNetworkLayer = serviceNetwork.getTransportLayers().getFactory().registerNew(parentNetworkLayer);    
+    RoutedServiceLayer routedServiceLayer = serviceNetwork.getTransportLayers().getFactory().registerNew(parentNetworkLayer);
     
     /* XML id */
     String xmlId = xmlLayer.getId();
     if(StringUtils.isNullOrBlank(xmlId)) {
       LOGGER.warning(String.format("Service network layer has no XML id defined, adopting internally generated id %d instead", serviceNetwork.getId()));
-      xmlId = String.valueOf(serviceNetworkLayer.getId());
+      xmlId = String.valueOf(routedServiceLayer.getId());
     }
-    serviceNetworkLayer.setXmlId(xmlId);
+    routedServiceLayer.setXmlId(xmlId);
     
     /* external id*/
     if(!StringUtils.isNullOrBlank(xmlLayer.getExternalid())) {
-      serviceNetworkLayer.setExternalId(xmlLayer.getExternalid());
+      routedServiceLayer.setExternalId(xmlLayer.getExternalid());
     }    
     
     /* service nodes */
-    parseServiceNodes(serviceNetworkLayer, xmlLayer.getServicenodes());
+    parseServiceNodes(routedServiceLayer, xmlLayer.getServicenodes());
     
     /* service legs */
-    parseServiceLegs(serviceNetworkLayer, xmlLayer.getServicelegs());    
+    parseServiceLegs(routedServiceLayer, xmlLayer.getServicelegs());
     
-    return serviceNetworkLayer;
+    return routedServiceLayer;
   }  
   
   /** Parse the various service network layers
