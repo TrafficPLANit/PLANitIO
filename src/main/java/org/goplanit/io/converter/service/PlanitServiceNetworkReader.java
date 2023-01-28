@@ -15,7 +15,7 @@ import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
-import org.goplanit.utils.network.layer.RoutedServiceLayer;
+import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
@@ -58,7 +58,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * 
    * @throws PlanItException thrown if error
    */  
-  private void parseServiceLegs(RoutedServiceLayer routedServiceLayer, XMLElementServiceLegs xmlServicelegs) throws PlanItException {
+  private void parseServiceLegs(ServiceNetworkLayer routedServiceLayer, XMLElementServiceLegs xmlServicelegs) throws PlanItException {
     PlanItException.throwIfNull(xmlServicelegs, "No service legs element available on service network layer %s", routedServiceLayer.getXmlId());
     List<XMLElementServiceLeg> xmlServiceLegList = xmlServicelegs.getLeg();
     PlanItException.throwIf(xmlServiceLegList==null || xmlServiceLegList.isEmpty(), "No service leg available on service network layer %s", routedServiceLayer.getXmlId());
@@ -118,7 +118,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * 
    * @throws PlanItException thrown if error
    */    
-  private void parseLegSegmentsOfLeg(RoutedServiceLayer routedServiceLayer, ServiceLeg serviceLeg, XMLElementServiceLeg xmlServiceLeg) throws PlanItException {
+  private void parseLegSegmentsOfLeg(ServiceNetworkLayer routedServiceLayer, ServiceLeg serviceLeg, XMLElementServiceLeg xmlServiceLeg) throws PlanItException {
 
     PlanItException.throwIfNull(xmlServiceLeg, "No service leg element available to extract leg segments from");    
     List<XMLElementServiceLeg.Legsegment> xmlLegSegments = xmlServiceLeg.getLegsegment();
@@ -189,7 +189,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * 
    * @throws PlanItException thrown if error
    */
-  private void parseServiceNodes(RoutedServiceLayer routedServiceLayer, XMLElementServiceNodes xmlServicenodes) throws PlanItException {
+  private void parseServiceNodes(ServiceNetworkLayer routedServiceLayer, XMLElementServiceNodes xmlServicenodes) throws PlanItException {
     PlanItException.throwIfNull(xmlServicenodes, "No service nodes element available on service network layer %s", routedServiceLayer.getXmlId());
     List<XMLElementServiceNodes.Servicenode> xmlServiceNodeList = xmlServicenodes.getServicenode();
     PlanItException.throwIf(xmlServiceNodeList==null || xmlServiceNodeList.isEmpty(), "No service node available on service network layer %s", routedServiceLayer.getXmlId());
@@ -239,7 +239,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @return parsed layer
    * @throws PlanItException thrown if error
    */
-  private RoutedServiceLayer parseServiceNetworkLayer(XMLElementServiceNetworkLayer xmlLayer ) throws PlanItException {
+  private ServiceNetworkLayer parseServiceNetworkLayer(XMLElementServiceNetworkLayer xmlLayer ) throws PlanItException {
         
     /* parent layer XML id */
     String parentLayerXmlId = xmlLayer.getParentlayerref();
@@ -252,7 +252,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     }
     
     /* memory model instance */
-    RoutedServiceLayer routedServiceLayer = serviceNetwork.getTransportLayers().getFactory().registerNew(parentNetworkLayer);
+    ServiceNetworkLayer routedServiceLayer = serviceNetwork.getTransportLayers().getFactory().registerNew(parentNetworkLayer);
     
     /* XML id */
     String xmlId = xmlLayer.getId();

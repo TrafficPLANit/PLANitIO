@@ -19,7 +19,7 @@ import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.network.layer.RoutedServiceLayer;
+import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.unit.Unit;
@@ -388,7 +388,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     }    
     
     /* parent layer (memory) */
-    RoutedServiceLayer networkLayer = routedServices.getParentNetwork().getTransportLayers().getByXmlId(xmlParentServiceNetworkLayerRef);
+    ServiceNetworkLayer networkLayer = routedServices.getParentNetwork().getTransportLayers().getByXmlId(xmlParentServiceNetworkLayerRef);
     if(networkLayer == null) {
       LOGGER.severe(String.format("IGNORE: routed services layer %s references parent service network layer %s that is not available (yet)",layerXmlId, xmlParentServiceNetworkLayerRef));
       return;      
