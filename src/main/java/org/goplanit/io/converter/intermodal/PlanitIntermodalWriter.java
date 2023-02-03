@@ -9,10 +9,14 @@ import org.goplanit.io.converter.zoning.PlanitZoningWriter;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.network.ServiceNetwork;
+import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
 import org.goplanit.zoning.Zoning;
+
+import java.security.Provider;
 
 /**
  * Planit intermodal writer for native Planit format, wrapping a planit network writer and planit zoning writer in one
@@ -20,7 +24,7 @@ import org.goplanit.zoning.Zoning;
  * @author markr
  *
  */
-public class PlanitIntermodalWriter implements IntermodalWriter {
+public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, RoutedServices> {
   
   /** intermodal writer settings to use */
   protected final PlanitIntermodalWriterSettings settings;
@@ -78,6 +82,15 @@ public class PlanitIntermodalWriter implements IntermodalWriter {
         PlanitZoningWriterFactory.create(zoningSettings.getOutputPathDirectory(), zoningSettings.getCountry(), macroscopicNetwork.getCoordinateReferenceSystem());
     zoningWriter.setIdMapperType(getIdMapperType());    
     zoningWriter.write(zoning);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void writeWithServices(MacroscopicNetwork physicalNetwork, Zoning zoning, ServiceNetwork serviceNetwork, RoutedServices routedServices) throws PlanItException {
+    write(physicalNetwork, zoning);
+    throw new PlanItException("persisting routed services and service network not yet implemented for PLANit data format");
   }
 
   /**

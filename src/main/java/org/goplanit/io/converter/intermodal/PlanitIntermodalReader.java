@@ -23,7 +23,7 @@ import org.goplanit.zoning.Zoning;
  * @author markr
  *
  */
-public class PlanitIntermodalReader implements IntermodalReader {
+public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, RoutedServices> {
   
   /** intermodal reader settings to use */
   protected final PlanitIntermodalReaderSettings intermodalReaderSettings;
@@ -40,9 +40,8 @@ public class PlanitIntermodalReader implements IntermodalReader {
    * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for both (network.xml, zoning.xml)   * 
    * @param xmlFileExtension to use
    * @param idToken to use for the network and zoning that are to be created
-   * @throws PlanItException  thrown if error
    */
-  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, IdGroupingToken idToken) throws PlanItException{        
+  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, IdGroupingToken idToken) {
     this(new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension), idToken);    
   }   
   
@@ -51,9 +50,8 @@ public class PlanitIntermodalReader implements IntermodalReader {
    * 
    * @param settings to use
    * @param idToken to use for the network and zoning that are to be created
-   * @throws PlanItException  thrown if error
    */
-  protected PlanitIntermodalReader(PlanitIntermodalReaderSettings settings, IdGroupingToken idToken) throws PlanItException{        
+  protected PlanitIntermodalReader(PlanitIntermodalReaderSettings settings, IdGroupingToken idToken) {
     this.intermodalReaderSettings = settings;
     this.networkToPopulate = new MacroscopicNetwork(idToken);    
     this.zoningToPopulate = new Zoning(idToken, networkToPopulate.getNetworkGroupingTokenId());
@@ -65,9 +63,8 @@ public class PlanitIntermodalReader implements IntermodalReader {
    * @param xmlFileExtension to use
    * @param network to populate
    * @param zoning to populate
-   * @throws PlanItException  thrown if error
    */
-  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning) throws PlanItException{   
+  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning) {
     this.intermodalReaderSettings = new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension);
     this.networkToPopulate = network;
     this.zoningToPopulate = zoning;
@@ -79,9 +76,8 @@ public class PlanitIntermodalReader implements IntermodalReader {
    * @param xmlRawZoning to extract from
    * @param network to extract referenced entities from
    * @param zoning to populate
-   * @throws PlanItException thrown if error
    */
-  public PlanitIntermodalReader(XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, MacroscopicNetwork network, Zoning zoning) throws PlanItException {
+  public PlanitIntermodalReader(XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, MacroscopicNetwork network, Zoning zoning) {
     this.intermodalReaderSettings = new PlanitIntermodalReaderSettings();
     this.networkToPopulate = network;
     this.zoningToPopulate = zoning;
