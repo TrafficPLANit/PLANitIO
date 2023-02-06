@@ -482,7 +482,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * @throws PlanItException thrown if error
    */
   protected PlanitRoutedServicesReader(final String inputPathDirectory, final String xmlFileExtension, final RoutedServices routedServices) throws PlanItException{   
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
     this.settings = new PlanitRoutedServicesReaderSettings(routedServices.getParentNetwork(), inputPathDirectory, xmlFileExtension);
     this.routedServices = routedServices;
   }  

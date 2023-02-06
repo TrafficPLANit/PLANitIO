@@ -3,6 +3,7 @@ package org.goplanit.io.converter.intermodal;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.XMLElementServiceNetwork;
 
 /**
  * Factory for creating PLANit intermodal writers persisting both a network and zoning (useful for intermodal networks with pt element where transfer zones are part of the
@@ -39,7 +40,12 @@ public class PlanitIntermodalWriterFactory {
    * @return created network writer 
    */
   public static PlanitIntermodalWriter create(String outputDirectory, String countryName) {
-    return create(outputDirectory, countryName, new XMLElementMacroscopicNetwork(), new XMLElementMacroscopicZoning());    
+    return create(
+            outputDirectory,
+            countryName,
+            new XMLElementMacroscopicNetwork(),
+            new XMLElementMacroscopicZoning(),
+            new XMLElementServiceNetwork());
   }
   
   /** Create a PLANitIntermodalWriter which can persist a PLANit network and zoning in the native PLANit XML format. No destination country is provided, so we assume the current
@@ -48,10 +54,12 @@ public class PlanitIntermodalWriterFactory {
    * @param outputDirectory the file to use for persisting
    * @param xmlRawNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @param xmlRawZoning, use this specific xml memory model equivalent in this instance before marshalling via JAXb
+   * @param xmlRawServiceNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @return created network writer 
    */
-  public static PlanitIntermodalWriter create(String outputDirectory, XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning) {
-    return create(outputDirectory, null, xmlRawNetwork, xmlRawZoning);    
+  public static PlanitIntermodalWriter create(
+          String outputDirectory, XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning, XMLElementServiceNetwork xmlRawServiceNetwork) {
+    return create(outputDirectory, null, xmlRawNetwork, xmlRawZoning, xmlRawServiceNetwork);
   }  
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format. By providing the XML memory model instance to populate
@@ -61,10 +69,16 @@ public class PlanitIntermodalWriterFactory {
    * @param countryName the country to base the projection method on if available
    * @param xmlRawNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @param xmlRawZoning, use this specific xml memory model equivalent in this instance before marshalling via JAXb
+   * @param xmlRawServiceNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @return created network writer 
    */
-  public static PlanitIntermodalWriter create(String outputDirectory, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork, XMLElementMacroscopicZoning xmlRawZoning) {
-    return new PlanitIntermodalWriter(outputDirectory, countryName, xmlRawNetwork, xmlRawZoning);    
+  public static PlanitIntermodalWriter create(
+          String outputDirectory,
+          String countryName,
+          XMLElementMacroscopicNetwork xmlRawNetwork,
+          XMLElementMacroscopicZoning xmlRawZoning,
+          XMLElementServiceNetwork xmlRawServiceNetwork) {
+    return new PlanitIntermodalWriter(outputDirectory, countryName, xmlRawNetwork, xmlRawZoning, xmlRawServiceNetwork);
   }    
      
      

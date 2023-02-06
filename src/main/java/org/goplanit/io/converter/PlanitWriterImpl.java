@@ -4,6 +4,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -13,6 +15,8 @@ import org.goplanit.converter.BaseWriterImpl;
 import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
 import org.goplanit.io.geo.PlanitGmlUtils;
+import org.goplanit.utils.id.ExternalIdAble;
+import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
@@ -435,6 +439,27 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     super(idMapperType);
   }
 
- 
+
+  /**
+   * All id mappers per type used by the writer
+   *
+   * @return newly created map with all mappings as used
+   */
+  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType(){
+    var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
+    result.put(Connectoid.class, getConnectoidIdMapper());
+    result.put(Link.class, getLinkIdMapper());
+    result.put(Mode.class, getModeIdMapper());
+    result.put(MacroscopicLinkSegmentType.class, getLinkSegmentTypeIdMapper());
+    result.put(MacroscopicLinkSegment.class, getLinkSegmentIdMapper());
+    result.put(TimePeriod.class, getTimePeriodIdMapper());
+    result.put(TransferZoneGroup.class, getTransferZoneGroupIdMapper());
+    result.put(TravellerType.class, getTravellerTypeIdMapper());
+    result.put(UserClass.class, getUserClassIdMapper());
+    result.put(Vertex.class, getVertexIdMapper());
+    result.put(Zone.class, getZoneIdMapper());
+    result.put(UserClass.class, getUserClassIdMapper());
+    return result;
+  }
  
 }
