@@ -17,6 +17,8 @@ import org.goplanit.converter.IdMapperType;
 import org.goplanit.io.geo.PlanitGmlUtils;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
+import org.goplanit.utils.network.layer.service.ServiceLeg;
+import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
@@ -88,8 +90,14 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /** id mapper for time period ids */
   private Function<TimePeriod, String> timePeriodIdMapper;
   /** id mapper for user class ids */
-  private Function<UserClass, String> userClassIdMapper;   
-  
+  private Function<UserClass, String> userClassIdMapper;
+
+  /** id mapper for service legs ids */
+  private Function<ServiceLeg, String> serviceLegIdMapper;
+
+  /** id mapper for service leg segments ids */
+  private Function<ServiceLegSegment, String> serviceLegSegmentIdMapper;
+
   /** convert to xml writer settings if possible
    * @return xml writer settings
    * @throws PlanItException thrown if error
@@ -274,6 +282,8 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     this.travellerTypeIdMapper = IdMapperFunctionFactory.createTravellerTypeIdMappingFunction(getIdMapperType());
     this.timePeriodIdMapper = IdMapperFunctionFactory.createTimePeriodIdMappingFunction(getIdMapperType());
     this.userClassIdMapper = IdMapperFunctionFactory.createUserClassIdMappingFunction(getIdMapperType());
+    this.serviceLegIdMapper = IdMapperFunctionFactory.createServiceLegIdMappingFunction(getIdMapperType());
+    this.serviceLegSegmentIdMapper = IdMapperFunctionFactory.createServiceLegSegmentIdMappingFunction(getIdMapperType());
   } 
   
   /** get id mapper for nodes
@@ -323,8 +333,22 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */  
   protected Function<UserClass, String> getUserClassIdMapper(){
     return userClassIdMapper;
-  }     
-  
+  }
+
+  /** get id mapper for service leg instances
+   * @return id mapper
+   */
+  protected Function<ServiceLeg, String> getServiceLegIdMapper(){
+    return serviceLegIdMapper;
+  }
+
+  /** get id mapper for service leg segment instances
+   * @return id mapper
+   */
+  protected Function<ServiceLegSegment, String> getServiceLegSegmentIdMapper(){
+    return serviceLegSegmentIdMapper;
+  }
+
   /** Get the reference to use whenever a mode reference is encountered
    * 
    * @param mode to collect reference for
@@ -375,7 +399,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     return transferZoneGroupIdMapper;
   }         
 
-  /** get the destination crs transformer. Note it might be null and should only be collected after {@link prepareCoordinateReferenceSystem} has been invoked which determines
+  /** get the destination crs transformer. Note it might be null and should only be collected after {@link #prepareCoordinateReferenceSystem(CoordinateReferenceSystem)} has been invoked which determines
    * if and which transformer should be applied
    * 
    * @return destination crs transformer
@@ -459,6 +483,8 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     result.put(Vertex.class, getVertexIdMapper());
     result.put(Zone.class, getZoneIdMapper());
     result.put(UserClass.class, getUserClassIdMapper());
+    result.put(ServiceLeg.class, getUserClassIdMapper());
+    result.put(ServiceLegSegment.class, getUserClassIdMapper());
     return result;
   }
  

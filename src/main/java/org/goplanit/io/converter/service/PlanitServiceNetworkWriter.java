@@ -12,16 +12,16 @@ import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
+import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.service.ServiceLeg;
-import org.goplanit.utils.network.layer.service.ServiceLegs;
-import org.goplanit.utils.network.layer.service.ServiceNode;
-import org.goplanit.utils.network.layer.service.ServiceNodes;
+import org.goplanit.utils.network.layer.physical.LinkSegment;
+import org.goplanit.utils.network.layer.service.*;
 import org.goplanit.xml.generated.*;
 
+import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -53,14 +53,66 @@ public class PlanitServiceNetworkWriter extends PlanitWriterImpl<ServiceNetwork>
   private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> parentIdMapperByType;
 
   /**
+   * Populate the XML element for the service leg segments of a service leg
+   *
+   * @param xmlLeg to add service leg segments to
+   * @param leg parent leg of leg segment
+   * @param serviceLegSegment to use
+   */
+  private void populateServiceLegSegments(XMLElementServiceLeg xmlLeg, ServiceLeg leg, ServiceLegSegment serviceLegSegment) {
+    var legSegmentsList = xmlLeg.getLegsegment();
+    XMLElementServiceLeg.Legsegment xmlElementLegSegment = new XMLElementServiceLeg.Legsegment();
+
+    /* id */
+    xmlElementLegSegment.setId(getServiceLegSegmentIdMapper().apply(serviceLegSegment));
+
+    /* external id */
+    if(serviceLegSegment.hasExternalId()) {
+      xmlElementLegSegment.setExternalid(serviceLegSegment.getExternalId());
+    }
+
+    /* physical parent link segments */
+    if(!serviceLegSegment.hasPhysicalParentSegments()){
+      LOGGER.warning(String.format("Service leg segment %s has no physical link segments referenced", serviceLegSegment.getXmlId()));
+    }else{
+      /* physical segments refs */
+      String csvPhysicalLegSegmentRefs = serviceLegSegment.getPhysicalParentSegments().stream().map(ls ->
+              getParentLinkSegmentRefIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
+      xmlElementLegSegment.setLsrefs(csvPhysicalLegSegmentRefs);
+
+      /* direction */
+      xmlElementLegSegment.setDir( serviceLegSegment.isDirectionAb() ? Direction.A_B : Direction.B_A);
+    }
+
+    legSegmentsList.add(xmlElementLegSegment);
+  }
+
+  /**
    * Populate the XML element for service leg
    *
    * @param xmlServiceLegList to add service leg to
    * @param leg to populate XML element with
    */
   private void populateXmlServiceLeg(List<XMLElementServiceLeg> xmlServiceLegList, ServiceLeg leg) {
-    //todo
-    throw new PlanItRunTimeException("service leg writing not yet implemented, see service nodes for inspiration to continue");
+    XMLElementServiceLeg xmlLeg = new XMLElementServiceLeg();
+
+    /* XML id */
+    xmlLeg.setId(getServiceLegIdMapper().apply(leg));
+
+    /* external id */
+    if(leg.hasExternalId()) {
+      xmlLeg.setExternalid(leg.getExternalId());
+    }
+
+    /* node A ref */
+    xmlLeg.setNodearef(getVertexIdMapper().apply(leg.getServiceNodeA()));
+    /* node B ref */
+    xmlLeg.setNodebref(getVertexIdMapper().apply(leg.getServiceNodeB()));
+
+    /* link segments */
+    leg.<ServiceLegSegment>forEachSegment( ls ->  populateServiceLegSegments(xmlLeg, leg, ls));
+
+    xmlServiceLegList.add(xmlLeg);
   }
 
   /**
