@@ -62,41 +62,9 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitWriterImpl.class.getCanonicalName());
-      
-  /** geo utils */
-  private PlanitJtsCrsUtils geoUtils;
-    
-  /** when the destination CRS differs from the network CRS all geometries require transforming, for which this transformer will be initialised */
-  private MathTransform destinationCrsTransformer = null;
-  
-  /** id mapper for nodes */
-  private Function<Vertex, String> vertexIdMapper;
-  /** id mapper for links */
-  private Function<Link, String> linkIdMapper;
-  /** id mapper for link segments */
-  private Function<MacroscopicLinkSegment, String> linkSegmentIdMapper;
-  /** id mapper for link segment types */
-  private Function<MacroscopicLinkSegmentType, String> linkSegmentTypeIdMapper;
-  /** id mapper for link segment types */
-  private Function<Mode, String> modeIdMapper;  
-  /** id mapper for zone ids */
-  private Function<Zone, String> zoneIdMapper;  
-  /** id mapper for connectoid ids */
-  private Function<Connectoid, String> connectoidIdMapper;
-  /** id mapper for transfer zone group ids */
-  private Function<TransferZoneGroup, String> transferZoneGroupIdMapper;
-  /** id mapper for traveller type ids */
-  private Function<TravellerType, String> travellerTypeIdMapper;
-  /** id mapper for time period ids */
-  private Function<TimePeriod, String> timePeriodIdMapper;
-  /** id mapper for user class ids */
-  private Function<UserClass, String> userClassIdMapper;
 
-  /** id mapper for service legs ids */
-  private Function<ServiceLeg, String> serviceLegIdMapper;
-
-  /** id mapper for service leg segments ids */
-  private Function<ServiceLegSegment, String> serviceLegSegmentIdMapper;
+  /** parent network (layer) used id mappings to use for parent refs, if not set, use the same mapping as used for physical network */
+  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> parentIdMapperByType;
 
   /** convert to xml writer settings if possible
    * @return xml writer settings
@@ -108,314 +76,35 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     }
     return ((PlanitXmlWriterSettings)getSettings());
   }
-  
-  /** transform the coordinate absed on the destination transformer
-   * @param coordinate to transform
-   * @return transformed coordinate
-   */
-  private Coordinate getTransformedCoordinate(final Coordinate coordinate) {
-    try {
-      if(getDestinationCrsTransformer()!=null) {
-        return JTS.transform(coordinate, null, getDestinationCrsTransformer());
-      }
-      return coordinate;  
-    }catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to transform coordinate from %s ",coordinate.toString()));
-    }
-    return null;
-  }  
-  
-  /** Transform the coordinate absed on the destination transformer
-   * 
-   * @param coordinates to transform
-   * @return transformed coordinates (if no conversion is required, input is returned
-   */
-  private Coordinate[] getTransformedCoordinates(final Coordinate[] coordinates) {
-    Coordinate[] transformedCoordinates = null;
-    try {
-      if(getDestinationCrsTransformer()!=null) {
-        
-        transformedCoordinates = new Coordinate[coordinates.length];
-        for(int index = 0; index < coordinates.length ; ++index) {
-          transformedCoordinates[index] = JTS.transform(coordinates[index], null, getDestinationCrsTransformer());
-        }
-      }else {
-        transformedCoordinates = coordinates;
-      }
-    }catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      LOGGER.severe(String.format("unable to transform coordinates from %s ",coordinates.toString()));
-    }
-    return transformedCoordinates;
-  }   
-  
-  /** Extract the srs name to use based on the available crs information on network and settings
-   * 
-   * @param xmlSettings to use
-   * @return srsName to use
-   */
-  protected static String extractSrsName(PlanitXmlWriterSettings xmlSettings) {
-    String srsName = "";
-    if("EPSG".equals(xmlSettings.getDestinationCoordinateReferenceSystem().getName().getCodeSpace())) {
-      /* spatial crs based on epsg code*/
-      Integer epsgCode = null;
-      try {
-        epsgCode = CRS.lookupEpsgCode(xmlSettings.getDestinationCoordinateReferenceSystem(), false);
-        if(epsgCode == null) {
-          /* full scan */
-          epsgCode = CRS.lookupEpsgCode(xmlSettings.getDestinationCoordinateReferenceSystem(), true);
-        }
-        srsName = String.format("EPSG:%s",epsgCode.toString());
-      }catch (Exception e) {
-        LOGGER.severe(e.getMessage());
-        throw new PlanItRunTimeException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
-      }      
-    }else if(!xmlSettings.getDestinationCoordinateReferenceSystem().equals(PlanitJtsCrsUtils.CARTESIANCRS)) {
-      throw new PlanItRunTimeException("Unable to extract epsg code from destination crs %s", xmlSettings.getDestinationCoordinateReferenceSystem().getName());
-    }
-    return srsName;
-  }  
 
-  /** Create a position type based on point location 
-   * 
-   * @param position to convert to GML and transform if needed
-   * @return created GML pos
-   */
-  protected DirectPositionType createGmlDirectPositionType(Point position) {
-    Coordinate positioncoordinate = getTransformedCoordinate(position.getCoordinate());
-    return PlanitGmlUtils.createGmlDirectPositionType(positioncoordinate);
-  }  
-
-
-  /** Create a GML coord type from the provided coordinate
-   * 
-   * @param coordinate to convert to GML and transform if needed
-   * @return created GML coordinate
-   */
-  protected CoordType createGmlCoordType(Coordinate coordinate) {
-    Coordinate nodeCoordinate = getTransformedCoordinate(coordinate);
-    return PlanitGmlUtils.createGmlCoordType(nodeCoordinate);    
-  }  
-  
-  /** Create a GML PointType from a JTS Point and account for any crs transformation if needed
-   * 
-   * @param position to extract from
-   * @return created PointType
-   */
-  protected PointType createGmlPointType(Point position) {
-    Coordinate pointCoordinate = getTransformedCoordinate(position.getCoordinate());
-    return PlanitGmlUtils.createGmlPointType(pointCoordinate);
-  }  
-  
-  /** create a GML PolygonType from a JTS Polygon and account for any crs transformation if needed
-   * 
-   * @param polygon to extract from
-   * @return created PolygonType
-   */  
-  protected PolygonType createGmlPolygonType(Polygon polygon) {
-    Coordinate[] transformedCoordinates = getTransformedCoordinates(polygon.getCoordinates());
-    return PlanitGmlUtils.createGmlPolygonType(transformedCoordinates);
-  } 
-  
-  /** Create a GML LineStringType from a JTS LineStringand account for any crs transformation if needed
-   * 
-   * @param lineString to extract from
-   * @return created LineStringType
-   */  
-  protected LineStringType createGmlLineStringType(LineString lineString) {
-    /* transformed coords */
-    Coordinate[] transformedCoordinates = getTransformedCoordinates(lineString.getCoordinates());
-
-    /* gml coords*/
-    PlanitXmlWriterSettings xmlSettings = null;
-    try {
-      xmlSettings = getSettingsAsXmlWriterSettings();
-    } catch (PlanItException e) {
-      LOGGER.severe("settings not available as XML writer settings, this shouldn't happen");
-    }
-    CoordinatesType coordsType = PlanitGmlUtils.createGmlCoordinatesType(
-        transformedCoordinates, xmlSettings.getCommaSeparator(), xmlSettings.getDecimalSeparator(), xmlSettings.getDecimalFormat(), xmlSettings.getTupleSeparator());
-    
-    /* gml line string */
-    return PlanitGmlUtils.createGmlLineStringType(coordsType);
-  }   
-       
-  /** prepare the Crs transformer (if any) based on the user configuration settings
-   * 
-   * @param sourceCrs the crs used for the source material of this writer
-   * @throws PlanItException thrown if error
-   */
-  protected void prepareCoordinateReferenceSystem(CoordinateReferenceSystem sourceCrs) throws PlanItException {
-    
-    if(sourceCrs != null) {
-      geoUtils = new PlanitJtsCrsUtils(sourceCrs);
-    }
-    
-    PlanitXmlWriterSettings xmlWriterSettings = getSettingsAsXmlWriterSettings();
-    
-    /* CRS and transformer (if needed) */
-    CoordinateReferenceSystem destinationCrs = 
-        identifyDestinationCoordinateReferenceSystem(xmlWriterSettings.getDestinationCoordinateReferenceSystem(),xmlWriterSettings.getCountry(), sourceCrs);    
-    PlanItException.throwIfNull(destinationCrs, "destination Coordinate Reference System is null, this is not allowed");
-    xmlWriterSettings.setDestinationCoordinateReferenceSystem(destinationCrs);
-    
-    /* configure crs transformer if required, to be able to convert geometries to preferred CRS while writing */
-    if(!destinationCrs.equals(sourceCrs)) {
-      destinationCrsTransformer = PlanitJtsUtils.findMathTransform(sourceCrs, xmlWriterSettings.getDestinationCoordinateReferenceSystem());
-    }
-  }
-  
   /**
    * depending on the chosen id mapping, create the mapping functions for all id carrying entities that are persisted
-   * @throws PlanItException thrown if error
    */
-  protected void initialiseIdMappingFunctions() throws PlanItException {
-    this.vertexIdMapper = IdMapperFunctionFactory.createVertexIdMappingFunction(getIdMapperType());
-    this.linkIdMapper = IdMapperFunctionFactory.createLinkIdMappingFunction(getIdMapperType());
-    this.linkSegmentIdMapper = IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(getIdMapperType());
-    this.linkSegmentTypeIdMapper = IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(getIdMapperType());
-    this.modeIdMapper = IdMapperFunctionFactory.createModeIdMappingFunction(getIdMapperType());
-    this.zoneIdMapper = IdMapperFunctionFactory.createZoneIdMappingFunction(getIdMapperType());
-    this.connectoidIdMapper = IdMapperFunctionFactory.createConnectoidIdMappingFunction(getIdMapperType());
-    this.transferZoneGroupIdMapper = IdMapperFunctionFactory.createTransferZoneGroupIdMappingFunction(getIdMapperType());
-    this.travellerTypeIdMapper = IdMapperFunctionFactory.createTravellerTypeIdMappingFunction(getIdMapperType());
-    this.timePeriodIdMapper = IdMapperFunctionFactory.createTimePeriodIdMappingFunction(getIdMapperType());
-    this.userClassIdMapper = IdMapperFunctionFactory.createUserClassIdMappingFunction(getIdMapperType());
-    this.serviceLegIdMapper = IdMapperFunctionFactory.createServiceLegIdMappingFunction(getIdMapperType());
-    this.serviceLegSegmentIdMapper = IdMapperFunctionFactory.createServiceLegSegmentIdMappingFunction(getIdMapperType());
-  } 
-  
-  /** get id mapper for nodes
-   * @return id mapper
-   */
-  protected Function<Vertex, String> getVertexIdMapper(){
-    return vertexIdMapper;
-  }
-
-  /** get id mapper for links
-   * @return id mapper
-   */  
-  protected Function<Link, String> getLinkIdMapper(){
-    return linkIdMapper;
-  } 
-  
-  /** get id mapper for link segments
-   * @return id mapper
-   */  
-  protected Function<MacroscopicLinkSegment, String> getLinkSegmentIdMapper(){
-    return linkSegmentIdMapper;
-  }  
-  
-  /** get id mapper for link segment types
-   * @return id mapper
-   */  
-  protected Function<MacroscopicLinkSegmentType, String> getLinkSegmentTypeIdMapper(){
-    return linkSegmentTypeIdMapper;
-  }   
-  
-  /** get id mapper for traveller types
-   * @return id mapper
-   */  
-  protected Function<TravellerType, String> getTravellerTypeIdMapper(){
-    return travellerTypeIdMapper;
-  }    
-  
-  /** get id mapper for time periods
-   * @return id mapper
-   */  
-  protected Function<TimePeriod, String> getTimePeriodIdMapper(){
-    return timePeriodIdMapper;
-  }     
-  
-  /** get id mapper for user classes
-   * @return id mapper
-   */  
-  protected Function<UserClass, String> getUserClassIdMapper(){
-    return userClassIdMapper;
-  }
-
-  /** get id mapper for service leg instances
-   * @return id mapper
-   */
-  protected Function<ServiceLeg, String> getServiceLegIdMapper(){
-    return serviceLegIdMapper;
-  }
-
-  /** get id mapper for service leg segment instances
-   * @return id mapper
-   */
-  protected Function<ServiceLegSegment, String> getServiceLegSegmentIdMapper(){
-    return serviceLegSegmentIdMapper;
-  }
+  protected abstract void initialiseIdMappingFunctions();
 
   /** Get the reference to use whenever a mode reference is encountered
-   * 
+   *
    * @param mode to collect reference for
+   * @param modeIdMapper to use
    * @return modeReference for the mode
    */
-  protected String getXmlModeReference(Mode mode) {
+  protected String getXmlModeReference(Mode mode, Function<Mode, String> modeIdMapper) {
     String modeReference = null;
-    
+
     if(mode.isPredefinedModeType()) {
       /* predefined modes, must utilise, their predefined XML id/name, this overrules the mapper (if any) */
-      modeReference = mode.getXmlId();  
+      modeReference = mode.getXmlId();
     }else {
-      modeReference = getModeIdMapper().apply(mode);
+      modeReference =modeIdMapper.apply(mode);
     }
-    
-    if(modeReference == null) {
-      LOGGER.severe(String.format("mode reference cound not be obtained for mode %s", mode.toString()));
-    }
-    
-    return modeReference;
-  }   
-  
-  /** get id mapper for modes
-   * @return id mapper
-   */  
-  protected Function<Mode, String> getModeIdMapper(){
-    return modeIdMapper;
-  }   
-  
-  /** get id mapper for zones
-   * @return id mapper
-   */  
-  protected Function<Zone, String> getZoneIdMapper(){
-    return zoneIdMapper;
-  }    
-  
-  /** get id mapper for connectoids
-   * @return id mapper
-   */  
-  protected Function<Connectoid, String> getConnectoidIdMapper(){
-    return connectoidIdMapper;
-  } 
-  
-  /** get id mapper for transfer zone groups
-   * @return id mapper
-   */  
-  protected Function<TransferZoneGroup, String> getTransferZoneGroupIdMapper(){
-    return transferZoneGroupIdMapper;
-  }         
 
-  /** get the destination crs transformer. Note it might be null and should only be collected after {@link #prepareCoordinateReferenceSystem(CoordinateReferenceSystem)} has been invoked which determines
-   * if and which transformer should be applied
-   * 
-   * @return destination crs transformer
-   */
-  protected MathTransform getDestinationCrsTransformer() {
-    return destinationCrsTransformer;
+    if(modeReference == null) {
+      LOGGER.severe(String.format("mode reference cound not be obtained for mode %s", mode));
+    }
+
+    return modeReference;
   }
-  
-  /** geo util class based on source Crs (if any)
-   * @return geoUtils
-   */
-  protected PlanitJtsCrsUtils getGeoUtils() {
-    return geoUtils;
-  }
-    
-  
+
   /**
    * Persist the populated XML memory model to disk using JAXb
    * 
@@ -453,8 +142,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
       throw new PlanItException("Unable to persist PLANit network in native format");
     }
   }   
-   
-  
+
   /** Constructor
    * 
    * @param idMapperType to use
@@ -469,23 +157,22 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    *
    * @return newly created map with all mappings as used
    */
-  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType(){
-    var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
-    result.put(Connectoid.class, getConnectoidIdMapper());
-    result.put(Link.class, getLinkIdMapper());
-    result.put(Mode.class, getModeIdMapper());
-    result.put(MacroscopicLinkSegmentType.class, getLinkSegmentTypeIdMapper());
-    result.put(MacroscopicLinkSegment.class, getLinkSegmentIdMapper());
-    result.put(TimePeriod.class, getTimePeriodIdMapper());
-    result.put(TransferZoneGroup.class, getTransferZoneGroupIdMapper());
-    result.put(TravellerType.class, getTravellerTypeIdMapper());
-    result.put(UserClass.class, getUserClassIdMapper());
-    result.put(Vertex.class, getVertexIdMapper());
-    result.put(Zone.class, getZoneIdMapper());
-    result.put(UserClass.class, getUserClassIdMapper());
-    result.put(ServiceLeg.class, getUserClassIdMapper());
-    result.put(ServiceLegSegment.class, getUserClassIdMapper());
-    return result;
+  public abstract Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType();
+
+  /**
+   * The explicit id mapping used by the parent (if any), so we use the appropriate referencing
+   *
+   * @param idMapperByType to use when dealing with parent network related references
+   */
+  public void setParentIdMapperTypes(final Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> idMapperByType) {
+    parentIdMapperByType = idMapperByType;
   }
- 
+
+  public boolean hasParentIdMapperTypes() {
+    return parentIdMapperByType != null && !parentIdMapperByType.isEmpty();
+  }
+
+  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getParentIdMapperTypes() {
+    return parentIdMapperByType;
+  }
 }

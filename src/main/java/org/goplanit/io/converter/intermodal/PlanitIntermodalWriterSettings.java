@@ -2,12 +2,13 @@ package org.goplanit.io.converter.intermodal;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
+import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * Settings for Planit intermodal writer
+ * Settings for PLANit intermodal writer
  * 
  * @author markr
  *
@@ -22,14 +23,18 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
 
   /** the service network settings to use */
   protected final PlanitServiceNetworkWriterSettings serviceNetworkSettings;
-  
+
+  /** the routed services settings to use */
+  protected final PlanitRoutedServicesWriterSettings routedServicesSettings;
+
   /**
    * Default constructor
    */
   public PlanitIntermodalWriterSettings() {
     this( new PlanitNetworkWriterSettings(),
           new PlanitZoningWriterSettings(),
-          new PlanitServiceNetworkWriterSettings());
+          new PlanitServiceNetworkWriterSettings(),
+          new PlanitRoutedServicesWriterSettings());
   }
   
   /**
@@ -42,7 +47,8 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     this(
             new PlanitNetworkWriterSettings(outputDirectory, countryName),
             new PlanitZoningWriterSettings(outputDirectory, countryName),
-            new PlanitServiceNetworkWriterSettings(outputDirectory, countryName));
+            new PlanitServiceNetworkWriterSettings(outputDirectory, countryName),
+            new PlanitRoutedServicesWriterSettings(outputDirectory, countryName));
   }      
   
   /**
@@ -51,14 +57,17 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    * @param networkSettings to use
    * @param zoningSettings to use
    * @param serviceNetworkSettings to use
+   * @param routedServicesSettings to use
    */
   public PlanitIntermodalWriterSettings(
           final PlanitNetworkWriterSettings networkSettings,
           final PlanitZoningWriterSettings zoningSettings,
-          final PlanitServiceNetworkWriterSettings serviceNetworkSettings) {
+          final PlanitServiceNetworkWriterSettings serviceNetworkSettings,
+          final PlanitRoutedServicesWriterSettings routedServicesSettings) {
     this.networkSettings = networkSettings;
     this.zoningSettings = zoningSettings;
     this.serviceNetworkSettings = serviceNetworkSettings;
+    this.routedServicesSettings = routedServicesSettings;
   }
 
   /**
@@ -69,6 +78,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     getNetworkSettings().reset();
     getZoningSettings().reset();
     getServiceNetworkSettings().reset();
+    getRoutedServicesSettings().reset();
   }
 
   /** Collect zoning settings
@@ -87,12 +97,20 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     return networkSettings;
   }
 
-  /** Collect network settings
+  /** Collect service network settings
    *
    * @return service network settings
    */
   public  PlanitServiceNetworkWriterSettings getServiceNetworkSettings() {
     return serviceNetworkSettings;
+  }
+
+  /** Collect routed services settings
+   *
+   * @return routed services settings
+   */
+  public  PlanitRoutedServicesWriterSettings getRoutedServicesSettings() {
+    return routedServicesSettings;
   }
 
   /** Set the outputPathDirectory used on both zoning and (service) network settings
@@ -103,6 +121,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     getZoningSettings().setOutputDirectory(outputDirectory);
     getNetworkSettings().setOutputDirectory(outputDirectory);
     getServiceNetworkSettings().setOutputDirectory(outputDirectory);
+    getRoutedServicesSettings().setOutputDirectory(outputDirectory);
   }
 
   /** Set country name used on both zoning and (service) network settings
@@ -113,6 +132,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     getZoningSettings().setCountry(countryName);
     getNetworkSettings().setCountry(countryName);
     getServiceNetworkSettings().setCountry(countryName);
+    getRoutedServicesSettings().setCountry(countryName);
   }
   
   /** Set the destination Crs to use (if not set, network's native Crs will be used, unless the user has specified a
@@ -124,6 +144,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     getZoningSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
     getNetworkSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
     getServiceNetworkSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
+    getRoutedServicesSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
   }  
   
 }

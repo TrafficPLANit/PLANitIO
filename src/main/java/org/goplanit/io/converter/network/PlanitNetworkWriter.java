@@ -2,21 +2,24 @@ package org.goplanit.io.converter.network;
 
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
 import org.goplanit.converter.network.NetworkWriter;
-import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.EnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
+import org.goplanit.userclass.TravellerType;
+import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.graph.Vertex;
+import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.LoggingUtils;
@@ -27,9 +30,9 @@ import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.network.layer.physical.Link;
-import org.goplanit.utils.network.layer.physical.Links;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
+import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.xml.generated.Direction;
 import org.goplanit.xml.generated.LengthUnit;
 import org.goplanit.xml.generated.XMLElementAccessGroup;
@@ -55,7 +58,7 @@ import org.goplanit.xml.generated.XMLElementLinkSegmentType.Access;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {  
+public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
@@ -67,8 +70,11 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
   private final PlanitNetworkWriterSettings settings;
   
   /* track logging prefix for current layer */
-  private String currLayerLogPrefix;       
-  
+  private String currLayerLogPrefix;
+
+  /** id mappers for network entities */
+  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> networkIdMappers;
+
   /**
    * populate a single xml link segment element based on the passed in PLANit link segment
    * 
@@ -252,7 +258,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     
     /* mode ref id */
     Set<Mode> accessModes = accessGroupProperties.getAccessModes();
-    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode)).collect(Collectors.joining(","));
+    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode, getModeIdMapper())).collect(Collectors.joining(","));
     xmlAccessGroup.setModerefs(modeRefs);
     
     /* critical speed */
@@ -391,7 +397,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     XMLElementModes.Mode xmlMode = new XMLElementModes.Mode();
     
     /* Xml id */
-    xmlMode.setId(getXmlModeReference(mode));
+    xmlMode.setId(getXmlModeReference(mode, getModeIdMapper()));
     
     /* external id */
     if(mode.hasExternalId()) {
@@ -567,12 +573,73 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
         LOGGER.severe(String.format("Unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));
       }
     }
-  }  
+  }
+
+  /**
+   * depending on the chosen id mapping, create the mapping functions for all id carrying entities that are persisted
+   */
+  @Override
+  protected void initialiseIdMappingFunctions() {
+    this.networkIdMappers = createPlanitNetworkIdMappingTypes(getIdMapperType());
+  }
+
+  /** get id mapper for nodes
+   * @return id mapper
+   */
+  protected Function<Vertex, String> getVertexIdMapper(){
+    return (Function<Vertex, String>) networkIdMappers.get(Vertex.class);
+  }
+
+  /** get id mapper for links
+   * @return id mapper
+   */
+  protected Function<Link, String> getLinkIdMapper(){
+    return (Function<Link, String>) networkIdMappers.get(Link.class);
+  }
+
+  /** get id mapper for link segments
+   * @return id mapper
+   */
+  protected Function<MacroscopicLinkSegment, String> getLinkSegmentIdMapper(){
+    return (Function<MacroscopicLinkSegment, String>) networkIdMappers.get(MacroscopicLinkSegment.class);
+  }
+
+  /** get id mapper for link segment types
+   * @return id mapper
+   */
+  protected Function<MacroscopicLinkSegmentType, String> getLinkSegmentTypeIdMapper(){
+    return (Function<MacroscopicLinkSegmentType, String>) networkIdMappers.get(MacroscopicLinkSegmentType.class);
+  }
+
+  /** get id mapper for traveller types
+   * @return id mapper
+   */
+  protected Function<TravellerType, String> getTravellerTypeIdMapper(){
+    return (Function<TravellerType, String>) networkIdMappers.get(TravellerType.class);
+  }
+
+  /** get id mapper for time periods
+   * @return id mapper
+   */
+  protected Function<TimePeriod, String> getTimePeriodIdMapper(){
+    return (Function<TimePeriod, String>) networkIdMappers.get(TimePeriod.class);
+  }
+
+  /** get id mapper for user classes
+   * @return id mapper
+   */
+  protected Function<UserClass, String> getUserClassIdMapper(){
+    return (Function<UserClass, String>) networkIdMappers.get(UserClass.class);
+  }
+
+  /** get id mapper for modes
+   * @return id mapper
+   */
+  protected Function<Mode, String> getModeIdMapper(){
+    return (Function<Mode, String>) networkIdMappers.get(Mode.class);
+  }
   
 
-  /** default network file name to use */
-  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
-  
   /** Constructor 
    * 
    * @param xmlRawNetwork to populate with PLANit network when persisting
@@ -602,6 +669,37 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     this.xmlRawNetwork = xmlRawNetwork;
   }
 
+  /** default network file name to use */
+  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
+
+  /**
+   * Create id mappers per type based on a given id mapping type
+   *
+   * @return newly created map with all network entity mappings
+   */
+  public static Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createPlanitNetworkIdMappingTypes(IdMapperType mappingType){
+    var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
+    result.put(Link.class, IdMapperFunctionFactory.createLinkIdMappingFunction(mappingType));
+    result.put(Mode.class, IdMapperFunctionFactory.createModeIdMappingFunction(mappingType));
+    result.put(MacroscopicLinkSegmentType.class, IdMapperFunctionFactory.createLinkSegmentTypeIdMappingFunction(mappingType));
+    result.put(MacroscopicLinkSegment.class, IdMapperFunctionFactory.createLinkSegmentIdMappingFunction(mappingType));
+    result.put(TimePeriod.class,  IdMapperFunctionFactory.createTimePeriodIdMappingFunction(mappingType));
+    result.put(TravellerType.class, IdMapperFunctionFactory.createTravellerTypeIdMappingFunction(mappingType));
+    result.put(UserClass.class, IdMapperFunctionFactory.createUserClassIdMappingFunction(mappingType));
+    result.put(Vertex.class, IdMapperFunctionFactory.createVertexIdMappingFunction(mappingType));
+    return result;
+  }
+
+  /**
+   * All id mappers per type as used by the writer )copy)
+   *
+   * @return newly created map with all mappings as used
+   */
+  @Override
+  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType(){
+    return new HashMap<>(networkIdMappers);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -615,7 +713,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<LayeredNetwork<?,?>> i
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     
     /* initialise */
-    super.initialiseIdMappingFunctions();        
+    initialiseIdMappingFunctions();
     super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
     LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
