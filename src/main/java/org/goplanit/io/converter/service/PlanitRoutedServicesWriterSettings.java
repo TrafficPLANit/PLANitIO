@@ -2,6 +2,7 @@ package org.goplanit.io.converter.service;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.unit.TimeUnit;
 
 import java.util.logging.Logger;
 
@@ -17,6 +18,11 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
   @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesWriterSettings.class.getCanonicalName());
 
+  /** user configured time unit */
+  private TimeUnit frequencyTimeUnit = DEFAULT_FREQUENCY_TIME_UNIT;
+
+  /** default time unit to use for trip frequencies */
+  public static final TimeUnit DEFAULT_FREQUENCY_TIME_UNIT = TimeUnit.HOUR;
   /**
    * Default constructor
    */
@@ -51,6 +57,24 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
   @Override
   public void reset() {
     super.reset();
-  }  
-  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings(){
+    super.logSettings();
+    LOGGER.info(String.format("Trip frequency time unit set to %s", getTripFrequencyTimeUnit()));
+  }
+
+  // ************* getters/setters ******************
+
+  public TimeUnit getTripFrequencyTimeUnit() {
+    return frequencyTimeUnit;
+  }
+
+  public void setTripFrequencyTimeUnit(TimeUnit frequencyTimeUnit) {
+    this.frequencyTimeUnit = frequencyTimeUnit;
+  }
 }

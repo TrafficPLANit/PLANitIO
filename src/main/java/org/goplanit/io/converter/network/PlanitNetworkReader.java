@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.goplanit.converter.network.NetworkReaderImpl;
 import org.goplanit.io.xml.network.physical.macroscopic.XmlMacroscopicNetworkLayerHelper;
-import org.goplanit.io.xml.util.EnumConversionUtil;
+import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.mode.ModeFeaturesFactory;
 import org.goplanit.network.MacroscopicNetwork;
@@ -123,7 +123,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     }
     
     /* parse set values */
-    UseOfModeType useOfModeType = EnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());    
+    UseOfModeType useOfModeType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());
     
     return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType);
   }
@@ -139,9 +139,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     }
     
     /* parse set values */
-    VehicularModeType vehicleType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());    
-    MotorisationModeType motorisationType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());       
-    TrackModeType trackType = EnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());         
+    VehicularModeType vehicleType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());
+    MotorisationModeType motorisationType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());
+    TrackModeType trackType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());
     
     return ModeFeaturesFactory.createPhysicalFeatures(vehicleType, motorisationType, trackType);
   }    

@@ -4,13 +4,16 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.service.RoutedServicesReader;
-import org.goplanit.io.xml.util.EnumConversionUtil;
+import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.ServiceNetwork;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.service.routed.*;
 import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.service.routed.RoutedTripScheduleImpl;
@@ -52,7 +55,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
   
   /** parses the XML content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementRoutedServices> xmlParser;
-  
+
   /** the routed services to populate */
   private final RoutedServices routedServices;
   
@@ -201,9 +204,11 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     }
     
     /* unit of frequency */
-    TimeUnit xmlTimeUnit = xmlFrequency.getUnit();    
-    PlanItException.throwIfNull(xmlTimeUnit,"Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
-    org.goplanit.utils.unit.TimeUnit planitFrequencyTimeUnit = EnumConversionUtil.xmlToPlanit(xmlTimeUnit);
+    TimeUnit xmlTimeUnit = xmlFrequency.getUnit();
+    if(xmlTimeUnit == null){
+      throw new PlanItRunTimeException("Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
+    }
+    org.goplanit.utils.unit.TimeUnit planitFrequencyTimeUnit = xmlEnumConversionUtil.xmlToPlanit(xmlTimeUnit);
     
     /* XML frequency */
     double xmlNonNormalisedFrequency = xmlFrequency.getValue();

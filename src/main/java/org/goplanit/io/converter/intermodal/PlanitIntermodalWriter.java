@@ -58,7 +58,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
   protected IdMapperType idMapper;
 
   /**
-   * Combine id mappigns from network and zoning writer to pass on to whomever requires references from either of those
+   * Combine id mappings from network and zoning writer to pass on to whomever requires references from either of those
    *
    * @param networkAndZoningWriter to use
    * @return created id mapping that can be used to set as paranet id mapping on writers that require it
@@ -69,6 +69,18 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     var zoningIdMapping = networkAndZoningWriter.second().getIdMapperByType();
     return
         Stream.concat(networkIdMapping.entrySet().stream(), zoningIdMapping.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  /**
+   * Combine id mappings from network, zoning, and service network writer to pass on to whomever requires references from either of those
+   *
+   * @param networkAndZoningWriter to use
+   * @return created id mapping that can be used to set as paranet id mapping on writers that require it
+   */
+  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createRoutedServicesParentIdMappings(Pair<PlanitNetworkWriter, PlanitZoningWriter> networkAndZoningWriter, PlanitServiceNetworkWriter serviceNetworkWriter) {
+    var parentIdMappings = createServiceNetworkParentIdMappings(networkAndZoningWriter);
+    parentIdMappings.putAll(serviceNetworkWriter.getIdMapperByType());
+    return  parentIdMappings;
   }
 
   /**
@@ -176,7 +188,8 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
             routedServicesSettings.getOutputPathDirectory(), routedServicesSettings.getCountry(), xmlRawRoutedServices);
 
     // routed services only requires service network entity references, those are present on the service network writer id mappings
-    routedServicesWriter.setParentIdMapperTypes(serviceNetworkWriter.getIdMapperByType()); // pass on parent ref mapping
+    routedServicesWriter.setParentIdMapperTypes(
+        createRoutedServicesParentIdMappings(networkAndZoningWriter, serviceNetworkWriter));
 
     routedServicesWriter.setIdMapperType(getIdMapperType());
     routedServicesWriter.write(routedServices);

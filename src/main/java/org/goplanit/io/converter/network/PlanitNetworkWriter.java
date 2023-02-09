@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
 import org.goplanit.converter.network.NetworkWriter;
-import org.goplanit.io.xml.util.EnumConversionUtil;
+import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
@@ -353,11 +353,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     try {
       /* motorisation type */
-      xmlPhysicalFeatures.setMotorisationtype(EnumConversionUtil.planitToXml(physicalModeFeatures.getMotorisationType()));
+      xmlPhysicalFeatures.setMotorisationtype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getMotorisationType()));
       /* track type */
-      xmlPhysicalFeatures.setTracktype(EnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
+      xmlPhysicalFeatures.setTracktype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
       /* vehicle type */
-      xmlPhysicalFeatures.setVehicletype(EnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
+      xmlPhysicalFeatures.setVehicletype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
     }catch(PlanItException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
@@ -379,7 +379,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     try {
       /* motorisation type */
-      xmlUseFeatures.setUsedtotype(EnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
+      xmlUseFeatures.setUsedtotype(xmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
 
     }catch(PlanItException e) {
       LOGGER.severe(e.getMessage());
