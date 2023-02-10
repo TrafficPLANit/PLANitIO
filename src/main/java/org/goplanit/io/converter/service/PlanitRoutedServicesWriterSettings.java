@@ -21,8 +21,15 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
   /** user configured time unit */
   private TimeUnit frequencyTimeUnit = DEFAULT_FREQUENCY_TIME_UNIT;
 
+  /** user configured logging regarding discarded routed services because of no trips associated with them */
+  private boolean logServicesWithoutTrips = DEFAULT_LOG_SERVICES_WITHOUT_TRIPS;
+
   /** default time unit to use for trip frequencies */
   public static final TimeUnit DEFAULT_FREQUENCY_TIME_UNIT = TimeUnit.HOUR;
+
+  /** default time unit to use for trip frequencies */
+  public static final boolean DEFAULT_LOG_SERVICES_WITHOUT_TRIPS = false;
+
   /**
    * Default constructor
    */
@@ -76,5 +83,13 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
 
   public void setTripFrequencyTimeUnit(TimeUnit frequencyTimeUnit) {
     this.frequencyTimeUnit = frequencyTimeUnit;
+  }
+
+  public boolean isLogServicesWithoutTrips() {
+    return logServicesWithoutTrips;
+  }
+
+  public void setLogServicesWithoutTrips(boolean logServicesWithoutTrips) {
+    this.logServicesWithoutTrips = logServicesWithoutTrips;
   }
 }

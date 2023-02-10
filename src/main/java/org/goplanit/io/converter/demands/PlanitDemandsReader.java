@@ -2,6 +2,7 @@ package org.goplanit.io.converter.demands;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -314,21 +315,13 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     /* time periods */
     XMLElementTimePeriods xmlTimeperiods = demandconfiguration.getTimeperiods();
 
-    XMLGregorianCalendar defaultStartTime;
-    try {
-      LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
-      defaultStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(localDateTime.format(DateTimeFormatter.ISO_DATE_TIME));
-    } catch (DatatypeConfigurationException e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when generating time period map when processing demand configuration",e);
-    }
+    LocalTime defaultStartTime = LocalTime.MIN;
     
     /* time period */
     for (XMLElementTimePeriods.Timeperiod xmlTimePeriod : xmlTimeperiods.getTimeperiod()) {
-              
+
       /* starttime, duration */
-      XMLGregorianCalendar time = (xmlTimePeriod.getStarttime() == null) ? defaultStartTime : xmlTimePeriod.getStarttime();
-      int startTimeSeconds = 3600 * time.getHour() + 60 * time.getMinute() + time.getSecond();
+      int startTimeSeconds = (xmlTimePeriod.getStarttime() == null) ? defaultStartTime.toSecondOfDay() : xmlTimePeriod.getStarttime().toSecondOfDay();
       int duration = xmlTimePeriod.getDuration().getValue().intValue();
       Durationunit durationUnit = xmlTimePeriod.getDuration().getUnit();
       if (xmlTimePeriod.getName() == null) {

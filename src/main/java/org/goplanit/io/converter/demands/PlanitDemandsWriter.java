@@ -3,6 +3,7 @@ package org.goplanit.io.converter.demands;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,8 +101,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       /* start time */
       if(timePeriod.getStartTimeSeconds() > 0) {
         try {
-          var startTime = (XMLGregorianCalendar) DatatypeFactory.newInstance().newXMLGregorianCalendar(LocalDate.now().atStartOfDay().plusSeconds(timePeriod.getStartTimeSeconds()).format(DateTimeFormatter.ISO_DATE_TIME));
-          xmlTimePeriod.setStarttime(startTime);
+          xmlTimePeriod.setStarttime(LocalTime.ofSecondOfDay(timePeriod.getStartTimeSeconds()));
         } catch (Exception e) {
           LOGGER.severe(e.getMessage());
           throw new PlanItException("Error when generating start time of time period "+ timePeriod.getXmlId()+" when persisting demand configuration",e);

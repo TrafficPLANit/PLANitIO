@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.nio.file.Path;
+import java.time.LocalTime;
 import java.util.logging.Logger;
 
 import org.goplanit.demands.Demands;
@@ -19,6 +20,7 @@ import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.utils.network.layer.NetworkLayer;
+import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.zoning.Connectoid;
 import org.goplanit.utils.zoning.ConnectoidType;
 import org.goplanit.utils.zoning.TransferZone;
@@ -137,37 +139,109 @@ public class IntermodalTest {
         assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZone()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
         
         switch (transferConnectoid.getAccessLinkSegment().getXmlId()) {
-        case linkSegment1XmlId:
-            if(transferConnectoid.getAccessNode().getXmlId().equals(node1XmlId)) {
-              assertEquals(transferConnectoid.getXmlId(),transferconnectoid1XmlId);
-              assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop1XmlId);
-              assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.PLATFORM);
-            }else {
-              assertEquals(transferConnectoid.getAccessNode().getXmlId(),node2XmlId);
-              assertEquals(transferConnectoid.getXmlId(),transferconnectoid2XmlId);
-              assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop2XmlId);
-              assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.POLE);
-            }
-          break;
-        case linkSegment3XmlId:
-          assertEquals(transferConnectoid.getAccessNode().getXmlId(),node3XmlId);
-          assertEquals(transferConnectoid.getXmlId(),transferconnectoid3XmlId);
-          assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop3XmlId);
-          assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.NONE);
-          break;
-        default:
-          break;
-        }      
-      }
+          case linkSegment1XmlId:
+              if(transferConnectoid.getAccessNode().getXmlId().equals(node1XmlId)) {
+                assertEquals(transferConnectoid.getXmlId(),transferconnectoid1XmlId);
+                assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop1XmlId);
+                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.PLATFORM);
+              }else {
+                assertEquals(transferConnectoid.getAccessNode().getXmlId(),node2XmlId);
+                assertEquals(transferConnectoid.getXmlId(),transferconnectoid2XmlId);
+                assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop2XmlId);
+                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.POLE);
+              }
+            break;
+          case linkSegment3XmlId:
+            assertEquals(transferConnectoid.getAccessNode().getXmlId(),node3XmlId);
+            assertEquals(transferConnectoid.getXmlId(),transferconnectoid3XmlId);
+            assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop3XmlId);
+            assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.NONE);
+            break;
+          default:
+            break;
+          }
+        }
       
       /* DEMANDS */
-      @SuppressWarnings("unused") final Demands demands = project.createAndRegisterDemands(zoning, network);      
+      @SuppressWarnings("unused") final Demands demands = project.createAndRegisterDemands(zoning, network);
       
-      } catch (final Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
-      }
     }
   }
+
+  /**
+   * test case which only tries to parse a minimal intermodal setup with routes, does not run an assignment
+   * but simply tests the correct parsing of the inputs
+   */
+  @Test
+  public void test_intermodal_minimal_input_withServices() {
+    try {
+      final String projectPath = Path.of(intermodalTestCasePath.toString(),"minimal_input_with_services").toString();
+
+      final PlanItInputBuilder planItInputBuilder = new PlanItInputBuilder(projectPath);
+      final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
+
+      /* NETWORK (already tested in test_intermodal_minimal_input)*/
+      var network = project.createAndRegisterMacroscopicNetwork();
+      /* ZONING (already tested in test_intermodal_minimal_input)*/
+      final Zoning zoning = project.createAndRegisterZoning(network);
+      /* DEMANDS (already tested in test_intermodal_minimal_input)*/
+      @SuppressWarnings("unused") final Demands demands = project.createAndRegisterDemands(zoning, network);
+
+      /*SERVICE NETWORK*/
+      var serviceNetwork = project.createAndRegisterServiceNetwork(network);
+      assertEquals(serviceNetwork.getTransportLayers().size(),1);
+      var serviceLayer = serviceNetwork.getTransportLayers().getFirst();
+      assertEquals(serviceLayer.getSupportedModes().size(), 2); // parent layer supports two modes
+      assertEquals(serviceLayer.getServiceNodes().size(),3);
+      assertEquals(serviceLayer.getLegs().size(),3);
+      assertEquals(serviceLayer.getLegSegments().size(),3);
+      assertEquals(1, serviceLayer.getLegSegments().getByXmlId("ls1").getPhysicalParentSegments().size());
+      assertEquals("1", serviceLayer.getLegSegments().getByXmlId("ls1").getFirstPhysicalLinkSegment().getXmlId());
+      assertEquals(2, serviceLayer.getLegSegments().getByXmlId("lsX").getPhysicalParentSegments().size());
+      assertEquals("1", serviceLayer.getLegSegments().getByXmlId("ls1").getFirstPhysicalLinkSegment().getXmlId());
+      assertEquals(serviceLayer.getParentNetworkLayer().getXmlId(),"road");
+
+      /*ROUTED SERVICES*/
+      var routedServices = project.createAndRegisterRoutedServices(serviceNetwork);
+      assertEquals(routedServices.getParentNetwork(), serviceNetwork);
+      assertEquals(1,routedServices.getLayers().size());
+      var rsLayer = routedServices.getLayers().getFirst();
+      assertEquals(rsLayer.getParentLayer(), serviceLayer);
+      assertEquals(true, rsLayer.getSupportedModes().containsAll(network.getModes().toCollection()));
+      var busServices = rsLayer.getServicesByMode(network.getModes().get(PredefinedModeType.BUS));
+      assertEquals(false, busServices.isEmpty());
+      assertEquals(2, busServices.size());
+      /* scheduled trip */
+      var line1X = busServices.findFirst( rs -> rs.getName().equals("line_1_X"));
+      assertEquals(false, line1X.getTripInfo().hasFrequencyBasedTrips());
+      assertEquals(true, line1X.getTripInfo().hasScheduleBasedTrips());
+      assertEquals(1, line1X.getTripInfo().getScheduleBasedTrips().size());
+      assertEquals(1, line1X.getTripInfo().getScheduleBasedTrips().getFirst().getRelativeLegTimingsSize());
+      assertEquals(LocalTime.of(0,2,0), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getRelativeLegTiming(0).getDwellTime());
+      assertEquals(LocalTime.of(0,3,0), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getRelativeLegTiming(0).getDuration());
+      assertEquals(serviceLayer.getLegSegments().getByXmlId("lsX"), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getRelativeLegTiming(0).getParentLegSegment());
+      assertEquals(3, line1X.getTripInfo().getScheduleBasedTrips().getFirst().getDepartures().size());
+      assertEquals(ExtendedLocalTime.of("08:00:00"), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getDepartures().getFirst().getDepartureTime());
+      /* frequency trip */
+      var line1 = busServices.findFirst( rs -> rs.getName().equals("line_1"));
+      assertEquals(true, line1.getTripInfo().hasFrequencyBasedTrips());
+      assertEquals(false, line1.getTripInfo().hasScheduleBasedTrips());
+      assertEquals(1, line1.getTripInfo().getFrequencyBasedTrips().size());
+      assertEquals(3.0, line1.getTripInfo().getFrequencyBasedTrips().getFirst().getFrequencyPerHour(), Precision.EPSILON_6);
+      assertEquals(2, line1.getTripInfo().getFrequencyBasedTrips().getFirst().getNumberOfLegSegments());
+      assertEquals("ls1", line1.getTripInfo().getFrequencyBasedTrips().getFirst().getFirstLegSegment().getXmlId());
+      assertEquals("ls2", line1.getTripInfo().getFrequencyBasedTrips().getFirst().getLastLegSegment().getXmlId());
+
+
+    } catch (final Exception e) {
+      e.printStackTrace();
+      LOGGER.severe( e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+}
   

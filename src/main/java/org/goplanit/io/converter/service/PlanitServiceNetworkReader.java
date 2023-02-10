@@ -136,7 +136,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
         continue;
       }
       
-      /* XML id */
+      /* direction */
       Direction xmlDirection = xmlLegSegment.getDir();
       if(xmlDirection == null) {
         LOGGER.warning(String.format("IGNORE: Service leg segment for leg %s has no direction defined", serviceLeg.getXmlId()));
@@ -164,20 +164,24 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
       /* parent link segments in memory model */
       String[] parentLinkSegmentsRefsArray = parentLinkRefs.split(CharacterUtils.COMMA.toString());
       boolean valid = true;
-      ArrayList<LinkSegment> parentLinksInOrder = new ArrayList<>(parentLinkSegmentsRefsArray.length);
+      ArrayList<LinkSegment> parentLinkSegmentsInOrder = new ArrayList<>(parentLinkSegmentsRefsArray.length);
       for(int index=0;index<parentLinkSegmentsRefsArray.length;++index) {
-        String xmlParentLinkSegmentRef = parentLinkSegmentsRefsArray[index];
+        String xmlParentLinkSegmentRef = parentLinkSegmentsRefsArray[index].trim();
         LinkSegment linkSegmentInLeg = getBySourceId(LinkSegment.class, xmlParentLinkSegmentRef);
         if(linkSegmentInLeg==null) {
           LOGGER.warning(String.format("Service leg segment %s in service layer %s references unknown parent link segment %s", xmlId, routedServiceLayer.getXmlId(), xmlParentLinkSegmentRef));
           valid=false;
           continue;
         }
-        parentLinksInOrder.add(linkSegmentInLeg);
+        parentLinkSegmentsInOrder.add(linkSegmentInLeg);
       }
       if(!valid) {
         LOGGER.warning(String.format("IGNORE: Service leg segment %s in service layer %s invalid", xmlId, routedServiceLayer.getXmlId()));
         continue;
+      }
+
+      if(!parentLinkSegmentsInOrder.isEmpty()){
+        serviceLegSegment.setPhysicalParentSegments(parentLinkSegmentsInOrder);
       }
     }
   }

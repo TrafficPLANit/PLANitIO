@@ -126,7 +126,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     //TODO: for some reason the xsd's default dwell time of 00:00:00 is not populated by JAXB so we do it programmatically here for now
     LocalTime defaultDwellTime = LocalTime.MIN;
     if(xmlRelativeLegTimings.getDwelltime()!=null) {
-      defaultDwellTime = xmlRelativeLegTimings.getDwelltime().toGregorianCalendar().toZonedDateTime().toLocalTime();      
+      defaultDwellTime = xmlRelativeLegTimings.getDwelltime();
     }
     /* set on implementation so it can be used for persistence later on if required, not used in memory model */
     ((RoutedTripScheduleImpl)routedTrip).setDefaultDwellTime(defaultDwellTime);
@@ -152,23 +152,22 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       xmlRelativeTimingLeg.getDuration();
       
       /* scheduled duration of leg */
-      final XMLGregorianCalendar xmlScheduledLegDuration = xmlRelativeTimingLeg.getDuration();
-      if(xmlScheduledLegDuration==null) {
+      var scheduledLegDuration = xmlRelativeTimingLeg.getDuration();
+      if(scheduledLegDuration == null) {
         LOGGER.warning(String.format("IGNORE: A scheduled trip %s its directional leg timing %s has no valid duration", routedTrip.getXmlId(), parentLegSegment.getXmlId()));
         validTimings = false;
         break;        
       }
-      LocalTime duration = xmlScheduledLegDuration.toGregorianCalendar().toZonedDateTime().toLocalTime();    
       
       /* scheduled dwell time of leg */
-      XMLGregorianCalendar xmlScheduledDwellTime= xmlRelativeTimingLeg.getDwelltime();
+      var scheduledDwellTime= xmlRelativeTimingLeg.getDwelltime();
       LocalTime localDwellTime = ((RoutedTripScheduleImpl)routedTrip).getDefaultDwellTime(); 
-      if(xmlScheduledDwellTime!=null) {
-        localDwellTime = xmlScheduledDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();  
+      if(scheduledDwellTime!=null) {
+        localDwellTime = scheduledDwellTime;
       }             
       
       /* instance on schedule */
-      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, duration, localDwellTime);
+      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, scheduledLegDuration, localDwellTime);
     }
     
     if(!validTimings) {
@@ -195,7 +194,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     String[] xmlLegRefsArray = xmlLegRefs.split(CharacterUtils.COMMA.toString());
     for(int index=0;index<xmlLegRefsArray.length;++index) {
       
-      ServiceLegSegment parentLegSegment = getBySourceId(ServiceLegSegment.class, xmlLegRefsArray[index]);
+      ServiceLegSegment parentLegSegment = getBySourceId(ServiceLegSegment.class, xmlLegRefsArray[index].trim());
       if(parentLegSegment==null) {
         LOGGER.warning(String.format("IGNORE: Unavailable directed leg referenced %s in trip %s",xmlLegRefsArray[index], routedTrip.getXmlId()));
         routedTrip.clearLegs();

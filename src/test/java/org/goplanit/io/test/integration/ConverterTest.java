@@ -88,7 +88,7 @@ public class ConverterTest {
    * files as the original input that was read.
    */
   @Test
-  public void test_planit_2_planit_intermodal_converter() {
+  public void test_planit_2_planit_intermodal_no_services_converter() {
     try {
       final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();

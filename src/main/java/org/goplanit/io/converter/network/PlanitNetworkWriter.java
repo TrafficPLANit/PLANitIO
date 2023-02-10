@@ -18,6 +18,7 @@ import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
@@ -358,7 +359,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
       xmlPhysicalFeatures.setTracktype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
       /* vehicle type */
       xmlPhysicalFeatures.setVehicletype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
-    }catch(PlanItException e) {
+    }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
     }
@@ -381,7 +382,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
       /* motorisation type */
       xmlUseFeatures.setUsedtotype(xmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
 
-    }catch(PlanItException e) {
+    }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
     }

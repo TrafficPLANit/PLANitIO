@@ -97,7 +97,7 @@ public class RoutedServicesTest {
       assertEquals(line4Service.getServiceDescription(),"bus line running from the city to the beach directly");
       assertNotNull(line4Service.getTripInfo());
       RoutedServiceTripInfo line4TripInfo = line4Service.getTripInfo();
-      assertEquals(line4TripInfo.hasScheduleBasedTrips(),true);
+      assertEquals(line4TripInfo.hasScheduleBasedTrips(),false);
       assertEquals(line4TripInfo.hasFrequencyBasedTrips(),true);
       assertNotNull(line4TripInfo.getFrequencyBasedTrips());
       RoutedTripsFrequency line4FrequencyTrips = line4TripInfo.getFrequencyBasedTrips();
@@ -111,6 +111,8 @@ public class RoutedServicesTest {
       
       RoutedService line4OppService = busServices.findFirst( service -> service.getXmlId().equals("line_4_opp"));
       RoutedServiceTripInfo line4OppTripInfo = line4OppService.getTripInfo();
+      assertEquals(line4OppTripInfo.hasScheduleBasedTrips(),true);
+      assertEquals(line4OppTripInfo.hasFrequencyBasedTrips(),false);
       assertNotNull(line4OppTripInfo.getScheduleBasedTrips());
       RoutedTripsSchedule line4OppScheduledTrips = line4OppTripInfo.getScheduleBasedTrips();
       assertEquals(line4OppScheduledTrips.size(),1);

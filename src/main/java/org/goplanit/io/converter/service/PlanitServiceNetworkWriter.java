@@ -207,6 +207,9 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     }
     xmlServiceNetworkLayer.setParentlayerref(serviceNetworkLayer.getParentNetworkLayer().getXmlId());
 
+    LOGGER.info(String.format("%s Supported modes : %s",
+        currLayerLogPrefix, serviceNetworkLayer.getSupportedModes().stream().map( m -> m.toString()).collect(Collectors.joining(","))));
+
     /* service nodes */
     LOGGER.info(String.format("%s Service nodes : %d", currLayerLogPrefix, serviceNetworkLayer.getServiceNodes().size()));
     populateXmlServiceNodes(xmlServiceNetworkLayer, serviceNetworkLayer.getServiceNodes());
@@ -236,7 +239,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
         LOGGER.warning(String.format("Service network layer has no XML id defined, adopting internally generated id %d instead", serviceNetworkLayer.getId()));
         serviceNetworkLayer.setXmlId(String.valueOf(serviceNetworkLayer.getId()));
       }
-      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+serviceNetworkLayer.getXmlId());
+      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("sn-layer: "+serviceNetworkLayer.getXmlId());
 
 
       var xmlServiceNetworkLayer = createAndPopulateXmlNetworkLayer(serviceNetworkLayer, serviceNetwork);
@@ -365,6 +368,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    */
   public static Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createPlanitServiceNetworkIdMappingTypes(IdMapperType mappingType){
     var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
+    result.put(Vertex.class, IdMapperFunctionFactory.createVertexIdMappingFunction(mappingType));
     result.put(ServiceLeg.class, IdMapperFunctionFactory.createServiceLegIdMappingFunction(mappingType));
     result.put(ServiceLegSegment.class,  IdMapperFunctionFactory.createServiceLegSegmentIdMappingFunction(mappingType));
     return result;
@@ -383,7 +387,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     getSettings().logSettings();
     
     /* xml id */
-    populateTopLevelElement(serviceNetwork); //todo rename and add parent
+    populateTopLevelElement(serviceNetwork);
 
     /* network layers */
     populateXmlServiceNetworkLayers(serviceNetwork);
