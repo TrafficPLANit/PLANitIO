@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<servicenetwork xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/servicenetworkinput.xsd">
+    <id>1</id>
+    <parentnetwork>1</parentnetwork>
+    <servicenetworklayer id="0" parentlayerref="all">
+        <servicenodes>
+            <servicenode id="195" externalid="2000230" noderef="1030"/>
+            <servicenode id="386" externalid="2000403" noderef="992"/>
+            <servicenode id="387" externalid="2000392" noderef="1054"/>
+            <servicenode id="521" externalid="2000381" noderef="996"/>
+            <servicenode id="522" externalid="2000351" noderef="990"/>
+            <servicenode id="523" externalid="2000405" noderef="994"/>
+            <servicenode id="709" externalid="2000406" noderef="995"/>
+            <servicenode id="710" externalid="2000352" noderef="991"/>
+            <servicenode id="711" externalid="2000382" noderef="997"/>
+            <servicenode id="8831" externalid="2000422" noderef="1023"/>
+            <servicenode id="8832" externalid="2000420" noderef="1022"/>
+            <servicenode id="8833" externalid="2000419" noderef="277"/>
+            <servicenode id="10473" externalid="200031" noderef="1026"/>
+            <servicenode id="10474" externalid="2000136" noderef="1110"/>
+            <servicenode id="10476" externalid="2000427" noderef="1032"/>
+            <servicenode id="10477" externalid="2000221" noderef="1017"/>
+            <servicenode id="10820" externalid="2000142" noderef="435"/>
+            <servicenode id="10822" externalid="200033" noderef="1013"/>
+            <servicenode id="12019" externalid="2000133" noderef="1018"/>
+            <servicenode id="12020" externalid="200029" noderef="1026"/>
+            <servicenode id="12021" externalid="200044" noderef="1112"/>
+            <servicenode id="12022" externalid="2000139" noderef="1047"/>
+            <servicenode id="12156" externalid="206125" noderef="1105"/>
+            <servicenode id="12157" externalid="206143" noderef="1070"/>
+            <servicenode id="12206" externalid="200095" noderef="1034"/>
+            <servicenode id="12233" externalid="2000186" noderef="1035"/>
+            <servicenode id="12234" externalid="2000189" noderef="1016"/>
+            <servicenode id="12678" externalid="200013" noderef="1049"/>
+            <servicenode id="12692" externalid="200018" noderef="1078"/>
+            <servicenode id="14319" externalid="200035" noderef="1015"/>
+            <servicenode id="14402" externalid="2000295" noderef="1029"/>
+            <servicenode id="15979" externalid="200042" noderef="1114"/>
+            <servicenode id="16007" externalid="200093" noderef="1025"/>
+            <servicenode id="16008" externalid="200094" noderef="1024"/>
+            <servicenode id="16030" externalid="200089" noderef="1050"/>
+            <servicenode id="16031" externalid="2000226" noderef="1025"/>
+            <servicenode id="16036" externalid="2000147" noderef="353"/>
+            <servicenode id="16037" externalid="200068" noderef="1021"/>
+            <servicenode id="16038" externalid="2000283" noderef="1020"/>
+            <servicenode id="16071" externalid="200057" noderef="1045"/>
+            <servicenode id="16072" externalid="2000421" noderef="367"/>
+            <servicenode id="16073" externalid="200059" noderef="1019"/>
+            <servicenode id="16248" externalid="200098" noderef="382"/>
+            <servicenode id="16249" externalid="2000131" noderef="1093"/>
+            <servicenode id="16250" externalid="2000435" noderef="1099"/>
+            <servicenode id="16251" externalid="200041" noderef="1114"/>
+            <servicenode id="16253" externalid="201144" noderef="1087"/>
+            <servicenode id="16254" externalid="201145" noderef="1089"/>
+            <servicenode id="16294" externalid="2000154" noderef="322"/>
+            <servicenode id="16295" externalid="2000100" noderef="1040"/>
+            <servicenode id="16296" externalid="200099" noderef="1122"/>
+            <servicenode id="16297" externalid="2000179" noderef="335"/>
+            <servicenode id="16298" externalid="2000437" noderef="1036"/>
+            <servicenode id="16422" externalid="2000130" noderef="1095"/>
+            <servicenode id="16454" externalid="200019" noderef="1039"/>
+            <servicenode id="16455" externalid="2000129" noderef="1074"/>
+            <servicenode id="16579" externalid="20002" noderef="1006"/>
+            <servicenode id="16580" externalid="200045" noderef="1045"/>
+            <servicenode id="16614" externalid="200065" noderef="1048"/>
+            <servicenode id="16617" externalid="2000183" noderef="1044"/>
+            <servicenode id="16618" externalid="200078" noderef="686"/>
+            <servicenode id="16659" externalid="2000191" noderef="1076"/>
+            <servicenode id="16660" externalid="200081" noderef="367"/>
+            <servicenode id="20746" externalid="2000220" noderef="151"/>
+            <servicenode id="23146" externalid="200034" noderef="1013"/>
+            <servicenode id="52781" externalid="2000232" noderef="367"/>
+            <servicenode id="52782" externalid="2000312" noderef="1046"/>
+            <servicenode id="52874" externalid="2000228" noderef="1097"/>
+            <servicenode id="52875" externalid="2000140" noderef="1124"/>
+            <servicenode id="52933" externalid="2000111" noderef="1042"/>
+            <servicenode id="57119" externalid="2000457" noderef="1084"/>
+            <servicenode id="57120" externalid="2000455" noderef="1002"/>
+            <servicenode id="57121" externalid="2000452" noderef="1005"/>
+            <servicenode id="57122" externalid="2000449" noderef="999"/>
+            <servicenode id="57124" externalid="2000451" noderef="1000"/>
+            <servicenode id="57125" externalid="2000453" noderef="1005"/>
+            <servicenode id="57126" externalid="2000454" noderef="1003"/>
+            <servicenode id="57127" externalid="2000456" noderef="768"/>
+            <servicenode id="57137" externalid="2000450" noderef="999"/>
+        </servicenodes>
+        <servicelegs>
+            <leg id="541" externalid="2000403_2000392" nodearef="386" nodebref="387">
+                <legsegment id="541" externalid="2000403_2000392" dir="a_b" lsrefs="2389,1004,1006"/>
+            </leg>
+            <leg id="794" externalid="2000381_2000351" nodearef="521" nodebref="522">
+                <legsegment id="794" externalid="2000381_2000351" dir="a_b" lsrefs="2397,1544,770,768,1014,208"/>
+            </leg>
+            <leg id="795" externalid="2000351_2000405" nodearef="522" nodebref="523">
+                <legsegment id="795" externalid="2000351_2000405" dir="a_b" lsrefs="2385,1012,986,1578,380"/>
+            </leg>
+            <leg id="1193" externalid="2000406_2000352" nodearef="709" nodebref="710">
+                <legsegment id="1193" externalid="2000406_2000352" dir="a_b" lsrefs="2395,1576,988,1016,382"/>
+            </leg>
+            <leg id="1194" externalid="2000352_2000382" nodearef="710" nodebref="711">
+                <legsegment id="1194" externalid="2000352_2000382" dir="a_b" lsrefs="2387,1018,206,774,772,1548"/>
+            </leg>
+            <leg id="13554" externalid="2000422_2000420" nodearef="8831" nodebref="8832">
+                <legsegment id="13554" externalid="2000422_2000420" dir="a_b" lsrefs="2451,1056,1054,2227"/>
+            </leg>
+            <leg id="13555" externalid="2000420_2000419" nodearef="8832" nodebref="8833">
+                <legsegment id="13555" externalid="2000420_2000419" dir="a_b" lsrefs="2449,2323,344,346"/>
+            </leg>
+            <leg id="16105" externalid="200031_2000136" nodearef="10473" nodebref="10474">
+                <legsegment id="16105" externalid="200031_2000136" dir="a_b" lsrefs="2457,854,2553,1881,2093,856"/>
+            </leg>
+            <leg id="16107" externalid="2000427_2000221" nodearef="10476" nodebref="10477">
+                <legsegment id="16107" externalid="2000427_2000221" dir="a_b" lsrefs="2469,1670,2437,1883,2463,1146,2465,1913,1032"/>
+            </leg>
+            <leg id="18536" externalid="2000133_200029" nodearef="12019" nodebref="12020">
+                <legsegment id="18536" externalid="2000133_200029" dir="a_b" lsrefs="2441,1793,2569,858,2435,1660,1658,2433,716,2431,1036"/>
+            </leg>
+            <leg id="18537" externalid="200029_2000136" nodearef="12020" nodebref="10474">
+                <legsegment id="18537" externalid="200029_2000136" dir="a_b" lsrefs="2457,854,2553,1881,2093,856"/>
+            </leg>
+            <leg id="18538" externalid="2000136_200044" nodearef="10474" nodebref="12021">
+                <legsegment id="18538" externalid="2000136_200044" dir="a_b" lsrefs="2563,828,276,1076"/>
+            </leg>
+            <leg id="18539" externalid="200044_2000139" nodearef="12021" nodebref="12022">
+                <legsegment id="18539" externalid="200044_2000139"/>
+            </leg>
+            <leg id="18540" externalid="2000139_2000142" nodearef="12022" nodebref="10820">
+                <legsegment id="18540" externalid="2000139_2000142" dir="a_b" lsrefs="2499,2469,1670,2437,1883,2463,1146,2465"/>
+            </leg>
+            <leg id="18687" externalid="206125_206143" nodearef="12156" nodebref="12157">
+                <legsegment id="18687" externalid="206125_206143" dir="a_b" lsrefs="2559,90,328,553,835,551,931,827,1703,814,2119,1352,2116,1153,145,2526"/>
+            </leg>
+            <leg id="18700" externalid="200031_2000142" nodearef="10473" nodebref="10820">
+                <legsegment id="18700" externalid="200031_2000142" dir="a_b" lsrefs="2457,854,2553,452,1939,1883,2463,1146,2465"/>
+            </leg>
+            <leg id="18745" externalid="2000133_200095" nodearef="12019" nodebref="12206">
+                <legsegment id="18745" externalid="2000133_200095" dir="a_b" lsrefs="2441,1793,2569,858,2435,1660,1658,2433,716,2431,1916,1069,131,1047,1071,2354,1745,1731,89,348"/>
+            </leg>
+            <leg id="18777" externalid="2000186_2000189" nodearef="12233" nodebref="12234">
+                <legsegment id="18777" externalid="2000186_2000189" dir="a_b" lsrefs="2475,2353,2066,1928,1846,691,343,50,2321,338,1867,1670"/>
+            </leg>
+            <leg id="18778" externalid="2000189_2000142" nodearef="12234" nodebref="10820">
+                <legsegment id="18778" externalid="2000189_2000142" dir="a_b" lsrefs="2437,1883,2463,1146,2465"/>
+            </leg>
+            <leg id="19290" externalid="200013_2000189" nodearef="12678" nodebref="12234">
+                <legsegment id="19290" externalid="200013_2000189" dir="a_b" lsrefs="2460,1669,2066,1928,1846,691,343,50,2321,338,1867,1670"/>
+            </leg>
+            <leg id="19307" externalid="2000133_200018" nodearef="12019" nodebref="12692">
+                <legsegment id="19307" externalid="2000133_200018" dir="a_b" lsrefs="2441,1793,2569,1035,425,43,8,1841,413,2534"/>
+            </leg>
+            <leg id="21870" externalid="2000139_2000295" nodearef="12022" nodebref="14402">
+                <legsegment id="21870" externalid="2000139_2000295" dir="a_b" lsrefs="2499,2469,1670,2437,1883"/>
+            </leg>
+            <leg id="21880" externalid="200029_200044" nodearef="12020" nodebref="12021">
+                <legsegment id="21880" externalid="200029_200044" dir="a_b" lsrefs="2457,854,2553,1881,2093,856,2563,828,276,1076"/>
+            </leg>
+            <leg id="23304" externalid="200033_2000295" nodearef="10822" nodebref="14402">
+                <legsegment id="23304" externalid="200033_2000295" dir="a_b" lsrefs="2431,1036,2457,854,2553,452,1939,1883"/>
+            </leg>
+            <leg id="24250" externalid="200035_2000136" nodearef="14319" nodebref="10474">
+                <legsegment id="24250" externalid="200035_2000136" dir="a_b" lsrefs="2435,1660,1658,2433,716,2431,1036,2457,854,2553,1881,2093,856"/>
+            </leg>
+            <leg id="24279" externalid="200093_200094" nodearef="16007" nodebref="16008">
+                <legsegment id="24279" externalid="200093_200094" dir="a_b" lsrefs="2455,952,862,972,864,1386"/>
+            </leg>
+            <leg id="24305" externalid="200089_2000226" nodearef="16030" nodebref="16031">
+                <legsegment id="24305" externalid="200089_2000226" dir="a_b" lsrefs="2028,2454,1387,865,973,863,953,2456"/>
+            </leg>
+            <leg id="24321" externalid="2000147_200068" nodearef="16036" nodebref="16037">
+                <legsegment id="24321" externalid="2000147_200068" dir="a_b" lsrefs="898,6,2501,1811,1983,280,2088,2448"/>
+            </leg>
+            <leg id="24322" externalid="200068_2000283" nodearef="16037" nodebref="16038">
+                <legsegment id="24322" externalid="200068_2000283" dir="a_b" lsrefs="2444,1816,723,1307,5,1517,107,466,1394,2165,1462,956,954"/>
+            </leg>
+            <leg id="24356" externalid="200057_2000421" nodearef="16071" nodebref="16072">
+                <legsegment id="24356" externalid="200057_2000421" dir="a_b" lsrefs="2498,849,847,901,495,2446,955,957,1463,2166,1395"/>
+            </leg>
+            <leg id="24357" externalid="2000421_200059" nodearef="16072" nodebref="16073">
+                <legsegment id="24357" externalid="2000421_200059" dir="a_b" lsrefs="467,106,1516,4,1306,722,1815"/>
+            </leg>
+            <leg id="24544" externalid="200098_2000131" nodearef="16248" nodebref="16249">
+                <legsegment id="24544" externalid="200098_2000131" dir="a_b" lsrefs="1876,1968,1972,421,2548"/>
+            </leg>
+            <leg id="24545" externalid="2000131_2000435" nodearef="16249" nodebref="16250">
+                <legsegment id="24545" externalid="2000131_2000435" dir="a_b" lsrefs="1739,419,1374,1941,1723,1315,1844,1483,42,424,1034,858,2435,1660,1658,2433,716,2431,1036,2457,854"/>
+            </leg>
+            <leg id="24546" externalid="2000435_200041" nodearef="16250" nodebref="16251">
+                <legsegment id="24546" externalid="2000435_200041" dir="a_b" lsrefs="2553,1881,2093,856,2563,828,276,1076,2565,832"/>
+            </leg>
+            <leg id="24551" externalid="201144_201145" nodearef="16253" nodebref="16254">
+                <legsegment id="24551" externalid="201144_201145" dir="a_b" lsrefs="2352,1962,2026,2016,2232,2544"/>
+            </leg>
+            <leg id="24596" externalid="2000419_2000154" nodearef="8833" nodebref="16294">
+                <legsegment id="24596" externalid="2000419_2000154" dir="a_b" lsrefs="902,8,1841,906,2477,2069,1422,2167,2149,1562,410,1420,1264,692,1568,1570,1266,426,2557,1874"/>
+            </leg>
+            <leg id="24597" externalid="2000154_2000100" nodearef="16294" nodebref="16295">
+                <legsegment id="24597" externalid="2000154_2000100" dir="a_b" lsrefs="417,1091,1755,1494,392,405,403,1268,398,1910,542,1905"/>
+            </leg>
+            <leg id="24598" externalid="2000100_200099" nodearef="16295" nodebref="16296">
+                <legsegment id="24598" externalid="2000100_200099" dir="a_b" lsrefs="2485,909,710"/>
+            </leg>
+            <leg id="24599" externalid="200098_2000179" nodearef="16248" nodebref="16297">
+                <legsegment id="24599" externalid="200098_2000179" dir="a_b" lsrefs="1876,1500,1909,399,1269,402,404,393,1495,1752,1753,1754,1090,416,1873,2558,427"/>
+            </leg>
+            <leg id="24600" externalid="2000179_2000437" nodearef="16297" nodebref="16298">
+                <legsegment id="24600" externalid="2000179_2000437" dir="a_b" lsrefs="1470,1468,1466,1472,1464,1421,411,1563,2150,2168,1423,2070,2478"/>
+            </leg>
+            <leg id="24601" externalid="2000437_2000435" nodearef="16298" nodebref="16250">
+                <legsegment id="24601" externalid="2000437_2000435" dir="a_b" lsrefs="907,1842,9,42,424,1034,858,2435,1660,1658,2433,716,2431,1036,2457,854"/>
+            </leg>
+            <leg id="24729" externalid="2000130_2000131" nodearef="16422" nodebref="16249">
+                <legsegment id="24729" externalid="2000130_2000131" dir="a_b" lsrefs="2549,2479,2169,2171,1874,417,1091,1755,1494,392,405,403,1268,398,1910,1501,1968,1972,421,2548"/>
+            </leg>
+            <leg id="24766" externalid="2000130_2000179" nodearef="16422" nodebref="16297">
+                <legsegment id="24766" externalid="2000130_2000179" dir="a_b" lsrefs="2549,2479,2169,2171,2558,427"/>
+            </leg>
+            <leg id="24767" externalid="2000419_200019" nodearef="8833" nodebref="16454">
+                <legsegment id="24767" externalid="2000419_200019" dir="a_b" lsrefs="902,8,1841,906,2477,2069,1422,2167,2149,1562,410,1420,1264,692,1568,1570,1266,426,2557,428"/>
+            </leg>
+            <leg id="24768" externalid="200019_2000129" nodearef="16454" nodebref="16455">
+                <legsegment id="24768" externalid="200019_2000129" dir="a_b" lsrefs="2483"/>
+            </leg>
+            <leg id="24907" externalid="20002_200068" nodearef="16579" nodebref="16037">
+                <legsegment id="24907" externalid="20002_200068" dir="a_b" lsrefs="449,1788,897,733,2088,2448"/>
+            </leg>
+            <leg id="24908" externalid="2000283_200045" nodearef="16038" nodebref="16580">
+                <legsegment id="24908" externalid="2000283_200045" dir="a_b" lsrefs="2445,494,900,846,848,2497"/>
+            </leg>
+            <leg id="24948" externalid="200059_200065" nodearef="16073" nodebref="16614">
+                <legsegment id="24948" externalid="200059_200065" dir="a_b" lsrefs="2443,2447,2087,281,1984,1812,2502"/>
+            </leg>
+            <leg id="24952" externalid="2000183_200078" nodearef="16617" nodebref="16618">
+                <legsegment id="24952" externalid="2000183_200078" dir="a_b" lsrefs="2493,1120,960,36"/>
+            </leg>
+            <leg id="24993" externalid="2000191_200081" nodearef="16659" nodebref="16660">
+                <legsegment id="24993" externalid="2000191_200081" dir="a_b" lsrefs="2531,5,1517,107,466"/>
+            </leg>
+            <leg id="24994" externalid="200081_200045" nodearef="16660" nodebref="16580">
+                <legsegment id="24994" externalid="200081_200045" dir="a_b" lsrefs="1394,2165,1462,956,954,2445,494,900,846,848,2497"/>
+            </leg>
+            <leg id="30638" externalid="2000220_2000230" nodearef="20746" nodebref="195">
+                <legsegment id="30638" externalid="2000220_2000230" dir="a_b" lsrefs="1833,2499,2469,1670,2437,1883,2463,1146"/>
+            </leg>
+            <leg id="30662" externalid="200033_2000136" nodearef="10822" nodebref="10474">
+                <legsegment id="30662" externalid="200033_2000136" dir="a_b" lsrefs="2431,1036,2457,854,2553,1881,2093,856"/>
+            </leg>
+            <leg id="34281" externalid="200034_2000136" nodearef="23146" nodebref="10474">
+                <legsegment id="34281" externalid="200034_2000136" dir="a_b" lsrefs="2431,1036,2457,854,2553,1881,2093,856"/>
+            </leg>
+            <leg id="84566" externalid="2000232_2000312" nodearef="52781" nodebref="52782">
+                <legsegment id="84566" externalid="2000232_2000312" dir="a_b" lsrefs="1394,2165,1462,956,954,2445,494,900,846,848"/>
+            </leg>
+            <leg id="84714" externalid="2000228_2000140" nodearef="52874" nodebref="52875">
+                <legsegment id="84714" externalid="2000228_2000140"/>
+            </leg>
+            <leg id="84792" externalid="2000140_200042" nodearef="52875" nodebref="15979">
+                <legsegment id="84792" externalid="2000140_200042" dir="a_b" lsrefs="701,276,1076,2565,832"/>
+            </leg>
+            <leg id="84794" externalid="2000228_200044" nodearef="52874" nodebref="12021">
+                <legsegment id="84794" externalid="2000228_200044" dir="a_b" lsrefs="2551,252,946,1369,1736,2227,2449,2321,338,1867,172,856,2563,828,276,1076"/>
+            </leg>
+            <leg id="84799" externalid="2000111_200042" nodearef="52933" nodebref="15979">
+                <legsegment id="84799" externalid="2000111_200042" dir="a_b" lsrefs="1952,2118,1880,923,924,1454,1186,1188,918,1634,12,1334,1626,950,230,846,176,1791,1795,698,2311,2301,276,1076,2565,832"/>
+            </leg>
+            <leg id="91606" externalid="2000457_2000455" nodearef="57119" nodebref="57120">
+                <legsegment id="91606" externalid="2000457_2000455" dir="a_b" lsrefs="2539,2303,2339,2099"/>
+            </leg>
+            <leg id="91607" externalid="2000455_2000452" nodearef="57120" nodebref="57121">
+                <legsegment id="91607" externalid="2000455_2000452" dir="a_b" lsrefs="2409,2279,2363,2297"/>
+            </leg>
+            <leg id="91608" externalid="2000452_2000449" nodearef="57121" nodebref="57122">
+                <legsegment id="91608" externalid="2000452_2000449" dir="a_b" lsrefs="2415,2375,2257,2291,1196,2105,1220"/>
+            </leg>
+            <leg id="91610" externalid="2000451_2000453" nodearef="57124" nodebref="57125">
+                <legsegment id="91610" externalid="2000451_2000453" dir="a_b" lsrefs="2405,1218,2380,1225,1197,2292,2258,2376,2416"/>
+            </leg>
+            <leg id="91611" externalid="2000453_2000454" nodearef="57125" nodebref="57126">
+                <legsegment id="91611" externalid="2000453_2000454" dir="a_b" lsrefs="2298,2364,2280,2410,2100,1212,2233,2316,2412"/>
+            </leg>
+            <leg id="91612" externalid="2000454_2000456" nodearef="57126" nodebref="57127">
+                <legsegment id="91612" externalid="2000454_2000456" dir="a_b" lsrefs="2411,2315,2101,2247,2275,2271,2335,2283,2381,2309,2537"/>
+            </leg>
+            <leg id="91623" externalid="2000449_2000453" nodearef="57122" nodebref="57125">
+                <legsegment id="91623" externalid="2000449_2000453" dir="a_b" lsrefs="1221,2106,1197,2292,2258,2376,2416"/>
+            </leg>
+            <leg id="91625" externalid="2000450_2000453" nodearef="57137" nodebref="57125">
+                <legsegment id="91625" externalid="2000450_2000453" dir="a_b" lsrefs="1221,2106,1197,2292,2258,2376,2416"/>
+            </leg>
+            <leg id="91626" externalid="2000452_2000450" nodearef="57121" nodebref="57137">
+                <legsegment id="91626" externalid="2000452_2000450" dir="a_b" lsrefs="2415,2375,2257,2291,1196,2105,1220"/>
+            </leg>
+            <leg id="91627" externalid="2000452_2000451" nodearef="57121" nodebref="57124">
+                <legsegment id="91627" externalid="2000452_2000451" dir="a_b" lsrefs="2415,2375,2257,2291,1196,1224,2379,1219,2406"/>
+            </leg>
+        </servicelegs>
+    </servicenetworklayer>
+</servicenetwork>

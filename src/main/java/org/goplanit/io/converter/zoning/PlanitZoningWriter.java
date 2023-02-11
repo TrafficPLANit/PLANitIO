@@ -453,10 +453,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param connectoid the planit connectoid to extract from
    * @param lengthKm when present the length is set, when not, it is omitted (default assumed)
    * @param accessModes to use, when null it is left out (default), otherwise these modes are set as explicitly allowed access modes
-   * @throws PlanItException thrown if error
    */  
   private void populateXmlConnectoidBase(
-      final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase, final Connectoid connectoid, final Optional<Double> lengthKm, final Collection<Mode> accessModes) throws PlanItException {
+      final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase, final Connectoid connectoid, final Optional<Double> lengthKm, final Collection<Mode> accessModes) {
     /* id */
     xmlConnectoidBase.setId(getConnectoidIdMapper().apply(connectoid));
     if(StringUtils.isNullOrBlank(xmlConnectoidBase.getId())){
@@ -497,9 +496,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param xmlConnectoid to populate
    * @param odConnectoid the planit connectoid to extract from
    * @param accessZone of this connectoid
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlOdConnectoid(final XMLElementConnectoid xmlConnectoid, final UndirectedConnectoid odConnectoid, final Zone accessZone) throws PlanItException {
+  private void populateXmlOdConnectoid(final XMLElementConnectoid xmlConnectoid, final UndirectedConnectoid odConnectoid, final Zone accessZone) {
     
     if(!odConnectoid.hasAccessZone(accessZone)) {
       LOGGER.severe(String.format("od conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone", 
@@ -561,7 +559,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlOdZone.setConnectoids(xmlConnectoids);
     for(Connectoid connectoid : zoneToConnectoidMap.get(odZone)) {
             
-      /* od zones in xml only record their undirected connectoids at this point in time since they allow access froma ll incoming link(segment)s */
+      /* od zones in xml only record their undirected connectoids at this point in time since they allow access from all incoming link(segment)s */
       if(connectoid instanceof UndirectedConnectoid) {
         
         var odConnectoid = (UndirectedConnectoid)connectoid;
