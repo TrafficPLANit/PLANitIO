@@ -14,7 +14,13 @@ public class PlanitXmlReaderSettings {
   /** xml file extension to use */
   private String xmlFileExtension;
 
+  /** flag indicating if XML ids are to be overwritten with internal ids after completion of parsing */
+  private boolean syncXmlIdsToIds = DEFAULT_SYNC_XMLIDS_TO_IDS;
+
   public static String DEFAULT_XML_EXTENSION = ".xml";
+
+  public static boolean DEFAULT_SYNC_XMLIDS_TO_IDS = false;
+
   
   /**
    * Default constructor using default file extensino and user must set output dir afterwards manually
@@ -72,5 +78,23 @@ public class PlanitXmlReaderSettings {
    */
   public void setXmlFileExtension(String xmlFileExtension) {
     this.xmlFileExtension = xmlFileExtension;
-  }   
+  }
+
+  /**
+   * Verify if reader is designated to replace parsed XML ids with internally generated ids
+   *
+   * @return true when syncing is active, false otherwise
+   */
+  public boolean isSyncXmlIdsToIds() {
+    return syncXmlIdsToIds;
+  }
+
+  /**
+   * Determine if reader should replace parsed XML ids with internally generated ids
+   *
+   * @param syncXmlIdsToIds syncing active when true, false otherwise
+   */
+  public void setSyncXmlIdsToIds(boolean syncXmlIdsToIds) {
+    this.syncXmlIdsToIds = syncXmlIdsToIds;
+  }
 }

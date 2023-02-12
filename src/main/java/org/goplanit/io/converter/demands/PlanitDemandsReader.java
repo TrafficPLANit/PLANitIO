@@ -1,20 +1,9 @@
 package org.goplanit.io.converter.demands;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.demands.DemandsReader;
 import org.goplanit.demands.Demands;
+import org.goplanit.demands.DemandsModifierUtils;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
@@ -23,6 +12,7 @@ import org.goplanit.od.demand.OdDemands;
 import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
@@ -30,18 +20,15 @@ import org.goplanit.utils.wrapper.MapWrapper;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.Zone;
 import org.goplanit.utils.zoning.Zones;
-import org.goplanit.xml.generated.Durationunit;
-import org.goplanit.xml.generated.XMLElementDemandConfiguration;
-import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
-import org.goplanit.xml.generated.XMLElementOdCellByCellMatrix;
-import org.goplanit.xml.generated.XMLElementOdMatrix;
-import org.goplanit.xml.generated.XMLElementOdRawMatrix;
-import org.goplanit.xml.generated.XMLElementOdRowMatrix;
-import org.goplanit.xml.generated.XMLElementTimePeriods;
-import org.goplanit.xml.generated.XMLElementTravellerTypes;
-import org.goplanit.xml.generated.XMLElementUserClasses;
+import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementOdRawMatrix.Values;
 import org.goplanit.zoning.Zoning;
+import org.goplanit.zoning.ZoningModifierUtils;
+
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Reader to parse PLANit demands from native XML format
@@ -58,7 +45,17 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
   
   /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;  
+  private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
+   * demands is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit demands XML ids to internally generated ids, overwriting original XML ids");
+    DemandsModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(demands);
+  }
   
   /**
    * initialise the XML id trackers and populate them for the network and or zoning references, 
@@ -223,7 +220,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     for (XMLElementTravellerTypes.Travellertype xmlTravellertype : xmlTravellertypes.getTravellertype()) {
             
       /* PLANit traveller type */
-      TravellerType travelerType = demands.travelerTypes.createAndRegisterNew(xmlTravellertype.getName());
+      TravellerType travelerType = demands.travelerTypes.getFactory().registerNew(xmlTravellertype.getName());
       
       /* xml id */
       if(xmlTravellertype.getId() != null && !xmlTravellertype.getId().isBlank()) {
@@ -287,7 +284,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       xmlUserclass.setTravellertyperef(travellerTypeXmlIdRef);
       TravellerType travellerType = getBySourceId(TravellerType.class, travellerTypeXmlIdRef);
                  
-      UserClass userClass = demands.userClasses.createAndRegister(xmlUserclass.getName(), userClassMode, travellerType);
+      UserClass userClass = demands.userClasses.getFactory().registerNew(xmlUserclass.getName(), userClassMode, travellerType);
       
       /* xml id */
       if(xmlUserclass.getId() != null && !xmlUserclass.getId().isBlank()) {
@@ -339,7 +336,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       }
       
       /* PLANit time period */
-      TimePeriod timePeriod = demands.timePeriods.createAndRegisterNewTimePeriod(xmlTimePeriod.getName(), startTimeSeconds, duration /*converted to seconds*/);
+      TimePeriod timePeriod = demands.timePeriods.getFactory().registerNew(xmlTimePeriod.getName(), startTimeSeconds, duration /*converted to seconds*/);
       
       /* xml id */
       if(xmlTimePeriod.getId() != null && !xmlTimePeriod.getId().isBlank()) {
@@ -515,7 +512,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */
   public PlanitDemandsReader(
       final XMLElementMacroscopicDemand xmlMacroscopicDemands, final MacroscopicNetwork network, final Zoning zoning, final Demands demandsToPopulate) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicDemand>(xmlMacroscopicDemands);
+    this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicDemands);
     setDemands(demandsToPopulate);
     getSettings().setReferenceNetwork(network); 
     getSettings().setReferenceZoning(zoning);
@@ -551,6 +548,13 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       
       /* demands */
       populateDemandContents();
+
+      if(getSettings().isSyncXmlIdsToIds()){
+        syncXmlIdsToIds();
+      }
+
+      /* log stats */
+      demands.logInfo(LoggingUtils.demandsPrefix(demands.getId()));
       
       /* free */
       xmlParser.clearXmlContent();           

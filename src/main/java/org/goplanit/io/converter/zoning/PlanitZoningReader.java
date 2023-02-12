@@ -1,17 +1,14 @@
 package org.goplanit.io.converter.zoning;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
+import net.opengis.gml.CoordinatesType;
+import net.opengis.gml.LineStringType;
+import net.opengis.gml.LinearRingType;
+import net.opengis.gml.PolygonType;
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
@@ -23,38 +20,17 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.goplanit.utils.zoning.Centroid;
-import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.ConnectoidType;
-import org.goplanit.utils.zoning.DirectedConnectoid;
-import org.goplanit.utils.zoning.OdZone;
-import org.goplanit.utils.zoning.TransferZone;
-import org.goplanit.utils.zoning.TransferZoneGroup;
-import org.goplanit.utils.zoning.TransferZoneType;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
-import org.goplanit.utils.zoning.Zone;
-import org.goplanit.xml.generated.Connectoidnodelocationtype;
-import org.goplanit.xml.generated.Connectoidtype;
-import org.goplanit.xml.generated.Connectoidtypetype;
-import org.goplanit.xml.generated.Transferzonetype;
-import org.goplanit.xml.generated.XMLElementCentroid;
-import org.goplanit.xml.generated.XMLElementConnectoid;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.goplanit.xml.generated.XMLElementTransferGroup;
-import org.goplanit.xml.generated.XMLElementTransferZoneAccess;
-import org.goplanit.xml.generated.XMLElementTransferZoneGroups;
-import org.goplanit.xml.generated.XMLElementTransferZones;
-import org.goplanit.xml.generated.XMLElementZones;
+import org.goplanit.utils.zoning.*;
+import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
 import org.goplanit.zoning.Zoning;
+import org.goplanit.zoning.ZoningModifierUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import net.opengis.gml.CoordinatesType;
-import net.opengis.gml.LineStringType;
-import net.opengis.gml.LinearRingType;
-import net.opengis.gml.PolygonType;
+import java.util.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -69,7 +45,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningReader.class.getCanonicalName());
   
   /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementMacroscopicZoning> xmlParser;  
+  private final PlanitXmlJaxbParser<XMLElementMacroscopicZoning> xmlParser;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
+   * zoning is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit zoning XML ids to internally generated ids, overwriting original XML ids");
+    ZoningModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+  }
   
   /**
    * initialise the XML id trackers and populate them for the network references, 
@@ -704,6 +690,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       
       /* Intermodal/transfer zones, i.e., platforms, stations, etc. */
       populateIntermodal(macroscopicNetwork.getModes());
+
+      if(getSettings().isSyncXmlIdsToIds()){
+        syncXmlIdsToIds();
+      }
 
       /* log stats */
       zoning.logInfo(LoggingUtils.zoningPrefix(zoning.getId()));

@@ -10,12 +10,14 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.goplanit.converter.network.NetworkReaderImpl;
+import org.goplanit.graph.directed.modifier.event.handler.SyncXmlIdToIdDirectedGraphEntitiesHandler;
 import org.goplanit.io.xml.network.physical.macroscopic.XmlMacroscopicNetworkLayerHelper;
 import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.mode.ModeFeaturesFactory;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetworkModifierUtils;
 import org.goplanit.network.layer.macroscopic.AccessGroupPropertiesFactory;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
@@ -88,6 +90,16 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     initialiseSourceIdMap(MacroscopicLinkSegment.class, MacroscopicLinkSegment::getXmlId);
     initialiseSourceIdMap(MacroscopicLinkSegmentType.class, MacroscopicLinkSegmentType::getXmlId);
     initialiseSourceIdMap(Node.class, Node::getXmlId);
+  }
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
+   * network is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit physical network XML ids to internally generated ids, overwriting original XML ids");
+    MacroscopicNetworkModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(this.network);
   }
 
   /**
@@ -690,6 +702,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
 
       /* parse layers */
       parseNetworkLayers();
+
+      if(getSettings().isSyncXmlIdsToIds()){
+        syncXmlIdsToIds();
+      }
 
       /* log stats */
       network.logInfo(LoggingUtils.networkPrefix(network.getId()));

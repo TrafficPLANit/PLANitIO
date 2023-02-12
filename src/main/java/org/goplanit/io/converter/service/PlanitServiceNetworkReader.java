@@ -9,10 +9,13 @@ import org.goplanit.converter.network.NetworkReaderImpl;
 import org.goplanit.converter.service.ServiceNetworkReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.network.MacroscopicNetworkModifierUtils;
 import org.goplanit.network.ServiceNetwork;
+import org.goplanit.network.ServiceNetworkModifierUtils;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
@@ -50,6 +53,16 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
   
   /** the service network to populate */
   private final ServiceNetwork serviceNetwork;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
+   * service network is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit service network XML ids to internally generated ids, overwriting original XML ids");
+    ServiceNetworkModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(this.serviceNetwork);
+  }
       
   /** Parse service legs from XML to memory model
    * 
@@ -401,6 +414,13 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
 
       /* parse layers */
       parseServiceNetworkLayers();
+
+      if(getSettings().isSyncXmlIdsToIds()){
+        syncXmlIdsToIds();
+      }
+
+      /* log stats */
+      serviceNetwork.logInfo(LoggingUtils.serviceNetworkPrefix(serviceNetwork.getId()));
       
       /* free XML content after parsing */
       xmlParser.clearXmlContent();
