@@ -84,12 +84,7 @@ public class PlanitServiceNetworkReaderFactory {
    * @return created service network reader
    */
   public static PlanitServiceNetworkReader create(final String inputDirectory, final String xmlFileExtension, final ServiceNetwork serviceNetwork) {
-    try {
-      return new PlanitServiceNetworkReader(inputDirectory, xmlFileExtension, serviceNetwork);
-    } catch (PlanItException e) {
-      LOGGER.severe(e.getMessage());
-    }    
-    return null;
+    return new PlanitServiceNetworkReader(inputDirectory, xmlFileExtension, serviceNetwork);
   }  
     
   
@@ -100,12 +95,18 @@ public class PlanitServiceNetworkReaderFactory {
    * @return created PLANit service network reader
    */
   public static PlanitServiceNetworkReader create(final XMLElementServiceNetwork xmlRawServiceNetwork, final ServiceNetwork serviceNetwork) {
-    try {
-      return new PlanitServiceNetworkReader(xmlRawServiceNetwork, serviceNetwork);
-    } catch (PlanItException e) {
-      LOGGER.severe(e.getMessage());
-    }  
-    return null;    
-  }    
-     
+    return new PlanitServiceNetworkReader(xmlRawServiceNetwork, serviceNetwork);
+  }
+
+  /** Create a Service Network Reader for given XML root element and service network to populate
+   *
+   * @param xmlRawServiceNetwork the raw network based on the JAXB parser
+   * @param settings to use
+   * @param serviceNetwork to populate
+   * @return created PLANit service network reader
+   */
+  public static PlanitServiceNetworkReader create(final XMLElementServiceNetwork xmlRawServiceNetwork, final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) {
+      return new PlanitServiceNetworkReader(xmlRawServiceNetwork, settings, serviceNetwork);
+  }
+
 }

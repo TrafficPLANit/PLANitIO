@@ -13,8 +13,19 @@ import org.goplanit.network.MacroscopicNetwork;
 public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
   
   /** the parent network used */
-  protected final MacroscopicNetwork parentNetwork;
-                   
+  protected MacroscopicNetwork parentNetwork;
+
+  /**
+   * Constructor.
+   *
+   * @param inputPathDirectory to use
+   * @param xmlFileExtension to use
+   */
+  public PlanitServiceNetworkReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
+    super(inputPathDirectory, xmlFileExtension);
+    this.parentNetwork = null;
+  }
+
   /**
    * Constructor
    * 
@@ -27,15 +38,15 @@ public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings 
   
   /**
    * Constructor.
-   * 
-   * @param parentNetwork to use 
+   *
+   * @param parentNetwork to use
    * @param inputPathDirectory to use
    * @param xmlFileExtension to use
    */
   public PlanitServiceNetworkReaderSettings(final MacroscopicNetwork parentNetwork, final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
     this.parentNetwork = parentNetwork;
-  }  
+  }
   
   /**
    * {@inheritDoc}
@@ -50,6 +61,14 @@ public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings 
    */
   public MacroscopicNetwork getParentNetwork() {
     return parentNetwork;
-  } 
-  
+  }
+
+  /** Set the parent network for this service network settings
+   *
+   * @param parentNetwork to use
+   */
+  public void setParentNetwork(MacroscopicNetwork parentNetwork) {
+    this.parentNetwork = parentNetwork;
+  }
+
 }

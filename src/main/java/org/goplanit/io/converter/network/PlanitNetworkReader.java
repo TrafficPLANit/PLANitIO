@@ -650,9 +650,20 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network) throws PlanItException{
+    this(externalXmlRawNetwork, new PlanitNetworkReaderSettings(), network);
+  }
+
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   *
+   * @param externalXmlRawNetwork to extract from
+   * @param network to populate
+   * @param settings to use
+   * @throws PlanItException thrown if error
+   */
+  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network) throws PlanItException{
     super();
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(externalXmlRawNetwork);
-    this.settings = new PlanitNetworkReaderSettings();
+    this.settings = settings;
     setNetwork(network);
   }
   

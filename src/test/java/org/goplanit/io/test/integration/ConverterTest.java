@@ -122,5 +122,44 @@ public class ConverterTest {
     }
   }
 
-  //todo --> add test with services to see if this works as well
+  /**
+   * Test that reading a planit intermodal network (network and (pt) zoning) in native format and then writing it results in the same
+   * files as the original input that was read.
+   */
+  @Test
+  public void test_planit_2_planit_intermodal_services_converter() {
+    try {
+      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String inputPath = Path.of(projectPath, "input").toString();
+
+      /* reader */
+      PlanitIntermodalReader planitReader = PlanitIntermodalReaderFactory.create(inputPath);
+
+      /* writer */
+      PlanitIntermodalWriter planitWriter = PlanitIntermodalWriterFactory.create(projectPath, CountryNames.AUSTRALIA);
+
+      /* convert */
+      IntermodalConverterFactory.create(planitReader, planitWriter).convertWithServices();
+
+      /* network and zoning already tested in #test_planit_2_planit_intermodal_no_services_converter
+
+      /* use non-deprecated hamcrest version instead of junit for comparing */
+      org.hamcrest.MatcherAssert.assertThat(
+          /* xml unit functionality comparing the two files */
+          Input.fromFile(Path.of(projectPath,"service_network.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"service_network.xml").toString())));
+
+      /* use non-deprecated hamcrest version instead of junit for comparing */
+      org.hamcrest.MatcherAssert.assertThat(
+          /* xml unit functionality comparing the two files */
+          Input.fromFile(Path.of(projectPath,"routed_Services.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"routed_Services.xml").toString())));
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail();
+    }
+  }
+
 }

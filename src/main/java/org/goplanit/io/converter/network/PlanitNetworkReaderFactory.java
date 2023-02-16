@@ -88,11 +88,10 @@ public class PlanitNetworkReaderFactory {
       LOGGER.severe(e.getMessage());
     }    
     return null;
-  }  
-    
-  
+  }
+
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
-   * 
+   *
    * @param xmlRawNetwork the raw network based on the JAXB parser
    * @param network to populate
    * @return created PLANit reader
@@ -100,6 +99,23 @@ public class PlanitNetworkReaderFactory {
   public static PlanitNetworkReader create(final XMLElementMacroscopicNetwork xmlRawNetwork, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(xmlRawNetwork, network);
+    } catch (PlanItException e) {
+      LOGGER.severe(e.getMessage());
+    }
+    return null;
+  }
+
+
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+   * 
+   * @param xmlRawNetwork the raw network based on the JAXB parser
+   * @param settings to use
+   * @param network to populate
+   * @return created PLANit reader
+   */
+  public static PlanitNetworkReader create(final XMLElementMacroscopicNetwork xmlRawNetwork, final PlanitNetworkReaderSettings settings, final LayeredNetwork<?,?> network) {
+    try {
+      return new PlanitNetworkReader(xmlRawNetwork, settings, network);
     } catch (PlanItException e) {
       LOGGER.severe(e.getMessage());
     }  

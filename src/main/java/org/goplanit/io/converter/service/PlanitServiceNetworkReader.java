@@ -75,7 +75,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     PlanItException.throwIfNull(xmlServicelegs, "No service legs element available on service network layer %s", routedServiceLayer.getXmlId());
     List<XMLElementServiceLeg> xmlServiceLegList = xmlServicelegs.getLeg();
     PlanItException.throwIf(xmlServiceLegList==null || xmlServiceLegList.isEmpty(), "No service leg available on service network layer %s", routedServiceLayer.getXmlId());
-    
+
     /* create map indexed by XML id based on service nodes */
     MapWrapper<String, ServiceNode> serviceNodesByXmlId = new MapWrapperImpl<String, ServiceNode>(
         new HashMap<String,ServiceNode>(), ServiceNode::getXmlId, routedServiceLayer.getServiceNodes());
@@ -83,6 +83,10 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     /* service leg */
     final boolean registerLegsOnServiceNodes = true;
     for(XMLElementServiceLeg xmlServiceLeg : xmlServiceLegList) {
+
+      if(xmlServiceLeg.getId().equals("18539")) {
+        int bla = 4;
+      }
       
       /* XML id */
       String xmlId = xmlServiceLeg.getId();
@@ -328,9 +332,8 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * 
    * @param idToken to use for the service network to populate
    * @param settings to use
-   * @throws PlanItException  thrown if error
    */
-  protected PlanitServiceNetworkReader(final IdGroupingToken idToken, final PlanitServiceNetworkReaderSettings settings) throws PlanItException{
+  protected PlanitServiceNetworkReader(final IdGroupingToken idToken, final PlanitServiceNetworkReaderSettings settings) {
     this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
     this.settings = settings;
     this.serviceNetwork = new ServiceNetwork(idToken, settings.getParentNetwork());
@@ -343,7 +346,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @throws PlanItException thrown if error
    */
   protected PlanitServiceNetworkReader(final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementServiceNetwork.class);
     this.settings = settings;
     this.serviceNetwork = serviceNetwork;
     if(!settings.getParentNetwork().equals(serviceNetwork.getParentNetwork())) {
@@ -355,11 +358,20 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * 
    * @param populatedXmlRawServiceNetwork to extract from
    * @param serviceNetwork to populate
-   * @throws PlanItException thrown if error
    */
-  protected PlanitServiceNetworkReader(final XMLElementServiceNetwork populatedXmlRawServiceNetwork, final ServiceNetwork serviceNetwork) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(populatedXmlRawServiceNetwork);
-    this.settings = new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork());
+  protected PlanitServiceNetworkReader(final XMLElementServiceNetwork populatedXmlRawServiceNetwork, final ServiceNetwork serviceNetwork){
+    this(populatedXmlRawServiceNetwork, new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork()), serviceNetwork);
+  }
+
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   *
+   * @param populatedXmlRawServiceNetwork to extract from
+   * @param settings to use
+   * @param serviceNetwork to populate
+   */
+  protected PlanitServiceNetworkReader(final XMLElementServiceNetwork populatedXmlRawServiceNetwork, final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(populatedXmlRawServiceNetwork);
+    this.settings = settings;
     this.serviceNetwork = serviceNetwork;
   }
   
@@ -368,10 +380,9 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @param networkPathDirectory to use
    * @param xmlFileExtension to use
    * @param serviceNetwork to populate
-   * @throws PlanItException thrown if error
    */
-  protected PlanitServiceNetworkReader(String networkPathDirectory, String xmlFileExtension, ServiceNetwork serviceNetwork) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
+  protected PlanitServiceNetworkReader(String networkPathDirectory, String xmlFileExtension, ServiceNetwork serviceNetwork) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementServiceNetwork.class);
     this.settings = new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork(), networkPathDirectory, xmlFileExtension);
     this.serviceNetwork = serviceNetwork;
   }  

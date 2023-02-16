@@ -68,5 +68,19 @@ public class PlanitZoningReaderFactory {
     return new PlanitZoningReader(xmlRawZoning, network, zoning);
   }
 
+  /** Factory method where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   *
+   * @param xmlRawZoning to extract from
+   * @param zoningSettings to use
+   * @param network to extract references from (if any)
+   * @param zoning to populate
+   * @return created PLANit zoning reader
+   * @throws PlanItException  thrown if error
+   */
+  public static  PlanitZoningReader create(
+      final XMLElementMacroscopicZoning xmlRawZoning, final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+    return new PlanitZoningReader(xmlRawZoning, zoningSettings, network, zoning);
+  }
+
 
 }

@@ -13,8 +13,19 @@ import org.goplanit.network.ServiceNetwork;
 public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
   
   /** the parent service network used */
-  protected final ServiceNetwork parentNetwork;
-                
+  protected ServiceNetwork parentNetwork;
+
+  /**
+   * Constructor.
+   *
+   * @param inputPathDirectory to use
+   * @param xmlFileExtension to use
+   */
+  public PlanitRoutedServicesReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
+    super(inputPathDirectory, xmlFileExtension);
+    this.parentNetwork = null;
+  }
+
   /**
    * Constructor
    * 
@@ -50,6 +61,14 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
    */
   public ServiceNetwork getParentNetwork() {
     return parentNetwork;
-  }  
-    
+  }
+
+  /** Set the parent service network for these routed services settings
+   *
+   * @param parentNetwork to use
+   */
+  public void setParentNetwork(ServiceNetwork parentNetwork) {
+    this.parentNetwork = parentNetwork;
+  }
+
 }

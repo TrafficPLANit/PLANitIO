@@ -94,7 +94,7 @@
                     <usedtotype>goods</usedtotype>
                 </usabilityfeatures>
             </mode>
-            <mode id="bus" externalid="bus;202;700;800;701;709;714;205;713;708;711;703;710;208;11;712;706;203;704;209;705;702;716;3;707;200;715;207;201;206;204" predefined="true">
+            <mode id="bus" externalid="bus;201;704;3;702;800;705;709;208;203;706;712;716;204;711;710;206;205;713;714;11;700;715;202;701;708;703;209;207;200;707" predefined="true">
                 <name>bus</name>
                 <maxspeed>100.0</maxspeed>
                 <pcu>2.0</pcu>
@@ -120,7 +120,7 @@
                     <usedtotype>public</usedtotype>
                 </usabilityfeatures>
             </mode>
-            <mode id="light_rail" externalid="light_rail;906;904;0;905;903;900;901;902" predefined="true">
+            <mode id="light_rail" externalid="light_rail;901;905;900;906;902;0;904;903" predefined="true">
                 <name>light_rail</name>
                 <maxspeed>70.0</maxspeed>
                 <pcu>6.0</pcu>
@@ -133,7 +133,7 @@
                     <usedtotype>public</usedtotype>
                 </usabilityfeatures>
             </mode>
-            <mode id="train" externalid="narrow_gauge;train;404;101;111;104;2;117;100;110;102;114;400;105;112;103;108;115;107;403;106;109;113;116;1503" predefined="true">
+            <mode id="train" externalid="narrow_gauge;train;2;112;113;108;404;403;109;111;400;103;101;106;114;107;105;1503;117;115;104;102;110;100;116" predefined="true">
                 <name>train</name>
                 <maxspeed>140.0</maxspeed>
                 <pcu>10.0</pcu>
@@ -146,7 +146,7 @@
                     <usedtotype>public</usedtotype>
                 </usabilityfeatures>
             </mode>
-            <mode id="subway" externalid="subway;1;401;402" predefined="true">
+            <mode id="subway" externalid="subway;402;401;1" predefined="true">
                 <name>subway</name>
                 <maxspeed>60.0</maxspeed>
                 <pcu>6.0</pcu>

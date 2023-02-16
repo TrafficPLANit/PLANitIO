@@ -187,10 +187,8 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       var xmlRelTimings = new XMLElementRelativeTimings();
       xmlSchedule.setReltimings(xmlRelTimings);
 
-      var defaultDwellTime = ((RoutedTripScheduleImpl)scheduleBasedTrip).getDefaultDwellTime();
-      if(defaultDwellTime!=null && defaultDwellTime != LocalTime.MIN){
-        xmlRelTimings.setDwelltime(((RoutedTripScheduleImpl) scheduleBasedTrip).getDefaultDwellTime());
-      }
+      scheduleBasedTrip.updateDefaultDwellTimeToMostCommon();
+      var defaultDwellTime = scheduleBasedTrip.getDefaultDwellTime();
 
       {
         /* rel timing */
@@ -215,6 +213,10 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
 
           xmlRelTimingLegList.add(xmlReltimingLeg);
         }
+      }
+
+      if(defaultDwellTime!=null){
+        xmlRelTimings.setDwelltime(defaultDwellTime);
       }
 
       xmlRoutedTripSchedule.setSchedule(xmlSchedule);
@@ -342,7 +344,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       LOGGER.warning(String.format("Routed services layer has no XML id defined, adopting internally generated id %d instead", layer.getId()));
       xmlId = String.valueOf(layer.getId());
     }
-    layer.setXmlId(xmlId);
+    xmlLayer.setId(xmlId);
     this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+layer.getXmlId());
 
     /* external id */

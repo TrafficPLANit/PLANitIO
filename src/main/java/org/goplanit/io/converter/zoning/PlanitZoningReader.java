@@ -613,7 +613,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   protected PlanitZoningReader(
       final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
     this.settings = settings;
     setZoning(zoning);
     setNetwork(network);
@@ -625,11 +625,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlFileExtension to use
    * @param network to extract planit entities from by found references in zoning
    * @param zoning to populate
-   * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{   
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);  
+      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
     this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);    
     setZoning(zoning);
     setNetwork(network);
@@ -640,15 +639,26 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlMacroscopicZoning to extract from
    * @param network to extract planit entities from by found references in zoning
    * @param zoning to populate
-   * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(xmlMacroscopicZoning);
-    this.settings =  new PlanitZoningReaderSettings();
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this(xmlMacroscopicZoning, new PlanitZoningReaderSettings(), network, zoning);
+  }
+
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   *
+   * @param xmlMacroscopicZoning to extract from
+   * @param settings to use
+   * @param network to extract planit entities from by found references in zoning
+   * @param zoning to populate
+   */
+  protected PlanitZoningReader(
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicZoning);
+    this.settings =  settings;
     setZoning(zoning);
     setNetwork(network);
-  }  
+  }
 
   /** Read the zoning from disk
    * 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <servicenetwork xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/servicenetworkinput.xsd">
-    <id>1</id>
+    <id>2</id>
     <parentnetwork>1</parentnetwork>
     <servicenetworklayer id="0" parentlayerref="all">
         <servicenodes>
@@ -120,9 +120,6 @@
             </leg>
             <leg id="18538" externalid="2000136_200044" nodearef="10474" nodebref="12021">
                 <legsegment id="18538" externalid="2000136_200044" dir="a_b" lsrefs="2563,828,276,1076"/>
-            </leg>
-            <leg id="18539" externalid="200044_2000139" nodearef="12021" nodebref="12022">
-                <legsegment id="18539" externalid="200044_2000139"/>
             </leg>
             <leg id="18540" externalid="2000139_2000142" nodearef="12022" nodebref="10820">
                 <legsegment id="18540" externalid="2000139_2000142" dir="a_b" lsrefs="2499,2469,1670,2437,1883,2463,1146,2465"/>
@@ -249,9 +246,6 @@
             </leg>
             <leg id="84566" externalid="2000232_2000312" nodearef="52781" nodebref="52782">
                 <legsegment id="84566" externalid="2000232_2000312" dir="a_b" lsrefs="1394,2165,1462,956,954,2445,494,900,846,848"/>
-            </leg>
-            <leg id="84714" externalid="2000228_2000140" nodearef="52874" nodebref="52875">
-                <legsegment id="84714" externalid="2000228_2000140"/>
             </leg>
             <leg id="84792" externalid="2000140_200042" nodearef="52875" nodebref="15979">
                 <legsegment id="84792" externalid="2000140_200042" dir="a_b" lsrefs="701,276,1076,2565,832"/>

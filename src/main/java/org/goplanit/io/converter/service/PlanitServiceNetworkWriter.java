@@ -70,18 +70,20 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
       xmlElementLegSegment.setExternalid(serviceLegSegment.getExternalId());
     }
 
+    /* direction */
+    xmlElementLegSegment.setDir( serviceLegSegment.isDirectionAb() ? Direction.A_B : Direction.B_A);
+
     /* physical parent link segments */
     if(!serviceLegSegment.hasPhysicalParentSegments()){
-      LOGGER.warning(String.format("Service leg segment %s has no physical link segments referenced", serviceLegSegment.getXmlId()));
-    }else{
-      /* physical segments refs */
-      String csvPhysicalLegSegmentRefs = serviceLegSegment.getPhysicalParentSegments().stream().map(ls ->
-              getParentLinkSegmentRefIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
-      xmlElementLegSegment.setLsrefs(csvPhysicalLegSegmentRefs);
-
-      /* direction */
-      xmlElementLegSegment.setDir( serviceLegSegment.isDirectionAb() ? Direction.A_B : Direction.B_A);
+      LOGGER.warning(String.format("IGNORED: Service leg segment %s has no physical link segments referenced", serviceLegSegment.getXmlId()));
+      return;
     }
+
+    /* physical segments refs */
+    String csvPhysicalLegSegmentRefs = serviceLegSegment.getPhysicalParentSegments().stream().map(ls ->
+            getParentLinkSegmentRefIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
+    xmlElementLegSegment.setLsrefs(csvPhysicalLegSegmentRefs);
+
 
     legSegmentsList.add(xmlElementLegSegment);
   }
