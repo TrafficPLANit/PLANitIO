@@ -159,9 +159,9 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       var xmlDepartures = new XMLElementDepartures();
       xmlSchedule.setDepartures(xmlDepartures);
 
-      /* departure */
+      /* departure - in ascending order by departure time*/
       var xmlDepartureList = xmlDepartures.getDeparture();
-      for(var departure : scheduleBasedTrip.getDepartures()){
+      scheduleBasedTrip.getDepartures().streamAscDepartureTime().forEach( departure -> {
         var xmlDeparture = new XMLElementDepartures.Departure();
 
         /* departure XML id */
@@ -176,7 +176,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
         xmlDeparture.setTime(departure.getDepartureTime().toString());
 
         xmlDepartureList.add(xmlDeparture);
-      }
+      });
 
       /* rel timings */
       if(!scheduleBasedTrip.hasRelativeLegTimings()){
