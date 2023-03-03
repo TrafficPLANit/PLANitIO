@@ -216,7 +216,7 @@ public class IntermodalTest {
       assertEquals(false, busServices.isEmpty());
       assertEquals(2, busServices.size());
       /* scheduled trip */
-      var line1X = busServices.findFirst( rs -> rs.getName().equals("line_1_X"));
+      var line1X = busServices.firstMatch(rs -> rs.getName().equals("line_1_X"));
       assertEquals(false, line1X.getTripInfo().hasFrequencyBasedTrips());
       assertEquals(true, line1X.getTripInfo().hasScheduleBasedTrips());
       assertEquals(1, line1X.getTripInfo().getScheduleBasedTrips().size());
@@ -227,7 +227,7 @@ public class IntermodalTest {
       assertEquals(3, line1X.getTripInfo().getScheduleBasedTrips().getFirst().getDepartures().size());
       assertEquals(ExtendedLocalTime.of("08:00:00"), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getDepartures().getFirst().getDepartureTime());
       /* frequency trip */
-      var line1 = busServices.findFirst( rs -> rs.getName().equals("line_1"));
+      var line1 = busServices.firstMatch(rs -> rs.getName().equals("line_1"));
       assertEquals(true, line1.getTripInfo().hasFrequencyBasedTrips());
       assertEquals(false, line1.getTripInfo().hasScheduleBasedTrips());
       assertEquals(1, line1.getTripInfo().getFrequencyBasedTrips().size());

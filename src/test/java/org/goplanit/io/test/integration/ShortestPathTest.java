@@ -222,7 +222,7 @@ public class ShortestPathTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       resultsMap.put(timePeriod, new TreeMap<>());
@@ -305,7 +305,7 @@ public class ShortestPathTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod, new TreeMap<>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
@@ -388,7 +388,7 @@ public class ShortestPathTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod, new TreeMap<>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
@@ -488,7 +488,7 @@ public class ShortestPathTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod0 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod0 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod0, new TreeMap<>());
       resultsMap.get(timePeriod0).put(mode1, new TreeMap<>());
@@ -560,7 +560,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
  
-      TimePeriod timePeriod1 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("1")); 
+      TimePeriod timePeriod1 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("1"));
       
       resultsMap.put(timePeriod1, new TreeMap<>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<>());
@@ -621,7 +621,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
-      TimePeriod timePeriod2 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("2")); 
+      TimePeriod timePeriod2 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
       resultsMap.put(timePeriod2, new TreeMap<>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<>());
       resultsMap.get(timePeriod2).get(mode1).put(node6XmlId, new TreeMap<>());
@@ -767,7 +767,7 @@ public class ShortestPathTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod0 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod0 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod0, new TreeMap<>());
       resultsMap.get(timePeriod0).put(mode1, new TreeMap<>());
@@ -839,7 +839,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
  
-      TimePeriod timePeriod1 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("1")); 
+      TimePeriod timePeriod1 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("1"));
       resultsMap.put(timePeriod1, new TreeMap<>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<>());
       resultsMap.get(timePeriod1).get(mode1).put(node6XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
@@ -900,7 +900,7 @@ public class ShortestPathTest {
       odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
-      TimePeriod timePeriod2 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("2")); 
+      TimePeriod timePeriod2 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
       resultsMap.put(timePeriod2, new TreeMap<>());
       resultsMap.get(timePeriod2).put(mode1, new TreeMap<>());
       resultsMap.get(timePeriod2).get(mode1).put(node6XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());

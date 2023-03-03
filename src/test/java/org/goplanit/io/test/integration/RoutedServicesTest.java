@@ -90,7 +90,7 @@ public class RoutedServicesTest {
       assertTrue(busServices.size()==2);
       /* run assertions on the service entries themselves*/
       
-      RoutedService line4Service = busServices.findFirst( service -> service.getXmlId().equals("line_4"));
+      RoutedService line4Service = busServices.firstMatch(service -> service.getXmlId().equals("line_4"));
       assertNotNull(line4Service);
       assertEquals(line4Service.getName(),"4");
       assertEquals(line4Service.getNameDescription(),"city to beach");
@@ -109,7 +109,7 @@ public class RoutedServicesTest {
       assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLastLegSegment()));
       assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLegSegment(0)));
       
-      RoutedService line4OppService = busServices.findFirst( service -> service.getXmlId().equals("line_4_opp"));
+      RoutedService line4OppService = busServices.firstMatch(service -> service.getXmlId().equals("line_4_opp"));
       RoutedServiceTripInfo line4OppTripInfo = line4OppService.getTripInfo();
       assertEquals(line4OppTripInfo.hasScheduleBasedTrips(),true);
       assertEquals(line4OppTripInfo.hasFrequencyBasedTrips(),false);
@@ -121,9 +121,9 @@ public class RoutedServicesTest {
       assertNotNull(scheduleEntry.getDepartures());
       RoutedTripDepartures scheduleDepartures = scheduleEntry.getDepartures();
       assertEquals(scheduleDepartures.size(),3);
-      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep1")));
-      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep2")));
-      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep3")));
+      assertNotNull(scheduleDepartures.firstMatch(dep -> dep.getXmlId().equals("dep1")));
+      assertNotNull(scheduleDepartures.firstMatch(dep -> dep.getXmlId().equals("dep2")));
+      assertNotNull(scheduleDepartures.firstMatch(dep -> dep.getXmlId().equals("dep3")));
       assertEquals(scheduleEntry.getRelativeLegTimingsSize(),1);
       assertNotNull(scheduleEntry.getRelativeLegTiming(0));
       RelativeLegTiming relTiming = scheduleEntry.getRelativeLegTiming(0);

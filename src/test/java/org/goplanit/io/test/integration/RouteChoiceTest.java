@@ -169,7 +169,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<>());
@@ -336,7 +336,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<>());
@@ -758,7 +758,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<>());
@@ -858,7 +858,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<>());
@@ -1089,7 +1089,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod0 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod0 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod0, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod0).put(mode1, new TreeMap<>());
@@ -1207,7 +1207,7 @@ public class RouteChoiceTest {
       linkSegmentByNodeResults.get(timePeriod0).get(mode1).get(node24XmlId).put(node7XmlId, new LinkSegmentExpectedResultsDto(7, 24, 1900,
           0.020013, 10000, 1, 49.967441));
 
-      TimePeriod timePeriod1 = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("1")); 
+      TimePeriod timePeriod1 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("1"));
       
       linkSegmentByNodeResults.put(timePeriod1, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod1).put(mode1, new TreeMap<>());
@@ -1568,7 +1568,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork) testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Mode mode2 = network.getModes().getByXmlId("2");
-      TimePeriod timePeriod = testOutputDto.getB().demands.getFirst().timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));
+      TimePeriod timePeriod = testOutputDto.getB().demands.getFirst().timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<>());
@@ -1709,7 +1709,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork) testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Mode mode2 = network.getModes().getByXmlId("2");
-      TimePeriod timePeriod = testOutputDto.getB().demands.getFirst().timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));
+      TimePeriod timePeriod = testOutputDto.getB().demands.getFirst().timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
       linkSegmentByIdResults.put(timePeriod, new TreeMap<>());
       linkSegmentByIdResults.get(timePeriod).put(mode1, new TreeMap<>());
@@ -1841,7 +1841,7 @@ public class RouteChoiceTest {
       MacroscopicNetwork network = (MacroscopicNetwork) testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Mode mode2 = network.getModes().getByXmlId("2");
-      TimePeriod timePeriod = testOutputDto.getB().demands.getFirst().timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));
+      TimePeriod timePeriod = testOutputDto.getB().demands.getFirst().timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       linkSegmentByNodeResults.put(timePeriod, new TreeMap<>());
       linkSegmentByNodeResults.get(timePeriod).put(mode1, new TreeMap<>());

@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.goplanit.converter.network.NetworkReaderImpl;
-import org.goplanit.graph.directed.modifier.event.handler.SyncXmlIdToIdDirectedGraphEntitiesHandler;
 import org.goplanit.io.xml.network.physical.macroscopic.XmlMacroscopicNetworkLayerHelper;
 import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
@@ -754,7 +753,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    */
   public MacroscopicLinkSegment getLinkSegmentByExternalId(MacroscopicNetwork network, String externalId) {
     for (MacroscopicNetworkLayer layer : network.getTransportLayers()) {
-      MacroscopicLinkSegment firstMatch = layer.getLinkSegments().findFirst( ls -> externalId.equals(ls.getExternalId()));
+      MacroscopicLinkSegment firstMatch = layer.getLinkSegments().firstMatch(ls -> externalId.equals(ls.getExternalId()));
       if (firstMatch != null) {
         return firstMatch;
       }
