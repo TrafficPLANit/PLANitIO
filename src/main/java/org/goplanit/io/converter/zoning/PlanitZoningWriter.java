@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.PlanitComponentIdMapper;
+import org.goplanit.converter.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.converter.network.PlanitNetworkWriter;
@@ -85,9 +87,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   /** settings to use */
   private final PlanitZoningWriterSettings settings;
 
-  /** id mappers for zoning entities */
-  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> zoningIdMappers;
-
   /** Convert PLANit connectoid type to XML PLANit connectoid type
    * 
    * @param connectoidType to convert
@@ -139,13 +138,13 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   private void createZoneToConnectoidIndices(final Zoning zoning) {
     for(var connectoid : zoning.getOdConnectoids()) {
       for(var zone : connectoid.getAccessZones()) {
-        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<Connectoid>(1));
+        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<>(1));
         zoneToConnectoidMap.get(zone).add(connectoid);
       }
     }
     for(var connectoid : zoning.getTransferConnectoids()) {
       for(var zone : connectoid.getAccessZones()) {
-        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<Connectoid>(1));
+        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<>(1));
         zoneToConnectoidMap.get(zone).add(connectoid);
       }
     }    
@@ -167,7 +166,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     }
     
     /* id */
-    xmlTransferGroup.setId(getTransferZoneGroupIdMapper().apply(transferGroup));
+    xmlTransferGroup.setId(getZoningIdMappers().getTransferZoneGroupIdMapper().apply(transferGroup));
     if(StringUtils.isNullOrBlank(xmlTransferGroup.getId())) {
       LOGGER.severe(String.format("Transfer zone group id for XML not set successfully for planit transfer zone group %s (id:%d)",transferGroup.getXmlId(), transferGroup.getId()));
     }
@@ -184,7 +183,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         
     /* transfer zones */
     xmlTransferGroup.setTzrefs(
-        transferGroup.getTransferZones().stream().map( transferZone -> getZoneIdMapper().apply(transferZone)).collect(Collectors.joining(getSettings().getCommaSeparator().toString())));
+        transferGroup.getTransferZones().stream().map(
+                transferZone -> getZoningIdMappers().getZoneIdMapper().apply(transferZone)).collect(
+                        Collectors.joining(getSettings().getCommaSeparator().toString())));
   }
 
   /** Populate the transfer zone groups within the intermodal XML element
@@ -294,11 +295,12 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     populateXmlConnectoidBase(xmlTransferConnectoid, transferConnectoid, transferConnectoid.getLengthKm(firstAccessZone), explicitAllowedModes);
     
     /* transferzone references */
-    String xmlTzRefs = transferConnectoid.getAccessZones().stream().map( zone -> getZoneIdMapper().apply(zone)).collect(Collectors.joining(","));
+    String xmlTzRefs = transferConnectoid.getAccessZones().stream().map(
+            zone -> getZoningIdMappers().getZoneIdMapper().apply(zone)).collect(Collectors.joining(","));
     xmlTransferConnectoid.setTzrefs(xmlTzRefs);
     
     /* link segment reference */
-    xmlTransferConnectoid.setLsref(getParentLinkSegmentRefIdMapper().apply((MacroscopicLinkSegment)transferConnectoid.getAccessLinkSegment()));
+    xmlTransferConnectoid.setLsref(getNetworkIdMappers().getLinkSegmentIdMapper().apply((MacroscopicLinkSegment)transferConnectoid.getAccessLinkSegment()));
     
     /* access node is derived based on up or downstream location relative to link segment, 
      * only persist if not the default is used*/
@@ -326,7 +328,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlTransferZones.getZone().add(xmlTransferZone);
     
     /* id */
-    xmlTransferZone.setId(getZoneIdMapper().apply(transferZone));
+    xmlTransferZone.setId(getZoningIdMappers().getZoneIdMapper().apply(transferZone));
     
     /* external id */
     if(transferZone.hasExternalId()) {
@@ -457,7 +459,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   private void populateXmlConnectoidBase(
       final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase, final Connectoid connectoid, final Optional<Double> lengthKm, final Collection<Mode> accessModes) {
     /* id */
-    xmlConnectoidBase.setId(getConnectoidIdMapper().apply(connectoid));
+    xmlConnectoidBase.setId(getZoningIdMappers().getConnectoidIdMapper().apply(connectoid));
     if(StringUtils.isNullOrBlank(xmlConnectoidBase.getId())){
       LOGGER.severe(String.format("Connectoid id for xml remains null for connectoid (id:%d), this is not allowed",connectoid.getId()));
     }
@@ -485,7 +487,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* explicitly allowed modes for zone */
     if(accessModes!=null) {
       String csvModeIdString = 
-          accessModes.stream().map( mode -> getParentModeRefIdMapper().apply(mode)).collect(Collectors.joining(String.valueOf(getSettings().getCommaSeparator())));
+          accessModes.stream().map(
+                  mode -> getNetworkIdMappers().getModeIdMapper().apply(mode)).collect(
+                          Collectors.joining(String.valueOf(getSettings().getCommaSeparator())));
       xmlConnectoidBase.setModes(csvModeIdString);  
     }
         
@@ -507,7 +511,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlConnectoid.setType(Connectoidtypetype.TRAVELLER_ACCESS);
     
     /* populate extension pertaining to od connectoid */
-    xmlConnectoid.setNoderef(getParentNodeRefIdMapper().apply(odConnectoid.getAccessVertex()));
+    xmlConnectoid.setNoderef(getNetworkIdMappers().getVertexIdMapper().apply(odConnectoid.getAccessVertex()));
     
     /* populate base pertaining to any connectoid*/
     populateXmlConnectoidBase(xmlConnectoid, odConnectoid, odConnectoid.getLengthKm(accessZone), odConnectoid.getExplicitlyAllowedModes(accessZone));
@@ -529,7 +533,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlRawZoning.getZones().getZone().add(xmlOdZone);
     
     /* (xml) id */
-    xmlOdZone.setId(getZoneIdMapper().apply(odZone));
+    xmlOdZone.setId(getZoningIdMappers().getZoneIdMapper().apply(odZone));
     
     /* external id */
     if(odZone.hasExternalId()) {
@@ -651,81 +655,18 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   }
 
   /**
-   * Collect how parent mode's refs were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent mode to string (XML id to persist)
+   * {@inheritDoc}
    */
-  protected Function<Mode, String> getParentModeRefIdMapper(){
-    return (Function<Mode, String>) getParentIdMapperTypes().get(Mode.class);
-  }
-
-  /**
-   * Collect how parent node's refs were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent node to string (XML id to persist)
-   */
-  protected Function<Vertex, String> getParentNodeRefIdMapper(){
-    return (Function<Vertex, String>) getParentIdMapperTypes().get(Vertex.class);
-  }
-
-  /**
-   * Collect how parent link segment's refs were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent MacroscopicLinkSegment to string (XML id to persist)
-   */
-  protected Function<MacroscopicLinkSegment, String> getParentLinkSegmentRefIdMapper(){
-    return (Function<MacroscopicLinkSegment, String>) getParentIdMapperTypes().get(MacroscopicLinkSegment.class);
-  }
-
-  /** get id mapper for zones
-   * @return id mapper
-   */
-  protected Function<Zone, String> getZoneIdMapper(){
-    return (Function<Zone, String>) zoningIdMappers.get(Zone.class);
-  }
-
-  /** get id mapper for connectoids
-   * @return id mapper
-   */
-  protected Function<Connectoid, String> getConnectoidIdMapper(){
-    return (Function<Connectoid, String>) zoningIdMappers.get(Connectoid.class);
-  }
-
-  /** get id mapper for transfer zone groups
-   * @return id mapper
-   */
-  protected Function<TransferZoneGroup, String> getTransferZoneGroupIdMapper(){
-    return (Function<TransferZoneGroup, String>) zoningIdMappers.get(TransferZoneGroup.class);
-  }
-
   @Override
   protected void initialiseIdMappingFunctions() {
-    this.zoningIdMappers = createPlanitZoningIdMappingTypes(getIdMapperType());
-
-    if(!hasParentIdMapperTypes()){
+    if(getNetworkIdMappers() == null){
       LOGGER.warning("id mapping from parent network unknown for zoning, generate mappings and assume same mapping approach as for zoning");
-      setParentIdMapperTypes(PlanitNetworkWriter.createPlanitNetworkIdMappingTypes(getIdMapperType()));
     }
+    super.initialiseIdMappingFunctions();
   }
 
   /** default zoning file name to use */
   public static final String DEFAULT_ZONING_FILE_NAME = "zoning.xml";
-
-  /**
-   * Create id mappers per type based on a given id mapping type
-   *
-   * @return newly created map with all zoning entity mappings
-   */
-  public static Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createPlanitZoningIdMappingTypes(IdMapperType mappingType){
-    var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
-    result.put(Zone.class, IdMapperFunctionFactory.createZoneIdMappingFunction(mappingType));
-    result.put(Connectoid.class,  IdMapperFunctionFactory.createConnectoidIdMappingFunction(mappingType));
-    result.put(TransferZoneGroup.class, IdMapperFunctionFactory.createTransferZoneGroupIdMappingFunction(mappingType));
-    return result;
-  }
 
   /** Constructor 
    * 
@@ -745,8 +686,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * {@inheritDoc}
    */
   @Override
-  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType() {
-    return new HashMap<>(this.zoningIdMappers);
+  public PlanitComponentIdMapper getPrimaryIdMapper() {
+    return getZoningIdMappers();
   }
 
   /**

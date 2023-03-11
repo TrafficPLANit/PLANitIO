@@ -4,52 +4,15 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
-import org.goplanit.converter.BaseWriterImpl;
-import org.goplanit.converter.IdMapperFunctionFactory;
-import org.goplanit.converter.IdMapperType;
-import org.goplanit.io.geo.PlanitGmlUtils;
-import org.goplanit.utils.id.ExternalIdAble;
-import org.goplanit.utils.network.layer.physical.LinkSegment;
-import org.goplanit.utils.network.layer.service.ServiceLeg;
-import org.goplanit.utils.network.layer.service.ServiceLegSegment;
+import org.goplanit.converter.*;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
-import org.goplanit.userclass.TravellerType;
-import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.geo.PlanitJtsCrsUtils;
-import org.goplanit.utils.geo.PlanitJtsUtils;
-import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.goplanit.utils.network.layer.physical.Link;
-import org.goplanit.utils.time.TimePeriod;
-import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.TransferZoneGroup;
-import org.goplanit.utils.zoning.Zone;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-
-import net.opengis.gml.CoordType;
-import net.opengis.gml.CoordinatesType;
-import net.opengis.gml.DirectPositionType;
-import net.opengis.gml.LineStringType;
-import net.opengis.gml.PointType;
-import net.opengis.gml.PolygonType;
 
 /**
  * Common functionality for writing in the native PLANit format across different writers
@@ -63,8 +26,21 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitWriterImpl.class.getCanonicalName());
 
-  /** parent network (layer) used id mappings to use for parent refs, if not set, use the same mapping as used for physical network */
-  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> parentIdMapperByType;
+  /** id mappers for network entities */
+  private NetworkIdMapper networkIdMappers;
+
+  /** id mappers for zoning entities */
+  private ZoningIdMapper zoningIdMappers;
+
+  /** id mappers for service network entities */
+  private ServiceNetworkIdMapper serviceNetworkIdMapper;
+
+  /** id mappers for routed services entities */
+  private RoutedServicesIdMapper routedServicesIdMapper;
+
+  /** id mappers for routed services entities */
+  private DemandsIdMapper demandsIdMapperIdMapper;
+
 
   /** convert to xml writer settings if possible
    * @return xml writer settings
@@ -80,7 +56,45 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /**
    * depending on the chosen id mapping, create the mapping functions for all id carrying entities that are persisted
    */
-  protected abstract void initialiseIdMappingFunctions();
+  protected void initialiseIdMappingFunctions(){
+    /* when not set as parent based, create based on chosen type of current writer */
+    if(networkIdMappers == null) {
+      networkIdMappers = new NetworkIdMapper(getIdMapperType());
+    }
+    if(zoningIdMappers == null){
+      zoningIdMappers = new ZoningIdMapper(getIdMapperType());
+    }
+    if(serviceNetworkIdMapper == null){
+      serviceNetworkIdMapper = new ServiceNetworkIdMapper(getIdMapperType());
+    }
+    if(routedServicesIdMapper == null){
+      routedServicesIdMapper = new RoutedServicesIdMapper(getIdMapperType());
+    }
+    if(demandsIdMapperIdMapper == null){
+      demandsIdMapperIdMapper = new DemandsIdMapper((getIdMapperType()));
+    }
+  }
+
+  protected NetworkIdMapper getNetworkIdMappers(){
+    return networkIdMappers;
+  }
+
+  protected ZoningIdMapper getZoningIdMappers(){
+    return zoningIdMappers;
+  }
+
+  protected ServiceNetworkIdMapper getServiceNetworkIdMappers(){
+    return serviceNetworkIdMapper;
+  }
+
+  protected RoutedServicesIdMapper getRoutedServicesIdMapper(){
+    return routedServicesIdMapper;
+  }
+
+  protected DemandsIdMapper getDemandsIdMapper(){
+    return demandsIdMapperIdMapper;
+  }
+
 
   /** Get the reference to use whenever a mode reference is encountered
    *
@@ -141,7 +155,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Unable to persist PLANit network in native format");
     }
-  }   
+  }
 
   /** Constructor
    * 
@@ -151,28 +165,34 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     super(idMapperType);
   }
 
+  /**
+   * The (main) Id mapper used by this writer
+   *
+   * @return mapper
+   */
+  public abstract PlanitComponentIdMapper getPrimaryIdMapper();
 
   /**
-   * All id mappers per type used by the writer
+   * The explicit id mapping used by the parent(s), so we use the appropriate referencing
    *
-   * @return newly created map with all mappings as used
+   * @param parentMappers to register
    */
-  public abstract Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType();
-
-  /**
-   * The explicit id mapping used by the parent (if any), so we use the appropriate referencing
-   *
-   * @param idMapperByType to use when dealing with parent network related references
-   */
-  public void setParentIdMapperTypes(final Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> idMapperByType) {
-    parentIdMapperByType = idMapperByType;
+  public void setParentIdMappers(PlanitComponentIdMapper... parentMappers) {
+    for(var mapper : parentMappers) {
+      if (mapper instanceof ZoningIdMapper) {
+        this.zoningIdMappers = (ZoningIdMapper) mapper;
+      } else if (mapper instanceof NetworkIdMapper) {
+        this.networkIdMappers = (NetworkIdMapper) mapper;
+      } else if( mapper instanceof ServiceNetworkIdMapper){
+        this.serviceNetworkIdMapper = (ServiceNetworkIdMapper) mapper;
+      }else if( mapper instanceof RoutedServicesIdMapper){
+        this.routedServicesIdMapper = (RoutedServicesIdMapper) mapper;
+      }else if( mapper instanceof  DemandsIdMapper){
+        this.demandsIdMapperIdMapper = (DemandsIdMapper) mapper;
+      }else{
+        LOGGER.warning("Unknown parent id mapper provided, ignored");
+      }
+    }
   }
 
-  public boolean hasParentIdMapperTypes() {
-    return parentIdMapperByType != null && !parentIdMapperByType.isEmpty();
-  }
-
-  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getParentIdMapperTypes() {
-    return parentIdMapperByType;
-  }
 }

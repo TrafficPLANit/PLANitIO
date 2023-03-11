@@ -1,42 +1,24 @@
 package org.goplanit.io.converter.service;
 
-import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.PlanitComponentIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
 import org.goplanit.io.converter.PlanitWriterImpl;
-import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.xmlEnumConversionUtil;
-import org.goplanit.network.ServiceNetwork;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.service.routed.RoutedTripScheduleImpl;
 import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.graph.Vertex;
-import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
-import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.utils.service.routed.*;
-import org.goplanit.utils.time.LocalTimeUtils;
-import org.goplanit.utils.unit.TimeUnit;
-import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.TransferZoneGroup;
-import org.goplanit.utils.zoning.Zone;
 import org.goplanit.xml.generated.*;
-import org.locationtech.jts.awt.PointShapeFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.*;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -57,7 +39,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   private final XMLElementRoutedServices xmlRawRoutedServices;
 
   /** used to create instances of XML gregorian calendars */
-  private static DatatypeFactory xmlDataTypeFactory = null;
+  private static DatatypeFactory xmlDataTypeFactory;
   static {
     try {
       xmlDataTypeFactory = DatatypeFactory.newInstance();
@@ -73,9 +55,6 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   /* track logging prefix for current layer */
   private String currLayerLogPrefix;
 
-  /** id mappers for routed services entities */
-  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> routedServicesIdMappers;
-
   /**
    * Add the id information to trip
    *
@@ -84,7 +63,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
    */
   private void populateXmlTripIds(XMLElementRoutedTrip xmlTrip, RoutedTrip trip) {
     /* xml id*/
-    xmlTrip.setId(getRoutedTripRefIdMapper().apply(trip));
+    xmlTrip.setId(getRoutedServicesIdMapper().getRoutedTripRefIdMapper().apply(trip));
 
     /* external id */
     if(trip.hasExternalId()){
@@ -121,7 +100,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       /* ls refs */
       var lsRefsList = new ArrayList<String>(frequencyBasedTrip.getNumberOfLegSegments());
       for(int index = 0; index < frequencyBasedTrip.getNumberOfLegSegments(); ++index){
-        lsRefsList.add(getParentServiceLegSegmentRefIdMapper().apply(frequencyBasedTrip.getLegSegment(index)));
+        lsRefsList.add(getServiceNetworkIdMappers().getServiceLegSegmentIdMapper().apply(frequencyBasedTrip.getLegSegment(index)));
       }
       if(lsRefsList.isEmpty()){
         LOGGER.warning(String.format("No service leg segments present on frequency based trip (%s), discarded", frequencyBasedTrip.getXmlId()));
@@ -165,7 +144,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
         var xmlDeparture = new XMLElementDepartures.Departure();
 
         /* departure XML id */
-        xmlDeparture.setId(getRoutedTripDepartureRefIdMapper().apply(departure));
+        xmlDeparture.setId(getRoutedServicesIdMapper().getRoutedTripDepartureRefIdMapper().apply(departure));
 
         /* departure external id */
         if(departure.hasExternalId()){
@@ -209,7 +188,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
             LOGGER.warning(String.format("No service leg segment present on relative leg timing, discarded this trip (%s)", scheduleBasedTrip.getXmlId()));
             return;
           }
-          xmlReltimingLeg.setLsref(getParentServiceLegSegmentRefIdMapper().apply(relLegTiming.getParentLegSegment()));
+          xmlReltimingLeg.setLsref(getServiceNetworkIdMappers().getServiceLegSegmentIdMapper().apply(relLegTiming.getParentLegSegment()));
 
           xmlRelTimingLegList.add(xmlReltimingLeg);
         }
@@ -237,7 +216,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     XMLElementService xmlRoutedService = new XMLElementService();
 
     /* XML id */
-    xmlRoutedService.setId(getRoutedServiceRefIdMapper().apply(routedService));
+    xmlRoutedService.setId(getRoutedServicesIdMapper().getRoutedServiceRefIdMapper().apply(routedService));
 
     /* external id */
     if(routedService.hasExternalId()) {
@@ -308,7 +287,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     xmlLayer.getServices().add(xmlServices);
 
     /* mode */
-    xmlServices.setModeref(getParentModeRefIdMapper().apply(servicesForMode.getMode()));
+    xmlServices.setModeref(getNetworkIdMappers().getModeIdMapper().apply(servicesForMode.getMode()));
 
     /* for each service populate and XML element */
     for( var service : servicesForMode){
@@ -421,74 +400,20 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   }
 
   /**
-   * Collect how parent node's refs were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent node to string (XML id to persist)
-   */
-  protected Function<Vertex, String> getParentNodeRefIdMapper(){
-    return (Function<Vertex, String>) getParentIdMapperTypes().get(Vertex.class);
-  }
-
-  /**
-   * Collect how parent mode's refs were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent mode to string (XML id to persist)
-   */
-  protected Function<Mode, String> getParentModeRefIdMapper(){
-    return (Function<Mode, String>) getParentIdMapperTypes().get(Mode.class);
-  }
-
-  /**
-   * Collect how parent service leg segment ids were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent service leg segment to string (XML id to persist)
-   */
-  protected Function<ServiceLegSegment, String> getParentServiceLegSegmentRefIdMapper(){
-    return (Function<ServiceLegSegment, String>) getParentIdMapperTypes().get(ServiceLegSegment.class);
-  }
-
-  /**
-   * Collect how routed service leg ids are to be mapped to the XML ids when persisting
-   *
-   * @return mapping from routed service to string (XML id to persist)
-   */
-  private Function<RoutedService, String> getRoutedServiceRefIdMapper() {
-    return (Function<RoutedService, String>) this.routedServicesIdMappers.get(RoutedService.class);
-  }
-
-  /**
-   * Collect how routed trip ids are to be mapped to the XML ids when persisting
-   *
-   * @return mapping from routed trip to string (XML id to persist)
-   */
-  private Function<RoutedTrip, String> getRoutedTripRefIdMapper() {
-    return (Function<RoutedTrip, String>) this.routedServicesIdMappers.get(RoutedTrip.class);
-  }
-
-  /**
-   * Collect how RoutedTripDeparture ids are to be mapped to the XML ids when persisting
-   *
-   * @return mapping from RoutedTripDeparture to string (XML id to persist)
-   */
-  private Function<RoutedTripDeparture, String> getRoutedTripDepartureRefIdMapper() {
-    return (Function<RoutedTripDeparture, String>) this.routedServicesIdMappers.get(RoutedTripDeparture.class);
-  }
-
-  /**
    * {@inheritDoc}
    */
   @Override
   protected void initialiseIdMappingFunctions() {
-    this.routedServicesIdMappers = createPlanitRoutedServicesIdMappingTypes(getIdMapperType());
-
-    if(!hasParentIdMapperTypes()){
-      LOGGER.warning("id mapping from parent network unknown for routed services, generate mappings and assume same mapping approach as for routed services");
-      var serviceNetworkMappings = PlanitServiceNetworkWriter.createPlanitServiceNetworkIdMappingTypes(getIdMapperType());
-      setParentIdMapperTypes(serviceNetworkMappings);
+    if(getServiceNetworkIdMappers() == null){
+      LOGGER.warning("id mapping from service network unknown for routed services, generate mappings and assume same mapping approach as for routed services");
     }
+    if(getNetworkIdMappers() == null){
+      LOGGER.warning("id mapping from physical network unknown for routed services, generate mappings and assume same mapping approach as for routed services");
+    }
+    if(getZoningIdMappers() == null){
+      LOGGER.warning("id mapping from zoning unknown for routed services, generate mappings and assume same mapping approach as for routed services");
+    }
+    super.initialiseIdMappingFunctions();
   }
 
   /** Constructor
@@ -524,16 +449,11 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   public static final String DEFAULT_ROUTED_SERVICES_XML = "routed_services.xml";
 
   /**
-   * Create id mappers per type based on a given id mapping type
-   *
-   * @return newly created map with all zoning entity mappings
+   * {@inheritDoc}
    */
-  public static Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createPlanitRoutedServicesIdMappingTypes(IdMapperType mappingType){
-    var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
-    result.put(RoutedTrip.class, IdMapperFunctionFactory.createRoutedTripIdMappingFunction(mappingType));
-    result.put(RoutedTripDeparture.class,  IdMapperFunctionFactory.createRoutedTripDepartureIdMappingFunction(mappingType));
-    result.put(RoutedService.class, IdMapperFunctionFactory.createRoutedServiceIdMappingFunction(mappingType));
-    return result;
+  @Override
+  public PlanitComponentIdMapper getPrimaryIdMapper() {
+    return getRoutedServicesIdMapper();
   }
 
   /**
@@ -577,14 +497,6 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   @Override
   public PlanitRoutedServicesWriterSettings getSettings() {
     return this.settings;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType() {
-    return new HashMap<>(this.routedServicesIdMappers);
   }
 
 }

@@ -1,17 +1,12 @@
 package org.goplanit.io.converter.service;
 
-import org.goplanit.converter.IdMapperFunctionFactory;
-import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.*;
 import org.goplanit.converter.service.ServiceNetworkWriter;
-import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.UnTypedPlanitCrsWriterImpl;
-import org.goplanit.io.converter.zoning.PlanitZoningWriter;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.graph.Vertex;
-import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
@@ -21,10 +16,7 @@ import org.goplanit.utils.network.layer.service.*;
 import org.goplanit.xml.generated.*;
 
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -48,9 +40,6 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
   /* track logging prefix for current layer */
   private String currLayerLogPrefix;
 
-  /** id mappers for service network entities */
-  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> serviceNetworkIdMappers;
-
   /**
    * Populate the XML element for the service leg segments of a service leg
    *
@@ -63,7 +52,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     XMLElementServiceLeg.Legsegment xmlElementLegSegment = new XMLElementServiceLeg.Legsegment();
 
     /* id */
-    xmlElementLegSegment.setId(getServiceLegSegmentIdMapper().apply(serviceLegSegment));
+    xmlElementLegSegment.setId(getServiceNetworkIdMappers().getServiceLegSegmentIdMapper().apply(serviceLegSegment));
 
     /* external id */
     if(serviceLegSegment.hasExternalId()) {
@@ -81,7 +70,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* physical segments refs */
     String csvPhysicalLegSegmentRefs = serviceLegSegment.getPhysicalParentSegments().stream().map(ls ->
-            getParentLinkSegmentRefIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
+            getNetworkIdMappers().getLinkSegmentIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
     xmlElementLegSegment.setLsrefs(csvPhysicalLegSegmentRefs);
 
 
@@ -98,7 +87,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     XMLElementServiceLeg xmlLeg = new XMLElementServiceLeg();
 
     /* XML id */
-    xmlLeg.setId(getServiceLegIdMapper().apply(leg));
+    xmlLeg.setId(getServiceNetworkIdMappers().getServiceLegIdMapper().apply(leg));
 
     /* external id */
     if(leg.hasExternalId()) {
@@ -106,9 +95,9 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     }
 
     /* node A ref */
-    xmlLeg.setNodearef(getVertexIdMapper().apply(leg.getServiceNodeA()));
+    xmlLeg.setNodearef(getServiceNetworkIdMappers().getServiceNodeIdMapper().apply(leg.getServiceNodeA()));
     /* node B ref */
-    xmlLeg.setNodebref(getVertexIdMapper().apply(leg.getServiceNodeB()));
+    xmlLeg.setNodebref(getServiceNetworkIdMappers().getServiceNodeIdMapper().apply(leg.getServiceNodeB()));
 
     /* link segments */
     leg.<ServiceLegSegment>forEachSegment( ls ->  populateServiceLegSegments(xmlLeg, leg, ls));
@@ -147,7 +136,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     XMLElementServiceNodes.Servicenode xmlServiceNode = new XMLElementServiceNodes.Servicenode();
 
     /* Xml id */
-    xmlServiceNode.setId(getVertexIdMapper().apply(serviceNode));
+    xmlServiceNode.setId(getServiceNetworkIdMappers().getServiceNodeIdMapper().apply(serviceNode));
 
     /* external id */
     if(serviceNode.hasExternalId()) {
@@ -155,7 +144,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     }
 
     /* parent node ref */
-    xmlServiceNode.setNoderef(getParentNodeRefIdMapper().apply(serviceNode.getPhysicalParentNode()));
+    xmlServiceNode.setNoderef(getNetworkIdMappers().getVertexIdMapper().apply(serviceNode.getPhysicalParentNode()));
 
     xmlServiceNodeList.add(xmlServiceNode);
   }
@@ -274,61 +263,19 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     xmlRawServiceNetwork.setParentnetwork(parentNetworkXmlId);
   }
 
-  /**
-   * Collect how parent node's refs were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent node to string (XML id to persist)
-   */
-  protected Function<Vertex, String> getParentNodeRefIdMapper(){
-    return (Function<Vertex, String>) getParentIdMapperTypes().get(Vertex.class);
-  }
-
-  /**
-   * Collect how parent link segment's ids were mapped to the XML ids when persisting the parent network, use this mapping for our references as well
-   * by using this function
-   *
-   * @return mapping from parent link segment to string (XML id to persist)
-   */
-  protected Function<MacroscopicLinkSegment, String> getParentLinkSegmentRefIdMapper(){
-    return (Function<MacroscopicLinkSegment, String>) getParentIdMapperTypes().get(MacroscopicLinkSegment.class);
-  }
-
-  /** get id mapper for nodes
-   * @return id mapper
-   */
-  protected Function<Vertex, String> getVertexIdMapper(){
-    return (Function<Vertex, String>) serviceNetworkIdMappers.get(Vertex.class);
-  }
-
-  /** get id mapper for service leg instances
-   * @return id mapper
-   */
-  protected Function<ServiceLeg, String> getServiceLegIdMapper(){
-    return (Function<ServiceLeg, String>) serviceNetworkIdMappers.get(ServiceLeg.class);
-  }
-
-  /** get id mapper for service leg segment instances
-   * @return id mapper
-   */
-  protected Function<ServiceLegSegment, String> getServiceLegSegmentIdMapper(){
-    return (Function<ServiceLegSegment, String>) serviceNetworkIdMappers.get(ServiceLegSegment.class);
-  }
 
   /**
    * {@inheritDoc}
    */
   @Override
   protected void initialiseIdMappingFunctions() {
-    this.serviceNetworkIdMappers = createPlanitServiceNetworkIdMappingTypes(getIdMapperType());
-
-    if(!hasParentIdMapperTypes()){
-      LOGGER.warning("id mapping from parent network and zoning unknown for service network, generate mappings and assume same mapping approach as for service network");
-      var networkIdMappings = PlanitNetworkWriter.createPlanitNetworkIdMappingTypes(getIdMapperType());
-      var zoningIdMappings = PlanitZoningWriter.createPlanitZoningIdMappingTypes(getIdMapperType());
-      zoningIdMappings.putAll(networkIdMappings);
-      setParentIdMapperTypes(zoningIdMappings);
+    if(getNetworkIdMappers() == null){
+      LOGGER.warning("id mapping from parent network unknown for service network, generate mappings and assume same mapping approach as for service network");
     }
+    if(getZoningIdMappers() == null){
+      LOGGER.warning("id mapping from parent zoning unknown for service network, generate mappings and assume same mapping approach as for service network");
+    }
+    super.initialiseIdMappingFunctions();
   }
 
   /** Constructor
@@ -364,16 +311,11 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
   public static final String DEFAULT_SERVICE_NETWORK_XML = "service_network.xml";
 
   /**
-   * Create id mappers per type based on a given id mapping type
-   *
-   * @return newly created map with all zoning entity mappings
+   * {@inheritDoc}
    */
-  public static Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createPlanitServiceNetworkIdMappingTypes(IdMapperType mappingType){
-    var result = new HashMap<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>>();
-    result.put(Vertex.class, IdMapperFunctionFactory.createVertexIdMappingFunction(mappingType));
-    result.put(ServiceLeg.class, IdMapperFunctionFactory.createServiceLegIdMappingFunction(mappingType));
-    result.put(ServiceLegSegment.class,  IdMapperFunctionFactory.createServiceLegSegmentIdMappingFunction(mappingType));
-    return result;
+  @Override
+  public PlanitComponentIdMapper getPrimaryIdMapper() {
+    return getServiceNetworkIdMappers();
   }
 
   /**
@@ -425,12 +367,5 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     return getSettings().getCountry();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> getIdMapperByType() {
-    return new HashMap<>(this.serviceNetworkIdMappers);
-  }
 
 }

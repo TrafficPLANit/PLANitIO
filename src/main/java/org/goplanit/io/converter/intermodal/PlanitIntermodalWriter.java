@@ -13,7 +13,6 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
@@ -22,8 +21,6 @@ import org.goplanit.xml.generated.XMLElementRoutedServices;
 import org.goplanit.xml.generated.XMLElementServiceNetwork;
 import org.goplanit.zoning.Zoning;
 
-import java.security.Provider;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -58,33 +55,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
   protected IdMapperType idMapper;
 
   /**
-   * Combine id mappings from network and zoning writer to pass on to whomever requires references from either of those
-   *
-   * @param networkAndZoningWriter to use
-   * @return created id mapping that can be used to set as paranet id mapping on writers that require it
-   */
-  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createServiceNetworkParentIdMappings(
-      Pair<PlanitNetworkWriter, PlanitZoningWriter> networkAndZoningWriter) {
-    var networkIdMapping = networkAndZoningWriter.first().getIdMapperByType();
-    var zoningIdMapping = networkAndZoningWriter.second().getIdMapperByType();
-    return
-        Stream.concat(networkIdMapping.entrySet().stream(), zoningIdMapping.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  /**
-   * Combine id mappings from network, zoning, and service network writer to pass on to whomever requires references from either of those
-   *
-   * @param networkAndZoningWriter to use
-   * @return created id mapping that can be used to set as paranet id mapping on writers that require it
-   */
-  private Map<Class<? extends ExternalIdAble>, Function<? extends ExternalIdAble, String>> createRoutedServicesParentIdMappings(Pair<PlanitNetworkWriter, PlanitZoningWriter> networkAndZoningWriter, PlanitServiceNetworkWriter serviceNetworkWriter) {
-    var parentIdMappings = createServiceNetworkParentIdMappings(networkAndZoningWriter);
-    parentIdMappings.putAll(serviceNetworkWriter.getIdMapperByType());
-    return  parentIdMappings;
-  }
-
-  /**
-   * PErsist network and zoning and return writers
+   * Persist network and zoning and return writers
    *
    * @param macroscopicNetwork to persist
    * @param zoning to persist
@@ -102,7 +73,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     PlanitZoningWriterSettings zoningSettings = getSettings().getZoningSettings();
     PlanitZoningWriter zoningWriter =
             PlanitZoningWriterFactory.create(zoningSettings.getOutputPathDirectory(), zoningSettings.getCountry(), macroscopicNetwork.getCoordinateReferenceSystem());
-    zoningWriter.setParentIdMapperTypes(networkWriter.getIdMapperByType()); // pass on parent ref mapping
+    zoningWriter.setParentIdMappers(networkWriter.getPrimaryIdMapper()); // pass on parent ref mapping
     zoningWriter.setIdMapperType(getIdMapperType());
     zoningWriter.write(zoning);
 
@@ -175,8 +146,9 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
                     serviceNetworkSettings.getOutputPathDirectory(), serviceNetworkSettings.getCountry(), xmlRawServiceNetwork);
 
     // service network writer requires physical network id ref mapping and possibly zoning one as well
-    serviceNetworkWriter.setParentIdMapperTypes(
-        createServiceNetworkParentIdMappings(networkAndZoningWriter)); // pass on parent ref mapping
+    var networkIdMapper = networkAndZoningWriter.first().getPrimaryIdMapper();
+    var zoningIdMapper = networkAndZoningWriter.second().getPrimaryIdMapper();
+    serviceNetworkWriter.setParentIdMappers(networkIdMapper, zoningIdMapper);
 
     serviceNetworkWriter.setIdMapperType(getIdMapperType());
     serviceNetworkWriter.write(serviceNetwork);
@@ -188,8 +160,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
             routedServicesSettings.getOutputPathDirectory(), routedServicesSettings.getCountry(), xmlRawRoutedServices);
 
     // routed services only requires service network entity references, those are present on the service network writer id mappings
-    routedServicesWriter.setParentIdMapperTypes(
-        createRoutedServicesParentIdMappings(networkAndZoningWriter, serviceNetworkWriter));
+    routedServicesWriter.setParentIdMappers(networkIdMapper, zoningIdMapper, serviceNetworkWriter.getPrimaryIdMapper());
 
     routedServicesWriter.setIdMapperType(getIdMapperType());
     routedServicesWriter.write(routedServices);
