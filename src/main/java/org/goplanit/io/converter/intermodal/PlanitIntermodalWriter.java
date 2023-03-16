@@ -80,24 +80,6 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     return Pair.of(networkWriter, zoningWriter);
   }
 
-    
-  /** Constructor with default country, use default destination Crs as a result.
-   *  
-   * @param outputDirectory to persist on
-   * @param xmlRawNetwork to populate with PLANit network when persisting
-   * @param xmlRawZoning to populate with PLANit zoning when persisting
-   * @param xmlRawServiceNetwork to populate with PLANit service network when persisting
-   * @param xmlRawRoutedServices to populate with PLANit routed services when persisting
-   */
-  protected PlanitIntermodalWriter(
-          String outputDirectory,
-          XMLElementMacroscopicNetwork xmlRawNetwork,
-          XMLElementMacroscopicZoning xmlRawZoning,
-          XMLElementServiceNetwork xmlRawServiceNetwork,
-          XMLElementRoutedServices xmlRawRoutedServices) {
-    this(outputDirectory,null,xmlRawNetwork, xmlRawZoning, xmlRawServiceNetwork, xmlRawRoutedServices);
-  }  
-    
   /** Constructor 
    * @param outputDirectory to persist on
    * @param countryName to optimise projection for (if available, otherwise ignore)
@@ -119,7 +101,19 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     this.xmlRawZoning = xmlRawZoning;
     this.xmlRawServiceNetwork = xmlRawServiceNetwork;
     this.xmlRawRoutedServices = xmlRawRoutedServices;
-  }  
+  }
+
+  /** Constructor
+   * @param settings to use
+   */
+  protected PlanitIntermodalWriter(PlanitIntermodalWriterSettings settings) {
+    this.idMapper = IdMapperType.XML;
+    this.settings = settings;
+    this.xmlRawNetwork =  new XMLElementMacroscopicNetwork();
+    this.xmlRawZoning = new XMLElementMacroscopicZoning();
+    this.xmlRawServiceNetwork = new XMLElementServiceNetwork();
+    this.xmlRawRoutedServices = new XMLElementRoutedServices();
+  }
 
   /**
    * {@inheritDoc}
