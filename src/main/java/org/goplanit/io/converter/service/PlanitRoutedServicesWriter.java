@@ -464,7 +464,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
 
     /* initialise */
     initialiseIdMappingFunctions();
-    LOGGER.info(String.format("Persisting PLANit routed services to: %s", Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName())));
+    LOGGER.info(String.format("Persisting PLANit routed services to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
     getSettings().logSettings();
     
     /* xml id */

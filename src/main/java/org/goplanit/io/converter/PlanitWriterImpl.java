@@ -131,11 +131,11 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     PlanitXmlWriterSettings xmlWriterSettings = getSettingsAsXmlWriterSettings();
         
     PlanItException.throwIf(
-        xmlWriterSettings.getOutputPathDirectory()==null || xmlWriterSettings.getOutputPathDirectory().isBlank(), "no output directory provided, unable to persist in native Planit XML format");
+        xmlWriterSettings.getOutputDirectory()==null || xmlWriterSettings.getOutputDirectory().isBlank(), "no output directory provided, unable to persist in native Planit XML format");
     PlanItException.throwIf(
         xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(), "no output file name provided, unable to persist in native Planit XML format");
-    Path outputDir = Paths.get(xmlWriterSettings.getOutputPathDirectory());
-    Path outputPath = Paths.get(xmlWriterSettings.getOutputPathDirectory(), xmlWriterSettings.getFileName());
+    Path outputDir = Paths.get(xmlWriterSettings.getOutputDirectory());
+    Path outputPath = Paths.get(xmlWriterSettings.getOutputDirectory(), xmlWriterSettings.getFileName());
     
     /* try to create the directory if it does not exist */
     
@@ -146,7 +146,7 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
       }
     }catch(Exception e) {      
       LOGGER.severe(e.getMessage());
-      throw new PlanItException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputPathDirectory()).toAbsolutePath()));      
+      throw new PlanItException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputDirectory()).toAbsolutePath()));
     }
     
     try {      

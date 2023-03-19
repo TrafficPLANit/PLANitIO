@@ -7,32 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.converter.IdMapperFunctionFactory;
 import org.goplanit.converter.IdMapperType;
 import org.goplanit.converter.PlanitComponentIdMapper;
-import org.goplanit.converter.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
-import org.goplanit.io.converter.PlanitWriterImpl;
-import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.UnTypedPlanitCrsWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
-import org.goplanit.userclass.TravellerType;
-import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.graph.Vertex;
-import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.goplanit.utils.network.layer.physical.Link;
-import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.utils.zoning.Centroid;
 import org.goplanit.utils.zoning.Connectoid;
 import org.goplanit.utils.zoning.ConnectoidType;
@@ -701,7 +689,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     {
       initialiseIdMappingFunctions();
       super.prepareCoordinateReferenceSystem(sourceCrs);
-      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
       
       createZoneToConnectoidIndices(zoning); 
     }

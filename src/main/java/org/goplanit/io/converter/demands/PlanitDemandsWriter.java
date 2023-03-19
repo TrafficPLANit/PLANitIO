@@ -345,7 +345,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     /* initialise */
     {
       initialiseIdMappingFunctions();
-      LOGGER.info(String.format("Persisting PLANit demands to: %s", Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+      LOGGER.info(String.format("Persisting PLANit demands to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     }
     
     getSettings().logSettings();

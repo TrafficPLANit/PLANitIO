@@ -3,12 +3,10 @@ package org.goplanit.io.converter.network;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.goplanit.converter.IdMapperType;
-import org.goplanit.converter.NetworkIdMapper;
 import org.goplanit.converter.PlanitComponentIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.io.xml.util.xmlEnumConversionUtil;
@@ -18,7 +16,6 @@ import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.LoggingUtils;
@@ -624,7 +621,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     /* initialise */
     initialiseIdMappingFunctions();
     super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
-    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
     
     /* xml id */
@@ -658,14 +655,6 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   @Override
   public PlanitNetworkWriterSettings getSettings() {
     return this.settings;
-  }
-  
-  /** the country name of the network to write (if any is set)
-   * 
-   * @return countryname, null if unknown
-   */
-  public String getCountryName() {
-    return getSettings().getCountry();
   }
 
 }
