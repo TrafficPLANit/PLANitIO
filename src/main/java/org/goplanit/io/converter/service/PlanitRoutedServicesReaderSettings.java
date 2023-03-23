@@ -11,9 +11,14 @@ import org.goplanit.network.ServiceNetwork;
  *
  */
 public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
-  
-  /** the parent service network used */
-  protected ServiceNetwork parentNetwork;
+
+  /**
+   * Constructor
+   *
+   */
+  public PlanitRoutedServicesReaderSettings() {
+    this(".", DEFAULT_XML_EXTENSION);
+  }
 
   /**
    * Constructor.
@@ -23,18 +28,8 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
    */
   public PlanitRoutedServicesReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
-    this.parentNetwork = null;
   }
 
-  /**
-   * Constructor
-   * 
-   * @param parentNetwork to use 
-   */
-  public PlanitRoutedServicesReaderSettings(final ServiceNetwork parentNetwork) {
-    super();
-    this.parentNetwork = parentNetwork;
-  }  
   
   /**
    * Constructor.
@@ -45,7 +40,6 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
    */
   public PlanitRoutedServicesReaderSettings(final ServiceNetwork parentNetwork, final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
-    this.parentNetwork = parentNetwork;
   }  
   
   /**
@@ -54,21 +48,5 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
   @Override
   public void reset() {
   } 
-
-  /** Collect the parent service network for these routed services
-   * 
-   * @return parent network
-   */
-  public ServiceNetwork getParentNetwork() {
-    return parentNetwork;
-  }
-
-  /** Set the parent service network for these routed services settings
-   *
-   * @param parentNetwork to use
-   */
-  public void setParentNetwork(ServiceNetwork parentNetwork) {
-    this.parentNetwork = parentNetwork;
-  }
 
 }

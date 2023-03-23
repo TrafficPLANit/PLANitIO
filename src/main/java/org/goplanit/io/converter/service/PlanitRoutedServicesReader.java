@@ -64,11 +64,10 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * initialise the XML id trackers and populate them for the parent PLANit references, 
    * so we can lay indices on the XML id as well for quick lookups
    * 
-   * @param network parent service network
    */
-  private void initialiseParentXmlIdTrackers(ServiceNetwork network) {
+  private void initialiseParentXmlIdTrackers() {
     initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));    
+    routedServices.getParentNetwork().getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));
   }    
   
   /** Parse a schedule based trip for the given routed service
@@ -442,13 +441,12 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
   /** Constructor where settings are directly provided such that input information can be extracted from it
    * 
    * @param idToken to use for the service network to populate
+   * @param parentServiceNetwork to use
    * @param settings to use
    * @throws PlanItException  thrown if error
    */
-  protected PlanitRoutedServicesReader(final IdGroupingToken idToken, final PlanitRoutedServicesReaderSettings settings) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
-    this.settings = settings;
-    this.routedServices = new RoutedServices(idToken, settings.getParentNetwork());
+  protected PlanitRoutedServicesReader(final IdGroupingToken idToken, final ServiceNetwork parentServiceNetwork, final PlanitRoutedServicesReaderSettings settings) throws PlanItException{
+    this(settings, new RoutedServices(idToken, parentServiceNetwork));
   }  
   
   /** Constructor where settings and routed services to populate are directly provided
@@ -460,8 +458,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
     this.settings = settings;
     this.routedServices = routedServices;
-    if(!settings.getParentNetwork().equals(routedServices.getParentNetwork())) {
-      LOGGER.severe("parent network in settings instance does not match the parent network in the provided routed services instance for the PLANit routed services reader");
+    if(routedServices.getParentNetwork() == null) {
+      LOGGER.severe("parent service network not set on routed services, this is not allowed");
     }
   }  
     
@@ -471,7 +469,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * @param routedServices to populate
    */
   protected PlanitRoutedServicesReader(final XMLElementRoutedServices populatedXmlRawRoutedServices, final RoutedServices routedServices){
-    this(populatedXmlRawRoutedServices, new PlanitRoutedServicesReaderSettings(routedServices.getParentNetwork()), routedServices);
+    this(populatedXmlRawRoutedServices, new PlanitRoutedServicesReaderSettings(), routedServices);
   }
 
   /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
@@ -522,7 +520,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     try {
       
       /* initialise the indices used, if needed */
-      initialiseParentXmlIdTrackers(getSettings().getParentNetwork());      
+      initialiseParentXmlIdTrackers();
 
       /* parse content */
       parseRoutedServiceLayers();

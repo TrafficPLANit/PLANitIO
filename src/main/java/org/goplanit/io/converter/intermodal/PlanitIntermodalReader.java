@@ -34,6 +34,9 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
   /** intermodal reader settings to use */
   protected final PlanitIntermodalReaderSettings intermodalReaderSettings;
 
+  /** the network to populate */
+  protected final MacroscopicNetwork networkToPopulate;
+
   /** the zoning to populate */
   protected final Zoning zoningToPopulate;
 
@@ -49,20 +52,16 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
 
   protected final XMLElementServiceNetwork xmlRawServiceNetwork;
   protected final XMLElementRoutedServices xmlRawRoutedServices;
-  
-  /** the network to populate */
-  protected final MacroscopicNetwork networkToPopulate;
+
 
   private void validate(boolean withRoutedServices){
     PlanItRunTimeException.throwIf(networkToPopulate==null, "physical network to populate is null");
     PlanItRunTimeException.throwIf(zoningToPopulate==null, "zoning to populate is null");
     if(withRoutedServices) {
       PlanItRunTimeException.throwIf(serviceNetworkToPopulate == null, "service network to populate is null");
-      PlanItRunTimeException.throwIf(!networkToPopulate.equals(getSettings().getServiceNetworkSettings().getParentNetwork()), "network to populate differs from service network parent network");
-      PlanItRunTimeException.throwIf(!serviceNetworkToPopulate.getParentNetwork().equals(getSettings().getServiceNetworkSettings().getParentNetwork()), "service network parent network, differs from the one in its settings");
-      PlanItRunTimeException.throwIf(routedServicesToPopulate == null, "routed services to populate is null");
-      PlanItRunTimeException.throwIf(!serviceNetworkToPopulate.equals(getSettings().getRoutedServicesSettings().getParentNetwork()), "service network to populate differs from routed services parent service network");
-      PlanItRunTimeException.throwIf(!routedServicesToPopulate.getParentNetwork().equals(getSettings().getRoutedServicesSettings().getParentNetwork()), "routed services parent network, differs from the one in its settings");
+      PlanItRunTimeException.throwIf(!networkToPopulate.equals(serviceNetworkToPopulate.getParentNetwork()), "network to populate differs from service network parent network");
+            PlanItRunTimeException.throwIf(routedServicesToPopulate == null, "routed services to populate is null");
+      PlanItRunTimeException.throwIf(!serviceNetworkToPopulate.equals(routedServicesToPopulate.getParentNetwork()), "service network to populate differs from routed services parent service network");
     }
   }
     
@@ -187,9 +186,6 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
 
     this.routedServicesToPopulate = routedServices;
     this.xmlRawRoutedServices = xmlRawRoutedServices;
-
-    getSettings().getServiceNetworkSettings().setParentNetwork(networkToPopulate);
-    getSettings().getRoutedServicesSettings().setParentNetwork(serviceNetworkToPopulate);
   }
 
   /**
@@ -230,8 +226,6 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    */
   @Override
   public Quadruple<MacroscopicNetwork, Zoning, ServiceNetwork, RoutedServices> readWithServices() throws PlanItException {
-    getSettings().serviceNetworkSettings.setParentNetwork(networkToPopulate);
-    getSettings().getRoutedServicesSettings().setParentNetwork(serviceNetworkToPopulate);
     validate(true);
 
     // network + zoning

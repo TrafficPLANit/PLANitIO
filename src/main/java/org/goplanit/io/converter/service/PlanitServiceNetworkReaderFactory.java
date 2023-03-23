@@ -36,7 +36,7 @@ public class PlanitServiceNetworkReaderFactory {
    * @return created service network reader
    */
   public static PlanitServiceNetworkReader create(final IdGroupingToken idToken, MacroscopicNetwork parentNetwork) {
-    return create(new PlanitServiceNetworkReaderSettings(parentNetwork), new ServiceNetwork(idToken, parentNetwork));
+    return create(new PlanitServiceNetworkReaderSettings(), new ServiceNetwork(idToken, parentNetwork));
   }
   
   /** Create a PLANitServiceNetworkReader sourced from given input directory
@@ -56,8 +56,8 @@ public class PlanitServiceNetworkReaderFactory {
    * @param settings to use
    * @return created service network reader
    */
-  public static PlanitServiceNetworkReader create(final PlanitServiceNetworkReaderSettings settings) {
-    return create(settings, new ServiceNetwork(IdGroupingToken.collectGlobalToken(), settings.getParentNetwork()));
+  public static PlanitServiceNetworkReader create(final PlanitServiceNetworkReaderSettings settings, MacroscopicNetwork parentNetwork) {
+    return create(settings, new ServiceNetwork(IdGroupingToken.collectGlobalToken(), parentNetwork));
   }   
   
   /** Create a Service Network Reader for given (empty) service network and given settings

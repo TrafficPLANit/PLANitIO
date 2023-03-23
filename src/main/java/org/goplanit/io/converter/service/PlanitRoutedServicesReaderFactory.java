@@ -36,7 +36,7 @@ public class PlanitRoutedServicesReaderFactory {
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final IdGroupingToken idToken, ServiceNetwork parentNetwork) {
-    return create(new PlanitRoutedServicesReaderSettings(parentNetwork), new RoutedServices(idToken, parentNetwork));    
+    return create(new PlanitRoutedServicesReaderSettings(), new RoutedServices(idToken, parentNetwork));
   }
   
   /** Create a PlanitRoutedServicesReader sourced from given input directory
@@ -56,8 +56,8 @@ public class PlanitRoutedServicesReaderFactory {
    * @param settings to use
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final PlanitRoutedServicesReaderSettings settings) {
-    return create(settings, new RoutedServices(IdGroupingToken.collectGlobalToken(), settings.getParentNetwork()));
+  public static PlanitRoutedServicesReader create(final PlanitRoutedServicesReaderSettings settings, ServiceNetwork parentNetwork) {
+    return create(settings, new RoutedServices(IdGroupingToken.collectGlobalToken(), parentNetwork));
   }   
   
   /** Create a PlanitRoutedServicesReader for given (empty) routed services and given settings

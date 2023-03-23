@@ -84,10 +84,6 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     final boolean registerLegsOnServiceNodes = true;
     for(XMLElementServiceLeg xmlServiceLeg : xmlServiceLegList) {
 
-      if(xmlServiceLeg.getId().equals("18539")) {
-        int bla = 4;
-      }
-      
       /* XML id */
       String xmlId = xmlServiceLeg.getId();
       if(StringUtils.isNullOrBlank(xmlId)) {
@@ -327,18 +323,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     initialiseSourceIdMap(LinkSegment.class, LinkSegment::getXmlId);
     network.getTransportLayers().forEach( layer -> getSourceIdContainer(LinkSegment.class).addAll(layer.getLinkSegments()));
   }   
-  
-  /** Constructor where settings are directly provided such that input information can be extracted from it
-   * 
-   * @param idToken to use for the service network to populate
-   * @param settings to use
-   */
-  protected PlanitServiceNetworkReader(final IdGroupingToken idToken, final PlanitServiceNetworkReaderSettings settings) {
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementServiceNetwork>(XMLElementServiceNetwork.class);
-    this.settings = settings;
-    this.serviceNetwork = new ServiceNetwork(idToken, settings.getParentNetwork());
-  }  
-  
+
   /** Constructor where settings and service network are directly provided
    * 
    * @param settings to use
@@ -349,8 +334,8 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementServiceNetwork.class);
     this.settings = settings;
     this.serviceNetwork = serviceNetwork;
-    if(!settings.getParentNetwork().equals(serviceNetwork.getParentNetwork())) {
-      LOGGER.severe("parent network in service network reader settings does not match the parent network in the provided service network for the PLANit service network reader");
+    if(serviceNetwork.getParentNetwork() == null) {
+      LOGGER.severe("No parent network available for PLANit service network that we seek to populate");
     }
   }  
     
@@ -360,7 +345,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    * @param serviceNetwork to populate
    */
   protected PlanitServiceNetworkReader(final XMLElementServiceNetwork populatedXmlRawServiceNetwork, final ServiceNetwork serviceNetwork){
-    this(populatedXmlRawServiceNetwork, new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork()), serviceNetwork);
+    this(populatedXmlRawServiceNetwork, new PlanitServiceNetworkReaderSettings(), serviceNetwork);
   }
 
   /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
@@ -383,7 +368,7 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
    */
   protected PlanitServiceNetworkReader(String networkPathDirectory, String xmlFileExtension, ServiceNetwork serviceNetwork) {
     this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementServiceNetwork.class);
-    this.settings = new PlanitServiceNetworkReaderSettings(serviceNetwork.getParentNetwork(), networkPathDirectory, xmlFileExtension);
+    this.settings = new PlanitServiceNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
     this.serviceNetwork = serviceNetwork;
   }  
   
@@ -413,15 +398,15 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
     if(StringUtils.isNullOrBlank(parentNetworkXmlId)) {
       throw new PlanItException("Service network %s has no parent network defined", serviceNetwork.getXmlId());
     }
-    if(!settings.getParentNetwork().getXmlId().equals(parentNetworkXmlId)) {
+    if(!serviceNetwork.getParentNetwork().getXmlId().equals(parentNetworkXmlId)) {
       throw new PlanItException(
-          "Service network %s parent network (%s) in memory does not correspond to the parent network id on file (%s)", serviceNetwork.getXmlId(), settings.getParentNetwork().getXmlId(), parentNetworkXmlId);
+          "Service network %s parent network (%s) in memory does not correspond to the parent network id on file (%s)", serviceNetwork.getXmlId(), serviceNetwork.getParentNetwork().getXmlId(), parentNetworkXmlId);
     }
           
     try {
       
       /* initialise the indices used, if needed */
-      initialiseParentXmlIdTrackers(getSettings().getParentNetwork());   
+      initialiseParentXmlIdTrackers(serviceNetwork.getParentNetwork());
 
       /* parse layers */
       parseServiceNetworkLayers();

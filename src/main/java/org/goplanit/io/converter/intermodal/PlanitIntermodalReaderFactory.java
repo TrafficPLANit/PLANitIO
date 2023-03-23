@@ -64,29 +64,18 @@ public class PlanitIntermodalReaderFactory {
     return create(IdGroupingToken.collectGlobalToken(), intermodalSettings);
   }
 
-  /** Factory method based on settings. IT is expected that the user will set the necessary settings via the exposed settings. If settings contains information
-   * about underlying parent relationships between networks (routed services parent network, service network parent network, these networks will be used rather than created from scratch
+  /** Factory method based on settings. It is expected that the user will set the necessary settings via the exposed settings.
    *
    * @return created reader
    * @throws PlanItException thrown if error
    */
   public static PlanitIntermodalReader create(IdGroupingToken idGroupingToken, final PlanitIntermodalReaderSettings intermodalSettings) throws PlanItException {
-    MacroscopicNetwork network = intermodalSettings.getServiceNetworkSettings().getParentNetwork();
-    if (network == null) {
-      network = new MacroscopicNetwork(idGroupingToken);
-      intermodalSettings.getServiceNetworkSettings().setParentNetwork(network);
-    }
-    var serviceNetwork = intermodalSettings.getRoutedServicesSettings().getParentNetwork();
-    if (serviceNetwork == null){
-      serviceNetwork = new ServiceNetwork(idGroupingToken, network);
-      intermodalSettings.getRoutedServicesSettings().setParentNetwork(serviceNetwork);
-    }
+    MacroscopicNetwork network = new MacroscopicNetwork(idGroupingToken);
+    ServiceNetwork serviceNetwork = new ServiceNetwork(idGroupingToken, network);
+    Zoning zoning = new Zoning(idGroupingToken, network.getNetworkGroupingTokenId());
+    RoutedServices routedServices = new RoutedServices(idGroupingToken, serviceNetwork);
 
-    return new PlanitIntermodalReader(intermodalSettings,
-        network,
-        new Zoning(idGroupingToken, network.getNetworkGroupingTokenId()),
-        serviceNetwork,
-        new RoutedServices(idGroupingToken, serviceNetwork));
+    return new PlanitIntermodalReader(intermodalSettings, network, zoning, serviceNetwork, routedServices);
   }
 
   /** Factory method for intermodal reader( without services)
