@@ -54,9 +54,11 @@ public class PlanitServiceNetworkReaderFactory {
   /** Create a PLANitServiceNetworkReader based on given settings which in turn contain information on location and parent network to use
    * 
    * @param settings to use
+   * @param parentNetwork to use
    * @return created service network reader
    */
-  public static PlanitServiceNetworkReader create(final PlanitServiceNetworkReaderSettings settings, MacroscopicNetwork parentNetwork) {
+  public static PlanitServiceNetworkReader create(
+      final PlanitServiceNetworkReaderSettings settings, MacroscopicNetwork parentNetwork) {
     return create(settings, new ServiceNetwork(IdGroupingToken.collectGlobalToken(), parentNetwork));
   }   
   

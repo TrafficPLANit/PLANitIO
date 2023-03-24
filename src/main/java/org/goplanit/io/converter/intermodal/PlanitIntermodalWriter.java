@@ -54,7 +54,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    * @param macroscopicNetwork to persist
    * @param zoning to persist
    * @return used writers, network and zoning, respectively
-   * @throws PlanItException
+   * @throws PlanItException if error
    */
   protected Pair<PlanitNetworkWriter, PlanitZoningWriter> writeNetworkAndZoning(MacroscopicNetwork macroscopicNetwork, Zoning zoning) throws PlanItException {
     /* network writer */

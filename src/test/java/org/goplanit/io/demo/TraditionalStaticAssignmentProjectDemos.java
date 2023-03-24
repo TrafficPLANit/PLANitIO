@@ -6,7 +6,7 @@ import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
 import org.goplanit.cost.physical.BPRConfigurator;
-import org.goplanit.cost.physical.BPRLinkTravelTimeCost;
+import org.goplanit.cost.physical.BprLinkTravelTimeCost;
 import org.goplanit.cost.virtual.AbstractVirtualCost;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.goplanit.cost.virtual.SpeedVirtualCostConfigurator;
@@ -558,7 +558,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       // Initial (physical) link segment cost
       ta.registerInitialLinkSegmentCost(initialCost);
       // physical links: BPR cost function
-      ta.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+      ta.createAndRegisterPhysicalCost(BprLinkTravelTimeCost.class.getCanonicalName());
       // virtual links: fixed cost function
       ta.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
       // iteration smoothing: MSA

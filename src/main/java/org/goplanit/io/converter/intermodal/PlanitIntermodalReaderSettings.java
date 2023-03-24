@@ -74,6 +74,8 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
    *
    * @param networkSettings to use
    * @param zoningSettings to use
+   * @param serviceNetworkSettings to use
+   * @param routedServicesSettings to use
    */
   public PlanitIntermodalReaderSettings(
       final PlanitNetworkReaderSettings networkSettings,

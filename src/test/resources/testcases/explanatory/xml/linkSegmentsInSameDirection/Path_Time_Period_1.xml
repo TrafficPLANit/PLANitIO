@@ -5,7 +5,7 @@
 	<description>PlanIt common code for traffic assignment</description>
 	<outputconfiguration>
 		<assignment>TraditionalStaticAssignment</assignment>
-		<physicalcost>BPRLinkTravelTimeCost</physicalcost>
+		<physicalcost>BprLinkTravelTimeCost</physicalcost>
 		<virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
         <smoothing>MSASmoothing</smoothing>
         <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>

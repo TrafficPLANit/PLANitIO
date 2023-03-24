@@ -54,9 +54,11 @@ public class PlanitRoutedServicesReaderFactory {
   /** Create a PlanitRoutedServicesReader based on given settings which in turn contain information on location and parent network to use
    * 
    * @param settings to use
+   * @param parentNetwork to use
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final PlanitRoutedServicesReaderSettings settings, ServiceNetwork parentNetwork) {
+  public static PlanitRoutedServicesReader create(
+      final PlanitRoutedServicesReaderSettings settings, ServiceNetwork parentNetwork) {
     return create(settings, new RoutedServices(IdGroupingToken.collectGlobalToken(), parentNetwork));
   }   
   

@@ -27,7 +27,6 @@ public interface XmlEnumConverter {
 	 * 
 	 * @param type value of Type enumeration
 	 * @return value of generated Typevalues enumeration
-	 * @throws PlanItException thrown if a value of Type enumeration is not included in the XSD enumeration definition
 	 */
 	public static Typevalues convertFromPlanItToXmlGeneratedType(DataType type) {
 		switch (type) {

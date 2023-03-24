@@ -114,13 +114,16 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    * @param xmlFileExtension to use
    * @param network to populate
    * @param zoning to populate
+   * @param serviceNetwork to populate (if reading with services)
+   * @param routedServices to populate (if reading with services)
    */
   protected PlanitIntermodalReader(String inputPathDirectory,
                                    String xmlFileExtension,
-                                   MacroscopicNetwork network, Zoning zoning,
+                                   MacroscopicNetwork network,
+                                   Zoning zoning,
                                    ServiceNetwork serviceNetwork,
-                                   RoutedServices routedService) {
-    this(new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension), null, null, null, null, network, zoning, serviceNetwork, routedService);
+                                   RoutedServices routedServices) {
+    this(new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension), null, null, null, null, network, zoning, serviceNetwork, routedServices);
   }
 
   /** constructor where the xml content has already been parsed into a JAXB memory model which subsequently needs to be converted into the planit memory model
