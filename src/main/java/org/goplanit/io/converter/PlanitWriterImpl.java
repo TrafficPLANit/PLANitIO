@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.*;
+import org.goplanit.converter.idmapping.*;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
@@ -26,22 +27,6 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitWriterImpl.class.getCanonicalName());
 
-  /** id mappers for network entities */
-  private NetworkIdMapper networkIdMappers;
-
-  /** id mappers for zoning entities */
-  private ZoningIdMapper zoningIdMappers;
-
-  /** id mappers for service network entities */
-  private ServiceNetworkIdMapper serviceNetworkIdMapper;
-
-  /** id mappers for routed services entities */
-  private RoutedServicesIdMapper routedServicesIdMapper;
-
-  /** id mappers for routed services entities */
-  private DemandsIdMapper demandsIdMapperIdMapper;
-
-
   /** convert to xml writer settings if possible
    * @return xml writer settings
    * @throws PlanItException thrown if error
@@ -52,49 +37,6 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
     }
     return ((PlanitXmlWriterSettings)getSettings());
   }
-
-  /**
-   * depending on the chosen id mapping, create the mapping functions for all id carrying entities that are persisted
-   */
-  protected void initialiseIdMappingFunctions(){
-    /* when not set as parent based, create based on chosen type of current writer */
-    if(networkIdMappers == null) {
-      networkIdMappers = new NetworkIdMapper(getIdMapperType());
-    }
-    if(zoningIdMappers == null){
-      zoningIdMappers = new ZoningIdMapper(getIdMapperType());
-    }
-    if(serviceNetworkIdMapper == null){
-      serviceNetworkIdMapper = new ServiceNetworkIdMapper(getIdMapperType());
-    }
-    if(routedServicesIdMapper == null){
-      routedServicesIdMapper = new RoutedServicesIdMapper(getIdMapperType());
-    }
-    if(demandsIdMapperIdMapper == null){
-      demandsIdMapperIdMapper = new DemandsIdMapper((getIdMapperType()));
-    }
-  }
-
-  protected NetworkIdMapper getNetworkIdMappers(){
-    return networkIdMappers;
-  }
-
-  protected ZoningIdMapper getZoningIdMappers(){
-    return zoningIdMappers;
-  }
-
-  protected ServiceNetworkIdMapper getServiceNetworkIdMappers(){
-    return serviceNetworkIdMapper;
-  }
-
-  protected RoutedServicesIdMapper getRoutedServicesIdMapper(){
-    return routedServicesIdMapper;
-  }
-
-  protected DemandsIdMapper getDemandsIdMapper(){
-    return demandsIdMapperIdMapper;
-  }
-
 
   /** Get the reference to use whenever a mode reference is encountered
    *
@@ -163,36 +105,6 @@ public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
    */
   protected PlanitWriterImpl(IdMapperType idMapperType) {
     super(idMapperType);
-  }
-
-  /**
-   * The (main) Id mapper used by this writer
-   *
-   * @return mapper
-   */
-  public abstract PlanitComponentIdMapper getPrimaryIdMapper();
-
-  /**
-   * The explicit id mapping used by the parent(s), so we use the appropriate referencing
-   *
-   * @param parentMappers to register
-   */
-  public void setParentIdMappers(PlanitComponentIdMapper... parentMappers) {
-    for(var mapper : parentMappers) {
-      if (mapper instanceof ZoningIdMapper) {
-        this.zoningIdMappers = (ZoningIdMapper) mapper;
-      } else if (mapper instanceof NetworkIdMapper) {
-        this.networkIdMappers = (NetworkIdMapper) mapper;
-      } else if( mapper instanceof ServiceNetworkIdMapper){
-        this.serviceNetworkIdMapper = (ServiceNetworkIdMapper) mapper;
-      }else if( mapper instanceof RoutedServicesIdMapper){
-        this.routedServicesIdMapper = (RoutedServicesIdMapper) mapper;
-      }else if( mapper instanceof  DemandsIdMapper){
-        this.demandsIdMapperIdMapper = (DemandsIdMapper) mapper;
-      }else{
-        LOGGER.warning("Unknown parent id mapper provided, ignored");
-      }
-    }
   }
 
 }

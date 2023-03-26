@@ -3,7 +3,7 @@ package org.goplanit.io.converter.network;
 import net.opengis.gml.*;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
-import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.geo.PlanitGmlUtils;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;

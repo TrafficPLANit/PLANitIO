@@ -1,7 +1,8 @@
 package org.goplanit.io.converter.service;
 
-import org.goplanit.converter.IdMapperType;
-import org.goplanit.converter.PlanitComponentIdMapper;
+import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
+import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
@@ -63,7 +64,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
    */
   private void populateXmlTripIds(XMLElementRoutedTrip xmlTrip, RoutedTrip trip) {
     /* xml id*/
-    xmlTrip.setId(getRoutedServicesIdMapper().getRoutedTripRefIdMapper().apply(trip));
+    xmlTrip.setId(getPrimaryIdMapper().getRoutedTripRefIdMapper().apply(trip));
 
     /* external id */
     if(trip.hasExternalId()){
@@ -100,7 +101,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       /* ls refs */
       var lsRefsList = new ArrayList<String>(frequencyBasedTrip.getNumberOfLegSegments());
       for(int index = 0; index < frequencyBasedTrip.getNumberOfLegSegments(); ++index){
-        lsRefsList.add(getServiceNetworkIdMappers().getServiceLegSegmentIdMapper().apply(frequencyBasedTrip.getLegSegment(index)));
+        lsRefsList.add(getComponentIdMappers().getServiceNetworkIdMapper().getServiceLegSegmentIdMapper().apply(frequencyBasedTrip.getLegSegment(index)));
       }
       if(lsRefsList.isEmpty()){
         LOGGER.warning(String.format("No service leg segments present on frequency based trip (%s), discarded", frequencyBasedTrip.getXmlId()));
@@ -144,7 +145,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
         var xmlDeparture = new XMLElementDepartures.Departure();
 
         /* departure XML id */
-        xmlDeparture.setId(getRoutedServicesIdMapper().getRoutedTripDepartureRefIdMapper().apply(departure));
+        xmlDeparture.setId(getPrimaryIdMapper().getRoutedTripDepartureRefIdMapper().apply(departure));
 
         /* departure external id */
         if(departure.hasExternalId()){
@@ -188,7 +189,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
             LOGGER.warning(String.format("No service leg segment present on relative leg timing, discarded this trip (%s)", scheduleBasedTrip.getXmlId()));
             return;
           }
-          xmlReltimingLeg.setLsref(getServiceNetworkIdMappers().getServiceLegSegmentIdMapper().apply(relLegTiming.getParentLegSegment()));
+          xmlReltimingLeg.setLsref(getComponentIdMappers().getServiceNetworkIdMapper().getServiceLegSegmentIdMapper().apply(relLegTiming.getParentLegSegment()));
 
           xmlRelTimingLegList.add(xmlReltimingLeg);
         }
@@ -216,7 +217,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     XMLElementService xmlRoutedService = new XMLElementService();
 
     /* XML id */
-    xmlRoutedService.setId(getRoutedServicesIdMapper().getRoutedServiceRefIdMapper().apply(routedService));
+    xmlRoutedService.setId(getPrimaryIdMapper().getRoutedServiceRefIdMapper().apply(routedService));
 
     /* external id */
     if(routedService.hasExternalId()) {
@@ -287,7 +288,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     xmlLayer.getServices().add(xmlServices);
 
     /* mode */
-    xmlServices.setModeref(getNetworkIdMappers().getModeIdMapper().apply(servicesForMode.getMode()));
+    xmlServices.setModeref(getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(servicesForMode.getMode()));
 
     /* for each service populate and XML element */
     for( var service : servicesForMode){
@@ -399,23 +400,6 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void initialiseIdMappingFunctions() {
-    if(getServiceNetworkIdMappers() == null){
-      LOGGER.warning("id mapping from service network unknown for routed services, generate mappings and assume same mapping approach as for routed services");
-    }
-    if(getNetworkIdMappers() == null){
-      LOGGER.warning("id mapping from physical network unknown for routed services, generate mappings and assume same mapping approach as for routed services");
-    }
-    if(getZoningIdMappers() == null){
-      LOGGER.warning("id mapping from zoning unknown for routed services, generate mappings and assume same mapping approach as for routed services");
-    }
-    super.initialiseIdMappingFunctions();
-  }
-
   /** Constructor
    *
    * @param xmlRawRoutedServices to populate with PLANit routed services when persisting
@@ -452,8 +436,8 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
    * {@inheritDoc}
    */
   @Override
-  public PlanitComponentIdMapper getPrimaryIdMapper() {
-    return getRoutedServicesIdMapper();
+  public RoutedServicesIdMapper getPrimaryIdMapper() {
+    return getComponentIdMappers().getRoutedServicesIdMapper();
   }
 
   /**
@@ -463,7 +447,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   public void write(RoutedServices routedServices) throws PlanItException {
 
     /* initialise */
-    initialiseIdMappingFunctions();
+    getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
     LOGGER.info(String.format("Persisting PLANit routed services to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
     getSettings().logSettings();
     

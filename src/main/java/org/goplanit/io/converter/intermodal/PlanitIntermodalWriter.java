@@ -1,6 +1,6 @@
 package org.goplanit.io.converter.intermodal;
 
-import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;

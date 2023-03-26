@@ -9,8 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.goplanit.converter.IdMapperType;
-import org.goplanit.converter.PlanitComponentIdMapper;
+import org.goplanit.converter.idmapping.DemandsIdMapper;
+import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.demands.DemandsWriter;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.PlanitWriterImpl;
@@ -69,7 +70,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       xmlTimePeriods.getTimeperiod().add(xmlTimePeriod);
       
       /* XML id */
-      xmlTimePeriod.setId(getDemandsIdMapper().getTimePeriodIdMapper().apply(timePeriod));
+      xmlTimePeriod.setId(getPrimaryIdMapper().getTimePeriodIdMapper().apply(timePeriod));
       
       /* external id */
       if(timePeriod.hasExternalId()) {
@@ -120,7 +121,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       xmlUserClasses.getUserclass().add(xmlUserClass);
       
       /* XML id */
-      xmlUserClass.setId(getDemandsIdMapper().getUserClassIdMapper().apply(userClass));
+      xmlUserClass.setId(getPrimaryIdMapper().getUserClassIdMapper().apply(userClass));
       
       /* external id */
       if(userClass.hasExternalId()) {
@@ -131,7 +132,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       if(userClass.getMode()==null) {
         LOGGER.warning(String.format("User class %s has no referenced mode", userClass.getXmlId()));
       }else {
-        xmlUserClass.setModeref(getXmlModeReference(userClass.getMode(), getNetworkIdMappers().getModeIdMapper()));
+        xmlUserClass.setModeref(getXmlModeReference(userClass.getMode(), getComponentIdMappers().getNetworkIdMappers().getModeIdMapper()));
         if(!userClassesPerMode.containsKey(userClass.getMode())) {
           var userClassesForMode = new HashSet<UserClass>();
           userClassesPerMode.put(userClass.getMode(), userClassesForMode);
@@ -143,7 +144,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       if(userClass.getMode()==null) {
         LOGGER.warning(String.format("User class %s has no referenced traveller type", userClass.getXmlId()));
       }else {
-        xmlUserClass.setTravellertyperef(getDemandsIdMapper().getTravellerTypeIdMapper().apply(userClass.getTravelerType()));
+        xmlUserClass.setTravellertyperef(getPrimaryIdMapper().getTravellerTypeIdMapper().apply(userClass.getTravelerType()));
       }      
       
       /* name */
@@ -171,7 +172,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       xmlTravellerTypes.getTravellertype().add(xmlTravellerType);
       
       /* XML id */
-      xmlTravellerType.setId(getDemandsIdMapper().getTravellerTypeIdMapper().apply(travellerType));
+      xmlTravellerType.setId(getPrimaryIdMapper().getTravellerTypeIdMapper().apply(travellerType));
       
       /* external id */
       if(travellerType.hasExternalId()) {
@@ -197,11 +198,11 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
   private double populateXmlOdDemandsEntry(final OdDemands odDemandsEntry, TimePeriod timePeriod, UserClass userClass, final XMLElementOdRawMatrix xmlOdDemandsEntry) {
     
     /* time period ref */
-    String timePeriodRef = getDemandsIdMapper().getTimePeriodIdMapper().apply(timePeriod);
+    String timePeriodRef = getPrimaryIdMapper().getTimePeriodIdMapper().apply(timePeriod);
     xmlOdDemandsEntry.setTimeperiodref(timePeriodRef);
     
     /* user class ref */
-    String userClassRef = getDemandsIdMapper().getUserClassIdMapper().apply(userClass);
+    String userClassRef = getPrimaryIdMapper().getUserClassIdMapper().apply(userClass);
     xmlOdDemandsEntry.setUserclassref(userClassRef);
     
     /* values */
@@ -299,14 +300,6 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     xmlRawDemands.setId(demands.getXmlId());
   }
 
-  @Override
-  protected void initialiseIdMappingFunctions() {
-    if(getZoningIdMappers() == null){
-      LOGGER.warning("id mapping from zoning unknown for demands, generate mappings and assume same mapping approach as for demands");
-    }
-    super.initialiseIdMappingFunctions();
-  }
-
   /** Constructor 
    * 
    * @param demandsPath to persist demands on
@@ -326,8 +319,8 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
    * {@inheritDoc}
    */
   @Override
-  public PlanitComponentIdMapper getPrimaryIdMapper() {
-    return getDemandsIdMapper();
+  public DemandsIdMapper getPrimaryIdMapper() {
+    return getComponentIdMappers().getDemandsIdMapperIdMapper();
   }
 
   /**
@@ -344,7 +337,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     
     /* initialise */
     {
-      initialiseIdMappingFunctions();
+      getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
       LOGGER.info(String.format("Persisting PLANit demands to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     }
     

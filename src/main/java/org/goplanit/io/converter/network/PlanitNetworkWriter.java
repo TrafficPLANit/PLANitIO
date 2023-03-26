@@ -6,8 +6,9 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.converter.IdMapperType;
-import org.goplanit.converter.PlanitComponentIdMapper;
+import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.idmapping.NetworkIdMapper;
+import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
@@ -72,9 +73,9 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlLinkSegment to populate
    * @param linkSegment the PLANit link segment instance to populate from
    */
-  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {   
+  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
     /* id */
-    xmlLinkSegment.setId(getNetworkIdMappers().getLinkSegmentIdMapper().apply(linkSegment));
+    xmlLinkSegment.setId(getPrimaryIdMapper().getLinkSegmentIdMapper().apply(linkSegment));
     /* max speed */
     xmlLinkSegment.setMaxspeed(linkSegment.getPhysicalSpeedLimitKmH());
     /* number of lanes */
@@ -82,7 +83,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     if(!linkSegment.hasLinkSegmentType()) {
       LOGGER.severe(String.format("missing link segment type on link segment %s (id:%d)", linkSegment.getExternalId(), linkSegment.getId()));      
     }else {
-      xmlLinkSegment.setTyperef(getNetworkIdMappers().getLinkSegmentTypeIdMapper().apply(linkSegment.getLinkSegmentType()));
+      xmlLinkSegment.setTyperef(getPrimaryIdMapper().getLinkSegmentTypeIdMapper().apply(linkSegment.getLinkSegmentType()));
     }
   }  
   
@@ -127,7 +128,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
     /* XML id */
-    xmlLink.setId(getNetworkIdMappers().getLinkIdMapper().apply(link));
+    xmlLink.setId(getPrimaryIdMapper().getLinkIdMapper().apply(link));
     
     /* external id */
     if(link.hasExternalId()) {
@@ -155,9 +156,9 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
       xmlLink.setName(link.getName());      
     }
     /* node A ref */
-    xmlLink.setNodearef(getNetworkIdMappers().getVertexIdMapper().apply(link.getNodeA()));
+    xmlLink.setNodearef(getPrimaryIdMapper().getVertexIdMapper().apply(link.getNodeA()));
     /* node B ref */
-    xmlLink.setNodebref(getNetworkIdMappers().getVertexIdMapper().apply(link.getNodeB()));
+    xmlLink.setNodebref(getPrimaryIdMapper().getVertexIdMapper().apply(link.getNodeB()));
     
     /* line string */
     if(link.hasGeometry()) {
@@ -204,7 +205,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     xmlNodeList.add(xmlNode);
     
     /* Xml id */
-    xmlNode.setId(getNetworkIdMappers().getVertexIdMapper().apply(node));
+    xmlNode.setId(getPrimaryIdMapper().getVertexIdMapper().apply(node));
     
     /* external id */
     if(node.hasExternalId()) {
@@ -249,7 +250,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     /* mode ref id */
     Set<Mode> accessModes = accessGroupProperties.getAccessModes();
-    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode, getNetworkIdMappers().getModeIdMapper())).collect(Collectors.joining(","));
+    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper())).collect(Collectors.joining(","));
     xmlAccessGroup.setModerefs(modeRefs);
     
     /* critical speed */
@@ -275,7 +276,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
     
     /* Xml id */
-    xmlLinkSegmentType.setId(getNetworkIdMappers().getLinkSegmentTypeIdMapper().apply(linkSegmentType));
+    xmlLinkSegmentType.setId(getPrimaryIdMapper().getLinkSegmentTypeIdMapper().apply(linkSegmentType));
     
     /* external id */
     if(linkSegmentType.hasExternalId()) {
@@ -388,7 +389,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     XMLElementModes.Mode xmlMode = new XMLElementModes.Mode();
     
     /* Xml id */
-    xmlMode.setId(getXmlModeReference(mode, getNetworkIdMappers().getModeIdMapper()));
+    xmlMode.setId(getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper()));
     
     /* external id */
     if(mode.hasExternalId()) {
@@ -602,8 +603,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @return network id mapper
    */
   @Override
-  public PlanitComponentIdMapper getPrimaryIdMapper() {
-    return getNetworkIdMappers();
+  public NetworkIdMapper getPrimaryIdMapper() {
+    return getComponentIdMappers().getNetworkIdMappers();
   }
 
   /**
@@ -619,7 +620,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     
     /* initialise */
-    initialiseIdMappingFunctions();
+    getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
     super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
     LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
