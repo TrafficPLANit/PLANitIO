@@ -602,7 +602,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void populateXmlOdZones(final Zoning zoning) throws PlanItException {
     if(zoning.getOdZones().isEmpty()) {
-      LOGGER.severe("OD zones and/or connectoids should be present when creating zoning XML elements, but they are empty, abort");
+      LOGGER.severe("No OD zones present when creating zoning XML elements");
       return;
     }
 
