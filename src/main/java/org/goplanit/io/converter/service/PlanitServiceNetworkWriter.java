@@ -145,9 +145,6 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
       xmlServiceNode.setExternalid(serviceNode.getExternalId());
     }
 
-    /* parent node ref */
-    xmlServiceNode.setNoderef(getComponentIdMappers().getNetworkIdMappers().getVertexIdMapper().apply(serviceNode.getPhysicalParentNode()));
-
     xmlServiceNodeList.add(xmlServiceNode);
   }
 

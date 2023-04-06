@@ -223,21 +223,9 @@ public class PlanitServiceNetworkReader extends NetworkReaderImpl implements Ser
         LOGGER.warning(String.format("IGNORE: Service node in service layer %s has no XML id defined", routedServiceLayer.getXmlId()));
         continue;
       }
-      
-      /* parent node XML id*/
-      String parentNodeXmlId = xmlServiceNode.getNoderef();
-      if(StringUtils.isNullOrBlank(parentNodeXmlId)) {
-        LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s has no parent node XML id reference defined", xmlId, routedServiceLayer.getXmlId()));
-        continue;
-      }                      
-           
-      if(getBySourceId(Node.class, parentNodeXmlId) == null) {
-        LOGGER.warning(String.format("IGNORE: Service node %s in service layer %s references unknown parent node %s", xmlId, routedServiceLayer.getXmlId(), parentNodeXmlId));
-        continue;
-      }
-      
+
       /* instance */
-      ServiceNode serviceNode = routedServiceLayer.getServiceNodes().getFactory().registerNew(getBySourceId(Node.class,parentNodeXmlId));
+      ServiceNode serviceNode = routedServiceLayer.getServiceNodes().getFactory().registerNew();
       serviceNode.setXmlId(xmlId);
       
       /* external id*/
