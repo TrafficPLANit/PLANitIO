@@ -546,7 +546,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
     
     /* srs name */
-    xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
+    xmlInfrastructureLayers.setSrsname(extractSrsName(getDestinationCoordinateReferenceSystem()));
     
     LOGGER.info("Network layers:" + network.getTransportLayers().size());
     for(NetworkLayer networkLayer : network.getTransportLayers()) {
@@ -621,7 +621,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
+    prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
     LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
     
