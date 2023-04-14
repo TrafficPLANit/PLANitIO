@@ -13,6 +13,7 @@ import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
+import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.service.routed.*;
 import org.goplanit.xml.generated.*;
 
@@ -104,9 +105,9 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
         lsRefsList.add(getComponentIdMappers().getServiceNetworkIdMapper().getServiceLegSegmentIdMapper().apply(frequencyBasedTrip.getLegSegment(index)));
       }
       if(lsRefsList.isEmpty()){
-        LOGGER.warning(String.format("No service leg segments present on frequency based trip (%s), discarded", frequencyBasedTrip.getXmlId()));
+        LOGGER.warning(String.format("No service leg segments present on frequency based trip (%s), discarded", xmlRoutedTripFrequency.getId()));
       }
-      frequency.setLsrefs(lsRefsList.stream().collect(Collectors.joining(CharacterUtils.COMMA.toString())));
+      frequency.setLsrefs(lsRefsList.stream().sorted().collect(Collectors.joining(CharacterUtils.COMMA.toString())));
 
       xmlRoutedTripFrequency.setFrequency(frequency);
     }
@@ -254,16 +255,14 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
 
     /* frequency based trips */
     if(routedService.getTripInfo().hasFrequencyBasedTrips()) {
-      for (var freqTrip : routedService.getTripInfo().getFrequencyBasedTrips()) {
-        createAndPopulateXmlRoutedServiceTrip(xmlTrips, freqTrip);
-      }
+      routedService.getTripInfo().getFrequencyBasedTrips().streamSortedBy(getPrimaryIdMapper().getRoutedTripRefIdMapper()).forEach( freqTrip ->
+        createAndPopulateXmlRoutedServiceTrip(xmlTrips, freqTrip));
     }
 
     /* schedule based trips */
     if(routedService.getTripInfo().hasScheduleBasedTrips()) {
-      for (var schedTrip : routedService.getTripInfo().getScheduleBasedTrips()) {
-        createAndPopulateXmlRoutedServiceTrip(xmlTrips, schedTrip);
-      }
+      routedService.getTripInfo().getScheduleBasedTrips().streamSortedBy(getPrimaryIdMapper().getRoutedTripRefIdMapper()).forEach( schedTrip ->
+          createAndPopulateXmlRoutedServiceTrip(xmlTrips, schedTrip));
     }
 
     xmlServices.getService().add(xmlRoutedService);
@@ -291,9 +290,9 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     xmlServices.setModeref(getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(servicesForMode.getMode()));
 
     /* for each service populate and XML element */
-    for( var service : servicesForMode){
+    servicesForMode.streamSortedBy(getPrimaryIdMapper().getRoutedServiceRefIdMapper()).forEach( service -> {
       createAndPopulateXmlRoutedServices(xmlServices, service);
-    }
+    });
 
     var modePrefix = LoggingUtils.surroundwithBrackets(String.format("mode: %s", servicesForMode.getMode()));
     LOGGER.info(String.format("%s%s Routed services : %d", currLayerLogPrefix, modePrefix, servicesForMode.size()));
@@ -325,7 +324,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       xmlId = String.valueOf(layer.getId());
     }
     xmlLayer.setId(xmlId);
-    this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+layer.getXmlId());
+    this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+ xmlLayer.getId());
 
     /* external id */
     if(layer.hasExternalId()) {
@@ -333,17 +332,18 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     }
 
     /* parent layer ref */
-    String parentLayerXmlId = layer.getParentLayer().getXmlId();
+    String parentLayerXmlId = getComponentIdMappers().getServiceNetworkIdMapper().getServiceNetworkLayerIdMapper().apply(layer.getParentLayer());
     if(StringUtils.isNullOrBlank(parentLayerXmlId)) {
-      LOGGER.severe(String.format("Routed services layer's parent service layer has no XML id defined, assuming internally generated id %d as reference id instead, please verify this matches persisted parent network id",layer.getParentLayer().getId()));
+      LOGGER.severe(String.format("Routed services layer's parent service layer has no ref id defined, assuming internally generated id %d as reference id instead, please verify this matches persisted parent network id",layer.getParentLayer().getId()));
       parentLayerXmlId = String.valueOf(layer.getParentLayer().getId());
     }
     xmlLayer.setServicelayerref(parentLayerXmlId);
 
     /* per mode all services in this layer */
-    for(var servicesForMode : layer){
-      createAndPopulateXmlRoutedServicesByMode(xmlLayer, servicesForMode);
-    }
+    var supportedModes = layer.getSupportedModes();
+    supportedModes.stream().sorted(Comparator.comparing(getComponentIdMappers().getNetworkIdMappers().getModeIdMapper())).forEach( mode -> {
+      createAndPopulateXmlRoutedServicesByMode(xmlLayer, layer.getServicesByMode(mode));
+    });
   }
 
   /** Populate the available routed services layers
@@ -359,25 +359,25 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     }
 
     /* service network ref */
-    String parentNetworkXmlId = routedServices.getParentNetwork().getXmlId();
-    if(StringUtils.isNullOrBlank(parentNetworkXmlId)) {
-      LOGGER.severe(String.format("Routed services' parent network has no XML id defined, assuming internally generated id %d as reference id instead, please verify this matches persisted parent network id",routedServices.getParentNetwork().getId()));
-      parentNetworkXmlId = String.valueOf(routedServices.getParentNetwork().getId());
+    String parentNetworkRefId = getComponentIdMappers().getServiceNetworkIdMapper().getServiceNetworkIdMapper().apply(routedServices.getParentNetwork());
+    if(StringUtils.isNullOrBlank(parentNetworkRefId)) {
+      LOGGER.severe(String.format("Routed services' parent network has no ref id defined, assuming internally generated id %d as reference id instead, please verify this matches persisted parent network id",routedServices.getParentNetwork().getId()));
+      parentNetworkRefId = String.valueOf(routedServices.getParentNetwork().getId());
     }
-    xmlServiceLayers.setServicenetworkref(parentNetworkXmlId);
+    xmlServiceLayers.setServicenetworkref(parentNetworkRefId);
 
     LOGGER.info(String.format("Found %d routed services layers", routedServices.getLayers().size()));
     var xmlLayers = xmlServiceLayers.getServicelayer();
-    for(var layer : routedServices.getLayers()){
+    routedServices.getLayers().streamSortedBy(getPrimaryIdMapper().getRoutedServiceLayerIdMapper()).forEach(layer -> {
       var xmlLayer = new XMLElementRoutedServicesLayer();
 
-      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+layer.getXmlId());
+      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+ getPrimaryIdMapper().getRoutedServiceLayerIdMapper().apply(layer));
 
       populateXmlRoutedServiceLayer(xmlLayer, layer, routedServices);
       if(!xmlLayer.getServices().isEmpty()) {
         xmlLayers.add(xmlLayer);
       }
-    }
+    });
   }
 
   /**

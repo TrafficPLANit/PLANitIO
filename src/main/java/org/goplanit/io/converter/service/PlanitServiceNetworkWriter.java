@@ -18,6 +18,7 @@ import org.goplanit.utils.network.layer.service.*;
 import org.goplanit.xml.generated.*;
 
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -66,11 +67,11 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* physical parent link segments */
     if(!serviceLegSegment.hasPhysicalParentSegments()){
-      LOGGER.warning(String.format("IGNORED: Service leg segment %s has no physical link segments referenced", serviceLegSegment.getXmlId()));
+      LOGGER.warning(String.format("IGNORED: Service leg segment %s has no physical link segments referenced", xmlElementLegSegment.getId()));
       return;
     }
 
-    /* physical segments refs */
+    /* physical segments refs, do not sort as ordering represents chain of adjacent link segments */
     String csvPhysicalLegSegmentRefs = serviceLegSegment.getPhysicalParentSegments().stream().map(ls ->
             getComponentIdMappers().getNetworkIdMappers().getLinkSegmentIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
     xmlElementLegSegment.setLsrefs(csvPhysicalLegSegmentRefs);
@@ -122,10 +123,10 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* service leg */
     final List<XMLElementServiceLeg> xmlServiceLegList = xmlServiceLegs.getLeg();
-    for(var leg: legs) {
+    legs.streamSortedBy(getPrimaryIdMapper().getServiceLegIdMapper()).forEach( leg -> {
       leg.validate();
       populateXmlServiceLeg(xmlServiceLegList, leg);
-    }
+    });
   }
 
   /**
@@ -163,7 +164,8 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* node */
     final List<XMLElementServiceNodes.Servicenode> xmlServiceNodeList = xmlServiceNodes.getServicenode();
-    serviceNodes.forEach( serviceNode -> populateXmlServiceNode(xmlServiceNodeList, serviceNode));
+    serviceNodes.streamSortedBy(getPrimaryIdMapper().getServiceNodeIdMapper()).forEach( serviceNode ->
+        populateXmlServiceNode(xmlServiceNodeList, serviceNode));
   }
 
   /**
@@ -171,14 +173,14 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    *
    * @param serviceNetworkLayer to populate from
    * @param serviceNetwork to extract from
-   * @return populated new instance of service networklayer, may be null in case no PLANit modes are supported for example
+   * @return populated new instance of service network layer, may be null in case no PLANit modes are supported for example
    */
   protected XMLElementServiceNetworkLayer createAndPopulateXmlNetworkLayer(
           ServiceNetworkLayer serviceNetworkLayer, ServiceNetwork serviceNetwork) {
     XMLElementServiceNetworkLayer xmlServiceNetworkLayer = new XMLElementServiceNetworkLayer();
 
     /* XML id */
-    xmlServiceNetworkLayer.setId(serviceNetworkLayer.getXmlId());
+    xmlServiceNetworkLayer.setId(getPrimaryIdMapper().getServiceNetworkLayerIdMapper().apply(serviceNetworkLayer));
 
     /* External id */
     if(serviceNetworkLayer.hasExternalId()) {
@@ -192,13 +194,14 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     }
 
     /* parent layer reference */
-    if(!serviceNetworkLayer.getParentNetworkLayer().hasXmlId()){
-      throw new PlanItRunTimeException("Parent layer referenced by service network layer %s is required to have its XML id set, aborting", serviceNetworkLayer.getXmlId());
+    String parentLayerXmlId = getComponentIdMappers().getNetworkIdMappers().getNetworkLayerIdMapper().apply(serviceNetworkLayer.getParentNetworkLayer());
+    if(StringUtils.isNullOrBlank(parentLayerXmlId)){
+      throw new PlanItRunTimeException("Parent layer referenced by service network layer %s is required to have its (XML) id set, aborting", serviceNetworkLayer.getXmlId());
     }
-    xmlServiceNetworkLayer.setParentlayerref(serviceNetworkLayer.getParentNetworkLayer().getXmlId());
+    xmlServiceNetworkLayer.setParentlayerref(parentLayerXmlId);
 
     LOGGER.info(String.format("%s Supported modes : %s",
-        currLayerLogPrefix, serviceNetworkLayer.getSupportedModes().stream().map( m -> m.toString()).collect(Collectors.joining(","))));
+        currLayerLogPrefix, serviceNetworkLayer.getSupportedModes().stream().map( m -> m.toString()).sorted().collect(Collectors.joining(","))));
 
     /* service nodes */
     LOGGER.info(String.format("%s Service nodes : %d", currLayerLogPrefix, serviceNetworkLayer.getServiceNodes().size()));
@@ -222,21 +225,23 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
     var xmlServiceNetworkLayers = xmlRawServiceNetwork.getServicenetworklayer();
 
     LOGGER.info("Service network layers:" + serviceNetwork.getTransportLayers().size());
-    for(ServiceNetworkLayer serviceNetworkLayer : serviceNetwork.getTransportLayers()) {
+    serviceNetwork.getTransportLayers().streamSortedBy(getPrimaryIdMapper().getServiceNetworkLayerIdMapper()).forEach(serviceNetworkLayer -> {
 
       /* XML id */
-      if(serviceNetworkLayer.getXmlId() == null) {
+      String xmlId = getPrimaryIdMapper().getServiceNetworkLayerIdMapper().apply(serviceNetworkLayer);
+      if(StringUtils.isNullOrBlank(xmlId)) {
         LOGGER.warning(String.format("Service network layer has no XML id defined, adopting internally generated id %d instead", serviceNetworkLayer.getId()));
-        serviceNetworkLayer.setXmlId(String.valueOf(serviceNetworkLayer.getId()));
+        xmlId = String.valueOf(serviceNetworkLayer.getId());
+        serviceNetworkLayer.setXmlId(xmlId);
       }
-      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("sn-layer: "+serviceNetworkLayer.getXmlId());
+      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("sn-layer: " + xmlId);
 
 
       var xmlServiceNetworkLayer = createAndPopulateXmlNetworkLayer(serviceNetworkLayer, serviceNetwork);
       if(xmlServiceNetworkLayer != null) {
         xmlServiceNetworkLayers.add(xmlServiceNetworkLayer);
       }
-    }
+    });
   }
 
   /**
@@ -247,14 +252,16 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    */
   protected void populateTopLevelElement(ServiceNetwork serviceNetwork) {
     /* xml id */
-    if(!serviceNetwork.hasXmlId()) {
+    String xmlId = getPrimaryIdMapper().getServiceNetworkIdMapper().apply(serviceNetwork);
+    if(StringUtils.isNullOrBlank(xmlId)) {
       LOGGER.warning(String.format("Service network has no XML id defined, adopting internally generated id %d instead",serviceNetwork.getId()));
-      serviceNetwork.setXmlId(String.valueOf(serviceNetwork.getId()));
+      xmlId = String.valueOf(serviceNetwork.getId());
+      serviceNetwork.setXmlId(xmlId);
     }
-    xmlRawServiceNetwork.setId(serviceNetwork.getXmlId());
+    xmlRawServiceNetwork.setId(xmlId);
 
     /* parent id */
-    String parentNetworkXmlId = serviceNetwork.getParentNetwork().getXmlId();
+    String parentNetworkXmlId = getComponentIdMappers().getNetworkIdMappers().getNetworkIdMapper().apply(serviceNetwork.getParentNetwork());
     if(StringUtils.isNullOrBlank(parentNetworkXmlId)) {
       LOGGER.severe(String.format("Service network's parent network has no XML id defined, assuming internally generated id %d as reference id instead, please verify this matches persisted parent network id",serviceNetwork.getParentNetwork().getId()));
       parentNetworkXmlId = String.valueOf(serviceNetwork.getParentNetwork().getId());

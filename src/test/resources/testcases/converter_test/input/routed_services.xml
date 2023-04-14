@@ -170,382 +170,6 @@
                         </trip>
                     </trips>
                 </service>
-                <service id="2" externalid="23-613-X-sj2-1">
-                    <name>613X</name>
-                    <namedescription>City QVB to Bella Vista (Express Service)</namedescription>
-                    <trips>
-                        <trip id="4" externalid="1478695,1478696,1478697,1478704,1478716,1478722,1478753,1478763,1478768,1478769,1478791">
-                            <schedule>
-<departures>
-    <departure id="125" time="06:00:00"/>
-    <departure id="123" time="06:10:00"/>
-    <departure id="124" time="06:30:00"/>
-    <departure id="122" time="06:45:00"/>
-    <departure id="126" time="07:00:00"/>
-    <departure id="127" time="07:15:00"/>
-    <departure id="118" time="07:30:00"/>
-    <departure id="119" time="07:45:00"/>
-    <departure id="120" time="08:00:00"/>
-    <departure id="128" time="08:20:00"/>
-    <departure id="121" time="08:40:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="12900" duration="00:04:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="3" externalid="23-614-X-sj2-1">
-                    <name>614X</name>
-                    <namedescription>City QVB to Crestwood Reserve (Express Service)</namedescription>
-                    <trips>
-                        <trip id="5" externalid="1474303,1473792,1473793,1473882,1473912,1473914,1473941,1473976,1474166,1474316,1474318,1474319,1474320,1474321,1474326,1474345">
-                            <schedule>
-<departures>
-    <departure id="144" time="06:00:00"/>
-    <departure id="129" time="06:12:00"/>
-    <departure id="143" time="06:15:00"/>
-    <departure id="135" time="06:30:00"/>
-    <departure id="136" time="06:40:00"/>
-    <departure id="132" time="06:50:00"/>
-    <departure id="133" time="07:00:00"/>
-    <departure id="130" time="07:10:00"/>
-    <departure id="131" time="07:20:00"/>
-    <departure id="139" time="07:30:00"/>
-    <departure id="140" time="07:40:00"/>
-    <departure id="141" time="07:50:00"/>
-    <departure id="142" time="08:00:00"/>
-    <departure id="138" time="08:10:00"/>
-    <departure id="137" time="08:25:00"/>
-    <departure id="134" time="08:45:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="12900" duration="00:04:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="4" externalid="23-615-X-sj2-1">
-                    <name>615X</name>
-                    <namedescription>City QVB to Kellyville and North Kellyville (Express Service)</namedescription>
-                    <trips>
-                        <trip id="6" externalid="1524802,1539388,1539389,1539390,1539483,1539484,1539486,1539487,1524545,1524546,1524587,1524589,1524590,1524591,1524605,1524660,1524662,1524671,1524672,1524673,1524730,1524789">
-                            <schedule>
-<departures>
-    <departure id="151" time="06:00:00"/>
-    <departure id="158" time="06:05:00"/>
-    <departure id="146" time="06:07:00"/>
-    <departure id="161" time="06:15:00"/>
-    <departure id="145" time="06:19:00"/>
-    <departure id="160" time="06:25:00"/>
-    <departure id="166" time="06:30:00"/>
-    <departure id="156" time="06:35:00"/>
-    <departure id="150" time="06:36:00"/>
-    <departure id="157" time="06:40:00"/>
-    <departure id="165" time="06:45:00"/>
-    <departure id="162" time="06:55:00"/>
-    <departure id="163" time="07:00:00"/>
-    <departure id="152" time="07:04:00"/>
-    <departure id="164" time="07:10:00"/>
-    <departure id="147" time="07:29:00"/>
-    <departure id="153" time="07:30:00"/>
-    <departure id="154" time="07:40:00"/>
-    <departure id="148" time="07:52:00"/>
-    <departure id="155" time="08:00:00"/>
-    <departure id="149" time="08:25:00"/>
-    <departure id="159" time="08:30:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="12900" duration="00:04:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="5" externalid="23-616-X-sj2-1">
-                    <name>616X</name>
-                    <namedescription>City QVB to Kellyville Ridge (Express Service)</namedescription>
-                    <trips>
-                        <trip id="7" externalid="1473885,1473888,1473898,1473904,1473974,1473975,1474028,1474034,1474217,1474218,1474245,1474246,1474247,1474248,1474249,1474250,1474251,1474252,1474253,1474258,1474259,1474260,1474309,1474340,1474343,1474359">
-                            <schedule>
-<departures>
-    <departure id="173" time="06:00:00"/>
-    <departure id="172" time="06:06:00"/>
-    <departure id="169" time="06:13:00"/>
-    <departure id="167" time="06:19:00"/>
-    <departure id="174" time="06:20:00"/>
-    <departure id="189" time="06:28:00"/>
-    <departure id="171" time="06:35:00"/>
-    <departure id="191" time="06:43:00"/>
-    <departure id="168" time="06:50:00"/>
-    <departure id="186" time="06:55:00"/>
-    <departure id="187" time="07:00:00"/>
-    <departure id="188" time="07:05:00"/>
-    <departure id="177" time="07:10:00"/>
-    <departure id="178" time="07:15:00"/>
-    <departure id="179" time="07:20:00"/>
-    <departure id="180" time="07:25:00"/>
-    <departure id="181" time="07:30:00"/>
-    <departure id="182" time="07:35:00"/>
-    <departure id="183" time="07:40:00"/>
-    <departure id="184" time="07:45:00"/>
-    <departure id="185" time="07:50:00"/>
-    <departure id="170" time="07:55:00"/>
-    <departure id="175" time="08:05:00"/>
-    <departure id="176" time="08:15:00"/>
-    <departure id="192" time="08:30:00"/>
-    <departure id="190" time="08:45:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="12900" duration="00:04:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="6" externalid="23-620-X-sj2-1">
-                    <name>620X</name>
-                    <namedescription>City Wynyard to Dural via Cherrybrook (Express Service)</namedescription>
-                    <trips>
-                        <trip id="8" externalid="1477035,1476969,1476976,1476977,1476978,1476984,1477006,1477007,1477008,1477009,1477010,1477011,1477012,1477020,1477025,1477027,1476980,1477016,1476991,1477005,1477015,1477018,1477026,1477038">
-                            <schedule>
-<departures>
-    <departure id="194" time="06:00:00"/>
-    <departure id="205" time="06:10:00"/>
-    <departure id="193" time="06:15:00"/>
-    <departure id="207" time="06:20:00"/>
-    <departure id="206" time="06:30:00"/>
-    <departure id="198" time="06:40:00"/>
-    <departure id="199" time="06:50:00"/>
-    <departure id="200" time="07:00:00"/>
-    <departure id="201" time="07:05:00"/>
-    <departure id="202" time="07:10:00"/>
-    <departure id="203" time="07:15:00"/>
-    <departure id="204" time="07:20:00"/>
-    <departure id="195" time="07:25:00"/>
-    <departure id="196" time="07:30:00"/>
-    <departure id="197" time="07:40:00"/>
-    <departure id="209" time="07:55:00"/>
-    <departure id="214" time="08:10:00"/>
-    <departure id="208" time="08:15:00"/>
-    <departure id="210" time="08:35:00"/>
-    <departure id="211" time="08:50:00"/>
-    <departure id="212" time="09:05:00"/>
-    <departure id="213" time="09:20:00"/>
-    <departure id="215" time="09:35:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="10679" duration="00:01:00"/>
-    <leg lsref="10680" duration="00:03:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="7" externalid="23-642-X-sj2-1">
-                    <name>642X</name>
-                    <namedescription>City Wynyard to Dural via Lane Cove Tunnel (Express Service)</namedescription>
-                    <trips>
-                        <trip id="9" externalid="1474030,1474292,1473789,1473833,1473834,1473837,1473866,1473907,1473917,1473929,1473930,1473931,1473932,1473933,1473934,1474025,1474059,1474147,1474242,1474362">
-                            <schedule>
-<departures>
-    <departure id="221" time="06:00:00"/>
-    <departure id="217" time="06:02:00"/>
-    <departure id="218" time="06:10:00"/>
-    <departure id="224" time="06:20:00"/>
-    <departure id="216" time="06:26:00"/>
-    <departure id="231" time="06:30:00"/>
-    <departure id="232" time="06:40:00"/>
-    <departure id="235" time="06:50:00"/>
-    <departure id="219" time="07:00:00"/>
-    <departure id="220" time="07:08:00"/>
-    <departure id="225" time="07:15:00"/>
-    <departure id="226" time="07:23:00"/>
-    <departure id="227" time="07:30:00"/>
-    <departure id="228" time="07:38:00"/>
-    <departure id="229" time="07:45:00"/>
-    <departure id="230" time="07:53:00"/>
-    <departure id="234" time="08:05:00"/>
-    <departure id="222" time="08:25:00"/>
-    <departure id="223" time="08:45:00"/>
-    <departure id="233" time="09:05:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="10679" duration="00:01:00"/>
-    <leg lsref="10680" duration="00:03:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="8" externalid="23-652-X-sj2-1">
-                    <name>652X</name>
-                    <namedescription>City Wynyard to West Pennant Hills (Express Service)</namedescription>
-                    <trips>
-                        <trip id="10" externalid="1474297,1473905,1473906,1474032,1474039,1474040,1474041,1474042,1474195,1474196,1474197,1474265,1474295,1474355,1474380,1474381">
-                            <schedule>
-<departures>
-    <departure id="250" time="06:00:00"/>
-    <departure id="248" time="06:12:00"/>
-    <departure id="236" time="06:23:00"/>
-    <departure id="249" time="06:27:00"/>
-    <departure id="238" time="06:42:00"/>
-    <departure id="244" time="06:57:00"/>
-    <departure id="245" time="07:07:00"/>
-    <departure id="246" time="07:17:00"/>
-    <departure id="240" time="07:27:00"/>
-    <departure id="241" time="07:37:00"/>
-    <departure id="242" time="07:47:00"/>
-    <departure id="243" time="07:57:00"/>
-    <departure id="237" time="08:12:00"/>
-    <departure id="251" time="08:27:00"/>
-    <departure id="247" time="08:42:00"/>
-    <departure id="239" time="09:02:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="10679" duration="00:01:00"/>
-    <leg lsref="10680" duration="00:03:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
-                <service id="9" externalid="27-120-sj2-1">
-                    <name>120</name>
-                    <namedescription>Chatswood to City QVB (Loop Service)</namedescription>
-                    <trips>
-                        <trip id="11" externalid="1549177,1549187,1549193,1549194,1549217,1549218,1549219,1549220,1549251,1549252,1549257,1549284,1549285,1549303,1555697">
-                            <schedule>
-<departures>
-    <departure id="266" time="07:11:00"/>
-    <departure id="256" time="07:19:00"/>
-    <departure id="257" time="07:29:00"/>
-    <departure id="258" time="07:38:00"/>
-    <departure id="265" time="07:47:00"/>
-    <departure id="253" time="07:55:00"/>
-    <departure id="260" time="08:04:00"/>
-    <departure id="252" time="08:09:00"/>
-    <departure id="263" time="08:11:00"/>
-    <departure id="264" time="08:23:00"/>
-    <departure id="261" time="08:33:00"/>
-    <departure id="262" time="08:43:00"/>
-    <departure id="259" time="08:53:00"/>
-    <departure id="254" time="09:03:00"/>
-    <departure id="255" time="09:12:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="14863" duration="00:01:00"/>
-    <leg lsref="14864" duration="00:05:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                        <trip id="12" externalid="1535384,1549180,1549182,1549186,1549201,1549206,1549207,1549208,1549209,1549210,1549225,1549250,1549260,1549263,1549267,1549302,1549305">
-                            <schedule>
-<departures>
-    <departure id="267" time="06:00:00"/>
-    <departure id="268" time="06:11:00"/>
-    <departure id="275" time="06:21:00"/>
-    <departure id="280" time="06:31:00"/>
-    <departure id="277" time="06:40:00"/>
-    <departure id="270" time="06:48:00"/>
-    <departure id="279" time="06:56:00"/>
-    <departure id="271" time="07:05:00"/>
-    <departure id="281" time="07:13:00"/>
-    <departure id="278" time="08:56:00"/>
-    <departure id="282" time="09:06:00"/>
-    <departure id="269" time="09:17:00"/>
-    <departure id="272" time="09:28:00"/>
-    <departure id="273" time="09:38:00"/>
-    <departure id="274" time="09:48:00"/>
-    <departure id="276" time="09:59:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="14866" duration="00:02:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                        <trip id="13" externalid="1549179,1549181,1549186,1549206,1549212,1549215,1549258,1549259,1549260,1549261,1549262,1549263,1549264,1549265,1549302,1549305">
-                            <schedule>
-<departures>
-    <departure id="285" time="06:48:00"/>
-    <departure id="294" time="06:56:00"/>
-    <departure id="286" time="07:05:00"/>
-    <departure id="297" time="07:13:00"/>
-    <departure id="287" time="07:22:00"/>
-    <departure id="292" time="07:31:00"/>
-    <departure id="283" time="07:39:00"/>
-    <departure id="289" time="07:47:00"/>
-    <departure id="295" time="07:56:00"/>
-    <departure id="296" time="08:06:00"/>
-    <departure id="290" time="08:16:00"/>
-    <departure id="288" time="08:26:00"/>
-    <departure id="284" time="08:36:00"/>
-    <departure id="293" time="08:46:00"/>
-    <departure id="291" time="08:56:00"/>
-    <departure id="298" time="09:06:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="14863" duration="00:01:00"/>
-    <leg lsref="14864" duration="00:05:00"/>
-    <leg lsref="14868" duration="00:02:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                        <trip id="14" externalid="1549179,1549181,1549212,1549215,1549258,1549259,1549261,1549262,1549264,1549265">
-                            <schedule>
-<departures>
-    <departure id="301" time="07:22:00"/>
-    <departure id="305" time="07:31:00"/>
-    <departure id="299" time="07:39:00"/>
-    <departure id="303" time="07:47:00"/>
-    <departure id="307" time="07:56:00"/>
-    <departure id="308" time="08:06:00"/>
-    <departure id="304" time="08:16:00"/>
-    <departure id="302" time="08:26:00"/>
-    <departure id="300" time="08:36:00"/>
-    <departure id="306" time="08:46:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="14866" duration="00:03:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                        <trip id="15" externalid="1549180,1549201,1549210,1549267">
-                            <schedule>
-<departures>
-    <departure id="310" time="06:00:00"/>
-    <departure id="309" time="06:11:00"/>
-    <departure id="311" time="06:21:00"/>
-    <departure id="312" time="06:31:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="14863" duration="00:00:00"/>
-    <leg lsref="14864" duration="00:04:00"/>
-    <leg lsref="14868" duration="00:02:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                        <trip id="16" externalid="1549182,1549207,1549208,1549209,1549225,1549250">
-                            <schedule>
-<departures>
-    <departure id="318" time="06:40:00"/>
-    <departure id="313" time="09:17:00"/>
-    <departure id="314" time="09:28:00"/>
-    <departure id="315" time="09:38:00"/>
-    <departure id="316" time="09:48:00"/>
-    <departure id="317" time="09:59:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="14863" duration="00:00:00"/>
-    <leg lsref="14864" duration="00:05:00"/>
-    <leg lsref="14868" duration="00:02:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                    </trips>
-                </service>
                 <service id="10" externalid="27-252-sj2-1">
                     <name>252</name>
                     <namedescription>City King Street Wharf to Gladesville via North Sydney</namedescription>
@@ -1623,6 +1247,32 @@
                         </trip>
                     </trips>
                 </service>
+                <service id="2" externalid="23-613-X-sj2-1">
+                    <name>613X</name>
+                    <namedescription>City QVB to Bella Vista (Express Service)</namedescription>
+                    <trips>
+                        <trip id="4" externalid="1478695,1478696,1478697,1478704,1478716,1478722,1478753,1478763,1478768,1478769,1478791">
+                            <schedule>
+<departures>
+    <departure id="125" time="06:00:00"/>
+    <departure id="123" time="06:10:00"/>
+    <departure id="124" time="06:30:00"/>
+    <departure id="122" time="06:45:00"/>
+    <departure id="126" time="07:00:00"/>
+    <departure id="127" time="07:15:00"/>
+    <departure id="118" time="07:30:00"/>
+    <departure id="119" time="07:45:00"/>
+    <departure id="120" time="08:00:00"/>
+    <departure id="128" time="08:20:00"/>
+    <departure id="121" time="08:40:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="12900" duration="00:04:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
                 <service id="20" externalid="30-324-X-sj2-1">
                     <name>324X</name>
                     <namedescription>Vaucluse to City Wynyard (Express Service)</namedescription>
@@ -1772,6 +1422,21 @@
                     <name>333</name>
                     <namedescription>City Circular Quay to North Bondi via Bondi Junction</namedescription>
                     <trips>
+                        <trip id="100" externalid="1603456,1603931,1658173,1658174">
+                            <schedule>
+<departures>
+    <departure id="814" time="06:58:00"/>
+    <departure id="815" time="07:04:00"/>
+    <departure id="812" time="07:06:00"/>
+    <departure id="813" time="07:12:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="19579" duration="00:04:00"/>
+    <leg lsref="19547" duration="00:02:00"/>
+    <leg lsref="20137" duration="00:01:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
                         <trip id="92" externalid="1658241,1658183,1658184,1658185,1658186,1658187,1658188,1658189,1658190,1658191,1658192,1658193,1658194,1658195,1658322,1658403,1658674,1658448,1658449,1658450,1658451,1658452,1658453,1658677,1658678,1658460,1658741,1658766,1658767,1658805,1658806">
                             <schedule>
 <departures>
@@ -1967,21 +1632,6 @@
 </departures>
 <reltimings dwelltime="00:00:00">
     <leg lsref="19579" duration="00:03:00"/>
-    <leg lsref="19547" duration="00:02:00"/>
-    <leg lsref="20137" duration="00:01:00"/>
-</reltimings>
-                            </schedule>
-                        </trip>
-                        <trip id="100" externalid="1603456,1603931,1658173,1658174">
-                            <schedule>
-<departures>
-    <departure id="814" time="06:58:00"/>
-    <departure id="815" time="07:04:00"/>
-    <departure id="812" time="07:06:00"/>
-    <departure id="813" time="07:12:00"/>
-</departures>
-<reltimings dwelltime="00:00:00">
-    <leg lsref="19579" duration="00:04:00"/>
     <leg lsref="19547" duration="00:02:00"/>
     <leg lsref="20137" duration="00:01:00"/>
 </reltimings>
@@ -2407,6 +2057,37 @@
 <reltimings dwelltime="00:00:00">
     <leg lsref="20161" duration="00:01:00"/>
     <leg lsref="20162" duration="00:02:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
+                <service id="3" externalid="23-614-X-sj2-1">
+                    <name>614X</name>
+                    <namedescription>City QVB to Crestwood Reserve (Express Service)</namedescription>
+                    <trips>
+                        <trip id="5" externalid="1474303,1473792,1473793,1473882,1473912,1473914,1473941,1473976,1474166,1474316,1474318,1474319,1474320,1474321,1474326,1474345">
+                            <schedule>
+<departures>
+    <departure id="144" time="06:00:00"/>
+    <departure id="129" time="06:12:00"/>
+    <departure id="143" time="06:15:00"/>
+    <departure id="135" time="06:30:00"/>
+    <departure id="136" time="06:40:00"/>
+    <departure id="132" time="06:50:00"/>
+    <departure id="133" time="07:00:00"/>
+    <departure id="130" time="07:10:00"/>
+    <departure id="131" time="07:20:00"/>
+    <departure id="139" time="07:30:00"/>
+    <departure id="140" time="07:40:00"/>
+    <departure id="141" time="07:50:00"/>
+    <departure id="142" time="08:00:00"/>
+    <departure id="138" time="08:10:00"/>
+    <departure id="137" time="08:25:00"/>
+    <departure id="134" time="08:45:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="12900" duration="00:04:00"/>
 </reltimings>
                             </schedule>
                         </trip>
@@ -2862,6 +2543,43 @@
 </departures>
 <reltimings dwelltime="00:00:00">
     <leg lsref="27958" duration="00:05:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
+                <service id="4" externalid="23-615-X-sj2-1">
+                    <name>615X</name>
+                    <namedescription>City QVB to Kellyville and North Kellyville (Express Service)</namedescription>
+                    <trips>
+                        <trip id="6" externalid="1524802,1539388,1539389,1539390,1539483,1539484,1539486,1539487,1524545,1524546,1524587,1524589,1524590,1524591,1524605,1524660,1524662,1524671,1524672,1524673,1524730,1524789">
+                            <schedule>
+<departures>
+    <departure id="151" time="06:00:00"/>
+    <departure id="158" time="06:05:00"/>
+    <departure id="146" time="06:07:00"/>
+    <departure id="161" time="06:15:00"/>
+    <departure id="145" time="06:19:00"/>
+    <departure id="160" time="06:25:00"/>
+    <departure id="166" time="06:30:00"/>
+    <departure id="156" time="06:35:00"/>
+    <departure id="150" time="06:36:00"/>
+    <departure id="157" time="06:40:00"/>
+    <departure id="165" time="06:45:00"/>
+    <departure id="162" time="06:55:00"/>
+    <departure id="163" time="07:00:00"/>
+    <departure id="152" time="07:04:00"/>
+    <departure id="164" time="07:10:00"/>
+    <departure id="147" time="07:29:00"/>
+    <departure id="153" time="07:30:00"/>
+    <departure id="154" time="07:40:00"/>
+    <departure id="148" time="07:52:00"/>
+    <departure id="155" time="08:00:00"/>
+    <departure id="149" time="08:25:00"/>
+    <departure id="159" time="08:30:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="12900" duration="00:04:00"/>
 </reltimings>
                             </schedule>
                         </trip>
@@ -3621,6 +3339,47 @@
                         </trip>
                     </trips>
                 </service>
+                <service id="5" externalid="23-616-X-sj2-1">
+                    <name>616X</name>
+                    <namedescription>City QVB to Kellyville Ridge (Express Service)</namedescription>
+                    <trips>
+                        <trip id="7" externalid="1473885,1473888,1473898,1473904,1473974,1473975,1474028,1474034,1474217,1474218,1474245,1474246,1474247,1474248,1474249,1474250,1474251,1474252,1474253,1474258,1474259,1474260,1474309,1474340,1474343,1474359">
+                            <schedule>
+<departures>
+    <departure id="173" time="06:00:00"/>
+    <departure id="172" time="06:06:00"/>
+    <departure id="169" time="06:13:00"/>
+    <departure id="167" time="06:19:00"/>
+    <departure id="174" time="06:20:00"/>
+    <departure id="189" time="06:28:00"/>
+    <departure id="171" time="06:35:00"/>
+    <departure id="191" time="06:43:00"/>
+    <departure id="168" time="06:50:00"/>
+    <departure id="186" time="06:55:00"/>
+    <departure id="187" time="07:00:00"/>
+    <departure id="188" time="07:05:00"/>
+    <departure id="177" time="07:10:00"/>
+    <departure id="178" time="07:15:00"/>
+    <departure id="179" time="07:20:00"/>
+    <departure id="180" time="07:25:00"/>
+    <departure id="181" time="07:30:00"/>
+    <departure id="182" time="07:35:00"/>
+    <departure id="183" time="07:40:00"/>
+    <departure id="184" time="07:45:00"/>
+    <departure id="185" time="07:50:00"/>
+    <departure id="170" time="07:55:00"/>
+    <departure id="175" time="08:05:00"/>
+    <departure id="176" time="08:15:00"/>
+    <departure id="192" time="08:30:00"/>
+    <departure id="190" time="08:45:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="12900" duration="00:04:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
                 <service id="50" externalid="74-438-X-sj2-1">
                     <name>438X</name>
                     <namedescription>City Martin Place to Abbotsford</namedescription>
@@ -3958,6 +3717,247 @@
 </departures>
 <reltimings dwelltime="00:00:00">
     <leg lsref="19579" duration="00:04:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
+                <service id="6" externalid="23-620-X-sj2-1">
+                    <name>620X</name>
+                    <namedescription>City Wynyard to Dural via Cherrybrook (Express Service)</namedescription>
+                    <trips>
+                        <trip id="8" externalid="1477035,1476969,1476976,1476977,1476978,1476984,1477006,1477007,1477008,1477009,1477010,1477011,1477012,1477020,1477025,1477027,1476980,1477016,1476991,1477005,1477015,1477018,1477026,1477038">
+                            <schedule>
+<departures>
+    <departure id="194" time="06:00:00"/>
+    <departure id="205" time="06:10:00"/>
+    <departure id="193" time="06:15:00"/>
+    <departure id="207" time="06:20:00"/>
+    <departure id="206" time="06:30:00"/>
+    <departure id="198" time="06:40:00"/>
+    <departure id="199" time="06:50:00"/>
+    <departure id="200" time="07:00:00"/>
+    <departure id="201" time="07:05:00"/>
+    <departure id="202" time="07:10:00"/>
+    <departure id="203" time="07:15:00"/>
+    <departure id="204" time="07:20:00"/>
+    <departure id="195" time="07:25:00"/>
+    <departure id="196" time="07:30:00"/>
+    <departure id="197" time="07:40:00"/>
+    <departure id="209" time="07:55:00"/>
+    <departure id="214" time="08:10:00"/>
+    <departure id="208" time="08:15:00"/>
+    <departure id="210" time="08:35:00"/>
+    <departure id="211" time="08:50:00"/>
+    <departure id="212" time="09:05:00"/>
+    <departure id="213" time="09:20:00"/>
+    <departure id="215" time="09:35:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="10679" duration="00:01:00"/>
+    <leg lsref="10680" duration="00:03:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
+                <service id="7" externalid="23-642-X-sj2-1">
+                    <name>642X</name>
+                    <namedescription>City Wynyard to Dural via Lane Cove Tunnel (Express Service)</namedescription>
+                    <trips>
+                        <trip id="9" externalid="1474030,1474292,1473789,1473833,1473834,1473837,1473866,1473907,1473917,1473929,1473930,1473931,1473932,1473933,1473934,1474025,1474059,1474147,1474242,1474362">
+                            <schedule>
+<departures>
+    <departure id="221" time="06:00:00"/>
+    <departure id="217" time="06:02:00"/>
+    <departure id="218" time="06:10:00"/>
+    <departure id="224" time="06:20:00"/>
+    <departure id="216" time="06:26:00"/>
+    <departure id="231" time="06:30:00"/>
+    <departure id="232" time="06:40:00"/>
+    <departure id="235" time="06:50:00"/>
+    <departure id="219" time="07:00:00"/>
+    <departure id="220" time="07:08:00"/>
+    <departure id="225" time="07:15:00"/>
+    <departure id="226" time="07:23:00"/>
+    <departure id="227" time="07:30:00"/>
+    <departure id="228" time="07:38:00"/>
+    <departure id="229" time="07:45:00"/>
+    <departure id="230" time="07:53:00"/>
+    <departure id="234" time="08:05:00"/>
+    <departure id="222" time="08:25:00"/>
+    <departure id="223" time="08:45:00"/>
+    <departure id="233" time="09:05:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="10679" duration="00:01:00"/>
+    <leg lsref="10680" duration="00:03:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
+                <service id="8" externalid="23-652-X-sj2-1">
+                    <name>652X</name>
+                    <namedescription>City Wynyard to West Pennant Hills (Express Service)</namedescription>
+                    <trips>
+                        <trip id="10" externalid="1474297,1473905,1473906,1474032,1474039,1474040,1474041,1474042,1474195,1474196,1474197,1474265,1474295,1474355,1474380,1474381">
+                            <schedule>
+<departures>
+    <departure id="250" time="06:00:00"/>
+    <departure id="248" time="06:12:00"/>
+    <departure id="236" time="06:23:00"/>
+    <departure id="249" time="06:27:00"/>
+    <departure id="238" time="06:42:00"/>
+    <departure id="244" time="06:57:00"/>
+    <departure id="245" time="07:07:00"/>
+    <departure id="246" time="07:17:00"/>
+    <departure id="240" time="07:27:00"/>
+    <departure id="241" time="07:37:00"/>
+    <departure id="242" time="07:47:00"/>
+    <departure id="243" time="07:57:00"/>
+    <departure id="237" time="08:12:00"/>
+    <departure id="251" time="08:27:00"/>
+    <departure id="247" time="08:42:00"/>
+    <departure id="239" time="09:02:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="10679" duration="00:01:00"/>
+    <leg lsref="10680" duration="00:03:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                    </trips>
+                </service>
+                <service id="9" externalid="27-120-sj2-1">
+                    <name>120</name>
+                    <namedescription>Chatswood to City QVB (Loop Service)</namedescription>
+                    <trips>
+                        <trip id="11" externalid="1549177,1549187,1549193,1549194,1549217,1549218,1549219,1549220,1549251,1549252,1549257,1549284,1549285,1549303,1555697">
+                            <schedule>
+<departures>
+    <departure id="266" time="07:11:00"/>
+    <departure id="256" time="07:19:00"/>
+    <departure id="257" time="07:29:00"/>
+    <departure id="258" time="07:38:00"/>
+    <departure id="265" time="07:47:00"/>
+    <departure id="253" time="07:55:00"/>
+    <departure id="260" time="08:04:00"/>
+    <departure id="252" time="08:09:00"/>
+    <departure id="263" time="08:11:00"/>
+    <departure id="264" time="08:23:00"/>
+    <departure id="261" time="08:33:00"/>
+    <departure id="262" time="08:43:00"/>
+    <departure id="259" time="08:53:00"/>
+    <departure id="254" time="09:03:00"/>
+    <departure id="255" time="09:12:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="14863" duration="00:01:00"/>
+    <leg lsref="14864" duration="00:05:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                        <trip id="12" externalid="1535384,1549180,1549182,1549186,1549201,1549206,1549207,1549208,1549209,1549210,1549225,1549250,1549260,1549263,1549267,1549302,1549305">
+                            <schedule>
+<departures>
+    <departure id="267" time="06:00:00"/>
+    <departure id="268" time="06:11:00"/>
+    <departure id="275" time="06:21:00"/>
+    <departure id="280" time="06:31:00"/>
+    <departure id="277" time="06:40:00"/>
+    <departure id="270" time="06:48:00"/>
+    <departure id="279" time="06:56:00"/>
+    <departure id="271" time="07:05:00"/>
+    <departure id="281" time="07:13:00"/>
+    <departure id="278" time="08:56:00"/>
+    <departure id="282" time="09:06:00"/>
+    <departure id="269" time="09:17:00"/>
+    <departure id="272" time="09:28:00"/>
+    <departure id="273" time="09:38:00"/>
+    <departure id="274" time="09:48:00"/>
+    <departure id="276" time="09:59:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="14866" duration="00:02:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                        <trip id="13" externalid="1549179,1549181,1549186,1549206,1549212,1549215,1549258,1549259,1549260,1549261,1549262,1549263,1549264,1549265,1549302,1549305">
+                            <schedule>
+<departures>
+    <departure id="285" time="06:48:00"/>
+    <departure id="294" time="06:56:00"/>
+    <departure id="286" time="07:05:00"/>
+    <departure id="297" time="07:13:00"/>
+    <departure id="287" time="07:22:00"/>
+    <departure id="292" time="07:31:00"/>
+    <departure id="283" time="07:39:00"/>
+    <departure id="289" time="07:47:00"/>
+    <departure id="295" time="07:56:00"/>
+    <departure id="296" time="08:06:00"/>
+    <departure id="290" time="08:16:00"/>
+    <departure id="288" time="08:26:00"/>
+    <departure id="284" time="08:36:00"/>
+    <departure id="293" time="08:46:00"/>
+    <departure id="291" time="08:56:00"/>
+    <departure id="298" time="09:06:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="14863" duration="00:01:00"/>
+    <leg lsref="14864" duration="00:05:00"/>
+    <leg lsref="14868" duration="00:02:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                        <trip id="14" externalid="1549179,1549181,1549212,1549215,1549258,1549259,1549261,1549262,1549264,1549265">
+                            <schedule>
+<departures>
+    <departure id="301" time="07:22:00"/>
+    <departure id="305" time="07:31:00"/>
+    <departure id="299" time="07:39:00"/>
+    <departure id="303" time="07:47:00"/>
+    <departure id="307" time="07:56:00"/>
+    <departure id="308" time="08:06:00"/>
+    <departure id="304" time="08:16:00"/>
+    <departure id="302" time="08:26:00"/>
+    <departure id="300" time="08:36:00"/>
+    <departure id="306" time="08:46:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="14866" duration="00:03:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                        <trip id="15" externalid="1549180,1549201,1549210,1549267">
+                            <schedule>
+<departures>
+    <departure id="310" time="06:00:00"/>
+    <departure id="309" time="06:11:00"/>
+    <departure id="311" time="06:21:00"/>
+    <departure id="312" time="06:31:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="14863" duration="00:00:00"/>
+    <leg lsref="14864" duration="00:04:00"/>
+    <leg lsref="14868" duration="00:02:00"/>
+</reltimings>
+                            </schedule>
+                        </trip>
+                        <trip id="16" externalid="1549182,1549207,1549208,1549209,1549225,1549250">
+                            <schedule>
+<departures>
+    <departure id="318" time="06:40:00"/>
+    <departure id="313" time="09:17:00"/>
+    <departure id="314" time="09:28:00"/>
+    <departure id="315" time="09:38:00"/>
+    <departure id="316" time="09:48:00"/>
+    <departure id="317" time="09:59:00"/>
+</departures>
+<reltimings dwelltime="00:00:00">
+    <leg lsref="14863" duration="00:00:00"/>
+    <leg lsref="14864" duration="00:05:00"/>
+    <leg lsref="14868" duration="00:02:00"/>
 </reltimings>
                             </schedule>
                         </trip>

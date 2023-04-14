@@ -3,10 +3,7 @@ package org.goplanit.io.converter.demands;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.idmapping.DemandsIdMapper;
@@ -17,8 +14,10 @@ import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.od.demand.OdDemands;
+import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.xml.generated.Durationunit;
@@ -55,9 +54,8 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
    * 
    * @param demands to populate XML with
    * @param xmlDemandConfiguration to use
-   * @throws PlanItException thrown if error
    */  
-  private void populateXmlTimePeriods(Demands demands, final XMLElementDemandConfiguration xmlDemandConfiguration) throws PlanItException {
+  private void populateXmlTimePeriods(Demands demands, final XMLElementDemandConfiguration xmlDemandConfiguration) {
     if(demands.timePeriods== null || demands.timePeriods.isEmpty()) {
       LOGGER.severe("No time periods available on demands, this shouldn't happen");
       return;
@@ -65,7 +63,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
         
     var xmlTimePeriods = new XMLElementTimePeriods();
     xmlDemandConfiguration.setTimeperiods(xmlTimePeriods );
-    for(var timePeriod : demands.timePeriods) {
+    demands.timePeriods.streamSortedBy(getPrimaryIdMapper().getTimePeriodIdMapper()).forEach(timePeriod -> {
       var xmlTimePeriod = new XMLElementTimePeriods.Timeperiod();
       xmlTimePeriods.getTimeperiod().add(xmlTimePeriod);
       
@@ -88,19 +86,19 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
           xmlTimePeriod.setStarttime(LocalTime.ofSecondOfDay(timePeriod.getStartTimeSeconds()));
         } catch (Exception e) {
           LOGGER.severe(e.getMessage());
-          throw new PlanItException("Error when generating start time of time period "+ timePeriod.getXmlId()+" when persisting demand configuration",e);
+          throw new PlanItRunTimeException("Error when generating start time of time period "+ timePeriod.getXmlId()+" when persisting demand configuration",e);
         }  
       }      
                 
       /* duration */
       if(timePeriod.getDurationSeconds()<=0) {
-        throw new PlanItException("Error duration of time period %s  is not positive, this is not allowed", timePeriod.getXmlId());
+        throw new PlanItRunTimeException("Error duration of time period %s  is not positive, this is not allowed", timePeriod.getXmlId());
       }
       var xmlDuration = new XMLElementDuration();
       xmlDuration.setUnit(Durationunit.S); // TODO: ideally we keep the original unit so input and output files are consistent
       xmlDuration.setValue(BigInteger.valueOf(timePeriod.getDurationSeconds()));
       xmlTimePeriod.setDuration(xmlDuration);           
-    }
+    });
   }
 
   /** Populate the demands configuration's user class
@@ -116,7 +114,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     
     var xmlUserClasses = new XMLElementUserClasses();
     xmlDemandConfiguration.setUserclasses(xmlUserClasses);
-    for(var userClass : demands.userClasses) {
+    demands.userClasses.streamSortedBy(getPrimaryIdMapper().getUserClassIdMapper()).forEach( userClass -> {
       var xmlUserClass = new XMLElementUserClasses.Userclass();
       xmlUserClasses.getUserclass().add(xmlUserClass);
       
@@ -151,7 +149,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       if(userClass.hasName()) {
         xmlUserClass.setName(userClass.getName());
       }      
-    }
+    });
   }
 
   /** Populate the demands configuration's traveller types
@@ -167,7 +165,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     
     var xmlTravellerTypes = new XMLElementTravellerTypes();
     xmlDemandConfiguration.setTravellertypes(xmlTravellerTypes );
-    for(var travellerType : demands.travelerTypes) {
+    demands.travelerTypes.streamSortedBy(getPrimaryIdMapper().getTravellerTypeIdMapper()).forEach(travellerType -> {
       var xmlTravellerType = new XMLElementTravellerTypes.Travellertype();
       xmlTravellerTypes.getTravellertype().add(xmlTravellerType);
       
@@ -183,7 +181,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       if(travellerType.hasName()) {
         xmlTravellerType.setName(travellerType.getName());
       }      
-    }
+    });
     
   }
 
@@ -238,15 +236,14 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
   /** Populate the actual OD Demands
    * 
    * @param demands to extract from
-   * @throws PlanItException 
    */
-  private void populateXmlOdDemands(Demands demands) throws PlanItException {
+  private void populateXmlOdDemands(Demands demands) {
     var xmlOdDemands = new XMLElementOdDemands();
     xmlRawDemands.setOddemands(xmlOdDemands);
     
-    for(var timePeriod : demands.timePeriods) {
-      var modes = demands.getRegisteredModesForTimePeriod(timePeriod);
-      for(var mode : modes) {
+    demands.timePeriods.streamSortedBy(getPrimaryIdMapper().getTimePeriodIdMapper()).forEach( timePeriod -> {
+      final var modes = demands.getRegisteredModesForTimePeriod(timePeriod);
+      modes.stream().sorted(Comparator.comparing(getComponentIdMappers().getNetworkIdMappers().getModeIdMapper())).forEach( mode -> {
         var odDemandsEntry = demands.get(mode, timePeriod);
         if(odDemandsEntry != null) {
           //TODO: we do not yet preserve the type of matrix used in input, so we use most compact form which is the raw matrix
@@ -256,15 +253,15 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
           if(userClassesPerMode.containsKey(mode) && userClassesPerMode.get(mode).size()>1) {
             //TODO: od matrices are stored per mode, not per user class (in memory), but XML format defines them per user class, so unless they are all defined
             // 1:1 we do not properly support this yet
-            throw new PlanItException("PLANit demands writer does not yet support multiple user classes per mode");
+            throw new PlanItRunTimeException("PLANit demands writer does not yet support multiple user classes per mode");
           }
           
           var userClass = userClassesPerMode.get(mode).iterator().next();
           double odDemandVehH = populateXmlOdDemandsEntry(odDemandsEntry, timePeriod, userClass, xmlOdDemandEntryMatrix);
           LOGGER.info(String.format("OD demands matrix: total trips %.2f (veh/h)  %.2f pcu factor , timePeriod: %s, userclass %s",odDemandVehH, userClass.getMode().getPcu(), timePeriod.toString(), userClass.toString()));
         }
-      }
-    }
+      });
+    });
   }
 
   /** Populate the demands configuration
