@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.goplanit.converter.*;
 import org.goplanit.converter.idmapping.*;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
@@ -22,18 +23,17 @@ import org.goplanit.utils.mode.Mode;
  *
  * @param <T> type to generate with this writer
  */
-public abstract class PlanitWriterImpl<T> extends BaseWriterImpl<T>{
+public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitWriterImpl.class.getCanonicalName());
 
   /** convert to xml writer settings if possible
    * @return xml writer settings
-   * @throws PlanItException thrown if error
    */
-  private PlanitXmlWriterSettings getSettingsAsXmlWriterSettings() throws PlanItException {
+  protected PlanitXmlWriterSettings getSettingsAsXmlWriterSettings(){
     if(!(getSettings() instanceof PlanitXmlWriterSettings)) {
-      throw new PlanItException("planit writer settings expected to be of type PlanitXmlWriterSettings, this is not the case");
+      throw new PlanItRunTimeException("Planit writer settings expected to be of type PlanitXmlWriterSettings, this is not the case");
     }
     return ((PlanitXmlWriterSettings)getSettings());
   }

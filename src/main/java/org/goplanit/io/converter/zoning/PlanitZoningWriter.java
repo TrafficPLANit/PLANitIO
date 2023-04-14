@@ -582,12 +582,10 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlRawZoning.setId(xmlId);
   }
 
-  /** Make sure the zonings destination crs is set (if any)
+  /** Make sure the XML zonings destination crs is set (if any)
    */
-  private void populateCrs(){
-    if(getSettings().getDestinationCoordinateReferenceSystem() != null) {
-      xmlRawZoning.setSrsname(extractSrsName(getSettings()));
-    }
+  private void populateXmlZoningSrsName(){
+    xmlRawZoning.setSrsname(extractSrsName(getDestinationCoordinateReferenceSystem()));
   }  
   
   /** Populate the origin-destination zones of this zoning
@@ -674,8 +672,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* initialise */
     {
       getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-      super.prepareCoordinateReferenceSystem(sourceCrs);
-      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
+      prepareCoordinateReferenceSystem(sourceCrs, getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
       
       createZoneToConnectoidIndices(zoning); 
     }
@@ -686,7 +684,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     populateXmlId(zoning);
     
     /* crs */
-    populateCrs();
+    populateXmlZoningSrsName();
     
     /* Od zones */
     populateXmlOdZones(zoning);

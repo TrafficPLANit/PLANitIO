@@ -317,8 +317,8 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-    super.prepareCoordinateReferenceSystem(serviceNetwork.getCoordinateReferenceSystem());
-    LOGGER.info(String.format("Persisting PLANit service network to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
+    prepareCoordinateReferenceSystem(serviceNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getCountryName());
+    LOGGER.info(String.format("Persisting PLANit service network to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
     getSettings().logSettings();
     
     /* xml id */
