@@ -55,7 +55,7 @@ public class ConverterTest {
    * files as the original input that was read.
    */
   @Test
-  public void test_planit_2_planit_network_converter() {
+  public void testPlanit2PlanitNetworkConverter() {
     try {
       final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
@@ -88,7 +88,7 @@ public class ConverterTest {
    * files as the original input that was read.
    */
   @Test
-  public void test_planit_2_planit_intermodal_no_services_converter() {
+  public void testPlanit2PlanitIntermodalNoServicesConverter() {
     try {
       final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
@@ -127,7 +127,7 @@ public class ConverterTest {
    * files as the original input that was read.
    */
   @Test
-  public void test_planit_2_planit_intermodal_services_converter() {
+  public void testPlanit2PlanitIntermodalServicesConverter() {
     try {
       final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
