@@ -81,7 +81,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
   }
 
   /**
-   * Populate the XML element for service leg 
+   * Populate the XML element for service leg
    *
    * @param xmlServiceLegList to add service leg to
    * @param leg to populate XML element with
