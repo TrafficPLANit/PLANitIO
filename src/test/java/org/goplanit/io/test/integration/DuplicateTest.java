@@ -1,7 +1,7 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.util.logging.Level;
@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 import org.goplanit.io.test.util.PlanItIOTestRunner;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test cases for duplicate tests for TraditionalStaticAssignment
@@ -27,14 +27,14 @@ public class DuplicateTest {
 
   private static final Path testCasePath = Path.of("src","test","resources","testcases");
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(DuplicateTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();

@@ -1,7 +1,5 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.fail;
-
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
@@ -18,11 +16,13 @@ import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.xmlunit.builder.Input;
 import org.xmlunit.matchers.CompareMatcher;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit test cases for the converters provided in the Planit native format
@@ -37,14 +37,14 @@ public class ConverterTest {
 
   private static final Path testCasePath = Path.of("src","test","resources","testcases");
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(ConverterTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();

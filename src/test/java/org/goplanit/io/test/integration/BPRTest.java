@@ -1,8 +1,5 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.SortedMap;
@@ -28,10 +25,13 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit test cases for BPR tests for TraditionalStaticAssignment
@@ -88,21 +88,21 @@ public class BPRTest {
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, xmlFileName);
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(BPRTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
     pathMap = new TreeMap<>();
     odMap = new TreeMap<>();
     resultsMap = new TreeMap<>();
   }  
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
   }

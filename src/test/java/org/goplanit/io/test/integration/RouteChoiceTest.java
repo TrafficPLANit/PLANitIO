@@ -1,6 +1,6 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -31,10 +31,10 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test case for TraditionalStaticAssignment
@@ -111,14 +111,14 @@ public class RouteChoiceTest {
   /* TODO: refactor UGLY: timeperiod, mode origin link segment id, result DTO */
   SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> linkSegmentByIdResults;
   
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(RouteChoiceTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
     pathMap = new TreeMap<>();
     odMap = new TreeMap<>();
@@ -126,7 +126,7 @@ public class RouteChoiceTest {
     linkSegmentByIdResults = new TreeMap<>();
   }  
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -245,42 +245,42 @@ public class RouteChoiceTest {
 
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone3XmlId, 0.0);
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone5XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone6XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
+      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone4XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone5XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone6XmlId,Double.valueOf(0.060625));
-      odMap.get(timePeriod).get(mode1).put(zone3XmlId, new TreeMap<String, Double>());
+      odMap.get(timePeriod).get(mode1).put(zone3XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone1XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone4XmlId,Double.valueOf(0.135625));
       odMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone5XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone3XmlId).put(zone6XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put(zone4XmlId, new TreeMap<String, Double>());
+      odMap.get(timePeriod).get(mode1).put(zone4XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone1XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone5XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone4XmlId).put(zone6XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put(zone5XmlId, new TreeMap<String, Double>());
+      odMap.get(timePeriod).get(mode1).put(zone5XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone1XmlId,Double.valueOf(0.135625));
       odMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone3XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone4XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone5XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone5XmlId).put(zone6XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).put(zone6XmlId, new TreeMap<String, Double>());
+      odMap.get(timePeriod).get(mode1).put(zone6XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone1XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone2XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone6XmlId).put(zone3XmlId,Double.valueOf(0.0));

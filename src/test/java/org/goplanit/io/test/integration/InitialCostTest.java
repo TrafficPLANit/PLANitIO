@@ -1,9 +1,5 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.FileReader;
 import java.io.Reader;
 import java.nio.file.Path;
@@ -27,9 +23,11 @@ import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit test cases for initial cost tests for TraditionalStaticAssignment
@@ -45,14 +43,14 @@ public class InitialCostTest {
   private static final Path testCasePath = Path.of("src","test","resources","testcases");
   private static final Path intialCostTestCasePath = Path.of(testCasePath.toString(),"initial_costs", "xml");
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(InitialCostTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();

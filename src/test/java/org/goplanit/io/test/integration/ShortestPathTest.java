@@ -1,6 +1,6 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -22,10 +22,10 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test cases for shortest path (AON) tests for TraditionalStaticAssignment
@@ -68,21 +68,21 @@ public class ShortestPathTest {
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
   SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(ShortestPathTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
-    pathMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, String>>>>();
-    odMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>>();    
-    resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>>();      
+    pathMap = new TreeMap<>();
+    odMap = new TreeMap<>();
+    resultsMap = new TreeMap<>();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -539,7 +539,7 @@ public class ShortestPathTest {
       odMap.put(timePeriod0, new TreeMap<>());
       odMap.get(timePeriod0).put(mode1, new TreeMap<>());
       odMap.get(timePeriod0).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
       odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(85.0));
       odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(77.0));
       odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(108.0));

@@ -1,6 +1,6 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 import org.goplanit.io.demo.TraditionalStaticAssignmentProjectDemos;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the getting started demo example
@@ -23,14 +23,14 @@ public class GettingStartedTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(GettingStartedTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();

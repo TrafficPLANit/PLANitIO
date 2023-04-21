@@ -1,7 +1,7 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
@@ -14,9 +14,9 @@ import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.id.IdGenerator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test being able to read and write service networks
@@ -32,14 +32,14 @@ public class ServiceNetworkTest {
   private static final Path testCasePath = Path.of("src","test","resources","testcases");
   private static final Path serviceNetworkTestCasePath = Path.of(testCasePath.toString(),"getting_started", "service");
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(ServiceNetworkTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();

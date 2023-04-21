@@ -1,10 +1,5 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.logging.Logger;
@@ -26,10 +21,12 @@ import org.goplanit.utils.zoning.ConnectoidType;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.TransferZoneType;
 import org.goplanit.zoning.Zoning;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit test cases for explanatory tests for TraditionalStaticAssignment
@@ -67,18 +64,18 @@ public class IntermodalTest {
   private static final String transferconnectoid3XmlId = "transfer3";    
      
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(IntermodalTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
   }  
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();

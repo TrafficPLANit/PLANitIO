@@ -1,7 +1,7 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -28,10 +28,10 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test cases for explanatory tests for TraditionalStaticAssignment
@@ -59,21 +59,21 @@ public class ExplanatoryTest {
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
   SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;    
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(ExplanatoryTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
-    pathMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, String>>>>();
-    odMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>>();    
-    resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>>();       
+    pathMap = new TreeMap<>();
+    odMap = new TreeMap<>();
+    resultsMap = new TreeMap<>();
   }  
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -115,9 +115,9 @@ public class ExplanatoryTest {
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.put(timePeriod, new TreeMap<>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
       resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
 
