@@ -4,31 +4,23 @@ import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.atomic.DoubleAdder;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.idmapping.DemandsIdMapper;
 import org.goplanit.converter.idmapping.IdMapperType;
-import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.demands.DemandsWriter;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.od.demand.OdDemands;
-import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
-import org.goplanit.xml.generated.Durationunit;
-import org.goplanit.xml.generated.XMLElementDemandConfiguration;
-import org.goplanit.xml.generated.XMLElementDuration;
-import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
-import org.goplanit.xml.generated.XMLElementOdDemands;
-import org.goplanit.xml.generated.XMLElementOdRawMatrix;
-import org.goplanit.xml.generated.XMLElementTimePeriods;
-import org.goplanit.xml.generated.XMLElementTravellerTypes;
-import org.goplanit.xml.generated.XMLElementUserClasses;
+import org.goplanit.xml.generated.*;
+import org.goplanit.zoning.Zoning;
 
 /**
  * A class that takes a PLANit demands and persists it to file in the PLANit native XML format. 
@@ -43,6 +35,9 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
           
   /** settings to use */
   private final PlanitDemandsWriterSettings settings;
+
+  /** the reference zoning to use */
+  private final Zoning referenceZoning;
   
   /** the XML to populate */
   private final XMLElementMacroscopicDemand xmlRawDemands;
@@ -185,7 +180,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     
   }
 
-  /** Populate a single OdDemands entry for a given mode and time period
+  /** Populate a single OdDemands entry for a given mode and time period in the XML odrow format
    * 
    * @param odDemandsEntry to populate XML with
    * @param timePeriod  used
@@ -193,7 +188,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
    * @param xmlOdDemandsEntry to populate
    * @return totalTrips in veh/h in this od demand entry
    */
-  private double populateXmlOdDemandsEntry(final OdDemands odDemandsEntry, TimePeriod timePeriod, UserClass userClass, final XMLElementOdRawMatrix xmlOdDemandsEntry) {
+  private double populateXmlOdRowMatrix(final OdDemands odDemandsEntry, TimePeriod timePeriod, UserClass userClass, final XMLElementOdRowMatrix xmlOdDemandsEntry) {
     
     /* time period ref */
     String timePeriodRef = getPrimaryIdMapper().getTimePeriodIdMapper().apply(timePeriod);
@@ -202,35 +197,39 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     /* user class ref */
     String userClassRef = getPrimaryIdMapper().getUserClassIdMapper().apply(userClass);
     xmlOdDemandsEntry.setUserclassref(userClassRef);
-    
-    /* values */
-    int numOdZones = odDemandsEntry.getNumberOfOdZones();
-    
-    var values = new XMLElementOdRawMatrix.Values();
-    xmlOdDemandsEntry.setValues(values);
-    /* origin separator */
-    values.setOs(settings.getOriginSeparator());
+
     /* destination separator */
-    values.setDs(settings.getDestinationSeparator());
-       
-    double totalTripDemandVehH = 0;
-    var sb = new StringBuilder();    
-    for(long oIndex = 0 ; oIndex < numOdZones ; ++ oIndex) {
-      if(oIndex > 0) {
-        sb.append(settings.getOriginSeparator());
-      }
-      for(long dIndex = 0 ; dIndex < numOdZones ; ++ dIndex) {
-        if(dIndex > 0) {
-          sb.append(settings.getDestinationSeparator());
-        }
+    xmlOdDemandsEntry.setDs(settings.getDestinationSeparator());
+
+    var xmlOdRowsList = xmlOdDemandsEntry.getOdrow();
+
+    final DoubleAdder totalTripDemandVehH = new DoubleAdder();
+    final var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper();
+    /* stream sorted by the ordering used for persisting zones */
+    this.referenceZoning.getOdZones().streamSortedBy(zoneIdMapper).forEach( originZone -> {
+
+      /* odrow */
+      var xmlOdRow = new XMLElementOdRowMatrix.Odrow();
+
+      /* (origin zoning) ref */
+      xmlOdRow.setRef(zoneIdMapper.apply(originZone));
+
+      final var sb = new StringBuilder();
+      this.referenceZoning.getOdZones().streamSortedBy(zoneIdMapper).forEach( destinationZone -> {
+
         /* convert back to veh/h from PcuH */
-        double valueVehH = odDemandsEntry.getValue(oIndex, dIndex)/userClass.getMode().getPcu();
-        totalTripDemandVehH += valueVehH; 
+        double valueVehH = odDemandsEntry.getValue(originZone, destinationZone)/userClass.getMode().getPcu();
+        totalTripDemandVehH.add(valueVehH);
         sb.append(settings.getDecimalFormat().format(valueVehH));
-      }      
-    }
-    values.setValue(sb.toString());
-    return totalTripDemandVehH;
+        sb.append(settings.getDestinationSeparator());
+      });
+
+      xmlOdRow.setValue(sb.toString());
+      xmlOdRowsList.add(xmlOdRow);
+
+    });
+
+    return totalTripDemandVehH.doubleValue();
   }
 
   /** Populate the actual OD Demands
@@ -246,19 +245,22 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       modes.stream().sorted(Comparator.comparing(getComponentIdMappers().getNetworkIdMappers().getModeIdMapper())).forEach( mode -> {
         var odDemandsEntry = demands.get(mode, timePeriod);
         if(odDemandsEntry != null) {
-          //TODO: we do not yet preserve the type of matrix used in input, so we use most compact form which is the raw matrix
-          var xmlOdDemandEntryMatrix = new XMLElementOdRawMatrix();
+          //TODO: we do not yet preserve the type of matrix used in input, so we use row by row because the raw matrix currently has problems given
+          //      that it relies on internal ids, which may or may not be mapped to the XML id causing the user to not be able to determine
+          //      what cell the values correspond to. By using the row matrix, the order of the rows and the ref value, allows inferring the col refs even
+          //      though they are not explicitly provided as the amtrix is symmetrical
+          var xmlOdDemandEntryMatrix = new XMLElementOdRowMatrix();
           xmlOdDemands.getOdcellbycellmatrixOrOdrowmatrixOrOdrawmatrix().add(xmlOdDemandEntryMatrix);
           
           if(userClassesPerMode.containsKey(mode) && userClassesPerMode.get(mode).size()>1) {
             //TODO: od matrices are stored per mode, not per user class (in memory), but XML format defines them per user class, so unless they are all defined
             // 1:1 we do not properly support this yet
-            throw new PlanItRunTimeException("PLANit demands writer does not yet support multiple user classes per mode");
+            throw new PlanItRunTimeException("PLANit demands writer does not yet support multiple user-classes per mode");
           }
           
           var userClass = userClassesPerMode.get(mode).iterator().next();
-          double odDemandVehH = populateXmlOdDemandsEntry(odDemandsEntry, timePeriod, userClass, xmlOdDemandEntryMatrix);
-          LOGGER.info(String.format("OD demands matrix: total trips %.2f (veh/h)  %.2f pcu factor , timePeriod: %s, userclass %s",odDemandVehH, userClass.getMode().getPcu(), timePeriod.toString(), userClass.toString()));
+          double odDemandVehH = populateXmlOdRowMatrix(odDemandsEntry, timePeriod, userClass, xmlOdDemandEntryMatrix);
+          LOGGER.info(String.format("OD demands matrix: total trips %.2f (veh/h)  %.2f pcu factor , timePeriod: %s, user-class %s",odDemandVehH, userClass.getMode().getPcu(), timePeriod.toString(), userClass.toString()));
         }
       });
     });
@@ -267,9 +269,8 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
   /** Populate the demands configuration
    * 
    * @param demands to populate XML with
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlDemandConfiguration(Demands demands) throws PlanItException {
+  private void populateXmlDemandConfiguration(Demands demands) {
     
     var demandConfiguration = new XMLElementDemandConfiguration();
     xmlRawDemands.setDemandconfiguration(demandConfiguration);
@@ -299,18 +300,20 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
 
   /** Constructor 
    * 
-   * @param demandsPath to persist demands on
+   * @param settings to use
+   * @param referenceZoning to use
    * @param xmlRawDemands to populate and persist
    */
-  protected PlanitDemandsWriter(final String demandsPath, final XMLElementMacroscopicDemand xmlRawDemands) {
+  protected PlanitDemandsWriter(final PlanitDemandsWriterSettings settings, final Zoning referenceZoning, final XMLElementMacroscopicDemand xmlRawDemands) {
     super(IdMapperType.XML);
-    this.settings = new PlanitDemandsWriterSettings(demandsPath, DEFAULT_DEMANDS_FILE_NAME);
+    this.settings = settings;
+    this.referenceZoning = referenceZoning;
     this.xmlRawDemands = xmlRawDemands;
     this.userClassesPerMode = new HashMap<>();
   }
 
   /** default demands file name to use */
-  public static final String DEFAULT_DEMANDS_FILE_NAME = "demands.xml";
+  public static final String DEFAULT_DEMANDS_XML = "demands.xml";
 
   /**
    * {@inheritDoc}

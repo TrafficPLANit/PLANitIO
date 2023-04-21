@@ -12,6 +12,7 @@ import org.goplanit.od.demand.OdDemands;
 import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
@@ -26,6 +27,7 @@ import org.goplanit.zoning.Zoning;
 import org.goplanit.zoning.ZoningModifierUtils;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -386,31 +388,42 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       String separator = (xmlOdRowMatrix.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlOdRowMatrix.getDs();
       separator = escapeSeparator(separator);
       final List<XMLElementOdRowMatrix.Odrow> xmlOdRow = xmlOdRowMatrix.getOdrow();
+
+      /* construct same ref ordering for cols based on the row ordering as this cannot be assumed to be consistent with internal ids */
+      var destinationZoneOrderList = new ArrayList<Zone>(xmlOdRow.size());
+      for (final XMLElementOdRowMatrix.Odrow xmlDestinationZone : xmlOdRow) {
+        final Zone destinationZone = xmlIdZoneMap.get(xmlDestinationZone.getRef());
+        destinationZoneOrderList.add(destinationZone);
+      }
+
       for (final XMLElementOdRowMatrix.Odrow xmlOriginZone : xmlOdRow) {
         final Zone originZone = xmlIdZoneMap.get(xmlOriginZone.getRef());
         final String[] rowValuesAsString = xmlOriginZone.getValue().split(separator);
         for (int i = 0; i < rowValuesAsString.length; i++) {
-          /* use internal id's, i.e. order of appearance of the zone elements in XML is used */ 
-          final Zone destinationZone = zones.get(i);
+          /* use same ordering as origins to match to destination zones*/
+          final Zone destinationZone = destinationZoneOrderList.get(i);
           final double demand = Double.parseDouble(rowValuesAsString[i]) * pcu;
           odDemandMatrix.setValue(originZone, destinationZone, demand);          
         }
       }      
       
     } else if (xmlOdMatrix instanceof XMLElementOdRawMatrix) {
-      
-      /* raw matrix */
-      final Values xmlValues = ((XMLElementOdRawMatrix) xmlOdMatrix).getValues();
-      String originSeparator = (xmlValues.getOs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR : xmlValues.getOs();
-      originSeparator = escapeSeparator(originSeparator);
-      String destinationSeparator = (xmlValues.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlValues.getDs();
-      destinationSeparator = escapeSeparator(destinationSeparator);             
-      
-      if (originSeparator.equals(destinationSeparator)) {
-        populateDemandMatrixRawForEqualSeparators(xmlValues, originSeparator, pcu, odDemandMatrix, zones);
-      } else {
-        populateDemandMatrixRawDifferentSeparators(xmlValues, originSeparator, destinationSeparator, pcu, odDemandMatrix, zones);
-      }            
+      //todo currently improper, since internal id ordering is not used when persisting (string based), hence the written out
+      // results cannot be interpreted --> throw exception until this is fixed
+      throw new PlanItRunTimeException("Unable to use ODRaw persistence , see https://github.com/TrafficPLANit/PLANitIO/issues/31");
+
+//      /* raw matrix */
+//      final Values xmlValues = ((XMLElementOdRawMatrix) xmlOdMatrix).getValues();
+//      String originSeparator = (xmlValues.getOs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR : xmlValues.getOs();
+//      originSeparator = escapeSeparator(originSeparator);
+//      String destinationSeparator = (xmlValues.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlValues.getDs();
+//      destinationSeparator = escapeSeparator(destinationSeparator);
+//
+//      if (originSeparator.equals(destinationSeparator)) {
+//        populateDemandMatrixRawForEqualSeparators(xmlValues, originSeparator, pcu, odDemandMatrix, zones);
+//      } else {
+//        populateDemandMatrixRawDifferentSeparators(xmlValues, originSeparator, destinationSeparator, pcu, odDemandMatrix, zones);
+//      }
     }       
   }
   
