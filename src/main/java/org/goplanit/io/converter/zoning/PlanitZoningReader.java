@@ -308,12 +308,14 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       if(linkSegment == null) {
         throw new PlanItRunTimeException(String.format("Provided access link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
-      theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(linkSegment);
-      
-      /* special case: when upstream node should be used */
+
+      boolean nodeAccessDownstream = true;
       if(xmlTransferConnectoid.getLoc()!= null && xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
-        ((DirectedConnectoid)theConnectoid).setNodeAccessDownstream(false);
+        nodeAccessDownstream = false;
       }
+
+      theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(nodeAccessDownstream, linkSegment);
+
     }
     theConnectoid.setXmlId(xmlId);
         
