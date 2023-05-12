@@ -126,9 +126,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   /** parse the usability component of the mode xml element. It is assumed they should be present, if not default values are created
    * @param generatedMode mode to extract information from
    * @return usabilityFeatures that are parsed
-   * @throws PlanItException thrown if error
    */
-  private UsabilityModeFeatures parseUsabilityModeFeatures(org.goplanit.xml.generated.XMLElementModes.Mode generatedMode) throws PlanItException {
+  private UsabilityModeFeatures parseUsabilityModeFeatures(org.goplanit.xml.generated.XMLElementModes.Mode generatedMode) {
     if(generatedMode.getUsabilityfeatures() == null) {
       return ModeFeaturesFactory.createDefaultUsabilityFeatures();
     }
@@ -142,9 +141,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   /** parse the physical features component of the mode xml element. It is assumed they should be present, if not default values are created
    * @param generatedMode mode to extract information from
    * @return physicalFeatures that are parsed
-   * @throws PlanItException thrown if error
    */  
-  private PhysicalModeFeatures parsePhysicalModeFeatures(org.goplanit.xml.generated.XMLElementModes.Mode generatedMode) throws PlanItException {
+  private PhysicalModeFeatures parsePhysicalModeFeatures(org.goplanit.xml.generated.XMLElementModes.Mode generatedMode) {
     if(generatedMode.getPhysicalfeatures() == null) {
       return ModeFeaturesFactory.createDefaultPhysicalFeatures();
     }
@@ -159,10 +157,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   
   /**
    * Reads mode types from input file, register them on the network and also populate mapping based on XML ids
-   * 
-   * @throws PlanItException thrown if there is a Mode value of 0 in the modes definition file
    */
-  private void parseModes() throws PlanItException {   
+  private void parseModes(){
     
     final XMLElementConfiguration xmlGeneralConfiguration = xmlParser.getXmlRootElement().getConfiguration();    
     for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {

@@ -111,9 +111,11 @@ public class xmlEnumConversionUtil {
     case RAIL:
       return TrackType.RAIL;
     case ROAD:
-      return TrackType.ROAD;      
+      return TrackType.ROAD;
+    case WATER:
+      return TrackType.WATER;
     default:
-      throw new PlanItRunTimeException(String.format("mapping from planit track type %s to xml track type unavailable", xmlTrackType));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit track type %s to XML track type unavailable", xmlTrackType));
     }
   }
   

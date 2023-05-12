@@ -512,7 +512,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     String xmlModesStr = physicalNetworkLayer.getSupportedModes().stream().map(
         m -> getPrimaryIdMapper().getModeIdMapper().apply(m)).sorted().collect(Collectors.joining(","));
-    LOGGER.info(String.format("%s supported modes: %s", currLayerLogPrefix, xmlModesStr));
+    LOGGER.info(String.format("%s Supported modes: %s", currLayerLogPrefix, xmlModesStr));
     if(network.getTransportLayers().size()>1) {      
       xmlNetworkLayer.setModes(xmlModesStr);
     }
