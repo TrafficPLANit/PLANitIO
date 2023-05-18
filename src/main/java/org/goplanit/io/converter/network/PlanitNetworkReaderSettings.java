@@ -10,9 +10,7 @@ import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
  *
  */
 public class PlanitNetworkReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
-    
 
-  
   /**
    * Default constructor. Expected that the user provides the input path at some point later
    */
@@ -38,16 +36,5 @@ public class PlanitNetworkReaderSettings extends PlanitXmlReaderSettings impleme
   public PlanitNetworkReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
   }  
-  
 
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void reset() {
-    // TODO    
-  } 
-    
-  
 }

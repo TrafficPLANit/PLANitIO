@@ -41,12 +41,5 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
   public PlanitRoutedServicesReaderSettings(final ServiceNetwork parentNetwork, final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
   }  
-  
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void reset() {
-  } 
 
 }

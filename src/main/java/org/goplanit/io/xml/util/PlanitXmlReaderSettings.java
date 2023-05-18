@@ -1,12 +1,14 @@
 package org.goplanit.io.xml.util;
 
+import org.goplanit.converter.ConverterReaderSettings;
+
 /**
  * Settings relevant for a Planit Xml reader
  * 
  * @author markr
  *
  */
-public class PlanitXmlReaderSettings {
+public class PlanitXmlReaderSettings implements ConverterReaderSettings {
 
   /** directory to look in */
   private String inputDirectory;
@@ -47,7 +49,23 @@ public class PlanitXmlReaderSettings {
   public PlanitXmlReaderSettings(final String inputDirectory, final String xmlFileExtension) {
     this.inputDirectory = inputDirectory;
     this.xmlFileExtension = xmlFileExtension;
-  }  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    //todo
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+
+  }
   
   /** The input path directory used
    * 

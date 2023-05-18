@@ -36,15 +36,7 @@ public class PlanitZoningReaderSettings extends PlanitXmlReaderSettings implemen
   public PlanitZoningReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
   }  
-    
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void reset() {
-  }
-  
   // GETTERS/SETTERS
      
 }

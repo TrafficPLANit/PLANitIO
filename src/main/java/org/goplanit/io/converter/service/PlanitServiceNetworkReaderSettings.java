@@ -29,11 +29,5 @@ public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings 
     super();
   }  
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void reset() {
-  } 
 
 }

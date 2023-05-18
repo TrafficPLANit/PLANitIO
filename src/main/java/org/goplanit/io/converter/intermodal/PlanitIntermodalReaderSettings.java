@@ -98,8 +98,19 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
     getZoningSettings().reset();
     getServiceNetworkSettings().reset();
     getRoutedServicesSettings().reset();
-  }   
-  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    getNetworkSettings().logSettings();
+    getZoningSettings().logSettings();
+    getServiceNetworkSettings().logSettings();
+    getRoutedServicesSettings().logSettings();
+  }
+
   /** provide access to the network reader settings
    * @return network reader settings
    */

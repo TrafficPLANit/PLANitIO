@@ -39,14 +39,7 @@ public class PlanitDemandsReaderSettings extends PlanitXmlReaderSettings impleme
     return referenceZoning;
   }  
   
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void reset() {
-    // TODO     
-  }    
-       
+
   /** Set reference network to use
    * 
    * @param referenceNetwork to use
