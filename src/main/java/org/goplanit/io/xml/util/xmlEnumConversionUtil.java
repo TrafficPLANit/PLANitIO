@@ -81,11 +81,12 @@ public class xmlEnumConversionUtil {
     case NO_VEHICLE:
       return VehicularType.NO_VEHICLE;      
     default:
-      throw new PlanItRunTimeException(String.format("mapping from planit vehicular type %s to xml vehicular type unavailable",planitVehicularType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit vehicular type %s to XML vehicular type unavailable",planitVehicularType.toString()));
     }
   }   
   
-  /** convert track type from xml to PLANit
+  /** convert track type from XML to PLANit
+   *
    * @param xmlTrackType to convert
    * @return result
    */
@@ -95,9 +96,11 @@ public class xmlEnumConversionUtil {
     case RAIL:
       return TrackModeType.RAIL;
     case ROAD:
-      return TrackModeType.ROAD;      
+      return TrackModeType.ROAD;
+    case WATER:
+      return TrackModeType.WATER;
     default:
-      throw new PlanItRunTimeException(String.format("mapping from xml track type %s to PLANit track type unavailable",xmlTrackType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from XML track type %s to PLANit track type unavailable",xmlTrackType.toString()));
     }
   }  
   
@@ -119,7 +122,8 @@ public class xmlEnumConversionUtil {
     }
   }
   
-  /** convert used-to type from xml to PLANit
+  /** convert used-to type from XML to PLANit
+   *
    * @param xmlUseOfType to convert
    * @return result
    */
@@ -158,7 +162,7 @@ public class xmlEnumConversionUtil {
     case RIDE_SHARE:
       return UsedToType.RIDE_SHARE;
     default:
-      throw new PlanItRunTimeException(String.format("mapping from planit used-to type %s to xml used-to type unavailable",useOfType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit used-to type %s to XML used-to type unavailable",useOfType.toString()));
     }
   } 
   
@@ -177,7 +181,7 @@ public class xmlEnumConversionUtil {
     case S:
       return Unit.SECOND;       
     default:
-      throw new PlanItRunTimeException(String.format("mapping from XML TimeUnit %s to PLANit Units type unavailable",xmlTimeUnitType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from XML TimeUnit %s to PLANit Units type unavailable",xmlTimeUnitType.toString()));
     }
   }   
 
@@ -194,7 +198,7 @@ public class xmlEnumConversionUtil {
     }else if(planitTimeUnit.equals(Unit.SECOND)) {
       return TimeUnit.S;    
     }else{
-      throw new PlanItRunTimeException(String.format("mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
     }
   }
 

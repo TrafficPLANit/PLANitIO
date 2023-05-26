@@ -177,8 +177,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       }
       PredefinedModeType modeType = PredefinedModeType.create(potentialPredefinedModeType);      
       if(!xmlMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
-        LOGGER.warning(String.format("mode is not registered as predefined mode but name or xmlid corresponds to PLANit predefined mode, reverting to PLANit predefined mode %s",modeType.name()));
-      }            
+        LOGGER.warning(String.format("Mode is not registered as predefined mode but name or xmlid corresponds to PLANit predefined mode, reverting to PLANit predefined mode %s",modeType.name()));
+      }
+      if(xmlMode.isPredefined() && modeType == PredefinedModeType.CUSTOM) {
+        LOGGER.warning(String.format("Mode is known as predefined mode but XML flag indicates it should be a PLANit predefined mode, reverting to PLANit custom mode %s",modeType.name()));
+      }
       if(name==null && modeType == PredefinedModeType.CUSTOM) {
         name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.getModes().size()));
       }
