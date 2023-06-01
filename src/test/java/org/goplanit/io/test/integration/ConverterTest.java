@@ -35,7 +35,7 @@ public class ConverterTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path TEST_CASE_PATH = Path.of("src","test","resources","testcases");
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -57,7 +57,7 @@ public class ConverterTest {
   @Test
   public void testPlanit2PlanitNetworkConverter() {
     try {
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String projectPath = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
       
       /* reader */
@@ -90,7 +90,7 @@ public class ConverterTest {
   @Test
   public void testPlanit2PlanitIntermodalNoServicesConverter() {
     try {
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String projectPath = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
       
       /* reader */
@@ -129,7 +129,7 @@ public class ConverterTest {
   @Test
   public void testPlanit2PlanitIntermodalServicesConverter() {
     try {
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String projectPath = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
 
       /* reader */
@@ -152,8 +152,8 @@ public class ConverterTest {
       /* use non-deprecated hamcrest version instead of junit for comparing */
       org.hamcrest.MatcherAssert.assertThat(
           /* xml unit functionality comparing the two files */
-          Input.fromFile(Path.of(projectPath,"routed_Services.xml").toString()),
-          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"routed_Services.xml").toString())));
+          Input.fromFile(Path.of(projectPath,"routed_services.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"routed_services.xml").toString())));
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
