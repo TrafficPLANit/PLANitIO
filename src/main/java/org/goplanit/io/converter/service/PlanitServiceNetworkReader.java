@@ -5,13 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.network.NetworkReaderImpl;
 import org.goplanit.converter.service.ServiceNetworkReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
-import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.MacroscopicNetworkModifierUtils;
-import org.goplanit.network.ServiceNetwork;
-import org.goplanit.network.ServiceNetworkModifierUtils;
+import org.goplanit.network.*;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
@@ -40,7 +38,7 @@ import org.goplanit.xml.generated.XMLElementServiceNodes;
  * @author markr
  *
  */
-public class PlanitServiceNetworkReader extends NetworkReaderImpl implements ServiceNetworkReader {
+public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> implements ServiceNetworkReader {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkReader.class.getCanonicalName());            
