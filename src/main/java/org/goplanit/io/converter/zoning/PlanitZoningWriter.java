@@ -2,6 +2,7 @@ package org.goplanit.io.converter.zoning;
 
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,7 @@ import org.goplanit.xml.generated.XMLElementTransferZoneAccess.XMLElementTransfe
 import org.goplanit.xml.generated.XMLElementTransferZones.XMLElementTransferZone;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -336,18 +338,25 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     }
     
     /* polygon/linestring - point is handled via centroid */
+    boolean geometryIsPoint = false;
+    Function<Zone, Point> getCentroidLocation = z -> z.getCentroid().getPosition();
     if(transferZone.hasGeometry()) {
       if(transferZone.getGeometry() instanceof Polygon) {
         xmlTransferZone.setPolygon(createGmlPolygonType((Polygon)transferZone.getGeometry()));
       }else if(transferZone.getGeometry() instanceof LineString) {        
         xmlTransferZone.setLineString(createGmlLineStringType((LineString)transferZone.getGeometry()));
+      }else if(transferZone.getGeometry() instanceof Point) {
+        getCentroidLocation = z -> (Point) z.getGeometry();
+        geometryIsPoint = true;
       }
-    }   
-    
-    /* centroid */
-    if(transferZone.hasCentroid() && transferZone.getCentroid().hasPosition()) {
+    }
+
+    /* centroid or geometry is point, which will be processed as centroid */
+    if(transferZone.hasCentroid() && transferZone.getCentroid().hasPosition() || geometryIsPoint) {
       XMLElementCentroid xmlCentroid = new XMLElementCentroid();
-      populateXmlCentroid(xmlCentroid, transferZone.getCentroid());
+      var centroid = transferZone.getCentroid();
+      populateXmlCentroid(
+          xmlCentroid, centroid!= null ? transferZone.getCentroid().getName() : "", getCentroidLocation.apply(transferZone));
       xmlTransferZone.setCentroid(xmlCentroid);
     }        
   }
@@ -418,18 +427,19 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   /** Populate a centroid
    * 
    * @param xmlCentroid to populate
-   * @param centroid to extract information from
+   * @param name of the centroid
+   * @param centroidLocation of the centroid
    */
-  private void populateXmlCentroid(final XMLElementCentroid xmlCentroid, final Centroid centroid) {
+  private void populateXmlCentroid(final XMLElementCentroid xmlCentroid, final String name, final Point centroidLocation) {
     
     /* name */
-    if(centroid.hasName()) {
-      xmlCentroid.setName(centroid.getName());
+    if(!StringUtils.isNullOrBlank(name)) {
+      xmlCentroid.setName(name);
     }
     
     /* position */
-    if(centroid.hasPosition()) {            
-      xmlCentroid.setPoint(createGmlPointType(centroid.getPosition()));
+    if(centroidLocation != null) {
+      xmlCentroid.setPoint(createGmlPointType(centroidLocation));
     }
   }
   
@@ -529,19 +539,27 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       xmlOdZone.setName(odZone.getName());
     }
     
-    /* centroid */
-    if(odZone.hasCentroid()) {
-      XMLElementCentroid xmlCentroid = new XMLElementCentroid();
-      xmlOdZone.setCentroid(xmlCentroid);
-      
-      populateXmlCentroid(xmlCentroid, odZone.getCentroid());      
-    }    
-    
-    /* polygon */
-    if(odZone.hasGeometry() && odZone.getGeometry() instanceof Polygon) {
-      xmlOdZone.setPolygon(createGmlPolygonType((Polygon)odZone.getGeometry()));
+    /* main geometry, e.g., polygon */
+    boolean geometryIsPoint = false;
+    Function<Zone, Point> getCentroidLocation = z -> z.getCentroid().getPosition();
+    if(odZone.hasGeometry()) {
+      if(odZone.getGeometry() instanceof Polygon) {
+        xmlOdZone.setPolygon(createGmlPolygonType((Polygon)odZone.getGeometry()));
+      }else if(odZone.getGeometry() instanceof Point) {
+        getCentroidLocation = z -> (Point) z.getGeometry();
+        geometryIsPoint = true;
+      }
     }
-    
+
+    /* centroid or geometry is point, which will be processed as centroid */
+    if(odZone.hasCentroid() && odZone.getCentroid().hasPosition() || geometryIsPoint) {
+      XMLElementCentroid xmlCentroid = new XMLElementCentroid();
+      var centroid = odZone.getCentroid();
+      populateXmlCentroid(
+          xmlCentroid, centroid!= null ? odZone.getCentroid().getName() : "", getCentroidLocation.apply(odZone));
+      xmlOdZone.setCentroid(xmlCentroid);
+    }
+
     /* connectoids */
     var xmlConnectoids = new XMLElementConnectoids();
     xmlOdZone.setConnectoids(xmlConnectoids);

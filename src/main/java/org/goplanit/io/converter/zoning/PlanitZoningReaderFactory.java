@@ -42,6 +42,18 @@ public class PlanitZoningReaderFactory {
       final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
     return create(new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension),network, zoning);
   }
+
+  /** Factory method
+   *
+   * @param zoningSettings to use
+   * @param referenceNetwork to use
+   * @return created PLANit zoning reader
+   */
+  public static PlanitZoningReader create(
+      final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?, ?> referenceNetwork) {
+    return new PlanitZoningReader(
+        zoningSettings, referenceNetwork, new Zoning(referenceNetwork.getIdGroupingToken(), referenceNetwork.getNetworkGroupingTokenId()));
+  }
   
   /** Factory method
    * 
@@ -53,8 +65,8 @@ public class PlanitZoningReaderFactory {
   public static PlanitZoningReader create(
       final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?, ?> referenceNetwork, final Zoning zoningToPopulate) {
     return new PlanitZoningReader(zoningSettings, referenceNetwork, zoningToPopulate);
-  }  
-  
+  }
+
   /** Factory method where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
    * @param xmlRawZoning to extract from
