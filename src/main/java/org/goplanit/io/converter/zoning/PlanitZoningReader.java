@@ -711,7 +711,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       zoning.logInfo(LoggingUtils.zoningPrefix(zoning.getId()));
       
       /* free */
-      xmlParser.clearXmlContent();
+      reset();
       
     } catch (PlanItException e) {
       throw e;
@@ -739,7 +739,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   @Override
   public void reset() {
-    getSettings().reset();    
+    super.reset();
+    xmlParser.clearXmlContent();
   }
   
 
