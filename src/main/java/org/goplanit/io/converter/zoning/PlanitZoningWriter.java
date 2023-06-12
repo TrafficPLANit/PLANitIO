@@ -655,9 +655,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     populateXmlTransferZoneGroups(zoning, xmlIntermodal);
   }
 
-  /** default zoning file name to use */
-  public static final String DEFAULT_ZONING_XML = "zoning.xml";
-
   /** Constructor 
    * 
    * @param zoningPath to persist zoning on
@@ -667,7 +664,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   protected PlanitZoningWriter(final String zoningPath, final String countryName, final CoordinateReferenceSystem zoningCrs, final XMLElementMacroscopicZoning xmlRawZoning) {
     super(IdMapperType.XML);
-    this.settings = new PlanitZoningWriterSettings(zoningPath, DEFAULT_ZONING_XML, countryName);
+    this.settings = new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName);
     this.sourceCrs = zoningCrs;    
     this.xmlRawZoning = xmlRawZoning;
   }

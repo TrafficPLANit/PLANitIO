@@ -425,12 +425,10 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
    */
   protected PlanitRoutedServicesWriter(String outputPath, String countryName, XMLElementRoutedServices xmlRawRoutedServices) {
     super(IdMapperType.XML);
-    this.settings = new PlanitRoutedServicesWriterSettings(outputPath, DEFAULT_ROUTED_SERVICES_XML, countryName);
+    this.settings = new PlanitRoutedServicesWriterSettings(
+        outputPath, PlanitRoutedServicesWriterSettings.DEFAULT_ROUTED_SERVICES_XML, countryName);
     this.xmlRawRoutedServices = xmlRawRoutedServices;
   }
-
-  /** default routed services file name to use */
-  public static final String DEFAULT_ROUTED_SERVICES_XML = "routed_services.xml";
 
   /**
    * {@inheritDoc}

@@ -30,6 +30,9 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
   /** default time unit to use for trip frequencies */
   public static final boolean DEFAULT_LOG_SERVICES_WITHOUT_TRIPS = false;
 
+  /** default routed services file name to use */
+  public static final String DEFAULT_ROUTED_SERVICES_XML = "routed_services.xml";
+
   /**
    * Default constructor
    */

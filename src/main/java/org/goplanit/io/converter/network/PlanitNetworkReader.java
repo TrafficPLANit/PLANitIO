@@ -19,6 +19,7 @@ import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetworkModifierUtils;
 import org.goplanit.network.layer.macroscopic.AccessGroupPropertiesFactory;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.id.IdGroupingToken;
@@ -686,11 +687,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * {@inheritDoc}
    */
   @Override
-  public MacroscopicNetwork read() throws PlanItException {
+  public MacroscopicNetwork read(){
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML network could be parsed into memory, abort");
+    PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML network could be parsed into memory, abort");
     
     /* xml id */
     String networkXmlId = xmlParser.getXmlRootElement().getId();
@@ -723,11 +724,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       xmlParser.clearXmlContent();
       
     } catch (PlanItException e) {
-      throw e;
+      throw new PlanItRunTimeException(e);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error while populating physical network in PLANitIO",e);
+      throw new PlanItRunTimeException("Error while populating physical network in PLANitIO",e);
     }    
     
     return network;

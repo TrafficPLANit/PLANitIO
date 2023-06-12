@@ -11,6 +11,7 @@ import org.goplanit.converter.service.ServiceNetworkReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.*;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
@@ -365,11 +366,11 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
    * {@inheritDoc}
    */
   @Override
-  public ServiceNetwork read() throws PlanItException {
+  public ServiceNetwork read(){
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML service network could be parsed into memory, abort");     
+    PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML service network could be parsed into memory, abort");
     
     /* XML id */
     String xmlId = xmlParser.getXmlRootElement().getId();
@@ -382,10 +383,10 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
     /* parent network XML id */
     String parentNetworkXmlId = xmlParser.getXmlRootElement().getParentnetwork();
     if(StringUtils.isNullOrBlank(parentNetworkXmlId)) {
-      throw new PlanItException("Service network %s has no parent network defined", serviceNetwork.getXmlId());
+      throw new PlanItRunTimeException("Service network %s has no parent network defined", serviceNetwork.getXmlId());
     }
     if(!serviceNetwork.getParentNetwork().getXmlId().equals(parentNetworkXmlId)) {
-      throw new PlanItException(
+      throw new PlanItRunTimeException(
           "Service network %s parent network (%s) in memory does not correspond to the parent network id on file (%s)", serviceNetwork.getXmlId(), serviceNetwork.getParentNetwork().getXmlId(), parentNetworkXmlId);
     }
           
@@ -408,10 +409,10 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
       xmlParser.clearXmlContent();
       
     } catch (PlanItException e) {
-      throw e;
+      throw new PlanItRunTimeException(e);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException(String.format("Error while populating service network %s in PLANitIO", serviceNetwork.getXmlId()),e);
+      throw new PlanItRunTimeException(String.format("Error while populating service network %s in PLANitIO", serviceNetwork.getXmlId()),e);
     }    
     
     return serviceNetwork;

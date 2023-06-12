@@ -11,6 +11,10 @@ import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
  */
 public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implements ConverterWriterSettings {
 
+
+  /** default zoning file name to use */
+  public static final String DEFAULT_ZONING_XML = "zoning.xml";
+
   /**
    * Default constructor
    */

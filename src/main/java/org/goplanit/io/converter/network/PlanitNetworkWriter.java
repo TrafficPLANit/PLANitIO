@@ -592,12 +592,9 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    */
   protected PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
     super(IdMapperType.XML);
-    this.settings = new PlanitNetworkWriterSettings(networkPath, DEFAULT_NETWORK_XML, countryName);
+    this.settings = new PlanitNetworkWriterSettings(networkPath, PlanitNetworkWriterSettings.DEFAULT_NETWORK_XML, countryName);
     this.xmlRawNetwork = xmlRawNetwork;
   }
-
-  /** default network file name to use */
-  public static final String DEFAULT_NETWORK_XML = "network.xml";
 
   /**
    * @return network id mapper

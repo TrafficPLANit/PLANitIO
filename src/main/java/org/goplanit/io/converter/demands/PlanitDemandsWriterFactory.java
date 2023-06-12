@@ -3,8 +3,6 @@ package org.goplanit.io.converter.demands;
 import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
 import org.goplanit.zoning.Zoning;
 
-import static org.goplanit.io.converter.demands.PlanitDemandsWriter.DEFAULT_DEMANDS_XML;
-
 /**
  * Factory for creating PLANit Demands Writers
  * 
@@ -20,7 +18,9 @@ public class PlanitDemandsWriterFactory {
    * @return created demands writer 
    */
   public static PlanitDemandsWriter create(final String demandsPath, final Zoning parentZoning) {
-    return create(new PlanitDemandsWriterSettings(demandsPath, DEFAULT_DEMANDS_XML), parentZoning, new XMLElementMacroscopicDemand());
+    return create(
+        new PlanitDemandsWriterSettings(
+            demandsPath, PlanitDemandsWriterSettings.DEFAULT_DEMANDS_XML), parentZoning, new XMLElementMacroscopicDemand());
   }
   
   /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format. By providing the XML memory model instance to populate

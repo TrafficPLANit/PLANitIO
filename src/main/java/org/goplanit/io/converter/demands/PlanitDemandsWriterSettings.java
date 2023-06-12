@@ -38,6 +38,9 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
   protected boolean validate() {
     return super.validate();
   }
+
+  /** default demands file name to use */
+  public static final String DEFAULT_DEMANDS_XML = "demands.xml";
   
   /**
    * Default constructor

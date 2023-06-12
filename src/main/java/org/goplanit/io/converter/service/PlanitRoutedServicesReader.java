@@ -503,11 +503,11 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * {@inheritDoc}
    */
   @Override
-  public RoutedServices read() throws PlanItException {
+  public RoutedServices read(){
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML routed services could be parsed into memory, abort");
+    PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML routed services could be parsed into memory, abort");
     
     /* XML id */
     String xmlId = xmlParser.getXmlRootElement().getId();
@@ -532,10 +532,10 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       xmlParser.clearXmlContent();           
       
     } catch (PlanItException e) {
-      throw e;
+      throw new PlanItRunTimeException(e);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException(String.format("Error while populating routed services %s in PLANitIO", routedServices.getXmlId()),e);
+      throw new PlanItRunTimeException(String.format("Error while populating routed services %s in PLANitIO", routedServices.getXmlId()),e);
     }    
     
     return routedServices;

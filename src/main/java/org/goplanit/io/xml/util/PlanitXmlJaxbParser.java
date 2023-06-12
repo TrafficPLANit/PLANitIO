@@ -96,16 +96,15 @@ public class PlanitXmlJaxbParser<T> {
    * @param inputPathDirectory to use
    * @param xmlFileExtension to use
    * @return true when success, false when something was parsed but no appropriate match could be found
-   * @throws PlanItException thrown if error 
    */
-  public boolean initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) throws PlanItException {    
+  public boolean initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) {
     if(this.xmlRootElement==null) {
-      PlanItException.throwIfNull(inputPathDirectory, "Input path directory for XML reader is not provided, unable to parse");
-      PlanItException.throwIfNull(xmlFileExtension, "No XML file extension provided, unable to parse files if extension is unknown");
+      PlanItRunTimeException.throwIfNull(inputPathDirectory, "Input path directory for XML reader is not provided, unable to parse");
+      PlanItRunTimeException.throwIfNull(xmlFileExtension, "No XML file extension provided, unable to parse files if extension is unknown");
       
       /* first try based on dedicated file for this entity T... */
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
-      PlanItException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
+      PlanItRunTimeException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
       T rootElement = JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames);
       if(rootElement==null) {
         /*...not available, try and see if embedded in single PLANit XML file for more than one entity */

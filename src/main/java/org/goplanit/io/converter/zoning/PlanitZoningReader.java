@@ -665,13 +665,12 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   /** Read the zoning from disk
    * 
    * @return zoning parsed
-   * @throws PlanItException thrown if error
    */
   @Override  
-  public Zoning read() throws PlanItException {
+  public Zoning read(){
         
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("unable to read zoning, network is not compatible with Macroscopic network");
+      throw new PlanItRunTimeException("Unable to read zoning, network is not compatible with Macroscopic network");
     }
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;   
 
@@ -684,7 +683,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       
       /* populate Xml memory model */
       xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-      PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML zoning could be parsed into memory, abort");
+      PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML zoning could be parsed into memory, abort");
       
       /* xml id */
       String zoningXmlId = xmlParser.getXmlRootElement().getId();
@@ -714,10 +713,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       reset();
       
     } catch (PlanItException e) {
-      throw e;
+      throw new PlanItRunTimeException(e);
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when populating zoning in PLANitIO",e);
+      throw new PlanItRunTimeException("Error when populating zoning in PLANitIO",e);
     }
     
     return zoning;

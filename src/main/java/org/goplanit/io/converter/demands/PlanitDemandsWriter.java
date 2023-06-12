@@ -312,9 +312,6 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     this.userClassesPerMode = new HashMap<>();
   }
 
-  /** default demands file name to use */
-  public static final String DEFAULT_DEMANDS_XML = "demands.xml";
-
   /**
    * {@inheritDoc}
    */

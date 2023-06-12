@@ -17,6 +17,9 @@ public class PlanitServiceNetworkWriterSettings extends PlanitXmlWriterSettings 
   @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkWriterSettings.class.getCanonicalName());
 
+  /** default network file name to use */
+  public static final String DEFAULT_SERVICE_NETWORK_XML = "service_network.xml";
+
   /**
    * Default constructor
    */

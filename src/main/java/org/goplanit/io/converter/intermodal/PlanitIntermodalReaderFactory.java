@@ -26,9 +26,8 @@ public class PlanitIntermodalReaderFactory {
   /** Factory method based on all defaults. IT is expected that the user will set the necessary settings via the exposed settings
    * 
    * @return created reader
-   * @throws PlanItException thrown if error
    */
-  public static PlanitIntermodalReader create() throws PlanItException{
+  public static PlanitIntermodalReader create(){
     return create(IdGroupingToken.collectGlobalToken());
   }
 
@@ -36,9 +35,8 @@ public class PlanitIntermodalReaderFactory {
    *
    * @param pathDirectory to use
    * @return created reader
-   * @throws PlanItException thrown if error
    */
-  public static PlanitIntermodalReader create(String pathDirectory) throws PlanItException{
+  public static PlanitIntermodalReader create(String pathDirectory){
     var reader = create();
     reader.getSettings().setInputDirectory(pathDirectory);
     return reader;
@@ -48,9 +46,8 @@ public class PlanitIntermodalReaderFactory {
    *
    * @param idGroupingToken  to use for creating ids
    * @return created reader
-   * @throws PlanItException thrown if error
    */
-  public static PlanitIntermodalReader create(IdGroupingToken idGroupingToken) throws PlanItException{
+  public static PlanitIntermodalReader create(IdGroupingToken idGroupingToken){
     return create(idGroupingToken, new PlanitIntermodalReaderSettings());
   }
 
@@ -59,9 +56,8 @@ public class PlanitIntermodalReaderFactory {
    * 
    * @param intermodalSettings to use
    * @return created reader
-   * @throws PlanItException thrown if error
    */
-  public static PlanitIntermodalReader create(final PlanitIntermodalReaderSettings intermodalSettings) throws PlanItException{
+  public static PlanitIntermodalReader create(final PlanitIntermodalReaderSettings intermodalSettings){
     return create(IdGroupingToken.collectGlobalToken(), intermodalSettings);
   }
 
@@ -70,10 +66,9 @@ public class PlanitIntermodalReaderFactory {
    * @param idGroupingToken  to use for creating ids
    * @param intermodalSettings settings to use
    * @return created reader
-   * @throws PlanItException thrown if error
    */
   public static PlanitIntermodalReader create(
-      IdGroupingToken idGroupingToken, final PlanitIntermodalReaderSettings intermodalSettings) throws PlanItException {
+      IdGroupingToken idGroupingToken, final PlanitIntermodalReaderSettings intermodalSettings){
     MacroscopicNetwork network = new MacroscopicNetwork(idGroupingToken);
     ServiceNetwork serviceNetwork = new ServiceNetwork(idGroupingToken, network);
     Zoning zoning = new Zoning(idGroupingToken, network.getNetworkGroupingTokenId());
@@ -89,9 +84,9 @@ public class PlanitIntermodalReaderFactory {
    * @param network to extract references from (if any)
    * @param zoning to populate
    * @return created reader
-   * @throws PlanItException  thrown if error
    */
-  public static PlanitIntermodalReader create(String pathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning) throws PlanItException{   
+  public static PlanitIntermodalReader create(
+      String pathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning){
     return create(pathDirectory, xmlFileExtension, network, zoning, null, null);
   }
 
@@ -104,10 +99,9 @@ public class PlanitIntermodalReaderFactory {
    * @param serviceNetwork to populate
    * @param routedServices to populate
    * @return created reader
-   * @throws PlanItException  thrown if error
    */
   public static PlanitIntermodalReader create(
-      String pathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning, ServiceNetwork serviceNetwork, RoutedServices routedServices) throws PlanItException{
+      String pathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning, ServiceNetwork serviceNetwork, RoutedServices routedServices){
     return new PlanitIntermodalReader(pathDirectory, xmlFileExtension, network, zoning, serviceNetwork, routedServices);
   }
   
@@ -122,7 +116,6 @@ public class PlanitIntermodalReaderFactory {
    * @param serviceNetwork to populate
    * @param routedServices to populate
    * @return created reader
-   * @throws PlanItException  thrown if error
    */
   public static  PlanitIntermodalReader create(
       XMLElementMacroscopicNetwork xmlRawNetwork,
@@ -132,9 +125,17 @@ public class PlanitIntermodalReaderFactory {
       MacroscopicNetwork network,
       Zoning zoning,
       ServiceNetwork serviceNetwork,
-      RoutedServices routedServices) throws PlanItException{
+      RoutedServices routedServices){
     return new PlanitIntermodalReader(
-        new PlanitIntermodalReaderSettings(), xmlRawNetwork, xmlRawZoning, xmlRawServiceNetwork, xmlRawRoutedServices, network, zoning, serviceNetwork, routedServices);
+        new PlanitIntermodalReaderSettings(),
+        xmlRawNetwork,
+        xmlRawZoning,
+        xmlRawServiceNetwork,
+        xmlRawRoutedServices,
+        network,
+        zoning,
+        serviceNetwork,
+        routedServices);
   }
 
 }

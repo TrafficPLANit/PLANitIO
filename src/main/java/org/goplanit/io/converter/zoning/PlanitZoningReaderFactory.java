@@ -19,9 +19,8 @@ public class PlanitZoningReaderFactory {
    *  (input dir especially)
    *  
    * @return created PLANit zoning reader
-   * @throws PlanItException thrown if error
    */
-  public static PlanitZoningReader create() throws PlanItException{
+  public static PlanitZoningReader create(){
     PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();
     MacroscopicNetwork networkToPopulate = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
     Zoning zoningToPopulate = new Zoning(IdGroupingToken.collectGlobalToken(), networkToPopulate.getNetworkGroupingTokenId());
@@ -36,10 +35,9 @@ public class PlanitZoningReaderFactory {
    * @param network to extract references from (if any)
    * @param zoning to populate
    * @return created PLANit zoning reader
-   * @throws PlanItException  thrown if error
    */
   public static PlanitZoningReader create(
-      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning){
     return create(new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension),network, zoning);
   }
 
@@ -73,10 +71,9 @@ public class PlanitZoningReaderFactory {
    * @param network to extract references from (if any)
    * @param zoning to populate
    * @return created PLANit zoning reader
-   * @throws PlanItException  thrown if error
    */
   public static  PlanitZoningReader create(
-      final XMLElementMacroscopicZoning xmlRawZoning, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final XMLElementMacroscopicZoning xmlRawZoning, final LayeredNetwork<?,?> network, final Zoning zoning){
     return new PlanitZoningReader(xmlRawZoning, network, zoning);
   }
 
@@ -87,10 +84,9 @@ public class PlanitZoningReaderFactory {
    * @param network to extract references from (if any)
    * @param zoning to populate
    * @return created PLANit zoning reader
-   * @throws PlanItException  thrown if error
    */
   public static  PlanitZoningReader create(
-      final XMLElementMacroscopicZoning xmlRawZoning, final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?,?> network, final Zoning zoning) throws PlanItException{
+      final XMLElementMacroscopicZoning xmlRawZoning, final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?,?> network, final Zoning zoning){
     return new PlanitZoningReader(xmlRawZoning, zoningSettings, network, zoning);
   }
 

@@ -195,7 +195,7 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    * {@inheritDoc}
    */
   @Override
-  public Pair<MacroscopicNetwork, Zoning> read() throws PlanItException {
+  public Pair<MacroscopicNetwork, Zoning> read(){
     validate(false);
 
     /* network */
@@ -228,7 +228,7 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    * @return created network, zoning, service network and services
    */
   @Override
-  public Quadruple<MacroscopicNetwork, Zoning, ServiceNetwork, RoutedServices> readWithServices() throws PlanItException {
+  public Quadruple<MacroscopicNetwork, Zoning, ServiceNetwork, RoutedServices> readWithServices(){
     validate(true);
 
     // network + zoning

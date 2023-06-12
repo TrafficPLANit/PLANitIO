@@ -294,12 +294,10 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    */
   protected PlanitServiceNetworkWriter(String networkPath, String countryName, XMLElementServiceNetwork xmlRawServiceNetwork) {
     super(IdMapperType.XML);
-    this.settings = new PlanitServiceNetworkWriterSettings(networkPath, DEFAULT_SERVICE_NETWORK_XML, countryName);
+    this.settings = new PlanitServiceNetworkWriterSettings(
+        networkPath, PlanitServiceNetworkWriterSettings.DEFAULT_SERVICE_NETWORK_XML, countryName);
     this.xmlRawServiceNetwork = xmlRawServiceNetwork;
   }
-
-  /** default network file name to use */
-  public static final String DEFAULT_SERVICE_NETWORK_XML = "service_network.xml";
 
   /**
    * {@inheritDoc}
