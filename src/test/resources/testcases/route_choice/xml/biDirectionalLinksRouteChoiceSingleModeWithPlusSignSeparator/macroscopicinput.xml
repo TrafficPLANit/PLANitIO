@@ -1,7 +1,7 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
-	<macroscopicdemand>
+	xsi:noNamespaceSchemaLocation="https://goplanit.org/xsd/macroscopicinput.xsd">
+	<macroscopicdemand id="1">
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
@@ -17,13 +17,16 @@
 			</timeperiods>
 		</demandconfiguration>
 		<oddemands>
-			<odrawmatrix timeperiodref="0" userclassref="1">
-				<values os=" " ds="+">100+200+300+400 200+400+600+800 300+600+900+1200 400+800+1200+1600
-				</values>
-			</odrawmatrix>
+			<odrowmatrix timeperiodref="0" userclassref="1" ds="+">
+				<odrow ref="1">100+200+300+400</odrow>
+				<odrow ref="2">200+400+600+800</odrow>
+				<odrow ref="3">300+600+900+1200</odrow>
+				<odrow ref="4">400+800+1200+1600</odrow>
+			</odrowmatrix>
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
+		<id>1</id>
 		<configuration>
 			<modes>
 				<mode id="1">															
@@ -300,6 +303,7 @@
 		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
+		<id>1</id>
 		<zones>
 			<zone id="1">
 				<centroid>

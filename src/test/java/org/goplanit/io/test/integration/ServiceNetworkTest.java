@@ -1,8 +1,9 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import org.goplanit.io.converter.network.PlanitNetworkReader;
@@ -13,9 +14,9 @@ import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.id.IdGenerator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test being able to read and write service networks
@@ -28,14 +29,17 @@ public class ServiceNetworkTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  @BeforeClass
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path serviceNetworkTestCasePath = Path.of(testCasePath.toString(),"getting_started", "service");
+
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(ServiceNetworkTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -49,15 +53,13 @@ public class ServiceNetworkTest {
   @Test
   public void gettingStartedTestWithServices() {
     try {
-      final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
-      
       /* parent network */
       PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
-      networkReader.getSettings().setInputDirectory(INPUT_DIR);      
+      networkReader.getSettings().setInputDirectory(serviceNetworkTestCasePath.toString());
       MacroscopicNetwork parentNetwork = networkReader.read();
       
       /* the service network */
-      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);      
+      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(serviceNetworkTestCasePath.toString(), parentNetwork);
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
       /* tests */
@@ -69,7 +71,7 @@ public class ServiceNetworkTest {
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegs().getByXmlId("l1")!=null);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().size()==2);
       assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1")!=null);
-      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1").getParentLeg().getXmlId().equals("l1"));
+      assertTrue(serviceNetwork.getTransportLayers().getFirst().getLegSegments().getByXmlId("ls1").getParent().getXmlId().equals("l1"));
       
     }catch(Exception e){
       e.printStackTrace();

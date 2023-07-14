@@ -1,11 +1,6 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.logging.Logger;
 
@@ -21,22 +16,16 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.Network;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.project.CustomPlanItProject;
-import org.goplanit.service.routed.RelativeLegTiming;
-import org.goplanit.service.routed.RoutedModeServices;
-import org.goplanit.service.routed.RoutedService;
-import org.goplanit.service.routed.RoutedServiceTripInfo;
+import org.goplanit.utils.service.routed.*;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.service.routed.RoutedTripDepartures;
-import org.goplanit.service.routed.RoutedTripFrequency;
-import org.goplanit.service.routed.RoutedTripSchedule;
-import org.goplanit.service.routed.RoutedTripsFrequency;
-import org.goplanit.service.routed.RoutedTripsSchedule;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.mode.PredefinedModeType;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test being able to read and write routed services on top of a service network
@@ -49,14 +38,17 @@ public class RoutedServicesTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  @BeforeClass
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path routedServicesTestCasePath = Path.of(testCasePath.toString(),"getting_started", "service");
+
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(RoutedServicesTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -70,19 +62,17 @@ public class RoutedServicesTest {
   @Test
   public void gettingStartedTestWithRoutedServices() {
     try {
-      final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
-      
       /* parent network */
       PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
-      networkReader.getSettings().setInputDirectory(INPUT_DIR);      
+      networkReader.getSettings().setInputDirectory(routedServicesTestCasePath.toString());
       MacroscopicNetwork parentNetwork = networkReader.read();
       
       /* the service network */
-      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(INPUT_DIR, parentNetwork);      
+      PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(routedServicesTestCasePath.toString(), parentNetwork);
       ServiceNetwork serviceNetwork = serviceNetworkReader.read();
       
       /* the routed services */
-      PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(INPUT_DIR, serviceNetwork);      
+      PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(routedServicesTestCasePath.toString(), serviceNetwork);
       RoutedServices routedServices = routedServicesReader.read();       
       
       /* general tests on the routed service top-level classes */
@@ -96,14 +86,14 @@ public class RoutedServicesTest {
       assertTrue(busServices.size()==2);
       /* run assertions on the service entries themselves*/
       
-      RoutedService line4Service = busServices.findFirst( service -> service.getXmlId().equals("line_4"));
+      RoutedService line4Service = busServices.firstMatch(service -> service.getXmlId().equals("line_4"));
       assertNotNull(line4Service);
       assertEquals(line4Service.getName(),"4");
       assertEquals(line4Service.getNameDescription(),"city to beach");
       assertEquals(line4Service.getServiceDescription(),"bus line running from the city to the beach directly");
       assertNotNull(line4Service.getTripInfo());
       RoutedServiceTripInfo line4TripInfo = line4Service.getTripInfo();
-      assertEquals(line4TripInfo.hasScheduleBasedTrips(),true);
+      assertEquals(line4TripInfo.hasScheduleBasedTrips(),false);
       assertEquals(line4TripInfo.hasFrequencyBasedTrips(),true);
       assertNotNull(line4TripInfo.getFrequencyBasedTrips());
       RoutedTripsFrequency line4FrequencyTrips = line4TripInfo.getFrequencyBasedTrips();
@@ -115,8 +105,10 @@ public class RoutedServicesTest {
       assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLastLegSegment()));
       assertTrue(frequencyEntry.getFirstLegSegment().equals(frequencyEntry.getLegSegment(0)));
       
-      RoutedService line4OppService = busServices.findFirst( service -> service.getXmlId().equals("line_4_opp"));
+      RoutedService line4OppService = busServices.firstMatch(service -> service.getXmlId().equals("line_4_opp"));
       RoutedServiceTripInfo line4OppTripInfo = line4OppService.getTripInfo();
+      assertEquals(line4OppTripInfo.hasScheduleBasedTrips(),true);
+      assertEquals(line4OppTripInfo.hasFrequencyBasedTrips(),false);
       assertNotNull(line4OppTripInfo.getScheduleBasedTrips());
       RoutedTripsSchedule line4OppScheduledTrips = line4OppTripInfo.getScheduleBasedTrips();
       assertEquals(line4OppScheduledTrips.size(),1);
@@ -125,9 +117,9 @@ public class RoutedServicesTest {
       assertNotNull(scheduleEntry.getDepartures());
       RoutedTripDepartures scheduleDepartures = scheduleEntry.getDepartures();
       assertEquals(scheduleDepartures.size(),3);
-      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep1")));
-      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep2")));
-      assertNotNull(scheduleDepartures.findFirst( dep -> dep.getXmlId().equals("dep3")));
+      assertNotNull(scheduleDepartures.firstMatch(dep -> dep.getXmlId().equals("dep1")));
+      assertNotNull(scheduleDepartures.firstMatch(dep -> dep.getXmlId().equals("dep2")));
+      assertNotNull(scheduleDepartures.firstMatch(dep -> dep.getXmlId().equals("dep3")));
       assertEquals(scheduleEntry.getRelativeLegTimingsSize(),1);
       assertNotNull(scheduleEntry.getRelativeLegTiming(0));
       RelativeLegTiming relTiming = scheduleEntry.getRelativeLegTiming(0);
@@ -150,10 +142,9 @@ public class RoutedServicesTest {
    */
   @Test
   public void routedServicesViaPlanitProject() {  
-    final String INPUT_DIR = "src\\test\\resources\\testcases\\getting_started\\service";
-    
+
     try {
-      final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(INPUT_DIR));
+      final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder(routedServicesTestCasePath.toString()));
       
       /* physical network needed for service network... */
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(Network.MACROSCOPIC_NETWORK);

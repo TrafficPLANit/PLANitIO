@@ -19,9 +19,9 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.csv.CSVPrinter;
-import org.goplanit.io.xml.converter.EnumConverter;
+import org.goplanit.io.xml.converter.XmlEnumConverter;
 import org.goplanit.io.xml.util.ApplicationProperties;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.output.adapter.OutputAdapter;
 import org.goplanit.output.configuration.OutputConfiguration;
@@ -108,7 +108,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @return loggingPrefix
    */
   private String createLoggingPrefix() {
-    return LoggingUtils.createOutputFormatterPrefix(this.id);
+    return LoggingUtils.outputFormatterPrefix(this.id);
   }
   
   /** Create the logging prefix to use for assignment specific logging messages
@@ -116,7 +116,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @return loggingPrefix
    */
   private String createLoggingPrefix(long runId) {
-    return LoggingUtils.createRunIdPrefix(runId) +createLoggingPrefix();
+    return LoggingUtils.runIdPrefix(runId) +createLoggingPrefix();
   }  
   
   /**
@@ -132,12 +132,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   private String generateRelativeOutputFileName(final OutputType outputType, final OutputAdapter outputAdapter, final TimePeriod timePeriod, int iteration)
       throws PlanItException {
     
-    Path pathAbsolute = Paths.get(csvDirectory);
+    String absoluteFileName = generateAbsoluteOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, outputAdapter.getRunId(), iteration);
     Path pathBase = Paths.get(xmlDirectory);
-    Path pathRelative = pathBase.relativize(pathAbsolute);
-    String relativeCsvOutputDirectory = pathRelative.toString();
-    relativeCsvOutputDirectory = relativeCsvOutputDirectory.equals("") ? "." : relativeCsvOutputDirectory;
-    return generateOutputFileName(relativeCsvOutputDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, outputAdapter.getRunId(), iteration);
+    return pathBase.toAbsolutePath().relativize(Path.of(absoluteFileName)).toString();
   }
 
   /**
@@ -191,8 +188,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     for (OutputProperty outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
       generatedColumn.setName(outputProperty.getName());
-      generatedColumn.setUnits(EnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
-      generatedColumn.setType(EnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
+      generatedColumn.setUnits(XmlEnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
+      generatedColumn.setType(XmlEnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
       generatedColumns.getColumn().add(generatedColumn);
     }
     return generatedColumns;
@@ -229,12 +226,14 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    */
   private void createOrOpenOutputDirectory(final String outputDirectory, boolean resetDirectory) throws PlanItException {
     try {
-      File directory = new File(outputDirectory);
-      if (!directory.isDirectory()) {
-        Files.createDirectories(directory.toPath());
+
+      Path absoluteDir = Path.of(outputDirectory).toAbsolutePath();
+      File dirAsFile = absoluteDir.toFile();
+      if (!dirAsFile.isDirectory()) {
+        Files.createDirectories(absoluteDir);
       }
       if (resetDirectory) {
-        purgeDirectory(outputDirectory);
+        purgeDirectory(absoluteDir.toFile());
       }
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -284,15 +283,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     }
   }
 
-  /**
-   * Remove all files and sub-directories from a specified directory
-   * 
-   * @param directoryName name of the directory to be cleared
-   */
-  private void purgeDirectory(final String directoryName) {
-    File directory = new File(directoryName);
-    purgeDirectory(directory);
-  }
 
   /**
    * Create a CSV file with output content based on the current (sub) output type
@@ -312,7 +302,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     // create the name based on iteration, time period and related info
     // String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension,
     // timePeriod, outputTypeConfiguration.getOutputType(), runId, iterationIndex);
-    String csvFileName = generateOutputFileName(
+    String csvFileName = generateAbsoluteOutputFileName(
         csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputTypeConfiguration.getOutputType(), outputAdapter.getRunId(), iterationIndex);
     try {
       // create the header (first line) of the file
@@ -328,7 +318,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       throw e;
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when createing CSV file name and file in PLANitIO OutputFormatter", e);
+      throw new PlanItException("Error when creating CSV file name and file in PLANitIO OutputFormatter", e);
     }
 
     return csvFileName;
@@ -378,7 +368,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       // MARK 6-1-2020: Why is this here and not immediately placed in the same if
       // that checks for a new period at the top of this method?
       if (isNewTimePeriod) {
-        xmlFileNameMap.put(outputType, generateOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
+        xmlFileNameMap.put(outputType, generateAbsoluteOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
       }
     } catch (PlanItException e) {
       throw e;

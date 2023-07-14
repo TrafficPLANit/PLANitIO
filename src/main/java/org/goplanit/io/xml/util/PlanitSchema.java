@@ -36,6 +36,10 @@ public class PlanitSchema {
   public static final String MACROSCOPIC_DEMAND_XSD= "macroscopicdemandinput.xsd";
   
   public static final String MACROSCOPIC_ZONING_XSD= "macroscopiczoninginput.xsd";
+
+  public static final String SERVICE_NETWORK_XSD= "servicenetworkinput.xsd";
+
+  public static final String ROUTED_SERVICES_XSD= "routedservicesinput.xsd";
   
   public static final String METADATA_XSD= "metadata.xsd";
   

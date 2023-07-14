@@ -5,14 +5,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-
-import net.opengis.gml.AbstractRingPropertyType;
 import net.opengis.gml.CoordType;
 import net.opengis.gml.CoordinatesType;
 import net.opengis.gml.DirectPositionType;
 import net.opengis.gml.LineStringType;
-import net.opengis.gml.LinearRingType;
 import net.opengis.gml.ObjectFactory;
 import net.opengis.gml.PointType;
 import net.opengis.gml.PolygonType;
@@ -159,13 +155,13 @@ public class PlanitGmlUtils {
     PolygonType gmlPolygonType = new PolygonType();
     
     /* exterior */
-    JAXBElement<AbstractRingPropertyType> xmlAbstractRingPropertyType = 
+    var xmlAbstractRingPropertyType =
         openGisObjectFactory.createOuterBoundaryIs(openGisObjectFactory.createAbstractRingPropertyType());
     gmlPolygonType.setExterior(xmlAbstractRingPropertyType);    
 
     /* linear ring */
-    JAXBElement<LinearRingType> xmlLinearRingType = 
-        openGisObjectFactory.createLinearRing(openGisObjectFactory.createLinearRingType());    
+    var xmlLinearRingType =
+        openGisObjectFactory.createLinearRing(openGisObjectFactory.createLinearRingType());
     xmlAbstractRingPropertyType.getValue().setRing(xmlLinearRingType);
     
     /* coordinates */

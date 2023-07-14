@@ -18,7 +18,7 @@ import org.goplanit.component.event.PopulateNetworkEvent;
 import org.goplanit.component.event.PopulateRoutedServicesEvent;
 import org.goplanit.component.event.PopulateServiceNetworkEvent;
 import org.goplanit.component.event.PopulateZoningEvent;
-import org.goplanit.cost.physical.initial.InitialLinkSegmentCost;
+import org.goplanit.cost.physical.initial.InitialMacroscopicLinkSegmentCost;
 import org.goplanit.demands.Demands;
 import org.goplanit.input.InputBuilderListener;
 import org.goplanit.io.converter.demands.PlanitDemandsReader;
@@ -30,7 +30,7 @@ import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
@@ -125,7 +125,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       success = parseXmlRawInputSeparateFiles(xmlFileNames);
     }
     
-    PlanItException.throwIf(!success, String.format("The directory %s does not contain either one file with all the macroscopic inputs or a separate file for each of zoning, demand and network",projectPath));
+    PlanItException.throwIf(!success, String.format("Directory %s does not contain file with all inputs nor separate files for zoning, demand, and network",projectPath));
   }
 
   /**
@@ -281,8 +281,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param timePeriod to use (may be null)
    * @throws PlanItException thrown if error
    */
-  private void setInitialLinkSegmentCost(final InitialLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
-      final MacroscopicLinkSegment linkSegment, final TimePeriod timePeriod) throws PlanItException {
+  private void setInitialLinkSegmentCost(final InitialMacroscopicLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
+                                         final MacroscopicLinkSegment linkSegment, final TimePeriod timePeriod) throws PlanItException {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
 
@@ -440,7 +440,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       final Set<String> headers = parser.getHeaderMap().keySet();
       
       /* populate this */
-      InitialLinkSegmentCost initialLinkSegmentCost = initialCostEvent.getInitialLinkSegmentCostToPopulate();
+      var initialLinkSegmentCost = initialCostEvent.getInitialLinkSegmentCostToPopulate();
 
       /* lay index by reference method */
       final OutputPropertyType linkIdentificationMethod = getInitialCostLinkIdentificationMethod(headers);

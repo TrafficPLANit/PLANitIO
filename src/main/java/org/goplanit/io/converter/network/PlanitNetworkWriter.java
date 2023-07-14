@@ -2,34 +2,30 @@ package org.goplanit.io.converter.network;
 
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
-import org.goplanit.io.converter.PlanitWriterImpl;
-import org.goplanit.io.xml.util.EnumConversionUtil;
+import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
-import org.goplanit.network.layer.MacroscopicNetworkLayerImpl;
+import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
 import org.goplanit.utils.mode.UsabilityModeFeatures;
-import org.goplanit.utils.network.layer.TransportLayer;
-import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentTypes;
+import org.goplanit.utils.network.layer.NetworkLayer;
+import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.network.layer.physical.Link;
-import org.goplanit.utils.network.layer.physical.Links;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
 import org.goplanit.xml.generated.Direction;
@@ -57,7 +53,7 @@ import org.goplanit.xml.generated.XMLElementLinkSegmentType.Access;
  * @author markr
  *
  */
-public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<?,?>> implements NetworkWriter {  
+public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
@@ -67,32 +63,19 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
   
   /** network writer settings to use */
   private final PlanitNetworkWriterSettings settings;
-   
-    
-  /** Get the reference to use whenever a mode reference is encountered
-   * 
-   * @param mode to collect reference for
-   * @return modeReference for the mode
-   */
-  private String getXmlModeReference(Mode mode) {
-    /* Xml id */
-    if(mode.isPredefinedModeType()) {
-      /* predefined modes, must utilise, their predefined Xml id/name, this overrules the mapper (if any) */
-      return mode.getXmlId();  
-    }else {
-      return getModeIdMapper().apply(mode);
-    }
-  }  
   
+  /* track logging prefix for current layer */
+  private String currLayerLogPrefix;
+
   /**
    * populate a single xml link segment element based on the passed in PLANit link segment
    * 
    * @param xmlLinkSegment to populate
    * @param linkSegment the PLANit link segment instance to populate from
    */
-  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {   
+  private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
     /* id */
-    xmlLinkSegment.setId(getLinkSegmentIdMapper().apply(linkSegment));
+    xmlLinkSegment.setId(getPrimaryIdMapper().getLinkSegmentIdMapper().apply(linkSegment));
     /* max speed */
     xmlLinkSegment.setMaxspeed(linkSegment.getPhysicalSpeedLimitKmH());
     /* number of lanes */
@@ -100,7 +83,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     if(!linkSegment.hasLinkSegmentType()) {
       LOGGER.severe(String.format("missing link segment type on link segment %s (id:%d)", linkSegment.getExternalId(), linkSegment.getId()));      
     }else {
-      xmlLinkSegment.setTyperef(getLinkSegmentTypeIdMapper().apply(linkSegment.getLinkSegmentType()));  
+      xmlLinkSegment.setTyperef(getPrimaryIdMapper().getLinkSegmentTypeIdMapper().apply(linkSegment.getLinkSegmentType()));
     }
   }  
   
@@ -109,10 +92,11 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * @param xmlLink to populate link segments on
    * @param link to populate link segments from
    */
-  private void populateLinkSegments(XMLElementLinks.Link xmlLink, Link link) {
+  private void populateLinkSegments(XMLElementLinks.Link xmlLink, MacroscopicLink link) {
     List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegment();
     
-    if(link.hasLinkSegmentAb()) {      
+    if(link.hasLinkSegmentAb()) {
+      link.getLinkSegmentAb().validate();
       XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
       /* direction A->B */
       xmlLinkSegment.setDir(Direction.A_B);
@@ -120,6 +104,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
       xmlLinkSegments.add(xmlLinkSegment);
     }
     if(link.hasLinkSegmentBa()) {
+      link.getLinkSegmentBa().validate();
       XMLElementLinkSegment xmlLinkSegment = new XMLElementLinkSegment();
       /* direction B->A */
       xmlLinkSegment.setDir(Direction.B_A);
@@ -137,13 +122,12 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    *  
    * @param xmlLinkList to add link to 
    * @param link to populate from
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final Link link) throws PlanItException {
+  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final MacroscopicLink link) {
     XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
     
     /* XML id */
-    xmlLink.setId(getLinkIdMapper().apply(link));
+    xmlLink.setId(getPrimaryIdMapper().getLinkIdMapper().apply(link));
     
     /* external id */
     if(link.hasExternalId()) {
@@ -154,7 +138,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     boolean useOverrideLength = true;
     if(getGeoUtils()!= null && link.hasGeometry()) {
       double geographicLength = getGeoUtils().getDistanceInKilometres(link.getGeometry());
-      if(Precision.isEqual(geographicLength, link.getLengthKm(), Precision.EPSILON_6)) {
+      if(Precision.equal(geographicLength, link.getLengthKm(), Precision.EPSILON_6)) {
         useOverrideLength = false;
       }
     }
@@ -171,12 +155,14 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
       xmlLink.setName(link.getName());      
     }
     /* node A ref */
-    xmlLink.setNodearef(getVertexIdMapper().apply(link.getNodeA()));
+    xmlLink.setNodearef(getPrimaryIdMapper().getVertexIdMapper().apply(link.getNodeA()));
     /* node B ref */
-    xmlLink.setNodebref(getVertexIdMapper().apply(link.getNodeB()));    
+    xmlLink.setNodebref(getPrimaryIdMapper().getVertexIdMapper().apply(link.getNodeB()));
     
     /* line string */
-    xmlLink.setLineString(createGmlLineStringType(link.getGeometry()));
+    if(link.hasGeometry()) {
+      xmlLink.setLineString(createGmlLineStringType(link.getGeometry()));
+    }
         
     /* link segments */
     populateLinkSegments(xmlLink, link);
@@ -190,9 +176,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * 
    * @param xmlNetworkLayer to populate on
    * @param links to populate from
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final Links links) throws PlanItException {
+  private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final MacroscopicLinks links) {
     XMLElementLinks xmlLinks = xmlNetworkLayer.getLinks(); 
     if(xmlLinks == null) {
       xmlLinks = new XMLElementLinks();
@@ -201,9 +186,10 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     
     /* link */
     final List<XMLElementLinks.Link> xmlLinkList = xmlLinks.getLink();    
-    for(Link link: links) {
+    links.streamSortedBy(getPrimaryIdMapper().getLinkIdMapper()).forEach(link -> {
+      link.validate();
       populateXmlLink(xmlLinkList, link);
-    }
+    });
   } 
   
   /**
@@ -217,7 +203,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     xmlNodeList.add(xmlNode);
     
     /* Xml id */
-    xmlNode.setId(getVertexIdMapper().apply(node));
+    xmlNode.setId(getPrimaryIdMapper().getVertexIdMapper().apply(node));
     
     /* external id */
     if(node.hasExternalId()) {
@@ -246,7 +232,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
         
     /* node */
     final List<XMLElementNodes.Node> xmlNodeList = xmlNodes.getNode();    
-    nodes.forEach( node -> populateXmlNode(xmlNodeList, node));    
+    nodes.streamSortedBy(getPrimaryIdMapper().getVertexIdMapper()).forEach( node -> populateXmlNode(xmlNodeList, node));
   }
   
   /**
@@ -262,7 +248,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     
     /* mode ref id */
     Set<Mode> accessModes = accessGroupProperties.getAccessModes();
-    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode)).collect(Collectors.joining(","));
+    String modeRefs = accessModes.stream().map(mode -> getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper())).sorted().collect(Collectors.joining(","));
     xmlAccessGroup.setModerefs(modeRefs);
     
     /* critical speed */
@@ -288,7 +274,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
     
     /* Xml id */
-    xmlLinkSegmentType.setId(getLinkSegmentTypeIdMapper().apply(linkSegmentType));
+    xmlLinkSegmentType.setId(getPrimaryIdMapper().getLinkSegmentTypeIdMapper().apply(linkSegmentType));
     
     /* external id */
     if(linkSegmentType.hasExternalId()) {
@@ -314,14 +300,15 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     }
 
     /* only apply once per access properties since it may be referenced by multiple modes */
-    Set<Mode> processedModes = new TreeSet<Mode>();
-    for(Mode accessMode : linkSegmentType.getAllowedModes()) {
+    Set<Mode> processedModes = new TreeSet<>();
+    final var finalXmlTypeAccess = xmlTypeAccess;
+    linkSegmentType.getAllowedModes().stream().sorted(Comparator.comparing(Mode::getXmlId)).forEach( accessMode -> {
       if(!processedModes.contains(accessMode)) {
         AccessGroupProperties accessProperties = linkSegmentType.getAccessProperties(accessMode);
         processedModes.addAll(accessProperties.getAccessModes());
-        populateLinkSegmentTypeAccessGroupProperties(xmlTypeAccess, accessProperties);
+        populateLinkSegmentTypeAccessGroupProperties(finalXmlTypeAccess, accessProperties);
       }
-    }
+    });
         
     xmlLinkSegmentTypeList.add(xmlLinkSegmentType);
   }   
@@ -340,7 +327,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     
     /* link segment type */
     List<XMLElementLinkSegmentType> xmlLinkSegmentTypeList = xmlLinkSegmentTypes.getLinksegmenttype();
-    linkSegmentTypes.forEach( linkSegmentType -> populateXmlLinkSegmentType(xmlLinkSegmentTypeList, linkSegmentType));
+    linkSegmentTypes.streamSortedBy(getPrimaryIdMapper().getLinkSegmentTypeIdMapper()).forEach(
+        linkSegmentType -> populateXmlLinkSegmentType(xmlLinkSegmentTypeList, linkSegmentType));
   }  
   
   /** Populate the xml </physicalfeatures/> element
@@ -357,12 +345,12 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     
     try {
       /* motorisation type */
-      xmlPhysicalFeatures.setMotorisationtype(EnumConversionUtil.planitToXml(physicalModeFeatures.getMotorisationType()));
+      xmlPhysicalFeatures.setMotorisationtype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getMotorisationType()));
       /* track type */
-      xmlPhysicalFeatures.setTracktype(EnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
+      xmlPhysicalFeatures.setTracktype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
       /* vehicle type */
-      xmlPhysicalFeatures.setVehicletype(EnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
-    }catch(PlanItException e) {
+      xmlPhysicalFeatures.setVehicletype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
+    }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
     }
@@ -383,9 +371,8 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     
     try {
       /* motorisation type */
-      xmlUseFeatures.setUsedtotype(EnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
-
-    }catch(PlanItException e) {
+      xmlUseFeatures.setUsedtotype(xmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
+    }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
     }
@@ -401,7 +388,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     XMLElementModes.Mode xmlMode = new XMLElementModes.Mode();
     
     /* Xml id */
-    xmlMode.setId(getXmlModeReference(mode));
+    xmlMode.setId(getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper()));
     
     /* external id */
     if(mode.hasExternalId()) {
@@ -448,7 +435,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     
     /* modes*/
     List<XMLElementModes.Mode> xmlModesList = xmlModes.getMode();
-    modes.forEach( mode -> populateXmlMode(xmlModesList, mode));        
+    modes.stream().sorted(Comparator.comparing(getPrimaryIdMapper().getModeIdMapper())).forEach( mode -> populateXmlMode(xmlModesList, mode));
   }          
 
   /** Populate the XML id of the XML network element
@@ -503,19 +490,44 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    * 
    * @param xmlInfrastructureLayers to add xml layer to 
    * @param physicalNetworkLayer to populate from
-   * @throws PlanItException thrown if error
-   */
-  protected void populateXmlNetworkLayer(XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicNetworkLayerImpl physicalNetworkLayer) throws PlanItException {
+   * @param network to extract from
+     */
+  protected void populateXmlNetworkLayer(final XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicNetworkLayerImpl physicalNetworkLayer, MacroscopicNetwork network) {
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
-    xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer); 
+    xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer);
     
-    /* layer configuration */
+    /* XML id */
+    xmlNetworkLayer.setId(physicalNetworkLayer.getXmlId());
+    
+    /* External id */
+    if(physicalNetworkLayer.hasExternalId()) {
+      xmlNetworkLayer.setExternalid(physicalNetworkLayer.getExternalId());
+    }
+    
+    /* supported modes */
+    if(!physicalNetworkLayer.hasSupportedModes()) {
+      LOGGER.severe(String.format("%s Network layer has no supported modes, skip persistence",currLayerLogPrefix));
+      return;
+    }
+    
+    String xmlModesStr = physicalNetworkLayer.getSupportedModes().stream().map(
+        m -> getPrimaryIdMapper().getModeIdMapper().apply(m)).sorted().collect(Collectors.joining(","));
+    LOGGER.info(String.format("%s Supported modes: %s", currLayerLogPrefix, xmlModesStr));
+    if(network.getTransportLayers().size()>1) {      
+      xmlNetworkLayer.setModes(xmlModesStr);
+    }
+        
+    /* layer configuration */    
+    LOGGER.info(String.format("%s Link segment types: %d", currLayerLogPrefix, physicalNetworkLayer.linkSegmentTypes.size()));
     populateXmlLayerConfiguration(xmlNetworkLayer, physicalNetworkLayer.linkSegmentTypes);
 
     /* links */
+    LOGGER.info(String.format("%s Links: %d", currLayerLogPrefix, physicalNetworkLayer.getLinks().size()));
+    LOGGER.info(String.format("%s Link segments: %d", currLayerLogPrefix, physicalNetworkLayer.getLinkSegments().size()));
     populateXmlLinks(xmlNetworkLayer, physicalNetworkLayer.getLinks());
         
     /* nodes */
+    LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
     populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());      
   }  
   
@@ -533,22 +545,28 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
     }
     
     /* srs name */
-    xmlInfrastructureLayers.setSrsname(extractSrsName(getSettings()));
+    xmlInfrastructureLayers.setSrsname(extractSrsName(getDestinationCoordinateReferenceSystem()));
     
-    for(TransportLayer networkLayer : network.getTransportLayers()) {
-      if(networkLayer instanceof MacroscopicNetworkLayerImpl) {
-        MacroscopicNetworkLayerImpl physicalNetworkLayer = ((MacroscopicNetworkLayerImpl)networkLayer);
-        populateXmlNetworkLayer(xmlInfrastructureLayers, physicalNetworkLayer);
+    LOGGER.info("Network layers:" + network.getTransportLayers().size());
+    final var finalXmlInfrastructureLayers = xmlInfrastructureLayers;
+    network.getTransportLayers().streamSortedBy(getPrimaryIdMapper().getNetworkLayerIdMapper()).forEach(layer -> {
+      if(layer instanceof MacroscopicNetworkLayerImpl) {
+        MacroscopicNetworkLayerImpl physicalNetworkLayer = ((MacroscopicNetworkLayerImpl)layer);
+        
+        /* XML id */
+        if(physicalNetworkLayer.getXmlId() == null) {
+          LOGGER.warning(String.format("Network layer has no XML id defined, adopting internally generated id %d instead",physicalNetworkLayer.getId()));
+          physicalNetworkLayer.setXmlId(String.valueOf(physicalNetworkLayer.getId()));
+        }
+        this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+ getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer));
+                        
+        populateXmlNetworkLayer(finalXmlInfrastructureLayers, physicalNetworkLayer, network);
       }else {
-        LOGGER.severe(String.format("unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));
+        LOGGER.severe(String.format("Unsupported macroscopic infrastructure layer %s encountered", getPrimaryIdMapper().getNetworkLayerIdMapper().apply(layer)));
       }
-    }
-  }  
-  
+    });
+  }
 
-  /** default network file name to use */
-  public static final String DEFAULT_NETWORK_FILE_NAME = "network.xml";
-  
   /** Constructor 
    * 
    * @param xmlRawNetwork to populate with PLANit network when persisting
@@ -564,7 +582,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    */
   protected PlanitNetworkWriter(String networkPath, XMLElementMacroscopicNetwork xmlRawNetwork) {
     this(networkPath, CountryNames.GLOBAL, xmlRawNetwork);
-  }  
+  }
     
   /** Constructor 
    * 
@@ -574,26 +592,34 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    */
   protected PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
     super(IdMapperType.XML);
-    this.settings = new PlanitNetworkWriterSettings(networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
+    this.settings = new PlanitNetworkWriterSettings(networkPath, PlanitNetworkWriterSettings.DEFAULT_NETWORK_XML, countryName);
     this.xmlRawNetwork = xmlRawNetwork;
+  }
+
+  /**
+   * @return network id mapper
+   */
+  @Override
+  public NetworkIdMapper getPrimaryIdMapper() {
+    return getComponentIdMappers().getNetworkIdMappers();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void write(TransportLayerNetwork<?,?> network) throws PlanItException {
+  public void write(LayeredNetwork<?,?> network) throws PlanItException {
     
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItException("Currently the PLANit network writer only supports macroscopic infrastructure networks, the provided network is not of this type");
     }    
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     
     /* initialise */
-    super.initialiseIdMappingFunctions();        
-    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());  
-    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+    getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+    prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+    LOGGER.info(String.format("Persisting PLANit network to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
     
     /* xml id */
@@ -614,6 +640,7 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
    */
   @Override
   public void reset() {
+    currLayerLogPrefix = null;
     xmlRawNetwork.setConfiguration(null);
     xmlRawNetwork.setInfrastructurelayers(null);
   }  
@@ -627,13 +654,5 @@ public class PlanitNetworkWriter extends PlanitWriterImpl<TransportLayerNetwork<
   public PlanitNetworkWriterSettings getSettings() {
     return this.settings;
   }
-  
-  /** the country name of the network to write (if any is set)
-   * 
-   * @return countryname, null if unknown
-   */
-  public String getCountryName() {
-    return getSettings().getCountry();
-  }  
 
 }

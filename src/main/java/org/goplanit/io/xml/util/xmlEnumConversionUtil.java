@@ -1,6 +1,7 @@
 package org.goplanit.io.xml.util;
 
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.mode.MotorisationModeType;
 import org.goplanit.utils.mode.TrackModeType;
 import org.goplanit.utils.mode.UseOfModeType;
@@ -18,14 +19,13 @@ import org.goplanit.xml.generated.VehicularType;
  * @author markr
  *
  */
-public class EnumConversionUtil {
+public class xmlEnumConversionUtil {
   
   /** convert motorisation type from xml to PLANit
    * @param xmlMotorisationType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static MotorisationModeType xmlToPlanit(final MotorisationType xmlMotorisationType) throws PlanItException {
+  public static MotorisationModeType xmlToPlanit(final MotorisationType xmlMotorisationType) {
     
     switch (xmlMotorisationType) {
     case MOTORISED:
@@ -33,16 +33,15 @@ public class EnumConversionUtil {
     case NON_MOTORISED:
       return MotorisationModeType.NON_MOTORISED;      
     default:
-      throw new PlanItException(String.format("mapping from xml motorisation type %s to PLANit motorisation type unavailable",xmlMotorisationType.toString()));
+      throw new PlanItRunTimeException(String.format("mapping from xml motorisation type %s to PLANit motorisation type unavailable",xmlMotorisationType.toString()));
     }
   }
   
   /** convert motorisation type from PLANit to XML
    * @param planitMotorisationType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static MotorisationType planitToXml(final MotorisationModeType planitMotorisationType) throws PlanItException {
+  public static MotorisationType planitToXml(final MotorisationModeType planitMotorisationType) {
     
     switch (planitMotorisationType) {
     case MOTORISED:
@@ -50,16 +49,15 @@ public class EnumConversionUtil {
     case NON_MOTORISED:
       return MotorisationType.NON_MOTORISED;      
     default:
-      throw new PlanItException(String.format("mapping from planit motorisation type %s to xml motorisation type unavailable",planitMotorisationType.toString()));
+      throw new PlanItRunTimeException(String.format("mapping from planit motorisation type %s to xml motorisation type unavailable",planitMotorisationType.toString()));
     }
   }  
   
   /** convert vehicle type from xml to PLANit
    * @param xmlVehicularType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static VehicularModeType xmlToPlanit(final VehicularType xmlVehicularType) throws PlanItException {
+  public static VehicularModeType xmlToPlanit(final VehicularType xmlVehicularType) {
     
     switch (xmlVehicularType) {
     case VEHICLE:
@@ -67,16 +65,15 @@ public class EnumConversionUtil {
     case NO_VEHICLE:
       return VehicularModeType.NO_VEHICLE;      
     default:
-      throw new PlanItException(String.format("mapping from xml vehicular type %s to PLANit vehicular type unavailable",xmlVehicularType.toString()));
+      throw new PlanItRunTimeException(String.format("mapping from xml vehicular type %s to PLANit vehicular type unavailable",xmlVehicularType.toString()));
     }
   }  
   
   /** convert motorisation type from PLANit to XML
    * @param planitVehicularType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static VehicularType planitToXml(final VehicularModeType planitVehicularType) throws PlanItException {
+  public static VehicularType planitToXml(final VehicularModeType planitVehicularType) {
     
     switch (planitVehicularType) {
     case VEHICLE:
@@ -84,50 +81,53 @@ public class EnumConversionUtil {
     case NO_VEHICLE:
       return VehicularType.NO_VEHICLE;      
     default:
-      throw new PlanItException(String.format("mapping from planit vehicular type %s to xml vehicular type unavailable",planitVehicularType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit vehicular type %s to XML vehicular type unavailable",planitVehicularType.toString()));
     }
   }   
   
-  /** convert track type from xml to PLANit
+  /** convert track type from XML to PLANit
+   *
    * @param xmlTrackType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static TrackModeType xmlToPlanit(final TrackType xmlTrackType) throws PlanItException {
+  public static TrackModeType xmlToPlanit(final TrackType xmlTrackType) {
     
     switch (xmlTrackType) {
     case RAIL:
       return TrackModeType.RAIL;
     case ROAD:
-      return TrackModeType.ROAD;      
+      return TrackModeType.ROAD;
+    case WATER:
+      return TrackModeType.WATER;
     default:
-      throw new PlanItException(String.format("mapping from xml track type %s to PLANit track type unavailable",xmlTrackType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from XML track type %s to PLANit track type unavailable",xmlTrackType.toString()));
     }
   }  
   
   /** convert track type from PLANit to XML
    * @param xmlTrackType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static TrackType planitToXml(final TrackModeType xmlTrackType) throws PlanItException {
+  public static TrackType planitToXml(final TrackModeType xmlTrackType) {
     
     switch (xmlTrackType) {
     case RAIL:
       return TrackType.RAIL;
     case ROAD:
-      return TrackType.ROAD;      
+      return TrackType.ROAD;
+    case WATER:
+      return TrackType.WATER;
     default:
-      throw new PlanItException(String.format("mapping from planit track type %s to xml track type unavailable",xmlTrackType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit track type %s to XML track type unavailable", xmlTrackType));
     }
   }
   
-  /** convert used-to type from xml to PLANit
+  /** convert used-to type from XML to PLANit
+   *
    * @param xmlUseOfType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static UseOfModeType xmlToPlanit(final UsedToType xmlUseOfType) throws PlanItException {
+  public static UseOfModeType xmlToPlanit(final UsedToType xmlUseOfType) {
     
     switch (xmlUseOfType) {
     case GOODS:
@@ -141,16 +141,15 @@ public class EnumConversionUtil {
     case RIDE_SHARE:
       return UseOfModeType.RIDE_SHARE;    
     default:
-      throw new PlanItException(String.format("mapping from xml track type %s to PLANit track type unavailable",xmlUseOfType.toString()));
+      throw new PlanItRunTimeException(String.format("mapping from xml track type %s to PLANit track type unavailable", xmlUseOfType));
     }
   }   
 
   /** convert used-to type from PLANit to XML
    * @param useOfType to convert
    * @return result
-   * @throws PlanItException thrown if error
-   */  
-  public static UsedToType planitToXml(UseOfModeType useOfType) throws PlanItException {
+   */
+  public static UsedToType planitToXml(UseOfModeType useOfType) {
     switch (useOfType) {
     case GOODS:
       return UsedToType.GOODS;
@@ -163,7 +162,7 @@ public class EnumConversionUtil {
     case RIDE_SHARE:
       return UsedToType.RIDE_SHARE;
     default:
-      throw new PlanItException(String.format("mapping from planit used-to type %s to xml used-to type unavailable",useOfType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit used-to type %s to XML used-to type unavailable",useOfType.toString()));
     }
   } 
   
@@ -171,9 +170,8 @@ public class EnumConversionUtil {
    * 
    * @param xmlTimeUnitType to convert
    * @return result
-   * @throws PlanItException thrown if error
    */
-  public static org.goplanit.utils.unit.TimeUnit xmlToPlanit(final TimeUnit xmlTimeUnitType) throws PlanItException {
+  public static org.goplanit.utils.unit.TimeUnit xmlToPlanit(final TimeUnit xmlTimeUnitType) {
     
     switch (xmlTimeUnitType) {
     case H:
@@ -183,7 +181,7 @@ public class EnumConversionUtil {
     case S:
       return Unit.SECOND;       
     default:
-      throw new PlanItException(String.format("mapping from XML TimeUnit %s to PLANit Units type unavailable",xmlTimeUnitType.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from XML TimeUnit %s to PLANit Units type unavailable",xmlTimeUnitType.toString()));
     }
   }   
 
@@ -191,9 +189,8 @@ public class EnumConversionUtil {
    * 
    * @param planitTimeUnit to convert
    * @return result
-   * @throws PlanItException thrown if error
-   */  
-  public static TimeUnit planitToXml(Unit planitTimeUnit) throws PlanItException {
+   */
+  public static TimeUnit planitToXml(Unit planitTimeUnit) {
     if(planitTimeUnit.equals(Unit.HOUR)) {      
       return TimeUnit.H;
     }else if(planitTimeUnit.equals(Unit.MINUTE)){
@@ -201,7 +198,7 @@ public class EnumConversionUtil {
     }else if(planitTimeUnit.equals(Unit.SECOND)) {
       return TimeUnit.S;    
     }else{
-      throw new PlanItException(String.format("mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
+      throw new PlanItRunTimeException(String.format("Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
     }
   }
 

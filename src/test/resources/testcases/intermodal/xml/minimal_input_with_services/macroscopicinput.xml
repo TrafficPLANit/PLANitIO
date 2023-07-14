@@ -1,0 +1,173 @@
+<PLANit xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://www.goplanit.org/xsd/macroscopicinput.xsd">
+	<!-- based on the explanatory test demand and OD zoning -->
+	<!-- Demand component -->
+	<macroscopicdemand>
+		<demandconfiguration>
+			<userclasses>
+				<userclass id="car_user" moderef="car" />
+				<userclass id="pt_user" moderef="bus" />
+			</userclasses>
+			<timeperiods>
+				<timeperiod id="one_hour">
+					<duration>3600</duration>
+				</timeperiod>
+			</timeperiods>
+		</demandconfiguration>
+		<oddemands>
+			<odcellbycellmatrix timeperiodref="one_hour" userclassref="car_user">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>
+			<odcellbycellmatrix timeperiodref="one_hour" userclassref="pt_user">
+				<o ref="1">
+					<d ref="2">1</d>
+				</o>
+			</odcellbycellmatrix>			
+		</oddemands>
+	</macroscopicdemand>
+	
+	<!-- Physical network component -->
+	<macroscopicnetwork>
+		<id>road_network</id>
+		<configuration>
+			<modes>
+				<mode id="car" />
+				<mode id="bus" />
+			</modes>
+		</configuration>
+		<infrastructurelayers>			
+			<layer id="road">
+				<!-- no configuration for layer, so a single type should be generated
+				that allows all modes -->
+				<nodes>
+					<node id="1" />
+					<node id="2" />
+					<node id="3" />
+				</nodes>
+				<links>
+					<link id="1" nodearef="1" nodebref="2">
+						<linksegment id="1" dir="a_b" />
+						<linksegment id="2" dir="b_a" />
+						<length>10</length>
+					</link>
+					<link id="2" nodearef="2" nodebref="3">
+						<linksegment id="3" dir="a_b" />
+						<linksegment id="4" dir="b_a" />
+						<length>10</length>
+					</link>					
+				</links>
+			</layer>
+		</infrastructurelayers>
+	</macroscopicnetwork>
+
+	<!-- zoning structure component -->
+	<macroscopiczoning>
+		<zones>
+			<zone id="1">
+				<connectoids>
+					<connectoid id="od1" noderef="1">
+						<length>1</length>
+					</connectoid>
+				</connectoids>
+			</zone>
+			<zone id="2">
+				<connectoids>
+					<connectoid id="od2" noderef="3" length="1">
+						<length>1</length>
+					</connectoid>					
+				</connectoids>
+			</zone>
+		</zones>		
+		<!-- the most basic intermodal specifying three stops, one on each node !-->
+		<intermodal>
+			<!-- the stops -->
+			<transferzones>
+				<!-- no geo information on location of the transfer zones, all is derived from the connectoids -->
+				<zone id="stop_1" type="platform" />
+				<zone id="stop_2" type="stop_pole" />
+				<zone id="stop_3" />
+			</transferzones>
+			<transferzoneaccess>
+				<!-- special situation when ALL lines start at upstream end of a node that has NO regular incoming links,
+				in this special situation we can tag the entry with loc="upstream" to indicate this is a start point with only lines starting 
+				at the beginning of the link segment. If any incoming link segments exist with one or more lines passing this is no longer needed because then 
+				we simply allow by default starting lines only exiting the downstream node (as is the case for the second stop for example -->
+				<connectoid id="transfer1" tzrefs="stop_1" lsref="1" loc="upstream" modes="bus" type="pt_veh_stop" />
+				<!-- in this simple example we have no active modes so we simply connect two bus lines of a single link at the middle stop -->				
+				<connectoid id="transfer2" tzrefs="stop_2" lsref="1" modes="bus" type="pt_veh_stop" /> 
+				<connectoid id="transfer3" tzrefs="stop_3" lsref="3" modes="bus" type="pt_veh_stop" /> 
+			</transferzoneaccess>
+			<!-- no transfer zone groups in this basic example -->
+		</intermodal>
+	</macroscopiczoning>
+
+	<!-- service network with a single leg (l1) on network link 1 via leg segment
+		ls1 (link segment 2 indirectly via link and direction) -->
+	<servicenetwork>
+		<id>service_network</id>
+		<parentnetwork>road_network</parentnetwork>
+		<servicenetworklayer id="service_layer" parentlayerref="road">
+			<servicenodes>
+				<servicenode id="s1" noderef="1" />
+				<servicenode id="s2" noderef="2" />
+				<servicenode id="s3" noderef="3" />
+			</servicenodes>
+			<servicelegs>
+				<leg id="l1" nodearef="s1" nodebref="s2">
+					<legsegment id="ls1" dir="a_b" lsrefs="1" />
+				</leg>
+				<leg id="l2" nodearef="s2" nodebref="s3">
+					<legsegment id="ls2" dir="a_b" lsrefs="3" />
+				</leg>
+				<leg id="lX" nodearef="s1" nodebref="s3">
+					<legsegment id="lsX" dir="a_b" lsrefs=" 1, 3" />
+				</leg>
+			</servicelegs>
+		</servicenetworklayer>
+	</servicenetwork>
+
+	<routedservices>
+		<id>routed_services_id</id>
+		<servicelayers servicenetworkref="service_network">
+			<servicelayer id="routed_Service_layer" servicelayerref="service_layer">
+				<services moderef="bus">
+					<service id="line_1">
+						<name>line_1</name>
+						<namedescription>city to beach</namedescription>
+						<servicedescription>bus line running from the city to the beach directly</servicedescription>
+						<trips>
+							<!-- in this example we frequency based trips -->
+							<trip id="frequency_based_trips_line_1" externalid="some_external_ref">
+								<frequency lsrefs="ls1, ls2" unit="h">3</frequency>
+							</trip>
+						</trips>
+					</service>
+					<!-- and another service but express, bypassing middle stop -->
+					<service id="line_1_X">
+						<name>line_1_X</name>
+						<namedescription>beach to city</namedescription>
+						<servicedescription>express bus line running from the beach to the city directly</servicedescription>
+						<trips>
+							<!-- in this example we have only explicitly scheduled trips -->
+							<trip id="scheduled_trips_lines" externalid="some_external_ref_opp">
+								<schedule>
+									<departures>
+										<departure id="dep1" time="08:00:00" />
+										<departure id="dep2" time="08:50:00" />
+										<departure id="dep3" time="09:30:00" />
+									</departures>
+									<reltimings>
+										<leg lsref="lsX" duration="00:03:00" dwelltime="00:02:00" />
+									</reltimings>
+								</schedule>
+							</trip>
+						</trips>
+					</service>
+				</services>
+			</servicelayer>
+		</servicelayers>
+	</routedservices>
+</PLANit>

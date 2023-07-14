@@ -1,21 +1,19 @@
 package org.goplanit.io.converter.zoning;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.converter.IdMapperType;
+import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
-import org.goplanit.io.converter.PlanitWriterImpl;
+import org.goplanit.io.converter.network.UnTypedPlanitCrsWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.math.Precision;
+import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
@@ -32,7 +30,6 @@ import org.goplanit.utils.zoning.Zone;
 import org.goplanit.xml.generated.Connectoidnodelocationtype;
 import org.goplanit.xml.generated.Connectoidtypetype;
 import org.goplanit.xml.generated.Intermodaltype;
-import org.goplanit.xml.generated.Odconnectoid;
 import org.goplanit.xml.generated.Transferzonetype;
 import org.goplanit.xml.generated.XMLElementCentroid;
 import org.goplanit.xml.generated.XMLElementConnectoid;
@@ -48,6 +45,7 @@ import org.goplanit.xml.generated.XMLElementTransferZoneAccess.XMLElementTransfe
 import org.goplanit.xml.generated.XMLElementTransferZones.XMLElementTransferZone;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -57,7 +55,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @author markr
  *
  */
-public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements ZoningWriter {
+public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> implements ZoningWriter {
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningWriter.class.getCanonicalName());  
@@ -69,11 +67,11 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   private final CoordinateReferenceSystem sourceCrs;
   
   /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
-  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<Zone,List<Connectoid>>();
+  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
   
   /** settings to use */
   private final PlanitZoningWriterSettings settings;
-  
+
   /** Convert PLANit connectoid type to XML PLANit connectoid type
    * 
    * @param connectoidType to convert
@@ -97,7 +95,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   
   /** Convert PLANit connectoid type to XML PLANit connectoid type
    * 
-   * @param connectoidType to convert
+   * @param transferZoneType to convert
    * @return xml connectoid type created
    */
   private static Transferzonetype createXmlTransferZoneType(final TransferZoneType transferZoneType) {
@@ -123,15 +121,15 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param zoning to base mapping on
    */
   private void createZoneToConnectoidIndices(final Zoning zoning) {
-    for(Connectoid connectoid : zoning.odConnectoids) {
-      for(Zone zone : connectoid.getAccessZones()) {
-        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<Connectoid>(1));
+    for(var connectoid : zoning.getOdConnectoids()) {
+      for(var zone : connectoid.getAccessZones()) {
+        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<>(1));
         zoneToConnectoidMap.get(zone).add(connectoid);
       }
     }
-    for(Connectoid connectoid : zoning.transferConnectoids) {
-      for(Zone zone : connectoid.getAccessZones()) {
-        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<Connectoid>(1));
+    for(var connectoid : zoning.getTransferConnectoids()) {
+      for(var zone : connectoid.getAccessZones()) {
+        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<>(1));
         zoneToConnectoidMap.get(zone).add(connectoid);
       }
     }    
@@ -153,7 +151,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }
     
     /* id */
-    xmlTransferGroup.setId(getTransferZoneGroupIdMapper().apply(transferGroup));
+    xmlTransferGroup.setId(getPrimaryIdMapper().getTransferZoneGroupIdMapper().apply(transferGroup));
     if(StringUtils.isNullOrBlank(xmlTransferGroup.getId())) {
       LOGGER.severe(String.format("Transfer zone group id for XML not set successfully for planit transfer zone group %s (id:%d)",transferGroup.getXmlId(), transferGroup.getId()));
     }
@@ -170,7 +168,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
         
     /* transfer zones */
     xmlTransferGroup.setTzrefs(
-        transferGroup.getTransferZones().stream().map( transferZone -> getZoneIdMapper().apply(transferZone)).collect(Collectors.joining(getSettings().getCommaSeparator().toString())));
+        transferGroup.getTransferZones().stream().map(
+                transferZone -> getPrimaryIdMapper().getZoneIdMapper().apply(transferZone)).sorted().collect(
+                        Collectors.joining(getSettings().getCommaSeparator().toString())));
   }
 
   /** Populate the transfer zone groups within the intermodal XML element
@@ -180,9 +180,10 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    */
   private void populateXmlTransferZoneGroups(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) {
     /* transfer zone groups are optional, so simply ignore when nto present */
-    if(zoning== null || zoning.transferZoneGroups.isEmpty()) {
+    if(zoning== null || zoning.getTransferZoneGroups().isEmpty()) {
       return;
     }
+    LOGGER.info("Transfer zone groups: " + zoning.getTransferZoneGroups().size());
     
     if(xmlIntermodal.getValue().getTransferzonegroups()==null) {
       xmlIntermodal.getValue().setTransferzonegroups(new XMLElementTransferZoneGroups());
@@ -190,11 +191,11 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     
     /* transfer zone groups */   
     XMLElementTransferZoneGroups xmlTransferZoneGroups = xmlIntermodal.getValue().getTransferzonegroups();
-    for(TransferZoneGroup transferGroup : zoning.transferZoneGroups) {
+    zoning.getTransferZoneGroups().streamSortedBy(getPrimaryIdMapper().getTransferZoneGroupIdMapper()).forEach( transferGroup -> {
       
       if(!transferGroup.hasTransferZones()) {
         LOGGER.warning(String.format("DISCARD: transfer zone group %s (id:%d) is dangling", transferGroup.getXmlId(), transferGroup.getId()));
-        continue;
+        return;
       }
       
       /* populate transfer group */
@@ -203,16 +204,16 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
                      
       /* register */        
       xmlTransferZoneGroups.getTransfergroup().add(xmlTransferGroup);
-    }  
+    });
   }
 
   /** Populate a transfer connectoid
    * 
    * @param xmlTransferConnectoid to populate
    * @param transferConnectoid to use
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlTransferConnectoid(final XMLElementTransferConnectoid xmlTransferConnectoid, final DirectedConnectoid transferConnectoid) throws PlanItException {
+  private void populateXmlTransferConnectoid(
+      final XMLElementTransferConnectoid xmlTransferConnectoid, final DirectedConnectoid transferConnectoid) {
     
     if(!transferConnectoid.hasAccessZones()) {
       LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) is dangling", transferConnectoid.getXmlId(), transferConnectoid.getId()));
@@ -229,11 +230,11 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
      * that all lengths across its access zones are equal and if not we log a warning and indicate what length we choose */
     if(transferConnectoid.getAccessZones().size()>1) {
       Double lengthKm = null;
-      for(Zone zone : transferConnectoid.getAccessZones()) {
+      for(var zone : transferConnectoid.getAccessZones()){
         Optional<Double> currLengthKm = transferConnectoid.getLengthKm(zone);
         if(lengthKm == null) {
           lengthKm = currLengthKm.get();
-        }else if(currLengthKm.isPresent() && !Precision.isEqual(lengthKm, currLengthKm.get(), Precision.EPSILON_6)) {
+        }else if(currLengthKm.isPresent() && !Precision.equal(lengthKm, currLengthKm.get(), Precision.EPSILON_6)) {
           /* TODO: should be rectified in xml format xsd and implementation see issue #12 in PlanitXMLGenerator */
           LOGGER.warning(String.format(
               "Transfer connectoid %s (id:%d) has different lengths specified for different access zones it services, this is not yet supported in the Planit XML format, choosing first available length %.2f",
@@ -250,7 +251,7 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     if(transferConnectoid.getAccessZones().size()>1) {
       boolean valid = true;
       Zone prevZone = firstAccessZone;
-      for(Zone zone : transferConnectoid.getAccessZones()) {        
+      for(Zone zone : transferConnectoid.getAccessZones()) {
         if(transferConnectoid.isAllModesAllowed(prevZone) == transferConnectoid.isAllModesAllowed(zone)) {
           prevZone = zone;         
         }
@@ -273,17 +274,21 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
             "Transfer connectoid has different supported modes for different access zones it services, this is not yet supported in the Planit XML format: Allowing all modes across all access zones of connectoid instead",
               transferConnectoid.getXmlId(), transferConnectoid.getId()));
       }
-    }    
-        
+    }
+
     /* populate base pertaining to any connectoid*/
-    populateXmlConnectoidBase(xmlTransferConnectoid, transferConnectoid, transferConnectoid.getLengthKm(firstAccessZone), explicitAllowedModes);
+    populateXmlConnectoidBase(
+        xmlTransferConnectoid, transferConnectoid, transferConnectoid.getLengthKm(firstAccessZone), explicitAllowedModes);
     
     /* transferzone references */
-    String xmlTzRefs = transferConnectoid.getAccessZones().stream().map( zone -> getZoneIdMapper().apply(zone)).collect(Collectors.joining(","));
+    String xmlTzRefs = transferConnectoid.getAccessZones().stream().map(
+            zone -> getPrimaryIdMapper().getZoneIdMapper().apply(zone)).sorted().collect(Collectors.joining(","));
     xmlTransferConnectoid.setTzrefs(xmlTzRefs);
     
     /* link segment reference */
-    xmlTransferConnectoid.setLsref(getLinkSegmentIdMapper().apply((MacroscopicLinkSegment)transferConnectoid.getAccessLinkSegment()));
+    xmlTransferConnectoid.setLsref(
+            getComponentIdMappers().getNetworkIdMappers().getLinkSegmentIdMapper().apply(
+                    (MacroscopicLinkSegment)transferConnectoid.getAccessLinkSegment()));
     
     /* access node is derived based on up or downstream location relative to link segment, 
      * only persist if not the default is used*/
@@ -302,16 +307,15 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   /** Populate an XML transfer zone
    * 
    * @param transferZone to use
-   * @param zoning to use
    * @param xmlTransferZones to add xml transfer zone to
    */
-  private void populateXmlTransferZone(final TransferZone transferZone, final Zoning zoning, final XMLElementTransferZones xmlTransferZones) {
+  private void populateXmlTransferZone(final TransferZone transferZone, final XMLElementTransferZones xmlTransferZones) {
     /* register */
     XMLElementTransferZone xmlTransferZone = new XMLElementTransferZone();
     xmlTransferZones.getZone().add(xmlTransferZone);
     
     /* id */
-    xmlTransferZone.setId(getZoneIdMapper().apply(transferZone));
+    xmlTransferZone.setId(getPrimaryIdMapper().getZoneIdMapper().apply(transferZone));
     
     /* external id */
     if(transferZone.hasExternalId()) {
@@ -321,7 +325,12 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     /* name */
     if(transferZone.hasName()) {
       xmlTransferZone.setName(transferZone.getName());
-    } 
+    }
+
+    /* platform names */
+    if(transferZone.hasPlatformNames()){
+      xmlTransferZone.setPlatforms(transferZone.getTransferZonePlatformNames().stream().sorted().collect(Collectors.joining(CharacterUtils.COMMA.toString())));
+    }
     
     /* type */
     if(!transferZone.getTransferZoneType().equals(TransferZoneType.NONE)) {
@@ -329,18 +338,26 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }
     
     /* polygon/linestring - point is handled via centroid */
+    boolean geometryIsPoint = false;
+    Function<Zone, Point> getCentroidLocation = z -> z.getCentroid().getPosition();
     if(transferZone.hasGeometry()) {
       if(transferZone.getGeometry() instanceof Polygon) {
         xmlTransferZone.setPolygon(createGmlPolygonType((Polygon)transferZone.getGeometry()));
       }else if(transferZone.getGeometry() instanceof LineString) {        
         xmlTransferZone.setLineString(createGmlLineStringType((LineString)transferZone.getGeometry()));
+      }else if(transferZone.getGeometry() instanceof Point) {
+        getCentroidLocation = z -> (Point) z.getGeometry();
+        geometryIsPoint = true;
       }
-    }   
-    
-    /* centroid */
-    if(transferZone.hasCentroid()) {
+    }
+
+    /* centroid or geometry is point, which will be processed as centroid */
+    if(transferZone.hasCentroid() && transferZone.getCentroid().hasPosition() || geometryIsPoint) {
       XMLElementCentroid xmlCentroid = new XMLElementCentroid();
-      populateXmlCentroid(xmlCentroid, transferZone.getCentroid());
+      var centroid = transferZone.getCentroid();
+      populateXmlCentroid(
+          xmlCentroid, centroid!= null ? transferZone.getCentroid().getName() : "", getCentroidLocation.apply(transferZone));
+      xmlTransferZone.setCentroid(xmlCentroid);
     }        
   }
 
@@ -348,10 +365,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * 
    * @param zoning to use
    * @param xmlIntermodal to use
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlTransferZoneAccess(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) throws PlanItException {
-    if(zoning== null || zoning.transferConnectoids.isEmpty()) {
+  private void populateXmlTransferZoneAccess(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) {
+    if(zoning== null || zoning.getTransferConnectoids().isEmpty()) {
       LOGGER.severe("transfer zone access should not be persisted when no transfer connectoids exist on the zoning");
       return;
     }
@@ -361,25 +377,25 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     }
     
     /* transfer zone access */   
-    XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlIntermodal.getValue().getTransferzoneaccess();
-    for(DirectedConnectoid transferConnectoid : zoning.transferConnectoids) {
+    var xmlTransferZoneAccess = xmlIntermodal.getValue().getTransferzoneaccess();
+    zoning.getTransferConnectoids().streamSortedBy(getPrimaryIdMapper().getConnectoidIdMapper()).forEach( transferConnectoid -> {
       
       if(!transferConnectoid.hasAccessZones()) {
         LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) is dangling", transferConnectoid.getXmlId(), transferConnectoid.getId()));
-        continue;
+        return;
       }
       if(!transferConnectoid.hasAccessLinkSegment()) {
         LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) has no access link segment", transferConnectoid.getXmlId(), transferConnectoid.getId()));
-        continue;
+        return;
       }
       
       /* populate od connectoid */
-      XMLElementTransferConnectoid xmlTransferConnectoidBase = new XMLElementTransferConnectoid();              
+      var xmlTransferConnectoidBase = new XMLElementTransferConnectoid();              
       populateXmlTransferConnectoid(xmlTransferConnectoidBase, transferConnectoid);
                      
       /* register */        
       xmlTransferZoneAccess.getConnectoid().add(xmlTransferConnectoidBase);
-    }     
+    });
   }
 
 
@@ -389,54 +405,55 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param xmlIntermodal to use
    */  
   private void populateXmlTransferZones(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) {
-    if(zoning==null || zoning.transferConnectoids.isEmpty()) {
-      LOGGER.severe("transfer zones should not be persisted when no transfer zones exist on the zoning");
+    if(zoning==null || zoning.getTransferConnectoids().isEmpty()) {
+      LOGGER.severe("Transfer zones should not be persisted when no transfer zones exist on the zoning");
       return;
-    }
+    }    
+    LOGGER.info("TransferZones: " + zoning.getTransferZones().size());
     
     if(xmlIntermodal.getValue().getTransferzones()==null) {
       xmlIntermodal.getValue().setTransferzones(new XMLElementTransferZones());
     }
     
     /* transfer zones */
-    XMLElementTransferZones xmlTransferZones = xmlIntermodal.getValue().getTransferzones();
-    for(TransferZone transferZone : zoning.transferZones) {
+    var xmlTransferZones = xmlIntermodal.getValue().getTransferzones();
+    zoning.getTransferZones().streamSortedBy(getPrimaryIdMapper().getZoneIdMapper()).forEach( transferZone -> {
       
       /* transfer zone */
-      populateXmlTransferZone(transferZone, zoning, xmlTransferZones);
-    }    
+      populateXmlTransferZone(transferZone, xmlTransferZones);
+    });
   }
 
   /** Populate a centroid
    * 
    * @param xmlCentroid to populate
-   * @param centroid to extract information from
+   * @param name of the centroid
+   * @param centroidLocation of the centroid
    */
-  private void populateXmlCentroid(final XMLElementCentroid xmlCentroid, final Centroid centroid) {
+  private void populateXmlCentroid(final XMLElementCentroid xmlCentroid, final String name, final Point centroidLocation) {
     
     /* name */
-    if(centroid.hasName()) {
-      xmlCentroid.setName(centroid.getName());
+    if(!StringUtils.isNullOrBlank(name)) {
+      xmlCentroid.setName(name);
     }
     
     /* position */
-    if(centroid.hasPosition()) {            
-      xmlCentroid.setPoint(createGmlPointType(centroid.getPosition()));
+    if(centroidLocation != null) {
+      xmlCentroid.setPoint(createGmlPointType(centroidLocation));
     }
   }
   
   /** Populate the generic part of any connectoid
    * 
-   * @param xmlConnectoid to populate
+   * @param xmlConnectoidBase to populate
    * @param connectoid the planit connectoid to extract from
    * @param lengthKm when present the length is set, when not, it is omitted (default assumed)
    * @param accessModes to use, when null it is left out (default), otherwise these modes are set as explicitly allowed access modes
-   * @throws PlanItException thrown if error
    */  
   private void populateXmlConnectoidBase(
-      final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase, final Connectoid connectoid, final Optional<Double> lengthKm, final Collection<Mode> accessModes) throws PlanItException {
+      final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase, final Connectoid connectoid, final Optional<Double> lengthKm, final Collection<Mode> accessModes) {
     /* id */
-    xmlConnectoidBase.setId(getConnectoidIdMapper().apply(connectoid));
+    xmlConnectoidBase.setId(getPrimaryIdMapper().getConnectoidIdMapper().apply(connectoid));
     if(StringUtils.isNullOrBlank(xmlConnectoidBase.getId())){
       LOGGER.severe(String.format("Connectoid id for xml remains null for connectoid (id:%d), this is not allowed",connectoid.getId()));
     }
@@ -464,7 +481,9 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     /* explicitly allowed modes for zone */
     if(accessModes!=null) {
       String csvModeIdString = 
-          accessModes.stream().map( mode -> getModeIdMapper().apply(mode)).collect(Collectors.joining(String.valueOf(getSettings().getCommaSeparator())));
+          accessModes.stream().map(
+                  mode -> getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(mode)).sorted().collect(
+                          Collectors.joining(String.valueOf(getSettings().getCommaSeparator())));
       xmlConnectoidBase.setModes(csvModeIdString);  
     }
         
@@ -475,42 +494,40 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param xmlConnectoid to populate
    * @param odConnectoid the planit connectoid to extract from
    * @param accessZone of this connectoid
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlOdConnectoid(final XMLElementConnectoid xmlConnectoid, final UndirectedConnectoid odConnectoid, final Zone accessZone) throws PlanItException {
+  private void populateXmlOdConnectoid(final XMLElementConnectoid xmlConnectoid, final UndirectedConnectoid odConnectoid, final Zone accessZone) {
     
     if(!odConnectoid.hasAccessZone(accessZone)) {
       LOGGER.severe(String.format("od conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone", 
           odConnectoid.getXmlId(), odConnectoid.getId(), accessZone.getXmlId(), accessZone.getId()));
     }
+
+    xmlConnectoid.setType(Connectoidtypetype.TRAVELLER_ACCESS);
     
-    Odconnectoid xmlOdConnectoid = new Odconnectoid();
-    xmlConnectoid.setValue(xmlOdConnectoid);    
-    
-    /* populate extension pertaining to od connectoid */       
-    xmlOdConnectoid.setNoderef(getVertexIdMapper().apply(odConnectoid.getAccessVertex()));    
+    /* populate extension pertaining to od connectoid */
+    xmlConnectoid.setNoderef(getComponentIdMappers().getNetworkIdMappers().getVertexIdMapper().apply(odConnectoid.getAccessVertex()));
     
     /* populate base pertaining to any connectoid*/
-    populateXmlConnectoidBase(xmlOdConnectoid, odConnectoid, odConnectoid.getLengthKm(accessZone), odConnectoid.getExplicitlyAllowedModes(accessZone));            
+    populateXmlConnectoidBase(
+            xmlConnectoid, odConnectoid, odConnectoid.getLengthKm(accessZone), odConnectoid.getExplicitlyAllowedModes(accessZone));
   }   
 
   /** Populate an XML origin-destination zone
    * 
    * @param zoning to use
    * @param odZone to extract information from
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlOdZone(final Zoning zoning, final OdZone odZone) throws PlanItException {
+  private void populateXmlOdZone(final Zoning zoning, final OdZone odZone) {
     if(!zoneToConnectoidMap.containsKey(odZone)) {
       LOGGER.warning(String.format("DISCARD: od zone %s (id: %d) without connectoids found; dangling", odZone.getXmlId(), odZone.getId()));
       return;
     }
     
-    org.goplanit.xml.generated.XMLElementZones.Zone xmlOdZone = new XMLElementZones.Zone();
+    var xmlOdZone = new XMLElementZones.Zone();
     xmlRawZoning.getZones().getZone().add(xmlOdZone);
     
     /* (xml) id */
-    xmlOdZone.setId(getZoneIdMapper().apply(odZone));
+    xmlOdZone.setId(getPrimaryIdMapper().getZoneIdMapper().apply(odZone));
     
     /* external id */
     if(odZone.hasExternalId()) {
@@ -522,41 +539,50 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
       xmlOdZone.setName(odZone.getName());
     }
     
-    /* centroid */
-    if(odZone.hasCentroid()) {
-      XMLElementCentroid xmlCentroid = new XMLElementCentroid();
-      xmlOdZone.setCentroid(xmlCentroid);
-      
-      populateXmlCentroid(xmlCentroid, odZone.getCentroid());      
-    }    
-    
-    /* polygon */
-    if(odZone.hasGeometry() && odZone.getGeometry() instanceof Polygon) {
-      xmlOdZone.setPolygon(createGmlPolygonType((Polygon)odZone.getGeometry()));
+    /* main geometry, e.g., polygon */
+    boolean geometryIsPoint = false;
+    Function<Zone, Point> getCentroidLocation = z -> z.getCentroid().getPosition();
+    if(odZone.hasGeometry()) {
+      if(odZone.getGeometry() instanceof Polygon) {
+        xmlOdZone.setPolygon(createGmlPolygonType((Polygon)odZone.getGeometry()));
+      }else if(odZone.getGeometry() instanceof Point) {
+        getCentroidLocation = z -> (Point) z.getGeometry();
+        geometryIsPoint = true;
+      }
     }
-    
+
+    /* centroid or geometry is point, which will be processed as centroid */
+    if(odZone.hasCentroid() && odZone.getCentroid().hasPosition() || geometryIsPoint) {
+      XMLElementCentroid xmlCentroid = new XMLElementCentroid();
+      var centroid = odZone.getCentroid();
+      populateXmlCentroid(
+          xmlCentroid, centroid!= null ? odZone.getCentroid().getName() : "", getCentroidLocation.apply(odZone));
+      xmlOdZone.setCentroid(xmlCentroid);
+    }
+
     /* connectoids */
-    XMLElementConnectoids xmlConnectoids = new XMLElementConnectoids();
+    var xmlConnectoids = new XMLElementConnectoids();
     xmlOdZone.setConnectoids(xmlConnectoids);
-    for(Connectoid connectoid : zoneToConnectoidMap.get(odZone)) {
+    zoneToConnectoidMap.get(odZone).stream().sorted(
+        Comparator.comparing(getPrimaryIdMapper().getConnectoidIdMapper())).forEach(connectoid -> {
             
-      /* od zones in xml only record their undirected connectoids at this point in time since they allow access froma ll incoming link(segment)s */
+      /* od zones in xml only record their undirected connectoids at this point in time since they allow access from all incoming link(segment)s */
       if(connectoid instanceof UndirectedConnectoid) {
         
-        UndirectedConnectoid odConnectoid = (UndirectedConnectoid)connectoid;
+        var odConnectoid = (UndirectedConnectoid)connectoid;
         if(!odConnectoid.hasAccessZone(odZone)) {
-          LOGGER.severe(String.format("od conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone", 
+          LOGGER.severe(String.format("OD conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone",
               odConnectoid.getXmlId(), odConnectoid.getId(), odZone.getXmlId(), odZone.getId()));
         }
         
         /* populate od connectoid */
-        XMLElementConnectoid xmlOdConnectoidBase = new XMLElementConnectoid();              
+        var xmlOdConnectoidBase = new XMLElementConnectoid();              
         populateXmlOdConnectoid(xmlOdConnectoidBase, odConnectoid, odZone);
                        
         /* register */        
         xmlConnectoids.getConnectoid().add(xmlOdConnectoidBase);                        
       }
-    }    
+    });
   }
   
   /** Populate the XML id of the XML zoning element
@@ -564,57 +590,56 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    * @param zoning to extract XML id from
    */
   private void populateXmlId(Zoning zoning) {
-    /* xml id */    
-    if(!zoning.hasXmlId()) {
+    /* xml id */
+    String xmlId = getPrimaryIdMapper().getZoningIdMapper().apply(zoning);
+    if(StringUtils.isNullOrBlank(xmlId)) {
       LOGGER.warning(String.format("Zoning has no XML id defined, adopting internally generated id %d instead",zoning.getId()));
-      zoning.setXmlId(String.valueOf(zoning.getId()));
+      xmlId = String.valueOf(zoning.getId());
+      zoning.setXmlId(xmlId);
     }
-    xmlRawZoning.setId(zoning.getXmlId());
+    xmlRawZoning.setId(xmlId);
   }
 
-  /** Make sure the zonings destination crs is set (if any)
-   * 
-   * @throws PlanItException thrown if error
+  /** Make sure the XML zonings destination crs is set (if any)
    */
-  private void populateCrs() throws PlanItException {
-    if(getSettings().getDestinationCoordinateReferenceSystem() != null) {
-      xmlRawZoning.setSrsname(extractSrsName(getSettings()));
-    }
+  private void populateXmlZoningSrsName(){
+    xmlRawZoning.setSrsname(extractSrsName(getDestinationCoordinateReferenceSystem()));
   }  
   
   /** Populate the origin-destination zones of this zoning
    * 
    * @param zoning to use
-   * @throws PlanItException thrown if error
    */
-  private void populateXmlOdZones(final Zoning zoning) throws PlanItException {
-    if(!zoning.odZones.isEmpty()) {
+  private void populateXmlOdZones(final Zoning zoning) {
+    if(zoning.getOdZones().isEmpty()) {
+      LOGGER.severe("No OD zones present when creating zoning XML elements");
+      return;
+    }
 
-      XMLElementZones xmlOdZones = xmlRawZoning.getZones();
-      if(xmlOdZones == null) {
-        xmlOdZones = new XMLElementZones();
-        xmlRawZoning.setZones(xmlOdZones);
-      }
-      
-      for(OdZone odZone : zoning.odZones) {
-        /* modes */
-        populateXmlOdZone(zoning, odZone); 
-      }
-    }    
+    LOGGER.info("OD Zones: " + zoning.getOdZones().size());      
+    var xmlOdZones = xmlRawZoning.getZones();
+    if(xmlOdZones == null) {
+      xmlOdZones = new XMLElementZones();
+      xmlRawZoning.setZones(xmlOdZones);
+    }
+    
+    zoning.getOdZones().streamSortedBy(getPrimaryIdMapper().getZoneIdMapper()).forEach( odZone -> {
+      /* modes */
+      populateXmlOdZone(zoning, odZone); 
+    });
   }
 
   /** Populate the transfer zones of this zoning
    * 
    * @param zoning to use
-   * @throws PlanItException thrown if error
-   */  
-  private void populateXmlIntermodal(final Zoning zoning) throws PlanItException {
-    if(zoning.transferZones.isEmpty() && zoning.transferConnectoids.isEmpty()) {
-      LOGGER.severe("Transfer zones and/or connectoids should be present when creating intermodal xml elements, but they are empty, abort");
+   */
+  private void populateXmlIntermodal(final Zoning zoning) {
+    if(zoning.getTransferZones().isEmpty() && zoning.getTransferConnectoids().isEmpty()) {
+      LOGGER.severe("Transfer zones and/or connectoids should be present when creating intermodal XML elements, but they are empty, abort");
       return;
     }
 
-    XMLElementIntermodal xmlIntermodal = xmlRawZoning.getIntermodal();
+    var xmlIntermodal = xmlRawZoning.getIntermodal();
     if(xmlIntermodal == null) {
       xmlIntermodal = new XMLElementIntermodal(new Intermodaltype());
       xmlRawZoning.setIntermodal(xmlIntermodal);
@@ -628,11 +653,8 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
     
     /* transfer zone groups */
     populateXmlTransferZoneGroups(zoning, xmlIntermodal);
-  }  
-  
-  /** default network file name to use */
-  public static final String DEFAULT_ZONING_FILE_NAME = "zoning.xml";  
-    
+  }
+
   /** Constructor 
    * 
    * @param zoningPath to persist zoning on
@@ -642,9 +664,17 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
    */
   protected PlanitZoningWriter(final String zoningPath, final String countryName, final CoordinateReferenceSystem zoningCrs, final XMLElementMacroscopicZoning xmlRawZoning) {
     super(IdMapperType.XML);
-    this.settings = new PlanitZoningWriterSettings(zoningPath, DEFAULT_ZONING_FILE_NAME, countryName);
+    this.settings = new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName);
     this.sourceCrs = zoningCrs;    
     this.xmlRawZoning = xmlRawZoning;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ZoningIdMapper getPrimaryIdMapper() {
+    return getComponentIdMappers().getZoningIdMappers();
   }
 
   /**
@@ -656,31 +686,32 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
 
     /* initialise */
     {
-      super.initialiseIdMappingFunctions();    
-      super.prepareCoordinateReferenceSystem(sourceCrs);
-      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+      getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+      prepareCoordinateReferenceSystem(sourceCrs, getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
       
       createZoneToConnectoidIndices(zoning); 
     }
+    
+    getSettings().logSettings();
     
     /* xml id */
     populateXmlId(zoning);
     
     /* crs */
-    populateCrs();
+    populateXmlZoningSrsName();
     
     /* Od zones */
     populateXmlOdZones(zoning);
     
     /* intermodal zones */
-    if(!zoning.transferZones.isEmpty() || !zoning.transferConnectoids.isEmpty()) {
+    if(!zoning.getTransferZones().isEmpty() || !zoning.getTransferConnectoids().isEmpty()) {
       populateXmlIntermodal(zoning);
     }
     
     /* persist */
     super.persist(xmlRawZoning, XMLElementMacroscopicZoning.class, PlanitSchema.MACROSCOPIC_ZONING_XSD);
   }
-
 
   /**
    * {@inheritDoc}
@@ -701,5 +732,4 @@ public class PlanitZoningWriter extends PlanitWriterImpl<Zoning> implements Zoni
   public PlanitZoningWriterSettings getSettings() {
     return this.settings;
   }
-  
 }

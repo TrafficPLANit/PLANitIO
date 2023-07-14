@@ -1,18 +1,14 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.FileReader;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.goplanit.cost.physical.initial.InitialLinkSegmentCost;
 import org.goplanit.io.test.util.PlanItIOTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
@@ -27,9 +23,11 @@ import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit test cases for initial cost tests for TraditionalStaticAssignment
@@ -42,14 +40,17 @@ public class InitialCostTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  @BeforeClass
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
+  private static final Path intialCostTestCasePath = Path.of(testCasePath.toString(),"initial_costs", "xml");
+
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(InitialCostTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -62,16 +63,16 @@ public class InitialCostTest {
    */
   @Test
   public void test_reading_initial_cost_values() {
-    String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues";
-    String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
-    String initialCostsFileLocationXmlId = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs_xml_id.csv";
+    final String projectPath = Path.of(intialCostTestCasePath.toString(),"readingInitialCostValues").toString();
+    String initialCostsFileLocation = Path.of(projectPath.toString(),"initial_link_segment_costs.csv").toString();
+    String initialCostsFileLocationXmlId = Path.of(projectPath.toString(),"initial_link_segment_costs_xml_id.csv").toString();
     try {
       
       /* planit */
       PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       
       /* reference */
       Reader in = new FileReader(initialCostsFileLocationXmlId);
@@ -101,15 +102,16 @@ public class InitialCostTest {
    */
   @Test
   public void test_reading_initial_cost_values_with_missing_rows() {
-    String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues";
-    String initialCostsFileLocation = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs.csv";
-    String initialCostsFileLocationMissingRows = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValues\\initial_link_segment_costs1.csv";
+    final String projectPath = Path.of(intialCostTestCasePath.toString(),"readingInitialCostValues").toString();
+    String initialCostsFileLocation = Path.of(projectPath.toString(),"initial_link_segment_costs.csv").toString();
+    String initialCostsFileLocationMissingRows = Path.of(projectPath.toString(),"initial_link_segment_costs1.csv").toString();
+
     try {
       /* planit */
       PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
-      InitialLinkSegmentCost initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
+      var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
       
       /* reference */
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
@@ -143,7 +145,9 @@ public class InitialCostTest {
   @Test
   public void test_reading_initial_cost_values_with_missing_rows_in_input_file() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile";
+      final String projectPath = Path.of(intialCostTestCasePath.toString(),"readingInitialCostValuesWithLinkSegmentsMissingInInputFile").toString();
+      String initialCostsFileLocation = Path.of(projectPath.toString(),"initial_link_segment_costs_external_id.csv").toString();
+
       String description = "readingInitialCostValuesWithMissingRows";
       
       Level oldLevel = LOGGER.getLevel();
@@ -153,7 +157,7 @@ public class InitialCostTest {
       PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      runner.registerInitialLinkSegmentCost("src\\test\\resources\\testcases\\initial_costs\\xml\\readingInitialCostValuesWithLinkSegmentsMissingInInputFile\\initial_link_segment_costs_external_id.csv");
+      runner.registerInitialLinkSegmentCost(initialCostsFileLocation);
       runner.setupAndExecuteDefaultAssignment();      
       
       LOGGER.setLevel(oldLevel);

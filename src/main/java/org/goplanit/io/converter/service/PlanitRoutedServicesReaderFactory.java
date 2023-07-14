@@ -36,7 +36,7 @@ public class PlanitRoutedServicesReaderFactory {
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final IdGroupingToken idToken, ServiceNetwork parentNetwork) {
-    return create(new PlanitRoutedServicesReaderSettings(parentNetwork), new RoutedServices(idToken, parentNetwork));    
+    return create(new PlanitRoutedServicesReaderSettings(), new RoutedServices(idToken, parentNetwork));
   }
   
   /** Create a PlanitRoutedServicesReader sourced from given input directory
@@ -54,10 +54,12 @@ public class PlanitRoutedServicesReaderFactory {
   /** Create a PlanitRoutedServicesReader based on given settings which in turn contain information on location and parent network to use
    * 
    * @param settings to use
+   * @param parentNetwork to use
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final PlanitRoutedServicesReaderSettings settings) {
-    return create(settings, new RoutedServices(IdGroupingToken.collectGlobalToken(), settings.getParentNetwork()));
+  public static PlanitRoutedServicesReader create(
+      final PlanitRoutedServicesReaderSettings settings, ServiceNetwork parentNetwork) {
+    return create(settings, new RoutedServices(IdGroupingToken.collectGlobalToken(), parentNetwork));
   }   
   
   /** Create a PlanitRoutedServicesReader for given (empty) routed services and given settings
@@ -67,12 +69,7 @@ public class PlanitRoutedServicesReaderFactory {
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
-    try {
-      return new PlanitRoutedServicesReader(settings, routedServices);
-    } catch (PlanItException e) {
-      LOGGER.severe(e.getMessage());
-    }    
-    return null;
+    return new PlanitRoutedServicesReader(settings, routedServices);
   }  
    
   
@@ -84,28 +81,29 @@ public class PlanitRoutedServicesReaderFactory {
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final String inputDirectory, final String xmlFileExtension, final RoutedServices routedServices) {
-    try {
-      return new PlanitRoutedServicesReader(inputDirectory, xmlFileExtension, routedServices);
-    } catch (PlanItException e) {
-      LOGGER.severe(e.getMessage());
-    }    
-    return null;
-  }  
-    
-  
+    return new PlanitRoutedServicesReader(inputDirectory, xmlFileExtension, routedServices);
+  }
+
   /** Create a PlanitRoutedServicesReader for given XML root element and routed services to populate
-   * 
+   *
    * @param xmlRawRoutedServices the raw routed services based on the JAXB parser
    * @param routedServices to populate
    * @return created routed service reader
    */
   public static PlanitRoutedServicesReader create(final XMLElementRoutedServices xmlRawRoutedServices, final RoutedServices routedServices) {
-    try {
-      return new PlanitRoutedServicesReader(xmlRawRoutedServices, routedServices);
-    } catch (PlanItException e) {
-      LOGGER.severe(e.getMessage());
-    }  
-    return null;    
-  }    
+    return new PlanitRoutedServicesReader(xmlRawRoutedServices, routedServices);
+  }
+    
+  
+  /** Create a PlanitRoutedServicesReader for given XML root element and routed services to populate
+   * 
+   * @param xmlRawRoutedServices the raw routed services based on the JAXB parser
+   * @param settings to use
+   * @param routedServices to populate
+   * @return created routed service reader
+   */
+  public static PlanitRoutedServicesReader create(final XMLElementRoutedServices xmlRawRoutedServices, final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
+    return new PlanitRoutedServicesReader(xmlRawRoutedServices, settings, routedServices);
+  }
      
 }

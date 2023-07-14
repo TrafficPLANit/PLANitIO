@@ -3,10 +3,10 @@ package org.goplanit.io.xml.util;
 import java.text.DecimalFormat;
 import java.util.logging.Logger;
 
-import org.goplanit.utils.locale.CountryNames;
+import org.goplanit.converter.FileBasedConverterWriterSettings;
+import org.goplanit.converter.SingleFileBasedConverterWriterSettings;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.CharacterUtils;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Settings relevant for persisting Planit Xml output
@@ -14,23 +14,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @author markr
  *
  */
-public class PlanitXmlWriterSettings {
+public class PlanitXmlWriterSettings extends SingleFileBasedConverterWriterSettings {
   
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitXmlWriterSettings.class.getCanonicalName());
 
-  /** directory to persist to */
-  private String outputDirectory = null; 
-  
-  /** destination country to persist for */
-  private String countryName = DEFAULT_COUNTRY;  
-  
-  /** destination file name to persist to */
-  private String fileName = null;   
-  
-  /** default destination country to use if none is set */
-  public static String DEFAULT_COUNTRY = CountryNames.GLOBAL;
-  
   /**
    * number of decimals to use, default is Precision.DEFAULT_DECIMAL_FORMAT
    */
@@ -45,13 +33,21 @@ public class PlanitXmlWriterSettings {
   /** decimal separator, default is CharacterUtils.DECIMAL_POINT */
   protected Character decimalSeparator = CharacterUtils.DECIMAL_POINT;
   
-  /** the coordinate reference system used for writing entities of this network */
-  protected CoordinateReferenceSystem destinationCoordinateReferenceSystem = null;    
+
+  /** Validate the settings
+   * 
+   * @return true when valid, false otherwise
+   */
+  protected boolean validate() {
+    /* other settings are not always mandatory */
+    return super.validate();
+  }    
   
   /**
    * Default constructor 
    */
   public PlanitXmlWriterSettings() {
+    super();
   }
   
   /**
@@ -60,7 +56,7 @@ public class PlanitXmlWriterSettings {
    *  @param outputPathDirectory to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory) {
-    this.outputDirectory = outputPathDirectory;
+    super( outputPathDirectory);
   }
   
   /**
@@ -70,8 +66,7 @@ public class PlanitXmlWriterSettings {
    * @param countryName to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String countryName) {
-    this.outputDirectory = outputPathDirectory;
-    this.setCountry(countryName);
+    super( outputPathDirectory, countryName);
   }      
   
   /**
@@ -82,72 +77,19 @@ public class PlanitXmlWriterSettings {
    *  @param countryName to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory, final String fileName, final String countryName) {
-    this.outputDirectory = outputPathDirectory;
-    this.setCountry(countryName);
-    this.setFileName(fileName);
+    super( outputPathDirectory, fileName, countryName);
   }  
-  
-  /** The outputPathDirectory used
-   * 
-   * @return directory used
-   */
-  public String getOutputPathDirectory() {
-    return this.outputDirectory;
-  }
-  
-  /** Set the outputDirectory used
-   * 
-   * @param outputDirectory to use
-   */
-  public void setOutputDirectory(String outputDirectory) {
-    this.outputDirectory = outputDirectory;
-  }
 
-  /** Collect country name used
-   * 
-   * @return country name
-   */
-  public String getCountry() {
-    return countryName;
-  }
-
-  /** Set country name used
-   * 
-   * @param countryName to use
-   */
-  public void setCountry(String countryName) {
-    this.countryName = countryName;
-  }
-
-  /** Collect the file name to use
-   * 
-   * @return file name to use
-   */
-  public String getFileName() {
-    return fileName;
-  }
-
-  /** Set the file name to use
-   * 
-   * @param fileName to use
-   */
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }  
-  
   /**
    * Convenience method to log all the current settings
    */
   public void logSettings() {
     LOGGER.info(String.format("Decimal fidelity set to %s", decimalFormat.getMaximumFractionDigits()));
     
-    if(getDestinationCoordinateReferenceSystem() != null) {
-      LOGGER.info(String.format("Destination Coordinate Reference System set to: %s", getDestinationCoordinateReferenceSystem().getName()));
-    }
-    
+    super.logSettings();
   }  
 
-  /** Collect number of decimals used in writing coordinates
+  /** Collect number of decimals used in writing double values
    * 
    * @return number of decimals used
    */
@@ -155,7 +97,7 @@ public class PlanitXmlWriterSettings {
     return decimalFormat;
   }
 
-  /** Set number of decimals used in writing coordinates
+  /** Set number of decimals used in writing double values 
    * 
    * @param decimalFormat number of decimals
    */
@@ -213,31 +155,12 @@ public class PlanitXmlWriterSettings {
     this.decimalSeparator = decimalSeparator;
   }
   
-  
-  /** Collect the destination Crs
-   * 
-   * @return destination Crs
-   */
-  public CoordinateReferenceSystem getDestinationCoordinateReferenceSystem() {
-    return destinationCoordinateReferenceSystem;
-  }
-
-  /** Set the destination Crs to use (if not set, network's native Crs will be used, unless the user has specified a
-   * specific country for which we have a more appropriate Crs registered) 
-   * 
-   * @param destinationCoordinateReferenceSystem to use
-   */
-  public void setDestinationCoordinateReferenceSystem(CoordinateReferenceSystem destinationCoordinateReferenceSystem) {
-    this.destinationCoordinateReferenceSystem = destinationCoordinateReferenceSystem;
-  }
 
   /**
    * Reset content
    */
   public void reset() {
-    this.outputDirectory = null;
-    this.fileName = null;
-    this.destinationCoordinateReferenceSystem = null;
+    super.reset();
   }  
     
 }

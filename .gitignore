@@ -1,6 +1,7 @@
 /target
 /.classpath
 /.settings
+/.idea
 .project
 /src/main/java/META-INF
 /src/main/java/net
@@ -11,3 +12,4 @@
 /logs
 /bin
 /doc
+/docs

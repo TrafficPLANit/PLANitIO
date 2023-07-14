@@ -4,23 +4,19 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.service.RoutedServicesReader;
-import org.goplanit.io.xml.util.EnumConversionUtil;
+import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.ServiceNetwork;
-import org.goplanit.service.routed.RoutedModeServices;
-import org.goplanit.service.routed.RoutedService;
-import org.goplanit.service.routed.RoutedServiceTripInfo;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.service.routed.*;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.service.routed.RoutedServicesLayer;
-import org.goplanit.service.routed.RoutedTrip;
-import org.goplanit.service.routed.RoutedTripDeparture;
-import org.goplanit.service.routed.RoutedTripDepartures;
-import org.goplanit.service.routed.RoutedTripFrequency;
-import org.goplanit.service.routed.RoutedTripSchedule;
 import org.goplanit.service.routed.RoutedTripScheduleImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
@@ -29,6 +25,7 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
+import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.unit.Unit;
 import org.goplanit.xml.generated.TimeUnit;
 import org.goplanit.xml.generated.XMLElementDepartures;
@@ -59,7 +56,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
   
   /** parses the XML content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementRoutedServices> xmlParser;
-  
+
   /** the routed services to populate */
   private final RoutedServices routedServices;
   
@@ -67,11 +64,10 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * initialise the XML id trackers and populate them for the parent PLANit references, 
    * so we can lay indices on the XML id as well for quick lookups
    * 
-   * @param network parent service network
    */
-  private void initialiseParentXmlIdTrackers(ServiceNetwork network) {    
+  private void initialiseParentXmlIdTrackers() {
     initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));    
+    routedServices.getParentNetwork().getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));
   }    
   
   /** Parse a schedule based trip for the given routed service
@@ -103,14 +99,14 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       }
       
       /* departure time */
-      XMLGregorianCalendar xmlDepartureTime = xmlDeparture.getTime();
-      if(xmlDepartureTime==null) {
+      String extendedDepartureTime = xmlDeparture.getTime();
+      if(extendedDepartureTime==null) {
         LOGGER.warning(String.format("IGNORE: A routed trip %s has no departure time defined for its departure element, departure removed", routedTrip.getXmlId()));
         continue;        
       }
-      LocalTime departureTime = xmlDepartureTime.toGregorianCalendar().toZonedDateTime().toLocalTime();            
+      var parsedDepartureTime = ExtendedLocalTime.of(extendedDepartureTime);
       /* instance */
-      RoutedTripDeparture departure = routedTripDepartures.getFactory().registerNew(departureTime);
+      RoutedTripDeparture departure = routedTripDepartures.getFactory().registerNew(parsedDepartureTime);
       departure.setXmlId(xmlId);
       
       /* external id*/
@@ -130,7 +126,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     //TODO: for some reason the xsd's default dwell time of 00:00:00 is not populated by JAXB so we do it programmatically here for now
     LocalTime defaultDwellTime = LocalTime.MIN;
     if(xmlRelativeLegTimings.getDwelltime()!=null) {
-      defaultDwellTime = xmlRelativeLegTimings.getDwelltime().toGregorianCalendar().toZonedDateTime().toLocalTime();      
+      defaultDwellTime = xmlRelativeLegTimings.getDwelltime();
     }
     /* set on implementation so it can be used for persistence later on if required, not used in memory model */
     ((RoutedTripScheduleImpl)routedTrip).setDefaultDwellTime(defaultDwellTime);
@@ -156,23 +152,21 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       xmlRelativeTimingLeg.getDuration();
       
       /* scheduled duration of leg */
-      final XMLGregorianCalendar xmlScheduledLegDuration = xmlRelativeTimingLeg.getDuration();
-      if(xmlScheduledLegDuration==null) {
+      var scheduledLegDuration = xmlRelativeTimingLeg.getDuration();
+      if(scheduledLegDuration == null) {
         LOGGER.warning(String.format("IGNORE: A scheduled trip %s its directional leg timing %s has no valid duration", routedTrip.getXmlId(), parentLegSegment.getXmlId()));
         validTimings = false;
         break;        
       }
-      LocalTime duration = xmlScheduledLegDuration.toGregorianCalendar().toZonedDateTime().toLocalTime();    
       
       /* scheduled dwell time of leg */
-      XMLGregorianCalendar xmlScheduledDwellTime= xmlRelativeTimingLeg.getDwelltime();
-      LocalTime localDwellTime = ((RoutedTripScheduleImpl)routedTrip).getDefaultDwellTime(); 
-      if(xmlScheduledDwellTime!=null) {
-        localDwellTime = xmlScheduledDwellTime.toGregorianCalendar().toZonedDateTime().toLocalTime();  
+      var scheduledDwellTime= xmlRelativeTimingLeg.getDwelltime();
+      if(scheduledDwellTime==null) {
+        scheduledDwellTime = defaultDwellTime;
       }             
       
       /* instance on schedule */
-      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, duration, localDwellTime);
+      routedTrip.addRelativeLegSegmentTiming(parentLegSegment, scheduledLegDuration, scheduledDwellTime);
     }
     
     if(!validTimings) {
@@ -199,7 +193,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     String[] xmlLegRefsArray = xmlLegRefs.split(CharacterUtils.COMMA.toString());
     for(int index=0;index<xmlLegRefsArray.length;++index) {
       
-      ServiceLegSegment parentLegSegment = getBySourceId(ServiceLegSegment.class, xmlLegRefsArray[index]);
+      ServiceLegSegment parentLegSegment = getBySourceId(ServiceLegSegment.class, xmlLegRefsArray[index].trim());
       if(parentLegSegment==null) {
         LOGGER.warning(String.format("IGNORE: Unavailable directed leg referenced %s in trip %s",xmlLegRefsArray[index], routedTrip.getXmlId()));
         routedTrip.clearLegs();
@@ -208,9 +202,11 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     }
     
     /* unit of frequency */
-    TimeUnit xmlTimeUnit = xmlFrequency.getUnit();    
-    PlanItException.throwIfNull(xmlTimeUnit,"Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
-    org.goplanit.utils.unit.TimeUnit planitFrequencyTimeUnit = EnumConversionUtil.xmlToPlanit(xmlTimeUnit);
+    TimeUnit xmlTimeUnit = xmlFrequency.getUnit();
+    if(xmlTimeUnit == null){
+      throw new PlanItRunTimeException("Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
+    }
+    org.goplanit.utils.unit.TimeUnit planitFrequencyTimeUnit = xmlEnumConversionUtil.xmlToPlanit(xmlTimeUnit);
     
     /* XML frequency */
     double xmlNonNormalisedFrequency = xmlFrequency.getValue();
@@ -445,27 +441,25 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
   /** Constructor where settings are directly provided such that input information can be extracted from it
    * 
    * @param idToken to use for the service network to populate
+   * @param parentServiceNetwork to use
    * @param settings to use
    * @throws PlanItException  thrown if error
    */
-  protected PlanitRoutedServicesReader(final IdGroupingToken idToken, final PlanitRoutedServicesReaderSettings settings) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
-    this.settings = settings;
-    this.routedServices = new RoutedServices(idToken, settings.getParentNetwork());
+  protected PlanitRoutedServicesReader(final IdGroupingToken idToken, final ServiceNetwork parentServiceNetwork, final PlanitRoutedServicesReaderSettings settings) throws PlanItException{
+    this(settings, new RoutedServices(idToken, parentServiceNetwork));
   }  
   
   /** Constructor where settings and routed services to populate are directly provided
    * 
    * @param settings to use
    * @param routedServices to populate
-   * @throws PlanItException thrown if error
    */
-  protected PlanitRoutedServicesReader(final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
+  protected PlanitRoutedServicesReader(final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
     this.settings = settings;
     this.routedServices = routedServices;
-    if(!settings.getParentNetwork().equals(routedServices.getParentNetwork())) {
-      LOGGER.severe("parent network in settings instance does not match the parent network in the provided routed services instance for the PLANit routed services reader");
+    if(routedServices.getParentNetwork() == null) {
+      LOGGER.severe("parent service network not set on routed services, this is not allowed");
     }
   }  
     
@@ -473,11 +467,20 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * 
    * @param populatedXmlRawRoutedServices to extract from
    * @param routedServices to populate
-   * @throws PlanItException thrown if error
    */
-  protected PlanitRoutedServicesReader(final XMLElementRoutedServices populatedXmlRawRoutedServices, final RoutedServices routedServices) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(populatedXmlRawRoutedServices);
-    this.settings = new PlanitRoutedServicesReaderSettings(routedServices.getParentNetwork());
+  protected PlanitRoutedServicesReader(final XMLElementRoutedServices populatedXmlRawRoutedServices, final RoutedServices routedServices){
+    this(populatedXmlRawRoutedServices, new PlanitRoutedServicesReaderSettings(), routedServices);
+  }
+
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   *
+   * @param populatedXmlRawRoutedServices to extract from
+   * @param settings to use
+   * @param routedServices to populate
+   */
+  protected PlanitRoutedServicesReader(final XMLElementRoutedServices populatedXmlRawRoutedServices, final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(populatedXmlRawRoutedServices);
+    this.settings = settings;
     this.routedServices = routedServices;
   }
   
@@ -486,10 +489,9 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * @param inputPathDirectory to use
    * @param xmlFileExtension to use
    * @param routedServices to populate
-   * @throws PlanItException thrown if error
    */
-  protected PlanitRoutedServicesReader(final String inputPathDirectory, final String xmlFileExtension, final RoutedServices routedServices) throws PlanItException{   
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementRoutedServices>(XMLElementRoutedServices.class);
+  protected PlanitRoutedServicesReader(final String inputPathDirectory, final String xmlFileExtension, final RoutedServices routedServices){
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
     this.settings = new PlanitRoutedServicesReaderSettings(routedServices.getParentNetwork(), inputPathDirectory, xmlFileExtension);
     this.routedServices = routedServices;
   }  
@@ -501,11 +503,11 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * {@inheritDoc}
    */
   @Override
-  public RoutedServices read() throws PlanItException {
+  public RoutedServices read(){
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-    PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML routed services could be parsed into memory, abort");
+    PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML routed services could be parsed into memory, abort");
     
     /* XML id */
     String xmlId = xmlParser.getXmlRootElement().getId();
@@ -518,19 +520,22 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     try {
       
       /* initialise the indices used, if needed */
-      initialiseParentXmlIdTrackers(getSettings().getParentNetwork());      
+      initialiseParentXmlIdTrackers();
 
       /* parse content */
       parseRoutedServiceLayers();
+
+      /* log stats */
+      routedServices.logInfo(LoggingUtils.routedServicesPrefix(routedServices.getId()));
       
       /* free XML content after parsing */
       xmlParser.clearXmlContent();           
       
     } catch (PlanItException e) {
-      throw e;
+      throw new PlanItRunTimeException(e);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException(String.format("Error while populating routed services %s in PLANitIO", routedServices.getXmlId()),e);
+      throw new PlanItRunTimeException(String.format("Error while populating routed services %s in PLANitIO", routedServices.getXmlId()),e);
     }    
     
     return routedServices;

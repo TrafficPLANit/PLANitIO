@@ -1,8 +1,6 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -15,7 +13,7 @@ import org.goplanit.io.test.util.PlanItIOTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.project.CustomPlanItProject;
@@ -27,10 +25,13 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit test cases for BPR tests for TraditionalStaticAssignment
@@ -42,6 +43,8 @@ public class BPRTest {
 
   /** the logger */
   private static Logger LOGGER = null;
+
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
   
   private final String zone1XmlId = "1";
   private final String zone2XmlId = "2";
@@ -73,33 +76,33 @@ public class BPRTest {
   private void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
       String csvFileName, String xmlFileName) throws Exception {
 
-    String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
-    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"+ csvFileName;
+    String fullCsvFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + csvFileName).toString();
+    String fullCsvFileNameWithDescription = Path.of(projectPath , outputType.value() + "_" + description + "_"+ csvFileName).toString();
 
-    assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription));
+    assertTrue(PlanItIOTestHelper.compareFiles(fullCsvFileNameWithoutDescription, fullCsvFileNameWithDescription, true));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, csvFileName);
 
-    String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
-    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_"+ xmlFileName;
+    String fullXmlFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + xmlFileName).toString();
+    String fullXmlFileNameWithDescription = Path.of(projectPath , outputType.value() + "_" + description + "_"+ xmlFileName).toString();
     assertTrue(PlanItIOTestHelper.isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription,fullXmlFileNameWithDescription));
     PlanItIOTestHelper.deleteFile(outputType, projectPath, description, xmlFileName);
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(BPRTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
-    pathMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, String>>>>();
-    odMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>>();    
-    resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>>();       
+    pathMap = new TreeMap<>();
+    odMap = new TreeMap<>();
+    resultsMap = new TreeMap<>();
   }  
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
   }
@@ -110,14 +113,14 @@ public class BPRTest {
   @Test
   public void test_bpr_parameters_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\bpr_parameters_test\\xml\\simple";
+      String projectPath = Path.of(testCasePath.toString(),"bpr_parameters_test","xml","simple").toString();
       String description = "mode_test";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<TransportLayerNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParametersConsumer = 
+      TriConsumer<LayeredNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParametersConsumer = 
           (network, bpr, inputBuilderListener) -> {
             Mode mode = network.getModes().getByXmlId("1");
             if(mode == null) {
@@ -156,11 +159,11 @@ public class BPRTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
            
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.put(timePeriod, new TreeMap<>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
       resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 2000, 19.1019336, 1000.0, 10.0, 0.5235072));
       resultsMap.get(timePeriod).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
       resultsMap.get(timePeriod).get(mode1).get(node3XmlId).put(node2XmlId, new LinkSegmentExpectedResultsDto(2, 3, 2000, 4.5, 1000.0, 10.0, 2.2222222));
@@ -172,8 +175,8 @@ public class BPRTest {
       resultsMap.get(timePeriod).get(mode1).get(node6XmlId).put(node5XmlId, new LinkSegmentExpectedResultsDto(5, 6, 2000, 19.1019336, 1000.0, 10.0, 0.5235072));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
   
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.put(timePeriod, new TreeMap<>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
       pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2,3,4,5,6]");
@@ -182,8 +185,8 @@ public class BPRTest {
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,""); 
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);          
       
-      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.put(timePeriod, new TreeMap<>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(80.2038651));

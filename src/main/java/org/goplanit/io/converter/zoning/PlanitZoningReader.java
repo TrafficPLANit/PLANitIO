@@ -1,58 +1,36 @@
 package org.goplanit.io.converter.zoning;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
+import net.opengis.gml.CoordinatesType;
+import net.opengis.gml.LineStringType;
+import net.opengis.gml.LinearRingType;
+import net.opengis.gml.PolygonType;
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
+import org.goplanit.utils.misc.CharacterUtils;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.goplanit.utils.zoning.Centroid;
-import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.ConnectoidType;
-import org.goplanit.utils.zoning.DirectedConnectoid;
-import org.goplanit.utils.zoning.OdZone;
-import org.goplanit.utils.zoning.TransferZone;
-import org.goplanit.utils.zoning.TransferZoneGroup;
-import org.goplanit.utils.zoning.TransferZoneType;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
-import org.goplanit.utils.zoning.Zone;
-import org.goplanit.xml.generated.Connectoidnodelocationtype;
-import org.goplanit.xml.generated.Connectoidtype;
-import org.goplanit.xml.generated.Connectoidtypetype;
-import org.goplanit.xml.generated.Odconnectoid;
-import org.goplanit.xml.generated.Transferzonetype;
-import org.goplanit.xml.generated.XMLElementCentroid;
-import org.goplanit.xml.generated.XMLElementConnectoid;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.goplanit.xml.generated.XMLElementTransferGroup;
-import org.goplanit.xml.generated.XMLElementTransferZoneAccess;
-import org.goplanit.xml.generated.XMLElementTransferZoneGroups;
-import org.goplanit.xml.generated.XMLElementTransferZones;
-import org.goplanit.xml.generated.XMLElementZones;
+import org.goplanit.utils.zoning.*;
+import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
 import org.goplanit.zoning.Zoning;
+import org.goplanit.zoning.ZoningModifierUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import net.opengis.gml.CoordinatesType;
-import net.opengis.gml.LineStringType;
-import net.opengis.gml.LinearRingType;
-import net.opengis.gml.PolygonType;
+import java.util.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -67,7 +45,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningReader.class.getCanonicalName());
   
   /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementMacroscopicZoning> xmlParser;  
+  private final PlanitXmlJaxbParser<XMLElementMacroscopicZoning> xmlParser;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
+   * zoning is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit zoning XML ids to internally generated ids, overwriting original XML ids");
+    ZoningModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+  }
   
   /**
    * initialise the XML id trackers and populate them for the network references, 
@@ -92,7 +80,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     
   /** Parse passed in transfer zone type
    * 
-   * @param xmlTransferzoneType to parse
+   * @param xmlTransferZone to parse
    * @return PLANit equivalent of the transfer zone type
    */
   private static TransferZoneType parseTransferZoneType(final Transferzonetype xmlTransferZone ) {
@@ -119,7 +107,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   
   /** Parse passed in connectoid type
    * 
-   * @param xmlTransferzoneType to parse
+   * @param xmlConnectoidType to parse
    * @return PLANit equivalent of the transfer zone type
    */  
   private static ConnectoidType parseConnectoidType(final Connectoidtypetype xmlConnectoidType) {
@@ -135,7 +123,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       case NONE:
         return ConnectoidType.NONE;         
       default:
-        LOGGER.warning(String.format("unknown connectoid type %s found, changed to `unknown`",xmlConnectoidType.value()));
+        LOGGER.warning(String.format("Unknown connectoid type %s found, changed to `unknown`",xmlConnectoidType.value()));
         return ConnectoidType.UNKNOWN;
       }
     }
@@ -144,13 +132,12 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   
   /** Public Transport to parse the geometry of the zone if any is provided
    * 
-   * @param Zone to populate geometry on
-   * @param polygon to extract it from, or
-   * @param linestring to extract it from
-   * @throws PlanItException thrown if error
+   * @param zone to populate geometry on
+   * @param xmlPolygon to extract it from, or
+   * @param xmlLineString to extract it from
    */
   private static void populateZoneGeometry(
-      final Zone zone, final PolygonType xmlPolygon, final LineStringType xmlLineString) throws PlanItException {
+      final Zone zone, final PolygonType xmlPolygon, final LineStringType xmlLineString) {
     
     Geometry geometry = null;
     if(xmlPolygon != null) {
@@ -182,10 +169,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param zone to populate geometry on
    * @param xmlPolygon to extract it from
-   * @throws PlanItException thrown if error
    */
   private static void populateZoneGeometry(
-      final Zone zone, final PolygonType xmlPolygon) throws PlanItException {
+      final Zone zone, final PolygonType xmlPolygon) {
     populateZoneGeometry(zone, xmlPolygon, null);
   }  
   
@@ -196,10 +182,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlConnectoid to extract explicit length from (if any)
    * @param position to compute geographic length from (if not null)
    * @param jtsUtils to use
-   * @throws PlanitException thrown if error 
    */
   private static void populateConnectoidToZoneLengths(
-      final Connectoid connectoid, final Connectoidtype xmlConnectoid, final Point position, final PlanitJtsCrsUtils jtsUtils) throws PlanItException {       
+      final Connectoid connectoid, final Connectoidtype xmlConnectoid, final Point position, final PlanitJtsCrsUtils jtsUtils){
     Double connectoidLength = null;
     
     /* Explicitly set length (apply to all access zones */
@@ -238,23 +223,21 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   /**
    * Parse common properties of a zone regardless if it is an od or transfer zone
    * 
-   * @param <T> zone type
-   * @param zones to register on
+   * @param zone to register on
    * @param xmlId to use
    * @param externalId to use (can be null)
    * @param name to use (can be null)
    * @param xmlCentroid to extract centroid from
    * @return created and registered Planit zone
-   * @throws PlanItException thrown if error
    */
   private void parseBaseZone(
-      final Zone zone, final String xmlId, final String externalId, final String name, final XMLElementCentroid xmlCentroid) throws PlanItException {
+      final Zone zone, final String xmlId, final String externalId, final String name, final XMLElementCentroid xmlCentroid) {
     
     /* xml id */
     if(!StringUtils.isNullOrBlank(xmlId)) {
       zone.setXmlId(xmlId);
     }else {
-      throw new PlanItException("Zone cannot be parsed, its (XML) id is not set");
+      throw new PlanItRunTimeException("Zone cannot be parsed, its (XML) id is not set");
     }
     /* all zones regardless of subtype are expected to have unique ids */
     registerBySourceId(Zone.class, zone);
@@ -292,9 +275,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param xmlConnectoid to be parsed
    * @return created connectoid
-   * @throws PlanItException thrown if error
    */
-  private Connectoid parseBaseConnectoid(final Connectoidtype xmlConnectoid) throws PlanItException {
+  private Connectoid parseBaseConnectoid(final Connectoidtype xmlConnectoid) {
     Connectoid theConnectoid = null;
     
     /* xml id */
@@ -302,33 +284,38 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     if(!StringUtils.isNullOrBlank(xmlConnectoid.getId())) {
       xmlId = xmlConnectoid.getId();
     }else {
-      LOGGER.severe("DISCARd: Parsed connectoid has no (XML) id");
+      LOGGER.severe("DISCARD: Parsed connectoid has no (XML) id");
       return null;
     }    
     
     /* CONNECTOID */
-    Node accessNode = null;  
-    if(xmlConnectoid instanceof Odconnectoid) {
-      accessNode = getBySourceId(Node.class, ((Odconnectoid)xmlConnectoid).getNoderef());
+    if(xmlConnectoid instanceof XMLElementConnectoid) {
+
+      /* ACCESS NODE BASED (OD) */
+      var xmlOdConnectoid = ((XMLElementConnectoid)xmlConnectoid);
+      Node accessNode = getBySourceId(Node.class, xmlOdConnectoid.getNoderef());
       if(accessNode == null) {
-        throw new PlanItException(String.format("provided accessNode XML id %s is invalid given available nodes in network when parsing transfer connectoid %s", ((Odconnectoid)xmlConnectoid).getNoderef(), xmlConnectoid.getId()));
+        throw new PlanItRunTimeException(String.format("Provided accessNode XML id %s is invalid given available nodes in network when parsing transfer connectoid %s", xmlOdConnectoid.getNoderef(), xmlConnectoid.getId()));
       }
-      /* ACCESS NODE based*/
-      theConnectoid = zoning.odConnectoids.getFactory().registerNew(accessNode);
+      theConnectoid = zoning.getOdConnectoids().getFactory().registerNew(accessNode);
+
     }else if(xmlConnectoid instanceof XMLElementTransferZoneAccess.XMLElementTransferConnectoid) {
+
+      /* ACCESS LINK SEGMENT BASED ((PT) TRANSFER ZONE) */
       XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid = (XMLElementTransferZoneAccess.XMLElementTransferConnectoid) xmlConnectoid;                  
       String xmlLinkSegmentRef = xmlTransferConnectoid.getLsref();
       MacroscopicLinkSegment linkSegment = getBySourceId(MacroscopicLinkSegment.class,xmlLinkSegmentRef);
       if(linkSegment == null) {
-        throw new PlanItException(String.format("provided link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
+        throw new PlanItRunTimeException(String.format("Provided access link segment XML id %s is invalid given available link segments in network when parsing transfer connectoid %s", xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
-      /* LINK SEGMENT based */
-      theConnectoid = zoning.transferConnectoids.getFactory().registerNew(linkSegment);
-      
-      /* special case: when upstream node should be used */
+
+      boolean nodeAccessDownstream = true;
       if(xmlTransferConnectoid.getLoc()!= null && xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
-        ((DirectedConnectoid)theConnectoid).setNodeAccessDownstream(false);
+        nodeAccessDownstream = false;
       }
+
+      theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(nodeAccessDownstream, linkSegment);
+
     }
     theConnectoid.setXmlId(xmlId);
         
@@ -355,7 +342,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   private TransferZoneGroup parseTransferGroup(final XMLElementTransferGroup xmlTransferGroup) {
     /* register new */
-    TransferZoneGroup transferGroup = zoning.transferZoneGroups.getFactory().registerNew();
+    TransferZoneGroup transferGroup = zoning.getTransferZoneGroups().getFactory().registerNew();
     
     /* xm id */
     transferGroup.setXmlId(xmlTransferGroup.getId());
@@ -405,12 +392,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZone();
     for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZonesList) {
       /* base zone elements parsed and PLANit version registered */
-      TransferZone transferZone = zoning.transferZones.getFactory().registerNew();
+      TransferZone transferZone = zoning.getTransferZones().getFactory().registerNew();
       parseBaseZone(transferZone, xmlTransferzone.getId(), xmlTransferzone.getExternalid(), xmlTransferzone.getName(), xmlTransferzone.getCentroid());
       
       /* type */
       if(xmlTransferzone.getType()!= null) {
         transferZone.setType(parseTransferZoneType(xmlTransferzone.getType()));
+      }
+
+      /* platform names */
+      if(xmlTransferzone.getPlatforms()!=null){
+        transferZone.addTransferZonePlatformNames(xmlTransferzone.getPlatforms().split(CharacterUtils.COMMA.toString()));
       }
             
       /* geometry */
@@ -434,7 +426,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     }    
     XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlInterModal.getValue().getTransferzoneaccess();
     
-    Map<String, Mode> modesByXmlId = new HashMap<String, Mode>();
+    Map<String, Mode> modesByXmlId = new HashMap<>();
     modes.forEach( mode -> modesByXmlId.put(mode.getXmlId(), mode));
     
     /* transfer zone connectoid access */
@@ -517,8 +509,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   protected void populateIntermodal(final Modes modes) throws PlanItException{
     if(xmlParser.getXmlRootElement().getIntermodal() == null) {
+      LOGGER.info("No Transfer zones present, skip");
       return;
     }
+    LOGGER.info("Parsing transfer zones...");
     
     /* intermodal elements present */
     XMLElementIntermodal xmlInterModal = xmlParser.getXmlRootElement().getIntermodal();
@@ -538,9 +532,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * network crs are incompatible log to user, this is discouraged.
    * 
    * @param macroscopicNetwork containing the network crs
-   * @throws PlanItException thrown if error
    */
-  private void parseCoordinateReferenceSystem(final MacroscopicNetwork macroscopicNetwork) throws PlanItException {
+  private void parseCoordinateReferenceSystem(final MacroscopicNetwork macroscopicNetwork){
     CoordinateReferenceSystem crs = macroscopicNetwork.getCoordinateReferenceSystem();
     if(xmlParser.getXmlRootElement().getSrsname()!=null && !xmlParser.getXmlRootElement().getSrsname().isBlank()) {
       crs = PlanitXmlJaxbParser.createPlanitCrs(xmlParser.getXmlRootElement().getSrsname());
@@ -560,7 +553,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   protected Zoning zoning;
   
   /** the network this zoning relates to */
-  protected TransportLayerNetwork<?,?> network;
+  protected LayeredNetwork<?,?> network;
       
   /** Set the zoning to populate
    * 
@@ -574,27 +567,27 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param network to use
    */
-  protected void setNetwork(final TransportLayerNetwork<?,?> network) {
+  protected void setNetwork(final LayeredNetwork<?,?> network) {
     this.network = network;
   }
   
   /**
    * Parse the OD zones from Xml element into Planit memory
    * 
-   * @throws PlanItException thrown if error
    */
-  protected void populateODZones() throws PlanItException{
+  protected void populateODZones(){
     
     /* check if present */
     if(xmlParser.getXmlRootElement().getZones()==null) {
-      LOGGER.info("No Od zones found in zoning, skip");
+      LOGGER.info("No OD zones found in zoning, skip");
       return;
     }
+    LOGGER.info("Parsing OD zones...");
     
     /* zone */
     for (final XMLElementZones.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZone()) {
       /* create zone */
-      OdZone zone = zoning.odZones.getFactory().registerNew();
+      OdZone zone = zoning.getOdZones().getFactory().registerNew();
       parseBaseZone(zone, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
       
       /* geometry */
@@ -602,16 +595,14 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
                  
       /* connectoids */
       List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
-      for(XMLElementConnectoid xmlConnectoid : xmlConnectoids) {                
-        Odconnectoid xmlOdConnectoid = xmlConnectoid.getValue();
-        
+      for(XMLElementConnectoid xmlOdConnectoid : xmlConnectoids) {
         /* parse the (Od, node reference based) undirected connectoid */
-        UndirectedConnectoid connectoid = (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid);
+        UndirectedConnectoid planitOdConnectoid = (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid);
         /* register zone */
-        connectoid.addAccessZone(zone);
+        planitOdConnectoid.addAccessZone(zone);
  
         /* parse length */
-        populateConnectoidToZoneLengths(connectoid, xmlOdConnectoid, connectoid.getAccessVertex().getPosition(), jtsUtils);
+        populateConnectoidToZoneLengths(planitOdConnectoid, xmlOdConnectoid, planitOdConnectoid.getAccessVertex().getPosition(), jtsUtils);
       }             
     }
   }
@@ -623,8 +614,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param zoning to populate
    */
   protected PlanitZoningReader(
-      final PlanitZoningReaderSettings settings, final TransportLayerNetwork<?,?> network, final Zoning zoning) {
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);
+      final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
     this.settings = settings;
     setZoning(zoning);
     setNetwork(network);
@@ -636,11 +627,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlFileExtension to use
    * @param network to extract planit entities from by found references in zoning
    * @param zoning to populate
-   * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final String pathDirectory, final String xmlFileExtension, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{   
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(XMLElementMacroscopicZoning.class);  
+      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
     this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);    
     setZoning(zoning);
     setNetwork(network);
@@ -651,26 +641,36 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlMacroscopicZoning to extract from
    * @param network to extract planit entities from by found references in zoning
    * @param zoning to populate
-   * @throws PlanItException  thrown if error
    */
   protected PlanitZoningReader(
-      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final TransportLayerNetwork<?,?> network, final Zoning zoning) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicZoning>(xmlMacroscopicZoning);
-    this.settings =  new PlanitZoningReaderSettings();
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this(xmlMacroscopicZoning, new PlanitZoningReaderSettings(), network, zoning);
+  }
+
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+   *
+   * @param xmlMacroscopicZoning to extract from
+   * @param settings to use
+   * @param network to extract planit entities from by found references in zoning
+   * @param zoning to populate
+   */
+  protected PlanitZoningReader(
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicZoning);
+    this.settings =  settings;
     setZoning(zoning);
     setNetwork(network);
-  }  
+  }
 
   /** Read the zoning from disk
    * 
    * @return zoning parsed
-   * @throws PlanItException thrown if error
    */
   @Override  
-  public Zoning read() throws PlanItException {
+  public Zoning read(){
         
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("unable to read zoning, network is not compatible with Macroscopic network");
+      throw new PlanItRunTimeException("Unable to read zoning, network is not compatible with Macroscopic network");
     }
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;   
 
@@ -683,7 +683,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       
       /* populate Xml memory model */
       xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-      PlanItException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML zoning could be parsed into memory, abort");
+      PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML zoning could be parsed into memory, abort");
       
       /* xml id */
       String zoningXmlId = xmlParser.getXmlRootElement().getId();
@@ -701,15 +701,22 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       
       /* Intermodal/transfer zones, i.e., platforms, stations, etc. */
       populateIntermodal(macroscopicNetwork.getModes());
+
+      if(getSettings().isSyncXmlIdsToIds()){
+        syncXmlIdsToIds();
+      }
+
+      /* log stats */
+      zoning.logInfo(LoggingUtils.zoningPrefix(zoning.getId()));
       
       /* free */
-      xmlParser.clearXmlContent();
+      reset();
       
     } catch (PlanItException e) {
-      throw e;
+      throw new PlanItRunTimeException(e);
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when populating zoning in PLANitIO",e);
+      throw new PlanItRunTimeException("Error when populating zoning in PLANitIO",e);
     }
     
     return zoning;
@@ -731,7 +738,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   @Override
   public void reset() {
-    getSettings().reset();    
+    super.reset();
+    xmlParser.clearXmlContent();
   }
   
 

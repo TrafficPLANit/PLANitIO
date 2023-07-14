@@ -17,7 +17,16 @@ public class PlanitZoningReaderSettings extends PlanitXmlReaderSettings implemen
   public PlanitZoningReaderSettings() {
     super();
   }
-  
+
+  /**
+   * Constructor
+   *
+   *  @param inputPathDirectory to use
+   */
+  public PlanitZoningReaderSettings(final String inputPathDirectory) {
+    super(inputPathDirectory);
+  }
+
   /**
    * Constructor
    * 
@@ -27,15 +36,7 @@ public class PlanitZoningReaderSettings extends PlanitXmlReaderSettings implemen
   public PlanitZoningReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
     super(inputPathDirectory, xmlFileExtension);
   }  
-    
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void reset() {
-  }
-  
   // GETTERS/SETTERS
      
 }

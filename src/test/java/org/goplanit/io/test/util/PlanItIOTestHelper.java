@@ -1,11 +1,10 @@
 package org.goplanit.io.test.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -17,7 +16,7 @@ import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.io.FileUtils;
-import org.goplanit.io.xml.util.JAXBUtils;
+import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.formatter.MemoryOutputIterator;
@@ -280,7 +279,7 @@ public class PlanItIOTestHelper {
   public static void deleteFile(final String fileName) throws Exception {
     try {
       final String rootPath = System.getProperty("user.dir");
-      final Path path = FileSystems.getDefault().getPath(rootPath + "\\" + fileName);
+      Path path =  !fileName.startsWith(rootPath) ? Path.of(rootPath, fileName) : Path.of(fileName);
       Files.delete(path);
     }catch(NoSuchFileException e) {
       LOGGER.fine(String.format("File cannot be deleted, it does not exist; %s", fileName));
@@ -297,7 +296,7 @@ public class PlanItIOTestHelper {
    */
   public static void deleteFile(final OutputType outputType, final String projectPath, final String description,
       final String fileName) throws Exception {
-    deleteFile(projectPath + "\\" + outputType.value() + "_" + description + "_" + fileName);
+    deleteFile(Path.of(projectPath, outputType.value() + "_" + description + "_" + fileName).toString());
   }
 
   /**
@@ -308,14 +307,34 @@ public class PlanItIOTestHelper {
    *
    * @param file1 location of the first file to be compared
    * @param file2 location of the second file to be compared
+   * @param printFilesOnFalse when comparison returns false we can print the files when set to true, otherwise not
    * @return true if the contents of the two files are exactly equal, false otherwise
    * @throws IOException thrown if there is an error opening one of the files
    */
-  public static boolean compareFiles(final String file1, final String file2) throws IOException {
-    final File f1 = new File(file1);
-    final File f2 = new File(file2);
-    final boolean result = FileUtils.contentEqualsIgnoreEOL(f1, f2, "utf-8");
-    return result;
+  public static boolean compareFiles(final String file1, final String file2, final boolean printFilesOnFalse) throws IOException {
+    final var charSetName = "utf-8";
+    final Path f1 = Path.of(file1).toAbsolutePath();
+    if(Files.notExists(f1)){
+      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",f1));
+      FileUtils.listFiles(f1.getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+      return false;
+    }
+    final Path f2 = Path.of(file2).toAbsolutePath();
+    if(Files.notExists(f2)){
+      LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",f2));
+      FileUtils.listFiles(f2.getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+      return false;
+    }
+
+    final boolean contentEquals = FileUtils.contentEqualsIgnoreEOL(f1.toFile(), f2.toFile(), charSetName);
+    if(!contentEquals && printFilesOnFalse) {
+      LOGGER.warning("FILE NOT THE SAME: Printing contents for comparison");
+      LOGGER.warning("File 1:");
+      LOGGER.warning(FileUtils.readFileToString(f1.toFile(), charSetName));
+      LOGGER.warning("File 2:");
+      LOGGER.warning(FileUtils.readFileToString(f2.toFile(), charSetName));
+    }
+    return contentEquals;
   }
 
   /**
@@ -437,26 +456,44 @@ public class PlanItIOTestHelper {
 
   /**
    * Run assertions which confirm that results files contain the correct data, and
-   * then remove the results files
-   * 
+   * then remove the results files, when files differ, always print the two files for comparison
+   *
    * @param projectPath project directory containing the input files
    * @param description description used in temporary output file names
    * @param csvFileName name of CSV file containing run results
    * @param xmlFileName name of XML file containing run results
    * @throws Exception thrown if there is an error
    */
- 
+
   public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
-      String csvFileName, String xmlFileName) throws Exception {
+                                                      String csvFileName, String xmlFileName) throws Exception {
+
+    runFileEqualAssertionsAndCleanUp(outputType, projectPath, description, csvFileName, xmlFileName, true);
+  }
+
+  /**
+   * Run assertions which confirm that results files contain the correct data, and
+   * then remove the results files
+   * 
+   * @param projectPath project directory containing the input files
+   * @param description description used in temporary output file names
+   * @param csvFileName name of CSV file containing run results
+   * @param xmlFileName name of XML file containing run results
+   * @param printFilesOnFalse when comparison returns false we can print the files when set to true, otherwise not
+   * @throws Exception thrown if there is an error
+   */
+
+  public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
+      String csvFileName, String xmlFileName, boolean printFilesOnFalse) throws Exception {
     
-    String fullCsvFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + csvFileName;
-    String fullCsvFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + csvFileName;
-    
-    assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription));
+    String fullCsvFileNameWithoutDescription = Path.of(projectPath, outputType.value() + "_" + csvFileName).toString();
+    String fullCsvFileNameWithDescription =  Path.of(projectPath, outputType.value() + "_" + description + "_" + csvFileName).toString();
+
+    assertTrue(compareFiles(fullCsvFileNameWithoutDescription,fullCsvFileNameWithDescription, printFilesOnFalse));
     deleteFile(outputType, projectPath, description, csvFileName);
     
-    String fullXmlFileNameWithoutDescription = projectPath + "\\" + outputType.value() + "_" + xmlFileName;
-    String fullXmlFileNameWithDescription = projectPath + "\\" + outputType.value() + "_" + description + "_" + xmlFileName;
+    String fullXmlFileNameWithoutDescription = Path.of(projectPath , outputType.value() + "_" + xmlFileName).toString();
+    String fullXmlFileNameWithDescription = Path.of( projectPath , outputType.value() + "_" + description + "_" + xmlFileName).toString();
     assertTrue(isXmlFileSameExceptForTimestamp(fullXmlFileNameWithoutDescription, fullXmlFileNameWithDescription));
     deleteFile(outputType, projectPath, description, xmlFileName);
   }

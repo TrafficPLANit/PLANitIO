@@ -3,7 +3,7 @@
     <timestamp>2020-12-04T11:17:27.404+11:00</timestamp>
     <outputconfiguration>
         <assignment>TraditionalStaticAssignment</assignment>
-        <physicalcost>BPRLinkTravelTimeCost</physicalcost>
+        <physicalcost>BprLinkTravelTimeCost</physicalcost>
         <virtualcost>SpeedConnectoidTravelTimeCost</virtualcost>
         <smoothing>MSASmoothing</smoothing>
         <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>
@@ -16,7 +16,7 @@
     <simulation>
         <iteration>
             <nr>2</nr>
-            <csvdata type="Path">.\Path_RunId_0_explanatory_Time_Period_1_2.csv</csvdata>
+            <csvdata type="Path">Path_RunId_0_explanatory_Time_Period_1_2.csv</csvdata>
         </iteration>
     </simulation>
     <columns>

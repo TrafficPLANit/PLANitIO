@@ -3,7 +3,7 @@
     <timestamp>2021-01-07T14:00:17.147+11:00</timestamp>
     <outputconfiguration>
         <assignment>TraditionalStaticAssignment</assignment>
-        <physicalcost>BPRLinkTravelTimeCost</physicalcost>
+        <physicalcost>BprLinkTravelTimeCost</physicalcost>
         <virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
         <smoothing>MSASmoothing</smoothing>
         <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>
@@ -16,7 +16,7 @@
     <simulation>
         <iteration>
             <nr>499</nr>
-            <csvdata type="Cost">.\Origin-Destination_RunId_0_testRouteChoice42_Time_Period_2_499.csv</csvdata>
+            <csvdata type="Cost">Origin-Destination_RunId_0_testRouteChoice42_Time_Period_2_499.csv</csvdata>
         </iteration>
     </simulation>
     <columns>

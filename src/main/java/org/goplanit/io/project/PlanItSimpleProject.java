@@ -10,7 +10,7 @@ import org.goplanit.demands.Demands;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.TransportLayerNetwork;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.exceptions.PlanItException;
@@ -102,7 +102,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
   public PlanItSimpleProject(final String projectPath) throws PlanItException {
     // use the default input builder
     super(new PlanItInputBuilder(projectPath));
-    LOGGER.info(LoggingUtils.createProjectPrefix(this.id) + String.format("searching for input files in: %s", Paths.get(
+    LOGGER.info(LoggingUtils.projectPrefix(this.id) + String.format("searching for input files in: %s", Paths.get(
         projectPath).toAbsolutePath().toString()));
     initialiseSimpleProject();
   }
@@ -132,7 +132,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
   public TrafficAssignmentConfigurator<? extends TrafficAssignment> createAndRegisterTrafficAssignment(
       final String trafficAssignmentType) throws PlanItException {
             
-    PlanItException.throwIf(this.assignmentBuilders.isEmpty(), "this type of PLANit project only allows a single assignment per project");
+    PlanItException.throwIf(!this.assignmentBuilders.isEmpty(), "this type of PLANit project only allows a single assignment per project");
     return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
   }
 
@@ -150,7 +150,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       final String trafficAssignmentType,
       final Demands theDemands,
       final Zoning theZoning,
-      final TransportLayerNetwork<?,?> theNetwork)
+      final LayeredNetwork<?,?> theNetwork)
       throws PlanItException {
     throw new PlanItException(
         "a simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");
@@ -164,7 +164,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
     if (super.assignmentBuilders.isEmpty()) {
       super.executeAllTrafficAssignments();
     } else {
-      LOGGER.info(LoggingUtils.createProjectPrefix(this.id)
+      LOGGER.info(LoggingUtils.projectPrefix(this.id)
           + "no traffic assignment has been registered yet, ignoring execution");
     }
   }

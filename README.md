@@ -1,4 +1,6 @@
 # PLANitIO
+![Master Branch](https://github.com/TrafficPLANit/PLANitIO/actions/workflows/maven_master.yml/badge.svg?branch=master)
+![Develop Branch](https://github.com/TrafficPLANit/PLANitIO/actions/workflows/maven_develop.yml/badge.svg?branch=develop)
 
 PLANit IO project which uses XML input and generates XML and CSV output. this reflects the default input and output format of PLANit.
 
@@ -14,10 +16,6 @@ PLANit IO has the following PLANit specific dependencies (See pom.xml):
 * planit-core
 * planit-utils
 * planit-xml
-
-Dependencies will be automatically downloaded from the PLANit website, (www.repository.goplanit.org)[http://repository.goplanit.org], or alternatively can be checked-out locally for local development. The shared PLANit Maven configuration can be found in planit-parent-pom which is defined as the parent pom of each PLANit repository.
-
-> When developing on multiple PLANit projects locally, including the parent-pom; make sure you install the PLANitParentPom pom.xml before conducting a Maven build (in for example Eclipse), otherwise it resorts to the online repository rather then the local one.
 
 ### Maven deploy
 

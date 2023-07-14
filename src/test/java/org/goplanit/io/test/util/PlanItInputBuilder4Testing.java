@@ -29,16 +29,4 @@ public class PlanItInputBuilder4Testing extends PlanItInputBuilder {
     super(projectPath);
   }
 
-  /**
-   * Constructor which generates the input objects from files in a specified
-   * directory
-   *
-   * @param projectPath the location of the input file directory
-   * @param xmlFileExtension the extension of the data files to be searched through
-   * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
-   */
-  public PlanItInputBuilder4Testing(final String projectPath, final String xmlFileExtension) throws PlanItException {
-    super(projectPath, xmlFileExtension);    
-  }
-
 }

@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.goplanit.output.enums.DataType;
 import org.goplanit.output.property.OutputProperty;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.unit.Unit;
 import org.goplanit.xml.generated.Typevalues;
 import org.goplanit.xml.generated.Unitsvalues;
@@ -15,20 +16,19 @@ import org.goplanit.xml.generated.Unitsvalues;
  * @author gman6028
  *
  */
-public interface EnumConverter {
+public interface XmlEnumConverter {
   
   
   /** the logger */
-  public static final Logger LOGGER = Logger.getLogger(EnumConverter.class.getCanonicalName());   
+  public static final Logger LOGGER = Logger.getLogger(XmlEnumConverter.class.getCanonicalName());
 
 	/**
 	 * Convert values from Type enumeration in PLANit project to generated Typevalues enumeration
 	 * 
 	 * @param type value of Type enumeration
 	 * @return value of generated Typevalues enumeration
-	 * @throws PlanItException thrown if a value of Type enumeration is not included in the XSD enumeration definition
 	 */
-	public static Typevalues convertFromPlanItToXmlGeneratedType(DataType type) throws PlanItException {
+	public static Typevalues convertFromPlanItToXmlGeneratedType(DataType type) {
 		switch (type) {
 		case DOUBLE:
 			return Typevalues.DOUBLE;
@@ -45,7 +45,7 @@ public interface EnumConverter {
 		case STRING:
 			return Typevalues.STRING;
 		default:
-      throw new PlanItException("Data type " + type.value() + " has not been defined in the typevalues simple type in the output XSD file");
+      throw new PlanItRunTimeException("Data type " + type.value() + " has not been defined in the type values simple type in the output XSD file");
 		}
 	}
 

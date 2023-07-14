@@ -1,27 +1,19 @@
 package org.goplanit.io.converter.demands;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.demands.DemandsReader;
 import org.goplanit.demands.Demands;
+import org.goplanit.demands.DemandsModifierUtils;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.od.demand.OdDemandMatrix;
 import org.goplanit.od.demand.OdDemands;
-import org.goplanit.userclass.TravelerType;
+import org.goplanit.userclass.TravellerType;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
@@ -29,18 +21,16 @@ import org.goplanit.utils.wrapper.MapWrapper;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.Zone;
 import org.goplanit.utils.zoning.Zones;
-import org.goplanit.xml.generated.Durationunit;
-import org.goplanit.xml.generated.XMLElementDemandConfiguration;
-import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
-import org.goplanit.xml.generated.XMLElementOdCellByCellMatrix;
-import org.goplanit.xml.generated.XMLElementOdMatrix;
-import org.goplanit.xml.generated.XMLElementOdRawMatrix;
-import org.goplanit.xml.generated.XMLElementOdRowMatrix;
-import org.goplanit.xml.generated.XMLElementTimePeriods;
-import org.goplanit.xml.generated.XMLElementTravellerTypes;
-import org.goplanit.xml.generated.XMLElementUserClasses;
+import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementOdRawMatrix.Values;
 import org.goplanit.zoning.Zoning;
+import org.goplanit.zoning.ZoningModifierUtils;
+
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Reader to parse PLANit demands from native XML format
@@ -57,7 +47,17 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
   
   /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;  
+  private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
+   * demands is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit demands XML ids to internally generated ids, overwriting original XML ids");
+    DemandsModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(demands);
+  }
   
   /**
    * initialise the XML id trackers and populate them for the network and or zoning references, 
@@ -70,8 +70,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
     
     initialiseSourceIdMap(Zone.class, Zone::getXmlId);
-    getSourceIdContainer(Zone.class).addAll(zoning.odZones);
-    getSourceIdContainer(Zone.class).addAll(zoning.transferZones);
+    getSourceIdContainer(Zone.class).addAll(zoning.getOdZones());
+    getSourceIdContainer(Zone.class).addAll(zoning.getTransferZones());
   } 
   
   /**
@@ -80,7 +80,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */
   private void initialiseXmlIdTrackers() {    
     initialiseSourceIdMap(UserClass.class, UserClass::getXmlId);   
-    initialiseSourceIdMap(TravelerType.class, TravelerType::getXmlId);
+    initialiseSourceIdMap(TravellerType.class, TravellerType::getXmlId);
     initialiseSourceIdMap(TimePeriod.class, TimePeriod::getXmlId);
   }   
   
@@ -91,8 +91,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */
   private static XMLElementTravellerTypes.Travellertype generateDefaultXMLTravellerType() {
     XMLElementTravellerTypes.Travellertype xmlTravellerType = new XMLElementTravellerTypes.Travellertype();
-    xmlTravellerType.setId(TravelerType.DEFAULT_XML_ID);
-    xmlTravellerType.setName(TravelerType.DEFAULT_NAME);
+    xmlTravellerType.setId(TravellerType.DEFAULT_XML_ID);
+    xmlTravellerType.setName(TravellerType.DEFAULT_NAME);
     return xmlTravellerType;
   }  
   
@@ -107,7 +107,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     xmlUserclass.setName(UserClass.DEFAULT_NAME);
     xmlUserclass.setId(UserClass.DEFAULT_XML_ID);
     xmlUserclass.setModeref(Mode.DEFAULT_XML_ID);
-    xmlUserclass.setTravellertyperef(TravelerType.DEFAULT_XML_ID);
+    xmlUserclass.setTravellertyperef(TravellerType.DEFAULT_XML_ID);
     return xmlUserclass;
   }  
   
@@ -222,7 +222,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     for (XMLElementTravellerTypes.Travellertype xmlTravellertype : xmlTravellertypes.getTravellertype()) {
             
       /* PLANit traveller type */
-      TravelerType travelerType = demands.travelerTypes.createAndRegisterNew(xmlTravellertype.getName());
+      TravellerType travelerType = demands.travelerTypes.getFactory().registerNew(xmlTravellertype.getName());
       
       /* xml id */
       if(xmlTravellertype.getId() != null && !xmlTravellertype.getId().isBlank()) {
@@ -234,7 +234,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
         travelerType.setExternalId(xmlTravellertype.getExternalid());
       }      
             
-      registerBySourceId(TravelerType.class, travelerType);      
+      registerBySourceId(TravellerType.class, travelerType);      
     }
   }
   
@@ -266,7 +266,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
         PlanItException.throwIf(demands.travelerTypes.size() > 1,
             String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
-        PlanItException.throwIf(getBySourceId(TravelerType.class, xmlUserclass.getTravellertyperef()) == null, 
+        PlanItException.throwIf(getBySourceId(TravellerType.class, xmlUserclass.getTravellertyperef()) == null, 
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
       PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class %s has no mode specified, but more than one mode possible", xmlUserclass.getId() );
@@ -282,11 +282,11 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       PlanItException.throwIf(userClassMode == null,"User class %s refers to mode %s which has not been defined", xmlUserclass.getId(), xmlModeIdRef );
            
       /* traveller type ref */
-      String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravelerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
+      String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravellerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
       xmlUserclass.setTravellertyperef(travellerTypeXmlIdRef);
-      TravelerType travellerType = getBySourceId(TravelerType.class, travellerTypeXmlIdRef);
+      TravellerType travellerType = getBySourceId(TravellerType.class, travellerTypeXmlIdRef);
                  
-      UserClass userClass = demands.userClasses.createAndRegisterNewUserClass(xmlUserclass.getName(), userClassMode, travellerType);
+      UserClass userClass = demands.userClasses.getFactory().registerNew(xmlUserclass.getName(), userClassMode, travellerType);
       
       /* xml id */
       if(xmlUserclass.getId() != null && !xmlUserclass.getId().isBlank()) {
@@ -314,21 +314,13 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     /* time periods */
     XMLElementTimePeriods xmlTimeperiods = demandconfiguration.getTimeperiods();
 
-    XMLGregorianCalendar defaultStartTime;
-    try {
-      LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
-      defaultStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(localDateTime.format(DateTimeFormatter.ISO_DATE_TIME));
-    } catch (DatatypeConfigurationException e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when generating time period map when processing demand configuration",e);
-    }
+    LocalTime defaultStartTime = LocalTime.MIN;
     
     /* time period */
     for (XMLElementTimePeriods.Timeperiod xmlTimePeriod : xmlTimeperiods.getTimeperiod()) {
-              
+
       /* starttime, duration */
-      XMLGregorianCalendar time = (xmlTimePeriod.getStarttime() == null) ? defaultStartTime : xmlTimePeriod.getStarttime();
-      int startTimeSeconds = 3600 * time.getHour() + 60 * time.getMinute() + time.getSecond();
+      int startTimeSeconds = (xmlTimePeriod.getStarttime() == null) ? defaultStartTime.toSecondOfDay() : xmlTimePeriod.getStarttime().toSecondOfDay();
       int duration = xmlTimePeriod.getDuration().getValue().intValue();
       Durationunit durationUnit = xmlTimePeriod.getDuration().getUnit();
       if (xmlTimePeriod.getName() == null) {
@@ -346,7 +338,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       }
       
       /* PLANit time period */
-      TimePeriod timePeriod = demands.timePeriods.createAndRegisterNewTimePeriod(xmlTimePeriod.getName(), startTimeSeconds, duration /*converted to seconds*/);
+      TimePeriod timePeriod = demands.timePeriods.getFactory().registerNew(xmlTimePeriod.getName(), startTimeSeconds, duration /*converted to seconds*/);
       
       /* xml id */
       if(xmlTimePeriod.getId() != null && !xmlTimePeriod.getId().isBlank()) {
@@ -396,31 +388,42 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       String separator = (xmlOdRowMatrix.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlOdRowMatrix.getDs();
       separator = escapeSeparator(separator);
       final List<XMLElementOdRowMatrix.Odrow> xmlOdRow = xmlOdRowMatrix.getOdrow();
+
+      /* construct same ref ordering for cols based on the row ordering as this cannot be assumed to be consistent with internal ids */
+      var destinationZoneOrderList = new ArrayList<Zone>(xmlOdRow.size());
+      for (final XMLElementOdRowMatrix.Odrow xmlDestinationZone : xmlOdRow) {
+        final Zone destinationZone = xmlIdZoneMap.get(xmlDestinationZone.getRef());
+        destinationZoneOrderList.add(destinationZone);
+      }
+
       for (final XMLElementOdRowMatrix.Odrow xmlOriginZone : xmlOdRow) {
         final Zone originZone = xmlIdZoneMap.get(xmlOriginZone.getRef());
         final String[] rowValuesAsString = xmlOriginZone.getValue().split(separator);
         for (int i = 0; i < rowValuesAsString.length; i++) {
-          /* use internal id's, i.e. order of appearance of the zone elements in XML is used */ 
-          final Zone destinationZone = zones.get(i);
+          /* use same ordering as origins to match to destination zones*/
+          final Zone destinationZone = destinationZoneOrderList.get(i);
           final double demand = Double.parseDouble(rowValuesAsString[i]) * pcu;
           odDemandMatrix.setValue(originZone, destinationZone, demand);          
         }
       }      
       
     } else if (xmlOdMatrix instanceof XMLElementOdRawMatrix) {
-      
-      /* raw matrix */
-      final Values xmlValues = ((XMLElementOdRawMatrix) xmlOdMatrix).getValues();
-      String originSeparator = (xmlValues.getOs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR : xmlValues.getOs();
-      originSeparator = escapeSeparator(originSeparator);
-      String destinationSeparator = (xmlValues.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlValues.getDs();
-      destinationSeparator = escapeSeparator(destinationSeparator);             
-      
-      if (originSeparator.equals(destinationSeparator)) {
-        populateDemandMatrixRawForEqualSeparators(xmlValues, originSeparator, pcu, odDemandMatrix, zones);
-      } else {
-        populateDemandMatrixRawDifferentSeparators(xmlValues, originSeparator, destinationSeparator, pcu, odDemandMatrix, zones);
-      }            
+      //todo currently improper, since internal id ordering is not used when persisting (string based), hence the written out
+      // results cannot be interpreted --> throw exception until this is fixed
+      throw new PlanItRunTimeException("Unable to use ODRaw persistence , see https://github.com/TrafficPLANit/PLANitIO/issues/31");
+
+//      /* raw matrix */
+//      final Values xmlValues = ((XMLElementOdRawMatrix) xmlOdMatrix).getValues();
+//      String originSeparator = (xmlValues.getOs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR : xmlValues.getOs();
+//      originSeparator = escapeSeparator(originSeparator);
+//      String destinationSeparator = (xmlValues.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlValues.getDs();
+//      destinationSeparator = escapeSeparator(destinationSeparator);
+//
+//      if (originSeparator.equals(destinationSeparator)) {
+//        populateDemandMatrixRawForEqualSeparators(xmlValues, originSeparator, pcu, odDemandMatrix, zones);
+//      } else {
+//        populateDemandMatrixRawDifferentSeparators(xmlValues, originSeparator, destinationSeparator, pcu, odDemandMatrix, zones);
+//      }
     }       
   }
   
@@ -483,13 +486,14 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
-      OdDemandMatrix odDemandMatrix = new OdDemandMatrix(getSettings().getReferenceZoning().odZones);
+      var odZones = getSettings().getReferenceZoning().getOdZones();
+      OdDemandMatrix odDemandMatrix = new OdDemandMatrix(odZones);
       /* populate */
-      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, getSettings().getReferenceZoning().odZones);
+      populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, odZones);
       /* register */
       OdDemands duplicate = demands.registerOdDemandPcuHour(timePeriod, mode, odDemandMatrix);
       if(duplicate != null) {
-        throw new PlanItException(String.format("multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
+        throw new PlanItException(String.format("Multiple OD demand matrix encountered for mode-time period combination %s:%s this is not allowed",mode.getXmlId(), timePeriod.getXmlId()));
       }
     }
   }  
@@ -521,7 +525,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */
   public PlanitDemandsReader(
       final XMLElementMacroscopicDemand xmlMacroscopicDemands, final MacroscopicNetwork network, final Zoning zoning, final Demands demandsToPopulate) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicDemand>(xmlMacroscopicDemands);
+    this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicDemands);
     setDemands(demandsToPopulate);
     getSettings().setReferenceNetwork(network); 
     getSettings().setReferenceZoning(zoning);
@@ -557,6 +561,13 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       
       /* demands */
       populateDemandContents();
+
+      if(getSettings().isSyncXmlIdsToIds()){
+        syncXmlIdsToIds();
+      }
+
+      /* log stats */
+      demands.logInfo(LoggingUtils.demandsPrefix(demands.getId()));
       
       /* free */
       xmlParser.clearXmlContent();           

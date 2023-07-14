@@ -48,9 +48,9 @@
 				<servicenode id="s2" noderef="2" />
 			</servicenodes>
 			<servicelegs>
-				<leg id="l1" nodearef="s1" nodebref="s2" lrefs="1">
-					<legsegment id="ls1" dir="b_a" />
-					<legsegment id="ls2" dir="a_b" />
+				<leg id="l1" nodearef="s1" nodebref="s2">
+					<legsegment id="ls1" dir="b_a" lsrefs="2" />
+					<legsegment id="ls2" dir="a_b" lsrefs="1" />
 				</leg>
 			</servicelegs>
 		</servicenetworklayer>

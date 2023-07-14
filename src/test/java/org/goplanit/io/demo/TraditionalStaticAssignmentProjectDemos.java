@@ -6,8 +6,7 @@ import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
 import org.goplanit.cost.physical.BPRConfigurator;
-import org.goplanit.cost.physical.BPRLinkTravelTimeCost;
-import org.goplanit.cost.physical.initial.InitialLinkSegmentCost;
+import org.goplanit.cost.physical.BprLinkTravelTimeCost;
 import org.goplanit.cost.virtual.AbstractVirtualCost;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.goplanit.cost.virtual.SpeedVirtualCostConfigurator;
@@ -118,7 +117,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
       
       /* parse initial costs from source without filtering on specific time period information*/
-      InitialLinkSegmentCost initialLinkSegmentCost = project.createAndRegisterInitialLinkSegmentCost(
+      var initialLinkSegmentCost = project.createAndRegisterInitialLinkSegmentCost(
           project.getNetwork(), initialCostCSVPath);
       
       // create traffic assignment with selected project inputs
@@ -145,7 +144,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       
       // * NEW *
       TimePeriod theTimePeriod = simpleProject.getDemands().timePeriods.getFirst();  
-      InitialLinkSegmentCost initialLinkSegmentCost = 
+      var initialLinkSegmentCost =
           simpleProject.createAndRegisterInitialLinkSegmentCost(
               simpleProject.getNetwork(),"<insert the initial cost CSV file path here>", theTimePeriod);  
 
@@ -174,12 +173,12 @@ public class TraditionalStaticAssignmentProjectDemos {
       final PlanItSimpleProject simpleProject = new PlanItSimpleProject();
       
       // * NEW * initial cost WITHOUT time period
-      InitialLinkSegmentCost initialLinkSegmentCostNoTimePeriod = 
+      var initialLinkSegmentCostNoTimePeriod =
           simpleProject.createAndRegisterInitialLinkSegmentCost(simpleProject.getNetwork(),initialCostCSVPath1);
         
       // * NEW * intial cost WITH time period
       TimePeriod theTimePeriod = simpleProject.getDemands().timePeriods.getFirst();  
-      InitialLinkSegmentCost initialLinkSegmentCostTimePeriod = 
+      var initialLinkSegmentCostTimePeriod =
           simpleProject.createAndRegisterInitialLinkSegmentCost(simpleProject.getNetwork(),initialCostCSVPath2, theTimePeriod);      
     
       TraditionalStaticAssignmentConfigurator ta = (TraditionalStaticAssignmentConfigurator) 
@@ -541,7 +540,7 @@ public class TraditionalStaticAssignmentProjectDemos {
           project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class .getCanonicalName());
       final Zoning zoning = project.createAndRegisterZoning(network);
       final Demands demands = project.createAndRegisterDemands(zoning, network);
-      final InitialLinkSegmentCost initialCost = 
+      final var initialCost =
           project.createAndRegisterInitialLinkSegmentCost(
               network, initialCsvCostFilePath, demands.timePeriods.asSortedSetByStartTime().first());
       
@@ -559,7 +558,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       // Initial (physical) link segment cost
       ta.registerInitialLinkSegmentCost(initialCost);
       // physical links: BPR cost function
-      ta.createAndRegisterPhysicalCost(BPRLinkTravelTimeCost.class.getCanonicalName());
+      ta.createAndRegisterPhysicalCost(BprLinkTravelTimeCost.class.getCanonicalName());
       // virtual links: fixed cost function
       ta.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
       // iteration smoothing: MSA

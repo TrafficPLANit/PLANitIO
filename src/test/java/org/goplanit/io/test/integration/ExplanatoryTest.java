@@ -1,8 +1,9 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -27,10 +28,10 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test cases for explanatory tests for TraditionalStaticAssignment
@@ -39,6 +40,8 @@ import org.junit.Test;
  *
  */
 public class ExplanatoryTest {
+
+  private static final Path testCasePath = Path.of("src","test","resources","testcases");
 
   /** the logger */
   private static Logger LOGGER = null;
@@ -56,21 +59,21 @@ public class ExplanatoryTest {
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
   SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;    
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(ExplanatoryTest.class);
     } 
   }
   
-  @Before
+  @BeforeEach
   public void beforeTest() {
-    pathMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, String>>>>();
-    odMap = new TreeMap<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>>();    
-    resultsMap = new TreeMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>>();       
+    pathMap = new TreeMap<>();
+    odMap = new TreeMap<>();
+    resultsMap = new TreeMap<>();
   }  
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
@@ -82,7 +85,8 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_original() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
+
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","original").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -109,11 +113,11 @@ public class ExplanatoryTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0"));      
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.put(timePeriod, new TreeMap<>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
       resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
 
@@ -154,7 +158,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_report_zero_outputs() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\reportZeroOutputs";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","reportZeroOutputs").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -180,16 +184,16 @@ public class ExplanatoryTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.put(timePeriod, new TreeMap<>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
       resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
+      pathMap.put(timePeriod, new TreeMap<>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
       pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
       pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
@@ -198,8 +202,8 @@ public class ExplanatoryTest {
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");  
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
                   
-      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
+      odMap.put(timePeriod, new TreeMap<>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
@@ -225,7 +229,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_time_period_xml_id_test() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\timePeriodXmlIdTest";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","timePeriodXmlIdTest").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_2_2.csv";
       String odCsvFileName = "Time_Period_2_1.csv";
@@ -251,7 +255,7 @@ public class ExplanatoryTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("2")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -296,7 +300,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_traveller_type_ref_missing_from_user_class() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypeMissingFromUserClass";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","travellerTypeMissingFromUserClass").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -322,7 +326,7 @@ public class ExplanatoryTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -367,7 +371,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_traveller_types_but_no_user_classes() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\travellerTypesButNoUserClasses";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","travellerTypesButNoUserClasses").toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -389,7 +393,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_not_specified_which_traveller_type_being_used() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\notSpecifiedWhichTravellerTypeBeingUsed";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","notSpecifiedWhichTravellerTypeBeingUsed").toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -411,7 +415,8 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_reference_to_missing_traveller_type() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\referenceToMissingTravellerType";
+
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","referenceToMissingTravellerType").toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -433,7 +438,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_no_geolocation_elements() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\noGeolocationElements";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","noGeolocationElements").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -459,7 +464,7 @@ public class ExplanatoryTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -504,7 +509,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_no_geolocation_elements_with_length_1() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\noGeolocationElementsWithLength1";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","noGeolocationElementsWithLength1").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -530,7 +535,7 @@ public class ExplanatoryTest {
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
       resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
@@ -575,7 +580,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_link_segments_in_same_direction() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\linkSegmentsInSameDirection";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","linkSegmentsInSameDirection").toString();
       String description = "explanatory";
       
       Level oldLevel = LOGGER.getLevel();
@@ -598,7 +603,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_defaults() {
     try {
-      String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\defaults";
+      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","defaults").toString();
       String description = "explanatory";
       String csvFileName = "_2.csv";
       String odCsvFileName = "_1.csv";
@@ -623,32 +628,32 @@ public class ExplanatoryTest {
 
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
-      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
-      TimePeriod timePeriod = demands.timePeriods.findFirst( tp -> tp.getXmlId().equals("0")); 
+      Demands demands = testOutputDto.getB().demands.getFirst();
+      TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      resultsMap.put(timePeriod, new TreeMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.put(timePeriod, new TreeMap<>());
+      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
+      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
       resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.0769231, 1800.0, 10.0, 130.0));      
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId( memoryOutputFormatter, maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, String>>>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, String>>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.put(timePeriod, new TreeMap<>());
+      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
+      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
       pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
       
-      odMap.put(timePeriod, new TreeMap<Mode, Map<String, Map<String, Double>>>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<String, Map<String, Double>>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
+      odMap.put(timePeriod, new TreeMap<>());
+      odMap.get(timePeriod).put(mode1, new TreeMap<>());
+      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
+      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(0.0769231));
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
+      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
       odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
@@ -668,7 +673,8 @@ public class ExplanatoryTest {
    */
   @Test
   public void test_explanatory_attempt_to_change_locked_formatter() {
-    String projectPath = "src\\test\\resources\\testcases\\explanatory\\xml\\original";
+
+    String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","original").toString();
     String description = "explanatory";
     String csvFileName = "Time_Period_1_2.csv";
     String odCsvFileName = "Time_Period_1_1.csv";
