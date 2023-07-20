@@ -161,18 +161,18 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    */
   @Override
   public void executeAllTrafficAssignments() throws PlanItException {
-    if (super.assignmentBuilders.isEmpty()) {
+    if (!super.assignmentBuilders.isEmpty()) {
       super.executeAllTrafficAssignments();
     } else {
       LOGGER.info(LoggingUtils.projectPrefix(this.id)
-          + "no traffic assignment has been registered yet, ignoring execution");
+          + "No traffic assignment has been registered yet, ignoring execution");
     }
   }
 
   /**
    * Collect the default output formatter for PLANit simple project which is the native XMLFormatter
    * 
-   * @return defaultOutputformatter
+   * @return default output formatter
    */
   public PlanItOutputFormatter getDefaultOutputFormatter() {
     return this.defaultOutputFormatter;
@@ -204,14 +204,5 @@ public class PlanItSimpleProject extends CustomPlanItProject {
   public Demands getDemands() {
     return demands;
   }
-
-//  /**
-//   * Retrieve a list of the xml Ids of all registered time periods
-//   * 
-//   * @return List of all registered time periods
-//   */
-//  public List<String> getTimePeriodXmlIds() {
-//    return inputBuilderListener.getTimePeriodSourceIds();
-//  }
 
 }
