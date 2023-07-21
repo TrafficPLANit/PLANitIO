@@ -12,6 +12,7 @@ import org.goplanit.converter.zoning.ZoningWriter;
 import org.goplanit.io.converter.network.UnTypedPlanitCrsWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
@@ -681,8 +682,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * {@inheritDoc}
    */
   @Override
-  public void write(final Zoning zoning) throws PlanItException {    
-    PlanItException.throwIfNull(zoning, "Zoning is null cannot write to Planit native format");
+  public void write(final Zoning zoning) {
+    PlanItRunTimeException.throwIfNull(zoning, "Zoning is null cannot write to Planit native format");
 
     /* initialise */
     {

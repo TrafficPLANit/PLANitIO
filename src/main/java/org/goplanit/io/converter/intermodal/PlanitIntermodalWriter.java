@@ -54,9 +54,8 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    * @param macroscopicNetwork to persist
    * @param zoning to persist
    * @return used writers, network and zoning, respectively
-   * @throws PlanItException if error
    */
-  protected Pair<PlanitNetworkWriter, PlanitZoningWriter> writeNetworkAndZoning(MacroscopicNetwork macroscopicNetwork, Zoning zoning) throws PlanItException {
+  protected Pair<PlanitNetworkWriter, PlanitZoningWriter> writeNetworkAndZoning(MacroscopicNetwork macroscopicNetwork, Zoning zoning) {
     /* network writer */
     PlanitNetworkWriterSettings networkSettings = getSettings().getNetworkSettings();
     PlanitNetworkWriter networkWriter = PlanitNetworkWriterFactory.create(networkSettings.getOutputDirectory(), networkSettings.getCountry(), xmlRawNetwork);

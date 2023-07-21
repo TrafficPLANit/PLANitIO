@@ -67,14 +67,13 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
    * @param xmlRootElement to persist from
    * @param rootElementClazz the type of the root element object
    * @param planitSchemaName schema the XML complies with
-   * @throws PlanItException thrown if error
    */
-  protected void persist(final Object xmlRootElement, final Class<?> rootElementClazz, final String planitSchemaName) throws PlanItException {
+  protected void persist(final Object xmlRootElement, final Class<?> rootElementClazz, final String planitSchemaName) {
     PlanitXmlWriterSettings xmlWriterSettings = getSettingsAsXmlWriterSettings();
-        
-    PlanItException.throwIf(
+
+    PlanItRunTimeException.throwIf(
         xmlWriterSettings.getOutputDirectory()==null || xmlWriterSettings.getOutputDirectory().isBlank(), "no output directory provided, unable to persist in native Planit XML format");
-    PlanItException.throwIf(
+    PlanItRunTimeException.throwIf(
         xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(), "no output file name provided, unable to persist in native Planit XML format");
     Path outputDir = Paths.get(xmlWriterSettings.getOutputDirectory());
     Path outputPath = Paths.get(xmlWriterSettings.getOutputDirectory(), xmlWriterSettings.getFileName());
@@ -88,14 +87,14 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
       }
     }catch(Exception e) {      
       LOGGER.severe(e.getMessage());
-      throw new PlanItException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputDirectory()).toAbsolutePath()));
+      throw new PlanItRunTimeException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputDirectory()).toAbsolutePath()));
     }
     
     try {      
       JAXBUtils.generateXmlFileFromObject(xmlRootElement, rootElementClazz, outputPath, PlanitSchema.createPlanitSchemaUri(planitSchemaName));
     }catch(Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Unable to persist PLANit network in native format");
+      throw new PlanItRunTimeException("Unable to persist PLANit network in native format");
     }
   }
 

@@ -21,7 +21,7 @@ public class PlanitIntermodalWriterFactory {
   /** Default factory method. Create a PLANitIntermodalWriter which can persist a PLANit network and zoning in the native PLANit XML format. 
    * We assume the user sets the output directory (default now current working dir) and destination country afterwards
    * 
-   * @return created Planit native format network writer 
+   * @return created writer
    */
   public static PlanitIntermodalWriter create() {
     return create(".");
@@ -31,7 +31,7 @@ public class PlanitIntermodalWriterFactory {
    * Crs for persisting
    * 
    * @param outputDirectory the path to use for persisting
-   * @return created network writer 
+   * @return created writer
    */
   public static PlanitIntermodalWriter create(String outputDirectory) {
     return create(outputDirectory, CountryNames.GLOBAL);    
@@ -41,7 +41,7 @@ public class PlanitIntermodalWriterFactory {
    * 
    * @param outputDirectory the path to use for persisting
    * @param countryName the country to base the projection method on if available
-   * @return created network writer 
+   * @return created writer
    */
   public static PlanitIntermodalWriter create(String outputDirectory, String countryName) {
     return new PlanitIntermodalWriter(

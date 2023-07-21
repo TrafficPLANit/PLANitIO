@@ -534,9 +534,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   /** Populate the available network layers
    * 
    * @param network to extract layers from and populate xml
-   * @throws PlanItException thrown if error
    */
-  protected void populateXmlNetworkLayers(MacroscopicNetwork network) throws PlanItException {
+  protected void populateXmlNetworkLayers(MacroscopicNetwork network) {
     
     XMLElementInfrastructureLayers xmlInfrastructureLayers = xmlRawNetwork.getInfrastructurelayers();
     if(xmlInfrastructureLayers == null) {
@@ -608,11 +607,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * {@inheritDoc}
    */
   @Override
-  public void write(LayeredNetwork<?,?> network) throws PlanItException {
+  public void write(LayeredNetwork<?,?> network)  {
     
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("Currently the PLANit network writer only supports macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItRunTimeException("Currently the PLANit network writer only supports macroscopic infrastructure networks, the provided network is not of this type");
     }    
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
     
