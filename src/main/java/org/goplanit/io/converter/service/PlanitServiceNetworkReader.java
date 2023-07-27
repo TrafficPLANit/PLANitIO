@@ -431,7 +431,6 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
    */
   @Override
   public void reset() {
-    settings.reset();
   }
 
 }

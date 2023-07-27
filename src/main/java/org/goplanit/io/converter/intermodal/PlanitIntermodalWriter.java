@@ -174,7 +174,6 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    */  
   @Override
   public void reset() {
-    getSettings().reset();
   }
 
   /**

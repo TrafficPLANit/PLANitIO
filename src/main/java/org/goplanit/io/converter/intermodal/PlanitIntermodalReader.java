@@ -260,7 +260,6 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    */  
   @Override
   public void reset() {
-    getSettings().reset();
   }
 
   /**

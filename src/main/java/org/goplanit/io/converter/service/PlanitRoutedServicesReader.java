@@ -554,7 +554,6 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    */
   @Override
   public void reset() {
-    settings.reset();
   }
 
 }

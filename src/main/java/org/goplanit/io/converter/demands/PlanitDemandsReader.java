@@ -595,7 +595,6 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    */  
   @Override
   public void reset() {
-    settings.reset();
   }
 
 }
