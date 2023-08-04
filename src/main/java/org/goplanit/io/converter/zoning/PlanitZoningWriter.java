@@ -63,10 +63,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     
   /** XML memory model equivalent of the PLANit memory mode */
   private final XMLElementMacroscopicZoning xmlRawZoning;
-  
-  /** the source crs to use */
-  private final CoordinateReferenceSystem sourceCrs;
-  
+
   /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
   private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
   
@@ -397,6 +394,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       /* register */        
       xmlTransferZoneAccess.getConnectoid().add(xmlTransferConnectoidBase);
     });
+    LOGGER.info("Transfer connectoids: " +zoning.getTransferConnectoids().size());
   }
 
 
@@ -584,6 +582,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         xmlConnectoids.getConnectoid().add(xmlOdConnectoidBase);                        
       }
     });
+    LOGGER.info("Od connectoids: " +zoning.getOdConnectoids().size());
   }
   
   /** Populate the XML id of the XML zoning element
@@ -660,13 +659,23 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * 
    * @param zoningPath to persist zoning on
    * @param countryName to optimise projection for (if available, otherwise ignore)
-   * @param zoningCrs to use
    * @param xmlRawZoning XML zoning to populate
    */
-  protected PlanitZoningWriter(final String zoningPath, final String countryName, final CoordinateReferenceSystem zoningCrs, final XMLElementMacroscopicZoning xmlRawZoning) {
+  protected PlanitZoningWriter(
+      final String zoningPath, final String countryName, final XMLElementMacroscopicZoning xmlRawZoning) {
+    this(
+        new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName),
+        xmlRawZoning);
+  }
+
+  /** Constructor
+   *
+   * @param settings to use
+   * @param xmlRawZoning XML zoning to populate
+   */
+  protected PlanitZoningWriter(PlanitZoningWriterSettings settings, XMLElementMacroscopicZoning xmlRawZoning) {
     super(IdMapperType.XML);
-    this.settings = new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName);
-    this.sourceCrs = zoningCrs;    
+    this.settings = settings;
     this.xmlRawZoning = xmlRawZoning;
   }
 
@@ -688,7 +697,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* initialise */
     {
       getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-      prepareCoordinateReferenceSystem(sourceCrs, getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+      prepareCoordinateReferenceSystem(zoning.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
       LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
       
       createZoneToConnectoidIndices(zoning); 
@@ -733,4 +742,5 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   public PlanitZoningWriterSettings getSettings() {
     return this.settings;
   }
+
 }

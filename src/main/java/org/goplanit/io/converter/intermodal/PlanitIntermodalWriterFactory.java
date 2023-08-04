@@ -1,8 +1,5 @@
 package org.goplanit.io.converter.intermodal;
 
-import org.goplanit.io.converter.network.PlanitNetworkReaderSettings;
-import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
-import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning;

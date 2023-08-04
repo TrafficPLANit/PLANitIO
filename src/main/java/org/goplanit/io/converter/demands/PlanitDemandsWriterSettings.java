@@ -55,7 +55,7 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    * @param outputPathDirectory to use
    */
   public PlanitDemandsWriterSettings(final String outputPathDirectory) {
-    super(outputPathDirectory);
+    this(outputPathDirectory, DEFAULT_DEMANDS_XML);
   }  
     
   /**

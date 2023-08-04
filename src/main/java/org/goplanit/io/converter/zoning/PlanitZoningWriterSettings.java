@@ -20,6 +20,7 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    */
   public PlanitZoningWriterSettings() {
     super();
+    setFileName(DEFAULT_ZONING_XML);
   }
   
   /**
@@ -29,6 +30,7 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    */
   public PlanitZoningWriterSettings(final String outputPathDirectory) {
     super(outputPathDirectory);
+    setFileName(DEFAULT_ZONING_XML);
   }
   
   /**
@@ -38,7 +40,7 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    * @param countryName to use
    */
   public PlanitZoningWriterSettings(final String outputPathDirectory, final String countryName) {
-    super(outputPathDirectory, null, countryName);
+    super(outputPathDirectory, DEFAULT_ZONING_XML, countryName);
   }  
   
   /**

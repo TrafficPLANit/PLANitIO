@@ -1,5 +1,6 @@
 package org.goplanit.io.converter.zoning;
 
+import org.goplanit.converter.network.NetworkReader;
 import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
@@ -16,22 +17,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  *
  */
 public class PlanitZoningReaderFactory {
-  
-  /** Factory method with all defaults, expected that user configures the settings afterwards to reach minimum requirements for successful parsing
-   *  (input dir especially)
-   *
-   * @param referenceCrs must be provided in absence of reference network to derive it from
-   * @return created PLANit zoning reader
-   */
-  public static PlanitZoningReader create(CoordinateReferenceSystem referenceCrs){
-    PlanitZoningReaderSettings settings = new PlanitZoningReaderSettings();
-
-    MacroscopicNetwork emptyReferenceNetwork = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
-    emptyReferenceNetwork.setCoordinateReferenceSystem(referenceCrs);
-
-    Zoning zoningToPopulate = new Zoning(IdGroupingToken.collectGlobalToken(), emptyReferenceNetwork.getNetworkGroupingTokenId());
-    return create(settings, emptyReferenceNetwork, zoningToPopulate);
-  }
 
   /** Factory method
    *
@@ -109,6 +94,27 @@ public class PlanitZoningReaderFactory {
   public static  PlanitZoningReader create(
       final XMLElementMacroscopicZoning xmlRawZoning, final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?,?> network, final Zoning zoning){
     return new PlanitZoningReader(xmlRawZoning, zoningSettings, network, zoning);
+  }
+
+  /** Factory method where all contextual information is to be set afterwards via settings and network is to be obtained
+   * from provided reader.
+   *
+   * @param networkReader to extract reference network from
+   * @return created PLANit zoning reader
+   */
+  public static  PlanitZoningReader create(final NetworkReader networkReader){
+    return create(new PlanitZoningReaderSettings(), networkReader);
+  }
+
+  /** Factory method where all contextual information is derived from settings and network is to be obtained
+   * from provided reader.
+   *
+   * @param settings to use
+   * @param networkReader to extract reference network from
+   * @return created PLANit zoning reader
+   */
+  public static  PlanitZoningReader create(final PlanitZoningReaderSettings settings, final NetworkReader networkReader){
+    return new PlanitZoningReader(settings, networkReader);
   }
 
 

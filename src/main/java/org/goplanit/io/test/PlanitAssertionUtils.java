@@ -1,14 +1,9 @@
 package org.goplanit.io.test;
 
-import org.goplanit.io.converter.demands.PlanitDemandsWriter;
 import org.goplanit.io.converter.demands.PlanitDemandsWriterSettings;
-import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
-import org.goplanit.io.converter.service.PlanitRoutedServicesWriter;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
-import org.goplanit.io.converter.service.PlanitServiceNetworkWriter;
 import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
-import org.goplanit.io.converter.zoning.PlanitZoningWriter;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.goplanit.utils.misc.FileUtils;
 import org.xmlunit.matchers.CompareMatcher;

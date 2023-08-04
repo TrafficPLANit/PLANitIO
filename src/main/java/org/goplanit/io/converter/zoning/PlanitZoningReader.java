@@ -5,6 +5,7 @@ import net.opengis.gml.LineStringType;
 import net.opengis.gml.LinearRingType;
 import net.opengis.gml.PolygonType;
 import org.goplanit.converter.BaseReaderImpl;
+import org.goplanit.converter.network.NetworkReader;
 import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.LayeredNetwork;
@@ -534,12 +535,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param macroscopicNetwork containing the network crs
    */
   private void parseCoordinateReferenceSystem(final MacroscopicNetwork macroscopicNetwork){
-    CoordinateReferenceSystem crs = macroscopicNetwork.getCoordinateReferenceSystem();
-    if(xmlParser.getXmlRootElement().getSrsname()!=null && !xmlParser.getXmlRootElement().getSrsname().isBlank()) {
+    var srsName = xmlParser.getXmlRootElement().getSrsname();
+    CoordinateReferenceSystem crs;
+    if(StringUtils.isNullOrBlank(srsName)){
+      LOGGER.severe("Zoning crs not defined on XML root element, compulsory since v0.4.0 using network fallback instead if possible");
+      crs = macroscopicNetwork.getCoordinateReferenceSystem();
+    }else{
       crs = PlanitXmlJaxbParser.createPlanitCrs(xmlParser.getXmlRootElement().getSrsname());
     }
-    
-    if(!crs.equals(macroscopicNetwork.getCoordinateReferenceSystem())) {
+    zoning.setCoordinateReferenceSystem(crs);
+
+    if(!zoning.getCoordinateReferenceSystem().equals(macroscopicNetwork.getCoordinateReferenceSystem())) {
       LOGGER.severe(
           String.format("Zoning crs (%s) and network crs (%s) are not compatible",crs.getName(), macroscopicNetwork.getCoordinateReferenceSystem().getName()));
     }
@@ -548,6 +554,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
   /** settings for the zoning reader */
   protected final PlanitZoningReaderSettings settings;
+
+  /** network reader to use to create network if not provided outright (may be null) */
+  private final NetworkReader networkReader;
   
   /** the zoning to populate */
   protected Zoning zoning;
@@ -606,7 +615,22 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       }             
     }
   }
-  
+
+  /** Constructor
+   *
+   * @param settings to use
+   * @param networkReader to construct reference network from
+   */
+  protected PlanitZoningReader(
+      final PlanitZoningReaderSettings settings, final NetworkReader networkReader) {
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
+    this.settings = settings;
+    this.networkReader = networkReader;
+
+    setZoning(null);
+    setNetwork(null);
+  }
+
   /** Constructor
    * 
    * @param settings to use
@@ -617,6 +641,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
     this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
     this.settings = settings;
+    this.networkReader = null;
+
     setZoning(zoning);
     setNetwork(network);
   }  
@@ -631,7 +657,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   protected PlanitZoningReader(
       final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning) {
     this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicZoning.class);
-    this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);    
+    this.settings = new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension);
+    this.networkReader = null;
+
     setZoning(zoning);
     setNetwork(network);
   }
@@ -658,6 +686,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       final XMLElementMacroscopicZoning xmlMacroscopicZoning, final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
     this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicZoning);
     this.settings =  settings;
+    this.networkReader = null;
+
     setZoning(zoning);
     setNetwork(network);
   }
@@ -668,10 +698,19 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   @Override  
   public Zoning read(){
-        
-    if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItRunTimeException("Unable to read zoning, network is not compatible with Macroscopic network");
+
+    if(networkReader != null && this.network == null){
+      var readNetwork = networkReader.read();
+      if(readNetwork == null || !(readNetwork instanceof MacroscopicNetwork)){
+        throw new PlanItRunTimeException("No reference network available after parsing from provided network reader" +
+            " unable to read zoning");
+      }
+      this.network = readNetwork;
+      this.zoning = new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
+    }else if(!(network instanceof MacroscopicNetwork)) {
+      throw new PlanItRunTimeException("Unable to read zoning, provided network is not compatible with Macroscopic network");
     }
+
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;   
 
     /* initialise the indices used, if needed */
@@ -723,7 +762,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   }
   
   /** Reference to zoning schema location, TODO: move to properties file */
-  public static final String ZONING_XSD_FILE = "https://trafficplanit.github.io/PLANitManual/xsd/macroscopiczoninginput.xsd";  
+  public static final String ZONING_XSD_FILE = "https://www.goplanit.org/xsd/macroscopiczoninginput.xsd";
   
   /** Settings for this reader
    * 
