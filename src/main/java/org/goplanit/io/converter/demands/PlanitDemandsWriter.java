@@ -37,7 +37,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
   private final PlanitDemandsWriterSettings settings;
 
   /** the reference zoning to use */
-  private final Zoning referenceZoning;
+  private Zoning referenceZoning;
   
   /** the XML to populate */
   private final XMLElementMacroscopicDemand xmlRawDemands;
@@ -298,6 +298,15 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     xmlRawDemands.setId(demands.getXmlId());
   }
 
+  /** Constructor
+   *
+   * @param settings to use
+   * @param xmlRawDemands to populate and persist
+   */
+  protected PlanitDemandsWriter(final PlanitDemandsWriterSettings settings, final XMLElementMacroscopicDemand xmlRawDemands) {
+    this(settings, null, xmlRawDemands);
+  }
+
   /** Constructor 
    * 
    * @param settings to use
@@ -372,4 +381,20 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     return this.settings;
   }
 
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setReferenceZoning(Zoning referenceZoning) {
+    this.referenceZoning = referenceZoning;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Zoning getReferenceZoning() {
+    return this.referenceZoning;
+  }
 }

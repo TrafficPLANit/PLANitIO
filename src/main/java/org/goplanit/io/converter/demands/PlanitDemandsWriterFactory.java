@@ -10,6 +10,32 @@ import org.goplanit.zoning.Zoning;
  *
  */
 public class PlanitDemandsWriterFactory {
+
+  /** Create a PLANitDemandsWriter which can persist a PLANit demands in the native PLANit XML format. The reference
+   * zoning is expected to be set manually, or will be provided automatically when using a converter. The user is
+   * expected to provide the output location via the settings afterwards.
+   *
+   * @return created demands writer
+   */
+  public static PlanitDemandsWriter create() {
+    return new PlanitDemandsWriter(
+        new PlanitDemandsWriterSettings(
+            PlanitDemandsWriterSettings.DEFAULT_DEMANDS_XML),
+        new XMLElementMacroscopicDemand());
+  }
+
+  /** Create a PLANitDemandsWriter which can persist a PLANit demands in the native PLANit XML format. The reference
+   * zoning is expected to be set manually, or will be provided automatically when using a converter.
+   *
+   * @param demandsPath the path to use for persisting
+   * @return created demands writer
+   */
+  public static PlanitDemandsWriter create(final String demandsPath) {
+    return new PlanitDemandsWriter(
+        new PlanitDemandsWriterSettings(
+            demandsPath, PlanitDemandsWriterSettings.DEFAULT_DEMANDS_XML),
+        new XMLElementMacroscopicDemand());
+  }
   
   /** Create a PLANitDemandsWriter which can persist a PLANit demands in the native PLANit XML format
    * 

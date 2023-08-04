@@ -24,7 +24,6 @@ import org.goplanit.utils.zoning.Zones;
 import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementOdRawMatrix.Values;
 import org.goplanit.zoning.Zoning;
-import org.goplanit.zoning.ZoningModifierUtils;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -42,7 +41,17 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDemandsReader.class.getCanonicalName());
-  
+
+  /**
+   * Reference network to use when demand relate to network entities
+   */
+  protected MacroscopicNetwork referenceNetwork;
+
+  /**
+   * Reference zoning to use when demands relate to zoning entities
+   */
+  protected Zoning referenceZoning;
+
   /** list of reserved characters used */
   private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
   
@@ -169,10 +178,9 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    * @param pcu number of PCUs for current mode of travel
    * @param odDemandMatrix ODDemandMatrix object to be updated
    * @param zones containing zones by Id (index)
-   * @throws Exception thrown if the Odrawmatrix cannot be parsed into a square matrix
    */
   private static void populateDemandMatrixRawDifferentSeparators(final Values values, final String originSeparator,
-      final String destinationSeparator, final double pcu, OdDemandMatrix odDemandMatrix, final Zones<OdZone> zones) throws PlanItException {
+      final String destinationSeparator, final double pcu, OdDemandMatrix odDemandMatrix, final Zones<OdZone> zones) {
     
     final String[] originRows = values.getValue().split(originSeparator);
     final int noRows = originRows.length;
@@ -181,7 +189,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       final String[] destinationValuesByOrigin = originRows[i].split(destinationSeparator);
       final int noCols = destinationValuesByOrigin.length;
       if (noRows != noCols) {
-        throw new PlanItException("Element <odrawmatrix> does not parse to a square matrix: Row " + (i + 1) + " has " + noCols + " values.");
+        throw new PlanItRunTimeException("Element <odrawmatrix> does not parse to a square matrix: Row " + (i + 1) + " has " + noCols + " values.");
       }
       for (int col = 0; col < noCols; col++) {
         final Zone destinationZone = zones.get(col);
@@ -195,12 +203,11 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   
   /**
    * Check if all required settings are indeed set by the user
-   * 
-   * @throws PlanItException thrown if error
+   *
    */
-  private void validateSettings() throws PlanItException {
-    PlanItException.throwIfNull(getSettings().getReferenceNetwork(),"Reference network is null for Planit demands reader");
-    PlanItException.throwIfNull(getSettings().getReferenceZoning(),"Reference zoning is null for Planit demands reader");
+  private void validateSettings() {
+    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),"Reference network is null for Planit demands reader");
+    PlanItRunTimeException.throwIfNull(getReferenceZoning(),"Reference zoning is null for Planit demands reader");
   }  
   
   /**
@@ -252,7 +259,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     
     /* generate default if absent (and no more than one mode is used) */
     if (xmlUserclasses.getUserclass().isEmpty()) {
-      PlanItException.throwIf(getSettings().getReferenceNetwork().getModes().size() > 1,"user classes must be explicitly defined when more than one mode is defined");
+      PlanItException.throwIf(getReferenceNetwork().getModes().size() > 1,"user classes must be explicitly defined when more than one mode is defined");
       PlanItException.throwIf(demands.travelerTypes.size() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
       
       XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
@@ -274,7 +281,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       /* mode ref */
       MapWrapper<?, Mode> modesByXmlId = getSourceIdContainer(Mode.class);      
       if (xmlUserclass.getModeref() == null) {
-        PlanItException.throwIf(getSettings().getReferenceNetwork().getModes().size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");                
+        PlanItException.throwIf(getReferenceNetwork().getModes().size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
         xmlUserclass.setModeref((String)modesByXmlId.getKeyByValue(modesByXmlId.getFirst()));          
       }
       String xmlModeIdRef = xmlUserclass.getModeref();
@@ -486,7 +493,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       PlanItException.throwIf(timePeriod==null, "referenced time period on od matrix not available");
       
       /* create od matrix instance */
-      var odZones = getSettings().getReferenceZoning().getOdZones();
+      var odZones = getReferenceZoning().getOdZones();
       OdDemandMatrix odDemandMatrix = new OdDemandMatrix(odZones);
       /* populate */
       populateDemandMatrix(xmlOdMatrix, mode.getPcu(), odDemandMatrix, odZones);
@@ -527,23 +534,23 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       final XMLElementMacroscopicDemand xmlMacroscopicDemands, final MacroscopicNetwork network, final Zoning zoning, final Demands demandsToPopulate) throws PlanItException{
     this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicDemands);
     setDemands(demandsToPopulate);
-    getSettings().setReferenceNetwork(network); 
-    getSettings().setReferenceZoning(zoning);
+
+    this.referenceNetwork = network;
+    this.referenceZoning = zoning;
   }
 
   /** Parse the XMLand populate the demands memory model
-   * 
-   * @throws PlanItException thrown if error
+   *
    */
   @Override
-  public Demands read() throws PlanItException {
+  public Demands read() {
     
     try {
       
       /* verify completeness of inputs */
       validateSettings();
             
-      initialiseParentXmlIdTrackers(settings.getReferenceNetwork(), settings.getReferenceZoning());
+      initialiseParentXmlIdTrackers(getReferenceNetwork(), getReferenceZoning());
       initialiseXmlIdTrackers();
       
       xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
@@ -575,7 +582,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when populating demands in PLANitIO",e);
+      throw new PlanItRunTimeException("Error when populating demands in PLANitIO",e);
     }
     
     return demands;
@@ -597,4 +604,39 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   public void reset() {
   }
 
+  /**
+   * each demands reader is expected to ensure that its demand relates to a zoning
+   * this reference zoning can be obtained (after reading is complete). the converter uses this to avoid the user
+   * having to manually transfer this zoning to the writer which also requires this same zoning consistency
+   * This is what this method enables
+   */
+  @Override
+  public Zoning getReferenceZoning() {
+    return this.referenceZoning;
+  }
+
+  /** Collect reference network used
+   *
+   * @return reference network
+   */
+  public MacroscopicNetwork getReferenceNetwork() {
+    return referenceNetwork;
+  }
+
+
+  /** Set reference network to use
+   *
+   * @param referenceNetwork to use
+   */
+  public void setReferenceNetwork(final MacroscopicNetwork referenceNetwork) {
+    this.referenceNetwork = referenceNetwork;
+  }
+
+  /** Set reference zoning to use
+   *
+   * @param referenceZoning to use
+   */
+  public void setReferenceZoning(final Zoning referenceZoning) {
+    this.referenceZoning = referenceZoning;
+  }
 }
