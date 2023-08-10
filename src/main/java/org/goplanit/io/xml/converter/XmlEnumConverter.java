@@ -81,7 +81,7 @@ public interface XmlEnumConverter {
     }else if(outputPropertyUnit.equals(Unit.SRS)) {
 			return Unitsvalues.SRS;
     }else{
-      throw new PlanItException("Units type " + outputProperty.toString() + " has not been defined in the unitsvalues simple type in the output XSD file.");
+      throw new PlanItException("Units type " + outputProperty.toString() + " has not been defined in the units values simple type in the output XSD file.");
 		}
 	}
 
