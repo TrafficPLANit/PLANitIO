@@ -7,6 +7,7 @@ import org.goplanit.assignment.traditionalstatic.TraditionalStaticAssignmentConf
 import org.goplanit.cost.physical.AbstractPhysicalCost;
 import org.goplanit.cost.physical.BPRConfigurator;
 import org.goplanit.cost.physical.BprLinkTravelTimeCost;
+import org.goplanit.cost.physical.PhysicalCost;
 import org.goplanit.cost.virtual.AbstractVirtualCost;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.goplanit.cost.virtual.SpeedVirtualCostConfigurator;
@@ -232,7 +233,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       
       // * NEW *
       // set BPR link performance function as the type
-      BPRConfigurator bprCost = (BPRConfigurator) ta.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
+      BPRConfigurator bprCost = (BPRConfigurator) ta.createAndRegisterPhysicalCost(PhysicalCost.BPR);
       // override default alpha and beta parameters
       bprCost.setDefaultParameters(0.5, 5); 
 
