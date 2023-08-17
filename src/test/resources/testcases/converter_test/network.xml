@@ -44,7 +44,7 @@
             </mode>
             <mode id="ferry" predefined="true">
                 <name>ferry</name>
-                <maxspeed>70.0</maxspeed>
+                <maxspeed>20.0</maxspeed>
                 <pcu>6.0</pcu>
                 <physicalfeatures>
                     <vehicletype>vehicle</vehicletype>
