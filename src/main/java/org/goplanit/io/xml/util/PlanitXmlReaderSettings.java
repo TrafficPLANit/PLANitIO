@@ -25,7 +25,7 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
 
   
   /**
-   * Default constructor using default file extensino and user must set output dir afterwards manually
+   * Default constructor using default file extension and user must set output dir afterwards manually
    */
   public PlanitXmlReaderSettings() {
    this(null,DEFAULT_XML_EXTENSION);

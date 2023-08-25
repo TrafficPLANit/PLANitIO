@@ -576,7 +576,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param network to use
    */
-  protected void setNetwork(final LayeredNetwork<?,?> network) {
+  protected void setReferenceNetwork(final LayeredNetwork<?,?> network) {
     this.network = network;
   }
   
@@ -628,7 +628,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     this.networkReader = networkReader;
 
     setZoning(null);
-    setNetwork(null);
+    setReferenceNetwork(null);
   }
 
   /** Constructor
@@ -644,7 +644,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     this.networkReader = null;
 
     setZoning(zoning);
-    setNetwork(network);
+    setReferenceNetwork(network);
   }  
     
   /** Constructor
@@ -661,7 +661,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     this.networkReader = null;
 
     setZoning(zoning);
-    setNetwork(network);
+    setReferenceNetwork(network);
   }
   
   /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
@@ -689,7 +689,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     this.networkReader = null;
 
     setZoning(zoning);
-    setNetwork(network);
+    setReferenceNetwork(network);
   }
 
   /** Read the zoning from disk
@@ -705,8 +705,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         throw new PlanItRunTimeException("No reference network available after parsing from provided network reader" +
             " unable to read zoning");
       }
-      this.network = readNetwork;
-      this.zoning = new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
+      setReferenceNetwork(readNetwork);
+      setZoning(new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId()));
     }else if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItRunTimeException("Unable to read zoning, provided network is not compatible with Macroscopic network");
     }
@@ -770,6 +770,14 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   public PlanitZoningReaderSettings getSettings() {
     return settings;
+  }
+
+  /**
+   * Access to reference network used
+   * @return reference network
+   */
+  public LayeredNetwork<?,?> getReferenceNetwork(){
+    return this.network;
   }
 
   /**

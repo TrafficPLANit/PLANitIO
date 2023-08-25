@@ -2,10 +2,13 @@ package org.goplanit.io.converter.demands;
 
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.demands.DemandsReader;
+import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.demands.Demands;
 import org.goplanit.demands.DemandsModifierUtils;
+import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.od.demand.OdDemandMatrix;
 import org.goplanit.od.demand.OdDemands;
@@ -42,16 +45,6 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDemandsReader.class.getCanonicalName());
 
-  /**
-   * Reference network to use when demand relate to network entities
-   */
-  protected MacroscopicNetwork referenceNetwork;
-
-  /**
-   * Reference zoning to use when demands relate to zoning entities
-   */
-  protected Zoning referenceZoning;
-
   /** list of reserved characters used */
   private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
   
@@ -75,7 +68,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    * @param network to use
    * @param zoning to use
    */
-  private void initialiseParentXmlIdTrackers(MacroscopicNetwork network, Zoning zoning) {    
+  private void initialiseParentXmlIdTrackers(LayeredNetwork<?,?> network, Zoning zoning) {
     initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
     
     initialiseSourceIdMap(Zone.class, Zone::getXmlId);
@@ -84,7 +77,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   } 
   
   /**
-   * initialise the XML id trackers of generated PLANit entit types so we can lay indices on the XML id as well for quick lookups
+   * initialise the XML id trackers of generated PLANit entity types, so we can lay indices on the XML id as well
+   * for quick lookups
    * 
    */
   private void initialiseXmlIdTrackers() {    
@@ -206,17 +200,16 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    *
    */
   private void validateSettings() {
-    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),"Reference network is null for Planit demands reader");
-    PlanItRunTimeException.throwIfNull(getReferenceZoning(),"Reference zoning is null for Planit demands reader");
+    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),"Reference network is null for PLANit demands reader");
+    PlanItRunTimeException.throwIfNull(getReferenceZoning(),"Reference zoning is null for PLANit demands reader");
   }  
   
   /**
    * Generate TravelerType objects from generated configuration object and store them
    * 
    * @param demandconfiguration to extract from
-   * @throws PlanItException thrown if error
    */
-  private void generateAndStoreTravelerTypes(final XMLElementDemandConfiguration demandconfiguration) throws PlanItException {
+  private void generateAndStoreTravelerTypes(final XMLElementDemandConfiguration demandconfiguration) {
     
     /* traveller types */
     XMLElementTravellerTypes xmlTravellertypes = 
@@ -434,11 +427,26 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     }       
   }
   
-  /** settings for the zoning reader */
-  protected final PlanitDemandsReaderSettings settings = new PlanitDemandsReaderSettings();
+  /** settings for the reader */
+  protected final PlanitDemandsReaderSettings settings;
   
   /** the demands to populate */
   protected Demands demands;
+
+  /**
+   * Reference network to use when demand relate to network entities
+   */
+  protected LayeredNetwork<?, ?> referenceNetwork;
+
+  /**
+   * Reference zoning to use when demands relate to zoning entities
+   */
+  protected Zoning referenceZoning;
+
+  /** zoning reader provides alternative way to obtain reference zoning and reference network in case not available upon
+   * construction. When using a reader, reference zoning and network are expected to remain null.
+   */
+  protected final PlanitZoningReader zoningReader;
   
   /** Set the demands to populate
    * 
@@ -508,35 +516,66 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   /** Reference to demand schema location TODO: move to properties file*/
   public static final String DEMAND_XSD_FILE = "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicdemandinput.xsd";  
 
-  /** Constructor
-   * 
-   * @param pathDirectory to use
-   * @param xmlFileExtension to use
-   * @param demands to populate
-   * @throws PlanItException  thrown if error
-   */
-  public PlanitDemandsReader(final String pathDirectory, final String xmlFileExtension, final Demands demands) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicDemand>(XMLElementMacroscopicDemand.class);
-    getSettings().setInputDirectory(pathDirectory);
-    getSettings().setXmlFileExtension(xmlFileExtension);
-    setDemands(demands);
-  }
-  
+
   /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
    * 
    * @param xmlMacroscopicDemands to extract from
    * @param network reference network for the demands to read
    * @param zoning reference zoning for the demands to read 
    * @param demandsToPopulate to populate
-   * @throws PlanItException  thrown if error
    */
   public PlanitDemandsReader(
-      final XMLElementMacroscopicDemand xmlMacroscopicDemands, final MacroscopicNetwork network, final Zoning zoning, final Demands demandsToPopulate) throws PlanItException{
+      final XMLElementMacroscopicDemand xmlMacroscopicDemands,
+      final LayeredNetwork<?, ?> network,
+      final Zoning zoning,
+      final Demands demandsToPopulate){
     this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicDemands);
+    this.settings = new PlanitDemandsReaderSettings();
+
     setDemands(demandsToPopulate);
 
+    this.zoningReader = null;
     this.referenceNetwork = network;
     this.referenceZoning = zoning;
+  }
+
+  /** Constructor where parsing will be based upon the settings and already present compatible network and zoning
+   *
+   * @param demandsSettings to use
+   * @param network reference network for the demands to read
+   * @param zoning reference zoning for the demands to read
+   * @param demandsToPopulate to populate
+   */
+  public PlanitDemandsReader(
+          final PlanitDemandsReaderSettings demandsSettings,
+          final LayeredNetwork<?, ?> network,
+          final Zoning zoning,
+          final Demands demandsToPopulate){
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicDemand.class);
+    this.settings = demandsSettings;
+
+    setDemands(demandsToPopulate);
+
+    this.zoningReader = null;
+    this.referenceNetwork = network;
+    this.referenceZoning = zoning;
+  }
+
+  /** Constructor where parsing will be based upon the settings and zoning reader provides zoning (and network)
+   *
+   * @param demandsSettings to use
+   * @param zoningReader to construct zoning (and network) from
+   */
+  public PlanitDemandsReader(
+          final PlanitDemandsReaderSettings demandsSettings,
+          final PlanitZoningReader zoningReader){
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicDemand.class);
+    this.settings = demandsSettings;
+
+    setDemands(null);
+    this.zoningReader = zoningReader;
+    this.referenceNetwork = null;
+    this.referenceZoning = null;
   }
 
   /** Parse the XMLand populate the demands memory model
@@ -546,7 +585,17 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   public Demands read() {
     
     try {
-      
+
+      /* prep reference network and zoning to populate based on network reader if that is what we use */
+      if(zoningReader != null){
+        PlanItRunTimeException.throwIf(referenceNetwork!=null, "Expected reference network to be null when using zoning reader on PLANit demands reader");
+        PlanItRunTimeException.throwIf(referenceZoning!=null, "Expected reference zoning to be null when using zoning reader on PLANit demands reader");
+        LOGGER.info("Parsing zoning using zoning reader to prepare Demands reader run");
+        this.referenceZoning = zoningReader.read();
+        this.referenceNetwork = zoningReader.getReferenceNetwork();
+        setDemands(new Demands(getReferenceNetwork().getNetworkGroupingTokenId()));
+      }
+
       /* verify completeness of inputs */
       validateSettings();
             
@@ -619,7 +668,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
    *
    * @return reference network
    */
-  public MacroscopicNetwork getReferenceNetwork() {
+  public LayeredNetwork<?, ?> getReferenceNetwork() {
     return referenceNetwork;
   }
 
