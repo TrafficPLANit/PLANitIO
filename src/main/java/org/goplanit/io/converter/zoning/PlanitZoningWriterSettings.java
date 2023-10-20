@@ -4,7 +4,7 @@ import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
 
 /**
- * Settings for the planit zoning writer
+ * Settings for the PLANit zoning writer
  * 
  * @author markr
  *
