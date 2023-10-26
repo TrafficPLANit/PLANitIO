@@ -2,6 +2,24 @@
 
 PLANitIO  Releases
 
+## 0.4.0
+
+**Enhancements**
+
+* [General] Full support for converters (readers + writers) added
+* [General] Full support for service network and routed services added
+* #32 Update to JUnit5
+* #28 Add support for InterModalReader that can also parse services directly (via newly added readWithServices())
+* #27 Support CI though github actions and maven build
+* #26 Implement a PlanitDemandsWriter compatible with the converter setup
+* #25 Zoning and network writers do not log the number of elements they are persisting. Add some logging
+* #22 Add support for writing service networks (and document how to do it in manual)
+
+**Bug fixes**
+
+* #29 Make sure that when reference ids from other planit components are persisted by a writer the mapping of the ids is sourced from parent id mappings
+* #24 Network layer persist does not verify whether XML id is present, nor does it persist the supported modes
+
 ## 0.3.0
 
 * refactored tests so we have a runner class that wraps the assignment and a helper class for the csv comparisons #14
