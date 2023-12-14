@@ -74,8 +74,12 @@
 			  <groupId>org.hamcrest</groupId>
 			  <artifactId>hamcrest</artifactId>
 		  </dependency>
+        <dependency>
+            <groupId>org.goplanit</groupId>
+            <artifactId>planit-core</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>	
 

@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.ltm.eltm.EventBasedLtm;
 import org.goplanit.assignment.ltm.eltm.EventBasedLtmConfigurator;
+import org.goplanit.choice.ChoiceModel;
+import org.goplanit.choice.logit.MultinomialLogitConfigurator;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.project.PlanItProject;
 import org.goplanit.io.project.PlanItSimpleProject;
@@ -12,7 +14,6 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.path.choice.PathChoice;
 import org.goplanit.path.choice.StochasticPathChoiceConfigurator;
-import org.goplanit.path.choice.logit.LogitChoiceModel;
 import org.goplanit.sdinteraction.smoothing.Smoothing;
 import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.exceptions.PlanItException;
@@ -40,8 +41,8 @@ public class DynamicAssignmentProjectDemos {
           final PlanItSimpleProject project = new PlanItSimpleProject(projectPath);
           // register ELTM as eligible assignment
           
-          //TODO: not great that we must register it separately as an option. Probably better to simply
-          //allow any implementation of the registered (meta)types and not bother with the actual implemented subclasses
+          /*TODO: not great that we must register it separately as an option. Probably better to simply allow
+           any implementation of the registered (meta)types and not bother with the actual implemented subclasses */
           project.registerEligibleTrafficComponentClass(EventBasedLtm.class);
           project.createAndRegisterTrafficAssignment(EventBasedLtm.class.getCanonicalName());
 
@@ -91,9 +92,9 @@ public class DynamicAssignmentProjectDemos {
           // stochastic path choice is a path choice type that requires a logit model and paths as input
           final StochasticPathChoiceConfigurator suePathChoice = (StochasticPathChoiceConfigurator) eLTM.createAndRegisterPathChoice(PathChoice.STOCHASTIC);
           // MNL for path choice
-          suePathChoice.createAndRegisterLogitModel(LogitChoiceModel.MNL);
+          final var mnlConfigurator = (MultinomialLogitConfigurator) suePathChoice.createAndRegisterChoiceModel(ChoiceModel.MNL);
           // register a fixed od path set
-          suePathChoice.setFixedOdPathMatrix(project.odPathSets.getFirst().getFirstOdPathMatrix());
+          // mnlConfigurator.setFixedOdPathMatrix(project.odPathSets.getFirst().getFirstOdPathMatrix()); // no longer supported as we assume dynamic path set
 
           // Output formatter: MEMORY
           eLTM.registerOutputFormatter(memoryOutputFormatter);
