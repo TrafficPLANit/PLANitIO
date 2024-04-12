@@ -1,20 +1,19 @@
 package org.goplanit.io.converter;
 
+import org.goplanit.converter.CrsWriterImpl;
+import org.goplanit.io.xml.util.PlanitSchema;
+import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.id.IdMapperType;
+import org.goplanit.utils.mode.Mode;
+import org.goplanit.xml.utils.JAXBUtils;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
 import java.util.logging.Logger;
-
-import org.goplanit.converter.*;
-import org.goplanit.converter.idmapping.*;
-import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.xml.utils.JAXBUtils;
-import org.goplanit.io.xml.util.PlanitSchema;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
-import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.mode.Mode;
 
 /**
  * Common functionality for writing in the native PLANit format across different writers

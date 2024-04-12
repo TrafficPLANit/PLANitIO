@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
 import org.goplanit.io.converter.network.UnTypedPlanitCrsWriterImpl;

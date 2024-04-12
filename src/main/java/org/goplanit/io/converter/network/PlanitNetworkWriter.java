@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.io.xml.util.xmlEnumConversionUtil;

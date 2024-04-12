@@ -1,6 +1,6 @@
 package org.goplanit.io.converter.service;
 
-import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.converter.service.ServiceNetworkWriter;

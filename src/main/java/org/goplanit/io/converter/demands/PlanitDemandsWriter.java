@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.DoubleAdder;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.idmapping.DemandsIdMapper;
-import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.demands.DemandsWriter;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.PlanitWriterImpl;
