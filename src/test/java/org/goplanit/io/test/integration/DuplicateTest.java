@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.goplanit.io.test.util.PlanItIOTestRunner;
+import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.junit.jupiter.api.AfterAll;
@@ -50,7 +50,7 @@ public class DuplicateTest {
       String description = "testDuplicateLinkSegmentType";
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       fail("Exception for duplicate link segment type XML Id was not thrown");
     } catch (Exception e) {
@@ -72,7 +72,7 @@ public class DuplicateTest {
       LOGGER.setLevel(Level.OFF);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);        
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       
       LOGGER.setLevel(oldLevel);
@@ -94,7 +94,7 @@ public class DuplicateTest {
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate node XML Id was not thrown");
@@ -115,7 +115,7 @@ public class DuplicateTest {
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate mode XML Id was not thrown");
@@ -136,7 +136,7 @@ public class DuplicateTest {
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate zone XML Id was not thrown");
@@ -157,7 +157,7 @@ public class DuplicateTest {
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate time period XML Id was not thrown");
@@ -178,7 +178,7 @@ public class DuplicateTest {
       Level oldLevel = LOGGER.getLevel();
       LOGGER.setLevel(Level.OFF);
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();
       LOGGER.setLevel(oldLevel);
       fail("Exception for duplicate user class XML Id was not thrown");

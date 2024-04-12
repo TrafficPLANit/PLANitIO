@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import org.goplanit.demands.Demands;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.PlanItIOTestRunner;
+import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
@@ -117,7 +117,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);     
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.registerInitialLinkSegmentCost(initialCostPath);
@@ -164,7 +164,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       /* two initial costs, second one is the one that should be used in the end */
@@ -213,7 +213,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);    
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
@@ -295,7 +295,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);        
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
@@ -304,7 +304,7 @@ public class ShortestPathTest {
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
-      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
       resultsMap.put(timePeriod, new TreeMap<>());
@@ -378,7 +378,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);      
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
@@ -478,7 +478,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName3);           
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(true); // <- zero flow
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
@@ -757,7 +757,7 @@ public class ShortestPathTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName3);          
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       

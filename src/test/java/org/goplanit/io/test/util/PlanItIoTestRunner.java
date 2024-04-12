@@ -38,10 +38,10 @@ import org.goplanit.zoning.Zoning;
  * @author markr
  *
  */
-public class PlanItIOTestRunner {
+public class PlanItIoTestRunner {
   
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PlanItIOTestRunner.class.getCanonicalName());
+  private static final Logger LOGGER = Logger.getLogger(PlanItIoTestRunner.class.getCanonicalName());
 
   /** project path to use */
   protected final String projectPath;
@@ -116,8 +116,8 @@ public class PlanItIOTestRunner {
     project.executeAllTrafficAssignments();
     
     /* output */
-    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDtoX = 
-        new TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing>(memoryOutputFormatter, project, planItInputBuilder);
+    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDtoX =
+            new TestOutputDto<>(memoryOutputFormatter, project, planItInputBuilder);
     return testOutputDtoX;
   }  
     
@@ -127,7 +127,7 @@ public class PlanItIOTestRunner {
    * @param projectPath to use
    * @param description to use
    */
-  public PlanItIOTestRunner(String projectPath, String description) {
+  public PlanItIoTestRunner(String projectPath, String description) {
     this.projectPath = projectPath;
     
     try {
@@ -207,7 +207,6 @@ public class PlanItIOTestRunner {
         final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
         pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
         pathOutputTypeConfiguration.addProperty(OutputPropertyType.RUN_ID);
-        
       }
       
     }catch(PlanItException e) {

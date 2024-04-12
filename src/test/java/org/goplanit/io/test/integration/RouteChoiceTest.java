@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import org.goplanit.cost.physical.BPRConfigurator;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.PlanItIOTestRunner;
+import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
@@ -156,7 +156,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -325,7 +325,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -421,7 +421,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);      
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -488,7 +488,7 @@ public class RouteChoiceTest {
       
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -542,7 +542,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -588,7 +588,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -649,7 +649,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName3);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -704,7 +704,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -747,7 +747,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -847,7 +847,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -1078,7 +1078,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName2);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -1462,7 +1462,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
 
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -1506,7 +1506,7 @@ public class RouteChoiceTest {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -1558,7 +1558,7 @@ public class RouteChoiceTest {
       };
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
@@ -1697,7 +1697,7 @@ public class RouteChoiceTest {
       };
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
@@ -1829,7 +1829,7 @@ public class RouteChoiceTest {
           };
           
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(true);

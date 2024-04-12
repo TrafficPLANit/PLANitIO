@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.goplanit.io.test.util.PlanItIOTestRunner;
+import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
@@ -154,7 +154,7 @@ public class InitialCostTest {
       LOGGER.setLevel(Level.OFF);      
       
       /* run test */
-      PlanItIOTestRunner runner = new PlanItIOTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.registerInitialLinkSegmentCost(initialCostsFileLocation);
