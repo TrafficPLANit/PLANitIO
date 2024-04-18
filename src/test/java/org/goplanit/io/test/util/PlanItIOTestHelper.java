@@ -65,9 +65,11 @@ public class PlanItIOTestHelper {
       final SortedMap<TimePeriod, ? extends SortedMap<Mode, ? extends Object>> resultsMap,
       TriFunction<Mode, TimePeriod, Integer, Object> getPositionKeys,
       TriFunction<Pair<Integer, Integer>, Object, Object[], LinkSegmentExpectedResultsDto> getResultDto) throws PlanItException {
+
     boolean pass = true;
-    final int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
     for (final TimePeriod timePeriod : resultsMap.keySet()) {
+      int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration(timePeriod) : iterationIndex;
+
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
         Object innerMap = resultsMap.get(timePeriod).get(mode);
 
@@ -127,13 +129,13 @@ public class PlanItIOTestHelper {
   private static boolean compareResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod,?> map, OutputType outputType) throws PlanItException {
     boolean pass = true;
-    int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration() : iterationIndex;
-    OutputPropertyType outputProperty = OutputPropertyType.PATH_STRING;
-    if (outputType.equals(OutputType.OD)) {
-      iteration--;
-      outputProperty = OutputPropertyType.OD_COST;
-    }
     for (TimePeriod timePeriod : map.keySet()) {
+      int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration(timePeriod) : iterationIndex;
+      OutputPropertyType outputProperty = OutputPropertyType.PATH_STRING;
+      if (outputType.equals(OutputType.OD)) {
+        Math.max(0,iteration--);
+        outputProperty = OutputPropertyType.OD_COST;
+      }
       @SuppressWarnings("unchecked") Map<Mode, Map<String, Map<String, ?>>> mapPerTimePeriod = (Map<Mode, Map<String, Map<String, ?>>>) map.get(timePeriod);
       for (Mode mode : mapPerTimePeriod.keySet()) {
         Map<String, Map<String, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
