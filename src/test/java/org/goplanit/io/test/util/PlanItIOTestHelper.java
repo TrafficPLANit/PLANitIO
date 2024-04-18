@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.DatatypeConstants;
@@ -168,6 +166,72 @@ public class PlanItIOTestHelper {
   }
 
   /**
+   * Convenience method to add to a nested map of a certain structure
+   * @param theMap to add to
+   * @param tp key1
+   * @param m key 2
+   * @param str1 key 3
+   * @param str2 key 4
+   * @param str3 value
+   */
+  public static void addToNestedMap(
+          Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> theMap,
+          TimePeriod tp,
+          Mode m,
+          String str1,
+          String str2,
+          String str3){
+    theMap.putIfAbsent(tp, new TreeMap<>());
+    theMap.get(tp).putIfAbsent(m, new TreeMap<>());
+    theMap.get(tp).get(m).putIfAbsent(str1, new TreeMap<>());
+    theMap.get(tp).get(m).get(str1).put(str2, str3);
+  }
+
+  /**
+   * Convenience method to add to a nested map of a certain structure
+   * @param theMap to add to
+   * @param tp key1
+   * @param m key 2
+   * @param str1 key 3
+   * @param str2 key 4
+   * @param theValue value
+   */
+  public static void addToNestedMap(
+          Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> theMap,
+          TimePeriod tp,
+          Mode m,
+          String str1,
+          String str2,
+          Double theValue){
+    theMap.putIfAbsent(tp, new TreeMap<>());
+    theMap.get(tp).putIfAbsent(m, new TreeMap<>());
+    theMap.get(tp).get(m).putIfAbsent(str1, new TreeMap<>());
+    theMap.get(tp).get(m).get(str1).put(str2, theValue);
+  }
+
+  /**
+   * Convenience method to add to a nested map of a certain structure
+   * @param theMap to add to
+   * @param tp key1
+   * @param m key 2
+   * @param str1 key 3
+   * @param str2 key 4
+   * @param theValue value
+   */
+  public static void addToNestedMap(
+          SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> theMap,
+          TimePeriod tp,
+          Mode m,
+          String str1,
+          String str2,
+          LinkSegmentExpectedResultsDto theValue){
+    theMap.putIfAbsent(tp, new TreeMap<>());
+    theMap.get(tp).putIfAbsent(m, new TreeMap<>());
+    theMap.get(tp).get(m).putIfAbsent(str1, new TreeMap<>());
+    theMap.get(tp).get(m).get(str1).put(str2, theValue);
+  }
+
+  /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
    * object to known results stored in a Map. It generates a JUnit test failure if
    * the results maps have different contents.
@@ -276,15 +340,16 @@ public class PlanItIOTestHelper {
    * Deletes a file from the file system
    *
    * @param fileName location of the file to be deleted
-   * @throws Exception thrown if there is an error deleting the file (except when it does not exist)
    */
-  public static void deleteFile(final String fileName) throws Exception {
+  public static void deleteFile(final String fileName) {
     try {
       final String rootPath = System.getProperty("user.dir");
       Path path =  !fileName.startsWith(rootPath) ? Path.of(rootPath, fileName) : Path.of(fileName);
       Files.delete(path);
     }catch(NoSuchFileException e) {
       LOGGER.fine(String.format("File cannot be deleted, it does not exist; %s", fileName));
+    }catch(IOException e){
+      LOGGER.severe(String.format("Error occurred during file deletion%s", fileName));
     }
   }
 
@@ -294,11 +359,43 @@ public class PlanItIOTestHelper {
    * @param projectPath path to the test directory
    * @param description description part of the file name
    * @param fileName other part of the file name
-   * @throws Exception thrown if there is an error deleting the file
    */
   public static void deleteFile(final OutputType outputType, final String projectPath, final String description,
-      final String fileName) throws Exception {
+      final String fileName) {
     deleteFile(Path.of(projectPath, outputType.value() + "_" + description + "_" + fileName).toString());
+  }
+
+  /**
+   * Delete link based files from the directory of test files
+   *
+   * @param projectPath path to the test directory
+   * @param description description part of the file name
+   * @param fileNames other parts of the file name
+   */
+  public static void deleteLinkFiles(final String projectPath, final String description, final String... fileNames) {
+    Arrays.stream(fileNames).forEach( f -> deleteFile(OutputType.LINK, projectPath, description, f));
+  }
+
+  /**
+   * Delete OD based files from the directory of test files
+   *
+   * @param projectPath path to the test directory
+   * @param description description part of the file name
+   * @param fileNames other parts of the file name
+   */
+  public static void deleteOdFiles(final String projectPath, final String description, final String... fileNames) {
+    Arrays.stream(fileNames).forEach( f -> deleteFile(OutputType.OD, projectPath, description, f));
+  }
+
+  /**
+   * Delete OD based files from the directory of test files
+   *
+   * @param projectPath path to the test directory
+   * @param description description part of the file name
+   * @param fileNames other parts of the file name
+   */
+  public static void deletePathFiles(final String projectPath, final String description, final String... fileNames) {
+    Arrays.stream(fileNames).forEach( f -> deleteFile(OutputType.PATH, projectPath, description, f));
   }
 
   /**
