@@ -582,7 +582,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         xmlConnectoids.getConnectoid().add(xmlOdConnectoidBase);                        
       }
     });
-    LOGGER.info("Od connectoids: " +zoning.getOdConnectoids().size());
   }
   
   /** Populate the XML id of the XML zoning element
