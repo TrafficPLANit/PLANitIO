@@ -1,5 +1,5 @@
 Destination Zone Xml Id,Mode Xml Id,Origin Zone Xml Id,Path Id,Run Id,Time Period Xml Id,Path
-1,1,1,-1,0,0,
+1,1,1,-1,0,0,[]
 2,1,1,2,0,0,"[1,2]"
 1,1,2,3,0,0,"[2,1]"
-2,1,2,-1,0,0,
+2,1,2,-1,0,0,[]
