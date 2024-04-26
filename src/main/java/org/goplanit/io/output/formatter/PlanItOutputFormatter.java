@@ -21,6 +21,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.csv.CSVPrinter;
 import org.goplanit.io.xml.converter.XmlEnumConverter;
 import org.goplanit.io.xml.util.ApplicationProperties;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.output.adapter.OutputAdapter;
@@ -333,7 +334,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param timePeriod the current time period
    * @param iterationIndex iterationIndex relevant for this data
    * @param createCsvFileForCurrentIteration lambda function which records data specific to the CSV file for the current iteration
-   * @throws PlanItException thrown if there is an error
    */
   private void writeResultsForCurrentTimePeriod(
       final OutputTypeConfiguration outputTypeConfiguration,
@@ -341,7 +341,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final OutputAdapter outputAdapter, 
       final TimePeriod timePeriod, 
       int iterationIndex,
-      final Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
+      final Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration){
     
     try {
       OutputType outputType = outputTypeConfiguration.getOutputType();
@@ -371,10 +371,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         xmlFileNameMap.put(outputType, generateAbsoluteOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
       }
     } catch (PlanItException e) {
-      throw e;
+      LOGGER.severe(e.getMessage());
+      LOGGER.severe("PlanitException occurred when writing results for current time period in PLANitIO OutputFormatter, verify file is not already open and/or sufficient permissions are available");
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when writing results for current time period in PLANitIO OutputFormatter", e);
+      throw new PlanItRunTimeException("Error when writing results for current time period in PLANitIO OutputFormatter", e);
     }
   }
 
@@ -407,7 +408,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param modes Set of modes of travel
    * @param timePeriod current time period
    * @param iterationIndex current iteration index
-   * @throws PlanItException thrown if there is an error
    */
   @Override
   protected void writeSimulationResultsForCurrentTimePeriod(
@@ -417,7 +417,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final OutputAdapter outputAdapter, 
       final Set<Mode> modes, 
       final TimePeriod timePeriod,
-      int iterationIndex) throws PlanItException {
+      int iterationIndex){
     
     LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +"XML Output for OutputType SIMULATION has not been implemented yet.");
     
@@ -433,7 +433,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param modes Set of modes of travel
    * @param timePeriod current time period
    * @param iterationIndex current iteration index
-   * @throws PlanItException thrown if there is an error
    */
   @Override
   protected void writeGeneralResultsForCurrentTimePeriod(
@@ -443,7 +442,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final OutputAdapter outputAdapter, 
       final Set<Mode> modes, 
       final TimePeriod timePeriod,
-      int iterationIndex) throws PlanItException {
+      int iterationIndex){
     
     LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +"XML Output for OutputType GENERAL has not been implemented yet.");
     
@@ -459,7 +458,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param modes Set of modes of travel
    * @param timePeriod current time period
    * @param iterationIndex current iteration index
-   * @throws PlanItException thrown if there is an error
    */
   @Override
   protected void writeOdResultsForCurrentTimePeriod(
@@ -469,7 +467,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final OutputAdapter outputAdapter, 
       final Set<Mode> modes, 
       final TimePeriod timePeriod,
-      int iterationIndex) throws PlanItException {
+      int iterationIndex){
     
     writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
         iterationIndex, (csvPrinter) -> {
@@ -488,7 +486,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param modes Set of modes of travel
    * @param timePeriod current time period
    * @param iterationIndex current iteration index
-   * @throws PlanItException thrown if there is an error
    */
   @Override
   protected void writePathResultsForCurrentTimePeriod(
@@ -498,7 +495,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final OutputAdapter outputAdapter, 
       final Set<Mode> modes, 
       final TimePeriod timePeriod,
-      int iterationIndex) throws PlanItException {
+      int iterationIndex){
     
     writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
         iterationIndex, (csvPrinter) -> {
@@ -517,7 +514,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param modes Set of modes of travel
    * @param timePeriod current time period
    * @param iterationIndex current iteration index
-   * @throws PlanItException thrown if there is an error
    */
   @Override
   protected void writeLinkResultsForCurrentTimePeriod(
@@ -527,7 +523,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final OutputAdapter outputAdapter, 
       final Set<Mode> modes, 
       final TimePeriod timePeriod,
-      int iterationIndex) throws PlanItException {
+      int iterationIndex){
     
     writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
         iterationIndex, (csvPrinter) -> {
@@ -540,20 +536,19 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * Constructor, takes values for properties file name, description and version property
    * 
    * @param groupId contiguous id generation within this group for instances of this class
-   * @throws PlanItException thrown if the application properties file exists but cannot be opened
    */
-  public PlanItOutputFormatter(final IdGroupingToken groupId) throws PlanItException {
+  public PlanItOutputFormatter(final IdGroupingToken groupId){
     super(groupId);
     xmlNameRoot = DEFAULT_XML_NAME_PREFIX;
     xmlNameExtension = DEFAULT_XML_NAME_EXTENSION;
-    xmlFileNameMap = new HashMap<OutputType, String>();
+    xmlFileNameMap = new HashMap<>();
     resetXmlDirectory = false;
     xmlDirectory = null;
     csvNameRoot = DEFAULT_CSV_NAME_PREFIX;
     csvNameExtension = DEFAULT_CSV_NAME_EXTENSION;
     resetCsvDirectory = false;
     csvDirectory = null;
-    metadata = new HashMap<OutputTypeEnum, XMLElementMetadata>();
+    metadata = new HashMap<>();
   }
 
   /**
