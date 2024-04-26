@@ -66,7 +66,7 @@
             <type>double</type>
         </column>
         <column>
-            <name>Downstream Node Location</name>
+            <name>Downstream Node Geometry</name>
             <units>srs</units>
             <type>srsname</type>
         </column>
@@ -81,7 +81,7 @@
             <type>integer</type>
         </column>
         <column>
-            <name>Upstream Node Location</name>
+            <name>Upstream Node Geometry</name>
             <units>srs</units>
             <type>srsname</type>
         </column>

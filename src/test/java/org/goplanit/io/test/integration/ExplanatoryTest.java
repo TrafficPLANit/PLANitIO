@@ -134,12 +134,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -202,12 +201,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(10.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 10.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, "RunId_0_" + description, csvFileName, xmlFileName);
@@ -270,12 +268,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName,xmlFileName);
@@ -338,12 +335,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath,runIdDescription, csvFileName, xmlFileName);
@@ -473,12 +469,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.0));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -541,11 +536,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(10.08));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.08);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -631,11 +626,11 @@ public class ExplanatoryTest {
       odMap.put(timePeriod, new TreeMap<>());
       odMap.get(timePeriod).put(mode1, new TreeMap<>());
       odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, Double.valueOf(0.0769231));
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 0.0769231);
       odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, Double.valueOf(0.0));
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, Double.valueOf(0.0));
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -678,16 +673,17 @@ public class ExplanatoryTest {
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_XML_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_XML_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_LOCATION);
+          linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_LOCATION);
+          linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.FLOW);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.CAPACITY_PER_LANE);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.NUMBER_OF_LANES);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.LENGTH);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.CALCULATED_SPEED);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_COST);
+          linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_GEOMETRY);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_XML_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.MAXIMUM_SPEED);  
