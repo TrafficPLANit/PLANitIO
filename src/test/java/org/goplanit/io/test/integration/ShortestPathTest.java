@@ -16,6 +16,7 @@ import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
+import org.goplanit.output.property.OutputPropertyType;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
@@ -34,6 +35,27 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class ShortestPathTest {
+
+  //
+  // The numbering of the nodes and links for the grid-like structure is as follows:
+  //
+  //          9
+  //    5 > > > > > > > > > > > > > > > >25 (5,5)
+  //    ^                                ^
+  //  4 ^          ^                     ^ 40
+  //    ^     7    ^                     ^
+  //    3 -------- 8  >>                 ^
+  //    |          |                     ^
+  //  2 |          | 11                  ^
+  //    |     6    |                     ^
+  //    2 -------- 7 > >                 ^
+  //    |          |                     ^
+  //  1 |          | 10        ^         ^
+  //    |     5    |           ^         ^
+  //    1 -------- 6 --------- 11 > > > 21
+  //   (0,0)
+  //
+
 
   /** the logger */
   private static Logger LOGGER = null;
@@ -118,6 +140,11 @@ public class ShortestPathTest {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.registerInitialLinkSegmentCost(initialCostPath);
+
+      var linkConf = runner.getRawTrafficAssignmentConfigurator().getOutputConfiguration().getOutputTypeConfiguration(OutputType.LINK);
+      linkConf.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
+      linkConf.removeProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
+
       runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */      
@@ -164,6 +191,11 @@ public class ShortestPathTest {
       /* two initial costs, second one is the one that should be used in the end */
       //runner.registerInitialLinkSegmentCost(initialCostPath);
       runner.registerInitialLinkSegmentCost(initialCostPath1);
+
+      var linkConf = runner.getRawTrafficAssignmentConfigurator().getOutputConfiguration().getOutputTypeConfiguration(OutputType.LINK);
+      linkConf.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
+      linkConf.removeProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
+
       runner.setupAndExecuteDefaultAssignment();       
       
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -207,6 +239,11 @@ public class ShortestPathTest {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
+
+      var linkConf = runner.getRawTrafficAssignmentConfigurator().getOutputConfiguration().getOutputTypeConfiguration(OutputType.LINK);
+      linkConf.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
+      linkConf.removeProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
+
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
 
       /* compare results */
@@ -271,7 +308,12 @@ public class ShortestPathTest {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+
+      var linkConf = runner.getRawTrafficAssignmentConfigurator().getOutputConfiguration().getOutputTypeConfiguration(OutputType.LINK);
+      linkConf.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
+      linkConf.removeProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
+
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */
       var memoryOutputFormatter = testOutputDto.getA();
@@ -280,10 +322,14 @@ public class ShortestPathTest {
       var demands = testOutputDto.getB().demands.getFirst();
       var timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node6XmlId, node1XmlId,
+              new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node11XmlId, node6XmlId,
+              new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node12XmlId, node11XmlId,
+              new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node13XmlId, node12XmlId,
+              new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, resultsMap);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId, "[1,6,11,12,13]");
@@ -300,6 +346,49 @@ public class ShortestPathTest {
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+    } catch (final Exception e) {
+      e.printStackTrace();
+      LOGGER.severe( e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Identical to #ShortestPathTest.test_basic_shortest_path_algorithm_a_to_c() except that we write out the path geometries.
+   */
+  @Test
+  public void test_basic_shortest_path_algorithm_a_to_c_geometry() {
+    try {
+      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoC").toString();
+      String description = "testBasic2";
+      String csvFileName = "Time_Period_1_2.csv";
+      String odCsvFileName = "Time_Period_1_1.csv";
+      String xmlFileName = "Time_Period_1.xml";
+
+      String runIdDescription = "RunId_0_" + description;
+      PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
+
+      /* run test */
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
+      runner.setUseFixedConnectoidCost();
+      runner.setPersistZeroFlow(false);
+
+      var ta = runner.getRawTrafficAssignmentConfigurator();
+
+      // deactivate all but paths and attach path geometries
+      ta.getOutputConfiguration().deregisterOutputTypeConfiguration(OutputType.LINK);
+      ta.getOutputConfiguration().deregisterOutputTypeConfiguration(OutputType.OD);
+      var pathConfiguration = ta.getOutputConfiguration().createAndRegisterOutputTypeConfiguration(OutputType.PATH);
+      pathConfiguration.addProperty(OutputPropertyType.PATH_GEOMETRY);
+
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
+
+
+      /* compare results */
+      var memoryOutputFormatter = testOutputDto.getA();
+
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());
@@ -463,24 +552,24 @@ public class ShortestPathTest {
       odMap.get(timePeriod0).put(mode1, new TreeMap<>());
       odMap.get(timePeriod0).get(mode1).put(zone1XmlId, new TreeMap<>());
       odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(85.0));
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(77.0));
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(108.0));
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone2XmlId, 85.0);
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone3XmlId, 77.0);
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone4XmlId, 108.0);
       odMap.get(timePeriod0).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone1XmlId,Double.valueOf(85.0));
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone3XmlId,Double.valueOf(18.0));
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone4XmlId,Double.valueOf(24.0));
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone1XmlId, 85.0);
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone3XmlId, 18.0);
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone4XmlId, 24.0);
       odMap.get(timePeriod0).get(mode1).put(zone3XmlId, new TreeMap<>());
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone1XmlId,Double.valueOf(77.0));
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone2XmlId,Double.valueOf(18.0));
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone4XmlId,Double.valueOf(36.0));
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone1XmlId, 77.0);
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone2XmlId, 18.0);
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone4XmlId, 36.0);
       odMap.get(timePeriod0).get(mode1).put(zone4XmlId, new TreeMap<>());
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone1XmlId,Double.valueOf(108.0));
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(24.0));
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(36.0));
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone1XmlId, 108.0);
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone2XmlId, 24.0);
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone3XmlId, 36.0);
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone4XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
  
       TimePeriod timePeriod1 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("1"));
@@ -523,25 +612,25 @@ public class ShortestPathTest {
       odMap.put(timePeriod1, new TreeMap<>());
       odMap.get(timePeriod1).put(mode1, new TreeMap<>());
       odMap.get(timePeriod1).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(85.0));
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(77.0));
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(108.0));
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone2XmlId, 85.0);
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone3XmlId, 77.0);
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone4XmlId, 108.0);
       odMap.get(timePeriod1).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone1XmlId,Double.valueOf(85.0));
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone3XmlId,Double.valueOf(18.0));
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone4XmlId,Double.valueOf(24.0));
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone1XmlId, 85.0);
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone3XmlId, 18.0);
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone4XmlId, 24.0);
       odMap.get(timePeriod1).get(mode1).put(zone3XmlId, new TreeMap<>());
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone1XmlId,Double.valueOf(77.0));
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone2XmlId,Double.valueOf(18.0));
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone4XmlId,Double.valueOf(36.0));
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone1XmlId, 77.0);
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone2XmlId, 18.0);
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone4XmlId, 36.0);
       odMap.get(timePeriod1).get(mode1).put(zone4XmlId, new TreeMap<>());
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone1XmlId,Double.valueOf(108.0));
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(24.0));
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(36.0));
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone1XmlId, 108.0);
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId, 24.0);
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId, 36.0);
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       TimePeriod timePeriod2 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
@@ -682,15 +771,15 @@ public class ShortestPathTest {
       
       resultsMap.put(timePeriod0, new TreeMap<>());
       resultsMap.get(timePeriod0).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod0).get(mode1).put(node3XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node4XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node5XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node6XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node7XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node8XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node10XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node11XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod0).get(mode1).put(node12XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod0).get(mode1).put(node3XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node4XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node5XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node6XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node7XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node8XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node10XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node11XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod0).get(mode1).put(node12XmlId, new TreeMap<>());
       resultsMap.get(timePeriod0).get(mode1).get(node3XmlId).put(node8XmlId, new LinkSegmentExpectedResultsDto(8, 3, 1, 8,2000, 8, 1));
       resultsMap.get(timePeriod0).get(mode1).get(node4XmlId).put(node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1, 10,2000, 10, 1));
       resultsMap.get(timePeriod0).get(mode1).get(node5XmlId).put(node4XmlId, new LinkSegmentExpectedResultsDto(4, 5, 1, 10,2000, 10, 1));
@@ -704,22 +793,22 @@ public class ShortestPathTest {
       /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */ 
       pathMap.put(timePeriod0, new TreeMap<>());
       pathMap.get(timePeriod0).put(mode1, new TreeMap<>());
-      pathMap.get(timePeriod0).get(mode1).put(zone1XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod0).get(mode1).put(zone1XmlId, new TreeMap<>());
       pathMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,6,11,12,7,8,3,4,5,10]");
       pathMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone3XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone4XmlId,"");
-      pathMap.get(timePeriod0).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod0).get(mode1).put(zone2XmlId, new TreeMap<>());
       pathMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone3XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone4XmlId,"");
-      pathMap.get(timePeriod0).get(mode1).put(zone3XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod0).get(mode1).put(zone3XmlId, new TreeMap<>());
       pathMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone2XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone3XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone4XmlId,"");
-      pathMap.get(timePeriod0).get(mode1).put(zone4XmlId, new TreeMap<String, String>());
+      pathMap.get(timePeriod0).get(mode1).put(zone4XmlId, new TreeMap<>());
       pathMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone1XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone2XmlId,"");
       pathMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone3XmlId,"");
@@ -729,34 +818,34 @@ public class ShortestPathTest {
       odMap.put(timePeriod0, new TreeMap<>());
       odMap.get(timePeriod0).put(mode1, new TreeMap<>());
       odMap.get(timePeriod0).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(85.0));
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).put(zone3XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone4XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).put(zone4XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone2XmlId, 85.0);
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone1XmlId).put(zone4XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).put(zone2XmlId, new TreeMap<>());
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone2XmlId).put(zone4XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).put(zone3XmlId, new TreeMap<>());
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone3XmlId).put(zone4XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).put(zone4XmlId, new TreeMap<>());
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod0).get(mode1).get(zone4XmlId).put(zone4XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
  
       TimePeriod timePeriod1 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("1"));
       resultsMap.put(timePeriod1, new TreeMap<>());
       resultsMap.get(timePeriod1).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod1).get(mode1).put(node6XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put(node11XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put(node12XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
-      resultsMap.get(timePeriod1).get(mode1).put(node13XmlId, new TreeMap<String, LinkSegmentExpectedResultsDto>());
+      resultsMap.get(timePeriod1).get(mode1).put(node6XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod1).get(mode1).put(node11XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod1).get(mode1).put(node12XmlId, new TreeMap<>());
+      resultsMap.get(timePeriod1).get(mode1).put(node13XmlId, new TreeMap<>());
       resultsMap.get(timePeriod1).get(mode1).get(node6XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
       resultsMap.get(timePeriod1).get(mode1).get(node11XmlId).put(node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1,12, 2000, 12, 1));
       resultsMap.get(timePeriod1).get(mode1).get(node12XmlId).put(node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
@@ -790,25 +879,25 @@ public class ShortestPathTest {
       odMap.put(timePeriod1, new TreeMap<>());
       odMap.get(timePeriod1).put(mode1, new TreeMap<>());
       odMap.get(timePeriod1).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(77.0));
-      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone3XmlId, 77.0);
+      odMap.get(timePeriod1).get(mode1).get(zone1XmlId).put(zone4XmlId, 0.0);
       odMap.get(timePeriod1).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone2XmlId).put(zone4XmlId, 0.0);
       odMap.get(timePeriod1).get(mode1).put(zone3XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone3XmlId).put(zone4XmlId, 0.0);
       odMap.get(timePeriod1).get(mode1).put(zone4XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod1).get(mode1).get(zone4XmlId).put(zone4XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       TimePeriod timePeriod2 = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
@@ -863,25 +952,25 @@ public class ShortestPathTest {
       odMap.put(timePeriod2, new TreeMap<>());
       odMap.get(timePeriod2).put(mode1, new TreeMap<>());
       odMap.get(timePeriod2).get(mode1).put(zone1XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone4XmlId,Double.valueOf(108.0));
+      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone1XmlId).put(zone4XmlId, 108.0);
       odMap.get(timePeriod2).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone2XmlId).put(zone4XmlId, 0.0);
       odMap.get(timePeriod2).get(mode1).put(zone3XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone3XmlId).put(zone4XmlId, 0.0);
       odMap.get(timePeriod2).get(mode1).put(zone4XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone1XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone2XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone3XmlId,Double.valueOf(0.0));
-      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone4XmlId,Double.valueOf(0.0));
+      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone1XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone2XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone3XmlId, 0.0);
+      odMap.get(timePeriod2).get(mode1).get(zone4XmlId).put(zone4XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, null, odMap);
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);

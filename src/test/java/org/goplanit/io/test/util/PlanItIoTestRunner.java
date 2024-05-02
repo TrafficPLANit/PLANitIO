@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.goplanit.assignment.TrafficAssignment;
+import org.goplanit.assignment.TrafficAssignmentConfigurator;
 import org.goplanit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
 import org.goplanit.cost.physical.BPRConfigurator;
@@ -241,7 +242,7 @@ public class PlanItIoTestRunner {
   /**
    * Run a test case with a custom link output type configuration consumer. Store the results in a MemoryOutputFormatter.
    *
-   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in additino to default settings
+   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in addition to default settings
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */  
@@ -324,6 +325,16 @@ public class PlanItIoTestRunner {
     TimePeriod timePeriod = demands.timePeriods.getByXmlId(timePeriodXmlId);
     final var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
     taConfigurator.registerInitialLinkSegmentCost(timePeriod, initialCost.getTimePeriodCosts(timePeriod));    
+  }
+
+  /**
+   * For expert use to configure directly on the traffic assignment configurator for options not exposed
+   * by this class as shortcuts
+   *
+   * @return traffic assignment configurator
+   */
+  public TrafficAssignmentConfigurator<?> getRawTrafficAssignmentConfigurator(){
+    return taConfigurator;
   }
 
 }

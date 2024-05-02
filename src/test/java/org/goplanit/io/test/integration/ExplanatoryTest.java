@@ -1,8 +1,5 @@
 package org.goplanit.io.test.integration;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.SortedMap;
@@ -32,6 +29,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit test cases for explanatory tests for TraditionalStaticAssignment
@@ -94,31 +93,24 @@ public class ExplanatoryTest {
       Integer maxIterations = null;
       
       String runIdDescription = "RunId_0_" + description;
-      PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, csvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.LINK, projectPath, runIdDescription, xmlFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, odCsvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.OD, projectPath, runIdDescription, xmlFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, csvFileName);
-      PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);
+      PlanItIOTestHelper.deleteLinkFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.deleteOdFiles(projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
       
       /* run test */
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
       TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
-      
-      
+
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
-      
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
 
       pathMap.put(timePeriod, new TreeMap<>());
@@ -666,39 +658,13 @@ public class ExplanatoryTest {
       runner.setupAndExecuteDefaultAssignment();      
       
       /* change link formatting*/
-      Consumer<LinkOutputTypeConfiguration> changeLockedProperties = (linkOutputTypeConfiguration) -> {
-        try {
-          linkOutputTypeConfiguration.removeAllProperties();
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_XML_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_XML_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.FLOW);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.CAPACITY_PER_LANE);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.NUMBER_OF_LANES);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.LENGTH);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.CALCULATED_SPEED);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_COST);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_GEOMETRY);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_XML_ID);
-          linkOutputTypeConfiguration.addProperty(OutputPropertyType.MAXIMUM_SPEED);  
-        } catch (final PlanItRunTimeException e) {
-          fail("testExplanatoryAttemptToChangeLockedFormatter() problem setting properties");
-          LOGGER.severe(e.getMessage());
-          e.printStackTrace();
-        }
-      };
+      Consumer<LinkOutputTypeConfiguration> changeLockedProperties = linkOutputTypeConfiguration -> linkOutputTypeConfiguration.removeAllProperties();
       /* run again with updated configuration -> should throw error */
       runner.setupAndExecuteWithCustomLinkOutputConfiguration(changeLockedProperties);
       
       fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
     } catch (Exception e) {
-      LOGGER.info(e.getMessage());
+      assertEquals(e.getMessage(), "An attempt was made to change the output value properties after they had been locked");
     }
 
     try {

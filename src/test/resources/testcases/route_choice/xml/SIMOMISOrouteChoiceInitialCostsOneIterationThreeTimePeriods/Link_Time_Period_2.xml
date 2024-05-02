@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/metadata.xsd">
-    <timestamp>2024-04-26T17:44:45.403+10:00</timestamp>
+    <timestamp>2024-05-02T16:45:47.314+10:00</timestamp>
     <version>0.5.a1</version>
     <description>PlanIt Code for default input and output</description>
     <outputconfiguration>
@@ -68,11 +68,6 @@
             <type>double</type>
         </column>
         <column>
-            <name>Downstream Node Geometry</name>
-            <units>srs</units>
-            <type>srsname</type>
-        </column>
-        <column>
             <name>Length</name>
             <units>km</units>
             <type>double</type>
@@ -81,11 +76,6 @@
             <name>Number of Lanes</name>
             <units>none</units>
             <type>integer</type>
-        </column>
-        <column>
-            <name>Upstream Node Geometry</name>
-            <units>srs</units>
-            <type>srsname</type>
         </column>
         <column>
             <name>Calculated Speed</name>
@@ -98,9 +88,19 @@
             <type>double</type>
         </column>
         <column>
+            <name>Downstream Node Geometry</name>
+            <units>srs</units>
+            <type>srsname</type>
+        </column>
+        <column>
             <name>Flow</name>
             <units>veh/h</units>
             <type>double</type>
+        </column>
+        <column>
+            <name>Upstream Node Geometry</name>
+            <units>srs</units>
+            <type>srsname</type>
         </column>
     </columns>
 </metadata>
