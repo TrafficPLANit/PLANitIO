@@ -1,9 +1,10 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
+	xsi:noNamespaceSchemaLocation="https://www.goplanit.org/xsd/macroscopicinput.xsd">
 	<macroscopiczoning>
+        <id>zoning1</id>
 		<zones>
-			<zone id="1">
+			<zone id="A">
 				<centroid>
 					<name>1</name>
 					<gml:Point>	
@@ -16,7 +17,7 @@
 					</connectoid>
 				</connectoids>
 			</zone>
-			<zone id="2">
+			<zone id="D">
 				<centroid>
 					<name>2</name>
 					<gml:Point>
@@ -31,7 +32,7 @@
 			</zone>
 		</zones>
 	</macroscopiczoning>
-	<macroscopicdemand>
+	<macroscopicdemand id="demand1">
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
@@ -49,19 +50,20 @@
 		<oddemands>
 			<odcellbycellmatrix timeperiodref="0"
 				userclassref="1">
-				<o ref="1">
-					<d ref="2">1</d>
+				<o ref="A">
+					<d ref="D">1</d>
 				</o>
 			</odcellbycellmatrix>
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
+        <id>network1</id>
 		<configuration>
 			<modes>
 				<mode id="1">							
-					<name>Basic</name>			
-					<pcu>1</pcu>						
-					<maxspeed>1</maxspeed> 
+					<name>Basic</name>
+                    <maxspeed>1</maxspeed>
+                    <pcu>1</pcu>
 				</mode>
 			</modes>
 		</configuration>
@@ -75,33 +77,133 @@
 						</linksegmenttype>
 					</linksegmenttypes>
 				</layerconfiguration>
-				<nodes>
-					<node id="1" />
-					<node id="2" />
-					<node id="3" />
-					<node id="4" />
-					<node id="5" />
-					<node id="6" />
-					<node id="7" />
-					<node id="8" />
-					<node id="9" />
-					<node id="10" />
-					<node id="11" />
-					<node id="12" />
-					<node id="13" />
-					<node id="14" />
-					<node id="15" />
-					<node id="16" />
-					<node id="17" />
-					<node id="18" />
-					<node id="19" />
-					<node id="20" />
-					<node id="21" />
-					<node id="22" />
-					<node id="23" />
-					<node id="24" />
-					<node id="25" />
-				</nodes>
+                <nodes>
+                    <node id="1">
+                        <gml:Point>
+                            <gml:pos>0.0 0.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="2">
+                        <gml:Point>
+                            <gml:pos>0.0 1.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="3">
+                        <gml:Point>
+                            <gml:pos>0.0 2.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="4">
+                        <gml:Point>
+                            <gml:pos>0.0 3.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="5">
+                        <gml:Point>
+                            <gml:pos>0.0 4.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="6">
+                        <gml:Point>
+                            <gml:pos>1.0 0.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="7">
+                        <gml:Point>
+                            <gml:pos>1.0 1.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="8">
+                        <gml:Point>
+                            <gml:pos>1.0 2.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="9">
+                        <gml:Point>
+                            <gml:pos>1.0 3.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="10">
+                        <gml:Point>
+                            <gml:pos>1.0 4.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="11">
+                        <gml:Point>
+                            <gml:pos>2.0 0.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="12">
+                        <gml:Point>
+                            <gml:pos>2.0 1.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="13">
+                        <gml:Point>
+                            <gml:pos>2.0 2.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="14">
+                        <gml:Point>
+                            <gml:pos>2.0 3.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="15">
+                        <gml:Point>
+                            <gml:pos>2.0 4.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="16">
+                        <gml:Point>
+                            <gml:pos>3.0 0.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="17">
+                        <gml:Point>
+                            <gml:pos>3.0 1.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="18">
+                        <gml:Point>
+                            <gml:pos>3.0 2.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="19">
+                        <gml:Point>
+                            <gml:pos>3.0 3.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="20">
+                        <gml:Point>
+                            <gml:pos>3.0 4.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="21">
+                        <gml:Point>
+                            <gml:pos>4.0 0.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="22">
+                        <gml:Point>
+                            <gml:pos>4.0 1.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="23">
+                        <gml:Point>
+                            <gml:pos>4.0 2.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="24">
+                        <gml:Point>
+                            <gml:pos>4.0 3.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                    <node id="25">
+                        <gml:Point>
+                            <gml:pos>4.0 4.0</gml:pos>
+                        </gml:Point>
+                    </node>
+                </nodes>
 				<links>
            <link id="1" nodearef="1" nodebref="2">
             <linksegment id="1" dir="a_b" typeref="1">

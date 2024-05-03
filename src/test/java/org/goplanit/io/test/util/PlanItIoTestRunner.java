@@ -179,17 +179,6 @@ public class PlanItIoTestRunner {
         /* Link OUTPUT CONFIGURATION */
         linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.LINK);
 
-        /* 27/2/2020
-         * Note -> originally these were created as a default consumer, so if a non-default consumer is used for link output type configuration
-         * these would not be set anymore in the original situation, but here they are, so this might cause some differences in results
-         * Once verified, remove this comment
-         */
-        linkOutputTypeConfiguration.addProperty(OutputPropertyType.MODE_ID);
-        linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_ID);
-        linkOutputTypeConfiguration.addProperty(OutputPropertyType.DOWNSTREAM_NODE_GEOMETRY);
-        linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_ID);
-        linkOutputTypeConfiguration.addProperty(OutputPropertyType.UPSTREAM_NODE_GEOMETRY);
-        linkOutputTypeConfiguration.addProperty(OutputPropertyType.LINK_SEGMENT_ID);
         linkOutputTypeConfiguration.addProperty(OutputPropertyType.CAPACITY_PER_LANE);
         linkOutputTypeConfiguration.addProperty(OutputPropertyType.NUMBER_OF_LANES);
         linkOutputTypeConfiguration.addProperty(OutputPropertyType.LENGTH);
@@ -208,7 +197,6 @@ public class PlanItIoTestRunner {
         /* PATH OUTPUT CONFIGURATION */
         final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
         pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
-        pathOutputTypeConfiguration.addProperty(OutputPropertyType.RUN_ID);
       }
       
     }catch(PlanItException e) {

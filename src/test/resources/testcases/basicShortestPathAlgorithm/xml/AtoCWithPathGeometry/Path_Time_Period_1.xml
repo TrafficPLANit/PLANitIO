@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/metadata.xsd">
-    <timestamp>2024-05-03T11:12:27.646+10:00</timestamp>
+    <timestamp>2024-05-03T13:27:04.192+10:00</timestamp>
     <version>0.5.a1</version>
     <description>PlanIt Code for default input and output</description>
     <outputconfiguration>
@@ -11,14 +11,14 @@
         <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>
         <stopcriterion>StopCriterion</stopcriterion>
         <timeperiod>
-            <id>1</id>
-            <name>Time_Period_2</name>
+            <id>0</id>
+            <name>Time_Period_1</name>
         </timeperiod>
     </outputconfiguration>
     <simulation>
         <iteration>
             <nr>2</nr>
-            <csvdata type="Path">Path_RunId_0_testBasic13_Time_Period_2_2.csv</csvdata>
+            <csvdata type="Path">Path_RunId_0_testBasic2_Time_Period_1_2.csv</csvdata>
         </iteration>
     </simulation>
     <columns>
@@ -51,6 +51,11 @@
             <name>Path</name>
             <units>none</units>
             <type>string</type>
+        </column>
+        <column>
+            <name>PathGeometry</name>
+            <units>srs</units>
+            <type>srsname</type>
         </column>
     </columns>
 </metadata>

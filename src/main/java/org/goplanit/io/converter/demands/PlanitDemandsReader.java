@@ -374,9 +374,17 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       /* cell-by-cell matrix */
       final List<XMLElementOdCellByCellMatrix.O> o = ((XMLElementOdCellByCellMatrix) xmlOdMatrix).getO();
       for (final XMLElementOdCellByCellMatrix.O xmlOriginZone : o) {
-        final Zone originZone = xmlIdZoneMap.get(xmlOriginZone.getRef());        
+        final Zone originZone = xmlIdZoneMap.get(xmlOriginZone.getRef());
+        if(originZone == null){
+          LOGGER.severe("Referenced origin (%s) in demand could not be found in zoning, ignoring demand, this shouldn't happen");
+          continue;
+        }
         for (final XMLElementOdCellByCellMatrix.O.D xmlDestinationZone : xmlOriginZone.getD()) {
           final Zone destinationZone = xmlIdZoneMap.get(xmlDestinationZone.getRef());
+          if(destinationZone == null){
+            LOGGER.severe("Referenced destination (%s) in demand could not be found in zoning, ignoring demand, this shouldn't happen");
+            continue;
+          }
           final double demand = xmlDestinationZone.getValue() * pcu;
           odDemandMatrix.setValue(originZone, destinationZone, demand);                    
         }        

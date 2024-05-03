@@ -40,6 +40,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ExplanatoryTest {
 
+  //
+  // Network comprises just a single link and tests
+  // are to verify basic functionality is working for assignment
+  //
+  //   X- - - *-------------* - - - X
+  //
+
   private static final Path testCasePath = Path.of("src","test","resources","testcases");
 
   /** the logger */
