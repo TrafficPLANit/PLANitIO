@@ -1,7 +1,7 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
-	<macroscopicdemand>
+	xsi:noNamespaceSchemaLocation="https://www.goplanit.org/xsd/macroscopicinput.xsd">
+	<macroscopicdemand id="demand1">
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
@@ -25,6 +25,7 @@
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
+		<id>network1</id>
 		<configuration>                                                                        
 			<modes>                                                                                     
 				<mode id="1">																
@@ -101,6 +102,7 @@
 		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
+		<id>zoning1</id>
 		<zones>
 			<zone id="1">
 				<centroid>

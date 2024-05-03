@@ -1,7 +1,7 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
-	<macroscopicdemand>
+	xsi:noNamespaceSchemaLocation="https://www.goplanit.org/xsd/macroscopicinput.xsd">
+	<macroscopicdemand id="demand1">
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">

@@ -1,7 +1,7 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../../../../main/resources/xsd/macroscopicinput.xsd">
-	<macroscopicdemand>
+	xsi:noNamespaceSchemaLocation="https://www.goplanit.org/xsd/macroscopicinput.xsd">
+	<macroscopicdemand id="demand1">
 		<demandconfiguration>
 			<travellertypes>															
 				<travellertype id="1">
@@ -34,6 +34,7 @@
 		</oddemands>
 	</macroscopicdemand>
 	<macroscopicnetwork>
+		<id>network1</id>
 		<configuration>
 			<modes>                                            
 				<mode id="1">																    
@@ -45,9 +46,8 @@
 		<infrastructurelayers>
 			<layer id="road">
 				<layerconfiguration>
-					<linksegmenttypes>                                 
-							default link segment type -->
-						<linksegmenttype id="1">                        
+					<linksegmenttypes>
+						<linksegmenttype id="1"> <!-- default link segment type -->
 							<name>Standard</name>													
 							<capacitylane>2000</capacitylane>								
 						</linksegmenttype>
@@ -72,6 +72,7 @@
 		</infrastructurelayers>
 	</macroscopicnetwork>
 	<macroscopiczoning>
+		<id>zoning1</id>
 		<zones>
 			<zone id="1">
 				<centroid>

@@ -245,33 +245,22 @@ public class ExplanatoryTest {
 
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
-      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
       
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId,node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone2XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
                    
-      odMap.put(timePeriod, new TreeMap<>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone2XmlId, 10.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName,xmlFileName);
@@ -312,33 +301,23 @@ public class ExplanatoryTest {
 
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
-      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
-      
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+
+
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone2XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
             
-      odMap.put(timePeriod, new TreeMap<>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId,zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId,zone2XmlId, 10.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId,zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId,zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath,runIdDescription, csvFileName, xmlFileName);
@@ -446,33 +425,23 @@ public class ExplanatoryTest {
 
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
-      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
-      
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone2XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
       
-      odMap.put(timePeriod, new TreeMap<>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.0);
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, Double>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone2XmlId, 10.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -513,33 +482,23 @@ public class ExplanatoryTest {
 
       MacroscopicNetwork network = (MacroscopicNetwork)testOutputDto.getB().physicalNetworks.getFirst();
       Mode mode1 = network.getModes().getByXmlId("1");
-      Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
+      Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
-      
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
+
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<String, String>());
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone2XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
-      
-      odMap.put(timePeriod, new TreeMap<>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 10.08);
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone2XmlId, 10.08);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -606,30 +565,19 @@ public class ExplanatoryTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.0769231, 1800.0, 10.0, 130.0));      
+      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.0769231, 1800.0, 10.0, 130.0));
       PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId( memoryOutputFormatter, maxIterations, resultsMap);
 
-      pathMap.put(timePeriod, new TreeMap<>());
-      pathMap.get(timePeriod).put(mode1, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId,"[1,2]");
-      pathMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId,"");
-      pathMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone1XmlId,"");
+      PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone2XmlId, zone2XmlId,"");
       PlanItIOTestHelper.comparePathResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, pathMap);
       
-      odMap.put(timePeriod, new TreeMap<>());
-      odMap.get(timePeriod).put(mode1, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).put(zone1XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone1XmlId).put(zone2XmlId, 0.0769231);
-      odMap.get(timePeriod).get(mode1).put(zone2XmlId, new TreeMap<>());
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone1XmlId, 0.0);
-      odMap.get(timePeriod).get(mode1).get(zone2XmlId).put(zone2XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone1XmlId, zone2XmlId, 0.0769231);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone1XmlId, 0.0);
+      PlanItIOTestHelper.addToNestedMap(odMap, timePeriod, mode1, zone2XmlId, zone2XmlId, 0.0);
       PlanItIOTestHelper.compareOriginDestinationResultsToMemoryOutputFormatter(memoryOutputFormatter, maxIterations, odMap);
  
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
