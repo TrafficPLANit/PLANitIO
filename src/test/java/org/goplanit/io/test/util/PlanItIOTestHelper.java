@@ -232,6 +232,25 @@ public class PlanItIOTestHelper {
   }
 
   /**
+   * Convenience method to add to a nested map of a certain structure
+   * @param theMap to add to
+   * @param tp key1
+   * @param m key 2
+   * @param long1 key 3
+   * @param theValue value
+   */
+  public static void addToNestedMap(
+          SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> theMap,
+          TimePeriod tp,
+          Mode m,
+          Long long1,
+          LinkSegmentExpectedResultsDto theValue){
+    theMap.putIfAbsent(tp, new TreeMap<>());
+    theMap.get(tp).putIfAbsent(m, new TreeMap<>());
+    theMap.get(tp).get(m).putIfAbsent(long1, theValue);
+  }
+
+  /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
    * object to known results stored in a Map. It generates a JUnit test failure if
    * the results maps have different contents.

@@ -316,9 +316,6 @@
 			</layer>
 		</infrastructurelayers>
 	</macroscopicnetwork>
-	
-<!-- macroscopiczoning element defined in the macroscopiczoninginput.xsd file -->
-	
 	<macroscopiczoning>
 		<id>zoning1</id>
 		<zones>
