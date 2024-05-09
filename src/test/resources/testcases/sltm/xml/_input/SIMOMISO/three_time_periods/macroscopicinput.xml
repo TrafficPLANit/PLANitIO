@@ -12,13 +12,32 @@
 				<timeperiod id="0">
 					<name>Time_Period_1</name>
 					<starttime>00:00:01</starttime>
-					<duration>86400</duration>
+					<duration>28800</duration>
+				</timeperiod>
+				<timeperiod id="1">
+					<name>Time_Period_2</name>
+					<starttime>08:00:01</starttime>
+					<duration>28800</duration>
+				</timeperiod>
+				<timeperiod id="2">
+					<name>Time_Period_3</name>
+					<starttime>16:00:01</starttime>
+					<duration>28800</duration>
 				</timeperiod>
 			</timeperiods>
 		</demandconfiguration>
 		<oddemands>
-			<odcellbycellmatrix timeperiodref="0"
-				userclassref="1">
+			<odcellbycellmatrix timeperiodref="0"	userclassref="1">
+				<o ref="1">
+					<d ref="2">3600</d>
+				</o>
+			</odcellbycellmatrix>
+			<odcellbycellmatrix timeperiodref="1"	userclassref="1">
+				<o ref="1">
+					<d ref="2">3600</d>
+				</o>
+			</odcellbycellmatrix>
+			<odcellbycellmatrix timeperiodref="2"	userclassref="1">
 				<o ref="1">
 					<d ref="2">3600</d>
 				</o>
@@ -29,9 +48,9 @@
 		<id>network1</id>
 		<configuration>
 			<modes>
-				<mode id="1">																
-					<name>Basic</name>												
-					<pcu>1</pcu>															
+				<mode id="1">														
+					<name>Basic</name>										
+					<pcu>1</pcu>													
 				</mode>
 			</modes>
 		</configuration>
@@ -40,11 +59,11 @@
 				<layerconfiguration>
 					<linksegmenttypes>
 						<linksegmenttype id="1">
-							<name>Standard</name>									
-							<capacitylane>1200</capacitylane>			
+							<name>Standard</name>							
+							<capacitylane>1200</capacitylane>	
 							<access>
-								<accessgroup>											
-									<maxspeed>60</maxspeed>	
+								<accessgroup moderefs="1">									
+									<maxspeed>60</maxspeed>				
 								</accessgroup>
 							</access>
 						</linksegmenttype>

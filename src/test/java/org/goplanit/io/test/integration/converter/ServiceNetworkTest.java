@@ -1,4 +1,4 @@
-package org.goplanit.io.test.integration;
+package org.goplanit.io.test.integration.converter;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;

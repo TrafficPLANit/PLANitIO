@@ -1,14 +1,13 @@
-package org.goplanit.io.test.integration;
+package org.goplanit.io.test.integration.traditionalstatic;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import org.goplanit.demands.Demands;
+import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
@@ -34,7 +33,7 @@ import org.junit.jupiter.api.Test;
  * @author gman6028, markr
  *
  */
-public class ShortestPathTest {
+public class ShortestPathAndAssignmentTest extends TestBase {
 
   //
   // The numbering of the nodes and links for the grid-like structure is as follows:
@@ -60,40 +59,14 @@ public class ShortestPathTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  private static final Path testCasePath = Path.of("src","test","resources","testcases");
-  
-  private final String zoneAXmlId = "A";
-  private final String zoneBXmlId = "B";
-  private final String zoneCXmlId = "C";
-  private final String zoneDXmlId = "D";
-  
-  private final String node1XmlId = "1";
-  private final String node3XmlId = "3";
-  private final String node4XmlId = "4";
-  private final String node5XmlId = "5";
-  private final String node6XmlId = "6";
-  private final String node7XmlId = "7";
-  private final String node8XmlId = "8";
-  private final String node9XmlId = "9";
-  private final String node10XmlId = "10";  
-  private final String node11XmlId = "11";
-  private final String node12XmlId = "12";
-  private final String node13XmlId = "13";
-  private final String node14XmlId = "14";
-  private final String node15XmlId = "15";
-  private final String node20XmlId = "20";  
-  
-  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */
-  private Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap;  
-  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, od value */
-  private Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap;
-  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
-  SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;
+  // zones A to D
+
+  // nodes 1 to 20
 
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
-      LOGGER = Logging.createLogger(ShortestPathTest.class);
+      LOGGER = Logging.createLogger(ShortestPathAndAssignmentTest.class);
     } 
   }
   
@@ -101,7 +74,7 @@ public class ShortestPathTest {
   public void beforeTest() {
     pathMap = new TreeMap<>();
     odMap = new TreeMap<>();
-    resultsMap = new TreeMap<>();
+    linkResults = new TreeMap<>();
   }
 
   @AfterAll
@@ -123,7 +96,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_a_to_b_one_initial_cost_file() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoB").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","AtoB").toString();
       String initialCostPath = Path.of(projectPath,"initial_link_segment_costs.csv").toString();
       String description = "testBasic1";
       String csvFileName = "Time_Period_1_2.csv";
@@ -167,7 +140,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_a_to_b_two_initial_cost_files() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoB").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","AtoB").toString();
       String initialCostPath = Path.of(projectPath,"initial_link_segment_costs.csv").toString();
       String initialCostPath1 = Path.of(projectPath,"initial_link_segment_costs1.csv").toString();
       String description = "testBasic1";
@@ -215,7 +188,7 @@ public class ShortestPathTest {
  @Test
   public void test_basic_shortest_path_algorithm_a_to_c_with_link_segment_maximum_speed() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoCLinkSegmentMaximumSpeed").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","AtoCLinkSegmentMaximumSpeed").toString();
       String description = "testBasic2";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -244,11 +217,11 @@ public class ShortestPathTest {
       var timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       var memoryOutputFormatter = testOutputDto.getA();
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zoneAXmlId, zoneCXmlId,"[1,6,11,12,13]");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zoneCXmlId, zoneAXmlId,"");
@@ -281,7 +254,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_a_to_c() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoC").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","AtoC").toString();
       String description = "testBasic2";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -309,15 +282,15 @@ public class ShortestPathTest {
       var demands = testOutputDto.getB().demands.getFirst();
       var timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node6XmlId, node1XmlId,
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node6XmlId, node1XmlId,
               new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node11XmlId, node6XmlId,
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node11XmlId, node6XmlId,
               new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node12XmlId, node11XmlId,
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node12XmlId, node11XmlId,
               new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node13XmlId, node12XmlId,
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node13XmlId, node12XmlId,
               new LinkSegmentExpectedResultsDto(12, 13, 1,47, 2000, 47, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, resultsMap);
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zoneAXmlId, zoneCXmlId, "[1,6,11,12,13]");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zoneCXmlId, zoneAXmlId, "");
@@ -342,7 +315,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_a_to_c_geometry() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoCWithPathGeometry").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","AtoCWithPathGeometry").toString();
       String description = "testBasic2";
       String csvFileName = "Time_Period_1_2.csv";
       String xmlFileName = "Time_Period_1.xml";
@@ -400,7 +373,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_a_to_d() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","AtoD").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","AtoD").toString();
       String description = "testBasic3";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -428,16 +401,16 @@ public class ShortestPathTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12,2000, 12, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node9XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 9, 1, 20,2000, 20, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5,2000, 5, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node14XmlId, node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1, 10,2000, 10, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node15XmlId, node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1,10, 2000, 10, 1));
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node20XmlId, node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1,21, 2000, 21, 1));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10,2000, 10, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12,2000, 12, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node9XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 9, 1, 20,2000, 20, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12,2000, 12, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5,2000, 5, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node14XmlId, node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1, 10,2000, 10, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1,8, 2000, 8, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node15XmlId, node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1,10, 2000, 10, 1));
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node20XmlId, node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1,21, 2000, 21, 1));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,null, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zoneAXmlId, zoneDXmlId,"[1,6,11,12,7,8,9,14,15,20]");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zoneDXmlId, zoneAXmlId,"");
@@ -460,7 +433,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_three_time_periods_record_zero_flow() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","ThreeTimePeriodsRecordZeroFlow").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","ThreeTimePeriodsRecordZeroFlow").toString();
       String description = "testBasic13";
       String csvFileName1 = "Time_Period_1_2.csv";
       String odCsvFileName1 = "Time_Period_1_1.csv";
@@ -509,33 +482,33 @@ public class ShortestPathTest {
       // LINK RESULTS
       {
         //tp=0
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node3XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 3, 1, 8, 2000, 8, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node4XmlId, node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node5XmlId, node4XmlId, new LinkSegmentExpectedResultsDto(4, 5, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node10XmlId, node5XmlId, new LinkSegmentExpectedResultsDto(5, 10, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node3XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 3, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node4XmlId, node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node5XmlId, node4XmlId, new LinkSegmentExpectedResultsDto(4, 5, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node10XmlId, node5XmlId, new LinkSegmentExpectedResultsDto(5, 10, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
 
         //tp=1
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1, 47, 2000, 47, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1, 47, 2000, 47, 1));
 
         //tp=2
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node9XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 9, 1, 20, 2000, 20, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node14XmlId, node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node15XmlId, node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node20XmlId, node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1, 21, 2000, 21, 1));
-        PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, resultsMap);
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node9XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 9, 1, 20, 2000, 20, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node14XmlId, node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node15XmlId, node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node20XmlId, node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1, 21, 2000, 21, 1));
+        PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, linkResults);
       }
 
       // PATH RESULTS
@@ -677,7 +650,7 @@ public class ShortestPathTest {
   @Test
   public void test_basic_shortest_path_algorithm_three_time_periods() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"basicShortestPathAlgorithm","xml","ThreeTimePeriods").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"basicShortestPathAlgorithm","xml","ThreeTimePeriods").toString();
       String description = "testBasic13";
       String csvFileName1 = "Time_Period_1_2.csv";
       String odCsvFileName1 = "Time_Period_1_1.csv";
@@ -726,33 +699,33 @@ public class ShortestPathTest {
       // LINK RESULTS
       {
         //tp=0
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node3XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 3, 1, 8, 2000, 8, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node4XmlId, node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node5XmlId, node4XmlId, new LinkSegmentExpectedResultsDto(4, 5, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node10XmlId, node5XmlId, new LinkSegmentExpectedResultsDto(5, 10, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod0, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node3XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 3, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node4XmlId, node3XmlId, new LinkSegmentExpectedResultsDto(3, 4, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node5XmlId, node4XmlId, new LinkSegmentExpectedResultsDto(4, 5, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node10XmlId, node5XmlId, new LinkSegmentExpectedResultsDto(5, 10, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod0, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
 
         //tp=1
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod1, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1, 47, 2000, 47, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod1, mode1, node13XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 13, 1, 47, 2000, 47, 1));
 
         //tp2
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node9XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 9, 1, 20, 2000, 20, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node14XmlId, node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node15XmlId, node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1, 10, 2000, 10, 1));
-        PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod2, mode1, node20XmlId, node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1, 21, 2000, 21, 1));
-        PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, resultsMap);
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node6XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 6, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node7XmlId, node12XmlId, new LinkSegmentExpectedResultsDto(12, 7, 1, 5, 2000, 5, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node8XmlId, node7XmlId, new LinkSegmentExpectedResultsDto(7, 8, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node9XmlId, node8XmlId, new LinkSegmentExpectedResultsDto(8, 9, 1, 20, 2000, 20, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node11XmlId, node6XmlId, new LinkSegmentExpectedResultsDto(6, 11, 1, 12, 2000, 12, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node12XmlId, node11XmlId, new LinkSegmentExpectedResultsDto(11, 12, 1, 8, 2000, 8, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node14XmlId, node9XmlId, new LinkSegmentExpectedResultsDto(9, 14, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node15XmlId, node14XmlId, new LinkSegmentExpectedResultsDto(14, 15, 1, 10, 2000, 10, 1));
+        PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod2, mode1, node20XmlId, node15XmlId, new LinkSegmentExpectedResultsDto(15, 20, 1, 21, 2000, 21, 1));
+        PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, null, linkResults);
       }
 
       // PATH RESULTS

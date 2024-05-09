@@ -1,4 +1,4 @@
-package org.goplanit.io.test.integration;
+package org.goplanit.io.test.integration.converter;
 
 import java.nio.file.Path;
 import java.time.LocalTime;

@@ -1,4 +1,4 @@
-package org.goplanit.io.test.integration;
+package org.goplanit.io.test.integration.converter;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
@@ -13,6 +13,7 @@ import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
+import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
@@ -30,12 +31,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author markr
  *
  */
-public class ConverterTest {
+public class ConverterTest extends TestBase {
 
   /** the logger */
   private static Logger LOGGER = null;
 
-  private static final Path TEST_CASE_PATH = Path.of("src","test","resources","testcases");
 
   @BeforeAll
   public static void setUp() throws Exception {

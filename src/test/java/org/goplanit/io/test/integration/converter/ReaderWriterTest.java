@@ -1,4 +1,4 @@
-package org.goplanit.io.test.integration;
+package org.goplanit.io.test.integration.converter;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -42,7 +42,7 @@ public class ReaderWriterTest {
   public void reader_writer_test() {
     try {
       //TODO
-      // populate with Sydney OSM network from the PLANitOSM repo -> write to disk as planit network, use that to store. Then apply this for the read/write test
+      // populate with Sydney planit network -> write to disk as planit network, use that to store. Then apply this for the read/write test
     }catch(Exception e){
       e.printStackTrace();
       LOGGER.severe(e.getMessage());

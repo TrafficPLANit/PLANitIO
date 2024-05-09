@@ -1,14 +1,12 @@
 <PLANit xmlns:gml="http://www.opengis.net/gml"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="https://www.goplanit.org/xsd/macroscopicinput.xsd">
-	<macroscopicdemand id="demand1">
+	<macroscopicdemand>
+		<id>demand1</id>
 		<demandconfiguration>
 			<userclasses>
 				<userclass id="1" moderef="1">
 					<name>1</name>
-				</userclass>
-				<userclass id="2" moderef="2">
-					<name>2</name>
 				</userclass>
 			</userclasses>
 			<timeperiods>
@@ -22,15 +20,9 @@
 		<oddemands>
 			<odcellbycellmatrix timeperiodref="0"
 				userclassref="1">
-				<o ref="31">
-					<d ref="27">3000</d>
-				</o>
-			</odcellbycellmatrix>
-			<odcellbycellmatrix timeperiodref="0"
-				userclassref="2">
-				<o ref="31">
-					<d ref="27">600</d>
-				</o>
+				<o ref="1">
+					<d ref="2">3600</d>
+				</o>		
 			</odcellbycellmatrix>
 		</oddemands>
 	</macroscopicdemand>
@@ -38,13 +30,9 @@
 		<id>network1</id>
 		<configuration>
 			<modes>
-				<mode id="1">																
-					<name>Cars</name>													
-					<pcu>1</pcu>															
-				</mode>
-				<mode id="2">																
-					<name>Trucks</name>												
-					<pcu>2.5</pcu>														
+				<mode id="1">
+					<name>Basic</name>														
+					<pcu>1</pcu>														
 				</mode>
 			</modes>
 		</configuration>
@@ -53,23 +41,11 @@
 				<layerconfiguration>
 					<linksegmenttypes>
 						<linksegmenttype id="1">
-							<name>Standard</name>									
-							<capacitylane>1200</capacitylane>			
+							<name>Standard</name>						
+							<capacitylane>1200</capacitylane>
 							<access>
-								<accessgroup moderefs="1">										
-									<maxspeed>60</maxspeed>	
-								</accessgroup>
-								<accessgroup moderefs="2">
-									<maxspeed>50</maxspeed>	
-								</accessgroup>
-							</access>
-						</linksegmenttype>
-						<linksegmenttype id="2">
-							<name>NoTrucks</name>												
-							<capacitylane>1200</capacitylane>						
-							<access>
-								<accessgroup moderefs="1">														
-									<maxspeed>60</maxspeed>									
+								<accessgroup>									 
+								  <maxspeed>60</maxspeed>
 								</accessgroup>
 							</access>
 						</linksegmenttype>
@@ -91,7 +67,7 @@
 						<length>1</length>
 					</link>
 					<link id="2" nodearef="1" nodebref="4">
-						<linksegment id="2"  externalid="two" dir="a_b" typeref="2">
+						<linksegment id="2"  externalid="two" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
@@ -133,10 +109,10 @@
 	<macroscopiczoning>
 		<id>zoning1</id>
 		<zones>
-			<zone id="31">
+			<zone id="1">
 				<centroid>
 					<name>1</name>
-					<gml:Point>						
+					<gml:Point>			
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
@@ -146,19 +122,20 @@
 					</connectoid>
 				</connectoids>
 			</zone>
-			<zone id="27">
+			<zone id="2">
 				<centroid>
 					<name>2</name>
-					<gml:Point>						
+					<gml:Point>			
 						<gml:pos>45.256 -110.45</gml:pos>
 					</gml:Point>
 				</centroid>
 				<connectoids>
-					<connectoid id="2" noderef="12">
+					<connectoid id="1" noderef="12">
 						<length>1.0</length>
 					</connectoid>
 				</connectoids>
 			</zone>
 		</zones>
 	</macroscopiczoning>
+
 </PLANit>

@@ -5,9 +5,8 @@ import java.util.logging.Logger;
 
 import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.TrafficAssignmentConfigurator;
-import org.goplanit.assignment.traditionalstatic.TraditionalStaticAssignmentConfigurator;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
-import org.goplanit.cost.physical.BPRConfigurator;
+import org.goplanit.cost.physical.PhysicalCostConfigurator;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.goplanit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.goplanit.demands.Demands;
@@ -62,12 +61,12 @@ public class PlanItIoTestRunner {
   /** demands used */
   protected Demands demands;
   
-  /** the traffic assignment configurated used */
-  protected TraditionalStaticAssignmentConfigurator taConfigurator;
+  /** the traffic assignment configurator used */
+  protected TrafficAssignmentConfigurator<?> taConfigurator;
   
   /** Physical cost - Bpr configuration */
-  protected BPRConfigurator bprPhysicalCost;
-  
+  protected PhysicalCostConfigurator<?> physicalCostConfigurator;
+
   /** Output formatter - Xml (Planit default) */
   protected PlanItOutputFormatter xmlOutputFormatter; 
   
@@ -86,7 +85,7 @@ public class PlanItIoTestRunner {
   protected boolean useFixedConnectoidTravelTimeCost = true;
   
   /**
-   * Run a test case and store the results in a MemoryOutputFormatter, most egneric form with all consumers passable but could be nulls
+   * Run a test case and store the results in a MemoryOutputFormatter, most generic form with all consumers passable but could be nulls
    *
    * @param setLinkOutputTypeConfigurationProperties lambda function to set output properties being used
    * @param setCostParameters lambda function which sets parameters of cost function
@@ -95,10 +94,10 @@ public class PlanItIoTestRunner {
    */
   protected TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteAssignment(
       final Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfigurationProperties,
-      final TriConsumer<LayeredNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setCostParameters) throws Exception {
+      final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setCostParameters) throws Exception {
                 
     if (setCostParameters != null) {
-      setCostParameters.accept(network, bprPhysicalCost, planItInputBuilder);
+      setCostParameters.accept(network, physicalCostConfigurator, planItInputBuilder);
     }
     
     /* Virtual cost */
@@ -117,65 +116,75 @@ public class PlanItIoTestRunner {
     project.executeAllTrafficAssignments();
     
     /* output */
-    TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDtoX =
-            new TestOutputDto<>(memoryOutputFormatter, project, planItInputBuilder);
+    var testOutputDtoX = new TestOutputDto(memoryOutputFormatter, project, planItInputBuilder);
     return testOutputDtoX;
-  }  
-    
+  }
+
   /**
    * Constructor
-   * 
-   * @param projectPath to use
+   *
+   * @param inputPath to use
+   * @param outputPath to use
    * @param description to use
+   * @param assignmentType to apply
    */
-  public PlanItIoTestRunner(String projectPath, String description) {
-    this.projectPath = projectPath;
-    
+  public PlanItIoTestRunner(String inputPath, String outputPath, String description, String assignmentType) {
+    this.projectPath = inputPath;
+
     try {
       this.planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
       this.project = new CustomPlanItProject(planItInputBuilder);
-  
+
       /* RAW INPUT START -------------------------------- */
       {
         this.network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
         this.zoning = project.createAndRegisterZoning(network);
-        this.demands = project.createAndRegisterDemands(zoning, network); 
-      }      
+        this.demands = project.createAndRegisterDemands(zoning, network);
+      }
       /* RAW INPUT END ----------------------------------- */
 
       /* TRAFFIC ASSIGNMENT */
+      if(assignmentType.equals(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT))
       {
         this.taConfigurator =
-            (TraditionalStaticAssignmentConfigurator) project.createAndRegisterTrafficAssignment(
-                TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
-        
-        /* Smoothing - MSA */
-        taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
-        
+                project.createAndRegisterTrafficAssignment(
+                        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
+
         /* Physical cost - BPR */
-        this.bprPhysicalCost = (BPRConfigurator) taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
+        this.physicalCostConfigurator = taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
+
+      }else{
+        this.taConfigurator =
+                project.createAndRegisterTrafficAssignment(
+                        assignmentType, demands, zoning, network);
+
+        // steady state configurator
+        this.physicalCostConfigurator = taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.STEADY_STATE);
       }
-      
+
+      /* Smoothing - MSA */
+      taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
+
       /* OUTPUT FORMAT CONFIGURATION */
       {
         /* Xml PlanItOutputFormatter */
         this.xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
         xmlOutputFormatter.setXmlNameRoot(description);
         xmlOutputFormatter.setCsvNameRoot(description);
-        xmlOutputFormatter.setOutputDirectory(projectPath);    
+        xmlOutputFormatter.setOutputDirectory(outputPath);
         taConfigurator.registerOutputFormatter(xmlOutputFormatter);
 
         // MemoryOutputFormatter
         this.memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
-        taConfigurator.registerOutputFormatter(memoryOutputFormatter); 
-      }   
-            
+        taConfigurator.registerOutputFormatter(memoryOutputFormatter);
+      }
+
       /* OUTPUT (TYPE) CONFIGURATION */
       {
         /* general */
         this.outputConfiguration = taConfigurator.getOutputConfiguration();
         outputConfiguration.setPersistOnlyFinalIteration(true);
-        
+
         /* Link OUTPUT CONFIGURATION */
         linkOutputTypeConfiguration = (LinkOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.LINK);
 
@@ -184,11 +193,11 @@ public class PlanItIoTestRunner {
         linkOutputTypeConfiguration.addProperty(OutputPropertyType.LENGTH);
         linkOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
         linkOutputTypeConfiguration.removeProperty(OutputPropertyType.MAXIMUM_SPEED);
-        
+
         /* for this test we prefer to get out flows and capacities in vehicles rather than pcus (no difference in result with pcu=1, only in metadata)*/
         linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.CAPACITY_PER_LANE, Unit.VEH_HOUR);
         linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.FLOW, Unit.VEH_HOUR);
-        
+
         /* OD OUTPUT CONFIGURATION */
         final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
         originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(OdSkimSubOutputType.NONE);
@@ -198,11 +207,21 @@ public class PlanItIoTestRunner {
         final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
         pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
       }
-      
+
     }catch(PlanItException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("Unable to initialise PlanitIo testhelper");
     }
+  }
+
+  /**
+   * Constructor. Applies default traditional static assignment
+   * 
+   * @param projectPath to use (both input and output path)
+   * @param description to use
+   */
+  public PlanItIoTestRunner(String projectPath, String description) {
+    this(projectPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
   }
   
   /**
@@ -216,15 +235,15 @@ public class PlanItIoTestRunner {
   }   
 
   /**
-   * Run a test case with a custom Bpr configuration. Store the results in a MemoryOutputFormatter.
+   * Run a test case with a custom physical cost configuration. Store the results in a MemoryOutputFormatter.
    *
-   * @param setBprCostParameters lambda function which sets parameters of cost function
+   * @param setPhysicalCostParameters lambda function which sets parameters of cost function
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomBprConfiguration(
-      final TriConsumer<LayeredNetwork<?,?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters) throws Exception {
-    return setupAndExecuteAssignment(null, setBprCostParameters);
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithPhysicalCostConfiguration(
+      final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setPhysicalCostParameters) throws Exception {
+    return setupAndExecuteAssignment(null, setPhysicalCostParameters);
   }
   
   /**
@@ -242,15 +261,15 @@ public class PlanItIoTestRunner {
   /**
    * Run a test case with a custom link output type configuration and Bpr cost consumers. Store the results in a MemoryOutputFormatter.
    *
-   * @param setBprCostParameters lambda function which sets parameters of cost function
+   * @param setPhysicalCostParameters lambda function which sets parameters of cost function
    * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in additino to default settings
    * @return TestOutputDto containing results, builder and project from the run
    * @throws Exception thrown if there is an error
    */    
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
-      TriConsumer<LayeredNetwork<?, ?>, BPRConfigurator, PlanItInputBuilder4Testing> setBprCostParameters,
+      TriConsumer<LayeredNetwork<?, ?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setPhysicalCostParameters,
       Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) throws Exception {
-    return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, setBprCostParameters);
+    return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, setPhysicalCostParameters);
   }  
    
 

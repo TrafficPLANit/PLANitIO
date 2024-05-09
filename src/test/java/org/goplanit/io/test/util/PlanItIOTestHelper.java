@@ -56,13 +56,12 @@ public class PlanItIOTestHelper {
    * @param getPositionKeys lambda function which generates the position of the key(s) in the key array
    * @param getResultDto lambda function which generates the known result for each iteration
    * @return true if all the tests have passed, false otherwise
-   * @throws PlanItException thrown if there is an error
    */
   private static boolean compareLinkResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
       final SortedMap<TimePeriod, ? extends SortedMap<Mode, ? extends Object>> resultsMap,
       TriFunction<Mode, TimePeriod, Integer, Object> getPositionKeys,
-      TriFunction<Pair<Integer, Integer>, Object, Object[], LinkSegmentExpectedResultsDto> getResultDto) throws PlanItException {
+      TriFunction<Pair<Integer, Integer>, Object, Object[], LinkSegmentExpectedResultsDto> getResultDto){
 
     boolean pass = true;
     for (final TimePeriod timePeriod : resultsMap.keySet()) {
@@ -79,11 +78,7 @@ public class PlanItIOTestHelper {
         final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.NUMBER_OF_LANES);
         final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.LINK);
         Object obj = getPositionKeys.apply(mode, timePeriod, iteration);
-        if (obj instanceof PlanItException) {
-          PlanItException pe = (PlanItException) obj;
-          throw pe;
-        }
-       
+
         @SuppressWarnings("unchecked") Pair<Integer, Integer> positionKeys = (Pair<Integer, Integer>) obj;
         while (memoryOutputIterator.hasNext()) {
           memoryOutputIterator.next();
@@ -121,11 +116,9 @@ public class PlanItIOTestHelper {
    * @param map Map of expected paths by time period, mode, origin zone external Id and destination zone external Id
    * @param outputType the OutputType of the results being checked (Path or OD)
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not
-   *           been saved
    */
   private static boolean compareResultsToMemoryOutputFormatter(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod,?> map, OutputType outputType) throws PlanItException {
+      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod,?> map, OutputType outputType){
     boolean pass = true;
     for (TimePeriod timePeriod : map.keySet()) {
       int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration(timePeriod) : iterationIndex;
@@ -261,22 +254,16 @@ public class PlanItIOTestHelper {
    * @param iterationIndex the current iteration index
    * @param resultsMap Map storing standard test results which have been generated previously, identified by start and end node external Ids
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not been saved
    */
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
-      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap)
-      throws PlanItException {
+      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap) {
     
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
-          try {
           final int downstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
           final int upstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.UPSTREAM_NODE_XML_ID);
           return Pair.of(downstreamNodeXmlIdPosition, upstreamNodeXmlIdPosition);
-          } catch (PlanItException e) {
-            return e;
-          }
         },
         (positionKeys, innerObj, keys) -> {
           @SuppressWarnings("unchecked") final SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>> innerMap =
@@ -300,20 +287,14 @@ public class PlanItIOTestHelper {
    * @param iterationIndex the current iteration index
    * @param resultsMap Map storing standard test results which have been generated previously, identified link segment Id
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not been saved
    */
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingLinkSegmentId(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
-      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap)
-      throws PlanItException {
+      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap) {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
-          try {
-            final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
+         final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
          return Pair.of(linkSegmentIdPosition, 0);
-          } catch (PlanItException e) {
-            return e;
-          }
         },
         (positionKeys, innerObj, keys) -> {
           @SuppressWarnings("unchecked") final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
@@ -331,8 +312,6 @@ public class PlanItIOTestHelper {
    * @param iterationIndex the current iteration index
    * @param pathMap Map of expected paths by time period, mode, origin zone xml Id and destination zone xml Id
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not
-   *           been saved
    */
   public static boolean comparePathResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap) throws PlanItException {
@@ -347,8 +326,6 @@ public class PlanItIOTestHelper {
    * @param iterationIndex the current iteration index
    * @param odMap Map of expected OD costs by time period, mode, origin zone Xml Id and destination zone Xml Id
    * @return true if all the tests pass, false otherwise
-   * @throws PlanItException thrown if one of the test output properties has not
-   *           been saved
    */
   public static boolean compareOriginDestinationResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap) throws PlanItException {
