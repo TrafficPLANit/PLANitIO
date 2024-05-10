@@ -131,7 +131,7 @@ public class sLTMAssignmentTest extends TestBase {
    * This test runs the same network with three time periods with different initial
    * costs for each, running the test for 500 iterations.
    */
-  @Disabled // not yet finalised --> todo: continue with this
+  @Disabled("not yet finalised")
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_and_three_time_periods() {
     try {
