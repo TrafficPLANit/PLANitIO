@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/metadata.xsd">
-    <timestamp>2024-05-03T15:41:22.892+10:00</timestamp>
+    <timestamp>2024-05-03T14:58:25.716+10:00</timestamp>
     <version>0.5.a1</version>
     <description>PlanIt Code for default input and output</description>
     <outputconfiguration>
-        <assignment>TraditionalStaticAssignment</assignment>
-        <physicalcost>BprLinkTravelTimeCost</physicalcost>
+        <assignment>StaticLtm</assignment>
+        <physicalcost>SteadyStateTravelTimeCost</physicalcost>
         <virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
         <smoothing>MSASmoothing</smoothing>
-        <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>
+        <gapfunction>PathBasedGapFunction</gapfunction>
         <stopcriterion>StopCriterion</stopcriterion>
         <timeperiod>
             <id>0</id>
@@ -18,7 +18,7 @@
     <simulation>
         <iteration>
             <nr>500</nr>
-            <csvdata type="Link">Link_RunId_0_testRouteChoice5_Time_Period_1_500.csv</csvdata>
+            <csvdata type="Link">Link_RunId_0_sltm_Time_Period_1_500.csv</csvdata>
         </iteration>
     </simulation>
     <columns>

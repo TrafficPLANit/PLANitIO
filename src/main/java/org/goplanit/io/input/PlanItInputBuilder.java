@@ -30,6 +30,7 @@ import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
@@ -279,10 +280,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param record the record in the CSV input file to get the data value from
    * @param linkSegment the current link segment
    * @param timePeriod to use (may be null)
-   * @throws PlanItException thrown if error
    */
-  private void setInitialLinkSegmentCost(final InitialMacroscopicLinkSegmentCost initialLinkSegmentCost, final CSVRecord record,
-                                         final MacroscopicLinkSegment linkSegment, final TimePeriod timePeriod) throws PlanItException {
+  private void setPhysicalInitialLinkSegmentCost(
+          final InitialMacroscopicLinkSegmentCost initialLinkSegmentCost,
+          final CSVRecord record,
+          final MacroscopicLinkSegment linkSegment,
+          final TimePeriod timePeriod) {
     
     final String modeXmlId = record.get(ModeXmlIdOutputProperty.NAME);
 
@@ -296,7 +299,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
       }
     }
     if(matchMode == null) {
-     throw new PlanItException("mode xml id not suported by link segment used for initial link segment cost"); 
+     throw new PlanItRunTimeException("Mode xml id not supported by link segment used for initial link segment cost");
     }
     
     final double cost = Double.parseDouble(record.get(LinkSegmentCostOutputProperty.NAME));
@@ -421,17 +424,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Populate the initial link segment cost from a CSV file
    *
    * @param initialCostEvent to extract context from to populate its component that it carries
-   * @throws PlanItException thrown if error
    */
-  protected void populateInitialLinkSegmentCost(final PopulateInitialLinkSegmentCostEvent initialCostEvent) throws PlanItException {
+  protected void populatePhysicalInitialLinkSegmentCost(final PopulateInitialLinkSegmentCostEvent initialCostEvent) {
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Initial Link Segment Costs");
     
     MacroscopicNetwork network = initialCostEvent.getParentNetwork();
     String fileName = initialCostEvent.getFileName();
     
     /* verify */
-    PlanItException.throwIfNull(network,"parent network for initial link segment cost is null");
-    PlanItException.throwIfNull(fileName, "file location for initial link segment cost is null");
+    PlanItRunTimeException.throwIfNull(network,"parent network for initial link segment cost is null");
+    PlanItRunTimeException.throwIfNull(fileName, "file location for initial link segment cost is null");
         
     /* parse */
     try {
@@ -447,11 +449,11 @@ public class PlanItInputBuilder extends InputBuilderListener {
       if(linkIdentificationMethod.equals(OutputPropertyType.UPSTREAM_NODE_XML_ID)) {
         
         /* special case requiring double key */
-        Map<String, Map<String, MacroscopicLinkSegment>> indexByIdentificationMethod = new HashMap<String, Map<String, MacroscopicLinkSegment>>();
+        Map<String, Map<String, MacroscopicLinkSegment>> indexByIdentificationMethod = new HashMap<>();
         for( MacroscopicNetworkLayer layer : network.getTransportLayers()) {
           for(MacroscopicLinkSegment linkSegment : layer.getLinkSegments()) {
             Vertex upstreamNode = linkSegment.getUpstreamVertex();
-            indexByIdentificationMethod.putIfAbsent(upstreamNode.getXmlId(), new HashMap<String, MacroscopicLinkSegment>());
+            indexByIdentificationMethod.putIfAbsent(upstreamNode.getXmlId(), new HashMap<>());
             indexByIdentificationMethod.get(upstreamNode.getXmlId()).put(linkSegment.getDownstreamVertex().getXmlId(), linkSegment);
           }
         }
@@ -460,7 +462,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
         for (final CSVRecord record : parser) {
           MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(record.get(DownstreamNodeXmlIdOutputProperty.NAME));         
           PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
-          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
+          setPhysicalInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
         }
         
       }else {
@@ -469,19 +471,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
         String identificationColumnName = null;    
         switch (linkIdentificationMethod) {
           case LINK_SEGMENT_EXTERNAL_ID:
-            indexByIdentificationMethod = 
-              new MapWrapperImpl<Object, MacroscopicLinkSegment>(
-                  new HashMap<Object,MacroscopicLinkSegment>(), MacroscopicLinkSegment::getExternalId);
+            indexByIdentificationMethod = new MapWrapperImpl<>(new HashMap<>(), MacroscopicLinkSegment::getExternalId);
             identificationColumnName = LinkSegmentExternalIdOutputProperty.NAME;
             break;            
           case LINK_SEGMENT_XML_ID:
-            indexByIdentificationMethod = 
-            new MapWrapperImpl<Object, MacroscopicLinkSegment>(
-                new HashMap<Object,MacroscopicLinkSegment>(), MacroscopicLinkSegment::getXmlId);
+            indexByIdentificationMethod = new MapWrapperImpl<>(new HashMap<>(), MacroscopicLinkSegment::getXmlId);
             identificationColumnName = LinkSegmentXmlIdOutputProperty.NAME;
             break;          
           default:
-            throw new PlanItException("Invalid Output Property "
+            throw new PlanItRunTimeException("Invalid Output Property "
                 + OutputProperty.of(linkIdentificationMethod).getName()
                 + " found in header of Initial Link Segment Cost CSV file");
         }    
@@ -492,15 +490,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
         
         /* parse */
         for (final CSVRecord record : parser) {
-          MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(identificationColumnName));          
-          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());
-          setInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());          
+          MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(identificationColumnName));
+          if(linkSegment == null) {
+            throw new PlanItRunTimeException("Failed to find link segment for record %d", record.getRecordNumber());
+          }
+          setPhysicalInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
         }
       }   
       in.close();
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when initialising link segment costs in PLANitIO",e);
+      throw new PlanItRunTimeException("Error when initialising link segment costs in PLANitIO",e);
     }
   }
   
@@ -576,7 +576,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }else if(event.getType().equals(PopulateInitialLinkSegmentCostEvent.EVENT_TYPE)){
       /* INITIAL COST */
       PopulateInitialLinkSegmentCostEvent initialCostEvent = ((PopulateInitialLinkSegmentCostEvent) event);
-      populateInitialLinkSegmentCost(initialCostEvent);
+      populatePhysicalInitialLinkSegmentCost(initialCostEvent);
     }else if(event.getType().equals(PopulateServiceNetworkEvent.EVENT_TYPE)){
       /* SERVICE NETWORK */
       PopulateServiceNetworkEvent serviceNetworkEvent = ((PopulateServiceNetworkEvent) event);

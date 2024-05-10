@@ -5,6 +5,9 @@ import java.util.logging.Logger;
 
 import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.TrafficAssignmentConfigurator;
+import org.goplanit.assignment.ltm.sltm.StaticLtmConfigurator;
+import org.goplanit.assignment.ltm.sltm.StaticLtmType;
+import org.goplanit.choice.ChoiceModel;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
 import org.goplanit.cost.physical.PhysicalCostConfigurator;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
@@ -23,8 +26,12 @@ import org.goplanit.output.enums.PathOutputIdentificationType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.output.property.OutputPropertyType;
+import org.goplanit.path.choice.PathChoice;
+import org.goplanit.path.choice.StochasticPathChoice;
+import org.goplanit.path.choice.StochasticPathChoiceConfigurator;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.sdinteraction.smoothing.MSASmoothing;
+import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.functionalinterface.TriConsumer;
 import org.goplanit.utils.test.TestOutputDto;
@@ -160,6 +167,13 @@ public class PlanItIoTestRunner {
 
         // steady state configurator
         this.physicalCostConfigurator = taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.STEADY_STATE);
+        var sLtm = ((StaticLtmConfigurator)taConfigurator);
+
+        // defaults 5/2024, but set explicitly so tests will not break if defaults change
+        sLtm.setType(StaticLtmType.PATH_BASED);
+        sLtm.createAndRegisterFundamentalDiagram(FundamentalDiagram.NEWELL);
+        var pathChoice = (StochasticPathChoiceConfigurator) sLtm.createAndRegisterPathChoice(PathChoice.STOCHASTIC);
+        pathChoice.createAndRegisterChoiceModel(ChoiceModel.MNL);
       }
 
       /* Smoothing - MSA */
