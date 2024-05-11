@@ -402,7 +402,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
  public void parseLinkSegmentTypeAccessProperties(XMLElementAccessGroup xmlAccessGroupProperties, MacroscopicLinkSegmentType linkSegmentType, final Collection<Mode> defaultModes) throws PlanItException{
    
    /* access modes */
-   Collection<Mode> accessModes = null;
+   Collection<Mode> accessModes;
    if(xmlAccessGroupProperties==null || xmlAccessGroupProperties.getModerefs()==null) {
      /* all default modes allowed */
      accessModes = defaultModes;
@@ -490,8 +490,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     
     for (XMLElementLinks.Link xmlLink : xmlLinks.getLink()) {
       
-      /** LINK **/
-      MacroscopicLink link = null;
+      /* LINK */
+      MacroscopicLink link;
       {
         /* xml id */
         if(StringUtils.isNullOrBlank(xmlLink.getId())) {
@@ -534,12 +534,12 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
             
         registerBySourceId(Link.class, link);
       }      
-      /** end LINK **/
+      /* end LINK */
       
       boolean isFirstLinkSegment = true;
       boolean firstLinkDirection = true;
-      
-      /** LINK SEGMENT **/
+
+      /* LINK SEGMENT **/
       for (XMLElementLinkSegment xmlLinkSegment : xmlLink.getLinksegment()) {                                                       
         
         /* direction */
@@ -575,10 +575,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         
         registerBySourceId(MacroscopicLinkSegment.class, linkSegment);
         
-        /** LINK SEGMENT TYPE **/
+        /* LINK SEGMENT TYPE */
         
         /* link segment type xml id */
-        String linkSegmentTypeXmlId = null;
+        String linkSegmentTypeXmlId;
         if (xmlLinkSegment.getTyperef() == null) {
           if (networkLayer.getLinkSegmentTypes().size() > 1) {
             throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment type defined, but there is more than one possible link segment type");
@@ -598,7 +598,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         isFirstLinkSegment = false;
         firstLinkDirection = abDirection;        
       }
-      /** end LINK SEGMENT **/      
+      /* end LINK SEGMENT */
     }
   }  
 
@@ -624,12 +624,12 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    */
   protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken) throws PlanItException{
     super();
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicNetwork.class);
     this.settings = settings;
     setNetwork(new MacroscopicNetwork(idToken));
   }  
   
-  /** Constructor where settings are directly provided such that input information can be exracted from it
+  /** Constructor where settings are directly provided such that input information can be extracted from it
    * 
    * @param settings to use
    * @param network to populate
@@ -648,7 +648,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(
+      XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network) throws PlanItException{
     this(externalXmlRawNetwork, new PlanitNetworkReaderSettings(), network);
   }
 
@@ -661,7 +662,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    */
   protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network) throws PlanItException{
     super();
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(externalXmlRawNetwork);
+    this.xmlParser = new PlanitXmlJaxbParser<>(externalXmlRawNetwork);
     this.settings = settings;
     setNetwork(network);
   }
@@ -673,9 +674,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param network to populate
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(
+      String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network) throws PlanItException{
     super();
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicNetwork.class);
     this.settings = new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
     setNetwork(network);
   }  
