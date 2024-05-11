@@ -28,13 +28,13 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
   }
   
   /**
-   * Constructor
+   * Constructor with default file name
    * 
    * @param outputPathDirectory to use
    * @param countryName to use
    */
   public PlanitNetworkWriterSettings(final String outputPathDirectory, final String countryName) {
-    super(outputPathDirectory, countryName);
+    super(outputPathDirectory, DEFAULT_NETWORK_XML, countryName);
   }  
     
   /**

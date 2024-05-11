@@ -572,8 +572,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    */
   protected PlanitNetworkWriter(XMLElementMacroscopicNetwork xmlRawNetwork) {
     this(null, CountryNames.GLOBAL, xmlRawNetwork);
-  }    
-  
+  }
+
   /** Constructor 
    * 
    * @param networkPath to persist network on
@@ -590,8 +590,17 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlRawNetwork to populate with PLANit network when persisting
    */
   protected PlanitNetworkWriter(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
+    this(new PlanitNetworkWriterSettings(networkPath, PlanitNetworkWriterSettings.DEFAULT_NETWORK_XML, countryName), xmlRawNetwork);
+  }
+
+  /** Constructor
+   *
+   * @param settings to use
+   * @param xmlRawNetwork to populate with PLANit network when persisting
+   */
+  protected PlanitNetworkWriter(PlanitNetworkWriterSettings settings, XMLElementMacroscopicNetwork xmlRawNetwork) {
     super(IdMapperType.XML);
-    this.settings = new PlanitNetworkWriterSettings(networkPath, PlanitNetworkWriterSettings.DEFAULT_NETWORK_XML, countryName);
+    this.settings = settings;
     this.xmlRawNetwork = xmlRawNetwork;
   }
 
