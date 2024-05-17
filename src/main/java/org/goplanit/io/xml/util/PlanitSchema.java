@@ -46,10 +46,10 @@ public class PlanitSchema {
   public static final String MACROSCOPIC_COMBINED_INPUT_XSD= "macroscopicinput.xsd";
   
   /** the schema URI location (dir) of XML components during development **/
-  public static final String XSD_SCHEMA_URI_DEVELOPMENT_GENERIC = "https://trafficplanit.github.io/PLANitManual/xsd/";
+  public static final String XSD_SCHEMA_URI_DEVELOPMENT_GENERIC = "https://www.goplanit.org/xsd/";
   
   /** base location for any resources (such as schemas) for any release version, but without the actual version or resource appended yet**/
-  public static final String RESOURCES_RELEASE_GENERIC = "https://planitmanual.github.io/version/";  
+  public static final String RESOURCES_RELEASE_GENERIC = "planitmanual.github.io/version/";
     
   /** the schema URI location of planit macroscopic network input during development **/
   public static final String MACROSCOPIC_NETWORK_XSD_SCHEMA_URI_DEV = XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_NETWORK_XSD;
