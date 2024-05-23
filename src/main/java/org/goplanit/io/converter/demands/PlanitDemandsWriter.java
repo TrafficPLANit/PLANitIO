@@ -359,7 +359,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     populateXmlOdDemands(demands);
         
     /* persist */
-    super.persist(xmlRawDemands, XMLElementMacroscopicDemand.class, PlanitSchema.MACROSCOPIC_ZONING_XSD);
+    super.persist(xmlRawDemands, XMLElementMacroscopicDemand.class, PlanitSchema.MACROSCOPIC_DEMAND_XSD);
   }
 
 

@@ -241,19 +241,18 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   /**
    * Generate XMLElementUserClasses objects from generated configuration object and store them
    * 
-   * @param demandconfiguration generated XMLElementDemandConfiguration object from demand XML input
+   * @param demandConfiguration generated XMLElementDemandConfiguration object from demand XML input
    * @return the number of user classes
-   * @throws PlanItException thrown if a duplicate external Id key is found
    */
-  private int generateAndStoreUserClasses(final XMLElementDemandConfiguration demandconfiguration) throws PlanItException {
+  private int generateAndStoreUserClasses(final XMLElementDemandConfiguration demandConfiguration){
 
     /* user classes */
-    XMLElementUserClasses xmlUserclasses = (demandconfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandconfiguration.getUserclasses();
+    XMLElementUserClasses xmlUserclasses = (demandConfiguration.getUserclasses() == null) ? new XMLElementUserClasses() : demandConfiguration.getUserclasses();
     
     /* generate default if absent (and no more than one mode is used) */
     if (xmlUserclasses.getUserclass().isEmpty()) {
-      PlanItException.throwIf(getReferenceNetwork().getModes().size() > 1,"user classes must be explicitly defined when more than one mode is defined");
-      PlanItException.throwIf(demands.travelerTypes.size() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
+      PlanItRunTimeException.throwIf(getReferenceNetwork().getModes().size() > 1,"user classes must be explicitly defined when more than one mode is defined");
+      PlanItRunTimeException.throwIf(demands.travelerTypes.size() > 1, "user classes must be explicitly defined when more than one traveller type is defined");
       
       XMLElementUserClasses.Userclass xmlUserClass = generateDefaultUserClass();
       xmlUserClass.setTravellertyperef(demands.travelerTypes.getFirst().getXmlId());
@@ -263,23 +262,23 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     /* USER CLASS */
     for (XMLElementUserClasses.Userclass xmlUserclass : xmlUserclasses.getUserclass()) {
       if(xmlUserclass.getTravellertyperef()==null) {
-        PlanItException.throwIf(demands.travelerTypes.size() > 1,
+        PlanItRunTimeException.throwIf(demands.travelerTypes.size() > 1,
             String.format("User class %s has no traveller type specified, but more than one traveller type possible",xmlUserclass.getId()));                
       }else {
-        PlanItException.throwIf(getBySourceId(TravellerType.class, xmlUserclass.getTravellertyperef()) == null, 
+        PlanItRunTimeException.throwIf(getBySourceId(TravellerType.class, xmlUserclass.getTravellertyperef()) == null,
             "travellertyperef value of " + xmlUserclass.getTravellertyperef() + " referenced by user class " + xmlUserclass.getName() + " but not defined");
       }
-      PlanItException.throwIf(xmlUserclass.getModeref() == null, "User class %s has no mode specified, but more than one mode possible", xmlUserclass.getId() );
+      PlanItRunTimeException.throwIf(xmlUserclass.getModeref() == null, "User class %s has no mode specified, but more than one mode possible", xmlUserclass.getId() );
       
       /* mode ref */
       MapWrapper<?, Mode> modesByXmlId = getSourceIdContainer(Mode.class);      
       if (xmlUserclass.getModeref() == null) {
-        PlanItException.throwIf(getReferenceNetwork().getModes().size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
+        PlanItRunTimeException.throwIf(getReferenceNetwork().getModes().size() > 1, "User class " + xmlUserclass.getId() + " has no mode specified, but more than one mode possible");
         xmlUserclass.setModeref((String)modesByXmlId.getKeyByValue(modesByXmlId.getFirst()));          
       }
       String xmlModeIdRef = xmlUserclass.getModeref();
       Mode userClassMode = getBySourceId(Mode.class, xmlModeIdRef);
-      PlanItException.throwIf(userClassMode == null,"User class %s refers to mode %s which has not been defined", xmlUserclass.getId(), xmlModeIdRef );
+      PlanItRunTimeException.throwIf(userClassMode == null,"User class %s refers to mode %s which has not been defined", xmlUserclass.getId(), xmlModeIdRef );
            
       /* traveller type ref */
       String travellerTypeXmlIdRef = (xmlUserclass.getTravellertyperef() == null) ? TravellerType.DEFAULT_XML_ID : xmlUserclass.getTravellertyperef();
@@ -306,13 +305,12 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   /**
    * Generate a Map of TimePeriod objects from generated configuration object
    * 
-   * @param demandconfiguration generated XMLElementDemandConfiguration object from demand XML input
-   * @throws PlanItException thrown if a duplicate external Id is found, or if there is an
+   * @param demandConfiguration generated XMLElementDemandConfiguration object from demand XML input
    */
-  private void generateTimePeriodMap(final XMLElementDemandConfiguration demandconfiguration) throws PlanItException {
+  private void generateTimePeriodMap(final XMLElementDemandConfiguration demandConfiguration) {
     
     /* time periods */
-    XMLElementTimePeriods xmlTimeperiods = demandconfiguration.getTimeperiods();
+    XMLElementTimePeriods xmlTimeperiods = demandConfiguration.getTimeperiods();
 
     LocalTime defaultStartTime = LocalTime.MIN;
     
@@ -466,17 +464,15 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   
   /**
    * Sets up all the configuration data from the XML demands file
-   * 
-   * @throws PlanItException thrown if there is a duplicate XML Id found for any component
    */
-  protected void populateDemandConfiguration() throws PlanItException {
+  protected void populateDemandConfiguration(){
     
     /* configuration element */
-    final XMLElementDemandConfiguration demandconfiguration = xmlParser.getXmlRootElement().getDemandconfiguration();
+    final XMLElementDemandConfiguration demandConfiguration = xmlParser.getXmlRootElement().getDemandconfiguration();
     
-    generateAndStoreTravelerTypes(demandconfiguration);
-    generateAndStoreUserClasses(demandconfiguration);
-    generateTimePeriodMap(demandconfiguration);
+    generateAndStoreTravelerTypes(demandConfiguration);
+    generateAndStoreUserClasses(demandConfiguration);
+    generateTimePeriodMap(demandConfiguration);
   }
   
   /**
