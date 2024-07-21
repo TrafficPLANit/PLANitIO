@@ -72,6 +72,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /** default prefix to use for CSV output */
   private static final String DEFAULT_CSV_NAME_PREFIX = "CSVOutput";
 
+  /** default to indicate whether to consolidate all simulation data into a single file across iterations */
+  private static final boolean DEFAULT_CONSOLIDATE_SIMULATION_OUTPUT = true;
+
   /** The root directory to store the XML output files */
   private String xmlDirectory;
 
@@ -90,14 +93,17 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /** The root name of the CSV output files */
   private String csvNameRoot;
 
-  /** Map of XML output file names for each OutputType */
-  private Map<OutputType, String> xmlFileNameMap;
-  
   /** Flag to indicate whether XML output directory should be cleared before the run */
   private boolean resetXmlDirectory;
 
   /** Flag to indicate whether the CSV output directory should be cleared before the run */
   private boolean resetCsvDirectory;
+
+  /** flag to indicate whether to consolidate all simulation data into a single file across iterations */
+  private boolean consolidateSimulationOutput = DEFAULT_CONSOLIDATE_SIMULATION_OUTPUT;
+
+  /** Map of XML output file names for each OutputType */
+  private Map<OutputType, String> xmlFileNameMap;
   
   /**
    * Generated object for the metadata element in the output XML file
@@ -139,15 +145,47 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   }
 
   /**
+   * Finalize the persistence after the simulation generating the XML meta-data file(s)
+   *
+   * @param outputType the outputType
+   * @param outputConfiguration OutputTypeConfiguration of the assignment that have been activated
+   * @throws throw if JAXBUtils throws
+   */
+  private void finaliseXmlMetaFileAfterSimulation(OutputType outputType, OutputConfiguration outputConfiguration) throws Exception {
+    final String metaDataSchemaUri = PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD);
+    OutputTypeConfiguration outputTypeConfiguration = outputConfiguration.getOutputTypeConfiguration(outputType);
+    if (xmlFileNameMap.containsKey(outputType)) {
+      Path xmlFilePath = Paths.get(xmlFileNameMap.get(outputType));
+      if (metadata.containsKey(outputType)) {
+        JAXBUtils.generateXmlFileFromObject( metadata.get(outputType), XMLElementMetadata.class, xmlFilePath,metaDataSchemaUri);
+      } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
+        Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
+        for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
+          JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,xmlFilePath,metaDataSchemaUri);
+        }
+      }
+    }
+  }
+
+  /**
+   * Persist the so-far in memory kept simulation data and persist it to disk in a single file instead
+   *
+   * @param outputTypeConfiguration config for simulation data
+   */
+  private void persistsConsolidatedSimulationDataAfterSimulation(OutputTypeConfiguration outputTypeConfiguration) {
+  }
+
+  /**
    * Update the generated metadata simulation output object for the current
    * iteration
    * 
    * @param iterationIndex index of the current iteration
    * @param csvFileName name of CSV file used to store data for the current iteration
    * @param currentOutputType the (sub) output type of the data the CSV file is storing
-   * @throws PlanItException
+   * @throws PlanItException thrown if error
    */
-  private void updateMetadataSimulationOutputForCurrentIteration(int iterationIndex, final String csvFileName, final OutputTypeEnum currentOutputType) throws PlanItException {
+  private void updateMetadataSimulationOutputForCurrentIteration(
+      int iterationIndex, final String csvFileName, final OutputTypeEnum currentOutputType) throws PlanItException {
     
     XMLElementIteration iteration = new XMLElementIteration();
     iteration.setNr(BigInteger.valueOf(iterationIndex));
@@ -297,24 +335,25 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @return name of CSV output file
    */
   private String createCsvFileNameAndFileForTimePeriodCurrentIteration(
-      final OutputTypeConfiguration outputTypeConfiguration, final OutputAdapter outputAdapter, final TimePeriod timePeriod, int iterationIndex,
+      final OutputTypeConfiguration outputTypeConfiguration,
+      final OutputAdapter outputAdapter,
+      final TimePeriod timePeriod,
+      int iterationIndex,
       final  Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
 
     // create the name based on iteration, time period and related info
-    // String csvFileName = generateOutputFileName(csvDirectory, csvNameRoot, csvNameExtension,
-    // timePeriod, outputTypeConfiguration.getOutputType(), runId, iterationIndex);
     String csvFileName = generateAbsoluteOutputFileName(
         csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputTypeConfiguration.getOutputType(), outputAdapter.getRunId(), iterationIndex);
-    try {
+
+    try(CSVPrinter csvIterationPrinter = createCsvPrinter(csvFileName)) {
       // create the header (first line) of the file
-      CSVPrinter csvIterationPrinter = openCsvFileAndWriteHeaders(outputTypeConfiguration, csvFileName);
+      csvIterationPrinter.printRecord(generateCsvHeader(outputTypeConfiguration));
 
       // create content by delegating to (sub) output type specific function
       PlanItException ple = createCsvFileForCurrentIteration.apply(csvIterationPrinter);
       if (ple != null) {
         throw ple;
       }
-      csvIterationPrinter.close();
     }catch( PlanItException e) {
       throw e;
     } catch (Exception e) {
@@ -345,8 +384,11 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     
     try {
       OutputType outputType = outputTypeConfiguration.getOutputType();
+
+      //todo: bad comparison, should not compare based on two different id types! Use equals instead if possible
       boolean isNewTimePeriod = ((!metadata.containsKey(currentOutputType)) || (metadata.get(currentOutputType)
           .getOutputconfiguration().getTimeperiod().getId() != timePeriod.getXmlId()));
+
       if (isNewTimePeriod) {
         if (metadata.containsKey(currentOutputType)) {
           JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
@@ -358,7 +400,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         initializeMetadataObject(currentOutputType, outputTypeConfiguration, outputAdapter, timePeriod);
       }
 
-      String csvFileName = createCsvFileNameAndFileForTimePeriodCurrentIteration(outputTypeConfiguration, outputAdapter, timePeriod, iterationIndex, createCsvFileForCurrentIteration);
+      // do work
+      String csvFileName = createCsvFileNameAndFileForTimePeriodCurrentIteration(
+          outputTypeConfiguration, outputAdapter, timePeriod, iterationIndex, createCsvFileForCurrentIteration);
 
       // add metadata to the XML content
       String relativeCsvFileName = generateRelativeOutputFileName(outputTypeConfiguration.getOutputType(), outputAdapter, timePeriod, iterationIndex);
@@ -418,8 +462,21 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final Set<Mode> modes, 
       final TimePeriod timePeriod,
       int iterationIndex){
-    
-    LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +"XML Output for OutputType SIMULATION has not been implemented yet.");
+
+    writeResultsForCurrentTimePeriod(
+        outputTypeConfiguration,
+        currentOutputType,
+        outputAdapter,
+        timePeriod,
+        iterationIndex,
+        (csvPrinter) -> writeSimulationResultsForCurrentTimePeriodToCsvPrinter(
+            outputConfiguration,
+            outputTypeConfiguration,
+            currentOutputType,
+            outputAdapter,
+            modes,
+            timePeriod,
+            csvPrinter));
     
   }
 
@@ -569,33 +626,31 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   }
 
   /**
-   * Finalize the persistence after the simulation. Here we generate the XML meta-data file(s)
+   * Finalize the persistence after the simulation:
+   * <ul>
+   *   <li>generate the XML meta-data file(s)</li>
+   *   <li>persist consolidated iteration information (if configured to consolidate) </li>
+   *   <li>log info</li>
+   * </ul>
    * 
    * @param outputConfiguration OutputTypeConfiguration of the assignment that have been activated
    * @param outputAdapter the outputAdapter
-   * @throws PlanItException thrown if there is an error closing a resource
    */
   @Override
-  public void finaliseAfterSimulation(final OutputConfiguration outputConfiguration, final OutputAdapter outputAdapter) throws PlanItException {
+  public void finaliseAfterSimulation(
+      final OutputConfiguration outputConfiguration, final OutputAdapter outputAdapter){
     try {
-      final String metaDataSchemaUri = PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD);
       for (OutputType outputType : outputConfiguration.getActivatedOutputTypes()) {
-        OutputTypeConfiguration outputTypeConfiguration = outputConfiguration.getOutputTypeConfiguration(outputType);
-        if (xmlFileNameMap.containsKey(outputType)) {
-          Path xmlFilePath = Paths.get(xmlFileNameMap.get(outputType));
-          if (metadata.containsKey(outputType)) {
-            JAXBUtils.generateXmlFileFromObject( metadata.get(outputType), XMLElementMetadata.class, xmlFilePath,metaDataSchemaUri);
-          } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
-            Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
-            for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-              JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,xmlFilePath,metaDataSchemaUri);
-            }
-          }
+        finaliseXmlMetaFileAfterSimulation(outputType, outputConfiguration);
+
+        if(outputType.equals(OutputType.SIMULATION) && isConsolidateSimulationOutput()){
+          persistsConsolidatedSimulationDataAfterSimulation(
+              outputConfiguration.getOutputTypeConfiguration(outputType));
         }
       }      
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when finalising after simulation in PLANitIO OutputFormatter", e);
+      throw new PlanItRunTimeException("Error when finalising after simulation in PLANitIO OutputFormatter", e);
     }
     
     logOutputInformation(outputAdapter);    
@@ -735,4 +790,19 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     xmlFileNameMap.put(outputType, xmlFileName);
   }
 
+  /** flag to indicate whether to consolidate all simulation data into a single file across iterations
+   *
+   * @returns flag
+   */
+  public boolean isConsolidateSimulationOutput() {
+    return consolidateSimulationOutput;
+  }
+
+  /** flag to indicate whether to consolidate all simulation data into a single file across iterations
+   *
+   * @param consolidateSimulationOutput flag to set
+   */
+  public void setConsolidateSimulationOutput(boolean consolidateSimulationOutput) {
+    this.consolidateSimulationOutput = consolidateSimulationOutput;
+  }
 }
