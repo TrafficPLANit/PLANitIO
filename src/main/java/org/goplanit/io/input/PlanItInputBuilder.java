@@ -366,7 +366,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
     PlanitDemandsReader demandsReader = new PlanitDemandsReader(xmlRawDemand, network, zoning, demands);
     demandsReader.getSettings().setInputDirectory(projectPath);
     demandsReader.read();
-    
+
     xmlRawDemand = null;
   }
 

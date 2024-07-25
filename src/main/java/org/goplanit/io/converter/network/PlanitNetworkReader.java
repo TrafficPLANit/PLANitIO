@@ -236,12 +236,15 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     
     /* crs */
     CoordinateReferenceSystem crs = parseCoordinateRerefenceSystem(xmlLayers);
-    network.setCoordinateReferenceSystem(crs);  
+    if(crs != null){
+      LOGGER.info(String.format("CRS set to: %s", crs.getName()));
+      network.setCoordinateReferenceSystem(crs);
+    }
     PlanitJtsCrsUtils jtsUtils = new PlanitJtsCrsUtils(network.getCoordinateReferenceSystem());
     
     /* layers */
     List<XMLElementInfrastructureLayer> xmlLayerList = xmlLayers.getLayer();
-    Set<Mode> usedModes = new TreeSet<Mode>();
+    Set<Mode> usedModes = new TreeSet<>();
     for(XMLElementInfrastructureLayer xmlLayer : xmlLayerList) {
       
       /*layer */
