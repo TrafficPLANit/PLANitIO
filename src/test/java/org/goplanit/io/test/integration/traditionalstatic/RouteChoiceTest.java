@@ -582,12 +582,14 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
       
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(
+              inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.registerInitialLinkSegmentCost(Path.of(inputPath,"initial_link_segment_costs.csv").toString());
+      runner.setActivateDefaultSimulationData(true);
       runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */      
@@ -595,6 +597,8 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.SIMULATION, projectPath, runIdDescription, csvFileName, xmlFileName);
+
     } catch (final Exception e) {
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());

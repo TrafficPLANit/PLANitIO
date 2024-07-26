@@ -5,14 +5,10 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -21,6 +17,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.csv.CSVPrinter;
 import org.goplanit.io.xml.converter.XmlEnumConverter;
 import org.goplanit.io.xml.util.ApplicationProperties;
+import org.goplanit.output.configuration.SimulationOutputTypeConfiguration;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
@@ -75,6 +72,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /** default to indicate whether to consolidate all simulation data into a single file across iterations */
   private static final boolean DEFAULT_CONSOLIDATE_SIMULATION_OUTPUT = true;
 
+  // CONFIG members
+
   /** The root directory to store the XML output files */
   private String xmlDirectory;
 
@@ -102,6 +101,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /** flag to indicate whether to consolidate all simulation data into a single file across iterations */
   private boolean consolidateSimulationOutput = DEFAULT_CONSOLIDATE_SIMULATION_OUTPUT;
 
+  // INTERNAL members
+
   /** Map of XML output file names for each OutputType */
   private Map<OutputType, String> xmlFileNameMap;
   
@@ -109,6 +110,10 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * Generated object for the metadata element in the output XML file
    */
   private Map<OutputTypeEnum, XMLElementMetadata> metadata;
+
+  /** in case we consolidate simulation data, track the data in memory in this list and persist after final iteration in
+   * single file instead */
+  private List<Map<Mode,List<Object>>> consolidatedSimulationData = new ArrayList<>();
  
   /** Create the logging prefix to use for non assignment specific logging messages
    * 
@@ -170,9 +175,46 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   /**
    * Persist the so-far in memory kept simulation data and persist it to disk in a single file instead
    *
-   * @param outputTypeConfiguration config for simulation data
+   * @param simulationOutputTypeconfiguration to use
+   * @param outputAdapter to use
+   * @param resetConsolidatedData             when true reset data after persisting, otherwise not
+   * @param timePeriod the last time period used before simulation ended
+   * @param iterationIndex the last iteration index of the last time period used before the simulation eneded
    */
-  private void persistsConsolidatedSimulationDataAfterSimulation(OutputTypeConfiguration outputTypeConfiguration) {
+  private void persistConsolidatedSimulationDataAfterTimePeriod(
+          SimulationOutputTypeConfiguration simulationOutputTypeconfiguration,
+          OutputAdapter outputAdapter,
+          TimePeriod timePeriod,
+          int iterationIndex,
+          boolean resetConsolidatedData) {
+
+    if(consolidatedSimulationData.isEmpty()){
+      return;
+    }
+
+    var concatenatedRowValueList =
+            consolidatedSimulationData.stream().flatMap(iterationData -> iterationData.values().stream()).collect(Collectors.toList());
+
+    /* print single iteration results to CSV in Lambda */
+    Function<CSVPrinter, PlanItException> lambdaFunc = csvPrinter -> {
+      try {
+        for(var row : concatenatedRowValueList) {
+          csvPrinter.printRecord(row);
+        }
+      }catch (Exception e) {
+        LOGGER.severe(e.getMessage());
+        return new PlanItException("Error when writing consolidtaed simulation results for current time period in CSVOutputFileFormatter", e);
+      }
+      return null;
+    };
+
+    /* pass on Lambda so we persist consolidated iteration results */
+    writeResultsForCurrentTimePeriod(
+            simulationOutputTypeconfiguration, OutputType.SIMULATION, outputAdapter, timePeriod, iterationIndex, lambdaFunc);
+
+    if(resetConsolidatedData){
+      consolidatedSimulationData.clear();
+    }
   }
 
   /**
@@ -390,6 +432,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
           .getOutputconfiguration().getTimeperiod().getId() != timePeriod.getXmlId()));
 
       if (isNewTimePeriod) {
+
+        /* create XML meta data header setup */
         if (metadata.containsKey(currentOutputType)) {
           JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
               Paths.get(xmlFileNameMap.get(outputType)),PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD));
@@ -463,21 +507,31 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
 
-    writeResultsForCurrentTimePeriod(
-        outputTypeConfiguration,
-        currentOutputType,
-        outputAdapter,
-        timePeriod,
-        iterationIndex,
-        (csvPrinter) -> writeSimulationResultsForCurrentTimePeriodToCsvPrinter(
-            outputConfiguration,
-            outputTypeConfiguration,
-            currentOutputType,
-            outputAdapter,
-            modes,
-            timePeriod,
-            csvPrinter));
-    
+    /* collect single iteration results */
+    final var rowValuesByMode = constructSimulationResultsForCurrentTimePeriod(
+      outputConfiguration, outputTypeConfiguration, currentOutputType, outputAdapter, modes, timePeriod);
+
+    if(!isConsolidateSimulationOutput()) {
+      /* print single iteration results to CSV in Lambda */
+      Function<CSVPrinter, PlanItException> lambdaFunc = csvPrinter -> {
+        try {
+          for (Mode mode : modes) {
+            csvPrinter.printRecord(rowValuesByMode.get(mode));
+          }
+        }catch (Exception e) {
+          LOGGER.severe(e.getMessage());
+          return new PlanItException("Error when writing simulation results for current time period in CSVOutputFileformatter", e);
+        }
+        return null;
+      };
+
+      /* pass on Lambda so we persist single iteration results */
+      writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod, iterationIndex, lambdaFunc);
+
+    }else{
+      /* store results in memory, delay printing until done with simulation */
+      consolidatedSimulationData.add(rowValuesByMode);
+    }
   }
 
   /**
@@ -635,18 +689,29 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * 
    * @param outputConfiguration OutputTypeConfiguration of the assignment that have been activated
    * @param outputAdapter the outputAdapter
+   * @param timePeriod the last time period used before simulation ended
+   * @param iterationIndex the last iteration index of the last time period used before the simulation eneded
    */
   @Override
   public void finaliseAfterSimulation(
-      final OutputConfiguration outputConfiguration, final OutputAdapter outputAdapter){
-    try {
-      for (OutputType outputType : outputConfiguration.getActivatedOutputTypes()) {
-        finaliseXmlMetaFileAfterSimulation(outputType, outputConfiguration);
+      final OutputConfiguration outputConfiguration, final OutputAdapter outputAdapter, TimePeriod timePeriod, int iterationIndex){
 
+    try {
+
+      for (OutputType outputType : outputConfiguration.getActivatedOutputTypes()) {
+
+        /* persist any consolidated simulation data to file */
         if(outputType.equals(OutputType.SIMULATION) && isConsolidateSimulationOutput()){
-          persistsConsolidatedSimulationDataAfterSimulation(
-              outputConfiguration.getOutputTypeConfiguration(outputType));
+          persistConsolidatedSimulationDataAfterTimePeriod(
+                  (SimulationOutputTypeConfiguration) outputConfiguration.getOutputTypeConfiguration(OutputType.SIMULATION),
+                  outputAdapter,
+                  timePeriod,
+                  iterationIndex,
+                  true);
         }
+
+        /* finalise XML meta data */
+        finaliseXmlMetaFileAfterSimulation(outputType, outputConfiguration);
       }      
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());

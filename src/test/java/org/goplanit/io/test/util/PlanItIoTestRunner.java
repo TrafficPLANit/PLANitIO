@@ -16,10 +16,7 @@ import org.goplanit.demands.Demands;
 import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
-import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
-import org.goplanit.output.configuration.OdOutputTypeConfiguration;
-import org.goplanit.output.configuration.OutputConfiguration;
-import org.goplanit.output.configuration.PathOutputTypeConfiguration;
+import org.goplanit.output.configuration.*;
 import org.goplanit.output.enums.OdSkimSubOutputType;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.enums.PathOutputIdentificationType;
@@ -90,6 +87,9 @@ public class PlanItIoTestRunner {
   
   /** use fixed connectoid travel time cost, if false, we use speed based */
   protected boolean useFixedConnectoidTravelTimeCost = true;
+
+  /** activate simulation data output using its defaults */
+  protected boolean activateDefaultSimulationData = false;
   
   /**
    * Run a test case and store the results in a MemoryOutputFormatter, most generic form with all consumers passable but could be nulls
@@ -112,6 +112,10 @@ public class PlanItIoTestRunner {
       taConfigurator.createAndRegisterVirtualCost(FixedConnectoidTravelTimeCost.class.getCanonicalName());
     } else {
       taConfigurator.createAndRegisterVirtualCost(SpeedConnectoidTravelTimeCost.class.getCanonicalName());
+    }
+
+    if(activateDefaultSimulationData){
+      taConfigurator.activateOutput(OutputType.SIMULATION);
     }
     
     /* Link output type consumer */
@@ -220,6 +224,7 @@ public class PlanItIoTestRunner {
         /* PATH OUTPUT CONFIGURATION */
         final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
         pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
+
       }
 
     }catch(PlanItException e) {
@@ -324,6 +329,15 @@ public class PlanItIoTestRunner {
    */
   public void setUseSpeedBasedConnectoidCost() {
     this.useFixedConnectoidTravelTimeCost = false;
+  }
+
+  /**
+   * Indicates to actiavte simulation data output
+   *
+   * @param activateDefaultSimulationData when true activate, otherwise deactivate
+   */
+  public void setActivateDefaultSimulationData(boolean activateDefaultSimulationData) {
+    this.activateDefaultSimulationData = activateDefaultSimulationData;
   }
   
   /** register (general) initial cost on the test based on the passed in location where to find it
