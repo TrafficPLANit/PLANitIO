@@ -857,7 +857,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
   /** flag to indicate whether to consolidate all simulation data into a single file across iterations
    *
-   * @returns flag
+   * @return flag
    */
   public boolean isConsolidateSimulationOutput() {
     return consolidateSimulationOutput;
