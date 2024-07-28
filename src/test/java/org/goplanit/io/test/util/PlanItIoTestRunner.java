@@ -24,7 +24,6 @@ import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.output.property.OutputPropertyType;
 import org.goplanit.path.choice.PathChoice;
-import org.goplanit.path.choice.StochasticPathChoice;
 import org.goplanit.path.choice.StochasticPathChoiceConfigurator;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.sdinteraction.smoothing.MSASmoothing;
@@ -336,7 +335,7 @@ public class PlanItIoTestRunner {
    *
    * @param activateDefaultSimulationData when true activate, otherwise deactivate
    */
-  public void setActivateDefaultSimulationData(boolean activateDefaultSimulationData) {
+  public void setActivateSimulationData(boolean activateDefaultSimulationData) {
     this.activateDefaultSimulationData = activateDefaultSimulationData;
   }
   

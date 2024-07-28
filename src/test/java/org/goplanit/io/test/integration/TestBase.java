@@ -61,10 +61,13 @@ public abstract class TestBase {
   protected static final Long linkSegment5Id = 5L;
   protected static final Long linkSegment6Id = 6L;
 
+  /* TODO: refactor UGLY: timeperiod XML id, mode XML id, iteration index, gap  double */
+  protected SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Integer, Double>>> simulationMap;
+
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */
-  protected Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap;
+  protected SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, String>>>> pathMap;
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, od value */
-  protected Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap;
+  protected SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, Double>>>> odMap;
   /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
   protected SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> linkResults;
   /* TODO: refactor UGLY: timeperiod, mode origin link segment id, result DTO */

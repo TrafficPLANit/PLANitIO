@@ -10,16 +10,19 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.io.FileUtils;
+import org.goplanit.output.property.OutputProperty;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.math.Precision;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.formatter.MemoryOutputIterator;
 import org.goplanit.output.property.OutputPropertyType;
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.functionalinterface.TriFunction;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.mode.Mode;
@@ -44,6 +47,12 @@ public class PlanItIOTestHelper {
   private static final Logger LOGGER = Logger.getLogger(PlanItIOTestHelper.class.getCanonicalName());
 
   private static final double epsilon = 0.00001;
+
+  private static final Comparator<?> NATURAL_ORDER_COMPARATOR = Comparator.naturalOrder();
+
+  private static final Comparator<Object> PRECISION9_COMPARATOR_FOR_OBJECT = Precision.createComparatorWithCast(Precision.EPSILON_9);
+  private static final Comparator<Object> PRECISION6_COMPARATOR_FOR_OBJECT = Precision.createComparatorWithCast(Precision.EPSILON_6);
+  private static final Comparator<Object> PRECISION3_COMPARATOR_FOR_OBJECT = Precision.createComparatorWithCast(Precision.EPSILON_3);
   
   /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
@@ -108,7 +117,16 @@ public class PlanItIOTestHelper {
   }
   
   /**
-   * Compares the Path or Origin-Destination values stored in the MemoryOutputFormatter with the expected results
+   * Compares the Path or Origin-Destination values stored in the MemoryOutputFormatter
+   * with the expected results
+   * <p>
+   *   Note that we only check a single output property per type currently:
+   *   <ul>
+   *     <li>PATH: PATH_STRING</li>
+   *     <li>OD: OD_COST</li>
+   *     <li>SIMULATION: ROUTE_CHOICE_CONVERGENCE_GAP</li>
+   *   </ul>
+   * </p>
    * 
    * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
    *          results from a test run
@@ -117,45 +135,166 @@ public class PlanItIOTestHelper {
    * @param outputType the OutputType of the results being checked (Path or OD)
    * @return true if all the tests pass, false otherwise
    */
+  @SuppressWarnings("unchecked")
   private static boolean compareResultsToMemoryOutputFormatter(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod,?> map, OutputType outputType){
-    boolean pass = true;
+      final MemoryOutputFormatter memoryOutputFormatter,
+      final Integer iterationIndex,
+      final SortedMap<TimePeriod,?> map,
+      OutputType outputType){
+
+    // depending on the output type we select one output type property (can in future be extended to more)
+    // to check against
+    OutputPropertyType outputPropertyType = null;
+    Comparator<Object> comparator = (Comparator<Object>) NATURAL_ORDER_COMPARATOR;
+    if (outputType.equals(OutputType.PATH)) {
+      outputPropertyType = OutputPropertyType.PATH_STRING;
+    }else if (outputType.equals(OutputType.OD)) {
+      outputPropertyType = OutputPropertyType.OD_COST;
+      comparator = PRECISION6_COMPARATOR_FOR_OBJECT;
+    }else if (outputType.equals(OutputType.SIMULATION)) {
+      outputPropertyType = OutputPropertyType.ROUTE_CHOICE_CONVERGENCE_GAP;
+      comparator = PRECISION9_COMPARATOR_FOR_OBJECT;
+    }else{
+      throw new PlanItRunTimeException("Output type %s not supported for comparing memory output formatter results in %s",
+          outputType, PlanItIOTestHelper.class.getCanonicalName());
+    }
+    var outputProperty = OutputProperty.of(outputPropertyType);
+
+    boolean success = true;
     for (TimePeriod timePeriod : map.keySet()) {
-      int iteration = (iterationIndex == null) ? memoryOutputFormatter.getLastIteration(timePeriod) : iterationIndex;
-      OutputPropertyType outputProperty = OutputPropertyType.PATH_STRING;
-      if (outputType.equals(OutputType.OD)) {
-        Math.max(0,iteration--);
-        outputProperty = OutputPropertyType.OD_COST;
+      int iteration =
+          (iterationIndex == null) ? memoryOutputFormatter.getLastIteration(timePeriod) : iterationIndex;
+
+      if (outputType.equals(OutputType.PATH) || outputType.equals(OutputType.OD)) {
+
+        if (outputType.equals(OutputType.OD)) {
+          iteration = Math.max(0, iteration-1);
+        }
+
+        return compareOdIndexedSingleOutputPropertyResultsToMemoryOutputFormatter(
+            memoryOutputFormatter,
+            (SortedMap<TimePeriod, Map<Mode, Map<String, Map<String, ?>>>>) map, outputType,
+            timePeriod,
+            iteration,
+            outputProperty,
+            comparator);
+
+      }else if (outputType.equals(OutputType.SIMULATION)) {
+        compareIterationIndexSingleOutputPropertyResultsToMemoryOutputFormatter(
+            memoryOutputFormatter,
+            (SortedMap<TimePeriod, Map<Mode, Map<Integer, ?>>>) map,
+            outputType,
+            timePeriod,
+            iteration,
+            outputProperty,
+            comparator);
+      }else{
+        throw new PlanItRunTimeException(
+            "Unsupported output type %s for comparing results for single output property", outputType);
       }
-      @SuppressWarnings("unchecked") Map<Mode, Map<String, Map<String, ?>>> mapPerTimePeriod = (Map<Mode, Map<String, Map<String, ?>>>) map.get(timePeriod);
-      for (Mode mode : mapPerTimePeriod.keySet()) {
-        Map<String, Map<String, ?>> mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
-        final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty);
-        final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ORIGIN_ZONE_XML_ID);
-        final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.DESTINATION_ZONE_XML_ID);
-        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, outputType);       
-        while (memoryOutputIterator.hasNext()) {
-          memoryOutputIterator.next();
-          final Object[] keys = memoryOutputIterator.getKeys();
-          final Object[] results = memoryOutputIterator.getValues();
-          String originZoneXmlId = (String) keys[originZonePosition];
-          String destinationZoneXmlId = (String) keys[destinationZonePosition];
-          if (outputType.equals(OutputType.OD)) {
-            Double expectedCost = (Double) mapPerTimePeriodAndMode.get(originZoneXmlId).get(destinationZoneXmlId);
-            Double costFromMemoryOutputFormatter = (Double) results[position];
-            assertEquals(expectedCost, costFromMemoryOutputFormatter, epsilon);
-            pass = pass && (Math.abs(expectedCost - costFromMemoryOutputFormatter) < epsilon);
-          } else {
-            String expectedPath = (String) mapPerTimePeriodAndMode.get(originZoneXmlId).get(destinationZoneXmlId);
-            String pathFromMemoryOutputFormatter = (String) results[position];
-            assertEquals(expectedPath, pathFromMemoryOutputFormatter);
-            pass = pass && (expectedPath.equals(pathFromMemoryOutputFormatter));
-          }
-       }
+    }
+    return success;
+  }
+
+  /**
+   * Assuming results are indexed by origin and destination id (on top of time period and iteration)
+   * Check a single output property
+   *
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores
+   *                              results from a test run
+   * @param expectedOdResults       Map of expected paths by time period, mode, origin zone external Id and destination zone external Id
+   * @param outputType            the OutputType of the results being checked (Path or OD)
+   * @param iterationIndex        the current iteration index
+   * @param outputProperty        to use
+   * @param resultComparator
+   * @return true if all the tests pass, false otherwise
+   */
+  private static boolean compareOdIndexedSingleOutputPropertyResultsToMemoryOutputFormatter(
+      MemoryOutputFormatter memoryOutputFormatter,
+      SortedMap<TimePeriod, Map<Mode, Map<String, Map<String, ?>>>> expectedOdResults,
+      OutputType outputType,
+      TimePeriod timePeriod,
+      int iterationIndex,
+      OutputProperty outputProperty,
+      Comparator<Object> resultComparator) {
+
+    boolean success = true;
+    final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty.getOutputPropertyType());
+
+    var mapPerTimePeriod =expectedOdResults.get(timePeriod);
+    for (Mode mode : mapPerTimePeriod.keySet()) {
+      var mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
+      final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ORIGIN_ZONE_XML_ID);
+      final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.DESTINATION_ZONE_XML_ID);
+
+      final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iterationIndex, outputType);
+      while (memoryOutputIterator.hasNext()) {
+        memoryOutputIterator.next();
+        final Object[] keys = memoryOutputIterator.getKeys();
+        final Object[] results = memoryOutputIterator.getValues();
+        String originZoneXmlId = (String) keys[originZonePosition];
+        String destinationZoneXmlId = (String) keys[destinationZonePosition];
+
+        Object outputValue = mapPerTimePeriodAndMode.get(originZoneXmlId).get(destinationZoneXmlId);
+        Object expectedValue = results[position];
+
+        var compareResult = resultComparator.compare(outputValue, expectedValue);
+        assertEquals(0, compareResult);
+        success = success && (compareResult == 0);
       }
-    
-    } 
-    return pass;
+    }
+    return success;
+  }
+
+  /**
+   * Assuming results are indexed by origin and destination id (on top of time period and iteration)
+   * Check a single output property
+   *
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
+   * @param expectedIterationResults       Map of values indexed by time period, mode, iteratoin index
+   * @param outputType            the OutputType of the results being checked
+   * @param iterationIndex        the current iteration index
+   * @param outputProperty        to use
+   * @param resultComparator      result comparator to use
+   * @return true if all the tests pass, false otherwise
+   */
+  private static boolean compareIterationIndexSingleOutputPropertyResultsToMemoryOutputFormatter(
+      MemoryOutputFormatter memoryOutputFormatter,
+      SortedMap<TimePeriod, Map<Mode, Map<Integer, ?>>> expectedIterationResults,
+      OutputType outputType,
+      TimePeriod timePeriod,
+      int iterationIndex,
+      OutputProperty outputProperty,
+      Comparator<Object> resultComparator) {
+
+    boolean success = true;
+    final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty.getOutputPropertyType());
+
+    var mapPerTimePeriod =expectedIterationResults.get(timePeriod);
+    for (Mode mode : mapPerTimePeriod.keySet()) {
+      var mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
+      final int iterationPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ITERATION_INDEX);
+
+      final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iterationIndex, outputType);
+      while (memoryOutputIterator.hasNext()) {
+        memoryOutputIterator.next();
+        final Object[] keys = memoryOutputIterator.getKeys();
+        final Object[] results = memoryOutputIterator.getValues();
+        Integer resultIterationIndex = (Integer) keys[iterationPosition];
+
+        // when iteration is a key, we only compare for when the iteration matches the provided iteration while cycling
+        // through results
+        if(resultIterationIndex.equals(iterationIndex)) {
+          Object outputValue = mapPerTimePeriodAndMode.get(resultIterationIndex);
+          Object expectedValue = results[position];
+
+          var compareResult = resultComparator.compare(outputValue, expectedValue);
+          assertEquals(0, compareResult);
+          success = success && (compareResult == 0);
+        }
+      }
+    }
+    return success;
   }
 
   /**
@@ -168,7 +307,7 @@ public class PlanItIOTestHelper {
    * @param str3 value
    */
   public static void addToNestedMap(
-          Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> theMap,
+          SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, String>>>> theMap,
           TimePeriod tp,
           Mode m,
           String str1,
@@ -190,7 +329,7 @@ public class PlanItIOTestHelper {
    * @param theValue value
    */
   public static void addToNestedMap(
-          Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> theMap,
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, Double>>>> theMap,
           TimePeriod tp,
           Mode m,
           String str1,
@@ -244,6 +383,25 @@ public class PlanItIOTestHelper {
   }
 
   /**
+   * Convenience method to add to a nested map of a certain structure
+   * @param theMap to add to
+   * @param tp key1
+   * @param m key 2
+   * @param int1 key 3
+   * @param dbl1 value
+   */
+  public static void addToNestedMap(
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Integer, Double>>> theMap,
+      TimePeriod tp,
+      Mode m,
+      Integer int1,
+      Double dbl1){
+    theMap.putIfAbsent(tp, new TreeMap<>());
+    theMap.get(tp).putIfAbsent(m, new TreeMap<>());
+    theMap.get(tp).get(m).put(int1, dbl1);
+  }
+
+  /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
    * object to known results stored in a Map. It generates a JUnit test failure if
    * the results maps have different contents.
@@ -256,7 +414,8 @@ public class PlanItIOTestHelper {
    * @return true if all the tests pass, false otherwise
    */
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
+      final MemoryOutputFormatter memoryOutputFormatter,
+      final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap) {
     
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
@@ -289,7 +448,8 @@ public class PlanItIOTestHelper {
    * @return true if all the tests pass, false otherwise
    */
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingLinkSegmentId(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
+      final MemoryOutputFormatter memoryOutputFormatter,
+      final Integer iterationIndex,
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap) {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
@@ -314,7 +474,9 @@ public class PlanItIOTestHelper {
    * @return true if all the tests pass, false otherwise
    */
   public static boolean comparePathResultsToMemoryOutputFormatter(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap) throws PlanItException {
+      final MemoryOutputFormatter memoryOutputFormatter,
+      final Integer iterationIndex,
+      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, String>>>> pathMap) {
     return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, pathMap, OutputType.PATH);
 
   }
@@ -328,8 +490,28 @@ public class PlanItIOTestHelper {
    * @return true if all the tests pass, false otherwise
    */
   public static boolean compareOriginDestinationResultsToMemoryOutputFormatter(
-      final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex, final Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap) throws PlanItException {
+      final MemoryOutputFormatter memoryOutputFormatter,
+      final Integer iterationIndex,
+      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, Double>>>> odMap) {
     return compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, odMap, OutputType.OD);
+  }
+
+  /**
+   * Compares the simulation value stored in the MemoryOutputFormatter with the expected results
+   *
+   * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
+   * @param simulationMap Map of expected simulation (gap) values by time period, mode, and iteration will be inferred
+   * @return true if all the tests pass, false otherwise
+   */
+  public static boolean compareSimulationResultsToMemoryOutputFormatter(
+      MemoryOutputFormatter memoryOutputFormatter,
+      SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Integer, Double>>> simulationMap) {
+
+    /* check all iterations and if one fails, terminate and indicate overall fail */
+    // todo: not fast, but cleanest with current implementation
+    int maxIteration = memoryOutputFormatter.getLastIteration();
+    return IntStream.rangeClosed(1, maxIteration).anyMatch( iterationIndex ->
+        !compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, simulationMap, OutputType.SIMULATION));
   }
    
   /**
@@ -356,7 +538,10 @@ public class PlanItIOTestHelper {
    * @param description description part of the file name
    * @param fileName other part of the file name
    */
-  public static void deleteFile(final OutputType outputType, final String projectPath, final String description,
+  public static void deleteFile(
+      final OutputType outputType,
+      final String projectPath,
+      final String description,
       final String fileName) {
     deleteFile(Path.of(projectPath, outputType.value() + "_" + description + "_" + fileName).toString());
   }
@@ -406,7 +591,8 @@ public class PlanItIOTestHelper {
    * @return true if the contents of the two files are exactly equal, false otherwise
    * @throws IOException thrown if there is an error opening one of the files
    */
-  public static boolean compareFiles(final String file1, final String file2, final boolean printFilesOnFalse) throws IOException {
+  public static boolean compareFiles(
+      final String file1, final String file2, final boolean printFilesOnFalse) throws IOException {
     final var charSetName = "utf-8";
     final Path f1 = Path.of(file1).toAbsolutePath();
     if(Files.notExists(f1)){
@@ -560,8 +746,9 @@ public class PlanItIOTestHelper {
    * @throws Exception thrown if there is an error
    */
 
-  public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
-                                                      String csvFileName, String xmlFileName) throws Exception {
+  public static void runFileEqualAssertionsAndCleanUp(
+      OutputType outputType, String projectPath, String description, String csvFileName, String xmlFileName)
+      throws Exception {
 
     runFileEqualAssertionsAndCleanUp(outputType, projectPath, description, csvFileName, xmlFileName, true);
   }
@@ -578,8 +765,13 @@ public class PlanItIOTestHelper {
    * @throws Exception thrown if there is an error
    */
 
-  public static void runFileEqualAssertionsAndCleanUp(OutputType outputType, String projectPath, String description,
-      String csvFileName, String xmlFileName, boolean printFilesOnFalse) throws Exception {
+  public static void runFileEqualAssertionsAndCleanUp(
+      OutputType outputType,
+      String projectPath,
+      String description,
+      String csvFileName,
+      String xmlFileName,
+      boolean printFilesOnFalse) throws Exception {
     
     String fullCsvFileNameWithoutDescription = Path.of(projectPath, outputType.value() + "_" + csvFileName).toString();
     String fullCsvFileNameWithDescription =  Path.of(projectPath, outputType.value() + "_" + description + "_" + csvFileName).toString();

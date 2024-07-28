@@ -1,7 +1,6 @@
 package org.goplanit.io.test.integration;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -17,9 +16,7 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
-import org.goplanit.output.property.OutputPropertyType;
 import org.goplanit.project.CustomPlanItProject;
-import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
@@ -38,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author gman6028, markr
  *
  */
-public class ExplanatoryTest {
+public class ExplanatoryTest extends TestBase {
 
   //
   // Network comprises just a single link and tests
@@ -47,23 +44,8 @@ public class ExplanatoryTest {
   //   X- - - *-------------* - - - X
   //
 
-  private static final Path testCasePath = Path.of("src","test","resources","testcases");
-
   /** the logger */
   private static Logger LOGGER = null;
-  
-  private final String zone1XmlId = "1";
-  private final String zone2XmlId = "2";
-  
-  private final String node1XmlId = "1";
-  private final String node2XmlId = "2";  
-  
-  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, path string */
-  private Map<TimePeriod, Map<Mode, Map<String, Map<String, String>>>> pathMap;   
-  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, od value */
-  private Map<TimePeriod, Map<Mode, Map<String, Map<String, Double>>>> odMap;
-  /* TODO: refactor UGLY: timeperiod, mode origin zone xml id, destination zone xml id, result DTO */
-  SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap;    
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -76,7 +58,7 @@ public class ExplanatoryTest {
   public void beforeTest() {
     pathMap = new TreeMap<>();
     odMap = new TreeMap<>();
-    resultsMap = new TreeMap<>();
+    linkResults = new TreeMap<>();
   }  
 
   @AfterAll
@@ -92,7 +74,7 @@ public class ExplanatoryTest {
   public void test_explanatory_original() {
     try {
 
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","original").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","original").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -117,8 +99,8 @@ public class ExplanatoryTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, linkResults);
 
       pathMap.put(timePeriod, new TreeMap<>());
       pathMap.get(timePeriod).put(mode1, new TreeMap<>());
@@ -156,7 +138,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_report_zero_outputs() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","reportZeroOutputs").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","reportZeroOutputs").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -181,11 +163,11 @@ public class ExplanatoryTest {
       Demands demands = (Demands)testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      resultsMap.put(timePeriod, new TreeMap<>());
-      resultsMap.get(timePeriod).put(mode1, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
-      resultsMap.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      linkResults.put(timePeriod, new TreeMap<>());
+      linkResults.get(timePeriod).put(mode1, new TreeMap<>());
+      linkResults.get(timePeriod).get(mode1).put(node2XmlId, new TreeMap<>());
+      linkResults.get(timePeriod).get(mode1).get(node2XmlId).put(node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, linkResults);
 
       pathMap.put(timePeriod, new TreeMap<>());
       pathMap.get(timePeriod).put(mode1, new TreeMap<>());
@@ -223,7 +205,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_time_period_xml_id_test() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","timePeriodXmlIdTest").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","timePeriodXmlIdTest").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_2_2.csv";
       String odCsvFileName = "Time_Period_2_1.csv";
@@ -248,8 +230,8 @@ public class ExplanatoryTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("2"));
       
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId,node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node2XmlId,node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0,2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter,maxIterations, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
@@ -279,7 +261,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_traveller_type_ref_missing_from_user_class() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","travellerTypeMissingFromUserClass").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","travellerTypeMissingFromUserClass").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -305,8 +287,8 @@ public class ExplanatoryTest {
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
@@ -336,7 +318,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_traveller_types_but_no_user_classes() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","travellerTypesButNoUserClasses").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","travellerTypesButNoUserClasses").toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -358,7 +340,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_not_specified_which_traveller_type_being_used() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","notSpecifiedWhichTravellerTypeBeingUsed").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","notSpecifiedWhichTravellerTypeBeingUsed").toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -381,7 +363,7 @@ public class ExplanatoryTest {
   public void test_explanatory_reference_to_missing_traveller_type() {
     try {
 
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","referenceToMissingTravellerType").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","referenceToMissingTravellerType").toString();
       String description = "explanatory";
 
       Level oldLevel = LOGGER.getLevel();
@@ -403,7 +385,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_no_geolocation_elements() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","noGeolocationElements").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","noGeolocationElements").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -428,8 +410,8 @@ public class ExplanatoryTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
@@ -460,7 +442,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_no_geolocation_elements_with_length_1() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","noGeolocationElementsWithLength1").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","noGeolocationElementsWithLength1").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
@@ -485,8 +467,8 @@ public class ExplanatoryTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
 
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 10.0, 2000.0, 10.0, 1.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(memoryOutputFormatter, maxIterations, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
@@ -517,7 +499,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_link_segments_in_same_direction() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","linkSegmentsInSameDirection").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","linkSegmentsInSameDirection").toString();
       String description = "explanatory";
       
       Level oldLevel = LOGGER.getLevel();
@@ -540,7 +522,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_defaults() {
     try {
-      String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","defaults").toString();
+      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","defaults").toString();
       String description = "explanatory";
       String csvFileName = "_2.csv";
       String odCsvFileName = "_1.csv";
@@ -565,8 +547,8 @@ public class ExplanatoryTest {
       Demands demands = testOutputDto.getB().demands.getFirst();
       TimePeriod timePeriod = demands.timePeriods.firstMatch(tp -> tp.getXmlId().equals("0"));
       
-      PlanItIOTestHelper.addToNestedMap(resultsMap, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.0769231, 1800.0, 10.0, 130.0));
-      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId( memoryOutputFormatter, maxIterations, resultsMap);
+      PlanItIOTestHelper.addToNestedMap(linkResults, timePeriod, mode1, node2XmlId, node1XmlId, new LinkSegmentExpectedResultsDto(1, 2, 1, 0.0769231, 1800.0, 10.0, 130.0));
+      PlanItIOTestHelper.compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId( memoryOutputFormatter, maxIterations, linkResults);
 
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone1XmlId,"");
       PlanItIOTestHelper.addToNestedMap(pathMap, timePeriod, mode1, zone1XmlId, zone2XmlId,"[1,2]");
@@ -596,7 +578,7 @@ public class ExplanatoryTest {
   @Test
   public void test_explanatory_attempt_to_change_locked_formatter() {
 
-    String projectPath = Path.of(testCasePath.toString(),"explanatory","xml","original").toString();
+    String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","original").toString();
     String description = "explanatory";
     String csvFileName = "Time_Period_1_2.csv";
     String odCsvFileName = "Time_Period_1_1.csv";
