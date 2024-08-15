@@ -114,7 +114,9 @@ public class PlanItIoTestRunner {
     }
 
     if(activateDefaultSimulationData){
-      taConfigurator.activateOutput(OutputType.SIMULATION);
+      var simConfig = taConfigurator.activateOutput(OutputType.SIMULATION);
+      simConfig.addProperty(OutputPropertyType.ROUTE_CHOICE_CONVERGENCE_GAP);
+      //simConfig.addProperty(OutputPropertyType.ROUTE_CHOICE_ITERATION_RUN_TIME); // hard to assert against
     }
     
     /* Link output type consumer */
