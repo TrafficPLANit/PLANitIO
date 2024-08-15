@@ -14,9 +14,12 @@ import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
+import org.goplanit.output.configuration.OutputTypeConfiguration;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
+import org.goplanit.output.property.OutputPropertyType;
 import org.goplanit.project.CustomPlanItProject;
+import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
@@ -595,7 +598,13 @@ public class ExplanatoryTest extends TestBase {
       runner.setupAndExecuteDefaultAssignment();      
       
       /* change link formatting*/
-      Consumer<LinkOutputTypeConfiguration> changeLockedProperties = linkOutputTypeConfiguration -> linkOutputTypeConfiguration.removeAllProperties();
+      Consumer<LinkOutputTypeConfiguration> changeLockedProperties = lotc -> {
+        try {
+          lotc.removeProperty(OutputPropertyType.FLOW);
+        } catch (PlanItException e) {
+          throw new RuntimeException(e);
+        }
+      };
       /* run again with updated configuration -> should throw error */
       runner.setupAndExecuteWithCustomLinkOutputConfiguration(changeLockedProperties);
       

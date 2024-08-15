@@ -80,8 +80,10 @@ public interface XmlEnumConverter {
 			return Unitsvalues.KM;
     }else if(outputPropertyUnit.equals(Unit.SRS)) {
 			return Unitsvalues.SRS;
-    }else{
-      throw new PlanItException("Units type " + outputProperty.toString() + " has not been defined in the units values simple type in the output XSD file.");
+    }else if(outputPropertyUnit.equals(Unit.MILLISECOND)) {
+			return Unitsvalues.MS;
+		}else{
+      throw new PlanItException("Units type " + outputProperty + " has not been defined in the units values simple type in the output XSD file.");
 		}
 	}
 

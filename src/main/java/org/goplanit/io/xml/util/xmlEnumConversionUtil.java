@@ -1,17 +1,12 @@
 package org.goplanit.io.xml.util;
 
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.mode.MotorisationModeType;
 import org.goplanit.utils.mode.TrackModeType;
 import org.goplanit.utils.mode.UseOfModeType;
 import org.goplanit.utils.mode.VehicularModeType;
 import org.goplanit.utils.unit.Unit;
-import org.goplanit.xml.generated.MotorisationType;
-import org.goplanit.xml.generated.TimeUnit;
-import org.goplanit.xml.generated.TrackType;
-import org.goplanit.xml.generated.UsedToType;
-import org.goplanit.xml.generated.VehicularType;
+import org.goplanit.xml.generated.*;
 
 /**
  * Some methods to convert the XML schema enums to PLANit memory model enums
@@ -179,7 +174,9 @@ public class xmlEnumConversionUtil {
     case MIN:
       return Unit.MINUTE;
     case S:
-      return Unit.SECOND;       
+      return Unit.SECOND;
+    case MS:
+      return Unit.MILLISECOND;
     default:
       throw new PlanItRunTimeException(String.format("Mapping from XML TimeUnit %s to PLANit Units type unavailable",xmlTimeUnitType.toString()));
     }
@@ -197,6 +194,8 @@ public class xmlEnumConversionUtil {
       return TimeUnit.MIN;
     }else if(planitTimeUnit.equals(Unit.SECOND)) {
       return TimeUnit.S;    
+    }else if(planitTimeUnit.equals(Unit.MILLISECOND)) {
+      return TimeUnit.MS;
     }else{
       throw new PlanItRunTimeException(String.format("Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
     }
