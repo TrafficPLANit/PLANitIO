@@ -1,20 +1,12 @@
 package org.goplanit.io.test.integration;
 
-import java.nio.file.Path;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.goplanit.demands.Demands;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
+import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
-import org.goplanit.output.configuration.OutputTypeConfiguration;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.property.OutputPropertyType;
@@ -29,6 +21,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -259,7 +257,7 @@ public class ExplanatoryTest extends TestBase {
   }
   
   /**
-   * we have <userclass> but no <travellertype> included in input file.
+   * We have userclass but no travellertype included in input file.
    */
   @Test
   public void test_explanatory_traveller_type_ref_missing_from_user_class() {
