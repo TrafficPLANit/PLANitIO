@@ -1,2 +1,2 @@
 Downstream Node Xml Id,Link Segment Xml Id,Mode Xml Id,Upstream Node Xml Id,Capacity per Lane,Length,Number of Lanes,Calculated Speed,Cost,Flow
-2,1,1,1,1800.0000000,10.0000000,1,130.0000000,0.0769231,1.0000000
+2,1,1,1,1800.0,10.0,1,130.0,0.0769231,1.0
