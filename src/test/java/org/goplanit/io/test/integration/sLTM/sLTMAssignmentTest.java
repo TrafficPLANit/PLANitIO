@@ -4,20 +4,11 @@ import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.ltm.sltm.StaticLtmConfigurator;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.enums.OutputType;
-import org.goplanit.output.formatter.MemoryOutputFormatter;
-import org.goplanit.project.CustomPlanItProject;
+import org.goplanit.sdinteraction.smoothing.MSASmoothing;
 import org.goplanit.utils.id.IdGenerator;
-import org.goplanit.utils.id.IdMapperType;
-import org.goplanit.utils.misc.Pair;
-import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
-import org.goplanit.utils.test.TestOutputDto;
-import org.goplanit.utils.time.TimePeriod;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
@@ -92,7 +83,7 @@ public class sLTMAssignmentTest extends TestBase {
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = 500;
+      int maxIterations = 500;
 
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteLinkFiles(projectPath, runIdDescription, csvFileName, xmlFileName);

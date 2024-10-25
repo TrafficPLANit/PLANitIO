@@ -2,7 +2,6 @@ package org.goplanit.io.test.integration;
 
 import org.goplanit.demands.Demands;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
@@ -10,12 +9,10 @@ import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.property.OutputPropertyType;
-import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
-import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -91,7 +88,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -155,7 +152,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(true); // <--
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -222,7 +219,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -278,7 +275,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -402,7 +399,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseSpeedBasedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -459,7 +456,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setPersistZeroFlow(false);
       runner.setUseSpeedBasedConnectoidCost();     
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -539,7 +536,7 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();     
       runner.setPersistZeroFlow(false);      
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();      
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
       
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 

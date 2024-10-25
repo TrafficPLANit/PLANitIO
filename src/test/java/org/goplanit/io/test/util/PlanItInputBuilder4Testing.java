@@ -11,6 +11,7 @@ import org.goplanit.utils.exceptions.PlanItException;
  * @author gman6028
  *
  */
+@Deprecated
 public class PlanItInputBuilder4Testing extends PlanItInputBuilder {
   
   /** the logger */
@@ -23,9 +24,8 @@ public class PlanItInputBuilder4Testing extends PlanItInputBuilder {
    * directory, using the default extension ".xml"
    *
    * @param projectPath the location of the input file directory
-   * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
    */
-  public PlanItInputBuilder4Testing(final String projectPath) throws PlanItException {
+  public PlanItInputBuilder4Testing(final String projectPath){
     super(projectPath);
   }
 

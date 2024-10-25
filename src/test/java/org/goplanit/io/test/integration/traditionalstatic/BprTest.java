@@ -1,34 +1,32 @@
 package org.goplanit.io.test.integration.traditionalstatic;
 
-import java.nio.file.Path;
-import java.util.TreeMap;
-import java.util.logging.Logger;
-
 import org.goplanit.cost.physical.BPRConfigurator;
 import org.goplanit.cost.physical.PhysicalCostConfigurator;
 import org.goplanit.demands.Demands;
+import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
-import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
-import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.functionalinterface.TriConsumer;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
-import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -106,7 +104,7 @@ public class BprTest extends TestBase {
       String xmlFileName = "Time_Period_1.xml";
       Integer maxIterations = 2;
   
-      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setCostParametersConsumer =
+      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setCostParametersConsumer =
           (network, bpr, inputBuilderListener) -> {
             Mode mode = network.getModes().getByXmlId("1");
             if(mode == null) {
@@ -137,8 +135,7 @@ public class BprTest extends TestBase {
       runner.setPersistZeroFlow(false);
       runner.setUseFixedConnectoidCost();
   
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = 
-          runner.setupAndExecuteWithPhysicalCostConfiguration(setCostParametersConsumer);
+      var testOutputDto = runner.setupAndExecuteWithPhysicalCostConfiguration(setCostParametersConsumer);
       
       /* verify outcome */      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();

@@ -1,24 +1,16 @@
 package org.goplanit.io.test.integration.traditionalstatic;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.nio.file.Path;
-import java.util.TreeMap;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
-
 import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.cost.physical.BPRConfigurator;
 import org.goplanit.cost.physical.PhysicalCostConfigurator;
 import org.goplanit.demands.Demands;
+import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
-import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
@@ -37,6 +29,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit test case for TraditionalStaticAssignment
@@ -125,7 +125,7 @@ public class RouteChoiceTest extends TestBase {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.setActivateSimulationData(true);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */        
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
@@ -264,12 +264,14 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
       
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(
+              inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
+              runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */        
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
@@ -322,13 +324,14 @@ public class RouteChoiceTest extends TestBase {
     try {
 
       final String inputPath = ROUTE_CHOICE_TEST_CASE_INPUT_PATH_SIMO_MISO_ONE_TP.toString();
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceSingleModeInitialCostsOneIteration").toString();
+      final String projectPath =
+              Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceSingleModeInitialCostsOneIteration").toString();
 
       String description = "testRouteChoice2initialCosts";
       String csvFileName = "Time_Period_1_1.csv";
       String odCsvFileName = "Time_Period_1_0.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = 1;
+      int maxIterations = 1;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteLinkFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -366,7 +369,8 @@ public class RouteChoiceTest extends TestBase {
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_and_three_time_periods() {
     try {
       final String inputPath = ROUTE_CHOICE_TEST_CASE_INPUT_PATH_SIMO_MISO_THREE_TP.toString();
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceInitialCostsOneIterationThreeTimePeriods").toString();
+      final String projectPath =
+              Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceInitialCostsOneIterationThreeTimePeriods").toString();
       String description = "test2initialCostsOneIterationThreeTimePeriods";
       String csvFileName1 = "Time_Period_1_1.csv";
       String odCsvFileName1 = "Time_Period_1_0.csv";
@@ -436,7 +440,7 @@ public class RouteChoiceTest extends TestBase {
       String csvFileName = "Time_Period_1_1.csv";
       String odCsvFileName = "Time_Period_1_0.csv";
       String xmlFileName = "Time_Period_1.xml";
-      Integer maxIterations = 1;
+      int maxIterations = 1;
       
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteLinkFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
@@ -444,7 +448,8 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
       
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(
+              inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -467,7 +472,6 @@ public class RouteChoiceTest extends TestBase {
   /**
    * This test checks that PlanItProject reads the initial costs from a file
    * correctly, and outputs them after 500 iterations.
-   * 
    * The test input initial costs file uses Link Segment Id to identify link
    * segments
    */
@@ -475,7 +479,8 @@ public class RouteChoiceTest extends TestBase {
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations() {
     try {
       final String inputPath = ROUTE_CHOICE_TEST_CASE_INPUT_PATH_SIMO_MISO_ONE_TP.toString();
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceSingleModeWithInitialCosts500Iterations").toString();
+      final String projectPath =
+              Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceSingleModeWithInitialCosts500Iterations").toString();
       String description = "testRouteChoice2initialCosts";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
@@ -571,7 +576,6 @@ public class RouteChoiceTest extends TestBase {
   /**
    * This test checks that PlanItProject reads the initial costs from a file
    * correctly, and outputs them after 500 iterations.
-   * 
    * The test input initial costs file uses Link Segment External Id to identify
    * link segments.
    */
@@ -579,7 +583,8 @@ public class RouteChoiceTest extends TestBase {
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids() {
     try {
       final String inputPath = ROUTE_CHOICE_TEST_CASE_INPUT_PATH_SIMO_MISO_ONE_TP.toString();
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds").toString();
+      final String projectPath =
+              Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceSingleModeWithInitialCosts500IterationsLinkSegmentExternalIds").toString();
       String description = "testRouteChoice2initialCosts";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
@@ -641,7 +646,7 @@ public class RouteChoiceTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto =
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
               runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */
@@ -689,7 +694,7 @@ public class RouteChoiceTest extends TestBase {
    * the fourth route choice example from the Traditional Static Assignment Route
    * Choice Equilibration Test cases.docx document.
    * 
-   * This test case uses the <odrowmatrix> method in the macroscopicinput.xml file
+   * This test case uses the odrowmatrix element in the macroscopicinput.xml file
    * to define the OD demands input matrix.
    */
   @Test
@@ -713,7 +718,8 @@ public class RouteChoiceTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
+              runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */      
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
@@ -921,7 +927,8 @@ public class RouteChoiceTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();        
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
+              runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
@@ -1380,7 +1387,7 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.deleteOdFiles(projectPath, runIdDescription, odCsvFileName, xmlFileName);
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
 
-      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setCostParameters =
+      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setCostParameters =
               (physicalNetwork, bpr, inputBuilderListener) -> {
                 Mode mode = physicalNetwork.getModes().getByXmlId("2");
                 MacroscopicNetworkLayer layer = (MacroscopicNetworkLayer)physicalNetwork.getLayerByMode(mode);
@@ -1389,12 +1396,14 @@ public class RouteChoiceTest extends TestBase {
               };
       
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(
+              inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.setGapFunctionEpsilonGap(0.0);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteWithPhysicalCostConfiguration(setCostParameters);
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
+              runner.setupAndExecuteWithPhysicalCostConfiguration(setCostParameters);
 
       MemoryOutputFormatter memoryOutputFormatter = testOutputDto.getA();
 
@@ -1463,7 +1472,8 @@ public class RouteChoiceTest extends TestBase {
   public void test_5_SIMO_MISO_route_choice_two_modes_identify_links_by_id() {
     try {
       final String inputPath = ROUTE_CHOICE_TEST_CASE_INPUT_PATH_SIMO_MISO_TWO_MODES.toString();
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceTwoModesIdentifyLinksById").toString();
+      final String projectPath =
+              Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceTwoModesIdentifyLinksById").toString();
       String description = "testRouteChoice5";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
@@ -1475,7 +1485,7 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.deleteOdFiles(projectPath, runIdDescription, odCsvFileName, xmlFileName);
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
 
-      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setCostParameters =
+      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setCostParameters =
               (physicalNetwork, bpr, inputBuilderListener) -> {
                 Mode mode = physicalNetwork.getModes().getByXmlId("2");
                 MacroscopicNetworkLayer layer = (MacroscopicNetworkLayer)physicalNetwork.getLayerByMode(mode);
@@ -1488,7 +1498,8 @@ public class RouteChoiceTest extends TestBase {
         try {
           linkOutputTypeConfiguration.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
           linkOutputTypeConfiguration.removeProperty(OutputPropertyType.UPSTREAM_NODE_XML_ID);
-          linkOutputTypeConfiguration.addProperties(OutputPropertyType.DOWNSTREAM_NODE_ID, OutputPropertyType.UPSTREAM_NODE_ID, OutputPropertyType.LINK_SEGMENT_ID);
+          linkOutputTypeConfiguration.addProperties(
+                  OutputPropertyType.DOWNSTREAM_NODE_ID, OutputPropertyType.UPSTREAM_NODE_ID, OutputPropertyType.LINK_SEGMENT_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.MAXIMUM_SPEED);
         } catch (PlanItException e) {
           e.printStackTrace();
@@ -1498,12 +1509,13 @@ public class RouteChoiceTest extends TestBase {
       };
       
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+      PlanItIoTestRunner runner = new PlanItIoTestRunner(
+              inputPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
       runner.setMaxIterations(maxIterations);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
       runner.setGapFunctionEpsilonGap(0.0);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = 
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
           runner.setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(setCostParameters,setOutputTypeConfigurationProperties);      
 
       /* compare results */
@@ -1574,7 +1586,8 @@ public class RouteChoiceTest extends TestBase {
   @Test
   public void test_5_SIMO_MISO_route_choice_two_modes_with_impossible_route() {
     try {
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceTwoModesWithImpossibleRoute").toString();
+      final String projectPath =
+              Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"SIMOMISOrouteChoiceTwoModesWithImpossibleRoute").toString();
       final String inputPath = projectPath; // fiddled with network to create impossible route, hence not same as other two mode SIMOMISOs
       String description = "testRouteChoice5";
       String csvFileName = "Time_Period_1_500.csv";
@@ -1587,7 +1600,7 @@ public class RouteChoiceTest extends TestBase {
       PlanItIOTestHelper.deleteOdFiles(projectPath, runIdDescription, odCsvFileName, xmlFileName);
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
 
-      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setCostParameters =
+      TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setCostParameters =
           (network,bpr, inputBuilderListener) -> {
             Mode mode = network.getModes().getByXmlId("2");
             MacroscopicNetworkLayer layer = (MacroscopicNetworkLayer)network.getLayerByMode(mode);
@@ -1601,7 +1614,7 @@ public class RouteChoiceTest extends TestBase {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(true);
       runner.setGapFunctionEpsilonGap(0.0);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = 
+      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> testOutputDto =
           runner.setupAndExecuteWithPhysicalCostConfiguration(setCostParameters);
 
       /* compare results */          

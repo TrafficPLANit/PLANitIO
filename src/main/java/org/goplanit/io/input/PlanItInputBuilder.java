@@ -513,9 +513,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * directory, using the default extension ".xml"
    *
    * @param projectPath the location of the input file directory
-   * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
+   * @throws PlanItRunTimeException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
    */
-  public PlanItInputBuilder(final String projectPath) throws PlanItException {
+  public PlanItInputBuilder(final String projectPath) {
     this(projectPath, PlanitXmlJaxbParser.DEFAULT_XML_FILE_EXTENSION);
   }
 
@@ -525,15 +525,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
    *
    * @param projectPath the location of the input file directory
    * @param xmlFileExtension the extension of the data files to be searched through
-   * @throws PlanItException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
+   * @throws PlanItRunTimeException thrown if one of the input required input files cannot be found, or if there is an
+   * error reading one of them
    */
-  public PlanItInputBuilder(final String projectPath, final String xmlFileExtension) throws PlanItException {
+  public PlanItInputBuilder(final String projectPath, final String xmlFileExtension) {
     super();
     LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"project path is set to: "+ projectPath);
     
     this.projectPath = projectPath;
     this.xmlFileExtension = xmlFileExtension;
-    
   }
 
   /**

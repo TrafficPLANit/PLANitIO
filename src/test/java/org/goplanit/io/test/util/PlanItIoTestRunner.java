@@ -13,6 +13,7 @@ import org.goplanit.cost.physical.PhysicalCostConfigurator;
 import org.goplanit.cost.virtual.FixedConnectoidTravelTimeCost;
 import org.goplanit.cost.virtual.SpeedConnectoidTravelTimeCost;
 import org.goplanit.demands.Demands;
+import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
@@ -50,7 +51,7 @@ public class PlanItIoTestRunner {
   protected final String projectPath;
   
   /** input builder used */
-  protected PlanItInputBuilder4Testing planItInputBuilder;
+  protected PlanItInputBuilder planItInputBuilder;
   
   /** project used */
   protected CustomPlanItProject project;
@@ -96,11 +97,10 @@ public class PlanItIoTestRunner {
    * @param setLinkOutputTypeConfigurationProperties lambda function to set output properties being used
    * @param setCostParameters lambda function which sets parameters of cost function
    * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
    */
-  protected TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteAssignment(
+  protected TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteAssignment(
       final Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfigurationProperties,
-      final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setCostParameters) throws Exception {
+      final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setCostParameters) {
                 
     if (setCostParameters != null) {
       setCostParameters.accept(network, physicalCostConfigurator, planItInputBuilder);
@@ -128,8 +128,7 @@ public class PlanItIoTestRunner {
     project.executeAllTrafficAssignments();
     
     /* output */
-    var testOutputDtoX = new TestOutputDto(memoryOutputFormatter, project, planItInputBuilder);
-    return testOutputDtoX;
+    return new TestOutputDto(memoryOutputFormatter, project, planItInputBuilder);
   }
 
   /**
@@ -144,12 +143,13 @@ public class PlanItIoTestRunner {
     this.projectPath = inputPath;
 
     try {
-      this.planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
+      this.planItInputBuilder = new PlanItInputBuilder(projectPath);
       this.project = new CustomPlanItProject(planItInputBuilder);
 
       /* RAW INPUT START -------------------------------- */
       {
-        this.network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+        this.network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(
+                MacroscopicNetwork.class.getCanonicalName());
         this.zoning = project.createAndRegisterZoning(network);
         this.demands = project.createAndRegisterDemands(zoning, network);
       }
@@ -248,9 +248,8 @@ public class PlanItIoTestRunner {
    * Run a test case with a default configuration and no additional changes via consumers. Store the results in a MemoryOutputFormatter.
    *
    * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
-   */  
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteDefaultAssignment() throws Exception {
+   */
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteDefaultAssignment(){
     return setupAndExecuteAssignment(null, null);
   }   
 
@@ -259,10 +258,9 @@ public class PlanItIoTestRunner {
    *
    * @param setPhysicalCostParameters lambda function which sets parameters of cost function
    * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
    */
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithPhysicalCostConfiguration(
-      final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setPhysicalCostParameters) throws Exception {
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteWithPhysicalCostConfiguration(
+      final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setPhysicalCostParameters) {
     return setupAndExecuteAssignment(null, setPhysicalCostParameters);
   }
   
@@ -271,10 +269,9 @@ public class PlanItIoTestRunner {
    *
    * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in addition to default settings
    * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
    */  
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomLinkOutputConfiguration(
-      Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) throws Exception {
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteWithCustomLinkOutputConfiguration(
+      Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) {
     return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, null);    
   }  
   
@@ -284,11 +281,10 @@ public class PlanItIoTestRunner {
    * @param setPhysicalCostParameters lambda function which sets parameters of cost function
    * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in additino to default settings
    * @return TestOutputDto containing results, builder and project from the run
-   * @throws Exception thrown if there is an error
    */    
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
-      TriConsumer<LayeredNetwork<?, ?>, PhysicalCostConfigurator<?>, PlanItInputBuilder4Testing> setPhysicalCostParameters,
-      Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) throws Exception {
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
+      TriConsumer<LayeredNetwork<?, ?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setPhysicalCostParameters,
+      Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) {
     return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, setPhysicalCostParameters);
   }  
    

@@ -1,23 +1,13 @@
 package org.goplanit.io.test.integration;
 
-import java.io.FileReader;
-import java.io.Reader;
-import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
-import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.output.property.DownstreamNodeXmlIdOutputProperty;
-import org.goplanit.output.property.LinkSegmentCostOutputProperty;
-import org.goplanit.output.property.LinkSegmentXmlIdOutputProperty;
-import org.goplanit.output.property.ModeXmlIdOutputProperty;
-import org.goplanit.output.property.UpstreamNodeXmlIdOutputProperty;
+import org.goplanit.output.property.*;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
@@ -26,6 +16,12 @@ import org.goplanit.utils.network.layer.physical.Node;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.io.FileReader;
+import java.io.Reader;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,7 +65,7 @@ public class InitialCostTest {
     try {
       
       /* planit */
-      PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
+      var planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
       var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);
@@ -108,7 +104,7 @@ public class InitialCostTest {
 
     try {
       /* planit */
-      PlanItInputBuilder4Testing planItInputBuilder = new PlanItInputBuilder4Testing(projectPath);
+      var planItInputBuilder = new PlanItInputBuilder(projectPath);
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
       MacroscopicNetwork network = (MacroscopicNetwork) project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
       var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostsFileLocation);

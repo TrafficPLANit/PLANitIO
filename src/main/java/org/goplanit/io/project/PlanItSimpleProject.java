@@ -160,7 +160,7 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    * {@inheritDoc}
    */
   @Override
-  public void executeAllTrafficAssignments() throws PlanItException {
+  public void executeAllTrafficAssignments(){
     if (!super.assignmentBuilders.isEmpty()) {
       super.executeAllTrafficAssignments();
     } else {

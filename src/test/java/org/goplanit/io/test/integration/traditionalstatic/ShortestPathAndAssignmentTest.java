@@ -1,31 +1,28 @@
 package org.goplanit.io.test.integration.traditionalstatic;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.nio.file.Path;
-import java.util.TreeMap;
-import java.util.logging.Logger;
-
 import org.goplanit.demands.Demands;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
-import org.goplanit.io.test.util.PlanItInputBuilder4Testing;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.property.OutputPropertyType;
-import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
-import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.TreeMap;
+import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit test cases for shortest path (AON) tests for TraditionalStaticAssignment
@@ -204,7 +201,7 @@ public class ShortestPathAndAssignmentTest extends TestBase {
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
 
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -388,7 +385,7 @@ public class ShortestPathAndAssignmentTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
@@ -457,7 +454,7 @@ public class ShortestPathAndAssignmentTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(true); // <- zero flow
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);
@@ -674,7 +671,7 @@ public class ShortestPathAndAssignmentTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder4Testing> testOutputDto = runner.setupAndExecuteDefaultAssignment();       
+      var testOutputDto = runner.setupAndExecuteDefaultAssignment();
 
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
       PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);
