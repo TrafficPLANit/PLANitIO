@@ -1,7 +1,6 @@
 package org.goplanit.io.converter.service;
 
 import org.goplanit.utils.id.IdMapperType;
-import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.converter.service.ServiceNetworkWriter;
 import org.goplanit.io.converter.network.UnTypedPlanitCrsWriterImpl;
@@ -18,7 +17,6 @@ import org.goplanit.utils.network.layer.service.*;
 import org.goplanit.xml.generated.*;
 
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -234,7 +232,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
         xmlId = String.valueOf(serviceNetworkLayer.getId());
         serviceNetworkLayer.setXmlId(xmlId);
       }
-      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("sn-layer: " + xmlId);
+      this.currLayerLogPrefix = LoggingUtils.surroundWithBrackets("sn-layer: " + xmlId);
 
 
       var xmlServiceNetworkLayer = createAndPopulateXmlNetworkLayer(serviceNetworkLayer, serviceNetwork);

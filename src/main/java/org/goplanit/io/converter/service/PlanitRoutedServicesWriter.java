@@ -1,7 +1,6 @@
 package org.goplanit.io.converter.service;
 
 import org.goplanit.utils.id.IdMapperType;
-import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
 import org.goplanit.io.converter.PlanitWriterImpl;
@@ -13,7 +12,6 @@ import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
-import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.service.routed.*;
 import org.goplanit.xml.generated.*;
 
@@ -294,7 +292,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       createAndPopulateXmlRoutedServices(xmlServices, service);
     });
 
-    var modePrefix = LoggingUtils.surroundwithBrackets(String.format("mode: %s", servicesForMode.getMode()));
+    var modePrefix = LoggingUtils.surroundWithBrackets(String.format("mode: %s", servicesForMode.getMode()));
     LOGGER.info(String.format("%s%s Routed services : %d", currLayerLogPrefix, modePrefix, servicesForMode.size()));
     LOGGER.info(String.format("%s%s (scheduled) trips : %d", currLayerLogPrefix, modePrefix,
         servicesForMode.stream().mapToInt( rs -> rs.getTripInfo().getScheduleBasedTrips().size()).sum()));
@@ -324,7 +322,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       xmlId = String.valueOf(layer.getId());
     }
     xmlLayer.setId(xmlId);
-    this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+ xmlLayer.getId());
+    this.currLayerLogPrefix = LoggingUtils.surroundWithBrackets("rs-layer: "+ xmlLayer.getId());
 
     /* external id */
     if(layer.hasExternalId()) {
@@ -371,7 +369,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     routedServices.getLayers().streamSortedBy(getPrimaryIdMapper().getRoutedServiceLayerIdMapper()).forEach(layer -> {
       var xmlLayer = new XMLElementRoutedServicesLayer();
 
-      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("rs-layer: "+ getPrimaryIdMapper().getRoutedServiceLayerIdMapper().apply(layer));
+      this.currLayerLogPrefix = LoggingUtils.surroundWithBrackets("rs-layer: "+ getPrimaryIdMapper().getRoutedServiceLayerIdMapper().apply(layer));
 
       populateXmlRoutedServiceLayer(xmlLayer, layer, routedServices);
       if(!xmlLayer.getServices().isEmpty()) {
