@@ -276,16 +276,20 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
     /* populate base pertaining to any connectoid*/
     populateXmlConnectoidBase(
-        xmlTransferConnectoid, transferConnectoid, transferConnectoid.getLengthKm(firstAccessZone), explicitAllowedModes);
+        xmlTransferConnectoid,
+        transferConnectoid,
+        transferConnectoid.getLengthKm(firstAccessZone),
+        explicitAllowedModes);
     
     /* transferzone references */
     String xmlTzRefs = transferConnectoid.getAccessZones().stream().map(
-            zone -> getPrimaryIdMapper().getZoneIdMapper().apply(zone)).sorted().collect(Collectors.joining(","));
+            zone -> getPrimaryIdMapper().getZoneIdMapper().apply(zone)).sorted().collect(
+                Collectors.joining(","));
     xmlTransferConnectoid.setTzrefs(xmlTzRefs);
     
     /* link segment reference */
     xmlTransferConnectoid.setLsref(
-            getComponentIdMappers().getNetworkIdMappers().getLinkSegmentIdMapper().apply(
+            getComponentIdMappers().getNetworkIdMappers().getMacroscopicLinkSegmentIdMapper().apply(
                     (MacroscopicLinkSegment)transferConnectoid.getAccessLinkSegment()));
     
     /* access node is derived based on up or downstream location relative to link segment, 

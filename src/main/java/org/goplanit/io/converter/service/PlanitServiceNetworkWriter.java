@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
  * @author markr
  *
  */
-public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<ServiceNetwork> implements ServiceNetworkWriter {
+public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<ServiceNetwork>
+    implements ServiceNetworkWriter {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkWriter.class.getCanonicalName());
@@ -48,7 +49,8 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    * @param leg parent leg of leg segment
    * @param serviceLegSegment to use
    */
-  private void populateServiceLegSegments(XMLElementServiceLeg xmlLeg, ServiceLeg leg, ServiceLegSegment serviceLegSegment) {
+  private void populateServiceLegSegments(
+      XMLElementServiceLeg xmlLeg, ServiceLeg leg, ServiceLegSegment serviceLegSegment) {
     var legSegmentsList = xmlLeg.getLegsegment();
     XMLElementServiceLeg.Legsegment xmlElementLegSegment = new XMLElementServiceLeg.Legsegment();
 
@@ -65,13 +67,16 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* physical parent link segments */
     if(!serviceLegSegment.hasPhysicalParentSegments()){
-      LOGGER.warning(String.format("IGNORED: Service leg segment %s has no physical link segments referenced", xmlElementLegSegment.getId()));
+      LOGGER.warning(String.format(
+          "IGNORED: Service leg segment %s has no physical link segments referenced",
+          xmlElementLegSegment.getId()));
       return;
     }
 
     /* physical segments refs, do not sort as ordering represents chain of adjacent link segments */
     String csvPhysicalLegSegmentRefs = serviceLegSegment.getPhysicalParentSegments().stream().map(ls ->
-            getComponentIdMappers().getNetworkIdMappers().getLinkSegmentIdMapper().apply(MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
+            getComponentIdMappers().getNetworkIdMappers().getMacroscopicLinkSegmentIdMapper().apply(
+                MacroscopicLinkSegment.class.cast(ls))).collect(Collectors.joining(","));
     xmlElementLegSegment.setLsrefs(csvPhysicalLegSegmentRefs);
 
 

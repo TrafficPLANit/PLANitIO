@@ -72,7 +72,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    */
   private void populateLinkSegment(XMLElementLinkSegment xmlLinkSegment, MacroscopicLinkSegment linkSegment) {
     /* id */
-    xmlLinkSegment.setId(getPrimaryIdMapper().getLinkSegmentIdMapper().apply(linkSegment));
+    xmlLinkSegment.setId(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper().apply(linkSegment));
     /* max speed */
     xmlLinkSegment.setMaxspeed(linkSegment.getPhysicalSpeedLimitKmH());
     /* number of lanes */
