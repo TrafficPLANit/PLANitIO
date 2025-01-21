@@ -1,6 +1,7 @@
 package org.goplanit.io.test.util;
  
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.goplanit.assignment.TrafficAssignment;
@@ -30,6 +31,7 @@ import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.sdinteraction.smoothing.MSASmoothing;
 import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.functionalinterface.TriConsumer;
 import org.goplanit.utils.test.TestOutputDto;
 import org.goplanit.utils.time.TimePeriod;
@@ -139,7 +141,11 @@ public class PlanItIoTestRunner {
    * @param description to use
    * @param assignmentType to apply
    */
-  public PlanItIoTestRunner(String inputPath, String outputPath, String description, String assignmentType) {
+  public PlanItIoTestRunner(
+          String inputPath,
+          String outputPath,
+          String description,
+          Function<CustomPlanItProject, TrafficAssignmentConfigurator<?>> taConfiguratorFactory) {
     this.projectPath = inputPath;
 
     try {
@@ -156,30 +162,8 @@ public class PlanItIoTestRunner {
       /* RAW INPUT END ----------------------------------- */
 
       /* TRAFFIC ASSIGNMENT */
-      if(assignmentType.equals(TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT))
-      {
-        this.taConfigurator =
-                project.createAndRegisterTrafficAssignment(
-                        TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, demands, zoning, network);
-
-        /* Physical cost - BPR */
-        this.physicalCostConfigurator = taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.BPR);
-
-      }else{
-        this.taConfigurator =
-                project.createAndRegisterTrafficAssignment(
-                        assignmentType, demands, zoning, network);
-
-        // steady state configurator
-        this.physicalCostConfigurator = taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.STEADY_STATE);
-        var sLtm = ((StaticLtmConfigurator)taConfigurator);
-
-        // defaults 5/2024, but set explicitly so tests will not break if defaults change
-        sLtm.setType(StaticLtmType.PATH_BASED);
-        sLtm.createAndRegisterFundamentalDiagram(FundamentalDiagram.NEWELL);
-        var pathChoice = (StochasticPathChoiceConfigurator) sLtm.createAndRegisterPathChoice(PathChoice.STOCHASTIC);
-        pathChoice.createAndRegisterChoiceModel(ChoiceModel.MNL);
-      }
+      this.taConfigurator = taConfiguratorFactory.apply(project);
+      this.physicalCostConfigurator = taConfigurator.getPhysicalCost();
 
       /* Smoothing - MSA */
       taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
@@ -187,14 +171,16 @@ public class PlanItIoTestRunner {
       /* OUTPUT FORMAT CONFIGURATION */
       {
         /* Xml PlanItOutputFormatter */
-        this.xmlOutputFormatter = (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
+        this.xmlOutputFormatter =
+                (PlanItOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.PLANIT_OUTPUT_FORMATTER);
         xmlOutputFormatter.setXmlNameRoot(description);
         xmlOutputFormatter.setCsvNameRoot(description);
         xmlOutputFormatter.setOutputDirectory(outputPath);
         taConfigurator.registerOutputFormatter(xmlOutputFormatter);
 
         // MemoryOutputFormatter
-        this.memoryOutputFormatter = (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(MemoryOutputFormatter.class.getCanonicalName());
+        this.memoryOutputFormatter =
+                (MemoryOutputFormatter) project.createAndRegisterOutputFormatter(OutputFormatter.MEMORY_OUTPUT_FORMATTER);
         taConfigurator.registerOutputFormatter(memoryOutputFormatter);
       }
 
@@ -218,14 +204,21 @@ public class PlanItIoTestRunner {
         linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.FLOW, Unit.VEH_HOUR);
 
         /* OD OUTPUT CONFIGURATION */
-        final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration = (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
+        final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration =
+                (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
         originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(OdSkimSubOutputType.NONE);
         originDestinationOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
 
         /* PATH OUTPUT CONFIGURATION */
-        final PathOutputTypeConfiguration pathOutputTypeConfiguration = (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
+        final PathOutputTypeConfiguration pathOutputTypeConfiguration =
+                (PathOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.PATH);
         pathOutputTypeConfiguration.setPathIdentificationType(PathOutputIdentificationType.NODE_XML_ID);
 
+        /* BUSH OUTPUT CONFIGURATION */
+        final BushOutputTypeConfiguration bushOutputTypeConfiguration =
+                (BushOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.BUSH);
+        bushOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
+        bushOutputTypeConfiguration.removeProperty(OutputPropertyType.MODE_XML_ID);
       }
 
     }catch(PlanItException e) {
@@ -241,7 +234,10 @@ public class PlanItIoTestRunner {
    * @param description to use
    */
   public PlanItIoTestRunner(String projectPath, String description) {
-    this(projectPath, projectPath, description, TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT);
+    this(projectPath,
+            projectPath,
+            description,
+            PlanItIoTestRunnerTraditionalStatic::createTrafficAssignmentConfigurator);
   }
   
   /**

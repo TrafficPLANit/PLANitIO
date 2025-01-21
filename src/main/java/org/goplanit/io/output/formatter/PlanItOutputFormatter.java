@@ -427,9 +427,10 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     try {
       OutputType outputType = outputTypeConfiguration.getOutputType();
 
-      //todo: bad comparison, should not compare based on two different id types! Use equals instead if possible
-      boolean isNewTimePeriod = ((!metadata.containsKey(currentOutputType)) || (metadata.get(currentOutputType)
-          .getOutputconfiguration().getTimeperiod().getId() != timePeriod.getXmlId()));
+      boolean isNewTimePeriod =
+              !metadata.containsKey(currentOutputType) ||
+              !metadata.get(currentOutputType).getOutputconfiguration().getTimeperiod().getId().equals( //this is XML element
+                      String.valueOf(timePeriod.getXmlId()));
 
       if (isNewTimePeriod) {
 
@@ -449,21 +450,26 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
           outputTypeConfiguration, outputAdapter, timePeriod, iterationIndex, createCsvFileForCurrentIteration);
 
       // add metadata to the XML content
-      String relativeCsvFileName = generateRelativeOutputFileName(outputTypeConfiguration.getOutputType(), outputAdapter, timePeriod, iterationIndex);
+      String relativeCsvFileName = generateRelativeOutputFileName(
+              outputTypeConfiguration.getOutputType(), outputAdapter, timePeriod, iterationIndex);
       updateMetadataSimulationOutputForCurrentIteration(iterationIndex, relativeCsvFileName, currentOutputType);
       addCsvFileNamePerOutputType(currentOutputType, csvFileName);
 
       // MARK 6-1-2020: Why is this here and not immediately placed in the same if
       // that checks for a new period at the top of this method?
       if (isNewTimePeriod) {
-        xmlFileNameMap.put(outputType, generateAbsoluteOutputFileName(xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
+        xmlFileNameMap.put(outputType,
+                generateAbsoluteOutputFileName(
+                        xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
       }
     } catch (PlanItException e) {
       LOGGER.severe(e.getMessage());
-      LOGGER.severe("PlanitException occurred when writing results for current time period in PLANitIO OutputFormatter, verify file is not already open and/or sufficient permissions are available");
+      LOGGER.severe("PlanitException occurred when writing results for current time period in PLANitIO " +
+              "OutputFormatter, verify file is not already open and/or sufficient permissions are available");
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItRunTimeException("Error when writing results for current time period in PLANitIO OutputFormatter", e);
+      throw new PlanItRunTimeException(
+              "Error when writing results for current time period in PLANitIO OutputFormatter", e);
     }
   }
 

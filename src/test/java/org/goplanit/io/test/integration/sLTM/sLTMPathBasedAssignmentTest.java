@@ -1,13 +1,12 @@
 package org.goplanit.io.test.integration.sLTM;
 
-import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.ltm.sltm.StaticLtmConfigurator;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
+import org.goplanit.io.test.util.PlanItIoTestRunnerPathBasedStaticLtm;
 import org.goplanit.logging.Logging;
 import org.goplanit.output.enums.OutputType;
-import org.goplanit.sdinteraction.smoothing.MSASmoothing;
 import org.goplanit.utils.id.IdGenerator;
 import org.junit.jupiter.api.*;
 
@@ -18,18 +17,18 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * JUnit test case for static Link Transmission Model, specifically certain more complex
+ * JUnit test case for static Link Transmission Model in path absed form, specifically certain more complex
  * setups with IO which are adaptations from - for example - the RouteChoiceTests for the traditional assignment
  *
  * @author markr
  *
  */
-public class sLTMAssignmentTest extends TestBase {
+public class sLTMPathBasedAssignmentTest extends TestBase {
 
   /** the logger */
   private static Logger LOGGER = null;
 
-  private static final Path SLTM_PATH = Path.of(TEST_CASE_PATH.toString(),"sltm", "xml");
+  private static final Path SLTM_PATH = Path.of(TEST_CASE_PATH.toString(),"sltm_path", "xml");
 
   private static final Path SLTM_INPUT_PATH = Path.of(SLTM_PATH.toString(),"_input");
 
@@ -46,7 +45,7 @@ public class sLTMAssignmentTest extends TestBase {
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
-      LOGGER = Logging.createLogger(sLTMAssignmentTest.class);
+      LOGGER = Logging.createLogger(sLTMPathBasedAssignmentTest.class);
     } 
   }
   
@@ -75,7 +74,7 @@ public class sLTMAssignmentTest extends TestBase {
    *   only 2 of three possible routes in choice set, this is incorrect, should be able to better create paths to avoid this</a>
    */
   @Test
-  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations() {
     try {
       final String inputPath = SLTM_SIMO_MISO_ONE_TP.toString();
       final String projectPath = Path.of(SLTM_PATH.toString(),"SIMOMISOSltm1ModeInitialCosts500Iterations").toString();
@@ -91,7 +90,7 @@ public class sLTMAssignmentTest extends TestBase {
       PlanItIOTestHelper.deletePathFiles(projectPath, runIdDescription, csvFileName, xmlFileName);
 
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.SLTM);
+      PlanItIoTestRunner runner = new PlanItIoTestRunnerPathBasedStaticLtm(inputPath, projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
@@ -100,17 +99,17 @@ public class sLTMAssignmentTest extends TestBase {
 
       var sLtm = ((StaticLtmConfigurator)runner.getRawTrafficAssignmentConfigurator());
       //sLtm.activateDetailedLogging(true);
-
-      // link results show non-zero flows on multiple paths, but path result only shows a single path? Debug to see what is going on
       //sLtm.addTrackOdsForLogging(IdMapperType.XML, Pair.of("1","2"));
 
       runner.setupAndExecuteDefaultAssignment();
 
       /* compare results */
-
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+              OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+              OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+              OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
 
     } catch (final Exception e) {
       LOGGER.severe( e.getMessage());
@@ -118,13 +117,15 @@ public class sLTMAssignmentTest extends TestBase {
     }
   }
 
+
+
   /**
    * This test runs the same network with three time periods with different initial
    * costs for each, running the test for 500 iterations.
    */
   @Disabled("not yet finalised")
   @Test
-  public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_and_three_time_periods() {
+  public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations_three_time_periods() {
     try {
       final String inputPath = SLTM_SIMO_MISO_THREE_TP.toString();
       final String projectPath = Path.of(SLTM_PATH.toString(),"SIMOMISOSltm1ModeInitCost500Iterations3TimePeriods").toString();
@@ -149,7 +150,7 @@ public class sLTMAssignmentTest extends TestBase {
               projectPath, runIdDescription, csvFileName1, xmlFileName1, csvFileName2, xmlFileName2, csvFileName3, xmlFileName3);
       
       /* run test with sLTM*/
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(inputPath, projectPath, description, TrafficAssignment.SLTM);
+      PlanItIoTestRunner runner = new PlanItIoTestRunnerPathBasedStaticLtm(inputPath, projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();

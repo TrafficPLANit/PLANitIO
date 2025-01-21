@@ -569,7 +569,7 @@ public class PlanItIOTestHelper {
   }
 
   /**
-   * Delete OD based files from the directory of test files
+   * Delete path based files from the directory of test files
    *
    * @param projectPath path to the test directory
    * @param description description part of the file name
@@ -577,6 +577,17 @@ public class PlanItIOTestHelper {
    */
   public static void deletePathFiles(final String projectPath, final String description, final String... fileNames) {
     Arrays.stream(fileNames).forEach( f -> deleteFile(OutputType.PATH, projectPath, description, f));
+  }
+
+  /**
+   * Delete bush based files from the directory of test files
+   *
+   * @param projectPath path to the test directory
+   * @param description description part of the file name
+   * @param fileNames other parts of the file name
+   */
+  public static void deleteBushFiles(final String projectPath, final String description, final String... fileNames) {
+    Arrays.stream(fileNames).forEach( f -> deleteFile(OutputType.BUSH, projectPath, description, f));
   }
 
   /**

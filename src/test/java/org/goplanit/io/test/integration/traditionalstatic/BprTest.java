@@ -7,6 +7,7 @@ import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
+import org.goplanit.io.test.util.PlanItIoTestRunnerTraditionalStatic;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
@@ -129,7 +130,7 @@ public class BprTest extends TestBase {
       PlanItIOTestHelper.deleteFile(OutputType.PATH, projectPath, runIdDescription, xmlFileName);           
       
       /* run test */
-      PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
+      PlanItIoTestRunner runner = new PlanItIoTestRunnerTraditionalStatic(projectPath, description);
       runner.setMaxIterations(maxIterations);
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setPersistZeroFlow(false);

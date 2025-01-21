@@ -452,7 +452,7 @@ public class TraditionalStaticAssignmentProjectDemos {
   /**
    * Setup a project with  OD output type example 
    */
-  public static void ODOutputTypeDemo() {
+  public static void OdOutputTypeDemo() {
     try {
       final CustomPlanItProject project = new CustomPlanItProject(new PlanItInputBuilder("<insert the project path here>"));
      

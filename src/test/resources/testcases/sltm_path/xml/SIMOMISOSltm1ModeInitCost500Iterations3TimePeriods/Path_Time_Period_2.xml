@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://trafficplanit.github.io/PLANitManual/xsd/metadata.xsd">
+    <timestamp>2024-05-03T15:01:14.964+10:00</timestamp>
+    <version>0.5.a1</version>
+    <description>PlanIt Code for default input and output</description>
+    <outputconfiguration>
+        <assignment>TraditionalStaticAssignment</assignment>
+        <physicalcost>BprLinkTravelTimeCost</physicalcost>
+        <virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
+        <smoothing>MSASmoothing</smoothing>
+        <gapfunction>LinkBasedRelativeDualityGapFunction</gapfunction>
+        <stopcriterion>StopCriterion</stopcriterion>
+        <timeperiod>
+            <id>1</id>
+            <name>Time_Period_2</name>
+        </timeperiod>
+    </outputconfiguration>
+    <simulation>
+        <iteration>
+            <nr>500</nr>
+            <csvdata type="Path">Path_RunId_0_test2initialCosts500IterationsThreeTimePeriods_Time_Period_2_500.csv</csvdata>
+        </iteration>
+    </simulation>
+    <columns>
+        <column>
+            <name>Destination Zone Xml Id</name>
+            <units>none</units>
+            <type>string</type>
+        </column>
+        <column>
+            <name>Mode Xml Id</name>
+            <units>none</units>
+            <type>string</type>
+        </column>
+        <column>
+            <name>Origin Zone Xml Id</name>
+            <units>none</units>
+            <type>string</type>
+        </column>
+        <column>
+            <name>Path Id</name>
+            <units>none</units>
+            <type>integer</type>
+        </column>
+        <column>
+            <name>Time Period Xml Id</name>
+            <units>none</units>
+            <type>string</type>
+        </column>
+        <column>
+            <name>Path</name>
+            <units>none</units>
+            <type>string</type>
+        </column>
+    </columns>
+</metadata>
