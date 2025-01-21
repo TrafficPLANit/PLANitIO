@@ -8,6 +8,7 @@ import org.goplanit.io.test.util.PlanItIoTestRunnerBushBasedStaticLtm;
 import org.goplanit.io.test.util.PlanItIoTestRunnerPathBasedStaticLtm;
 import org.goplanit.logging.Logging;
 import org.goplanit.output.enums.OutputType;
+import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.utils.id.IdGenerator;
 import org.junit.jupiter.api.*;
 
@@ -77,7 +78,7 @@ public class sLTMBushBasedAssignmentTest extends TestBase {
     try {
       final String inputPath = SLTM_SIMO_MISO_ONE_TP.toString();
       final String projectPath = Path.of(SLTM_PATH.toString(),"SIMOMISOSltm1ModeInitialCosts500Iterations").toString();
-      String description = "sltm_bush_based";
+      String description = "sltm_bush";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
       String xmlFileName = "Time_Period_1.xml";

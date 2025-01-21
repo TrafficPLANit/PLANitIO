@@ -17,8 +17,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.csv.CSVPrinter;
 import org.goplanit.io.xml.converter.XmlEnumConverter;
 import org.goplanit.io.xml.util.ApplicationProperties;
+import org.goplanit.output.adapter.BushLinkOutputTypeAdapter;
 import org.goplanit.output.configuration.SimulationOutputTypeConfiguration;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.output.adapter.OutputAdapter;
@@ -104,16 +106,16 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   // INTERNAL members
 
   /** Map of XML output file names for each OutputType */
-  private Map<OutputType, String> xmlFileNameMap;
+  private final Map<OutputType, String> xmlFileNameMap;
   
   /**
    * Generated object for the metadata element in the output XML file
    */
-  private Map<OutputTypeEnum, XMLElementMetadata> metadata;
+  private final Map<OutputTypeEnum, XMLElementMetadata> metadata;
 
   /** in case we consolidate simulation data, track the data in memory in this list and persist after final iteration in
    * single file instead */
-  private List<Map<Mode,List<Object>>> consolidatedSimulationData = new ArrayList<>();
+  private final List<Map<Mode,List<Object>>> consolidatedSimulationData = new ArrayList<>();
  
   /** Create the logging prefix to use for non assignment specific logging messages
    * 
@@ -139,12 +141,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param timePeriod the time period 
    * @param iteration current iteration
    * @return the name of the output file
-   * @throws PlanItException thrown if the output directory cannot be opened
    */
-  private String generateRelativeOutputFileName(final OutputType outputType, final OutputAdapter outputAdapter, final TimePeriod timePeriod, int iteration)
-      throws PlanItException {
+  private String generateRelativeCsvOutputFileName(
+      final OutputType outputType,
+      final OutputAdapter outputAdapter,
+      final TimePeriod timePeriod,
+      int iteration){
     
-    String absoluteFileName = generateAbsoluteOutputFileName(csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, outputAdapter.getRunId(), iteration);
+    String absoluteFileName = generateAbsoluteCsvFileName(
+        csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputType, outputAdapter.getRunId(), iteration);
     Path pathBase = Paths.get(xmlDirectory);
     return pathBase.toAbsolutePath().relativize(Path.of(absoluteFileName)).toString();
   }
@@ -154,19 +159,23 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    *
    * @param outputType the outputType
    * @param outputConfiguration OutputTypeConfiguration of the assignment that have been activated
-   * @throws throw if JAXBUtils throws
+   * @throws if JAXBUtils throws
    */
-  private void finaliseXmlMetaFileAfterSimulation(OutputType outputType, OutputConfiguration outputConfiguration) throws Exception {
+  private void finaliseXmlMetaFileAfterSimulation(
+      OutputType outputType, OutputConfiguration outputConfiguration) throws Exception {
+
     final String metaDataSchemaUri = PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD);
     OutputTypeConfiguration outputTypeConfiguration = outputConfiguration.getOutputTypeConfiguration(outputType);
     if (xmlFileNameMap.containsKey(outputType)) {
       Path xmlFilePath = Paths.get(xmlFileNameMap.get(outputType));
       if (metadata.containsKey(outputType)) {
-        JAXBUtils.generateXmlFileFromObject( metadata.get(outputType), XMLElementMetadata.class, xmlFilePath,metaDataSchemaUri);
+        JAXBUtils.generateXmlFileFromObject(
+            metadata.get(outputType), XMLElementMetadata.class, xmlFilePath,metaDataSchemaUri);
       } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
         Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
         for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-          JAXBUtils.generateXmlFileFromObject(metadata.get(subOutputTypeEnum), XMLElementMetadata.class,xmlFilePath,metaDataSchemaUri);
+          JAXBUtils.generateXmlFileFromObject(
+              metadata.get(subOutputTypeEnum), XMLElementMetadata.class,xmlFilePath,metaDataSchemaUri);
         }
       }
     }
@@ -193,7 +202,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     }
 
     var concatenatedRowValueList =
-            consolidatedSimulationData.stream().flatMap(iterationData -> iterationData.values().stream()).collect(Collectors.toList());
+            consolidatedSimulationData.stream().flatMap(
+                iterationData -> iterationData.values().stream()).collect(Collectors.toList());
 
     /* print single iteration results to CSV in Lambda */
     Function<CSVPrinter, PlanItException> lambdaFunc = csvPrinter -> {
@@ -203,14 +213,20 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
         }
       }catch (Exception e) {
         LOGGER.severe(e.getMessage());
-        return new PlanItException("Error when writing consolidtaed simulation results for current time period in CSVOutputFileFormatter", e);
+        return new PlanItException("Error when writing consolidated simulation results for current time period in" +
+            "CSVOutputFileFormatter", e);
       }
       return null;
     };
 
     /* pass on Lambda so we persist consolidated iteration results */
-    writeResultsForCurrentTimePeriod(
-            simulationOutputTypeconfiguration, OutputType.SIMULATION, outputAdapter, timePeriod, iterationIndex, lambdaFunc);
+    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(
+        simulationOutputTypeconfiguration,
+        OutputType.SIMULATION,
+        outputAdapter,
+        timePeriod,
+        iterationIndex,
+        lambdaFunc);
 
     if(resetConsolidatedData){
       consolidatedSimulationData.clear();
@@ -264,7 +280,9 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param outputProperties sorted set of output properties to be included in the output
    * @return generated Columns object
    */
-  private XMLElementColumns getGeneratedColumnsFromProperties(final SortedSet<OutputProperty> outputProperties) throws PlanItException {
+  private XMLElementColumns getGeneratedColumnsFromProperties(
+      final SortedSet<OutputProperty> outputProperties) throws PlanItException {
+
     XMLElementColumns generatedColumns = new XMLElementColumns();
     for (OutputProperty outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
@@ -332,16 +350,18 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @throws PlanItException thrown if there is an error writing the data to file
    */
   private void initializeMetadataObject(
-      final OutputTypeEnum currentOutputType, final OutputTypeConfiguration outputTypeConfiguration, final OutputAdapter outputAdapter, final TimePeriod timePeriod)
-      throws PlanItException {
+      final OutputTypeEnum currentOutputType,
+      final OutputTypeConfiguration outputTypeConfiguration,
+      final OutputAdapter outputAdapter,
+      final TimePeriod timePeriod) throws PlanItException {
     
     try {
       metadata.get(currentOutputType).setTimestamp(getTimestamp());
       metadata.get(currentOutputType).setVersion(ApplicationProperties.getVersion());
       metadata.get(currentOutputType).setDescription(ApplicationProperties.getDescription());
 
-      XMLElementOutputConfiguration outputconfiguration = getXmlOutputConfiguration(outputAdapter, timePeriod);
-      metadata.get(currentOutputType).setOutputconfiguration(outputconfiguration);
+      XMLElementOutputConfiguration outputConfiguration = getXmlOutputConfiguration(outputAdapter, timePeriod);
+      metadata.get(currentOutputType).setOutputconfiguration(outputConfiguration);
       SortedSet<OutputProperty> outputProperties = outputTypeConfiguration.getOutputProperties();
       metadata.get(currentOutputType).setColumns(getGeneratedColumnsFromProperties(outputProperties));
     } catch (Exception e) {
@@ -364,28 +384,59 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     }
   }
 
+  /**
+   * Create a XML meta data file with content based on the current (sub) output type
+   *
+   * @param outputTypeConfiguration          the OutputTypeConfiguration object containing the run information
+   * @param currentOutputType the current (sub)OutputType we're persisting
+   * @param outputAdapter the current output adapter
+   * @param timePeriod the current time period
+   * @throws Exception thrown if there is an error
+   */
+  private void createAndPersistXmlMetaDataForTimePeriodCurrentIteration(
+      final OutputTypeConfiguration outputTypeConfiguration,
+      final OutputTypeEnum currentOutputType,
+      final OutputAdapter outputAdapter,
+      final TimePeriod timePeriod) throws Exception {
+
+    OutputType outputType = outputTypeConfiguration.getOutputType();
+
+    boolean isNewTimePeriod =
+        !metadata.containsKey(currentOutputType) ||
+            !metadata.get(currentOutputType).getOutputconfiguration().getTimeperiod().getId().equals( //this is XML element
+                String.valueOf(timePeriod.getXmlId()));
+
+    if (isNewTimePeriod) {
+
+      /* create XML meta data header setup */
+      if (metadata.containsKey(currentOutputType)) {
+        JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
+            Paths.get(xmlFileNameMap.get(outputType)),PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD));
+      }
+      metadata.put(currentOutputType, new XMLElementMetadata());
+      XMLElementSimulation simulation = new XMLElementSimulation();
+      metadata.get(currentOutputType).setSimulation(simulation);
+      initializeMetadataObject(currentOutputType, outputTypeConfiguration, outputAdapter, timePeriod);
+
+      xmlFileNameMap.put(outputType,
+          generateAbsoluteCsvFileName(
+              xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
+    }
+  }
 
   /**
    * Create a CSV file with output content based on the current (sub) output type
-   * 
-   * @param outputTypeConfiguration the OutputTypeConfiguration object containing the run information
-   * @param outputAdapter the outputAdapter
-   * @param timePeriod current time period          
-   * @param iterationIndex current iteration index
-   * @param createCsvFileForCurrentIteration lambda function which records data specific to the CSV file for the current iteration
+   *
+   * @param csvFileName                      to use
+   * @param outputTypeConfiguration          the OutputTypeConfiguration object containing the run information
+   * @param createCsvFileForCurrentIteration lambda function which records data specific to the CSV file for the
+   *                                         current iteration
    * @throws PlanItException thrown if there is an error
-   * @return name of CSV output file
    */
-  private String createCsvFileNameAndFileForTimePeriodCurrentIteration(
+  private void createAndPersistCsvFileForTimePeriodCurrentIteration(
+      final String csvFileName,
       final OutputTypeConfiguration outputTypeConfiguration,
-      final OutputAdapter outputAdapter,
-      final TimePeriod timePeriod,
-      int iterationIndex,
       final  Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration) throws PlanItException {
-
-    // create the name based on iteration, time period and related info
-    String csvFileName = generateAbsoluteOutputFileName(
-        csvDirectory, csvNameRoot, csvNameExtension, timePeriod, outputTypeConfiguration.getOutputType(), outputAdapter.getRunId(), iterationIndex);
 
     try(CSVPrinter csvIterationPrinter = createCsvPrinter(csvFileName)) {
       // create the header (first line) of the file
@@ -403,65 +454,55 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       throw new PlanItException("Error when creating CSV file name and file in PLANitIO OutputFormatter", e);
     }
 
-    return csvFileName;
   }
 
   /**
-   * Write the results for the current mode and time period to file
+   * Write the results for the current mode and time period to file, create a CSV printer to feed to lambda
    * 
    * @param outputTypeConfiguration the current output type configuration
    * @param currentOutputType the current (sub)OutputType we're persisting
    * @param outputAdapter the current output adapter
    * @param timePeriod the current time period
    * @param iterationIndex iterationIndex relevant for this data
-   * @param createCsvFileForCurrentIteration lambda function which records data specific to the CSV file for the current iteration
+   * @param feedCsvPrinterExecuteCsvFileWriting lambda function which records data specific to the CSV file
+   *                                         for the current iteration and is fed a CSV printer
    */
-  private void writeResultsForCurrentTimePeriod(
+  private void writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(
       final OutputTypeConfiguration outputTypeConfiguration,
       final OutputTypeEnum currentOutputType, 
       final OutputAdapter outputAdapter, 
       final TimePeriod timePeriod, 
       int iterationIndex,
-      final Function<CSVPrinter, PlanItException> createCsvFileForCurrentIteration){
+      final Function<CSVPrinter, PlanItException> feedCsvPrinterExecuteCsvFileWriting){
     
     try {
-      OutputType outputType = outputTypeConfiguration.getOutputType();
 
-      boolean isNewTimePeriod =
-              !metadata.containsKey(currentOutputType) ||
-              !metadata.get(currentOutputType).getOutputconfiguration().getTimeperiod().getId().equals( //this is XML element
-                      String.valueOf(timePeriod.getXmlId()));
+      /* XML meta data */
+      createAndPersistXmlMetaDataForTimePeriodCurrentIteration(
+          outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod);
 
-      if (isNewTimePeriod) {
-
-        /* create XML meta data header setup */
-        if (metadata.containsKey(currentOutputType)) {
-          JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
-              Paths.get(xmlFileNameMap.get(outputType)),PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD));
-        }
-        metadata.put(currentOutputType, new XMLElementMetadata());
-        XMLElementSimulation simulation = new XMLElementSimulation();
-        metadata.get(currentOutputType).setSimulation(simulation);
-        initializeMetadataObject(currentOutputType, outputTypeConfiguration, outputAdapter, timePeriod);
-      }
+      // create the name based on iteration, time period and related info
+      String csvFileName = generateAbsoluteCsvFileName(
+          csvDirectory,
+          csvNameRoot,
+          csvNameExtension,
+          timePeriod,
+          outputTypeConfiguration.getOutputType(),
+          outputAdapter.getRunId(),
+          iterationIndex);
 
       // do work
-      String csvFileName = createCsvFileNameAndFileForTimePeriodCurrentIteration(
-          outputTypeConfiguration, outputAdapter, timePeriod, iterationIndex, createCsvFileForCurrentIteration);
+      createAndPersistCsvFileForTimePeriodCurrentIteration(
+          csvFileName,
+          outputTypeConfiguration,
+          feedCsvPrinterExecuteCsvFileWriting);
 
       // add metadata to the XML content
-      String relativeCsvFileName = generateRelativeOutputFileName(
+      String relativeCsvFileName = generateRelativeCsvOutputFileName(
               outputTypeConfiguration.getOutputType(), outputAdapter, timePeriod, iterationIndex);
       updateMetadataSimulationOutputForCurrentIteration(iterationIndex, relativeCsvFileName, currentOutputType);
       addCsvFileNamePerOutputType(currentOutputType, csvFileName);
 
-      // MARK 6-1-2020: Why is this here and not immediately placed in the same if
-      // that checks for a new period at the top of this method?
-      if (isNewTimePeriod) {
-        xmlFileNameMap.put(outputType,
-                generateAbsoluteOutputFileName(
-                        xmlDirectory, xmlNameRoot, xmlNameExtension, timePeriod, outputType, outputAdapter.getRunId()));
-      }
     } catch (PlanItException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("PlanitException occurred when writing results for current time period in PLANitIO " +
@@ -497,7 +538,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * 
    * @param outputConfiguration output configuration
    * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
-   * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+   * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for
+   *                          (can be a SubOutputTypeEnum or an OutputType)
    * @param outputAdapter OutputAdapter for current persistence
    * @param modes Set of modes of travel
    * @param timePeriod current time period
@@ -526,13 +568,15 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
           }
         }catch (Exception e) {
           LOGGER.severe(e.getMessage());
-          return new PlanItException("Error when writing simulation results for current time period in CSVOutputFileformatter", e);
+          return new PlanItException(
+              "Error when writing simulation results for current time period in CSVOutputFileFormatter", e);
         }
         return null;
       };
 
       /* pass on Lambda so we persist single iteration results */
-      writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod, iterationIndex, lambdaFunc);
+      writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(
+          outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod, iterationIndex, lambdaFunc);
 
     }else{
       /* store results in memory, delay printing until done with simulation */
@@ -561,7 +605,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
     
-    LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +"XML Output for OutputType GENERAL has not been implemented yet.");
+    LOGGER.info(this.createLoggingPrefix(
+        outputAdapter.getRunId()) +"XML Output for OutputType GENERAL has not been implemented yet.");
     
   }
 
@@ -586,11 +631,16 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
     
-    writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
-        iterationIndex, (csvPrinter) -> {
-          return writeOdResultsForCurrentTimePeriodToCsvPrinter(outputConfiguration, outputTypeConfiguration, currentOutputType,
-              outputAdapter, modes, timePeriod, csvPrinter);
-        });
+    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
+        iterationIndex, (csvPrinter) ->
+            writeOdResultsForCurrentTimePeriodToCsvPrinter(
+              outputConfiguration,
+              outputTypeConfiguration,
+              currentOutputType,
+              outputAdapter,
+              modes,
+              timePeriod,
+              csvPrinter));
   }
 
   /**
@@ -614,11 +664,16 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
     
-    writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
-        iterationIndex, (csvPrinter) -> {
-          return writePathResultsForCurrentTimePeriodToCsvPrinter(outputConfiguration, outputTypeConfiguration, currentOutputType,
-              outputAdapter, modes, timePeriod, csvPrinter);
-        });
+    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
+        iterationIndex, (csvPrinter) ->
+            writePathResultsForCurrentTimePeriodToCsvPrinter(
+                outputConfiguration,
+                outputTypeConfiguration,
+                currentOutputType,
+                outputAdapter,
+                modes,
+                timePeriod,
+                csvPrinter));
   }
 
   /**
@@ -642,11 +697,111 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
     
-    writeResultsForCurrentTimePeriod(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
-        iterationIndex, (csvPrinter) -> {
-          return writeLinkResultsForCurrentTimePeriodToCsvPrinter(outputConfiguration, outputTypeConfiguration, currentOutputType,
-              outputAdapter, modes, timePeriod, csvPrinter);
-        });
+    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(
+        outputTypeConfiguration,
+        currentOutputType,
+        outputAdapter,
+        timePeriod,
+        iterationIndex,
+        (csvPrinter) -> writeLinkResultsForCurrentTimePeriodToCsvPrinter(
+            outputConfiguration,
+            outputTypeConfiguration,
+            currentOutputType,
+            outputAdapter,
+            modes,
+            timePeriod,
+            csvPrinter));
+  }
+
+  /**
+   * Write link results for the current time period to the CSV file
+   *
+   * @param outputConfiguration output configuration
+   * @param outputTypeConfiguration OutputTypeConfiguration for current persistence
+   * @param currentOutputType active OutputTypeEnum of the configuration we are persisting for (can be a SubOutputTypeEnum or an OutputType)
+   * @param outputAdapter OutputAdapter for current persistence
+   * @param modes Set of modes of travel
+   * @param timePeriod current time period
+   * @param iterationIndex current iteration index
+   */
+  @Override
+  protected void writeBushResultsForCurrentTimePeriod(
+      final OutputConfiguration outputConfiguration,
+      final OutputTypeConfiguration outputTypeConfiguration,
+      final OutputTypeEnum currentOutputType,
+      final OutputAdapter outputAdapter,
+      final Set<Mode> modes,
+      final TimePeriod timePeriod,
+      int iterationIndex){
+
+    // NOTE: reworking of #writeLinkResultsForCurrentTimePeriod to allow for single XML meta data and
+    // per bush CSV
+
+    /* invoke a file per bush, so unlike other formats we call write method multiple times, such that
+     * we create 1 XML meta data file and then x CSV files, where x is the number of bushes */
+    OutputType outputType = (OutputType) currentOutputType;
+    BushLinkOutputTypeAdapter bushLinkOutputTypeAdapter =
+        (BushLinkOutputTypeAdapter) outputAdapter.getOutputTypeAdapter(outputType);
+
+    try {
+
+      /* XML meta data - once across all bushes to minimise overhead */
+      createAndPersistXmlMetaDataForTimePeriodCurrentIteration(
+          outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod);
+
+      var bushes = bushLinkOutputTypeAdapter.getBushes();
+      for(var bush : bushes) {
+        if(bush==null){
+          continue;
+        }
+
+        if(!bush.getRootZone().hasXmlId()){
+          LOGGER.warning("Bush root zone has no XML id, reverting to internal id indicated by '*' suffix");
+        }
+
+        String bushRootIdStr = "_D" + (bush.getRootZone().hasXmlId() ?
+            bush.getRootZone().getXmlId() : (bush.getRootZone().getId() + "*"));
+
+        // create the name based on iteration, time period, related info AND bush root zone id
+        String csvFileName = generateAbsoluteCsvFileName(
+            csvDirectory,
+            csvNameRoot,
+            csvNameExtension,
+            timePeriod,
+            outputTypeConfiguration.getOutputType(),
+            outputAdapter.getRunId(),
+            iterationIndex,
+            bushRootIdStr); // use root zone to identify each bush in file name
+
+        // do work by persisting the current bush's edge segments
+        createAndPersistCsvFileForTimePeriodCurrentIteration(
+            csvFileName,
+            outputTypeConfiguration,
+            (csvPrinter) -> writeBushResultsForCurrentTimePeriodToCsvPrinter(
+                outputConfiguration,
+                outputTypeConfiguration,
+                currentOutputType,
+                outputAdapter,
+                modes,
+                timePeriod,
+                bush,
+                csvPrinter));
+
+        // add metadata to the XML content
+        String relativeCsvFileName = generateRelativeCsvOutputFileName(
+            outputTypeConfiguration.getOutputType(), outputAdapter, timePeriod, iterationIndex);
+        updateMetadataSimulationOutputForCurrentIteration(iterationIndex, relativeCsvFileName, currentOutputType);
+        addCsvFileNamePerOutputType(currentOutputType, csvFileName);
+      }
+    } catch (PlanItException e) {
+      LOGGER.severe(e.getMessage());
+      LOGGER.severe("PlanitException occurred when writing results for current time period in PLANitIO " +
+          "OutputFormatter, verify file is not already open and/or sufficient permissions are available");
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      throw new PlanItRunTimeException(
+          "Error when writing results for current time period in PLANitIO OutputFormatter", e);
+    }
   }
 
   /**
