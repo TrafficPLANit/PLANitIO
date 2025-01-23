@@ -71,12 +71,12 @@
 					</linksegmenttypes>
 				</layerconfiguration>
 				<nodes>
-					<node id="1" />
-					<node id="2" />
-					<node id="3" />
-					<node id="4" />
-					<node id="11" />
-					<node id="12" />
+					<node id="1" externalid="one"/>
+					<node id="2" externalid="two"/>
+					<node id="3" externalid="three"/>
+					<node id="4" externalid="four"/>
+					<node id="11" externalid="C1"/>
+					<node id="12" externalid="C2"/>
 				</nodes>
 				<links>
 					<link id="1" nodearef="11" nodebref="1">

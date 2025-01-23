@@ -29,6 +29,8 @@ import org.goplanit.path.choice.PathChoice;
 import org.goplanit.path.choice.StochasticPathChoiceConfigurator;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.sdinteraction.smoothing.MSASmoothing;
+import org.goplanit.sdinteraction.smoothing.MSRASmoothing;
+import org.goplanit.sdinteraction.smoothing.Smoothing;
 import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
@@ -92,7 +94,10 @@ public class PlanItIoTestRunner {
 
   /** activate simulation data output using its defaults */
   protected boolean activateDefaultSimulationData = false;
-  
+
+  /** choose smoothing type, default MSA */
+  protected String smoothingType = Smoothing.MSA;
+
   /**
    * Run a test case and store the results in a MemoryOutputFormatter, most generic form with all consumers passable but could be nulls
    *
@@ -103,7 +108,10 @@ public class PlanItIoTestRunner {
   protected TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteAssignment(
       final Consumer<LinkOutputTypeConfiguration> setLinkOutputTypeConfigurationProperties,
       final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setCostParameters) {
-                
+
+    /* Smoothing - MSA default */
+    taConfigurator.createAndRegisterSmoothing(getSmoothingType());
+
     if (setCostParameters != null) {
       setCostParameters.accept(network, physicalCostConfigurator, planItInputBuilder);
     }
@@ -139,7 +147,6 @@ public class PlanItIoTestRunner {
    * @param inputPath to use
    * @param outputPath to use
    * @param description to use
-   * @param assignmentType to apply
    */
   public PlanItIoTestRunner(
           String inputPath,
@@ -164,9 +171,6 @@ public class PlanItIoTestRunner {
       /* TRAFFIC ASSIGNMENT */
       this.taConfigurator = taConfiguratorFactory.apply(project);
       this.physicalCostConfigurator = taConfigurator.getPhysicalCost();
-
-      /* Smoothing - MSA */
-      taConfigurator.createAndRegisterSmoothing(MSASmoothing.class.getCanonicalName());
 
       /* OUTPUT FORMAT CONFIGURATION */
       {
@@ -266,8 +270,9 @@ public class PlanItIoTestRunner {
    * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in addition to default settings
    * @return TestOutputDto containing results, builder and project from the run
    */  
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteWithCustomLinkOutputConfiguration(
-      Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) {
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder>
+  setupAndExecuteWithCustomLinkOutputConfiguration(
+          Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) {
     return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, null);    
   }  
   
@@ -278,7 +283,8 @@ public class PlanItIoTestRunner {
    * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in additino to default settings
    * @return TestOutputDto containing results, builder and project from the run
    */    
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder>
+  setupAndExecuteWithCustomBprAndLinkOutputTypeConfiguration(
       TriConsumer<LayeredNetwork<?, ?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setPhysicalCostParameters,
       Consumer<LinkOutputTypeConfiguration> linkOutputTypeConfigurationConsumer) {
     return setupAndExecuteAssignment(linkOutputTypeConfigurationConsumer, setPhysicalCostParameters);
@@ -325,7 +331,7 @@ public class PlanItIoTestRunner {
   }
 
   /**
-   * Indicates to actiavte simulation data output
+   * Indicates to activate simulation data output
    *
    * @param activateDefaultSimulationData when true activate, otherwise deactivate
    */
@@ -349,7 +355,8 @@ public class PlanItIoTestRunner {
    * @param initialCostLocation to parse initial costs from
    * @throws PlanItException thrown if error
    */  
-  public void registerInitialLinkSegmentCostByTimePeriod(String timePeriodXmlId, String initialCostLocation) throws PlanItException {
+  public void registerInitialLinkSegmentCostByTimePeriod(
+          String timePeriodXmlId, String initialCostLocation) throws PlanItException {
     TimePeriod timePeriod = demands.timePeriods.getByXmlId(timePeriodXmlId);
     final var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
     taConfigurator.registerInitialLinkSegmentCost(timePeriod, initialCost.getTimePeriodCosts(timePeriod));    
@@ -363,6 +370,14 @@ public class PlanItIoTestRunner {
    */
   public TrafficAssignmentConfigurator<?> getRawTrafficAssignmentConfigurator(){
     return taConfigurator;
+  }
+
+  public String getSmoothingType() {
+    return smoothingType;
+  }
+
+  public void setSmoothingType(String smoothingType) {
+    this.smoothingType = smoothingType;
   }
 
 }

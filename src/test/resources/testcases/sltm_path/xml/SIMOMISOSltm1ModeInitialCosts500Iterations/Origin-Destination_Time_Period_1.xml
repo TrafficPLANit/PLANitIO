@@ -7,7 +7,7 @@
         <assignment>StaticLtm</assignment>
         <physicalcost>SteadyStateTravelTimeCost</physicalcost>
         <virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
-        <smoothing>MSASmoothing</smoothing>
+        <smoothing>MSRASmoothing</smoothing>
         <gapfunction>PathBasedGapFunction</gapfunction>
         <stopcriterion>StopCriterion</stopcriterion>
         <timeperiod>

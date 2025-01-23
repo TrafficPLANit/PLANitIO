@@ -110,13 +110,13 @@
 						<length>2</length>
 					</link>
 					<link id="6" nodearef="1" nodebref="3">
-						<linksegment id="6" externalid="six" dir="a_b" typeref="1">
+						<linksegment id="6" externalid="eight" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
 					</link>
 					<link id="7" nodearef="3" nodebref="4">
-						<linksegment id="7" externalid="seven" dir="a_b" typeref="1">
+						<linksegment id="7" externalid="nine" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>

@@ -403,9 +403,12 @@ public class RouteChoiceTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      runner.registerInitialLinkSegmentCostByTimePeriod("0", Path.of(inputPath,"initial_link_segment_costs_time_period_1.csv").toString());
-      runner.registerInitialLinkSegmentCostByTimePeriod("1", Path.of(inputPath,"initial_link_segment_costs_time_period_2.csv").toString());
-      runner.registerInitialLinkSegmentCostByTimePeriod("2", Path.of(inputPath,"initial_link_segment_costs_time_period_3.csv").toString());
+      runner.registerInitialLinkSegmentCostByTimePeriod(
+              "0", Path.of(inputPath,"initial_link_segment_costs_time_period_1.csv").toString());
+      runner.registerInitialLinkSegmentCostByTimePeriod(
+              "1", Path.of(inputPath,"initial_link_segment_costs_time_period_2.csv").toString());
+      runner.registerInitialLinkSegmentCostByTimePeriod(
+              "2", Path.of(inputPath,"initial_link_segment_costs_time_period_3.csv").toString());
       runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */

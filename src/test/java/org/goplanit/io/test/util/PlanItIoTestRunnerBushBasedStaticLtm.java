@@ -40,7 +40,7 @@ public class PlanItIoTestRunnerBushBasedStaticLtm extends PlanItIoTestRunner {
                         project.physicalNetworks.getFirst());
 
         // steady state configurator
-        var physicalCostConfigurator = taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.STEADY_STATE);
+        taConfigurator.createAndRegisterPhysicalCost(AbstractPhysicalCost.STEADY_STATE);
         var sLtm = ((StaticLtmConfigurator)taConfigurator);
 
         // defaults 5/2024, but set explicitly so tests will not break if defaults change

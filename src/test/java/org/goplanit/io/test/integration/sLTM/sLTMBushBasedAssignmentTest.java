@@ -9,7 +9,12 @@ import org.goplanit.io.test.util.PlanItIoTestRunnerPathBasedStaticLtm;
 import org.goplanit.logging.Logging;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.OutputFormatter;
+import org.goplanit.output.property.OutputPropertyType;
+import org.goplanit.sdinteraction.smoothing.Smoothing;
+import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.id.IdGenerator;
+import org.goplanit.utils.id.IdMapperType;
+import org.goplanit.utils.misc.Pair;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
@@ -19,7 +24,7 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * JUnit test case for static Link Transmission Model in path absed form, specifically certain more complex
+ * JUnit test case for static Link Transmission Model in bush based form, specifically certain more complex
  * setups with IO which are adaptations from - for example - the RouteChoiceTests for the traditional assignment
  *
  * @author markr
@@ -95,11 +100,22 @@ public class sLTMBushBasedAssignmentTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
+      runner.setSmoothingType(Smoothing.MSRA);
+
       runner.registerInitialLinkSegmentCost(Path.of(inputPath,"initial_link_segment_costs.csv").toString());
 
       var sLtm = ((StaticLtmConfigurator)runner.getRawTrafficAssignmentConfigurator());
-      //sLtm.activateDetailedLogging(true);
-      //sLtm.addTrackOdsForLogging(IdMapperType.XML, Pair.of("1","2"));
+
+      // QL FD
+      sLtm.createAndRegisterFundamentalDiagram(FundamentalDiagram.QUADRATIC_LINEAR);
+
+      var linkOutputConfig = sLtm.getOutputConfiguration().getOutputTypeConfiguration(OutputType.LINK);
+      linkOutputConfig.removeProperty(OutputPropertyType.LINK_SEGMENT_TYPE_XML_ID);
+      linkOutputConfig.removeProperty(OutputPropertyType.MODE_XML_ID);
+      linkOutputConfig.addProperty(OutputPropertyType.LINK_SEGMENT_EXTERNAL_ID);
+
+      sLtm.activateDetailedLogging(true);
+      sLtm.addTrackOdsForLogging(IdMapperType.XML, Pair.of("X","2"));
 
       runner.setupAndExecuteDefaultAssignment();
 

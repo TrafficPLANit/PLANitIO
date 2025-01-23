@@ -52,16 +52,16 @@
 					</linksegmenttypes>
 				</layerconfiguration>
 				<nodes>
-					<node id="1" />
-					<node id="2" />
-					<node id="3" />
-					<node id="4" />
-					<node id="11" />
-					<node id="12" />
+					<node id="1" externalid="one"/>
+					<node id="2" externalid="two"/>
+					<node id="3" externalid="three"/>
+					<node id="4" externalid="four"/>
+					<node id="11" externalid="C1"/>
+					<node id="12" externalid="C2"/>
 				</nodes>
 				<links>
 					<link id="1" nodearef="11" nodebref="1">
-						<linksegment id="11_1" externalid="one" dir="a_b" typeref="1">
+						<linksegment id="C1_1" externalid="one" dir="a_b" typeref="1">
 							<numberoflanes>3</numberoflanes>
 						</linksegment>
 						<length>1</length>
@@ -73,7 +73,7 @@
 						<length>1</length>
 					</link>
 					<link id="3" nodearef="4" nodebref="12">
-						<linksegment id="4_12" externalid="three" dir="a_b" typeref="1">
+						<linksegment id="4_C2" externalid="three" dir="a_b" typeref="1">
 							<numberoflanes>3</numberoflanes>
 						</linksegment>
 						<length>1</length>
@@ -91,13 +91,13 @@
 						<length>2</length>
 					</link>
 					<link id="6" nodearef="1" nodebref="3">
-						<linksegment id="1_3" externalid="six" dir="a_b" typeref="1">
+						<linksegment id="1_3" externalid="eight" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>
 					</link>
 					<link id="7" nodearef="3" nodebref="4">
-						<linksegment id="3_4" externalid="seven" dir="a_b" typeref="1">
+						<linksegment id="3_4" externalid="nine" dir="a_b" typeref="1">
 							<numberoflanes>1</numberoflanes>
 						</linksegment>
 						<length>1</length>

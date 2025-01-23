@@ -7,7 +7,12 @@ import org.goplanit.io.test.util.PlanItIoTestRunner;
 import org.goplanit.io.test.util.PlanItIoTestRunnerPathBasedStaticLtm;
 import org.goplanit.logging.Logging;
 import org.goplanit.output.enums.OutputType;
+import org.goplanit.output.property.OutputPropertyType;
+import org.goplanit.sdinteraction.smoothing.Smoothing;
+import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.id.IdGenerator;
+import org.goplanit.utils.id.IdMapperType;
+import org.goplanit.utils.misc.Pair;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
@@ -71,7 +76,8 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
    * segments
    *
    * TODO: <a href="https://github.com/TrafficPLANit/PLANit/issues/117">
-   *   only 2 of three possible routes in choice set, this is incorrect, should be able to better create paths to avoid this</a>
+   *   only 2 of three possible routes in choice set, this is incorrect, should be able to better create paths to avoid
+   *   this using stochastic path searches</a>
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations() {
@@ -95,11 +101,21 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
+      runner.setSmoothingType(Smoothing.MSRA);
+
       runner.registerInitialLinkSegmentCost(Path.of(inputPath,"initial_link_segment_costs.csv").toString());
 
       var sLtm = ((StaticLtmConfigurator)runner.getRawTrafficAssignmentConfigurator());
-      //sLtm.activateDetailedLogging(true);
-      //sLtm.addTrackOdsForLogging(IdMapperType.XML, Pair.of("1","2"));
+
+      var linkOutputConfig = sLtm.getOutputConfiguration().getOutputTypeConfiguration(OutputType.LINK);
+      linkOutputConfig.removeProperty(OutputPropertyType.LINK_SEGMENT_XML_ID);
+      linkOutputConfig.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
+      linkOutputConfig.removeProperty(OutputPropertyType.UPSTREAM_NODE_XML_ID);
+      linkOutputConfig.removeProperty(OutputPropertyType.MODE_XML_ID);
+      linkOutputConfig.addProperty(OutputPropertyType.LINK_SEGMENT_EXTERNAL_ID);
+
+      sLtm.activateDetailedLogging(true);
+      sLtm.addTrackOdsForLogging(IdMapperType.XML, Pair.of("1","2"));
 
       runner.setupAndExecuteDefaultAssignment();
 

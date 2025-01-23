@@ -460,7 +460,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
         
         /* parse */
         for (final CSVRecord record : parser) {
-          MacroscopicLinkSegment linkSegment = indexByIdentificationMethod.get(record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(record.get(DownstreamNodeXmlIdOutputProperty.NAME));         
+          MacroscopicLinkSegment linkSegment =
+                  indexByIdentificationMethod.get(
+                          record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
           PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
           setPhysicalInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
         }

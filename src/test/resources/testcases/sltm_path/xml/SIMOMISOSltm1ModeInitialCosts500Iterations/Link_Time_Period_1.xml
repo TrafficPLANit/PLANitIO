@@ -7,7 +7,7 @@
         <assignment>StaticLtm</assignment>
         <physicalcost>SteadyStateTravelTimeCost</physicalcost>
         <virtualcost>FixedConnectoidTravelTimeCost</virtualcost>
-        <smoothing>MSASmoothing</smoothing>
+        <smoothing>MSRASmoothing</smoothing>
         <gapfunction>PathBasedGapFunction</gapfunction>
         <stopcriterion>StopCriterion</stopcriterion>
         <timeperiod>
@@ -23,22 +23,7 @@
     </simulation>
     <columns>
         <column>
-            <name>Downstream Node Xml Id</name>
-            <units>none</units>
-            <type>string</type>
-        </column>
-        <column>
-            <name>Link Segment Xml Id</name>
-            <units>none</units>
-            <type>string</type>
-        </column>
-        <column>
-            <name>Mode Xml Id</name>
-            <units>none</units>
-            <type>string</type>
-        </column>
-        <column>
-            <name>Upstream Node Xml Id</name>
+            <name>Link Segment External Id</name>
             <units>none</units>
             <type>string</type>
         </column>
