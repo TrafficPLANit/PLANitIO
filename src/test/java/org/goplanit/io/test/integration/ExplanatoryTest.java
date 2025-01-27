@@ -10,6 +10,7 @@ import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
 import org.goplanit.output.property.OutputPropertyType;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
@@ -592,19 +593,11 @@ public class ExplanatoryTest extends TestBase {
       PlanItIoTestRunner runner = new PlanItIoTestRunner(projectPath, description);
       runner.setupAndExecuteDefaultAssignment();      
       
-      /* change link formatting*/
-      Consumer<LinkOutputTypeConfiguration> changeLockedProperties = lotc -> {
-        try {
-          lotc.removeProperty(OutputPropertyType.FLOW);
-        } catch (PlanItException e) {
-          throw new RuntimeException(e);
-        }
-      };
       /* run again with updated configuration -> should throw error */
-      runner.setupAndExecuteWithCustomLinkOutputConfiguration(changeLockedProperties);
+      runner.setupAndExecuteWithCustomLinkOutputConfiguration(lotc -> lotc.removeProperty(OutputPropertyType.FLOW));
       
       fail("testExplanatoryAttemptToChangeLockedFormatter() did not throw PlanItException when expected");
-    } catch (Exception e) {
+    } catch (PlanItRunTimeException e) {
       assertEquals(e.getMessage(), "An attempt was made to change the output value properties after they had been locked");
     }
 

@@ -77,6 +77,13 @@ public class sLTMBushBasedAssignmentTest extends TestBase {
    * The test input initial costs file uses Link Segment Id to identify link
    * segments
    *
+   * TODO: currently fails, because too little flow is shifted. Reason is  shared bottleneck entry link
+   *  dominates costs and dcostdflow, yet we use same value for both turns. Revisit once we have dcostsdflow and
+   *  acceptance factors per turn which should solve this. Initial attempt to ignore shared bottleneck is NOT a solution
+   *  as verified that it cripples other situations where a shared bottlenecks dcostdflow should be considered because
+   *  moving flow to other turns does impact the alpha and may result in a state change....so we should consider it, just
+   *  in a smarter way, when we do this test should converge!
+   *
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations() {

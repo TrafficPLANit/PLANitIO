@@ -1500,17 +1500,12 @@ public class RouteChoiceTest extends TestBase {
 
       Consumer<LinkOutputTypeConfiguration> setOutputTypeConfigurationProperties = (
           linkOutputTypeConfiguration) -> {
-        try {
           linkOutputTypeConfiguration.removeProperty(OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
           linkOutputTypeConfiguration.removeProperty(OutputPropertyType.UPSTREAM_NODE_XML_ID);
           linkOutputTypeConfiguration.addProperties(
-                  OutputPropertyType.DOWNSTREAM_NODE_ID, OutputPropertyType.UPSTREAM_NODE_ID, OutputPropertyType.LINK_SEGMENT_ID);
+                  OutputPropertyType.DOWNSTREAM_NODE_ID,
+                  OutputPropertyType.UPSTREAM_NODE_ID, OutputPropertyType.LINK_SEGMENT_ID);
           linkOutputTypeConfiguration.addProperty(OutputPropertyType.MAXIMUM_SPEED);
-        } catch (PlanItException e) {
-          e.printStackTrace();
-          LOGGER.severe(e.getMessage());
-          fail(e.getMessage());
-        }
       };
       
       /* run test */
