@@ -77,12 +77,14 @@ public class sLTMBushBasedAssignmentTest extends TestBase {
    * The test input initial costs file uses Link Segment Id to identify link
    * segments
    *
-   * TODO: currently fails, because too little flow is shifted. Reason is  shared bottleneck entry link
+   * TODO: currently fails fort wo reasons: (i) little flow is shifted because shared bottleneck entry link
    *  dominates costs and dcostdflow, yet we use same dcost/dflow for both turns. Revisit once we have dcostsdflow and
    *  acceptance factors per turn which should solve this. Initial attempt to ignore shared bottleneck is NOT a solution
    *  as verified that it cripples other situations where a shared bottlenecks dcostdflow should be considered because
    *  moving flow to other turns does impact the alpha and may result in a state change....so we should consider it, just
-   *  in a smarter way, when we do this test should converge!
+   *  in a smarter way, when we do this test should converge! (ii) the second alternative is never found because it
+   *  has the same cost as the middle alternative, yet shortest path chooses to find middle one again and again, so
+   *  no flow is shifted. No solution for that found yet.
    *
    */
   @Test
