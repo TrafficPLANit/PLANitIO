@@ -58,17 +58,25 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     PlanItRunTimeException.throwIf(networkToPopulate==null, "physical network to populate is null");
     PlanItRunTimeException.throwIf(zoningToPopulate==null, "zoning to populate is null");
     if(withRoutedServices) {
-      PlanItRunTimeException.throwIf(serviceNetworkToPopulate == null, "service network to populate is null");
-      PlanItRunTimeException.throwIf(!networkToPopulate.equals(serviceNetworkToPopulate.getParentNetwork()), "network to populate differs from service network parent network");
-            PlanItRunTimeException.throwIf(routedServicesToPopulate == null, "routed services to populate is null");
-      PlanItRunTimeException.throwIf(!serviceNetworkToPopulate.equals(routedServicesToPopulate.getParentNetwork()), "service network to populate differs from routed services parent service network");
+      PlanItRunTimeException.throwIf(
+          serviceNetworkToPopulate == null, "service network to populate is null");
+      PlanItRunTimeException.throwIf(
+          !networkToPopulate.equals(serviceNetworkToPopulate.getParentNetwork()),
+          "network to populate differs from service network parent network");
+      PlanItRunTimeException.throwIf(
+          routedServicesToPopulate == null, "routed services to populate is null");
+      PlanItRunTimeException.throwIf(
+          !serviceNetworkToPopulate.equals(routedServicesToPopulate.getParentNetwork()),
+          "service network to populate differs from routed services parent service network");
     }
   }
     
-  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model. Network and zoning instance
+  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to
+   * planit memory model. Network and zoning instance
    * are created internally and returned upon completion
    * 
-   * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for both (network.xml, zoning.xml)   * 
+   * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for
+   *                           both (network.xml, zoning.xml)   *
    * @param xmlFileExtension to use
    * @param idToken to use for the network and zoning that are to be created
    */
@@ -76,7 +84,8 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     this(new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension), idToken);    
   }   
   
-  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model. Network and zoning instance
+  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to
+   * planit memory model. Network and zoning instance
    * are created internally and returned upon completion
    * 
    * @param settings to use
@@ -97,20 +106,25 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     this.xmlRawRoutedServices = null;
   }  
   
-  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model
+  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to
+   * planit memory model
    * 
-   * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for both (network.xml, zoning.xml)   * 
+   * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for
+   *                           both (network.xml, zoning.xml)   *
    * @param xmlFileExtension to use
    * @param network to populate
    * @param zoning to populate
    */
-  protected PlanitIntermodalReader(String inputPathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning) {
+  protected PlanitIntermodalReader(
+      String inputPathDirectory, String xmlFileExtension, MacroscopicNetwork network, Zoning zoning) {
     this(inputPathDirectory, xmlFileExtension, network, zoning, null, null);
   }
 
-  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to planit memory model
+  /** constructor where xml content is still on disk and first needs to be parsed into memory before converted to
+   * planit memory model
    *
-   * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for both (network.xml, zoning.xml)   *
+   * @param inputPathDirectory to use for both network and zoning input file assuming default input file names for
+   *                           both (network.xml, zoning.xml)   *
    * @param xmlFileExtension to use
    * @param network to populate
    * @param zoning to populate
@@ -126,7 +140,8 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     this(new PlanitIntermodalReaderSettings(inputPathDirectory, xmlFileExtension), null, null, null, null, network, zoning, serviceNetwork, routedServices);
   }
 
-  /** constructor where the xml content has already been parsed into a JAXB memory model which subsequently needs to be converted into the planit memory model
+  /** constructor where the xml content has already been parsed into a JAXB memory model which subsequently needs to
+   * be converted into the planit memory model
    * 
    * @param xmlRawNetwork to extract from
    * @param xmlRawZoning to extract from
@@ -203,16 +218,19 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     if(xmlRawNetwork == null) {
       networkReader = PlanitNetworkReaderFactory.create(getSettings().getNetworkSettings(), networkToPopulate);
     }else{
-      networkReader = PlanitNetworkReaderFactory.create(xmlRawNetwork, getSettings().getNetworkSettings(), networkToPopulate);
+      networkReader = PlanitNetworkReaderFactory.create(
+          xmlRawNetwork, getSettings().getNetworkSettings(), networkToPopulate);
     }
     MacroscopicNetwork referenceNetwork = networkReader.read();
         
     /* zoning */   
     PlanitZoningReader zoningReader;
     if(xmlRawZoning == null){
-      zoningReader = PlanitZoningReaderFactory.create(getSettings().getZoningSettings(), referenceNetwork, zoningToPopulate);
+      zoningReader = PlanitZoningReaderFactory.create(
+          getSettings().getZoningSettings(), referenceNetwork, zoningToPopulate);
     }else{
-      zoningReader = PlanitZoningReaderFactory.create(xmlRawZoning, getSettings().getZoningSettings(), referenceNetwork, zoningToPopulate);
+      zoningReader = PlanitZoningReaderFactory.create(
+          xmlRawZoning, getSettings().getZoningSettings(), referenceNetwork, zoningToPopulate);
     }
     
     /* parse */
@@ -237,18 +255,22 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     // service network
     PlanitServiceNetworkReader serviceNetworkReader;
     if(xmlRawServiceNetwork == null) {
-      serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(getSettings().getServiceNetworkSettings(), serviceNetworkToPopulate);
+      serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(
+          getSettings().getServiceNetworkSettings(), serviceNetworkToPopulate);
     }else{
-      serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(xmlRawServiceNetwork, getSettings().getServiceNetworkSettings(), serviceNetworkToPopulate);
+      serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(
+          xmlRawServiceNetwork, getSettings().getServiceNetworkSettings(), serviceNetworkToPopulate);
     }
     var serviceNetwork = serviceNetworkReader.read();
 
     // routed services
     PlanitRoutedServicesReader routedServicesReader;
     if(xmlRawRoutedServices == null) {
-      routedServicesReader = PlanitRoutedServicesReaderFactory.create(getSettings().getRoutedServicesSettings(), routedServicesToPopulate);
+      routedServicesReader = PlanitRoutedServicesReaderFactory.create(
+          getSettings().getRoutedServicesSettings(), routedServicesToPopulate);
     }else{
-      routedServicesReader = PlanitRoutedServicesReaderFactory.create(xmlRawRoutedServices, getSettings().getRoutedServicesSettings(), routedServicesToPopulate);
+      routedServicesReader = PlanitRoutedServicesReaderFactory.create(
+          xmlRawRoutedServices, getSettings().getRoutedServicesSettings(), routedServicesToPopulate);
     }
     var routedServices = routedServicesReader.read();
 
