@@ -211,6 +211,10 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     xmlNode.setName(node.getName());
     
     /* location */
+    if(!node.hasPosition()){
+      LOGGER.warning(String.format("Node (%s) without position, unable to create GML point", node.getIdsAsString()));
+      return;
+    }
     xmlNode.setPoint(createGmlPointType(node.getPosition()));    
   }
 
