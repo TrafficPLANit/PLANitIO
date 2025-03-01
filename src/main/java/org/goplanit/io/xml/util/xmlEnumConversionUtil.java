@@ -197,7 +197,8 @@ public class xmlEnumConversionUtil {
     }else if(planitTimeUnit.equals(Unit.MILLISECOND)) {
       return TimeUnit.MS;
     }else{
-      throw new PlanItRunTimeException(String.format("Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable",planitTimeUnit.toString()));
+      throw new PlanItRunTimeException(String.format(
+          "Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable", planitTimeUnit));
     }
   }
 

@@ -195,7 +195,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         LOGGER.fine(String.format("connectoid %s has explicitly set length, yet has multiple access zones that now all receive equal lengths", connectoid.getXmlId()));
       }
       for(Zone accessZone : connectoid) {
-        connectoid.setLength(accessZone, connectoidLength);
+        connectoid.setLengthKm(accessZone, connectoidLength);
       }
       // :TODO - need to create some test cases in which nodes have a GML location
     }
@@ -209,7 +209,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         }
         if(accessZone.getCentroid().getPosition() != null) {
           connectoidLength = jtsUtils.getDistanceInKilometres(accessZone.getCentroid().getPosition(), position);
-          connectoid.setLength(accessZone, connectoidLength);
+          connectoid.setLengthKm(accessZone, connectoidLength);
         }
       }
     }

@@ -522,7 +522,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void populateXmlOdZone(final Zoning zoning, final OdZone odZone) {
     if(!zoneToConnectoidMap.containsKey(odZone)) {
-      LOGGER.warning(String.format("DISCARD: od zone %s (id: %d) without connectoids found; dangling", odZone.getXmlId(), odZone.getId()));
+      LOGGER.warning(String.format("DISCARD: od zone (%s) without connectoids found; dangling",
+          odZone.getIdsAsString(), odZone.getId()));
       return;
     }
     
@@ -569,12 +570,14 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     zoneToConnectoidMap.get(odZone).stream().sorted(
         Comparator.comparing(getPrimaryIdMapper().getConnectoidIdMapper())).forEach(connectoid -> {
             
-      /* od zones in xml only record their undirected connectoids at this point in time since they allow access from all incoming link(segment)s */
+      /* od zones in xml only record their undirected connectoids at this point in time since they allow access
+       * from all incoming link(segment)s */
       if(connectoid instanceof UndirectedConnectoid) {
         
         var odConnectoid = (UndirectedConnectoid)connectoid;
         if(!odConnectoid.hasAccessZone(odZone)) {
-          LOGGER.severe(String.format("OD conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone is not registered as access zone",
+          LOGGER.severe(String.format("OD conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone " +
+                  "is not registered as access zone",
               odConnectoid.getXmlId(), odConnectoid.getId(), odZone.getXmlId(), odZone.getId()));
         }
         
@@ -596,7 +599,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* xml id */
     String xmlId = getPrimaryIdMapper().getZoningIdMapper().apply(zoning);
     if(StringUtils.isNullOrBlank(xmlId)) {
-      LOGGER.warning(String.format("Zoning has no XML id defined, adopting internally generated id %d instead",zoning.getId()));
+      LOGGER.warning(String.format("Zoning has no XML id defined, adopting internally generated id %d instead",
+          zoning.getId()));
       xmlId = String.valueOf(zoning.getId());
       zoning.setXmlId(xmlId);
     }
@@ -638,7 +642,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void populateXmlIntermodal(final Zoning zoning) {
     if(zoning.getTransferZones().isEmpty() && zoning.getTransferConnectoids().isEmpty()) {
-      LOGGER.severe("Transfer zones and/or connectoids should be present when creating intermodal XML elements, but they are empty, abort");
+      LOGGER.severe("Transfer zones and/or connectoids should be present when creating intermodal XML elements, " +
+          "but they are empty, abort");
       return;
     }
 
@@ -700,8 +705,12 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* initialise */
     {
       getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-      prepareCoordinateReferenceSystem(zoning.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
-      LOGGER.info(String.format("Persisting PLANit zoning to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
+      prepareCoordinateReferenceSystem(
+          zoning.getCoordinateReferenceSystem(),
+          getSettings().getDestinationCoordinateReferenceSystem(),
+          getSettings().getCountry());
+      LOGGER.info(String.format("Persisting PLANit zoning to: %s",
+          Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
       
       createZoneToConnectoidIndices(zoning); 
     }
