@@ -700,7 +700,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   @Override
   public void write(final Zoning zoning) {
-    PlanItRunTimeException.throwIfNull(zoning, "Zoning is null cannot write to Planit native format");
+    PlanItRunTimeException.throwIfNull(zoning, "Zoning is null cannot write to PLANit native format");
+    PlanItRunTimeException.throwIfNull(getSettings().getOutputDirectory(), "No output directory set for writing PLANit network");
+    PlanItRunTimeException.throwIfNull(getSettings().getFileName(), "No file name set for writing PLANit network");
 
     /* initialise */
     {

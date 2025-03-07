@@ -56,7 +56,7 @@ public class PlanitXmlWriterSettings extends SingleFileBasedConverterWriterSetti
    *  @param outputPathDirectory to use
    */
   public PlanitXmlWriterSettings(final String outputPathDirectory) {
-    super( outputPathDirectory);
+    super(outputPathDirectory);
   }
   
   /**

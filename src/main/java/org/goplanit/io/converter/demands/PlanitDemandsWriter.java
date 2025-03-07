@@ -188,7 +188,11 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
    * @param xmlOdDemandsEntry to populate
    * @return totalTrips in veh/h in this od demand entry
    */
-  private double populateXmlOdRowMatrix(final OdDemands odDemandsEntry, TimePeriod timePeriod, UserClass userClass, final XMLElementOdRowMatrix xmlOdDemandsEntry) {
+  private double populateXmlOdRowMatrix(
+          final OdDemands odDemandsEntry,
+          TimePeriod timePeriod,
+          UserClass userClass,
+          final XMLElementOdRowMatrix xmlOdDemandsEntry) {
     
     /* time period ref */
     String timePeriodRef = getPrimaryIdMapper().getTimePeriodIdMapper().apply(timePeriod);
@@ -298,6 +302,24 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     xmlRawDemands.setId(demands.getXmlId());
   }
 
+  /**
+   * Verify if setup is valid before commencing persist
+   *
+   * @return true when valid, false otherwise
+   */
+  private boolean validateSettings() {
+    if(!getSettings().validate()){
+      return false;
+    }
+
+    boolean valid = true;
+    if(getReferenceZoning() == null){
+      LOGGER.severe("Unable to persist PLANit demands without reference zoning, please provide before persisting");
+      valid = false;
+    }
+    return valid;
+  }
+
   /** Constructor
    *
    * @param settings to use
@@ -336,7 +358,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
   public void write(final Demands demands) throws PlanItException {    
     PlanItException.throwIfNull(demands, "Demands is null cannot write to PLANit native format");
 
-    if(!getSettings().validate()){
+    if(!validateSettings()){
       LOGGER.severe("Unable to continue PLANit writing of demands, settings invalid");
       return;
     }
@@ -344,7 +366,8 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     /* initialise */
     {
       getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-      LOGGER.info(String.format("Persisting PLANit demands to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
+      LOGGER.info(String.format("Persisting PLANit demands to: %s",
+              Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
     }
     
     getSettings().logSettings();
@@ -361,7 +384,6 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     /* persist */
     super.persist(xmlRawDemands, XMLElementMacroscopicDemand.class, PlanitSchema.MACROSCOPIC_DEMAND_XSD);
   }
-
 
   /**
    * {@inheritDoc}

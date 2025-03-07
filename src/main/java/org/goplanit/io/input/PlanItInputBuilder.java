@@ -31,6 +31,7 @@ import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.misc.Triple;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
@@ -99,11 +100,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param networkXmlFileLocation location of the network input XML file
    * @throws PlanItException thrown if there is an error during reading the files
    */
-  private void createGeneratedClassesFromXmlLocations(final File zoningXmlFileLocation, final File demandXmlFileLocation, final File networkXmlFileLocation) throws PlanItException {
+  private void createGeneratedClassesFromXmlLocations(
+          final File zoningXmlFileLocation,
+          final File demandXmlFileLocation,
+          final File networkXmlFileLocation) throws PlanItException {
     try {
-      xmlRawZoning = (XMLElementMacroscopicZoning) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
-      xmlRawDemand = (XMLElementMacroscopicDemand) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicDemand.class, demandXmlFileLocation);
-      xmlRawNetwork = (XMLElementMacroscopicNetwork) JAXBUtils.generateObjectFromXml(XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
+      xmlRawZoning = (XMLElementMacroscopicZoning) JAXBUtils.generateObjectFromXml(
+              XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
+      xmlRawDemand = (XMLElementMacroscopicDemand) JAXBUtils.generateObjectFromXml(
+              XMLElementMacroscopicDemand.class, demandXmlFileLocation);
+      xmlRawNetwork = (XMLElementMacroscopicNetwork) JAXBUtils.generateObjectFromXml(
+              XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error while generating classes from XML locations in PLANitIO",e);
@@ -116,17 +123,28 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * This method checks if a single file contains all mandatory components of a project; network, demand, and zoning. 
    * If no single file is found, it then checks for separate files, one for each type of input.
    *
-   * @throws PlanItException thrown if not all of network, demand and zoning input data are available
+   * @return result indicating the outcome per base file (network, zoning, demands)
    */
-  private void parseXmlRawInputs() throws PlanItException {
+  private Triple<Boolean,Boolean,Boolean> parseXmlRawInputs() {
     final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension);
-    
+
+    Triple<Boolean,Boolean,Boolean> result;
     boolean success = parseXmlRawInputsFromSingleFile(xmlFileNames);
     if(!success) {
-      success = parseXmlRawInputSeparateFiles(xmlFileNames);
+      result = parseXmlRawInputSeparateFiles(xmlFileNames);
+      if(result.first() == null || !result.first()){
+        throw new PlanItRunTimeException(String.format("Directory %s does not contain valid network file",projectPath));
+      }
+      if(result.second() == null || !result.second()){
+        throw new PlanItRunTimeException(String.format("Directory %s does not contain valid zoning file",projectPath));
+      }
+      if(result.third() ==null || !result.third()){
+        LOGGER.warning(String.format("Directory %s does not contain a valid demands file, skipped", projectPath));
+      }
+    }else{
+      result = Triple.of(true,true,true);
     }
-    
-    PlanItException.throwIf(!success, String.format("Directory %s does not contain file with all inputs nor separate files for zoning, demand, and network",projectPath));
+    return result;
   }
 
   /**
@@ -158,13 +176,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * Populate the generated input objects from three separate XML files
    *
    * @param xmlFileNames array of names of XML files in the input directory
-   * @return true if input demand, zoning and network file are found in xmlFileNames, false otherwise
+   * @return true per input demand, zoning and network file if found in xmlFileNames, false otherwise
    */
-  private boolean parseXmlRawInputSeparateFiles(final File[] xmlFileNames) {
+  private Triple<Boolean,Boolean,Boolean> parseXmlRawInputSeparateFiles(final File[] xmlFileNames) {
     xmlRawZoning = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicZoning.class, xmlFileNames);
     xmlRawNetwork = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
     xmlRawDemand = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicDemand.class, xmlFileNames);
-    return (xmlRawZoning!=null && xmlRawNetwork!=null && xmlRawDemand!=null);
+    return Triple.of(xmlRawZoning!=null, xmlRawNetwork!=null, xmlRawDemand!=null);
   }
 
   /**
@@ -177,7 +195,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files in the project directory
    */
   @SuppressWarnings("unused")
-  private void setInputFilesSeparateFilesWithValidation(final String projectPath, final File[] xmlFileNames) throws PlanItException {
+  private void setInputFilesSeparateFilesWithValidation(
+          final String projectPath, final File[] xmlFileNames) throws PlanItException {
     
     File zoningFileName = null;
     File networkFileName = null;
@@ -187,33 +206,43 @@ public class PlanItInputBuilder extends InputBuilderListener {
     for (int i = 0; i < xmlFileNames.length; i++) {
       if (zoningFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitZoningReader.ZONING_XSD_FILE)) {
           zoningFileName = xmlFileNames[i];
-          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + zoningFileName + " provides the zoning input data.");
+          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + zoningFileName +
+                  " provides the zoning input data.");
           continue;
       }
       if (networkFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitNetworkReader.NETWORK_XSD_FILE)) {
           networkFileName = xmlFileNames[i];
-          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + networkFileName + " provides the network input data.");
+          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " + networkFileName +
+                  " provides the network input data.");
           continue;
       }
       if (demandFileName==null && validateXmlInputFile(xmlFileNames[i], PlanitDemandsReader.DEMAND_XSD_FILE)) {
           demandFileName = xmlFileNames[i];
-          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +demandFileName + " provides the demand input data.");          
+          LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +demandFileName + " " +
+                  "provides the demand input data.");
           continue;
       }
-      if (!serviceNetworkFileDone && validateXmlInputFile(xmlFileNames[i], PlanitServiceNetworkReader.SERVICE_NETWORK_XSD_FILE)) {
+      if (!serviceNetworkFileDone &&
+              validateXmlInputFile(xmlFileNames[i], PlanitServiceNetworkReader.SERVICE_NETWORK_XSD_FILE)) {
         serviceNetworkFileDone = true;
-        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +xmlFileNames[i] + " provides the service network input data.");
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +xmlFileNames[i] +
+                " provides the service network input data.");
         continue;
       }
-      if (!routedServicesFileDone && validateXmlInputFile(xmlFileNames[i], PlanitRoutedServicesReader.ROUTED_SERVICES_XSD_FILE)) {
+      if (!routedServicesFileDone &&
+              validateXmlInputFile(xmlFileNames[i], PlanitRoutedServicesReader.ROUTED_SERVICES_XSD_FILE)) {
         routedServicesFileDone = true;
-        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +xmlFileNames[i] + " provides the routed services input data.");
+        LOGGER.info(LoggingUtils.getClassNameWithBrackets(this)+"file " +xmlFileNames[i] +
+                " provides the routed services input data.");
         continue;
       }      
     }
-    PlanItException.throwIfNull(zoningFileName, "Failed to find a valid zoning input file in directory %s", projectPath);
-    PlanItException.throwIfNull(networkFileName, "Failed to find a valid network input file in directory %s", projectPath);
-    PlanItException.throwIfNull(demandFileName, "Failed to find a valid demand input file in directory %s", projectPath);     
+    PlanItException.throwIfNull(zoningFileName,
+            "Failed to find a valid zoning input file in directory %s", projectPath);
+    PlanItException.throwIfNull(networkFileName,
+            "Failed to find a valid network input file in directory %s", projectPath);
+    PlanItException.throwIfNull(demandFileName,
+            "Failed to find a valid demand input file in directory %s", projectPath);
 
     createGeneratedClassesFromXmlLocations(zoningFileName, demandFileName, networkFileName);
   }
@@ -323,6 +352,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /* parse raw inputs if not already done */
     if(xmlRawNetwork == null) {
       parseXmlRawInputs();
+      if(xmlRawNetwork == null){
+        throw new PlanItException("No XML content for network available to be parsed");
+      }
     }
         
     /* create parser and read/populate the network */
@@ -341,9 +373,13 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @throws PlanItException thrown if there is an error reading the input file
    */
   protected void populateZoning(final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
+    // populated during network parsing
+    if(xmlRawZoning == null){
+      throw new PlanItException("No XML content for zoning available to be parsed");
+    }
     LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Zoning");
-    
-    /** delegate to the dedicated zoning reader */
+
+    /* delegate to the dedicated zoning reader */
     PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(xmlRawZoning, network, zoning);
     zoningReader.getSettings().setInputDirectory(projectPath);    
     zoningReader.read();
@@ -359,8 +395,16 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @param network network object previously defined
    * @throws PlanItException thrown if there is an error reading the input file
    */
-  protected void populateDemands( Demands demands, final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
-    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");     
+  protected void populateDemands(
+          Demands demands, final Zoning zoning, final MacroscopicNetwork network) throws PlanItException {
+    // populated during network parsing
+    if(xmlRawDemand == null){
+      LOGGER.info("Skipping Demand parsing, no XML demand available");
+      var tp = demands.timePeriods.getFactory().registerNewDefault();
+      LOGGER.info("Generating Time Period for empty Demand: " + tp);
+      return;
+    }
+    LOGGER.fine(LoggingUtils.getClassNameWithBrackets(this)+"populating Demands");
        
     /* delegate to the dedicated demands reader */
     PlanitDemandsReader demandsReader = new PlanitDemandsReader(xmlRawDemand, network, zoning, demands);

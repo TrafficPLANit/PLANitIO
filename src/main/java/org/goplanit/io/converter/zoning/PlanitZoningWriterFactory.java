@@ -17,7 +17,7 @@ public class PlanitZoningWriterFactory {
    * @return created zoning writer
    */
   public static PlanitZoningWriter create() {
-    return create(new PlanitZoningWriterSettings());
+    return create(null, null);
   }
   
   /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format
