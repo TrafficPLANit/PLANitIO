@@ -45,7 +45,10 @@ public class PlanitDemandsReaderFactory {
    * @return created PLANit demands reader
    */
   public static PlanitDemandsReader create(
-      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning referenceZoning){
+      final String pathDirectory,
+      final String xmlFileExtension,
+      final LayeredNetwork<?,?> network,
+      final Zoning referenceZoning){
     return create(new PlanitDemandsReaderSettings(pathDirectory, xmlFileExtension), network, referenceZoning);
   }
 
@@ -71,7 +74,9 @@ public class PlanitDemandsReaderFactory {
    * @return created PLANit demands reader
    */
   public static  PlanitDemandsReader create(
-      final XMLElementMacroscopicDemand xmlRawDemands, final LayeredNetwork<?,?> referenceNetwork, final Zoning referenceZoning){
+      final XMLElementMacroscopicDemand xmlRawDemands,
+      final LayeredNetwork<?,?> referenceNetwork,
+      final Zoning referenceZoning){
     return new PlanitDemandsReader(
             xmlRawDemands, referenceNetwork, referenceZoning, new Demands(referenceZoning.getIdGroupingToken()));
   }
@@ -93,7 +98,8 @@ public class PlanitDemandsReaderFactory {
    * @param zoningReader to extract reference zoning from
    * @return created PLANit demands reader
    */
-  public static  PlanitDemandsReader create(final PlanitDemandsReaderSettings settings, final PlanitZoningReader zoningReader){
+  public static  PlanitDemandsReader create(
+          final PlanitDemandsReaderSettings settings, final PlanitZoningReader zoningReader){
     return new PlanitDemandsReader(settings, zoningReader);
   }
 
