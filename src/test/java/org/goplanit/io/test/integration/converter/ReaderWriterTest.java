@@ -34,12 +34,13 @@ public class ReaderWriterTest {
     IdGenerator.reset();
   }
 
+
   /**
    * This test should verify that reading a network leads to a network that is exactly the same as writing this network
    * back to disk and reading it again 
    */
   @Test
-  public void reader_writer_test() {
+  public void readerWriterTest() {
     try {
       //TODO
       // populate with Sydney planit network -> write to disk as planit network, use that to store. Then apply this for the read/write test
