@@ -19,6 +19,16 @@ public class PlanitZoningWriterFactory {
   public static PlanitZoningWriter create() {
     return create(null, null);
   }
+
+  /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format. No country
+   * provided, so destination Crs may need to be set explicitly.
+   *
+   * @param zoningPath the file to use for persisting
+   * @return created zoning writer
+   */
+  public static PlanitZoningWriter create(final String zoningPath) {
+    return create(zoningPath, null);
+  }
   
   /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format
    * 

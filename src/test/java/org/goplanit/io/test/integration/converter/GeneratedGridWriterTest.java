@@ -1,10 +1,13 @@
 package org.goplanit.io.test.integration.converter;
 
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
+import org.goplanit.io.converter.zoning.PlanitZoningWriterFactory;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetworkUtils;
+import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.id.IdGenerator;
+import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -60,7 +64,30 @@ public class GeneratedGridWriterTest {
           Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "reference","network.xml");
       var createdNetworkPath =
           Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "network.xml");
-      PlanItIOTestHelper.compareFiles(referenceNetwork.toString(), createdNetworkPath.toString(), true);
+      assert(PlanItIOTestHelper.compareFiles(
+          referenceNetwork.toString(), createdNetworkPath.toString(), true));
+
+      var networkLayer = network.getTransportLayers().getFirst();
+      var zoning = new Zoning(testToken, networkLayer.getLayerIdGroupingToken());
+      zoning.getOdZones().getFactory().registerNew().setXmlId("A");
+      zoning.getOdZones().getFactory().registerNew().setXmlId("A`");
+      zoning.setCoordinateReferenceSystem(PlanitJtsCrsUtils.CARTESIANCRS);
+
+      zoning.getOdConnectoids().getFactory().registerNew(
+          networkLayer.getNodes().get(0),  zoning.getOdZones().getByXmlId("A"), 0).setXmlId("cA");
+      zoning.getOdConnectoids().getFactory().registerNew(
+          networkLayer.getNodes().get(99),  zoning.getOdZones().getByXmlId("A`"), 0).setXmlId("cA`");
+
+      var zoningWriter = PlanitZoningWriterFactory.create(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString());
+      zoningWriter.write(zoning);
+
+      var referenceZoning =
+          Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "reference","zoning.xml");
+      var createdZoningPath =
+          Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "zoning.xml");
+
+      assert(PlanItIOTestHelper.compareFiles(
+          referenceZoning.toString(), createdZoningPath.toString(), true));
 
     }catch(Exception e){
       e.printStackTrace();
