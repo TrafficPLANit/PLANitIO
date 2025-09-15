@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.zoning;
 
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Factory for creating PLANit Zoning Writers

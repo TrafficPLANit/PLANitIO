@@ -251,6 +251,8 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
 
     // network + zoning
     var networkZoning = read();
+    // sync CRS post-reading content (including CRS)
+    serviceNetworkToPopulate.setCoordinateReferenceSystem(networkZoning.first().getCoordinateReferenceSystem());
 
     // service network
     PlanitServiceNetworkReader serviceNetworkReader;

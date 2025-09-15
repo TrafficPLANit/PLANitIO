@@ -48,7 +48,7 @@ import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * A class that takes a PLANit zoning and persists it to file in the Planit native XML format. 

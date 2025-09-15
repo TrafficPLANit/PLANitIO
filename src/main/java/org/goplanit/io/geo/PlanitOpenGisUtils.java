@@ -5,22 +5,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.GeometryBuilder;
+//import org.geotools.geometry.GeometryBuilder;
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.GeometryBuilder;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.graph.Vertex;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.MultiLineString;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.PositionFactory;
-import org.opengis.geometry.coordinate.GeometryFactory;
-import org.opengis.geometry.coordinate.LineString;
-import org.opengis.geometry.coordinate.PointArray;
-import org.opengis.geometry.coordinate.Position;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.locationtech.jts.geom.*;
+//import org.opengis.geometry.DirectPosition;
+//import org.opengis.geometry.PositionFactory;
+//import org.opengis.geometry.coordinate.GeometryFactory;
+//import org.opengis.geometry.coordinate.LineString;
+//import org.opengis.geometry.coordinate.PointArray;
+//import org.opengis.geometry.coordinate.Position;
+//import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * General geotools related utils. Uses geodetic distance when possible. In case the CRS is not based on an ellipsoid (2d plane) it will simply compute the distance between
@@ -50,27 +54,57 @@ public class PlanitOpenGisUtils {
    * Geodetic calculator to construct distances between points. It is assumed the network CRS is geodetic in nature.
    */
   private GeodeticCalculator geodeticDistanceCalculator;
+
+  /** store crs explicitly */
+  private CoordinateReferenceSystem theCrs;
   
   /** geometry builder, holds crs ad well as factory methods to construct other factories*/
   private GeometryBuilder geometryBuilder;
   
   /** factory for geometries */
   private GeometryFactory geometryFactory;
-  
-  /** factory for positions */
-  private PositionFactory positionFactory;
 
+  /**
+   * Compute the distance in metres between two positions assuming the positions are provided in the same crs as registered on this class instance
+   *
+   * @param startPoint1 location of the start point
+   * @param startPoint2 location of the start point
+   * @param endPoint1   location of the end point
+   * @param endPoint2   location of the end point
+   * @return distance in metres between the points
+   * @throws PlanItException thrown if there is an error
+   */
+  private double getDistanceInMetres(
+          final double startPoint1,double startPoint2, final double endPoint1, double endPoint2) throws PlanItException {
+    // not thread safe
+    try {
+      if (geodeticDistanceCalculator != null) {
+        // ellipsoid crs
+        geodeticDistanceCalculator.setStartingGeographicPoint(
+                startPoint1, startPoint2);
+        geodeticDistanceCalculator.setDestinationGeographicPoint(
+                endPoint1, endPoint2);
+        return geodeticDistanceCalculator.getOrthodromicDistance();
+      } else {
+        // cartesian in meters
+        double deltaCoordinate0 = startPoint1 - endPoint1;
+        double deltaCoordinate1 = startPoint2 - endPoint2;
+        double distanceInMeters = Math.sqrt(Math.pow(deltaCoordinate0, 2) + Math.pow(deltaCoordinate1, 2));
+        return distanceInMeters;
+      }
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      throw new PlanItException("Error when computing distance in meters between two Positions in GeoUtils", e);
+    }
+  }
+  
   /**
    * Constructor
    * 
    * Uses default coordinate reference system
    */
   public PlanitOpenGisUtils() {
-    CoordinateReferenceSystem coordinateReferenceSystem = new DefaultGeographicCRS(DEFAULT_GEOGRAPHIC_CRS);
-    geometryBuilder = new GeometryBuilder(coordinateReferenceSystem);
-    geodeticDistanceCalculator = new GeodeticCalculator(coordinateReferenceSystem);
-    geometryFactory = geometryBuilder.getGeometryFactory();
-    positionFactory = geometryBuilder.getPositionFactory();
+    this(DEFAULT_GEOGRAPHIC_CRS);
   }
 
   /**
@@ -79,14 +113,45 @@ public class PlanitOpenGisUtils {
    * @param coordinateReferenceSystem OpenGIS CoordinateReferenceSystem object containing geometry
    */
   public PlanitOpenGisUtils(final CoordinateReferenceSystem coordinateReferenceSystem) {
-    geometryBuilder = new GeometryBuilder(coordinateReferenceSystem);
-    geometryFactory = geometryBuilder.getGeometryFactory();
-    positionFactory = geometryBuilder.getPositionFactory();
-
     // geodetic only works on ellipsoids
     if (!coordinateReferenceSystem.equals(CARTESIANCRS)) {
       geodeticDistanceCalculator = new GeodeticCalculator(coordinateReferenceSystem);
     }
+    geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+    geometryBuilder = new GeometryBuilder(geometryFactory);
+    geodeticDistanceCalculator = new GeodeticCalculator(coordinateReferenceSystem);
+    theCrs = coordinateReferenceSystem;
+  }
+
+  /**
+   * Compute the distance in metres between two positions assuming the positions are provided in the same crs as registered on this class instance
+   *
+   * @param startPoint location of the start point
+   * @param endPoint   location of the end point
+   * @return distance in metres between the points
+   * @throws PlanItException thrown if there is an error
+   */
+  public double getDistanceInMetres(final Point startPoint, final Point endPoint) throws PlanItException {
+    var startCoord = startPoint.getCoordinate();
+    var endCoord = endPoint.getCoordinate();
+    return getDistanceInMetres(
+            startCoord.getOrdinate(0), startCoord.getOrdinate(1),
+            endCoord.getOrdinate(0),  endCoord.getOrdinate(1));
+  }
+
+  /**
+   * Compute the distance in metres between two coordinates assuming the positions are provided in the same crs as
+   * registered on this class instance
+   *
+   * @param startPoint location of the start point
+   * @param endPoint   location of the end point
+   * @return distance in metres between the points
+   * @throws PlanItException thrown if there is an error
+   */
+  public double getDistanceInMetres(final Coordinate startPoint, final Coordinate endPoint) throws PlanItException {
+    return getDistanceInMetres(
+            startPoint.getOrdinate(0), startPoint.getOrdinate(1),
+            endPoint.getOrdinate(0),  endPoint.getOrdinate(1));
   }
 
   /**
@@ -98,25 +163,9 @@ public class PlanitOpenGisUtils {
    * @throws PlanItException thrown if there is an error
    */
   public double getDistanceInMetres(final Position startPosition, final Position endPosition) throws PlanItException {
-    
-    // not thread safe
-    try {
-      if (geodeticDistanceCalculator != null) {
-        // ellipsoid crs
-        geodeticDistanceCalculator.setStartingGeographicPoint(startPosition.getDirectPosition().getOrdinate(0), startPosition.getDirectPosition().getOrdinate(1));
-        geodeticDistanceCalculator.setDestinationGeographicPoint(endPosition.getDirectPosition().getOrdinate(0), endPosition.getDirectPosition().getOrdinate(1));
-        return geodeticDistanceCalculator.getOrthodromicDistance();
-      } else {
-        // cartesian in meters
-        double deltaCoordinate0 = startPosition.getDirectPosition().getOrdinate(0) - endPosition.getDirectPosition().getOrdinate(0);
-        double deltaCoordinate1 = startPosition.getDirectPosition().getOrdinate(1) - endPosition.getDirectPosition().getOrdinate(1);
-        double distanceInMeters = Math.sqrt(Math.pow(deltaCoordinate0, 2) + Math.pow(deltaCoordinate1, 2));
-        return distanceInMeters;
-      }
-    } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when computing distance in meters between two Positions in GeoUtils", e);
-    }
+    return getDistanceInMetres(
+            startPosition.getOrdinate(0), startPosition.getOrdinate(1),
+            endPosition.getOrdinate(0),  endPosition.getOrdinate(1));
   }
 
   /**
@@ -127,7 +176,22 @@ public class PlanitOpenGisUtils {
    * @return distance in kilometres between the points
    * @throws PlanItException thrown if there is an error
    */
-  public double getDistanceInKilometres(final Position startPosition, final Position endPosition) throws PlanItException {
+  public double getDistanceInKilometres(
+          final Position startPosition, final Position endPosition) throws PlanItException {
+    return getDistanceInMetres(startPosition, endPosition) / 1000.0;
+  }
+
+  /**
+   * Compute the distance in kilometres between two points assuming the positions are provided in the same crs as
+   * registered on this class instance
+   *
+   * @param startPosition location of the start point
+   * @param endPosition   location of the end point
+   * @return distance in kilometres between the points
+   * @throws PlanItException thrown if there is an error
+   */
+  public double getDistanceInKilometres(
+          final Point startPosition, final Point endPosition) throws PlanItException {
     return getDistanceInMetres(startPosition, endPosition) / 1000.0;
   }
 
@@ -140,9 +204,9 @@ public class PlanitOpenGisUtils {
    * @throws PlanItException thrown if there is an error
    */
   public double getDistanceInKilometres(final Vertex vertexA, final Vertex vertexB) throws PlanItException {
-    DirectPosition positionA = JTS.toDirectPosition(vertexA.getPosition().getCoordinate(), geometryBuilder.getCoordinateReferenceSystem());
-    DirectPosition positionB = JTS.toDirectPosition(vertexB.getPosition().getCoordinate(), geometryBuilder.getCoordinateReferenceSystem());
-    return getDistanceInMetres(positionA, positionB) / 1000.0;
+    Position positionA = JTS.toDirectPosition(vertexA.getPosition().getCoordinate(), theCrs);
+    Position positionB = JTS.toDirectPosition(vertexB.getPosition().getCoordinate(), theCrs);
+    return getDistanceInKilometres(positionA, positionB);
   }
 
   /**
@@ -151,39 +215,11 @@ public class PlanitOpenGisUtils {
    * @param xCoordinate X-coordinate (longitude assumed)
    * @param yCoordinate Y-coordinate (latitude assumed)
    * @return DirectPosition object representing the location
-   * @throws PlanItException thrown if there is an error during processing
    */
-  public DirectPosition createDirectPosition(double xCoordinate, double yCoordinate) throws PlanItException {
+  public Position2D createPosition2D(double xCoordinate, double yCoordinate) {
     Coordinate coordinate = new Coordinate(xCoordinate, yCoordinate);
-    DirectPosition newPosition = positionFactory.createDirectPosition(new double[] { coordinate.x, coordinate.y });
+    Position2D newPosition = new Position2D(coordinate.x, coordinate.y);
     return newPosition;
-  }
-
-  /**
-   * Convert a JTS line string object to an OpenGis LineString instance by transferring the internal coordinates
-   * 
-   * @param jtsLineString JTS line string input
-   * @return LineString GeoTools line string output object
-   * @throws PlanItException thrown if there is an error
-   */
-  @SuppressWarnings("unchecked")
-  public LineString convertToOpenGisLineString(final org.locationtech.jts.geom.LineString jtsLineString) throws PlanItException {
-    Coordinate[] coordinates = jtsLineString.getCoordinates();
-    List<? extends Position> positionList = (List<? extends Position>) convertToDirectPositions(coordinates);
-    return geometryFactory.createLineString((List<Position>) positionList);
-  }
-
-  /**
-   * Converts a JTS MultiLineString with a single entry into an OpenGIS LineString instance
-   * 
-   * @param jtsMultiLineString JTS MultiLineString input object
-   * @return LineString GeoTools MultiLineString output object
-   * @throws PlanItException thrown if there is an error
-   */
-  public LineString convertToOpenGisLineString(final MultiLineString jtsMultiLineString) throws PlanItException {
-    PlanItException.throwIf(((MultiLineString) jtsMultiLineString).getNumGeometries() > 1, "MultiLineString contains multiple LineStrings");
-
-    return convertToOpenGisLineString((org.locationtech.jts.geom.LineString) ((MultiLineString) jtsMultiLineString).getGeometryN(0));
   }
 
   /**
@@ -194,13 +230,15 @@ public class PlanitOpenGisUtils {
    * @throws PlanItException thrown if error
    */
   public LineString createLineString(final List<Double> coordinateList) throws PlanItException {
-    PlanItException.throwIf(coordinateList.size() % 2 != 0, "coordinate list must contain an even number of entries to correctly identify (x,y) pairs");
+    PlanItException.throwIf(coordinateList.size() % 2 != 0,
+            "coordinate list must contain an even number of entries to correctly identify (x,y) pairs");
     Iterator<Double> iter = coordinateList.iterator();
-    List<Position> positionList = new ArrayList<Position>(coordinateList.size() / 2);
+    Coordinate[] coordList = new Coordinate[coordinateList.size() / 2];
+    int index = 0;
     while (iter.hasNext()) {
-      positionList.add(createDirectPosition(iter.next(), iter.next()));
+      coordList[index++] = new CoordinateXY(iter.next(), iter.next());
     }
-    return geometryFactory.createLineString(positionList);
+    return geometryFactory.createLineString(coordList);
   }
 
   /**
@@ -219,7 +257,8 @@ public class PlanitOpenGisUtils {
       String xyCoordinateString = tupleString[index];
       String[] coordinateString = xyCoordinateString.split("[" + cs + "]");
       if (coordinateString.length != 2) {
-        throw new PlanItException(String.format("invalid coordinate encountered, expected two coordinates in tuple, but found %d", coordinateString.length));
+        throw new PlanItException(String.format("invalid coordinate encountered, expected two coordinates in tuple, " +
+                "but found %d", coordinateString.length));
       }
       coordinateDoubleList.add(Double.parseDouble(coordinateString[0]));
       coordinateDoubleList.add(Double.parseDouble(coordinateString[1]));
@@ -229,13 +268,17 @@ public class PlanitOpenGisUtils {
 
   /**
    * Create a line string from the passed in positions
-   * 
+   *
    * @param positionList source
    * @return created line string
    * @throws PlanItException thrown if error
    */
   public LineString createLineStringFromPositions(final List<Position> positionList) throws PlanItException {
-    return geometryFactory.createLineString(positionList);
+    Coordinate[] coords = (Coordinate[]) positionList.stream().map(p -> {
+          var c = p.getCoordinate();
+          return new Coordinate(c[0], c[1]);
+        }).toArray();
+    return geometryFactory.createLineString(coords);
   }
 
   /**
@@ -249,8 +292,10 @@ public class PlanitOpenGisUtils {
    */
   public LineString createLineStringFromCsvString(final String value, String ts, String cs) throws PlanItException {
     if (ts.length() > 1 || cs.length() > 1) {
-      PlanItException.throwIf(ts.length() > 1, String.format("tuple separating string to create LineString is not a single character but %s", ts));
-      PlanItException.throwIf(cs.length() > 1, String.format("comma separating string to create LineString is not a single character but %s", cs));
+      PlanItException.throwIf(ts.length() > 1,
+              String.format("tuple separating string to create LineString is not a single character but %s", ts));
+      PlanItException.throwIf(cs.length() > 1,
+              String.format("comma separating string to create LineString is not a single character but %s", cs));
     }
     return createLineString(value, ts.charAt(0), cs.charAt(0));
   }
@@ -260,18 +305,18 @@ public class PlanitOpenGisUtils {
    * 
    * @param coordinates array of JTS Coordinate objects
    * @return List of GeoTools Position objects
-   * @throws PlanItException thrown if there is an error
    */
-  public List<DirectPosition> convertToDirectPositions(final Coordinate[] coordinates) throws PlanItException {
-    List<DirectPosition> positionList = new ArrayList<DirectPosition>(coordinates.length);
+  public List<Position> convertToDirectPositions(final Coordinate[] coordinates) {
+    List<Position> positionList = new ArrayList<Position>(coordinates.length);
     for (Coordinate coordinate : coordinates) {
-      positionList.add(createDirectPosition(coordinate.x, coordinate.y));
+      positionList.add(createPosition2D(coordinate.x, coordinate.y));
     }
     return positionList;
   }
 
   /**
-   * Compute the length of the line string by traversing all nodes and computing the segment by segment distances TODO: find out if a faster way is possible
+   * Compute the length of the line string by traversing all nodes and computing the segment by segment distances
+   * TODO: find out if a faster way is possible
    * 
    * @param geometry to extract length from
    * @return length in km
@@ -279,15 +324,14 @@ public class PlanitOpenGisUtils {
    */
   public double getDistanceInKilometres(final LineString geometry) throws PlanItException {
 
-    PointArray pointArray = geometry.getControlPoints();
-    int numberOfPoints = pointArray.size();
 
+    int numberOfPoints = geometry.getNumPoints();
     if (numberOfPoints > 1) {
 
       double computedLengthInKm = 0;
-      Position previousPoint = pointArray.get(0);
+      Point previousPoint = geometry.getPointN(0);
       for (int index = 1; index < numberOfPoints; ++index) {
-        Position currentPoint = pointArray.get(index);
+        var currentPoint = geometry.getPointN(index);
         computedLengthInKm += getDistanceInKilometres(previousPoint, currentPoint);
         previousPoint = currentPoint;
       }
@@ -298,28 +342,32 @@ public class PlanitOpenGisUtils {
   }
 
   /**
-   * Find the closest explicit sample point registered on the line string compared to the passed in position
+   * Find the closest explicit point registered on the line string compared to the passed in position
    * 
    * @param toMatch    position to get closest to
    * @param lineString to sample ordinates from to check
    * @return closest ordinate (position) on line string to passed in toMatch position
    * @throws PlanItException thrown if error
    */
-  public Position getClosestSamplePointOnLineString(final Position toMatch, final LineString lineString) throws PlanItException {
+  public Position getClosestSamplePointOnLineString(
+          final Position toMatch, final LineString lineString) throws PlanItException {
     if (lineString != null && toMatch != null) {
       double minDistance = Double.POSITIVE_INFINITY;
-      Position minDistancePosition = null;
-      for (Position samplePoint : lineString.getSamplePoints()) {
-        double currDistance = getDistanceInMetres(toMatch, samplePoint);
-        if (getDistanceInMetres(toMatch, samplePoint) < minDistance) {
+      Coordinate minDistancePosition = null;
+      var toMatchCoord = new Coordinate(toMatch.getOrdinate(0),toMatch.getOrdinate(1));
+      for (var currCoord : lineString.getCoordinates()) {
+        double currDistance = getDistanceInMetres(toMatchCoord, currCoord);
+        if (currDistance < minDistance) {
           minDistance = currDistance;
-          minDistancePosition = samplePoint;
+          minDistancePosition = currCoord;
         }
       }
 
-      return minDistancePosition;
+      return new Position2D(
+              minDistancePosition.getOrdinate(0), minDistancePosition.getOrdinate(1));
     }
-    throw new PlanItException(" closest orindate position to lines tring could not be computed since either the line string or reference position is null");
+    throw new PlanItException(" closest orindate position to linestring could not be computed since either the " +
+            "line string or reference position is null");
   }
 
 }

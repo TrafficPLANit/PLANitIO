@@ -57,7 +57,7 @@ import org.goplanit.xml.generated.XMLElementModes;
 import org.goplanit.xml.generated.XMLElementNodes;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import net.opengis.gml.PointType;
 

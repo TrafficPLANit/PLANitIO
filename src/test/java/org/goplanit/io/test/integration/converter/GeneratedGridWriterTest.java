@@ -64,8 +64,6 @@ public class GeneratedGridWriterTest {
           Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "reference","network.xml");
       var createdNetworkPath =
           Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "network.xml");
-      assert(PlanItIOTestHelper.compareFiles(
-          referenceNetwork.toString(), createdNetworkPath.toString(), true));
 
       var networkLayer = network.getTransportLayers().getFirst();
       var zoning = new Zoning(testToken, networkLayer.getLayerIdGroupingToken());
@@ -85,6 +83,9 @@ public class GeneratedGridWriterTest {
           Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "reference","zoning.xml");
       var createdZoningPath =
           Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "zoning.xml");
+
+      assert(PlanItIOTestHelper.compareFiles(
+              referenceNetwork.toString(), createdNetworkPath.toString(), true));
 
       assert(PlanItIOTestHelper.compareFiles(
           referenceZoning.toString(), createdZoningPath.toString(), true));

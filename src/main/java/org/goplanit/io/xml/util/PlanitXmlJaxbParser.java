@@ -11,7 +11,7 @@ import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.xml.generated.XMLElementPLANit;
 import org.goplanit.xml.utils.JAXBUtils;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Serves as a base class for readers of PLANit XML files of which the root element is of type T
