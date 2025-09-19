@@ -1,11 +1,11 @@
 package org.goplanit.io.converter.intermodal;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Settings for PLANit intermodal writer
