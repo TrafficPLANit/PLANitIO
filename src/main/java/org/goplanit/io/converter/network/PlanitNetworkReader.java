@@ -43,18 +43,7 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.goplanit.xml.generated.Direction;
-import org.goplanit.xml.generated.XMLElementAccessGroup;
-import org.goplanit.xml.generated.XMLElementConfiguration;
-import org.goplanit.xml.generated.XMLElementInfrastructureLayer;
-import org.goplanit.xml.generated.XMLElementInfrastructureLayers;
-import org.goplanit.xml.generated.XMLElementLayerConfiguration;
-import org.goplanit.xml.generated.XMLElementLinkSegment;
-import org.goplanit.xml.generated.XMLElementLinkSegmentType;
-import org.goplanit.xml.generated.XMLElementLinks;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementModes;
-import org.goplanit.xml.generated.XMLElementNodes;
+import org.goplanit.xml.generated.*;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
@@ -530,6 +519,14 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         /* name */
         if(!StringUtils.isNullOrBlank(xmlLink.getName())) {
           link.setName(xmlLink.getName());
+        }
+
+        /* input properties */
+        if(xmlLink.getCustom() != null){
+          //todo only supporting string values, no way of enforcing a type (needs to be part of schema)
+          var xmlCustomProperties = xmlLink.getCustom();
+          var xmlEntryElements = xmlCustomProperties.getEntryElement();
+          xmlEntryElements.forEach( entry -> link.addInputProperty(entry.getKeyAttribute(), entry.getValue()));
         }
 
         /* validate link */

@@ -536,6 +536,9 @@
             </nodes>
             <links>
                 <link id="0" nodearef="0" nodebref="1">
+                    <custom>
+                        <entryElement keyAttribute="dummyKey">dummyValue</entryElement>
+                    </custom>
                     <linksegment id="0" dir="a_b" typeref="0">
                         <numberoflanes>1</numberoflanes>
                         <maxspeed>130.0</maxspeed>

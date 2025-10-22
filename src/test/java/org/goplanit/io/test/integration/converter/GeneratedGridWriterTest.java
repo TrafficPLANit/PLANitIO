@@ -57,6 +57,9 @@ public class GeneratedGridWriterTest {
       var testToken = IdGenerator.createIdGroupingToken("simple10x10GridWriterTest");
       var network = MacroscopicNetworkUtils.createSimpleGrid(testToken, 10, 10);
 
+      // add custom input property to test functionality as part of I/O
+      network.getTransportLayers().getFirst().getLinks().getFirst().addInputProperty("dummyKey","dummyValue");
+
       var writer = PlanitNetworkWriterFactory.create(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString());
       writer.write(network);
 

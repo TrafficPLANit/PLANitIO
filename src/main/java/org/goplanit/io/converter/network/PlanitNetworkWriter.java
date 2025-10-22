@@ -25,23 +25,7 @@ import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
-import org.goplanit.xml.generated.Direction;
-import org.goplanit.xml.generated.LengthUnit;
-import org.goplanit.xml.generated.XMLElementAccessGroup;
-import org.goplanit.xml.generated.XMLElementConfiguration;
-import org.goplanit.xml.generated.XMLElementInfrastructureLayer;
-import org.goplanit.xml.generated.XMLElementInfrastructureLayers;
-import org.goplanit.xml.generated.XMLElementLayerConfiguration;
-import org.goplanit.xml.generated.XMLElementLinkLengthType;
-import org.goplanit.xml.generated.XMLElementLinkSegment;
-import org.goplanit.xml.generated.XMLElementLinkSegmentType;
-import org.goplanit.xml.generated.XMLElementLinkSegmentTypes;
-import org.goplanit.xml.generated.XMLElementLinks;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementModes;
-import org.goplanit.xml.generated.XMLElementNodes;
-import org.goplanit.xml.generated.XMLElementPhysicalFeatures;
-import org.goplanit.xml.generated.XMLElementUsabilityFeatures;
+import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementLinkSegmentType.Access;
 
 /**
@@ -159,6 +143,20 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     /* line string */
     if(link.hasGeometry()) {
       xmlLink.setLineString(createGmlLineStringType(link.getGeometry()));
+    }
+
+    if(link.hasInputProperty()){
+      //todo only supporting string values, no way of enforcing a type (needs to be part of schema)
+      var customProperties = new CustomPropertiesType();
+      xmlLink.setCustom(customProperties);
+      var xmlEntryElements = customProperties.getEntryElement();
+      link.getInputPropertyKeys().forEach( key ->
+        {
+          var xmlEntry = new CustomPropertiesType.EntryElement();
+          xmlEntry.setKeyAttribute(key);
+          xmlEntry.setValue(link.getInputProperty(key).toString());
+          xmlEntryElements.add(xmlEntry);
+        });
     }
         
     /* link segments */
@@ -493,7 +491,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param physicalNetworkLayer to populate from
    * @param network to extract from
      */
-  protected void populateXmlNetworkLayer(final XMLElementInfrastructureLayers xmlInfrastructureLayers, MacroscopicNetworkLayerImpl physicalNetworkLayer, MacroscopicNetwork network) {
+  protected void populateXmlNetworkLayer(
+          final XMLElementInfrastructureLayers xmlInfrastructureLayers,
+          MacroscopicNetworkLayerImpl physicalNetworkLayer,
+          MacroscopicNetwork network) {
+
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
     xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer);
     
@@ -555,10 +557,12 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
         
         /* XML id */
         if(physicalNetworkLayer.getXmlId() == null) {
-          LOGGER.warning(String.format("Network layer has no XML id defined, adopting internally generated id %d instead",physicalNetworkLayer.getId()));
+          LOGGER.warning(String.format("Network layer has no XML id defined, adopting internally generated id %d " +
+                  "instead",physicalNetworkLayer.getId()));
           physicalNetworkLayer.setXmlId(String.valueOf(physicalNetworkLayer.getId()));
         }
-        this.currLayerLogPrefix = LoggingUtils.surroundWithBrackets("layer: "+ getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer));
+        this.currLayerLogPrefix = LoggingUtils.surroundWithBrackets(
+                "layer: "+ getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer));
                         
         populateXmlNetworkLayer(finalXmlInfrastructureLayers, physicalNetworkLayer, network);
       }else {
