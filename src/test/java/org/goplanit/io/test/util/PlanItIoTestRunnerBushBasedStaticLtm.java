@@ -2,12 +2,9 @@ package org.goplanit.io.test.util;
 
 import org.goplanit.assignment.TrafficAssignment;
 import org.goplanit.assignment.TrafficAssignmentConfigurator;
-import org.goplanit.assignment.ltm.sltm.StaticLtmConfigurator;
-import org.goplanit.assignment.ltm.sltm.StaticLtmType;
-import org.goplanit.choice.ChoiceModel;
+import org.goplanit.assignment.ltm.sltm.input.StaticLtmConfigurator;
+import org.goplanit.assignment.ltm.sltm.common.StaticLtmType;
 import org.goplanit.cost.physical.AbstractPhysicalCost;
-import org.goplanit.path.choice.PathChoice;
-import org.goplanit.path.choice.StochasticPathChoiceConfigurator;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 

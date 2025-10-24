@@ -3,7 +3,7 @@ package org.goplanit.io.demo;
 import java.util.logging.Logger;
 
 import org.goplanit.assignment.TrafficAssignment;
-import org.goplanit.assignment.ltm.sltm.StaticLtmConfigurator;
+import org.goplanit.assignment.ltm.sltm.input.StaticLtmConfigurator;
 import org.goplanit.cost.physical.PhysicalCost;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.input.PlanItInputBuilder;

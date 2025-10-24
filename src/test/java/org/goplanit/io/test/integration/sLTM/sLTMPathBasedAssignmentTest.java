@@ -1,6 +1,6 @@
 package org.goplanit.io.test.integration.sLTM;
 
-import org.goplanit.assignment.ltm.sltm.StaticLtmConfigurator;
+import org.goplanit.assignment.ltm.sltm.input.StaticLtmConfigurator;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.io.test.util.PlanItIoTestRunner;
@@ -9,7 +9,6 @@ import org.goplanit.logging.Logging;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.property.OutputPropertyType;
 import org.goplanit.sdinteraction.smoothing.Smoothing;
-import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Pair;
