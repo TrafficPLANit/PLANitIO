@@ -14,6 +14,7 @@ import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.formatter.OutputFormatter;
 import org.goplanit.project.CustomPlanItProject;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.zoning.Zoning;
 
@@ -119,20 +120,24 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 
   /**
    * On a simple project we only allow a single assignment to be registered. This is verified here.
-   * If multiple assignments
-   * are required within the same project, then a simple project cannot be used. Registration of a
-   * traffic assignment type
-   * also includes parsing the network, zoning, and demands that are registered alongside the chosen
-   * assignment method
+   * If multiple assignments are required within the same project, then a simple project cannot be used.
+   * Registration of a traffic assignment type also includes parsing the network, zoning, and demands that are
+   * registered alongside the chosen assignment method.
+   * Currently, supports the following types:
+   * <ul>
+   *   <li>TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, yielding a TraditionalStaticAssignmentConfigurator</li>
+   *   <li>TrafficAssignment.SLTM, yielding a StaticLtmConfigurator</li>
+   * </ul>
    *
    * @param trafficAssignmentType the traffic assignment type to be used
-   * @return trafficAssignmentConfigurator to configure this traffic assignment instance
+   * @return trafficAssignmentConfigurator derived implementation to configure the specified traffic assignment instance
    * @throws PlanItException thrown if error
    */
   public TrafficAssignmentConfigurator<? extends TrafficAssignment> createAndRegisterTrafficAssignment(
       final String trafficAssignmentType) throws PlanItException {
             
-    PlanItException.throwIf(!this.assignmentBuilders.isEmpty(), "this type of PLANit project only allows a single assignment per project");
+    PlanItException.throwIf(!this.assignmentBuilders.isEmpty(),
+        "this type of PLANit project only allows a single assignment per project");
     return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
   }
 
@@ -150,10 +155,10 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       final String trafficAssignmentType,
       final Demands theDemands,
       final Zoning theZoning,
-      final LayeredNetwork<?,?> theNetwork)
-      throws PlanItException {
-    throw new PlanItException(
-        "a simple project only allows to create and register a traffic assignment by type only, other inputs are automatically collected");
+      final LayeredNetwork<?,?> theNetwork){
+    throw new PlanItRunTimeException(
+        "a simple project only allows to create and register a traffic assignment by type only, other inputs " +
+            "are automatically collected");
   }
 
   /**
