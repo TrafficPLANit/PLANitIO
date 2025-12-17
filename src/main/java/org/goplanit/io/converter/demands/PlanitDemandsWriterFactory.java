@@ -11,6 +11,13 @@ import org.goplanit.zoning.Zoning;
  */
 public class PlanitDemandsWriterFactory {
 
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitDemandsWriterFactory() {
+    // compliance to avoid javadoc warnings
+  }
+
   /** Create a PLANitDemandsWriter which can persist a PLANit demands in the native PLANit XML format. The reference
    * zoning is expected to be set manually, or will be provided automatically when using a converter. The user is
    * expected to provide the output location via the settings afterwards.

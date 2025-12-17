@@ -18,10 +18,22 @@ public class ApplicationProperties {
   
   /** holds the application properties */
   private static final Properties applicationProperties = new Properties();
-    
+
+  /** name of application properties file */
   public static final String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
+
+  /** description property key */
   public static final String DESCRIPTION_PROPERTY_KEY = "planit.description";
-  public static final String VERSION_PROPERTY_KEY = "planit.version";  
+
+  /** PLANit version property key */
+  public static final String VERSION_PROPERTY_KEY = "planit.version";
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private ApplicationProperties() {
+    // compliance to avoid javadoc warnings
+  }
 
   /* collect once */
   static {

@@ -16,9 +16,16 @@ import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
  *
  */
 public class PlanitNetworkReaderFactory {
-  
+
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReaderFactory.class.getCanonicalName());
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitNetworkReaderFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
    * 

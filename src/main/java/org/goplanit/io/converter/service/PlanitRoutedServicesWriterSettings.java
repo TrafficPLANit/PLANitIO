@@ -80,18 +80,34 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
 
   // ************* getters/setters ******************
 
+  /**
+   * time unit to use
+   * @return time unit
+   */
   public TimeUnit getTripFrequencyTimeUnit() {
     return frequencyTimeUnit;
   }
 
+  /**
+   * set time unit to use
+   * @param frequencyTimeUnit unit
+   */
   public void setTripFrequencyTimeUnit(TimeUnit frequencyTimeUnit) {
     this.frequencyTimeUnit = frequencyTimeUnit;
   }
 
+  /**
+   * Check flag to log services without any trips
+   * @return flag
+   */
   public boolean isLogServicesWithoutTrips() {
     return logServicesWithoutTrips;
   }
 
+  /**
+   * Flag to log services without any trips
+   * @param logServicesWithoutTrips flag
+   */
   public void setLogServicesWithoutTrips(boolean logServicesWithoutTrips) {
     this.logServicesWithoutTrips = logServicesWithoutTrips;
   }

@@ -131,12 +131,11 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    *
    * @param trafficAssignmentType the traffic assignment type to be used
    * @return trafficAssignmentConfigurator derived implementation to configure the specified traffic assignment instance
-   * @throws PlanItException thrown if error
    */
   public TrafficAssignmentConfigurator<? extends TrafficAssignment> createAndRegisterTrafficAssignment(
-      final String trafficAssignmentType) throws PlanItException {
+      final String trafficAssignmentType){
             
-    PlanItException.throwIf(!this.assignmentBuilders.isEmpty(),
+    PlanItRunTimeException.throwIf(!this.assignmentBuilders.isEmpty(),
         "this type of PLANit project only allows a single assignment per project");
     return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
   }

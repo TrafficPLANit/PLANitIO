@@ -11,6 +11,13 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
  */
 public class PlanitZoningWriterFactory {
 
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitZoningWriterFactory() {
+    // compliance to avoid javadoc warnings
+  }
+
   /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format. User is expected to
    * provide the required inputs via settings and writer after creation as they are not pre-populated.
    *

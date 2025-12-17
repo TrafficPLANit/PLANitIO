@@ -19,6 +19,13 @@ public class PlanitRoutedServicesReaderFactory {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesReaderFactory.class.getCanonicalName());
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitRoutedServicesReaderFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Create a PlanitRoutedServicesReader
    * 
