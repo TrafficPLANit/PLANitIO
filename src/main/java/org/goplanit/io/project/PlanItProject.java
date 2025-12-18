@@ -49,7 +49,7 @@ public class PlanItProject extends CustomPlanItProject {
       String trafficAssignmentType, 
       Demands theDemands,
       Zoning theZoning, 
-      final LayeredNetwork<?,?> theNetwork){
+      final LayeredNetwork<?,?> theNetwork) {
     
     /* delegate */
     TrafficAssignmentConfigurator<? extends TrafficAssignment> taConfigurator = 

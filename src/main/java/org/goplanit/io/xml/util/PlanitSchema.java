@@ -31,18 +31,25 @@ public class PlanitSchema {
     return ApplicationProperties.getVersion().replace('.', '_');
   }
 
+  /** schema for demand */
   public static final String MACROSCOPIC_NETWORK_XSD= "macroscopicnetworkinput.xsd";
-  
+
+  /** schema for demand */
   public static final String MACROSCOPIC_DEMAND_XSD= "macroscopicdemandinput.xsd";
-  
+
+  /** schema for zoning */
   public static final String MACROSCOPIC_ZONING_XSD= "macroscopiczoninginput.xsd";
 
+  /** schema for service network */
   public static final String SERVICE_NETWORK_XSD= "servicenetworkinput.xsd";
 
+  /** schema for routed services */
   public static final String ROUTED_SERVICES_XSD= "routedservicesinput.xsd";
-  
+
+  /** metadata schema XSD name*/
   public static final String METADATA_XSD= "metadata.xsd";
-  
+
+  /** schema for combined input XSD */
   public static final String MACROSCOPIC_COMBINED_INPUT_XSD= "macroscopicinput.xsd";
   
   /** the schema URI location (dir) of XML components during development **/
@@ -62,6 +69,13 @@ public class PlanitSchema {
   
   /** the schema URI location of any PLANit XSD schema for any release version, but without the actual version or schema appended yet**/
   public static final String XSD_SCHEMA_URI_RELEASE_GENERIC = "https://planitmanual.github.io/version/";
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitSchema() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** create the appropriate URI reference for the xsd schema assuming it is published according to PLANit guidelines
    * meaning that when this is a development version it resides under {@code XSD_SCHEMA_URI_DEVELOPMENT_GENERIC} whereas if

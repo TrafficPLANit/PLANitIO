@@ -19,6 +19,13 @@ import org.goplanit.zoning.Zoning;
  */
 public class PlanitDemandsReaderFactory {
 
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitDemandsReaderFactory() {
+    // compliance to avoid javadoc warnings
+  }
+
   /** Factory method
    *
    * @param pathDirectory to use

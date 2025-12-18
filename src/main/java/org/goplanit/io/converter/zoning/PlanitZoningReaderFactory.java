@@ -18,6 +18,13 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
  */
 public class PlanitZoningReaderFactory {
 
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitZoningReaderFactory() {
+    // compliance to avoid javadoc warnings
+  }
+
   /** Factory method
    *
    * @param pathDirectory to use

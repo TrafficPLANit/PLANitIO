@@ -9,6 +9,13 @@ import org.goplanit.xml.generated.XMLElementRoutedServices;
  *
  */
 public class PlanitRoutedServicesWriterFactory {
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitRoutedServicesWriterFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Create a PLANitRoutedServicesWriter which can persist a PLANit RoutedServices in the native PLANit XML format with all defaults. It is expected the user sets the required
    * minimum configuration afterwards to be able to persist

@@ -25,6 +25,13 @@ import org.locationtech.jts.geom.LineString;
  */
 public class PlanitGmlUtils {
 
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitGmlUtils() {
+    // compliance to avoid javadoc warnings
+  }
+
   
   /**
    * Takes a list of JTS coordinates and converts it to GML coordinates value, i.e., converts all coordinates

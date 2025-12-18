@@ -81,18 +81,34 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
     super.reset();
   }
 
+  /**
+   * separator used in between origins
+   * @return sep string
+   */
   public String getOriginSeparator() {
     return originSeparator;
   }
 
+  /**
+   * set separator used in between origins
+   * @param originSeparator string to use
+   */
   public void setOriginSeparator(String originSeparator) {
     this.originSeparator = originSeparator;
   }
 
+  /**
+   * separator used in between destinations
+   * @return sep string
+   */
   public String getDestinationSeparator() {
     return destinationSeparator;
   }
 
+  /**
+   * set separator used in between destinations
+   * @param destinationSeparator string to use
+   */
   public void setDestinationSeparator(String destinationSeparator) {
     this.destinationSeparator = destinationSeparator;
   }

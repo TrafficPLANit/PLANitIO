@@ -22,6 +22,13 @@ import org.goplanit.zoning.Zoning;
  *
  */
 public class PlanitIntermodalReaderFactory {
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitIntermodalReaderFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Factory method based on all defaults. IT is expected that the user will set the necessary settings via the exposed settings
    * 

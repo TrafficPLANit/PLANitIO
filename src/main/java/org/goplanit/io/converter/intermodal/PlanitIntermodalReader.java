@@ -46,11 +46,16 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
   /** the routed services to (optionally) populate */
   protected final RoutedServices routedServicesToPopulate;
 
+  /** XML network element */
   protected final XMLElementMacroscopicNetwork xmlRawNetwork;
 
+  /** XML zoning element */
   protected final XMLElementMacroscopicZoning xmlRawZoning;
 
+  /** XML service network element */
   protected final XMLElementServiceNetwork xmlRawServiceNetwork;
+
+  /** XML routed services element */
   protected final XMLElementRoutedServices xmlRawRoutedServices;
 
 

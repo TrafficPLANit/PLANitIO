@@ -15,6 +15,13 @@ import org.goplanit.xml.generated.*;
  *
  */
 public class xmlEnumConversionUtil {
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private xmlEnumConversionUtil() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** convert motorisation type from xml to PLANit
    * @param xmlMotorisationType to convert

@@ -14,6 +14,13 @@ import org.goplanit.xml.generated.XMLElementServiceNetwork;
  *
  */
 public class PlanitIntermodalWriterFactory {
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitIntermodalWriterFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Default factory method. Create a PLANitIntermodalWriter which can persist a PLANit network and zoning in the native PLANit XML format. 
    * We assume the user sets the output directory (default now current working dir) and destination country afterwards

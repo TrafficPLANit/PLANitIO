@@ -19,8 +19,10 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
   /** flag indicating if XML ids are to be overwritten with internal ids after completion of parsing */
   private boolean syncXmlIdsToIds = DEFAULT_SYNC_XMLIDS_TO_IDS;
 
+  /** default extension for XML */
   public static String DEFAULT_XML_EXTENSION = ".xml";
 
+  /** flag indicating default for syncing XML ids with internal ids */
   public static boolean DEFAULT_SYNC_XMLIDS_TO_IDS = false;
 
   

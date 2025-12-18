@@ -9,6 +9,13 @@ import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
  *
  */
 public class PlanitNetworkWriterFactory {
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitNetworkWriterFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format with all defaults.
    * It is expected the user sets the required minimum configuration afterwards to be able to persist

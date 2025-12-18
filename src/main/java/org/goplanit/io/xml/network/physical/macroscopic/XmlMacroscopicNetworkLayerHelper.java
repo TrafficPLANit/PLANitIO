@@ -29,7 +29,14 @@ import net.opengis.gml.LineStringType;
 public class XmlMacroscopicNetworkLayerHelper {
 
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(XmlMacroscopicNetworkLayerHelper.class.getCanonicalName());         
+  private static final Logger LOGGER = Logger.getLogger(XmlMacroscopicNetworkLayerHelper.class.getCanonicalName());
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private XmlMacroscopicNetworkLayerHelper() {
+    // compliance to avoid javadoc warnings
+  }
   
   /* PROTECTED */ 
   

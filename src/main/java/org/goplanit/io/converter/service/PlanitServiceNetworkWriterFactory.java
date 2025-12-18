@@ -11,6 +11,13 @@ import org.goplanit.xml.generated.XMLElementServiceNetwork;
  *
  */
 public class PlanitServiceNetworkWriterFactory {
+
+  /**
+   * Dummy constructor as never instantiated
+   */
+  private PlanitServiceNetworkWriterFactory() {
+    // compliance to avoid javadoc warnings
+  }
   
   /** Create a PLANitServiceNetworkWriter which can persist a PLANit Service network in the native PLANit XML format with all defaults. It is expected the user sets the required
    * minimum configuration afterwards to be able to persist
