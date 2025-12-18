@@ -73,8 +73,9 @@ public class PlanItSimpleProject extends CustomPlanItProject {
       zoning = this.createAndRegisterZoning(network);
       // parse the demands + register on assignment
       demands = this.createAndRegisterDemands(zoning, network);
-    } catch (final PlanItException e) {
-      LOGGER.log(Level.SEVERE, "could not instantiate default settings for project", e);
+    } catch (final PlanItException | PlanItRunTimeException e) {
+      LOGGER.severe(e.getMessage());
+      LOGGER.log(Level.SEVERE, "Could not instantiate default settings for project", e);
     }
   }
 
@@ -82,13 +83,9 @@ public class PlanItSimpleProject extends CustomPlanItProject {
 
   /**
    * Base constructor for simple project which adopts the PlanItIO input/output format. It is
-   * assumed
-   * all input files are in the current working directory
-   * 
-   * @throws PlanItException thrown in case the default input builder cannot be created
-   *
+   * assumed all input files are in the current working directory
    */
-  public PlanItSimpleProject() throws PlanItException {
+  public PlanItSimpleProject(){
     // use the default input builder with the current path as the project path
     super(new PlanItInputBuilder(System.getProperty("user.dir")));
     initialiseSimpleProject();
@@ -98,13 +95,12 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    * Base constructor for simple project which adopts the PlanItIO input/output format
    *
    * @param projectPath to retrieve the files from
-   * @throws PlanItException thrown if error
    */
-  public PlanItSimpleProject(final String projectPath) throws PlanItException {
+  public PlanItSimpleProject(final String projectPath){
     // use the default input builder
     super(new PlanItInputBuilder(projectPath));
     LOGGER.info(LoggingUtils.projectPrefix(this.id) + String.format("searching for input files in: %s", Paths.get(
-        projectPath).toAbsolutePath().toString()));
+        projectPath).toAbsolutePath()));
     initialiseSimpleProject();
   }
 
@@ -131,13 +127,12 @@ public class PlanItSimpleProject extends CustomPlanItProject {
    *
    * @param trafficAssignmentType the traffic assignment type to be used
    * @return trafficAssignmentConfigurator derived implementation to configure the specified traffic assignment instance
-   * @throws PlanItException thrown if error
    */
   public TrafficAssignmentConfigurator<? extends TrafficAssignment> createAndRegisterTrafficAssignment(
-      final String trafficAssignmentType) throws PlanItException {
+      final String trafficAssignmentType){
             
-    PlanItException.throwIf(!this.assignmentBuilders.isEmpty(),
-        "this type of PLANit project only allows a single assignment per project");
+    PlanItRunTimeException.throwIf(!this.assignmentBuilders.isEmpty(),
+        "Simple PLANit project only allows a single assignment per project");
     return super.createAndRegisterTrafficAssignment(trafficAssignmentType, demands, zoning, network);
   }
 
