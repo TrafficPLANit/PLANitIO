@@ -4,6 +4,19 @@ PLANitIO  Releases
 
 ## 0.5.0
 
+**Enhancements**
+
+#39 (Partial) Support for parsing and persisting custom input properties on link and node and other entities
+#38 Prototype output type supported for bush/tree-based output
+[GENERAL] added path geometry to path output as option + test
+[GENERAL] Support milliseconds as time unit in output
+[GENERAL] Improved formatting of output files
+[GENERAL] Migrating to newer version of geotools
+
+**Bug fixes**
+
+#37 fixed an issue in referencing the xsd schemas in XML output 
+
 ## 0.4.0
 
 **Enhancements**
