@@ -112,7 +112,7 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    * {@inheritDoc}
    */
   @Override
-  public void write(MacroscopicNetwork macroscopicNetwork, Zoning zoning) throws PlanItException {
+  public void write(MacroscopicNetwork macroscopicNetwork, Zoning zoning) {
     writeNetworkAndZoning(macroscopicNetwork, zoning);
   }
 
