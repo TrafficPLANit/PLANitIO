@@ -440,7 +440,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
    * {@inheritDoc}
    */
   @Override
-  public void write(RoutedServices routedServices) throws PlanItException {
+  public void write(RoutedServices routedServices){
 
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());

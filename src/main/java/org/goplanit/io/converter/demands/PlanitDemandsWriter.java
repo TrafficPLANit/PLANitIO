@@ -355,8 +355,8 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
    * {@inheritDoc}
    */
   @Override
-  public void write(final Demands demands) throws PlanItException {    
-    PlanItException.throwIfNull(demands, "Demands is null cannot write to PLANit native format");
+  public void write(final Demands demands){
+    PlanItRunTimeException.throwIfNull(demands, "Demands is null cannot write to PLANit native format");
 
     if(!validateSettings()){
       LOGGER.severe("Unable to continue PLANit writing of demands, settings invalid");

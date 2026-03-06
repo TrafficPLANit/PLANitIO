@@ -314,7 +314,7 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    * {@inheritDoc}
    */
   @Override
-  public void write(ServiceNetwork serviceNetwork) throws PlanItException {
+  public void write(ServiceNetwork serviceNetwork) {
 
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
