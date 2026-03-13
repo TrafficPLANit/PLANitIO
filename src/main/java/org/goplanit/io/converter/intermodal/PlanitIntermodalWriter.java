@@ -21,7 +21,8 @@ import org.goplanit.xml.generated.XMLElementServiceNetwork;
 import org.goplanit.zoning.Zoning;
 
 /**
- * Planit intermodal writer for native Planit format, wrapping a planit network writer and planit zoning writer in one
+ * PLANit intermodal writer for native PLANit format, wrapping a PLANit network writer and PLANit zoning writer in one
+ * potentially expand with routed services and a service network
  * 
  * @author markr
  *
@@ -55,10 +56,13 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    * @param zoning to persist
    * @return used writers, network and zoning, respectively
    */
-  protected Pair<PlanitNetworkWriter, PlanitZoningWriter> writeNetworkAndZoning(MacroscopicNetwork macroscopicNetwork, Zoning zoning) {
+  protected Pair<PlanitNetworkWriter, PlanitZoningWriter> writeNetworkAndZoning(
+      MacroscopicNetwork macroscopicNetwork, Zoning zoning) {
+
     /* network writer */
     PlanitNetworkWriterSettings networkSettings = getSettings().getNetworkSettings();
-    PlanitNetworkWriter networkWriter = PlanitNetworkWriterFactory.create(networkSettings.getOutputDirectory(), networkSettings.getCountry(), xmlRawNetwork);
+    PlanitNetworkWriter networkWriter = PlanitNetworkWriterFactory.create(
+        networkSettings.getOutputDirectory(), networkSettings.getCountry(), xmlRawNetwork);
     networkWriter.setIdMapperType(getIdMapperType());
     networkWriter.write(macroscopicNetwork);
 
@@ -120,7 +124,12 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    * {@inheritDoc}
    */
   @Override
-  public void writeWithServices(MacroscopicNetwork macroscopicNetwork, Zoning zoning, ServiceNetwork serviceNetwork, RoutedServices routedServices) throws PlanItException {
+  public void writeWithServices(
+      MacroscopicNetwork macroscopicNetwork,
+      Zoning zoning,
+      ServiceNetwork serviceNetwork,
+      RoutedServices routedServices){
+
     /* perform persistence without services first */
     var networkAndZoningWriter = writeNetworkAndZoning(macroscopicNetwork, zoning);
 
@@ -128,9 +137,10 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
 
     /* service network writer */
     PlanitServiceNetworkWriterSettings serviceNetworkSettings = getSettings().getServiceNetworkSettings();
-    PlanitServiceNetworkWriter serviceNetworkWriter =
-            PlanitServiceNetworkWriterFactory.create(
-                    serviceNetworkSettings.getOutputDirectory(), serviceNetworkSettings.getCountry(), xmlRawServiceNetwork);
+    PlanitServiceNetworkWriter serviceNetworkWriter = PlanitServiceNetworkWriterFactory.create(
+        serviceNetworkSettings.getOutputDirectory(),
+        serviceNetworkSettings.getCountry(),
+        xmlRawServiceNetwork);
 
     // service network writer requires physical network id ref mapping and possibly zoning one as well
     var networkIdMapper = networkAndZoningWriter.first().getPrimaryIdMapper();
@@ -146,7 +156,8 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
         PlanitRoutedServicesWriterFactory.create(
             routedServicesSettings.getOutputDirectory(), routedServicesSettings.getCountry(), xmlRawRoutedServices);
 
-    // routed services only requires service network entity references, those are present on the service network writer id mappings
+    // routed services only requires service network entity references, those are present on the service
+    // network writer id mappings
     routedServicesWriter.setParentIdMappers(networkIdMapper, zoningIdMapper, serviceNetworkWriter.getPrimaryIdMapper());
 
     routedServicesWriter.setIdMapperType(getIdMapperType());
