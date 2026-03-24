@@ -331,7 +331,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
     /* platform names */
     if(transferZone.hasPlatformNames()){
-      xmlTransferZone.setPlatforms(transferZone.getTransferZonePlatformNames().stream().sorted().collect(Collectors.joining(CharacterUtils.COMMA.toString())));
+      xmlTransferZone.setPlatforms(
+              transferZone.getTransferZonePlatformNames().stream().sorted().collect(
+                      Collectors.joining(CharacterUtils.COMMA.toString())));
     }
     
     /* type */

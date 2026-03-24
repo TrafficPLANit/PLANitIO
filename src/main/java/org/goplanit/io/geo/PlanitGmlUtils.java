@@ -1,17 +1,13 @@
 package org.goplanit.io.geo;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.opengis.gml.CoordType;
-import net.opengis.gml.CoordinatesType;
-import net.opengis.gml.DirectPositionType;
-import net.opengis.gml.LineStringType;
-import net.opengis.gml.ObjectFactory;
-import net.opengis.gml.PointType;
-import net.opengis.gml.PolygonType;
+import net.opengis.gml.*;
 
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.locationtech.jts.geom.Coordinate;
@@ -44,11 +40,17 @@ public class PlanitGmlUtils {
    * @param tupleSeparator to use 
    * @return created GML coordinates type instance
    */
+  @Deprecated (forRemoval = true, since = "replaced by pos list")
   public static CoordinatesType createGmlCoordinatesType(
-      final Coordinate[] coordinates, final Character commaSeparator, final Character decimalSeparator, final DecimalFormat decimalFormat, final Character tupleSeparator) {  
+      final Coordinate[] coordinates,
+      final Character commaSeparator,
+      final Character decimalSeparator,
+      final DecimalFormat decimalFormat,
+      final Character tupleSeparator) {
 
     /* coordinates value */
-    String coordinateCsvValue = PlanitJtsUtils.createCsvStringFromCoordinates(coordinates, tupleSeparator, commaSeparator, decimalFormat);
+    String coordinateCsvValue = PlanitJtsUtils.createCsvStringFromCoordinates(
+            coordinates, tupleSeparator, commaSeparator, decimalFormat);
     CoordinatesType xmlCoordinates = new CoordinatesType();
     xmlCoordinates.setValue(coordinateCsvValue);
     
@@ -58,6 +60,32 @@ public class PlanitGmlUtils {
     xmlCoordinates.setDecimal(decimalSeparator.toString());
     
     return xmlCoordinates;
+  }
+
+  /**
+   * Takes a list of JTS coordinates and converts it to GML coordinates value, i.e., converts all coordinates
+   * to a string based on defined pos list format. The result is a GML PosListType
+   *
+   * @param coordinates array of coordinates
+   * @return created GML coordinates type instance
+   */
+  public static DirectPositionListType createGmlPosListType(
+          final Coordinate[] coordinates) {
+
+    DirectPositionListType posList = new DirectPositionListType();
+
+    List<Double> values = posList.getValue();
+    for (Coordinate c : coordinates) {
+      // control precision before double takes over as we no longer can run decimal format and do not want to
+      // make it go through a string value
+      values.add(BigDecimal.valueOf(c.x).setScale(8, RoundingMode.HALF_UP).doubleValue());
+      values.add(BigDecimal.valueOf(c.y).setScale(8, RoundingMode.HALF_UP).doubleValue());
+    }
+
+    // for 2D better
+    posList.setSrsDimension(BigInteger.valueOf(2));
+
+    return posList;
   }
   
   /** Create a coordType instance based on provided JTS coordinate
@@ -138,16 +166,33 @@ public class PlanitGmlUtils {
   } 
   
   /**
-   * Takes a JTS line string and converts it to GML LineStringType.
+   * Takes a JTS line string and converts it to GML LineStringType. Deprecated but keep for parsing of older
+   * files so we remain compatible
    *   
   * @param coordsType to use
   * @return created GML LineStringType instance   
   */
+  @Deprecated(forRemoval = false,since = "replaced by poslist")
   public static LineStringType createGmlLineStringType(final CoordinatesType coordsType) {  
     
     /* line string type */
     LineStringType xmlLineString = new LineStringType();
     xmlLineString.setCoordinates(coordsType);
+
+    return xmlLineString;
+  }
+
+  /**
+   * Takes a JTS line string and converts it to GML LineStringType.
+   *
+   * @param posType to use
+   * @return created GML LineStringType instance
+   */
+  public static LineStringType createGmlLineStringType(final DirectPositionListType posType) {
+
+    /* line string type */
+    LineStringType xmlLineString = new LineStringType();
+    xmlLineString.setPosList(posType);
 
     return xmlLineString;
   }

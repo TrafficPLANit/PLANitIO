@@ -75,14 +75,11 @@ public abstract class UnTypedPlanitCrsWriterImpl<T> extends PlanitWriterImpl<T> 
     /* transformed coords */
     Coordinate[] transformedCoordinates = getTransformedCoordinates(lineString.getCoordinates());
 
-    /* gml coords*/
+    /* gml poslist*/
     PlanitXmlWriterSettings xmlSettings = null;
-    xmlSettings = getSettingsAsXmlWriterSettings();
-    CoordinatesType coordsType = PlanitGmlUtils.createGmlCoordinatesType(
-        transformedCoordinates, xmlSettings.getCommaSeparator(), xmlSettings.getDecimalSeparator(), xmlSettings.getDecimalFormat(), xmlSettings.getTupleSeparator());
-
+    var geometryPositions = PlanitGmlUtils.createGmlPosListType(transformedCoordinates);
     /* gml line string */
-    return PlanitGmlUtils.createGmlLineStringType(coordsType);
+    return PlanitGmlUtils.createGmlLineStringType(geometryPositions);
   }
 
   /** Constructor
