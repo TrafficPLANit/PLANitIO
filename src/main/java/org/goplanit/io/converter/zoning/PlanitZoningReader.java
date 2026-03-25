@@ -55,7 +55,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   private void syncXmlIdsToIds() {
     LOGGER.info("Syncing PLANit zoning XML ids to internally generated ids, overwriting original XML ids");
-    ZoningModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+    ZoningModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(zoning);
   }
   
   /**

@@ -88,7 +88,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    */
   private void syncXmlIdsToIds() {
     LOGGER.info("Syncing PLANit physical network XML ids to internally generated ids, overwriting original XML ids");
-    MacroscopicNetworkModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(this.network);
+    MacroscopicNetworkModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(this.network);
   }
 
   /**
