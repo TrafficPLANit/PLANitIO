@@ -433,11 +433,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     if (StringUtils.isNullOrBlank(networkRef)) {
       LOGGER.warning(String.format("Transfer zone access does not reference a network, will attempt to match to " +
           "provided network (%s)", getReferenceNetwork().getXmlId()));
-      return null;
     } else if (!networkRef.equals(getReferenceNetwork().getXmlId())) {
       LOGGER.warning(String.format("Transfer zone access references network %s but provided %s, will attempt to match to " +
           "provided network", networkRef, getReferenceNetwork().getXmlId()));
-      return null;
     }
 
     NetworkLayer networkLayer = null;
