@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.goplanit.network.LayeredNetwork;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
@@ -50,6 +51,8 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
+import javax.annotation.Nonnull;
+
 /**
  * A class that takes a PLANit zoning and persists it to file in the PLANit native XML format.
  * 
@@ -63,6 +66,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     
   /** XML memory model equivalent of the PLANit memory mode */
   private final XMLElementMacroscopicZoning xmlRawZoning;
+
+  /** reference network to use for connectoids layer cross-refs */
+  private final LayeredNetwork<?,?> referenceNetwork;
 
   /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
   private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
@@ -399,6 +405,19 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     
     /* transfer zone access */   
     var xmlTransferZoneAccess = xmlIntermodal.getValue().getTransferzoneaccess();
+    xmlTransferZoneAccess.setNetworkRef(referenceNetwork.getXmlId());
+    // currently we support only a single layer, so check for that
+    if(referenceNetwork.getTransportLayers().size() > 1){
+      throw new PlanItRunTimeException("PLANit zoning writer does not yet support more than a single network layer to" +
+          "attach transfer connectoids to");
+    }
+    var referenceLayer = referenceNetwork.getTransportLayers().getFirst();
+    if(referenceLayer == null){
+      throw new PlanItRunTimeException("PLANit zoning writer has no reference network layer to use for transfer " +
+          "connectoids, this should not happen");
+    }
+    xmlTransferZoneAccess.setNetworkLayerRef(referenceNetwork.getTransportLayers().getFirst().getXmlId());
+
     zoning.getTransferConnectoids().streamSortedBy(
         getPrimaryIdMapper().getConnectoidIdMapper()).forEach(transferConnectoid -> {
       
@@ -703,23 +722,32 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param zoningPath to persist zoning on
    * @param countryName to optimise projection for (if available, otherwise ignore)
    * @param xmlRawZoning XML zoning to populate
+   * @param network network the zoning connects to for its connectoids
    */
   protected PlanitZoningWriter(
-      final String zoningPath, final String countryName, final XMLElementMacroscopicZoning xmlRawZoning) {
-    this(
-        new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName),
-        xmlRawZoning);
+      final String zoningPath,
+      final String countryName,
+      final XMLElementMacroscopicZoning xmlRawZoning,
+      final LayeredNetwork<?,?> network) {
+    this(new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName),
+        xmlRawZoning,
+        network);
   }
 
   /** Constructor
    *
    * @param settings to use
    * @param xmlRawZoning XML zoning to populate
+   * @param network network the zoning connects to for its connectoids
    */
-  protected PlanitZoningWriter(PlanitZoningWriterSettings settings, XMLElementMacroscopicZoning xmlRawZoning) {
+  protected PlanitZoningWriter(
+      @Nonnull PlanitZoningWriterSettings settings,
+      @Nonnull XMLElementMacroscopicZoning xmlRawZoning,
+      @Nonnull final LayeredNetwork<?,?> network) {
     super(IdMapperType.XML);
     this.settings = settings;
     this.xmlRawZoning = xmlRawZoning;
+    this.referenceNetwork = network;
   }
 
   /**

@@ -1202,7 +1202,7 @@
                 </centroid>
             </zone>
         </transferzones>
-        <transferzoneaccess>
+        <transferzoneaccess network_ref="1" network_layer_ref="all">
             <connectoid tzrefs="79" lsref="94" id="0" modes="train">
                 <length>0.0</length>
             </connectoid>

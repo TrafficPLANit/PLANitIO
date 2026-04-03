@@ -88,7 +88,8 @@ public class PlanItIoTestRunner {
   protected String smoothingType = Smoothing.MSA;
 
   /**
-   * Run a test case and store the results in a MemoryOutputFormatter, most generic form with all consumers passable but could be nulls
+   * Run a test case and store the results in a MemoryOutputFormatter, most generic form with all consumers passable
+   * but could be nulls
    *
    * @param setLinkOutputTypeConfigurationProperties lambda function to set output properties being used
    * @param setCostParameters lambda function which sets parameters of cost function
@@ -192,7 +193,8 @@ public class PlanItIoTestRunner {
         linkOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
         linkOutputTypeConfiguration.removeProperty(OutputPropertyType.MAXIMUM_SPEED);
 
-        /* for this test we prefer to get out flows and capacities in vehicles rather than pcus (no difference in result with pcu=1, only in metadata)*/
+        /* for this test we prefer to get out flows and capacities in vehicles rather than pcus (no difference in
+        result with pcu=1, only in metadata)*/
         linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.CAPACITY_PER_LANE, Unit.VEH_HOUR);
         linkOutputTypeConfiguration.overrideOutputPropertyUnits(OutputPropertyType.FLOW, Unit.VEH_HOUR);
 
@@ -234,7 +236,8 @@ public class PlanItIoTestRunner {
   }
   
   /**
-   * Run a test case with a default configuration and no additional changes via consumers. Store the results in a MemoryOutputFormatter.
+   * Run a test case with a default configuration and no additional changes via consumers. Store the results in a
+   * MemoryOutputFormatter.
    *
    * @return TestOutputDto containing results, builder and project from the run
    */
@@ -256,7 +259,8 @@ public class PlanItIoTestRunner {
   /**
    * Run a test case with a custom link output type configuration consumer. Store the results in a MemoryOutputFormatter.
    *
-   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in addition to default settings
+   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type
+   *                                            configuration in addition to default settings
    * @return TestOutputDto containing results, builder and project from the run
    */  
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder>
@@ -266,10 +270,12 @@ public class PlanItIoTestRunner {
   }  
   
   /**
-   * Run a test case with a custom link output type configuration and Bpr cost consumers. Store the results in a MemoryOutputFormatter.
+   * Run a test case with a custom link output type configuration and Bpr cost consumers. Store the results in a
+   * MemoryOutputFormatter.
    *
    * @param setPhysicalCostParameters lambda function which sets parameters of cost function
-   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration in additino to default settings
+   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration
+   *                                            in addition to default settings
    * @return TestOutputDto containing results, builder and project from the run
    */    
   public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder>
@@ -334,7 +340,8 @@ public class PlanItIoTestRunner {
    * @throws PlanItException thrown if error
    */
   public void registerInitialLinkSegmentCost(String initialCostLocation) throws PlanItException {
-    var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation);
+    var initialCost =
+        project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation);
     taConfigurator.registerInitialLinkSegmentCost(initialCost);
   }
 
@@ -347,7 +354,8 @@ public class PlanItIoTestRunner {
   public void registerInitialLinkSegmentCostByTimePeriod(
           String timePeriodXmlId, String initialCostLocation) throws PlanItException {
     TimePeriod timePeriod = demands.timePeriods.getByXmlId(timePeriodXmlId);
-    final var initialCost = project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
+    final var initialCost =
+        project.createAndRegisterInitialLinkSegmentCost(network, initialCostLocation,timePeriod);
     taConfigurator.registerInitialLinkSegmentCost(timePeriod, initialCost.getTimePeriodCosts(timePeriod));    
   }
 

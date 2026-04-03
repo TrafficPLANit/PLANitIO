@@ -79,7 +79,8 @@ public class GeneratedGridWriterTest {
       zoning.getOdConnectoids().getFactory().registerNew(
           networkLayer.getNodes().get(99),  zoning.getOdZones().getByXmlId("A`"), 0).setXmlId("cA`");
 
-      var zoningWriter = PlanitZoningWriterFactory.create(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString());
+      var zoningWriter =
+          PlanitZoningWriterFactory.create(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), network);
       zoningWriter.write(zoning);
 
       var referenceZoning =
