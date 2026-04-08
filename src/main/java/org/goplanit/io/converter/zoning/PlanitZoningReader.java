@@ -144,16 +144,19 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     Geometry geometry = null;
     if(xmlPolygon != null) {
       if(xmlPolygon.getExterior() == null) {
-        LOGGER.warning(String.format("zones only support polygon geometries with an outer exterior, however this is missing for zone %s",zone.getXmlId()));
+        LOGGER.warning(String.format("zones only support polygon geometries with an outer exterior, however " +
+                "this is missing for zone %s",zone.getXmlId()));
       }else {
         if(xmlPolygon.getExterior().getValue().getRing() == null) {
-          LOGGER.warning(String.format("expected ring element missing within polygon exterior element for zone %s",zone.getXmlId()));  
+          LOGGER.warning(String.format("expected ring element missing within polygon exterior element for zone %s",
+                  zone.getXmlId()));
         }else if(xmlPolygon.getExterior().getValue().getRing().getValue() instanceof LinearRingType) {
           /* found the actual content */
           LinearRingType xmlLinearRing = (LinearRingType) xmlPolygon.getExterior().getValue().getRing().getValue();
           geometry = PlanitJtsUtils.create2DPolygon(xmlLinearRing.getPosList().getValue());
         }else {
-          LOGGER.warning(String.format("expected linear ring within polygon exterior element for zone %s, but different ring type was encountered",zone.getXmlId()));  
+          LOGGER.warning(String.format("expected linear ring within polygon exterior element for zone %s, " +
+                  "but different ring type was encountered",zone.getXmlId()));
         }                    
       }
     }else if(xmlLineString != null) {
@@ -192,8 +195,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     /* Explicitly set length (apply to all access zones */
     if (xmlConnectoid.getLength() != null) {
       connectoidLength = Double.valueOf(xmlConnectoid.getLength());
-      if(connectoid.getNumberOfAccessZones() > 1) {
-        LOGGER.fine(String.format("connectoid %s has explicitly set length, yet has multiple access zones that now all receive equal lengths", connectoid.getXmlId()));
+      if(connectoid.getNumberOfAccessZoneEntries() > 1) {
+        LOGGER.fine(String.format("connectoid %s has explicitly set length, yet has multiple access zones that now " +
+                "all receive equal lengths", connectoid.getXmlId()));
       }
       for(Zone accessZone : connectoid) {
         connectoid.setLengthKm(accessZone, connectoidLength);
@@ -233,7 +237,11 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @return created and registered Planit zone
    */
   private void parseBaseZone(
-      final Zone zone, final String xmlId, final String externalId, final String name, final XMLElementCentroid xmlCentroid) {
+      final Zone zone,
+      final String xmlId,
+      final String externalId,
+      final String name,
+      final XMLElementCentroid xmlCentroid) {
     
     /* xml id */
     if(!StringUtils.isNullOrBlank(xmlId)) {
@@ -295,6 +303,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
       /* ACCESS NODE BASED (OD) */
       var xmlOdConnectoid = ((XMLElementConnectoid)xmlConnectoid);
+      var xmlSingleAccessZone = xmlOdConnectoid.getAccesszone().get(0);
+      populateConnectoidByAccessZone()
+
       Node accessNode = getBySourceId(Node.class, xmlOdConnectoid.getNoderef());
       if(accessNode == null) {
         throw new PlanItRunTimeException(String.format("Provided accessNode XML id %s is invalid given " +

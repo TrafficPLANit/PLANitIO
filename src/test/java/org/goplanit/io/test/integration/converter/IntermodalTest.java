@@ -124,35 +124,35 @@ public class IntermodalTest {
       
       for(var odConnectoid : zoning.getOdConnectoids()) {
         assertEquals(odConnectoid.getAccessZones().size(),1);
-        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.CAR)),true);
-        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.BUS)),true);
-        assertEquals(odConnectoid.getLengthKm(odConnectoid.getFirstAccessZone()).get(),1,Precision.EPSILON_6);
+        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.CAR)),true);
+        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.BUS)),true);
+        assertEquals(odConnectoid.getLengthKm(odConnectoid.getFirstAccessZoneEntry()).get(),1,Precision.EPSILON_6);
       }
       for(var transferConnectoid : zoning.getTransferConnectoids()) {      
         assertEquals(transferConnectoid.getAccessZones().size(),1);
-        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.CAR)),false);
-        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZone(), network.getModes().get(PredefinedModeType.BUS)),true);
+        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.CAR)),false);
+        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.BUS)),true);
         assertEquals(transferConnectoid.getType(), ConnectoidType.PT_VEHICLE_STOP);
-        assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZone()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
+        assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZoneEntry()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
         
         switch (transferConnectoid.getAccessLinkSegment().getXmlId()) {
           case linkSegment1XmlId:
               if(transferConnectoid.getAccessNode().getXmlId().equals(node1XmlId)) {
                 assertEquals(transferConnectoid.getXmlId(),transferconnectoid1XmlId);
-                assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop1XmlId);
-                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.PLATFORM);
+                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getXmlId(),transferZoneStop1XmlId);
+                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),TransferZoneType.PLATFORM);
               }else {
                 assertEquals(transferConnectoid.getAccessNode().getXmlId(),node2XmlId);
                 assertEquals(transferConnectoid.getXmlId(),transferconnectoid2XmlId);
-                assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop2XmlId);
-                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.POLE);
+                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getXmlId(),transferZoneStop2XmlId);
+                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),TransferZoneType.POLE);
               }
             break;
           case linkSegment3XmlId:
             assertEquals(transferConnectoid.getAccessNode().getXmlId(),node3XmlId);
             assertEquals(transferConnectoid.getXmlId(),transferconnectoid3XmlId);
-            assertEquals(transferConnectoid.getFirstAccessZone().getXmlId(),transferZoneStop3XmlId);
-            assertEquals(((TransferZone)transferConnectoid.getFirstAccessZone()).getTransferZoneType(),TransferZoneType.NONE);
+            assertEquals(transferConnectoid.getFirstAccessZoneEntry().getXmlId(),transferZoneStop3XmlId);
+            assertEquals(((TransferZone)transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),TransferZoneType.NONE);
             break;
           default:
             break;
