@@ -17,7 +17,7 @@ import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.ConnectoidType;
+import org.goplanit.utils.zoning.ZoneConnectoidType;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.TransferZoneType;
 import org.goplanit.zoning.Zoning;
@@ -132,7 +132,7 @@ public class IntermodalTest {
         assertEquals(transferConnectoid.getAccessZones().size(),1);
         assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.CAR)),false);
         assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.BUS)),true);
-        assertEquals(transferConnectoid.getType(), ConnectoidType.PT_VEHICLE_STOP);
+        assertEquals(transferConnectoid.getType(), ZoneConnectoidType.PT_VEHICLE_STOP);
         assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZoneEntry()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
         
         switch (transferConnectoid.getAccessLinkSegment().getXmlId()) {

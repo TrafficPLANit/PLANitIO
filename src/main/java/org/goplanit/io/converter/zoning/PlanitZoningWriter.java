@@ -17,15 +17,7 @@ import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.ConnectoidType;
-import org.goplanit.utils.zoning.DirectedConnectoid;
-import org.goplanit.utils.zoning.OdZone;
-import org.goplanit.utils.zoning.TransferZone;
-import org.goplanit.utils.zoning.TransferZoneGroup;
-import org.goplanit.utils.zoning.TransferZoneType;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
-import org.goplanit.utils.zoning.Zone;
+import org.goplanit.utils.zoning.*;
 import org.goplanit.xml.generated.*;
 import org.goplanit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
 import org.goplanit.xml.generated.XMLElementTransferZoneAccess.XMLElementTransferConnectoid;
@@ -55,18 +47,18 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   private final LayeredNetwork<?,?> referenceNetwork;
 
   /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
-  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
+  private final Map<Zone,List<Connectoid<?>>> zoneToConnectoidMap = new HashMap<>();
   
   /** settings to use */
   private final PlanitZoningWriterSettings settings;
 
   /** Convert PLANit connectoid type to XML PLANit connectoid type
    * 
-   * @param connectoidType to convert
+   * @param zoneConnectoidType to convert
    * @return xml connectoid type created
    */
-  private static Connectoidtypetype createXmlConnectoidType(final ConnectoidType connectoidType) {
-    switch (connectoidType) {
+  private static Connectoidtypetype createXmlConnectoidType(final ZoneConnectoidType zoneConnectoidType) {
+    switch (zoneConnectoidType) {
       case UNKNOWN:
         return Connectoidtypetype.UNKNOWN;
       case PT_VEHICLE_STOP:
@@ -77,7 +69,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         return Connectoidtypetype.NONE;        
       default:
         LOGGER.warning(String.format("Unsupported connectoid type %s found, changed to `unknown`",
-                connectoidType.value()));
+                zoneConnectoidType.value()));
         return Connectoidtypetype.UNKNOWN;
     }
   } 
@@ -112,15 +104,15 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void createZoneToConnectoidIndices(final Zoning zoning) {
     for(var connectoid : zoning.getOdConnectoids()) {
-      for(var zone : connectoid.getAccessZones()) {
-        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<>(1));
-        zoneToConnectoidMap.get(zone).add(connectoid);
+      for(var zoneEntry : connectoid.getAccessZoneEntries().values()) {
+        zoneToConnectoidMap.putIfAbsent(zoneEntry.getAccessZone(), new ArrayList<>(1));
+        zoneToConnectoidMap.get(zoneEntry.getAccessZone()).add(connectoid);
       }
     }
     for(var connectoid : zoning.getTransferConnectoids()) {
-      for(var zone : connectoid.getAccessZones()) {
-        zoneToConnectoidMap.putIfAbsent(zone, new ArrayList<>(1));
-        zoneToConnectoidMap.get(zone).add(connectoid);
+      for(var zoneEntry : connectoid.getAccessZoneEntries().values()) {
+        zoneToConnectoidMap.putIfAbsent(zoneEntry.getAccessZone(), new ArrayList<>(1));
+        zoneToConnectoidMap.get(zoneEntry.getAccessZone()).add(connectoid);
       }
     }    
   }  
@@ -185,10 +177,12 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     
     /* transfer zone groups */   
     XMLElementTransferZoneGroups xmlTransferZoneGroups = xmlIntermodal.getValue().getTransferzonegroups();
-    zoning.getTransferZoneGroups().streamSortedBy(getPrimaryIdMapper().getTransferZoneGroupIdMapper()).forEach( transferGroup -> {
+    zoning.getTransferZoneGroups().streamSortedBy(
+        getPrimaryIdMapper().getTransferZoneGroupIdMapper()).forEach( transferGroup -> {
       
       if(!transferGroup.hasTransferZones()) {
-        LOGGER.warning(String.format("DISCARD: transfer zone group %s (id:%d) is dangling", transferGroup.getXmlId(), transferGroup.getId()));
+        LOGGER.warning(String.format("DISCARD: transfer zone group %s (id:%d) is dangling",
+            transferGroup.getXmlId(), transferGroup.getId()));
         return;
       }
       
@@ -208,30 +202,16 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void populateXmlTransferConnectoid(
       final XMLElementTransferConnectoid xmlTransferConnectoid, final DirectedConnectoid transferConnectoid) {
-    
-    if(!transferConnectoid.hasAccessZoneEntries()) {
-      LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) is dangling",
-          transferConnectoid.getXmlId(), transferConnectoid.getId()));
-      return;
-    }
-    if(!transferConnectoid.hasAccessLinkSegment()) {
-      LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) has no access link segment",
-          transferConnectoid.getXmlId(), transferConnectoid.getId()));
-      return;
-    }
 
     /* populate base pertaining to any connectoid*/
     populateXmlConnectoidBase(xmlTransferConnectoid, transferConnectoid);
 
-    var accessZones = transferConnectoid.getAccessZones();
-    var xmlAccessZones = xmlTransferConnectoid.getAccesszone();
-    for(var currAccessZone : accessZones) {
+    final var xmlAccessZones = xmlTransferConnectoid.getAccesszone();
+    transferConnectoid.getAccessZoneStream().forEach(transferzone -> {
       var xmlAccessZone = new Connectoidtype.Accesszone();
-
-      populateXmlConnectoidAccessZone(xmlAccessZone,currAccessZone, transferConnectoid);
-
+      populateXmlConnectoidAccessZone(xmlAccessZone, transferzone, transferConnectoid);
       xmlAccessZones.add(xmlAccessZone);
-    }
+    });
   }
 
   /** Populate an XML transfer zone
@@ -334,7 +314,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
             transferConnectoid.getXmlId(), transferConnectoid.getId()));
         return;
       }
-      if(!transferConnectoid.hasAccessLinkSegment()) {
+      if(!transferConnectoid.hasAccessLinkSegments()) {
         LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) has no access link segment",
             transferConnectoid.getXmlId(), transferConnectoid.getId()));
         return;
@@ -403,7 +383,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void populateXmlConnectoidBase(
       final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase,
-      final Connectoid connectoid) {
+      final Connectoid<?> connectoid) {
 
     /* id */
     xmlConnectoidBase.setId(getPrimaryIdMapper().getConnectoidIdMapper().apply(connectoid));
@@ -421,11 +401,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     if(connectoid.hasName()) {
       xmlConnectoidBase.setName(connectoid.getName());
     }
-    
-    /* type */
-    if(!connectoid.getType().equals(ConnectoidType.NONE)) {
-      xmlConnectoidBase.setType(createXmlConnectoidType(connectoid.getType()));
-    }
 
     /* ACCESS NODE REF */
     var accessNode = connectoid.getAccessVertex();
@@ -441,51 +416,45 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param connectoid to use
    */
   private void populateXmlConnectoidAccessZone(
-          Connectoidtype.Accesszone xmlAccessZone, Zone accessZone, Connectoid connectoid) {
+          Connectoidtype.Accesszone xmlAccessZone, Zone accessZone, Connectoid<?> connectoid) {
 
-    // LENGTH
-    Optional<Double> currLengthKm = connectoid.getLengthKm(accessZone);
-    xmlAccessZone.setLengthkm(BigDecimal.valueOf(currLengthKm.get()));
-
-    // MODES
-    // only list explicitly allowed modes, if none, all modes are allowed
-    var accessModes = connectoid.getExplicitlyAllowedModes(accessZone);
-    /* explicitly allowed modes for zone */
-    if (accessModes != null) {
-      String csvModeIdString =
-              accessModes.stream().map(
-                      mode -> getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(
-                              mode)).sorted().collect(
-                      Collectors.joining(String.valueOf(CharacterUtils.COMMA)));
-      xmlAccessZone.setModes(csvModeIdString);
-    }
+    var accessZoneEntry = connectoid.getAccessZoneEntry(accessZone);
 
     /* TRANSFER ZONE REF */
     String xmlTzRef = getPrimaryIdMapper().getZoneIdMapper().apply(accessZone);
     xmlAccessZone.setRef(xmlTzRef);
 
-    if(connectoid instanceof DirectedConnectoid){
-      DirectedConnectoid directedConnectoid = (DirectedConnectoid) connectoid;
+    // LENGTH
+    Optional<Double> currLengthKm = accessZoneEntry.getLengthKm();
+    xmlAccessZone.setLengthkm(BigDecimal.valueOf(currLengthKm.get()));
 
-      /* LINK SEGMENTS REFS */
-      //todo can be multiple now adjust memory model --> group by origin/destination as this affectes node ref
-      xmlAccessZone.setLsrefs(
-              getComponentIdMappers().getNetworkIdMappers().getMacroscopicLinkSegmentIdMapper().apply(
-                      (MacroscopicLinkSegment) directedConnectoid.getAccessLinkSegment()));
-
-      if ((directedConnectoid.isNodeAccessDownstream() &&
-              !directedConnectoid.getAccessNode().idEquals(
-                      directedConnectoid.getAccessLinkSegment().getDownstreamVertex()))
-              ||
-              (!directedConnectoid.isNodeAccessDownstream() &&
-                      !directedConnectoid.getAccessNode().idEquals(
-                              directedConnectoid.getAccessLinkSegment().getUpstreamVertex()))) {
-        LOGGER.warning(String.format(
-                "Transfer connectoid %s (id:%d) access node location is in conflict with the registered access node",
-                connectoid.getXmlId(), connectoid.getId()));
-      }
+    /* TYPE */
+    if(!accessZoneEntry.getType().equals(ZoneConnectoidType.NONE)) {
+      xmlAccessZone.setType(createXmlConnectoidType(accessZoneEntry.getType()));
     }
 
+    if(connectoid instanceof DirectedConnectoid){
+      var directedAccessEntry = (DirectedConnectoidAccessZoneEntry) accessZoneEntry;
+
+      // MODES
+      // only list explicitly allowed modes, if none, all modes are allowed
+      var accessModes = directedAccessEntry.getExplicitlyAllowedModes();
+      /* explicitly allowed modes for zone */
+      if (accessModes != null) {
+        String csvModeIdString =
+            accessModes.stream().map(
+                mode -> getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(
+                    mode)).sorted().collect(
+                Collectors.joining(String.valueOf(CharacterUtils.COMMA)));
+        xmlAccessZone.setModes(csvModeIdString);
+      }
+
+      /* LINK SEGMENTS REFS */
+      var lsIdMapper = getComponentIdMappers().getNetworkIdMappers().getMacroscopicLinkSegmentIdMapper();
+      var lsRefs = directedAccessEntry.getAccessLinkSegments().stream().map(
+          ls -> lsIdMapper.apply((MacroscopicLinkSegment) ls)).collect(Collectors.joining(","));
+      xmlAccessZone.setLsrefs(lsRefs);
+    }
   }
 
   /** Populate the od specific part of the connectoid which is the access vertex reference
@@ -503,8 +472,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
           odConnectoid.getXmlId(), odConnectoid.getId(), accessZone.getXmlId(), accessZone.getId()));
     }
 
-    xmlConnectoid.setType(Connectoidtypetype.TRAVELLER_ACCESS);
-
     /* populate base pertaining to any connectoid*/
     populateXmlConnectoidBase(
         xmlConnectoid,
@@ -520,13 +487,12 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
   /** Populate an XML origin-destination zone
    * 
-   * @param zoning to use
    * @param odZone to extract information from
    */
-  private void populateXmlOdZone(final Zoning zoning, final OdZone odZone) {
+  private void populateXmlOdZone(final OdZone odZone) {
     if(!zoneToConnectoidMap.containsKey(odZone)) {
       LOGGER.warning(String.format("DISCARD: od zone (%s) without connectoids found; dangling",
-          odZone.getIdsAsString(), odZone.getId()));
+          odZone.getIdsAsString()));
       return;
     }
     
@@ -632,11 +598,10 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       xmlOdZones = new XMLElementZones();
       xmlRawZoning.setZones(xmlOdZones);
     }
-    
-    zoning.getOdZones().streamSortedBy(getPrimaryIdMapper().getZoneIdMapper()).forEach( odZone -> {
-      /* modes */
-      populateXmlOdZone(zoning, odZone); 
-    });
+
+    /* zones */
+    zoning.getOdZones().streamSortedBy(
+        getPrimaryIdMapper().getZoneIdMapper()).forEach(this::populateXmlOdZone);
   }
 
   /** Populate the transfer zones of this zoning

@@ -112,21 +112,21 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlConnectoidType to parse
    * @return PLANit equivalent of the transfer zone type
    */  
-  private static ConnectoidType parseConnectoidType(final Connectoidtypetype xmlConnectoidType) {
+  private static ZoneConnectoidType parseConnectoidType(final Connectoidtypetype xmlConnectoidType) {
     
     if(xmlConnectoidType==null) {
-      return ConnectoidType.NONE;
+      return ZoneConnectoidType.NONE;
     }else {
       switch (xmlConnectoidType) {
       case PT_VEH_STOP:
-        return ConnectoidType.PT_VEHICLE_STOP;
+        return ZoneConnectoidType.PT_VEHICLE_STOP;
       case TRAVELLER_ACCESS:
-        return ConnectoidType.TRAVELLER_ACCESS;
+        return ZoneConnectoidType.TRAVELLER_ACCESS;
       case NONE:
-        return ConnectoidType.NONE;         
+        return ZoneConnectoidType.NONE;
       default:
         LOGGER.warning(String.format("Unknown connectoid type %s found, changed to `unknown`",xmlConnectoidType.value()));
-        return ConnectoidType.UNKNOWN;
+        return ZoneConnectoidType.UNKNOWN;
       }
     }
     
