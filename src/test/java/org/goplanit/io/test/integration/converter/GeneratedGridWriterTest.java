@@ -7,6 +7,7 @@ import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetworkUtils;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.id.IdGenerator;
+import org.goplanit.utils.zoning.ZoneConnectoidType;
 import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+import static org.goplanit.utils.zoning.ZoneConnectoidType.TRAVELLER_ACCESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -75,9 +77,9 @@ public class GeneratedGridWriterTest {
       zoning.setCoordinateReferenceSystem(PlanitJtsCrsUtils.CARTESIANCRS);
 
       zoning.getOdConnectoids().getFactory().registerNew(
-          networkLayer.getNodes().get(0),  zoning.getOdZones().getByXmlId("A"), 0).setXmlId("cA");
+          zoning.getOdZones().getByXmlId("A"), networkLayer.getNodes().get(0), TRAVELLER_ACCESS, 0).setXmlId("cA");
       zoning.getOdConnectoids().getFactory().registerNew(
-          networkLayer.getNodes().get(99),  zoning.getOdZones().getByXmlId("A`"), 0).setXmlId("cA`");
+          zoning.getOdZones().getByXmlId("A`"), networkLayer.getNodes().get(99), TRAVELLER_ACCESS,  0).setXmlId("cA`");
 
       var zoningWriter =
           PlanitZoningWriterFactory.create(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), network);

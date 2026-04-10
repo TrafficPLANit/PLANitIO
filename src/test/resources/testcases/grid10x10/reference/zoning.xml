@@ -4,14 +4,14 @@
     <zones>
         <zone id="A">
             <connectoids>
-                <connectoid noderef="0" id="cA" type="traveller_access">
+                <connectoid type="traveller_access" id="cA" noderef="0">
                     <length>0.0</length>
                 </connectoid>
             </connectoids>
         </zone>
         <zone id="A`">
             <connectoids>
-                <connectoid noderef="99" id="cA`" type="traveller_access">
+                <connectoid type="traveller_access" id="cA`" noderef="99">
                     <length>0.0</length>
                 </connectoid>
             </connectoids>

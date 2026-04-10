@@ -16,6 +16,7 @@ import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
+import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.xml.generated.*;
@@ -57,7 +58,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param zoneConnectoidType to convert
    * @return xml connectoid type created
    */
-  private static Connectoidtypetype createXmlConnectoidType(final ZoneConnectoidType zoneConnectoidType) {
+  private static Connectoidtypetype createXmlZoneConnectoidType(final ZoneConnectoidType zoneConnectoidType) {
     switch (zoneConnectoidType) {
       case UNKNOWN:
         return Connectoidtypetype.UNKNOWN;
@@ -115,7 +116,27 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         zoneToConnectoidMap.get(zoneEntry.getAccessZone()).add(connectoid);
       }
     }    
-  }  
+  }
+
+  /**
+   * Create allowed modes string, when null all modes are allowed and element does not need to be populated
+   *
+   * @param directedAccessEntry to use
+   * @param modeIdMapper to use
+   * @return mode string in XML format
+   */
+  private static String createXmlModesStringFromConnectoidZoneEntry(
+      ConnectoidAccessZoneEntry directedAccessEntry, Function<Mode, String> modeIdMapper) {
+    var accessModes = directedAccessEntry.getExplicitlyAllowedModes();
+    String csvModeIdString = null;
+    /* explicitly allowed modes for zone */
+    if (accessModes != null && !accessModes.isEmpty()) {
+      csvModeIdString =
+          accessModes.stream().map(modeIdMapper::apply).sorted().collect(
+              Collectors.joining(String.valueOf(CharacterUtils.COMMA)));
+    }
+    return csvModeIdString;
+  }
   
   /** Populate the XML transfer group based on the PLANit memory model transfer zone group instance
    * @param xmlTransferGroup to populate
@@ -209,7 +230,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     final var xmlAccessZones = xmlTransferConnectoid.getAccesszone();
     transferConnectoid.getAccessZoneStream().forEach(transferzone -> {
       var xmlAccessZone = new Connectoidtype.Accesszone();
-      populateXmlConnectoidAccessZone(xmlAccessZone, transferzone, transferConnectoid);
+      populateXmlDirectedConnectoidAccessZone(xmlAccessZone, transferzone, transferConnectoid);
       xmlAccessZones.add(xmlAccessZone);
     });
   }
@@ -409,13 +430,15 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   }
 
   /**
-   * Populate connectoid zone combination, if transfer connectoid add link segment refs as well otherwise ignore
+   * Populate connectoid zone combination, currently only transfer connectoids use the access entries explicitly as
+   * XML elements, so for OD connectoids we cannot use this (yet), and instead manually populate a slightly different
+   * structure todo: in time move od connectoid setup to the below
    *
    * @param xmlAccessZone to populate
    * @param accessZone to use
    * @param connectoid to use
    */
-  private void populateXmlConnectoidAccessZone(
+  private void populateXmlDirectedConnectoidAccessZone(
           Connectoidtype.Accesszone xmlAccessZone, Zone accessZone, Connectoid<?> connectoid) {
 
     var accessZoneEntry = connectoid.getAccessZoneEntry(accessZone);
@@ -430,7 +453,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
     /* TYPE */
     if(!accessZoneEntry.getType().equals(ZoneConnectoidType.NONE)) {
-      xmlAccessZone.setType(createXmlConnectoidType(accessZoneEntry.getType()));
+      xmlAccessZone.setType(createXmlZoneConnectoidType(accessZoneEntry.getType()));
     }
 
     if(connectoid instanceof DirectedConnectoid){
@@ -438,15 +461,10 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
       // MODES
       // only list explicitly allowed modes, if none, all modes are allowed
-      var accessModes = directedAccessEntry.getExplicitlyAllowedModes();
-      /* explicitly allowed modes for zone */
-      if (accessModes != null) {
-        String csvModeIdString =
-            accessModes.stream().map(
-                mode -> getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(
-                    mode)).sorted().collect(
-                Collectors.joining(String.valueOf(CharacterUtils.COMMA)));
-        xmlAccessZone.setModes(csvModeIdString);
+      String accessModesStr = createXmlModesStringFromConnectoidZoneEntry(
+          directedAccessEntry, getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
+      if(accessModesStr != null){
+        xmlAccessZone.setModes(accessModesStr);
       }
 
       /* LINK SEGMENTS REFS */
@@ -477,11 +495,28 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         xmlConnectoid,
         odConnectoid);
 
-    // populate od connectoid - access zone info
-    var xmlAccessZones = xmlConnectoid.getAccesszone();
-    var xmlAccessZone = new Connectoidtype.Accesszone();
-    populateXmlConnectoidAccessZone(xmlAccessZone,accessZone, odConnectoid);
-    xmlAccessZones.add(xmlAccessZone);
+    // populate od connectoid - access zone info - bypass the access zone XML entry creation as it is 1:1 currently
+    // and otherwise we have it referencing the zone again despite it being listed under the zone already
+    var odAccessZoneEntry = odConnectoid.getAccessZoneEntry(accessZone);
+
+    // MODES
+    // populate modes and length as od specific extensions outside of XML access entry but drawing from memory model
+    // entry
+    // only list explicitly allowed modes, if none, all modes are allowed
+    String accessModesStr = createXmlModesStringFromConnectoidZoneEntry(
+        odAccessZoneEntry, getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
+    if(accessModesStr != null){
+      xmlConnectoid.setModes(accessModesStr);
+    }
+
+    // LENGTH
+    Optional<Double> currLengthKm = odAccessZoneEntry.getLengthKm();
+    xmlConnectoid.setLength(BigDecimal.valueOf(currLengthKm.get()));
+
+    /* TYPE */
+    if(!odAccessZoneEntry.getType().equals(ZoneConnectoidType.NONE)) {
+      xmlConnectoid.setType(createXmlZoneConnectoidType(odAccessZoneEntry.getType()));
+    }
 
   }   
 

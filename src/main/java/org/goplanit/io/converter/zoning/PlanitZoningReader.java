@@ -118,7 +118,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlConnectoidType to parse
    * @return PLANit equivalent of the transfer zone type
    */  
-  private static ZoneConnectoidType parseConnectoidType(final Connectoidtypetype xmlConnectoidType) {
+  private static ZoneConnectoidType parseZoneConnectoidType(final Connectoidtypetype xmlConnectoidType) {
     
     if(xmlConnectoidType==null) {
       return ZoneConnectoidType.NONE;
@@ -136,8 +136,34 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         return ZoneConnectoidType.UNKNOWN;
       }
     }
-    
-  }  
+  }
+
+  /**
+   * Parse modes and populate entry provided
+   * @param connectoid at hand
+   * @param planitZoneAccessEntry to use
+   * @param xmlModesRef modes to parse
+   * @param planitModesByXmlId mode mapping
+   */
+  private static void populateTransferConnectoidZoneEntryModes(
+      Connectoid<?> connectoid,
+      ConnectoidAccessZoneEntry planitZoneAccessEntry,
+      String xmlModesRef, Map<String, Mode> planitModesByXmlId) {
+
+    // when no modes, all are implicitly allowed, so do nothing
+    if(!StringUtils.isNullOrBlank(xmlModesRef)) {
+      /* capture explicit referenced modes by xml id */
+      for(String xmlModeRef : List.of(xmlModesRef.split(","))){
+        Mode mode = planitModesByXmlId.get(xmlModeRef);
+        if(mode == null) {
+          LOGGER.warning(String.format("Invalid mode %s referenced by transfer connectoid (%s)",
+              xmlModeRef, connectoid.getIdsAsString()));
+          continue;
+        }
+        planitZoneAccessEntry.addExplicitAllowedMode(mode);
+      }
+    }
+  }
   
   /** Public Transport to parse the geometry of the zone if any is provided
    * 
@@ -195,39 +221,37 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param position to compute geographic length from (if not null)
    * @param jtsUtils to use
    */
-  private static void populateConnectoidToZoneLengths(
+  private static void populateOdConnectoidToZoneLength(
       final Connectoid<?> connectoid,
-      final Connectoidtype xmlConnectoid,
+      final XMLElementConnectoid xmlConnectoid,
       final Point position,
       final PlanitJtsCrsUtils jtsUtils){
     Double connectoidLength = null;
     
     /* Explicitly set length (apply to all access zones */
     if (xmlConnectoid.getLength() != null) {
-      connectoidLength = Double.valueOf(xmlConnectoid.getLength());
-      if(connectoid.getNumberOfAccessZoneEntries() > 1) {
-        LOGGER.fine(String.format("connectoid %s has explicitly set length, yet has multiple access zones that now " +
-                "all receive equal lengths", connectoid.getXmlId()));
-      }
+      connectoidLength = xmlConnectoid.getLength().doubleValue();
       for(Zone accessZone : connectoid) {
-        connectoid.setLengthKm(accessZone, connectoidLength);
-      }
-      // :TODO - need to create some test cases in which nodes have a GML location
-    }
-    /* implicit based on locations of zone centroids */
-    else if (position != null) {
-      /* if node has a GML Point, get the GML Point from the centroid and calculate the length between them */
-      for(Zone accessZone : connectoid) {
-        if(accessZone.getCentroid() == null || accessZone.getCentroid().getPosition() != null) {
-          LOGGER.warning(String.format("access zone of connectoid %s is null", connectoid.getXmlId()));
-          continue;
-        }
-        if(accessZone.getCentroid().getPosition() != null) {
-          connectoidLength = jtsUtils.getDistanceInKilometres(accessZone.getCentroid().getPosition(), position);
-          connectoid.setLengthKm(accessZone, connectoidLength);
-        }
+        connectoid.getAccessZoneEntry(accessZone).setLengthKm(connectoidLength);
       }
     }
+
+    // don't think this is a good idea, any lengths need to come from logic not added during persistence
+    // slated for removal unless it breaks something
+//    /* implicit based on locations of zone centroids */
+//    else if (position != null) {
+//      /* if node has a GML Point, get the GML Point from the centroid and calculate the length between them */
+//      for(Zone accessZone : connectoid) {
+//        if(accessZone.getCentroid() == null || accessZone.getCentroid().getPosition() != null) {
+//          LOGGER.warning(String.format("access zone of connectoid %s is null", connectoid.getXmlId()));
+//          continue;
+//        }
+//        if(accessZone.getCentroid().getPosition() != null) {
+//          connectoidLength = jtsUtils.getDistanceInKilometres(accessZone.getCentroid().getPosition(), position);
+//          connectoid.setLengthKm(accessZone, connectoidLength);
+//        }
+//      }
+//    }
        
   }    
   
@@ -309,7 +333,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
     String accessNodeRef = xmlConnectoid.getNoderef();
     if(accessNodeRef == null){
-      throw new PlanItRunTimeException(String.format("accessNode XML id for connectoid (XML Id:%s) is missing", xmlId));
+      throw new PlanItRunTimeException(String.format("AccessNode XML id for connectoid (XML Id:%s) is missing", xmlId));
     }
     Node accessNode = getBySourceId(Node.class, xmlConnectoid.getNoderef());
     if(accessNode == null) {
@@ -469,84 +493,73 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     /* no transfer zone connectoids */
     if(xmlInterModal.getValue().getTransferzoneaccess() == null) {
       return;
-    }    
+    }
+
+    // prep
     XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlInterModal.getValue().getTransferzoneaccess();
     var layer = checkTransferZoneNetworkLayerReference(xmlTransferZoneAccess);
 
-    Map<String, Mode> modesByXmlId = new HashMap<>();
+    Map<String, Mode> planitModesByXmlId = new HashMap<>();
     var supportedModes = layer == null ? modes : layer.getSupportedModes();
     if(layer == null){
       LOGGER.severe("No network layer found, allow all modes instead and try to salvage, this should not happen");
     }
-    supportedModes.forEach( mode -> modesByXmlId.put(mode.getXmlId(), mode));
+    supportedModes.forEach( mode -> planitModesByXmlId.put(mode.getXmlId(), mode));
     
     /* transfer zone connectoid access */
     List<XMLElementTransferZoneAccess.XMLElementTransferConnectoid> xmlTransferConnectoids =
         xmlTransferZoneAccess.getConnectoid();
     for(XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid : xmlTransferConnectoids) {
+
       /* base connectoid */
-      DirectedConnectoid connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid);
+      DirectedConnectoid connectoid = null;
+      try {
+        connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid);
+      }catch (PlanItRunTimeException e){
+        // attempt legacy format instead
 
-      CONTINUE HERE
-
-      String xmlLinkSegmentRef = xmlTransferConnectoid.getLsref();
-      MacroscopicLinkSegment linkSegment = getBySourceId(MacroscopicLinkSegment.class,xmlLinkSegmentRef);
-      if(linkSegment == null) {
-        throw new PlanItRunTimeException(String.format("Provided access link segment XML id %s is invalid given " +
-                "available link segments in network when parsing transfer connectoid %s",
-            xmlLinkSegmentRef, xmlConnectoid.getId()));
       }
 
-      boolean nodeAccessDownstream = true;
-      if(xmlTransferConnectoid.getLoc()!= null &&
-          xmlTransferConnectoid.getLoc() == Connectoidnodelocationtype.UPSTREAM) {
-        nodeAccessDownstream = false;
-      }
+      var xmlAccessZoneEntries = xmlTransferConnectoid.getAccesszone();
+      for(var xmlAccessZoneEntry :  xmlAccessZoneEntries){
 
-      /* type */
-      theConnectoid.setType(parseConnectoidType(xmlConnectoid.getType()));
+        // zone ref
+        var zoneRef = xmlAccessZoneEntry.getRef();
+        var transferZone = (TransferZone) getBySourceId(Zone.class, zoneRef);
+        if(transferZone == null) {
+          throw new PlanItRunTimeException(String.format("Provided Zone ref XML id %s is " +
+                  "invalid when parsing transfer connectoid %s",
+              zoneRef, connectoid.getXmlId()));
+        }
+        var planitZoneAccessEntry = connectoid.createAccessZoneEntry(transferZone);
 
-      /* modes that are allowed access */
-      String modesRef = xmlTransferConnectoid.getModes();
-      Collection<Mode> allowedModes = null;
-      boolean implicitAllModesAllowed = true;
-      if(!StringUtils.isNullOrBlank(modesRef)) {        
-        /* capture explicit referenced modes by xml id */
-        implicitAllModesAllowed = false;
-        allowedModes = new HashSet<Mode>();
-        for(String xmlModeRef : List.of(modesRef.split(","))){
-          Mode mode = modesByXmlId.get(xmlModeRef);
-          if(mode == null) {
-            LOGGER.warning(String.format("invalid mode %s referenced by transfer connectoid %s",
-                xmlModeRef, connectoid.getXmlId()));
-            continue;
+        // link segment refs
+        String xmlLinkSegmentRefs = xmlAccessZoneEntry.getLsrefs();
+        var lsRefsArray = xmlLinkSegmentRefs.split(String.valueOf(CharacterUtils.COMMA));
+        for(var lsRef : lsRefsArray){
+          MacroscopicLinkSegment linkSegment = getBySourceId(MacroscopicLinkSegment.class, lsRef);
+          if(linkSegment == null) {
+            LOGGER.warning(String.format("Provided access link segment XML id %s is invalid given " +
+                    "available link segments in network when parsing transfer connectoid (%s)",
+                lsRef, connectoid.getIdsAsString()));
           }
-          allowedModes.add(mode);                    
+          planitZoneAccessEntry.addAccessLinkSegment(linkSegment);
         }
-      }
-      
-      /* register (transfer) access zones */
-      String TransferZoneRefs = xmlTransferConnectoid.getTzrefs();
-      for(String xmlAccessZoneRef : List.of(TransferZoneRefs.split(","))){
-        Zone accessZone = getBySourceId(Zone.class, xmlAccessZoneRef);
-        if(accessZone == null) {
-          LOGGER.warning(String.format("invalid transfer zone %s referenced by transfer connectoid %s",
-              xmlAccessZoneRef, connectoid.getXmlId()));
-          continue;
+
+        /* modes that are allowed access */
+        String xmlModesRef = xmlAccessZoneEntry.getModes();
+        populateTransferConnectoidZoneEntryModes(connectoid, planitZoneAccessEntry, xmlModesRef, planitModesByXmlId);
+
+        // length
+        if (xmlAccessZoneEntry.getLengthkm() != null) {
+          double connectoidLength = xmlAccessZoneEntry.getLengthkm().doubleValue();
+          planitZoneAccessEntry.setLengthKm(connectoidLength);
         }
-        /* register */
-        connectoid.addAccessZone(accessZone);
-        /* register explicitly allowed modes (if all modes allowed, none need to be explicitly set)*/
-        if(!implicitAllModesAllowed) {
-          allowedModes.forEach( allowedMode -> connectoid.addAllowedMode(accessZone, allowedMode));
-        }
-        
+
+        /* type */
+        planitZoneAccessEntry.setType(parseZoneConnectoidType(xmlAccessZoneEntry.getType()));
       }
 
-      /* populate lengths using link segment downstream vertex position */
-      populateConnectoidToZoneLengths(
-          connectoid, xmlTransferConnectoid, connectoid.getAccessNode().getPosition(), jtsUtils);
-                        
       registerBySourceId(Connectoid.class, connectoid);      
     }        
   }
@@ -666,6 +679,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       return;
     }
     LOGGER.info("Parsing OD zones...");
+
+    if(getReferenceNetwork().getTransportLayers().size() > 1){
+      throw new PlanItRunTimeException("Currently PlaniIO does not support more than a single layer");
+    }
+    if(getReferenceNetwork().getTransportLayers().size() < 1){
+      throw new PlanItRunTimeException("At least a single network layer should be present");
+    }
+    var layer = getReferenceNetwork().getTransportLayers().getFirst();
+    Map<String, Mode> planitModesByXmlId = new HashMap<>();
+    var modes = layer.getSupportedModes();
+    modes.forEach( mode -> planitModesByXmlId.put(mode.getXmlId(), mode));
     
     /* zone */
     for (final XMLElementZones.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZone()) {
@@ -685,10 +709,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         //todo: we are missing stuff here such as type because of compromised way we write out connectoids for ODs
         /* register zone and type is located on zone-connectoid-entry which we do not write out currently due to
         inversion*/
-        planitOdConnectoid.createAccessZoneEntry(zone);
+        var accessZoneEntry = planitOdConnectoid.createAccessZoneEntry(zone);
+
+        // modes
+        var xmlModesRef = xmlOdConnectoid.getModes();
+        populateTransferConnectoidZoneEntryModes(planitOdConnectoid, accessZoneEntry, xmlModesRef, planitModesByXmlId);
+
+        /* type */
+        accessZoneEntry.setType(parseZoneConnectoidType(xmlOdConnectoid.getType()));
 
         /* parse length */
-        populateConnectoidToZoneLengths(
+        populateOdConnectoidToZoneLength(
             planitOdConnectoid, xmlOdConnectoid, planitOdConnectoid.getAccessVertex().getPosition(), jtsUtils);
       }             
     }

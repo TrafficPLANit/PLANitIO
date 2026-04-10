@@ -16,10 +16,7 @@ import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.time.ExtendedLocalTime;
-import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.ZoneConnectoidType;
-import org.goplanit.utils.zoning.TransferZone;
-import org.goplanit.utils.zoning.TransferZoneType;
+import org.goplanit.utils.zoning.*;
 import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -94,21 +91,23 @@ public class IntermodalTest {
       final CustomPlanItProject project = new CustomPlanItProject(planItInputBuilder);
 
       /* NETWORK */
-      final LayeredNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(MacroscopicNetwork.class.getCanonicalName());
+      final LayeredNetwork<?,?> network = project.createAndRegisterInfrastructureNetwork(
+          MacroscopicNetwork.class.getCanonicalName());
 
       assertEquals(network.getTransportLayers().size(), 1);
       assertEquals(network.getModes().size(), 2);
-      assertEquals(network.getModes().containsPredefinedMode(PredefinedModeType.CAR), true);
-      assertEquals(network.getModes().containsPredefinedMode(PredefinedModeType.BUS), true);
+      assertTrue(network.getModes().containsPredefinedMode(PredefinedModeType.CAR));
+      assertTrue(network.getModes().containsPredefinedMode(PredefinedModeType.BUS));
 
       /* only single layer for both modes */
       assertTrue((network instanceof MacroscopicNetwork));
       MacroscopicNetwork macroNetwork = MacroscopicNetwork.class.cast(network);      
-      assertEquals(macroNetwork.getLayerByMode(macroNetwork.getModes().get(0)),macroNetwork.getLayerByMode(macroNetwork.getModes().get(1)));
+      assertEquals(macroNetwork.getLayerByMode(macroNetwork.getModes().get(0)),
+          macroNetwork.getLayerByMode(macroNetwork.getModes().get(1)));
       
       NetworkLayer layer = macroNetwork.getLayerByMode(macroNetwork.getModes().get(0));
       assertEquals(layer.getXmlId(),"road");
-      assertFalse(!(layer instanceof MacroscopicNetworkLayerImpl));
+      assertTrue(layer instanceof MacroscopicNetworkLayerImpl);
       MacroscopicNetworkLayerImpl macroNetworklayer = (MacroscopicNetworkLayerImpl) layer;
       assertEquals(macroNetworklayer.getNumberOfNodes(),3);
       assertEquals(macroNetworklayer.getNumberOfLinks(),2);
@@ -123,41 +122,54 @@ public class IntermodalTest {
       assertEquals(zoning.getNumberOfConnectoids(),5); /* one per zone + one transfer connectoid per node */
       
       for(var odConnectoid : zoning.getOdConnectoids()) {
-        assertEquals(odConnectoid.getAccessZones().size(),1);
-        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.CAR)),true);
-        assertEquals(odConnectoid.isModeAllowed(odConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.BUS)),true);
-        assertEquals(odConnectoid.getLengthKm(odConnectoid.getFirstAccessZoneEntry()).get(),1,Precision.EPSILON_6);
+        assertEquals(odConnectoid.getNumberOfAccessZoneEntries(),1);
+        var accessEntry = odConnectoid.getFirstAccessZoneEntry();
+        assertTrue(accessEntry.isModeAllowed(network.getModes().get(PredefinedModeType.CAR)));
+        assertTrue(accessEntry.isModeAllowed(network.getModes().get(PredefinedModeType.BUS)));
+        assertEquals(accessEntry.getLengthKm().get(),1,Precision.EPSILON_6);
       }
-      for(var transferConnectoid : zoning.getTransferConnectoids()) {      
-        assertEquals(transferConnectoid.getAccessZones().size(),1);
-        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.CAR)),false);
-        assertEquals(transferConnectoid.isModeAllowed(transferConnectoid.getFirstAccessZoneEntry(), network.getModes().get(PredefinedModeType.BUS)),true);
-        assertEquals(transferConnectoid.getType(), ZoneConnectoidType.PT_VEHICLE_STOP);
-        assertEquals(transferConnectoid.getLengthKm(transferConnectoid.getFirstAccessZoneEntry()).get(),Connectoid.DEFAULT_LENGTH_KM,Precision.EPSILON_6);
-        
-        switch (transferConnectoid.getAccessLinkSegment().getXmlId()) {
-          case linkSegment1XmlId:
-              if(transferConnectoid.getAccessNode().getXmlId().equals(node1XmlId)) {
-                assertEquals(transferConnectoid.getXmlId(),transferconnectoid1XmlId);
-                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getXmlId(),transferZoneStop1XmlId);
-                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),TransferZoneType.PLATFORM);
-              }else {
-                assertEquals(transferConnectoid.getAccessNode().getXmlId(),node2XmlId);
-                assertEquals(transferConnectoid.getXmlId(),transferconnectoid2XmlId);
-                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getXmlId(),transferZoneStop2XmlId);
-                assertEquals(((TransferZone)transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),TransferZoneType.POLE);
+      for(var transferConnectoid : zoning.getTransferConnectoids()) {
+        assertEquals(transferConnectoid.getNumberOfAccessZoneEntries(), 1);
+        var accessEntry = transferConnectoid.getFirstAccessZoneEntry();
+        assertFalse(accessEntry.isModeAllowed(network.getModes().get(PredefinedModeType.CAR)));
+        assertTrue(accessEntry.isModeAllowed(network.getModes().get(PredefinedModeType.BUS)));
+        assertEquals(accessEntry.getType(), ZoneConnectoidType.PT_VEHICLE_STOP);
+        assertEquals(accessEntry.getLengthKm().get(), ConnectoidAccessZoneEntry.DEFAULT_LENGTH_KM.get(),
+            Precision.EPSILON_6);
+
+        var accessVertex = transferConnectoid.getAccessVertex();
+        for (var accessSegment : accessEntry.getAccessLinkSegments()) {
+          switch (accessSegment.getXmlId()) {
+            case linkSegment1XmlId:
+              if (accessVertex.getXmlId().equals(node1XmlId)) {
+                assertEquals(transferConnectoid.getXmlId(), transferconnectoid1XmlId);
+                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getAccessZone().getXmlId(),
+                    transferZoneStop1XmlId);
+                assertEquals(((TransferZone) transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),
+                    TransferZoneType.PLATFORM);
+              } else {
+                assertEquals(accessVertex.getXmlId(), node2XmlId);
+                assertEquals(transferConnectoid.getXmlId(), transferconnectoid2XmlId);
+                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getAccessZone().getXmlId(),
+                    transferZoneStop2XmlId);
+                assertEquals(((TransferZone) transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),
+                    TransferZoneType.POLE);
               }
-            break;
-          case linkSegment3XmlId:
-            assertEquals(transferConnectoid.getAccessNode().getXmlId(),node3XmlId);
-            assertEquals(transferConnectoid.getXmlId(),transferconnectoid3XmlId);
-            assertEquals(transferConnectoid.getFirstAccessZoneEntry().getXmlId(),transferZoneStop3XmlId);
-            assertEquals(((TransferZone)transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),TransferZoneType.NONE);
-            break;
-          default:
-            break;
+              break;
+            case linkSegment3XmlId:
+              assertEquals(accessVertex.getXmlId(), node3XmlId);
+              assertEquals(transferConnectoid.getXmlId(), transferconnectoid3XmlId);
+              assertEquals(transferConnectoid.getFirstAccessZoneEntry().getAccessZone().getXmlId(),
+                  transferZoneStop3XmlId);
+              assertEquals(((TransferZone) transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),
+                  TransferZoneType.NONE);
+              break;
+            default:
+              break;
           }
         }
+      }
+
       
       /* DEMANDS */
       @SuppressWarnings("unused") final Demands demands = project.createAndRegisterDemands(zoning, network);
@@ -208,14 +220,14 @@ public class IntermodalTest {
       assertEquals(1,routedServices.getLayers().size());
       var rsLayer = routedServices.getLayers().getFirst();
       assertEquals(rsLayer.getParentLayer(), serviceLayer);
-      assertEquals(true, rsLayer.getSupportedModes().containsAll(network.getModes().toCollection()));
+      assertTrue(rsLayer.getSupportedModes().containsAll(network.getModes().toCollection()));
       var busServices = rsLayer.getServicesByMode(network.getModes().get(PredefinedModeType.BUS));
-      assertEquals(false, busServices.isEmpty());
+      assertFalse(busServices.isEmpty());
       assertEquals(2, busServices.size());
       /* scheduled trip */
       var line1X = busServices.firstMatch(rs -> rs.getName().equals("line_1_X"));
-      assertEquals(false, line1X.getTripInfo().hasFrequencyBasedTrips());
-      assertEquals(true, line1X.getTripInfo().hasScheduleBasedTrips());
+      assertFalse(line1X.getTripInfo().hasFrequencyBasedTrips());
+      assertTrue(line1X.getTripInfo().hasScheduleBasedTrips());
       assertEquals(1, line1X.getTripInfo().getScheduleBasedTrips().size());
       assertEquals(1, line1X.getTripInfo().getScheduleBasedTrips().getFirst().getRelativeLegTimingsSize());
       assertEquals(LocalTime.of(0,2,0), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getRelativeLegTiming(0).getDwellTime());
@@ -225,8 +237,8 @@ public class IntermodalTest {
       assertEquals(ExtendedLocalTime.of("08:00:00"), line1X.getTripInfo().getScheduleBasedTrips().getFirst().getDepartures().getFirst().getDepartureTime());
       /* frequency trip */
       var line1 = busServices.firstMatch(rs -> rs.getName().equals("line_1"));
-      assertEquals(true, line1.getTripInfo().hasFrequencyBasedTrips());
-      assertEquals(false, line1.getTripInfo().hasScheduleBasedTrips());
+      assertTrue(line1.getTripInfo().hasFrequencyBasedTrips());
+      assertFalse(line1.getTripInfo().hasScheduleBasedTrips());
       assertEquals(1, line1.getTripInfo().getFrequencyBasedTrips().size());
       assertEquals(3.0, line1.getTripInfo().getFrequencyBasedTrips().getFirst().getFrequencyPerHour(), Precision.EPSILON_6);
       assertEquals(2, line1.getTripInfo().getFrequencyBasedTrips().getFirst().getNumberOfLegSegments());
