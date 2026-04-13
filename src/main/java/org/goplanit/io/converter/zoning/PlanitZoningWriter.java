@@ -19,10 +19,8 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.zoning.*;
-import org.goplanit.xml.generated.*;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
-import org.goplanit.xml.generated.XMLElementTransferZoneAccess.XMLElementTransferConnectoid;
-import org.goplanit.xml.generated.XMLElementTransferZones.XMLElementTransferZone;
+import org.goplanit.utils.zoning.Zone;
+import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -212,7 +210,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       populateXmlTransferGroup(xmlTransferGroup, transferGroup);
                      
       /* register */        
-      xmlTransferZoneGroups.getTransfergroup().add(xmlTransferGroup);
+      xmlTransferZoneGroups.getTransfergroups().add(xmlTransferGroup);
     });
   }
 
@@ -227,9 +225,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* populate base pertaining to any connectoid*/
     populateXmlConnectoidBase(xmlTransferConnectoid, transferConnectoid);
 
-    final var xmlAccessZones = xmlTransferConnectoid.getAccesszone();
+    final var xmlAccessZones = xmlTransferConnectoid.getAccesszones();
     transferConnectoid.getAccessZoneStream().forEach(transferzone -> {
-      var xmlAccessZone = new Connectoidtype.Accesszone();
+      var xmlAccessZone = new  org.goplanit.xml.generated.v2.Accesszone();
       populateXmlDirectedConnectoidAccessZone(xmlAccessZone, transferzone, transferConnectoid);
       xmlAccessZones.add(xmlAccessZone);
     });
@@ -244,7 +242,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       final TransferZone transferZone, final XMLElementTransferZones xmlTransferZones) {
     /* register */
     XMLElementTransferZone xmlTransferZone = new XMLElementTransferZone();
-    xmlTransferZones.getZone().add(xmlTransferZone);
+    xmlTransferZones.getZones().add(xmlTransferZone);
     
     /* id */
     xmlTransferZone.setId(getPrimaryIdMapper().getZoneIdMapper().apply(transferZone));
@@ -346,7 +344,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       populateXmlTransferConnectoid(xmlTransferConnectoidBase, transferConnectoid);
                      
       /* register */        
-      xmlTransferZoneAccess.getConnectoid().add(xmlTransferConnectoidBase);
+      xmlTransferZoneAccess.getConnectoids().add(xmlTransferConnectoidBase);
     });
     LOGGER.info("Transfer connectoids: " +zoning.getTransferConnectoids().size());
   }
@@ -403,7 +401,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param connectoid the planit connectoid to extract from
    */
   private void populateXmlConnectoidBase(
-      final org.goplanit.xml.generated.Connectoidtype xmlConnectoidBase,
+      final org.goplanit.xml.generated.v2.Connectoidtype xmlConnectoidBase,
       final Connectoid<?> connectoid) {
 
     /* id */
@@ -439,7 +437,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param connectoid to use
    */
   private void populateXmlDirectedConnectoidAccessZone(
-          Connectoidtype.Accesszone xmlAccessZone, Zone accessZone, Connectoid<?> connectoid) {
+          org.goplanit.xml.generated.v2.Accesszone xmlAccessZone,
+          Zone accessZone,
+          Connectoid<?> connectoid) {
 
     var accessZoneEntry = connectoid.getAccessZoneEntry(accessZone);
 
@@ -531,8 +531,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       return;
     }
     
-    var xmlOdZone = new XMLElementZones.Zone();
-    xmlRawZoning.getZones().getZone().add(xmlOdZone);
+    var xmlOdZone = new org.goplanit.xml.generated.v2.Zone();
+    xmlRawZoning.getZones().getZones().add(xmlOdZone);
     
     /* (xml) id */
     xmlOdZone.setId(getPrimaryIdMapper().getZoneIdMapper().apply(odZone));
@@ -590,7 +590,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         populateXmlOdConnectoid(xmlOdConnectoidBase, odConnectoid, odZone);
                        
         /* register */        
-        xmlConnectoids.getConnectoid().add(xmlOdConnectoidBase);                        
+        xmlConnectoids.getConnectoids().add(xmlOdConnectoidBase);
       }
     });
   }
@@ -650,10 +650,9 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       return;
     }
 
-    var xmlIntermodal = xmlRawZoning.getIntermodal();
-    if(xmlIntermodal == null) {
-      xmlIntermodal = new XMLElementIntermodal(new Intermodaltype());
-      xmlRawZoning.setIntermodal(xmlIntermodal);
+    var xmlIntermodal = new XMLElementIntermodal();
+    if(xmlRawZoning.getIntermodal() == null) {
+      xmlRawZoning.setIntermodal(new Macroscopicintermodal());
     }
     
     /* transfer zones */

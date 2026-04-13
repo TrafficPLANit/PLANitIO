@@ -25,8 +25,7 @@ import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
-import org.goplanit.xml.generated.*;
-import org.goplanit.xml.generated.XMLElementLinkSegmentType.Access;
+import org.goplanit.xml.generated.v2.*;
 
 /**
  * Writer to persist a PLANit network to disk in the native PLANit format. By default the xml ids are used for writing out the ids in the XML. 
@@ -75,8 +74,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlLink to populate link segments on
    * @param link to populate link segments from
    */
-  private void populateLinkSegments(XMLElementLinks.Link xmlLink, MacroscopicLink link) {
-    List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegment();
+  private void populateLinkSegments(org.goplanit.xml.generated.v2.Link xmlLink, MacroscopicLink link) {
+    List<XMLElementLinkSegment> xmlLinkSegments = xmlLink.getLinksegments();
     
     if(link.hasLinkSegmentAb()) {
       link.getLinkSegmentAb().validate();
@@ -107,8 +106,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlLinkList to add link to 
    * @param link to populate from
    */
-  private void populateXmlLink(List<XMLElementLinks.Link> xmlLinkList, final MacroscopicLink link) {
-    XMLElementLinks.Link xmlLink = new XMLElementLinks.Link();
+  private void populateXmlLink(List<org.goplanit.xml.generated.v2.Link> xmlLinkList, final MacroscopicLink link) {
+    var xmlLink = new org.goplanit.xml.generated.v2.Link();
     
     /* XML id */
     xmlLink.setId(getPrimaryIdMapper().getLinkIdMapper().apply(link));
@@ -152,10 +151,10 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
       //todo only supporting string values, no way of enforcing a type (needs to be part of schema)
       var customProperties = new CustomPropertiesType();
       xmlLink.setCustom(customProperties);
-      var xmlEntryElements = customProperties.getEntryElement();
+      var xmlEntryElements = customProperties.getEntryElements();
       link.getInputPropertyKeys().forEach( key ->
         {
-          var xmlEntry = new CustomPropertiesType.EntryElement();
+          var xmlEntry = new org.goplanit.xml.generated.v2.EntryElement();
           xmlEntry.setKeyAttribute(key);
           xmlEntry.setValue(link.getInputProperty(key).toString());
           xmlEntryElements.add(xmlEntry);
@@ -183,7 +182,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
     
     /* link */
-    final List<XMLElementLinks.Link> xmlLinkList = xmlLinks.getLink();    
+    final var xmlLinkList = xmlLinks.getLinks();
     links.streamSortedBy(getPrimaryIdMapper().getLinkIdMapper()).forEach(link -> {
       link.validate();
       populateXmlLink(xmlLinkList, link);
@@ -196,8 +195,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlNodeList to add node to
    * @param node to populate from
    */  
-  private void populateXmlNode(final List<XMLElementNodes.Node> xmlNodeList, final Node node) {
-    XMLElementNodes.Node xmlNode = new XMLElementNodes.Node();
+  private void populateXmlNode(final List<org.goplanit.xml.generated.v2.Node> xmlNodeList, final Node node) {
+    var xmlNode = new org.goplanit.xml.generated.v2.Node();
     xmlNodeList.add(xmlNode);
     
     /* Xml id */
@@ -233,7 +232,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
         
     /* node */
-    final List<XMLElementNodes.Node> xmlNodeList = xmlNodes.getNode();    
+    final var xmlNodeList = xmlNodes.getNodes();
     nodes.streamSortedBy(getPrimaryIdMapper().getVertexIdMapper()).forEach(
             node -> populateXmlNode(xmlNodeList, node));
   }
@@ -247,7 +246,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    */   
   private void populateLinkSegmentTypeAccessGroupProperties(
           Access xmlAccess, AccessGroupProperties accessGroupProperties) {
-    List<XMLElementAccessGroup> accessGroupList = xmlAccess.getAccessgroup();
+    var accessGroupList = xmlAccess.getAccessgroups();
     XMLElementAccessGroup xmlAccessGroup = new XMLElementAccessGroup();
     
     /* mode ref id */
@@ -300,9 +299,9 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     xmlLinkSegmentType.setName(linkSegmentType.getName());
     
     /* mode properties */
-    XMLElementLinkSegmentType.Access xmlTypeAccess = xmlLinkSegmentType.getAccess();
+    var xmlTypeAccess = xmlLinkSegmentType.getAccess();
     if(xmlTypeAccess == null) {
-      xmlTypeAccess = new XMLElementLinkSegmentType.Access();
+      xmlTypeAccess = new org.goplanit.xml.generated.v2.Access();
       xmlLinkSegmentType.setAccess(xmlTypeAccess);
     }
 
@@ -334,7 +333,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
     
     /* link segment type */
-    List<XMLElementLinkSegmentType> xmlLinkSegmentTypeList = xmlLinkSegmentTypes.getLinksegmenttype();
+    var xmlLinkSegmentTypeList = xmlLinkSegmentTypes.getLinksegmenttypes();
     linkSegmentTypes.streamSortedBy(getPrimaryIdMapper().getLinkSegmentTypeIdMapper()).forEach(
         linkSegmentType -> populateXmlLinkSegmentType(xmlLinkSegmentTypeList, linkSegmentType));
   }  
@@ -344,7 +343,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlMode the mode to populate
    * @param physicalModeFeatures to populate from
    */  
-  private void populateModePhysicalFeatures(XMLElementModes.Mode xmlMode, PhysicalModeFeatures physicalModeFeatures) {   
+  private void populateModePhysicalFeatures(
+          org.goplanit.xml.generated.v2.Mode xmlMode, PhysicalModeFeatures physicalModeFeatures) {
     XMLElementPhysicalFeatures xmlPhysicalFeatures = xmlMode.getPhysicalfeatures();
     if(xmlPhysicalFeatures == null) {
       xmlPhysicalFeatures = new XMLElementPhysicalFeatures();
@@ -372,7 +372,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param usabilityModeFeatures to populate from
    */    
   private void populateModeUsabilityFeatures(
-          XMLElementModes.Mode xmlMode, UsabilityModeFeatures usabilityModeFeatures) {
+          org.goplanit.xml.generated.v2.Mode xmlMode, UsabilityModeFeatures usabilityModeFeatures) {
     XMLElementUsabilityFeatures xmlUseFeatures = xmlMode.getUsabilityfeatures();
     if(xmlUseFeatures == null) {
       xmlUseFeatures = new XMLElementUsabilityFeatures();
@@ -394,8 +394,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlModesList to add mode to 
    * @param mode to populate from
    */    
-  private void populateXmlMode(List<XMLElementModes.Mode> xmlModesList, Mode mode) {
-    XMLElementModes.Mode xmlMode = new XMLElementModes.Mode();
+  private void populateXmlMode(List<org.goplanit.xml.generated.v2.Mode> xmlModesList, Mode mode) {
+    var xmlMode = new org.goplanit.xml.generated.v2.Mode();
     
     /* Xml id */
     xmlMode.setId(getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper()));
@@ -444,7 +444,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
     
     /* modes*/
-    List<XMLElementModes.Mode> xmlModesList = xmlModes.getMode();
+    var xmlModesList = xmlModes.getModes();
     modes.stream().sorted(Comparator.comparing(getPrimaryIdMapper().getModeIdMapper())).forEach(
             mode -> populateXmlMode(xmlModesList, mode));
   }          
@@ -511,7 +511,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
           MacroscopicNetwork network) {
 
     XMLElementInfrastructureLayer xmlNetworkLayer = new XMLElementInfrastructureLayer();
-    xmlInfrastructureLayers.getLayer().add(xmlNetworkLayer);
+    xmlInfrastructureLayers.getLayers().add(xmlNetworkLayer);
     
     /* XML id */
     xmlNetworkLayer.setId(physicalNetworkLayer.getXmlId());

@@ -12,15 +12,14 @@ import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.Quadruple;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.goplanit.xml.generated.XMLElementRoutedServices;
-import org.goplanit.xml.generated.XMLElementServiceNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.v2.XMLElementRoutedServices;
+import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 import org.goplanit.zoning.Zoning;
 
 /**

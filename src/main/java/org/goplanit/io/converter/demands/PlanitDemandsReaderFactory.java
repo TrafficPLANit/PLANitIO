@@ -1,14 +1,10 @@
 package org.goplanit.io.converter.demands;
 
-import org.goplanit.converter.network.NetworkReader;
-import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
-import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
 import org.goplanit.network.LayeredNetwork;
-import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand;
 import org.goplanit.zoning.Zoning;
 
 /**

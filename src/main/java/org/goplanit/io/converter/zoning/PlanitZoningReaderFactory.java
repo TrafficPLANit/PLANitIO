@@ -2,13 +2,9 @@ package org.goplanit.io.converter.zoning;
 
 import org.goplanit.converter.network.NetworkReader;
 import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
-import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.id.IdGroupingToken;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
 import org.goplanit.zoning.Zoning;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Factory class for creating zoning reader in the native PLANit format

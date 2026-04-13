@@ -23,8 +23,8 @@ import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.zoning.*;
-import org.goplanit.xml.generated.*;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning.XMLElementIntermodal;
+import org.goplanit.utils.zoning.Zone;
+import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 import org.goplanit.zoning.ZoningModifierUtils;
 import org.locationtech.jts.geom.Geometry;
@@ -346,9 +346,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     /* CONNECTOID */
     if(xmlConnectoid instanceof XMLElementConnectoid) {
       theConnectoid = zoning.getOdConnectoids().getFactory().registerNew(accessNode);
-    }else if(xmlConnectoid instanceof XMLElementTransferZoneAccess.XMLElementTransferConnectoid) {
-      XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid =
-          (XMLElementTransferZoneAccess.XMLElementTransferConnectoid) xmlConnectoid;
+    }else if(xmlConnectoid instanceof XMLElementTransferConnectoid) {
       theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(accessNode);
     }else{
       throw new PlanItRunTimeException("Unsupported XML connectoid type encountered, abort");
@@ -394,17 +392,16 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     
     /* transfer zones */
     String[] transferZoneRefsByXmlId = StringUtils.splitByAnythingExceptAlphaNumeric(xmlTransferGroup.getTzrefs());
-    for(int index=0; index<transferZoneRefsByXmlId.length; ++index) {
-      
-      /* transfer zone */
-      String transferZoneXmlId = transferZoneRefsByXmlId[index];
-      TransferZone transferZone = (TransferZone) getBySourceId(Zone.class, transferZoneXmlId);
-      if(transferZone == null) {
-        LOGGER.warning(String.format("Transfer zone group %s (id:%d) references transfer zone %s that is " +
-                "not available in the parser, transfer zone ignored",
-            transferGroup.getXmlId(), transferGroup.getId(), transferZoneRefsByXmlId));
-      }
-      transferGroup.addTransferZone(transferZone);
+    for (String transferZoneXmlId : transferZoneRefsByXmlId) {
+
+        /* transfer zone */
+        TransferZone transferZone = (TransferZone) getBySourceId(Zone.class, transferZoneXmlId);
+        if (transferZone == null) {
+            LOGGER.warning(String.format("Transfer zone group %s (id:%d) references transfer zone %s that is " +
+                            "not available in the parser, transfer zone ignored",
+                    transferGroup.getXmlId(), transferGroup.getId(), transferZoneRefsByXmlId));
+        }
+        transferGroup.addTransferZone(transferZone);
     }
     
     return transferGroup;
@@ -414,17 +411,17 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param xmlInterModal to extract them from
    */
-  private void populateTransferZones(final XMLElementIntermodal xmlInterModal) {
+  private void populateTransferZones(final Macroscopicintermodal xmlInterModal) {
     
-    /* no transfer zones */    
-    if(xmlInterModal.getValue().getTransferzones() == null) {
+    /* no transfer zones */
+    XMLElementTransferZones xmlTransferZones = xmlInterModal.getTransferzones();
+    if(xmlTransferZones == null) {
       return ;
     }     
-    XMLElementTransferZones xmlTransferZones = xmlInterModal.getValue().getTransferzones();
-    
+
     /* transferzone */
-    List<XMLElementTransferZones.XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZone();
-    for(XMLElementTransferZones.XMLElementTransferZone xmlTransferzone : xmlTransferZonesList) {
+    List<XMLElementTransferZone> xmlTransferZonesList = xmlTransferZones.getZones();
+    for(var xmlTransferzone : xmlTransferZonesList) {
       /* base zone elements parsed and PLANit version registered */
       TransferZone transferZone = zoning.getTransferZones().getFactory().registerNew();
       parseBaseZone(transferZone, xmlTransferzone.getId(), xmlTransferzone.getExternalid(),
@@ -461,8 +458,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       LOGGER.warning(String.format("Transfer zone access does not reference a network, will attempt to match to " +
           "provided network (%s)", getReferenceNetwork().getXmlId()));
     } else if (!networkRef.equals(getReferenceNetwork().getXmlId())) {
-      LOGGER.warning(String.format("Transfer zone access references network %s but provided %s, will attempt to match to " +
-          "provided network", networkRef, getReferenceNetwork().getXmlId()));
+      LOGGER.warning(String.format("Transfer zone access references network %s but provided %s, will attempt to " +
+              "match to provided network", networkRef, getReferenceNetwork().getXmlId()));
     }
 
     NetworkLayer networkLayer = null;
@@ -488,15 +485,15 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param xmlInterModal XML memory model element to extract from
    */
   private void populateTransferZoneAccess(
-      final Modes modes, final XMLElementIntermodal xmlInterModal) {
+      final Modes modes, final Macroscopicintermodal xmlInterModal) {
     
     /* no transfer zone connectoids */
-    if(xmlInterModal.getValue().getTransferzoneaccess() == null) {
+    XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlInterModal.getTransferzoneaccess();
+    if(xmlTransferZoneAccess == null) {
       return;
     }
 
     // prep
-    XMLElementTransferZoneAccess xmlTransferZoneAccess = xmlInterModal.getValue().getTransferzoneaccess();
     var layer = checkTransferZoneNetworkLayerReference(xmlTransferZoneAccess);
 
     Map<String, Mode> planitModesByXmlId = new HashMap<>();
@@ -507,9 +504,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     supportedModes.forEach( mode -> planitModesByXmlId.put(mode.getXmlId(), mode));
     
     /* transfer zone connectoid access */
-    List<XMLElementTransferZoneAccess.XMLElementTransferConnectoid> xmlTransferConnectoids =
-        xmlTransferZoneAccess.getConnectoid();
-    for(XMLElementTransferZoneAccess.XMLElementTransferConnectoid xmlTransferConnectoid : xmlTransferConnectoids) {
+    List<XMLElementTransferConnectoid> xmlTransferConnectoids = xmlTransferZoneAccess.getConnectoids();
+    for(var xmlTransferConnectoid : xmlTransferConnectoids) {
 
       /* base connectoid */
       DirectedConnectoid connectoid = null;
@@ -520,7 +516,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
       }
 
-      var xmlAccessZoneEntries = xmlTransferConnectoid.getAccesszone();
+      var xmlAccessZoneEntries = xmlTransferConnectoid.getAccesszones();
       for(var xmlAccessZoneEntry :  xmlAccessZoneEntries){
 
         // zone ref
@@ -568,19 +564,19 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param xmlInterModal to parse from
    */
-  private void populateTransferZoneGroups(final XMLElementIntermodal xmlInterModal) {
+  private void populateTransferZoneGroups(final Macroscopicintermodal xmlInterModal) {
     /* no transfer zone groups */
-    if(xmlInterModal.getValue().getTransferzonegroups() == null) {
+    if(xmlInterModal.getTransferzonegroups() == null) {
       return;
     }    
-    XMLElementTransferZoneGroups xmlTransferZoneGroups = xmlInterModal.getValue().getTransferzonegroups();
-    if(xmlTransferZoneGroups.getTransfergroup().isEmpty()) {
+    XMLElementTransferZoneGroups xmlTransferZoneGroups = xmlInterModal.getTransferzonegroups();
+    if(xmlTransferZoneGroups.getTransfergroups().isEmpty()) {
       LOGGER.warning("Dangling transfer zone groups element, no transfer zone groups can be parsed");
       return;
     }
     
     /* transfer zone groups */
-    List<XMLElementTransferGroup> xmlTransferGroups = xmlTransferZoneGroups.getTransfergroup();
+    List<XMLElementTransferGroup> xmlTransferGroups = xmlTransferZoneGroups.getTransfergroups();
     for(XMLElementTransferGroup xmlTransferGroup : xmlTransferGroups) {
       /* transfer group */
       parseTransferGroup(xmlTransferGroup);
@@ -601,7 +597,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     LOGGER.info("Parsing transfer zones...");
     
     /* intermodal elements present */
-    XMLElementIntermodal xmlInterModal = xmlParser.getXmlRootElement().getIntermodal();
+    var xmlInterModal = xmlParser.getXmlRootElement().getIntermodal();
     
     /* transferzones */
     populateTransferZones(xmlInterModal);
@@ -692,7 +688,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     modes.forEach( mode -> planitModesByXmlId.put(mode.getXmlId(), mode));
     
     /* zone */
-    for (final XMLElementZones.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZone()) {
+    for (final org.goplanit.xml.generated.v2.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZones()) {
       /* create zone */
       OdZone zone = zoning.getOdZones().getFactory().registerNew();
       parseBaseZone(zone, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
@@ -701,7 +697,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       populateZoneGeometry(zone, xmlZone.getPolygon());      
                  
       /* connectoids */
-      List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoid();
+      List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoids();
       for(XMLElementConnectoid xmlOdConnectoid : xmlConnectoids) {
         /* parse the (Od, node reference based) undirected connectoid */
         UndirectedConnectoid planitOdConnectoid = (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid);

@@ -26,14 +26,8 @@ import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
+import org.goplanit.utils.mode.*;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.mode.MotorisationModeType;
-import org.goplanit.utils.mode.PhysicalModeFeatures;
-import org.goplanit.utils.mode.PredefinedModeType;
-import org.goplanit.utils.mode.TrackModeType;
-import org.goplanit.utils.mode.UsabilityModeFeatures;
-import org.goplanit.utils.mode.UseOfModeType;
-import org.goplanit.utils.mode.VehicularModeType;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
@@ -43,7 +37,7 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.goplanit.xml.generated.*;
+import org.goplanit.xml.generated.v2.*;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
@@ -103,12 +97,12 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     //if no modes defined, create single mode with default values
     if (rootElement.getConfiguration().getModes() == null) {
       rootElement.getConfiguration().setModes(new XMLElementModes());
-      XMLElementModes.Mode xmlElementMode = new XMLElementModes.Mode();
+      org.goplanit.xml.generated.v2.Mode xmlElementMode = new org.goplanit.xml.generated.v2.Mode();
       // default in absence of any modes is the predefined CAR mode
       xmlElementMode.setPredefined(true);
       xmlElementMode.setName(PredefinedModeType.CAR.value());
       xmlElementMode.setId(Mode.DEFAULT_XML_ID);
-      rootElement.getConfiguration().getModes().getMode().add(xmlElementMode);
+      rootElement.getConfiguration().getModes().getModes().add(xmlElementMode);
     }
            
    }  
@@ -117,7 +111,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param generatedMode mode to extract information from
    * @return usabilityFeatures that are parsed
    */
-  private UsabilityModeFeatures parseUsabilityModeFeatures(org.goplanit.xml.generated.XMLElementModes.Mode generatedMode) {
+  private UsabilityModeFeatures parseUsabilityModeFeatures(org.goplanit.xml.generated.v2.Mode generatedMode) {
     if(generatedMode.getUsabilityfeatures() == null) {
       return ModeFeaturesFactory.createDefaultUsabilityFeatures();
     }
@@ -132,15 +126,18 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param generatedMode mode to extract information from
    * @return physicalFeatures that are parsed
    */  
-  private PhysicalModeFeatures parsePhysicalModeFeatures(org.goplanit.xml.generated.XMLElementModes.Mode generatedMode) {
+  private PhysicalModeFeatures parsePhysicalModeFeatures(org.goplanit.xml.generated.v2.Mode generatedMode) {
     if(generatedMode.getPhysicalfeatures() == null) {
       return ModeFeaturesFactory.createDefaultPhysicalFeatures();
     }
     
     /* parse set values */
-    VehicularModeType vehicleType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());
-    MotorisationModeType motorisationType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());
-    TrackModeType trackType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());
+    VehicularModeType vehicleType =
+            xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());
+    MotorisationModeType motorisationType =
+            xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());
+    TrackModeType trackType =
+            xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());
     
     return ModeFeaturesFactory.createPhysicalFeatures(vehicleType, motorisationType, trackType);
   }    
@@ -151,7 +148,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   private void parseModes(){
     
     final XMLElementConfiguration xmlGeneralConfiguration = xmlParser.getXmlRootElement().getConfiguration();    
-    for (XMLElementModes.Mode xmlMode : xmlGeneralConfiguration.getModes().getMode()) {
+    for (org.goplanit.xml.generated.v2.Mode xmlMode : xmlGeneralConfiguration.getModes().getModes()) {
       
       /* xml id */
       String modeXmlId = null;
@@ -167,10 +164,12 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       }
       PredefinedModeType modeType = PredefinedModeType.create(potentialPredefinedModeType);      
       if(!xmlMode.isPredefined() && modeType != PredefinedModeType.CUSTOM) {
-        LOGGER.warning(String.format("Mode is not registered as predefined mode but name or xmlid corresponds to PLANit predefined mode, reverting to PLANit predefined mode %s",modeType.name()));
+        LOGGER.warning(String.format("Mode is not registered as predefined mode but name or xmlid corresponds to " +
+                "PLANit predefined mode, reverting to PLANit predefined mode %s",modeType.name()));
       }
       if(xmlMode.isPredefined() && modeType == PredefinedModeType.CUSTOM) {
-        LOGGER.warning(String.format("Mode is known as predefined mode but XML flag indicates it should be a PLANit predefined mode, reverting to PLANit custom mode %s",modeType.name()));
+        LOGGER.warning(String.format("Mode is known as predefined mode but XML flag indicates it should be a" +
+                " PLANit predefined mode, reverting to PLANit custom mode %s",modeType.name()));
       }
       if(name==null && modeType == PredefinedModeType.CUSTOM) {
         name = PredefinedModeType.CUSTOM.value().concat(String.valueOf(this.network.getModes().size()));
@@ -189,7 +188,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         PhysicalModeFeatures physicalFeatures = parsePhysicalModeFeatures(xmlMode);
         UsabilityModeFeatures usabilityFeatures = parseUsabilityModeFeatures(xmlMode);        
                 
-        mode = this.network.getModes().getFactory().registerNewCustomMode(name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);        
+        mode = this.network.getModes().getFactory().registerNewCustomMode(
+                name, maxSpeed, pcu, physicalFeatures, usabilityFeatures);
       }     
             
       /* external id*/
@@ -207,9 +207,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * parse the CRS from the raw XML or utilise the default if not present
    * 
    * @param xmlLayers element from which to parse crs
-   * @throws PlanItException thrown if error
    */
-  private CoordinateReferenceSystem parseCoordinateRerefenceSystem(XMLElementInfrastructureLayers xmlLayers) throws PlanItException {
+  private CoordinateReferenceSystem parseCoordinateRerefenceSystem(
+          XMLElementInfrastructureLayers xmlLayers) {
     CoordinateReferenceSystem crs = null;
     crs = PlanitXmlJaxbParser.createPlanitCrs(xmlLayers.getSrsname());
     return crs;
@@ -232,7 +232,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     PlanitJtsCrsUtils jtsUtils = new PlanitJtsCrsUtils(network.getCoordinateReferenceSystem());
     
     /* layers */
-    List<XMLElementInfrastructureLayer> xmlLayerList = xmlLayers.getLayer();
+    List<XMLElementInfrastructureLayer> xmlLayerList = xmlLayers.getLayers();
     Set<Mode> usedModes = new TreeSet<>();
     for(XMLElementInfrastructureLayer xmlLayer : xmlLayerList) {
       
@@ -244,7 +244,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       usedModes.addAll(layer.getSupportedModes());
       if(usedModes.size() != prevSize + layer.getSupportedModes().size()) {
         /* mode used in other layer already, this is not allowed */
-        throw new PlanItException("modes are only allowed to be used in a single network layer, not multiple, please check your network inputs");
+        throw new PlanItException("modes are only allowed to be used in a single network layer, not multiple," +
+                " please check your network inputs");
       }
     }    
   }    
@@ -258,7 +259,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @throws PlanItException thrown if error
    *
    */
-  private NetworkLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils ) throws PlanItException {
+  private NetworkLayer parseNetworkLayer(XMLElementInfrastructureLayer xmlLayer, PlanitJtsCrsUtils jtsUtils )
+          throws PlanItException {
     
     /* create layer */
     MacroscopicNetworkLayer networkLayer = network.getTransportLayers().getFactory().registerNew();
@@ -316,7 +318,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param networkLayer to register them on
    * @throws PlanItException thrown if error
    */
-  public void parseLinkSegmentTypes(final XMLElementLayerConfiguration xmlLayerconfiguration, final MacroscopicNetworkLayer networkLayer) throws PlanItException {
+  public void parseLinkSegmentTypes(
+          final XMLElementLayerConfiguration xmlLayerconfiguration,
+          final MacroscopicNetworkLayer networkLayer) throws PlanItException {
     
     /* link segment types */
     if(xmlLayerconfiguration.getLinksegmenttypes() == null) {
@@ -329,7 +333,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       defaultMaxSpeedKph = Math.max(defaultMaxSpeedKph, mode.getMaximumSpeedKmH());
     }
                      
-    List<XMLElementLinkSegmentType> xmlLinkSegmentTypes = xmlLayerconfiguration.getLinksegmenttypes().getLinksegmenttype();       
+    var xmlLinkSegmentTypes = xmlLayerconfiguration.getLinksegmenttypes().getLinksegmenttypes();
     for(XMLElementLinkSegmentType xmlLinkSegmentType : xmlLinkSegmentTypes) {
       
       /* xml id */
@@ -343,7 +347,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       
       /* name */
       String name = xmlLinkSegmentType.getName();
-      /* capacity (may be null in which case the default is returned if required or it is retrieved elsewhere via for example the fundamental diagram which is able to
+      /* capacity (may be null in which case the default is returned if required or it is retrieved elsewhere
+      via for example the fundamental diagram which is able to
        * deliver a better estimate based on the free flow speed and FD shape) */
       Double capacityPcuPerHour = xmlLinkSegmentType.getCapacitylane();
       /* max density (may be null) */
@@ -352,11 +357,14 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       /* create and register */
       MacroscopicLinkSegmentType linkSegmentType = null;
       if(xmlLinkSegmentType.getCapacitylane() !=null && xmlLinkSegmentType.getMaxdensitylane()!=null) {
-        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(name, capacityPcuPerHour, maximumDensityPcuPerKm);
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(
+                name, capacityPcuPerHour, maximumDensityPcuPerKm);
       }else if(xmlLinkSegmentType.getCapacitylane() !=null ) {
-        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNewWithCapacity(name, capacityPcuPerHour);
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNewWithCapacity(
+                name, capacityPcuPerHour);
       }else if(xmlLinkSegmentType.getMaxdensitylane()!=null) {
-        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNewWithMaxDensity(name, maximumDensityPcuPerKm);
+        linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNewWithMaxDensity(
+                name, maximumDensityPcuPerKm);
       }else {
         linkSegmentType = networkLayer.getLinkSegmentTypes().getFactory().registerNew(name);
       }
@@ -371,14 +379,17 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
             
       /* mode properties, only set when allowed, otherwise not */       
       if(xmlLinkSegmentType.getAccess() != null) {
-        List<XMLElementAccessGroup> xmlAccessGroups = xmlLinkSegmentType.getAccess().getAccessgroup();
+        List<XMLElementAccessGroup> xmlAccessGroups = xmlLinkSegmentType.getAccess().getAccessgroups();
         for (XMLElementAccessGroup xmlAccessGroup : xmlAccessGroups) {                  
           /* mode access properties */
           parseLinkSegmentTypeAccessProperties(xmlAccessGroup, linkSegmentType, supportedDefaultRoadModes);                                 
         }          
       }else {
         /* all ROAD modes allowed */
-        parseLinkSegmentTypeAccessProperties(null /*results in supportedDefaultRoadModes mode access in single group*/, linkSegmentType, supportedDefaultRoadModes);
+        parseLinkSegmentTypeAccessProperties(
+                null /*results in supportedDefaultRoadModes mode access in single group*/,
+                linkSegmentType,
+                supportedDefaultRoadModes);
       }
     }
  
@@ -391,7 +402,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param defaultModes to allow when no modes are specified
   * @throws PlanItException thrown if error
   */
- public void parseLinkSegmentTypeAccessProperties(XMLElementAccessGroup xmlAccessGroupProperties, MacroscopicLinkSegmentType linkSegmentType, final Collection<Mode> defaultModes) throws PlanItException{
+ public void parseLinkSegmentTypeAccessProperties(
+         XMLElementAccessGroup xmlAccessGroupProperties,
+         MacroscopicLinkSegmentType linkSegmentType,
+         final Collection<Mode> defaultModes) throws PlanItException{
    
    /* access modes */
    Collection<Mode> accessModes;
@@ -403,14 +417,16 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
      accessModes = new TreeSet<>();
      for(int index = 0 ;index < xmlModesRefArray.length;++index) {
        Mode thePlanitMode = getBySourceId(Mode.class, xmlModesRefArray[index]);
-       PlanItException.throwIfNull(thePlanitMode, String.format("Referenced mode (xml id:%s) does not exist in PLANit parser",xmlModesRefArray[index]));
+       PlanItException.throwIfNull(thePlanitMode, String.format("Referenced mode (xml id:%s) does not exist in " +
+               "PLANit parser",xmlModesRefArray[index]));
        accessModes.add(thePlanitMode);
      }      
    }    
    
    Collection<Mode> alreadyAllowedModes = linkSegmentType.getAllowedModes();
    if(!Collections.disjoint(alreadyAllowedModes, accessModes)) {
-     LOGGER.warning(String.format("Access (mode) groups for link segment type %s have overlapping modes, undefined behaviour of which properties prevail for duplicate modes",linkSegmentType.getXmlId()));
+     LOGGER.warning(String.format("Access (mode) groups for link segment type %s have overlapping modes, " +
+             "undefined behaviour of which properties prevail for duplicate modes",linkSegmentType.getXmlId()));
    }   
       
    /* mode properties link segment type speed settings */
@@ -418,16 +434,19 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    if(xmlAccessGroupProperties != null) {
      
      if(xmlAccessGroupProperties.getMaxspeed() != null && xmlAccessGroupProperties.getCritspeed() != null) {
-       groupProperties = AccessGroupPropertiesFactory.create(xmlAccessGroupProperties.getMaxspeed(), xmlAccessGroupProperties.getCritspeed(), accessModes);
+       groupProperties = AccessGroupPropertiesFactory.create(
+               xmlAccessGroupProperties.getMaxspeed(), xmlAccessGroupProperties.getCritspeed(), accessModes);
      }else if(xmlAccessGroupProperties.getMaxspeed() != null) {
        groupProperties = AccessGroupPropertiesFactory.create(xmlAccessGroupProperties.getMaxspeed(), accessModes);
      }else if(xmlAccessGroupProperties.getCritspeed() != null) {
-       LOGGER.warning(String.format("IGNORE: Not allowed to only set a critical speed for an access group (link segment type %s)",linkSegmentType.getXmlId()));
+       LOGGER.warning(String.format("IGNORE: Not allowed to only set a critical speed for an access group (link " +
+               "segment type %s)",linkSegmentType.getXmlId()));
      }          
    }
    
    if(groupProperties==null) {
-     /* register without setting any speed information, which means they are to be derived from the mode and or links most restrictive information on-the-fly instead*/
+     /* register without setting any speed information, which means they are to be derived from the mode and or
+     links most restrictive information on-the-fly instead*/
      groupProperties = AccessGroupPropertiesFactory.create(accessModes);   
    }
    linkSegmentType.setAccessGroupProperties(groupProperties);       
@@ -438,12 +457,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * 
    * @param xmlLayer to extract from
    * @param networkLayer to populate
-   * @throws PlanItException thrown if there is an error in storing the GML Point definition
    */
-  public void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) throws PlanItException {  
+  public void parseNodes(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
         
     /* parse nodes */
-    for (XMLElementNodes.Node xmlNode : xmlLayer.getNodes().getNode()) {
+    for (org.goplanit.xml.generated.v2.Node xmlNode : xmlLayer.getNodes().getNodes()) {
 
       Node node = networkLayer.getNodes().getFactory().registerNew();
       
@@ -474,13 +492,14 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @throws PlanItException thrown if error
    */
   public void parseLinkAndLinkSegments(
-      XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer, PlanitJtsCrsUtils jtsUtils) throws PlanItException {                
+      XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer, PlanitJtsCrsUtils jtsUtils)
+          throws PlanItException {
 
     /* links */
     XMLElementLinks xmlLinks = xmlLayer.getLinks();
     PlanItException.throwIfNull(xmlLinks, "links xml element missing");
     
-    for (XMLElementLinks.Link xmlLink : xmlLinks.getLink()) {
+    for (org.goplanit.xml.generated.v2.Link xmlLink : xmlLinks.getLinks()) {
       
       /* LINK */
       MacroscopicLink link;
@@ -525,7 +544,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         if(xmlLink.getCustom() != null){
           //todo only supporting string values, no way of enforcing a type (needs to be part of schema)
           var xmlCustomProperties = xmlLink.getCustom();
-          var xmlEntryElements = xmlCustomProperties.getEntryElement();
+          var xmlEntryElements = xmlCustomProperties.getEntryElements();
           xmlEntryElements.forEach( entry -> link.addInputProperty(entry.getKeyAttribute(), entry.getValue()));
         }
 
@@ -540,17 +559,19 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       boolean firstLinkDirection = true;
 
       /* LINK SEGMENT **/
-      for (XMLElementLinkSegment xmlLinkSegment : xmlLink.getLinksegment()) {                                                       
+      for (XMLElementLinkSegment xmlLinkSegment : xmlLink.getLinksegments()) {
         
         /* direction */
         boolean abDirection = xmlLinkSegment.getDir().equals(Direction.A_B);
         if (!isFirstLinkSegment) {
           if (abDirection == firstLinkDirection) {
-            throw new PlanItException("Both link segments for the same link are in the same direction.  Link segment external Id is " + xmlLinkSegment.getId());
+            throw new PlanItException("Both link segments for the same link are in the same direction.  " +
+                    "Link segment external Id is " + xmlLinkSegment.getId());
           }
         }        
 
-        MacroscopicLinkSegment linkSegment = networkLayer.getLinkSegments().getFactory().registerNew(link, abDirection, true /* register on nodes and link*/);
+        MacroscopicLinkSegment linkSegment = networkLayer.getLinkSegments().getFactory().registerNew(
+                link, abDirection, true /* register on nodes and link*/);
             
         /* xml id */
         if(xmlLinkSegment.getId() != null && !xmlLinkSegment.getId().isBlank()) {
@@ -566,11 +587,13 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         }         
         
         /* max speed */
-        double maxSpeed = (xmlLinkSegment.getMaxspeed() == null) ? Double.POSITIVE_INFINITY : xmlLinkSegment.getMaxspeed();        
+        double maxSpeed = (xmlLinkSegment.getMaxspeed() == null) ?
+                Double.POSITIVE_INFINITY : xmlLinkSegment.getMaxspeed();
         linkSegment.setPhysicalSpeedLimitKmH(maxSpeed);
         
         /* lanes */
-        int noLanes = (xmlLinkSegment.getNumberoflanes() == null) ? LinkSegment.DEFAULT_NUMBER_OF_LANES : xmlLinkSegment.getNumberoflanes().intValue();        
+        int noLanes = (xmlLinkSegment.getNumberoflanes() == null) ?
+                LinkSegment.DEFAULT_NUMBER_OF_LANES : xmlLinkSegment.getNumberoflanes().intValue();
         linkSegment.setNumberOfLanes(noLanes);    
         
         registerBySourceId(MacroscopicLinkSegment.class, linkSegment);
@@ -581,7 +604,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         String linkSegmentTypeXmlId;
         if (xmlLinkSegment.getTyperef() == null) {
           if (networkLayer.getLinkSegmentTypes().size() > 1) {
-            throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment type defined, but there is more than one possible link segment type");
+            throw new PlanItException("Link Segment " + xmlLinkSegment.getId() + " has no link segment type " +
+                    "defined, but there is more than one possible link segment type");
           }
           linkSegmentTypeXmlId = networkLayer.getLinkSegmentTypes().getFirst().getXmlId();
         } else {
@@ -589,9 +613,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         }  
         
         /* register type on link */
-        MacroscopicLinkSegmentType linkSegmentType = getBySourceId(MacroscopicLinkSegmentType.class, linkSegmentTypeXmlId);
+        MacroscopicLinkSegmentType linkSegmentType =
+                getBySourceId(MacroscopicLinkSegmentType.class, linkSegmentTypeXmlId);
         if(linkSegmentType == null) {
-          throw new PlanItException(String.format("Link segment type %s, unknown, cannot be registered on link segment %s",linkSegmentTypeXmlId,linkSegment));
+          throw new PlanItException(String.format("Link segment type %s, unknown, cannot be registered on " +
+                  "link segment %s",linkSegmentTypeXmlId,linkSegment));
         }
         linkSegment.setLinkSegmentType(linkSegmentType);    
         
@@ -610,7 +636,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   protected void setNetwork(final LayeredNetwork<?,?> network) throws PlanItException {
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure" +
+              " networks, the provided network is not of this type");
     }
     
     this.network = (MacroscopicNetwork) network;
@@ -660,7 +687,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param settings to use
    * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(
+          XMLElementMacroscopicNetwork externalXmlRawNetwork,
+          PlanitNetworkReaderSettings settings,
+          LayeredNetwork<?,?> network) throws PlanItException{
     super();
     this.xmlParser = new PlanitXmlJaxbParser<>(externalXmlRawNetwork);
     this.settings = settings;
@@ -683,7 +713,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   }  
   
   /** Default XSD files used to validate input XML files against, TODO: move to properties file */
-  public static final String NETWORK_XSD_FILE = "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicnetworkinput.xsd";  
+  public static final String NETWORK_XSD_FILE =
+          "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicnetworkinput.xsd";
 
   /**
    * {@inheritDoc}
@@ -693,12 +724,14 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
-    PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(), "No valid PLANit XML network could be parsed into memory, abort");
+    PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(),
+            "No valid PLANit XML network could be parsed into memory, abort");
     
     /* xml id */
     String networkXmlId = xmlParser.getXmlRootElement().getId();
     if(StringUtils.isNullOrBlank(networkXmlId)) {
-      LOGGER.warning(String.format("Network has no XML id defined, adopting internally generated id %d instead",network.getId()));
+      LOGGER.warning(String.format("Network has no XML id defined, adopting internally generated id %d instead",
+              network.getId()));
       networkXmlId = String.valueOf(network.getId());
     }
     network.setXmlId(networkXmlId);
@@ -755,7 +788,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    */
   public MacroscopicLinkSegment getLinkSegmentByExternalId(MacroscopicNetwork network, String externalId) {
     for (MacroscopicNetworkLayer layer : network.getTransportLayers()) {
-      MacroscopicLinkSegment firstMatch = layer.getLinkSegments().firstMatch(ls -> externalId.equals(ls.getExternalId()));
+      MacroscopicLinkSegment firstMatch =
+              layer.getLinkSegments().firstMatch(ls -> externalId.equals(ls.getExternalId()));
       if (firstMatch != null) {
         return firstMatch;
       }

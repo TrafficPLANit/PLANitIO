@@ -1,6 +1,6 @@
 package org.goplanit.io.converter.network;
 
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork;
 
 /**
  * Factory for creating PLANit Network writers

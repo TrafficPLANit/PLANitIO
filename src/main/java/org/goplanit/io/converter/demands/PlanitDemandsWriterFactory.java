@@ -1,6 +1,6 @@
 package org.goplanit.io.converter.demands;
 
-import org.goplanit.xml.generated.XMLElementMacroscopicDemand;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand;
 import org.goplanit.zoning.Zoning;
 
 /**

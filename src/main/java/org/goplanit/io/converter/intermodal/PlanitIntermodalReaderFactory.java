@@ -1,18 +1,13 @@
 package org.goplanit.io.converter.intermodal;
 
-import org.goplanit.converter.intermodal.IntermodalReader;
-import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.goplanit.xml.generated.XMLElementRoutedServices;
-import org.goplanit.xml.generated.XMLElementServiceNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.v2.XMLElementRoutedServices;
+import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 import org.goplanit.zoning.Zoning;
 
 /**

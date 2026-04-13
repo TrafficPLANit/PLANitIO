@@ -7,12 +7,12 @@ import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.goplanit.xml.generated.LengthUnit;
-import org.goplanit.xml.generated.XMLElementLayerConfiguration;
-import org.goplanit.xml.generated.XMLElementLinkLengthType;
-import org.goplanit.xml.generated.XMLElementLinkSegmentType;
-import org.goplanit.xml.generated.XMLElementLinkSegmentTypes;
-import org.goplanit.xml.generated.XMLElementLinks;
+import org.goplanit.xml.generated.v2.LengthUnit;
+import org.goplanit.xml.generated.v2.XMLElementLayerConfiguration;
+import org.goplanit.xml.generated.v2.XMLElementLinkLengthType;
+import org.goplanit.xml.generated.v2.XMLElementLinkSegmentType;
+import org.goplanit.xml.generated.v2.XMLElementLinkSegmentTypes;
+import org.goplanit.xml.generated.v2.XMLElementLinks;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
@@ -47,7 +47,7 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param generatedLink object storing link data from XML file
    * @return final length value
    */
-  public static Double parseLengthElementFromLink(XMLElementLinks.Link generatedLink) {
+  public static Double parseLengthElementFromLink(org.goplanit.xml.generated.v2.Link generatedLink) {
     Double length = null;
     XMLElementLinkLengthType linkLengthType = generatedLink.getLength();
     if (linkLengthType != null) {
@@ -68,9 +68,9 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param generatedLink object storing link data from XML file
    * @param jtsUtils to compute length from geometry
    * @return final length value
-   * @throws PlanItException thown if error
    */
-  public static Double parseLengthFromLineString(XMLElementLinks.Link generatedLink, PlanitJtsCrsUtils jtsUtils) throws PlanItException {
+  public static Double parseLengthFromLineString(
+          org.goplanit.xml.generated.v2.Link generatedLink, PlanitJtsCrsUtils jtsUtils) {
     Double length = 0.0;
     
     LineStringType lineStringType = generatedLink.getLineString();
@@ -78,7 +78,8 @@ public class XmlMacroscopicNetworkLayerHelper {
       DirectPositionListType positionList = lineStringType.getPosList();
       if(positionList==null) {
         LOGGER.severe(
-            String.format("Link %s has a line string without any positions, this should not happen, consider specifying a length instead, setting length to 0.0", generatedLink.getId()));
+            String.format("Link %s has a line string without any positions, this should not happen," +
+                    " consider specifying a length instead, setting length to 0.0", generatedLink.getId()));
         return length;
       }
       
@@ -102,12 +103,13 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param generatedLink XML link
    * @return created LineString if any, null if not present
    */
-  public static LineString parseLinkGeometry(org.goplanit.xml.generated.XMLElementLinks.Link generatedLink) {
+  public static LineString parseLinkGeometry(org.goplanit.xml.generated.v2.Link generatedLink) {
     /* geometry of link */
     if(generatedLink.getLineString()!=null) {
       LineStringType lst = generatedLink.getLineString();
       if(lst.getCoordinates() != null) {
-        return PlanitJtsUtils.createLineStringFromCsvString(lst.getCoordinates().getValue(), lst.getCoordinates().getTs(), lst.getCoordinates().getCs());
+        return PlanitJtsUtils.createLineStringFromCsvString(
+                lst.getCoordinates().getValue(), lst.getCoordinates().getTs(), lst.getCoordinates().getCs());
       }else if(lst.getPosList()!=null) {
         return PlanitJtsUtils.createLineString(lst.getPosList().getValue());
       }
@@ -122,7 +124,8 @@ public class XmlMacroscopicNetworkLayerHelper {
    * @param jtsUtils to compute length from geometry
    * @return length (in km)
    */
-  public static double parseLength(org.goplanit.xml.generated.XMLElementLinks.Link xmlLink, LineString theLineString, PlanitJtsCrsUtils jtsUtils) {
+  public static double parseLength(
+          org.goplanit.xml.generated.v2.Link xmlLink, LineString theLineString, PlanitJtsCrsUtils jtsUtils) {
     Double length = parseLengthElementFromLink(xmlLink);
     if(length == null && theLineString!=null) {
       /* not explicitly set, try extracting it from geometry  instead */
@@ -151,7 +154,7 @@ public class XmlMacroscopicNetworkLayerHelper {
       XMLElementLinkSegmentType xmlLinkSegmentType = new XMLElementLinkSegmentType();
       xmlLinkSegmentType.setName("");
       xmlLinkSegmentType.setId(MacroscopicLinkSegmentType.DEFAULT_XML_ID);
-      xmlLayerConfiguration.getLinksegmenttypes().getLinksegmenttype().add(xmlLinkSegmentType);
+      xmlLayerConfiguration.getLinksegmenttypes().getLinksegmenttypes().add(xmlLinkSegmentType);
     }
   }
     

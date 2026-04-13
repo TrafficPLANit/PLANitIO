@@ -6,7 +6,7 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
-import org.goplanit.xml.generated.XMLElementServiceNetwork;
+import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 
 
 /**
@@ -75,7 +75,8 @@ public class PlanitServiceNetworkReaderFactory {
    * @param serviceNetwork to use
    * @return created service network reader
    */
-  public static PlanitServiceNetworkReader create(final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) {
+  public static PlanitServiceNetworkReader create(
+          final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) {
     try {
       return new PlanitServiceNetworkReader(settings, serviceNetwork);
     } catch (PlanItException e) {
@@ -92,7 +93,10 @@ public class PlanitServiceNetworkReaderFactory {
    * @param serviceNetwork to populate
    * @return created service network reader
    */
-  public static PlanitServiceNetworkReader create(final String inputDirectory, final String xmlFileExtension, final ServiceNetwork serviceNetwork) {
+  public static PlanitServiceNetworkReader create(
+          final String inputDirectory,
+          final String xmlFileExtension,
+          final ServiceNetwork serviceNetwork) {
     return new PlanitServiceNetworkReader(inputDirectory, xmlFileExtension, serviceNetwork);
   }  
     
@@ -103,7 +107,8 @@ public class PlanitServiceNetworkReaderFactory {
    * @param serviceNetwork to populate
    * @return created PLANit service network reader
    */
-  public static PlanitServiceNetworkReader create(final XMLElementServiceNetwork xmlRawServiceNetwork, final ServiceNetwork serviceNetwork) {
+  public static PlanitServiceNetworkReader create(
+          final XMLElementServiceNetwork xmlRawServiceNetwork, final ServiceNetwork serviceNetwork) {
     return new PlanitServiceNetworkReader(xmlRawServiceNetwork, serviceNetwork);
   }
 
@@ -114,7 +119,10 @@ public class PlanitServiceNetworkReaderFactory {
    * @param serviceNetwork to populate
    * @return created PLANit service network reader
    */
-  public static PlanitServiceNetworkReader create(final XMLElementServiceNetwork xmlRawServiceNetwork, final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) {
+  public static PlanitServiceNetworkReader create(
+          final XMLElementServiceNetwork xmlRawServiceNetwork,
+          final PlanitServiceNetworkReaderSettings settings,
+          final ServiceNetwork serviceNetwork) {
       return new PlanitServiceNetworkReader(xmlRawServiceNetwork, settings, serviceNetwork);
   }
 

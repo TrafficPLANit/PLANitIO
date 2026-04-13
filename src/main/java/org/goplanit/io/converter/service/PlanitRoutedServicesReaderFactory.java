@@ -1,12 +1,11 @@
 package org.goplanit.io.converter.service;
 
-import java.util.logging.Logger;
-
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGroupingToken;
-import org.goplanit.xml.generated.XMLElementRoutedServices;
+import org.goplanit.xml.generated.v2.XMLElementRoutedServices;
+
+import java.util.logging.Logger;
 
 
 /**
@@ -75,7 +74,8 @@ public class PlanitRoutedServicesReaderFactory {
    * @param routedServices to use
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
+  public static PlanitRoutedServicesReader create(
+          final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
     return new PlanitRoutedServicesReader(settings, routedServices);
   }  
    
@@ -87,7 +87,8 @@ public class PlanitRoutedServicesReaderFactory {
    * @param routedServices to populate
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final String inputDirectory, final String xmlFileExtension, final RoutedServices routedServices) {
+  public static PlanitRoutedServicesReader create(
+          final String inputDirectory, final String xmlFileExtension, final RoutedServices routedServices) {
     return new PlanitRoutedServicesReader(inputDirectory, xmlFileExtension, routedServices);
   }
 
@@ -97,7 +98,8 @@ public class PlanitRoutedServicesReaderFactory {
    * @param routedServices to populate
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final XMLElementRoutedServices xmlRawRoutedServices, final RoutedServices routedServices) {
+  public static PlanitRoutedServicesReader create(
+          final XMLElementRoutedServices xmlRawRoutedServices, final RoutedServices routedServices) {
     return new PlanitRoutedServicesReader(xmlRawRoutedServices, routedServices);
   }
     
@@ -109,7 +111,10 @@ public class PlanitRoutedServicesReaderFactory {
    * @param routedServices to populate
    * @return created routed service reader
    */
-  public static PlanitRoutedServicesReader create(final XMLElementRoutedServices xmlRawRoutedServices, final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
+  public static PlanitRoutedServicesReader create(
+          final XMLElementRoutedServices xmlRawRoutedServices,
+          final PlanitRoutedServicesReaderSettings settings,
+          final RoutedServices routedServices) {
     return new PlanitRoutedServicesReader(xmlRawRoutedServices, settings, routedServices);
   }
      
