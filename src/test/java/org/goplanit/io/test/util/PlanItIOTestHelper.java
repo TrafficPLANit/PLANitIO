@@ -28,12 +28,12 @@ import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.time.TimePeriod;
-import org.goplanit.xml.generated.XMLElementColumn;
-import org.goplanit.xml.generated.XMLElementCsvdata;
-import org.goplanit.xml.generated.XMLElementIteration;
-import org.goplanit.xml.generated.XMLElementMetadata;
-import org.goplanit.xml.generated.XMLElementOutputConfiguration;
-import org.goplanit.xml.generated.XMLElementOutputTimePeriod;
+import org.goplanit.xml.generated.v2.XMLElementColumn;
+import org.goplanit.xml.generated.v2.XMLElementCsvdata;
+import org.goplanit.xml.generated.v2.XMLElementIteration;
+import org.goplanit.xml.generated.v2.XMLElementMetadata;
+import org.goplanit.xml.generated.v2.XMLElementOutputConfiguration;
+import org.goplanit.xml.generated.v2.XMLElementOutputTimePeriod;
 
 /**
  * Helper class used by unit tests
@@ -50,9 +50,12 @@ public class PlanItIOTestHelper {
 
   private static final Comparator<?> NATURAL_ORDER_COMPARATOR = Comparator.naturalOrder();
 
-  private static final Comparator<Object> PRECISION9_COMPARATOR_FOR_OBJECT = Precision.createComparatorWithCast(Precision.EPSILON_9);
-  private static final Comparator<Object> PRECISION6_COMPARATOR_FOR_OBJECT = Precision.createComparatorWithCast(Precision.EPSILON_6);
-  private static final Comparator<Object> PRECISION3_COMPARATOR_FOR_OBJECT = Precision.createComparatorWithCast(Precision.EPSILON_3);
+  private static final Comparator<Object> PRECISION9_COMPARATOR_FOR_OBJECT =
+          Precision.createComparatorWithCast(Precision.EPSILON_9);
+  private static final Comparator<Object> PRECISION6_COMPARATOR_FOR_OBJECT =
+          Precision.createComparatorWithCast(Precision.EPSILON_6);
+  private static final Comparator<Object> PRECISION3_COMPARATOR_FOR_OBJECT =
+          Precision.createComparatorWithCast(Precision.EPSILON_3);
   
   /**
    * Compares the results from an assignment run stored in a MemoryOutputFormatter
@@ -68,7 +71,7 @@ public class PlanItIOTestHelper {
    */
   private static boolean compareLinkResultsToMemoryOutputFormatter(
       final MemoryOutputFormatter memoryOutputFormatter, final Integer iterationIndex,
-      final SortedMap<TimePeriod, ? extends SortedMap<Mode, ? extends Object>> resultsMap,
+      final SortedMap<TimePeriod, ? extends SortedMap<Mode, ?>> resultsMap,
       TriFunction<Mode, TimePeriod, Integer, Object> getPositionKeys,
       TriFunction<Pair<Integer, Integer>, Object, Object[], LinkSegmentExpectedResultsDto> getResultDto){
 
@@ -79,13 +82,26 @@ public class PlanItIOTestHelper {
       for (final Mode mode : resultsMap.get(timePeriod).keySet()) {
         Object innerMap = resultsMap.get(timePeriod).get(mode);
 
-        final int flowPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.FLOW);
-        final int costPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_COST);
-        final int lengthPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.LENGTH);
-        final int speedPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.CALCULATED_SPEED);
-        final int capacityPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.CAPACITY_PER_LANE);
-        final int numberOfLanesPosition = memoryOutputFormatter.getPositionOfOutputValueProperty(OutputType.LINK, OutputPropertyType.NUMBER_OF_LANES);
-        final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.LINK);
+        final int flowPosition =
+                memoryOutputFormatter.getPositionOfOutputValueProperty(
+                        OutputType.LINK, OutputPropertyType.FLOW);
+        final int costPosition =
+                memoryOutputFormatter.getPositionOfOutputValueProperty(
+                        OutputType.LINK, OutputPropertyType.LINK_SEGMENT_COST);
+        final int lengthPosition =
+                memoryOutputFormatter.getPositionOfOutputValueProperty(
+                        OutputType.LINK, OutputPropertyType.LENGTH);
+        final int speedPosition =
+                memoryOutputFormatter.getPositionOfOutputValueProperty(
+                        OutputType.LINK, OutputPropertyType.CALCULATED_SPEED);
+        final int capacityPosition =
+                memoryOutputFormatter.getPositionOfOutputValueProperty(
+                        OutputType.LINK, OutputPropertyType.CAPACITY_PER_LANE);
+        final int numberOfLanesPosition =
+                memoryOutputFormatter.getPositionOfOutputValueProperty(
+                        OutputType.LINK, OutputPropertyType.NUMBER_OF_LANES);
+        final MemoryOutputIterator memoryOutputIterator =
+                memoryOutputFormatter.getIterator(mode, timePeriod, iteration, OutputType.LINK);
         Object obj = getPositionKeys.apply(mode, timePeriod, iteration);
 
         @SuppressWarnings("unchecked") Pair<Integer, Integer> positionKeys = (Pair<Integer, Integer>) obj;
@@ -155,7 +171,8 @@ public class PlanItIOTestHelper {
       outputPropertyType = OutputPropertyType.ROUTE_CHOICE_CONVERGENCE_GAP;
       comparator = PRECISION9_COMPARATOR_FOR_OBJECT;
     }else{
-      throw new PlanItRunTimeException("Output type %s not supported for comparing memory output formatter results in %s",
+      throw new PlanItRunTimeException("Output type %s not supported for" +
+              " comparing memory output formatter results in %s",
           outputType, PlanItIOTestHelper.class.getCanonicalName());
     }
     var outputProperty = OutputProperty.of(outputPropertyType);
@@ -219,15 +236,21 @@ public class PlanItIOTestHelper {
       Comparator<Object> resultComparator) {
 
     boolean success = true;
-    final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty.getOutputPropertyType());
+    final int position =
+            memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty.getOutputPropertyType());
 
     var mapPerTimePeriod =expectedOdResults.get(timePeriod);
     for (Mode mode : mapPerTimePeriod.keySet()) {
       var mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
-      final int originZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ORIGIN_ZONE_XML_ID);
-      final int destinationZonePosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.DESTINATION_ZONE_XML_ID);
+      final int originZonePosition =
+              memoryOutputFormatter.getPositionOfOutputKeyProperty(
+                      outputType, OutputPropertyType.ORIGIN_ZONE_XML_ID);
+      final int destinationZonePosition =
+              memoryOutputFormatter.getPositionOfOutputKeyProperty(
+                      outputType, OutputPropertyType.DESTINATION_ZONE_XML_ID);
 
-      final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iterationIndex, outputType);
+      final MemoryOutputIterator memoryOutputIterator =
+              memoryOutputFormatter.getIterator(mode, timePeriod, iterationIndex, outputType);
       while (memoryOutputIterator.hasNext()) {
         memoryOutputIterator.next();
         final Object[] keys = memoryOutputIterator.getKeys();
@@ -268,14 +291,17 @@ public class PlanItIOTestHelper {
       Comparator<Object> resultComparator) {
 
     boolean success = true;
-    final int position = memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty.getOutputPropertyType());
+    final int position =
+            memoryOutputFormatter.getPositionOfOutputValueProperty(outputType, outputProperty.getOutputPropertyType());
 
     var mapPerTimePeriod =expectedIterationResults.get(timePeriod);
     for (Mode mode : mapPerTimePeriod.keySet()) {
       var mapPerTimePeriodAndMode = mapPerTimePeriod.get(mode);
-      final int iterationPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ITERATION_INDEX);
+      final int iterationPosition =
+              memoryOutputFormatter.getPositionOfOutputKeyProperty(outputType, OutputPropertyType.ITERATION_INDEX);
 
-      final MemoryOutputIterator memoryOutputIterator = memoryOutputFormatter.getIterator(mode, timePeriod, iterationIndex, outputType);
+      final MemoryOutputIterator memoryOutputIterator =
+              memoryOutputFormatter.getIterator(mode, timePeriod, iterationIndex, outputType);
       while (memoryOutputIterator.hasNext()) {
         memoryOutputIterator.next();
         final Object[] keys = memoryOutputIterator.getKeys();
@@ -351,7 +377,10 @@ public class PlanItIOTestHelper {
    * @param theValue value
    */
   public static void addToNestedMap(
-          SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> theMap,
+          SortedMap<TimePeriod,
+                  SortedMap<Mode,
+                          SortedMap<String,
+                                  SortedMap<String, LinkSegmentExpectedResultsDto>>>> theMap,
           TimePeriod tp,
           Mode m,
           String str1,
@@ -416,12 +445,19 @@ public class PlanItIOTestHelper {
   public static boolean compareLinkResultsToMemoryOutputFormatterUsingNodesXmlId(
       final MemoryOutputFormatter memoryOutputFormatter,
       final Integer iterationIndex,
-      final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<String, SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap) {
+      final SortedMap<TimePeriod,
+              SortedMap<Mode,
+                      SortedMap<String,
+                              SortedMap<String, LinkSegmentExpectedResultsDto>>>> resultsMap) {
     
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
-          final int downstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
-          final int upstreamNodeXmlIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.UPSTREAM_NODE_XML_ID);
+          final int downstreamNodeXmlIdPosition =
+                  memoryOutputFormatter.getPositionOfOutputKeyProperty(
+                          OutputType.LINK, OutputPropertyType.DOWNSTREAM_NODE_XML_ID);
+          final int upstreamNodeXmlIdPosition =
+                  memoryOutputFormatter.getPositionOfOutputKeyProperty(
+                          OutputType.LINK, OutputPropertyType.UPSTREAM_NODE_XML_ID);
           return Pair.of(downstreamNodeXmlIdPosition, upstreamNodeXmlIdPosition);
         },
         (positionKeys, innerObj, keys) -> {
@@ -453,11 +489,13 @@ public class PlanItIOTestHelper {
       final SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> resultsMap) {
     return compareLinkResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, resultsMap,
         (mode, timePeriod, iteration) -> {
-         final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
+         final int linkSegmentIdPosition = memoryOutputFormatter.getPositionOfOutputKeyProperty(
+                 OutputType.LINK, OutputPropertyType.LINK_SEGMENT_ID);
          return Pair.of(linkSegmentIdPosition, 0);
         },
         (positionKeys, innerObj, keys) -> {
-          @SuppressWarnings("unchecked") final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap = (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
+          @SuppressWarnings("unchecked") final SortedMap<Long, LinkSegmentExpectedResultsDto> innerMap =
+                  (SortedMap<Long, LinkSegmentExpectedResultsDto>) innerObj;
           final int linkSegmentIdPosition = positionKeys.first();
           final long linkSegmentId = (Long) keys[linkSegmentIdPosition];
           return innerMap.get(linkSegmentId);
@@ -511,7 +549,8 @@ public class PlanItIOTestHelper {
     // todo: not fast, but cleanest with current implementation
     int maxIteration = memoryOutputFormatter.getLastIteration();
     return IntStream.rangeClosed(1, maxIteration).anyMatch( iterationIndex ->
-        !compareResultsToMemoryOutputFormatter(memoryOutputFormatter, iterationIndex, simulationMap, OutputType.SIMULATION));
+        !compareResultsToMemoryOutputFormatter(
+                memoryOutputFormatter, iterationIndex, simulationMap, OutputType.SIMULATION));
   }
    
   /**
@@ -608,13 +647,15 @@ public class PlanItIOTestHelper {
     final Path f1 = Path.of(file1).toAbsolutePath();
     if(Files.notExists(f1)){
       LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",f1));
-      FileUtils.listFiles(f1.getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+      FileUtils.listFiles(f1.getParent().toFile(),new String[]{"csv","xml"},false).forEach(
+              f -> LOGGER.warning(f.toString()));
       return false;
     }
     final Path f2 = Path.of(file2).toAbsolutePath();
     if(Files.notExists(f2)){
       LOGGER.warning(String.format("File %s does not exist, printing available xml and csv files in dir",f2));
-      FileUtils.listFiles(f2.getParent().toFile(),new String[]{"csv","xml"},false).forEach(f -> LOGGER.warning(f.toString()));
+      FileUtils.listFiles(f2.getParent().toFile(),new String[]{"csv","xml"},false).forEach(
+              f -> LOGGER.warning(f.toString()));
       return false;
     }
 
@@ -653,8 +694,8 @@ public class PlanItIOTestHelper {
 
     // compare <columns> and <column> elements in the generated output file against the standard
     // output file
-    final List<XMLElementColumn> elementColumnsStandard = metadataStandard.getColumns().getColumn();
-    final List<XMLElementColumn> elementColumnsBeingTested = metadataBeingTested.getColumns().getColumn();
+    final List<XMLElementColumn> elementColumnsStandard = metadataStandard.getColumns().getColumns();
+    final List<XMLElementColumn> elementColumnsBeingTested = metadataBeingTested.getColumns().getColumns();
     final int sizeElementColumnsStandard = elementColumnsStandard.size();
     final int sizeElementColumnsBeingTested = elementColumnsBeingTested.size();
     if (sizeElementColumnsStandard != sizeElementColumnsBeingTested) {
@@ -706,9 +747,9 @@ public class PlanItIOTestHelper {
     }
 
     // compare <simulation> elements in the generated output file against the standard output file
-    final List<XMLElementIteration> iterationsStandard = metadataStandard.getSimulation().getIteration();
+    final var iterationsStandard = metadataStandard.getSimulation().getIterations();
     final int iterationsSizeStandard = iterationsStandard.size();
-    final List<XMLElementIteration> iterationsBeingTested = metadataBeingTested.getSimulation().getIteration();
+    final var iterationsBeingTested = metadataBeingTested.getSimulation().getIterations();
     final int iterationsSizeBeingTested = iterationsBeingTested.size();
     if (iterationsSizeStandard != iterationsSizeBeingTested) {
       return false;
@@ -720,9 +761,9 @@ public class PlanItIOTestHelper {
       if (iterationStandard.getNr().intValue() != iterationBeingTested.getNr().intValue()) {
         return false;
       }
-      final List<XMLElementCsvdata> csvDataListStandard = iterationStandard.getCsvdata();
+      final var csvDataListStandard = iterationStandard.getCsvdatas();
       final int sizeCsvDataListStandard = csvDataListStandard.size();
-      final List<XMLElementCsvdata> csvDataListBeingTested = iterationBeingTested.getCsvdata();
+      final var csvDataListBeingTested = iterationBeingTested.getCsvdatas();
       final int sizeCsvDataListBeingTested = csvDataListBeingTested.size();
       if (sizeCsvDataListStandard != sizeCsvDataListBeingTested) {
         return false;
