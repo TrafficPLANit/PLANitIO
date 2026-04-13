@@ -32,6 +32,7 @@ import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.Triple;
+import org.goplanit.xml.generated.v2.*;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
@@ -55,7 +56,6 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.utils.wrapper.MapWrapper;
 import org.goplanit.utils.wrapper.MapWrapperImpl;
-import org.goplanit.xml.generated.*;
 import org.goplanit.zoning.Zoning;
 
 /**
@@ -82,7 +82,7 @@ public class PlanItInputBuilder extends InputBuilderListener {
   private XMLElementServiceNetwork xmlRawServiceNetwork = null;
   
   /** Generated object to store optional routed services input data */
-  private XMLElementRoutedServices xmlRawRoutedServices = null;    
+  private XMLElementRoutedServices xmlRawRoutedServices = null;
     
   
   /** Project path to use */
@@ -424,7 +424,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /* parse raw inputs if not already done, because routed services are optional, they have not been parsed unless they were part of
      * a combined input XML that contained other parts of the definitions */
     if(xmlRawRoutedServices == null) {
-      xmlRawRoutedServices = (XMLElementRoutedServices ) JAXBUtils.generateInstanceFromXml(XMLElementRoutedServices.class, FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
+      xmlRawRoutedServices =
+              JAXBUtils.generateInstanceFromXml(
+                      XMLElementRoutedServices.class,
+                      FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
     }
     if(xmlRawRoutedServices == null) {
       LOGGER.severe("Unable to locate routed services XML input");
@@ -432,7 +435,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
     
     /* prep reader */
-    PlanitRoutedServicesReader routedServicesReader = PlanitRoutedServicesReaderFactory.create(xmlRawRoutedServices, routedServicesToPopulate);  
+    PlanitRoutedServicesReader routedServicesReader =
+            PlanitRoutedServicesReaderFactory.create(xmlRawRoutedServices, routedServicesToPopulate);
     routedServicesReader.read();
     
     xmlRawRoutedServices = null;
@@ -441,14 +445,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
   /** Populate the service network based on the local XML file if it can be found.
    * 
    * @param serviceNetworkToPopulate to instance to populate
-   * @throws PlanItException thrown if error
    */  
-  protected void populateServiceNetwork(final ServiceNetwork serviceNetworkToPopulate) throws PlanItException {
+  protected void populateServiceNetwork(final ServiceNetwork serviceNetworkToPopulate) {
     
-    /* parse raw inputs if not already done, because routed services are optional, they have not been parsed unless they were part of
+    /* parse raw inputs if not already done, because routed services are optional, they have not been
+    parsed unless they were part of
      * a combined input XML that contained other parts of the definitions */
     if(xmlRawServiceNetwork== null) {
-      xmlRawServiceNetwork = (XMLElementServiceNetwork ) JAXBUtils.generateInstanceFromXml(XMLElementServiceNetwork.class, FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
+      xmlRawServiceNetwork =
+              JAXBUtils.generateInstanceFromXml(
+                      XMLElementServiceNetwork.class,
+                      FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
     }
     if(xmlRawServiceNetwork == null) {
       LOGGER.severe("Unable to locate service network XML input");
@@ -456,7 +463,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }
     
     /* prep reader */
-    PlanitServiceNetworkReader serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(xmlRawServiceNetwork, serviceNetworkToPopulate);
+    PlanitServiceNetworkReader serviceNetworkReader =
+            PlanitServiceNetworkReaderFactory.create(xmlRawServiceNetwork, serviceNetworkToPopulate);
     serviceNetworkReader.getSettings().setInputDirectory(projectPath);
     /* perform parse action */
     serviceNetworkReader.read();
@@ -482,7 +490,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     /* parse */
     try {
       final Reader in = new FileReader(fileName);
-      final CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
+      // todo replace with univocity
+      final CSVParser parser =
+              CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
       final Set<String> headers = parser.getHeaderMap().keySet();
       
       /* populate this */
@@ -498,7 +508,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
           for(MacroscopicLinkSegment linkSegment : layer.getLinkSegments()) {
             Vertex upstreamNode = linkSegment.getUpstreamVertex();
             indexByIdentificationMethod.putIfAbsent(upstreamNode.getXmlId(), new HashMap<>());
-            indexByIdentificationMethod.get(upstreamNode.getXmlId()).put(linkSegment.getDownstreamVertex().getXmlId(), linkSegment);
+            indexByIdentificationMethod.get(
+                    upstreamNode.getXmlId()).put(linkSegment.getDownstreamVertex().getXmlId(), linkSegment);
           }
         }
         
@@ -506,9 +517,12 @@ public class PlanItInputBuilder extends InputBuilderListener {
         for (final CSVRecord record : parser) {
           MacroscopicLinkSegment linkSegment =
                   indexByIdentificationMethod.get(
-                          record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(record.get(DownstreamNodeXmlIdOutputProperty.NAME));
-          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d", record.getRecordNumber());        
-          setPhysicalInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
+                          record.get(UpstreamNodeXmlIdOutputProperty.NAME)).get(
+                                  record.get(DownstreamNodeXmlIdOutputProperty.NAME));
+          PlanItException.throwIfNull(linkSegment, "failed to find link segment for record %d",
+                  record.getRecordNumber());
+          setPhysicalInitialLinkSegmentCost(
+                  initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
         }
         
       }else {
@@ -540,7 +554,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
           if(linkSegment == null) {
             throw new PlanItRunTimeException("Failed to find link segment for record %d", record.getRecordNumber());
           }
-          setPhysicalInitialLinkSegmentCost(initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
+          setPhysicalInitialLinkSegmentCost(
+                  initialLinkSegmentCost, record, linkSegment, initialCostEvent.getTimePeriod());
         }
       }   
       in.close();
@@ -618,7 +633,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
     }else if(event.getType().equals(PopulateDemandsEvent.EVENT_TYPE)){
       /* DEMANDS */
       PopulateDemandsEvent demandsEvent = ((PopulateDemandsEvent) event);
-      populateDemands(demandsEvent.getDemandsToPopulate(), demandsEvent.getParentZoning(), demandsEvent.getParentNetwork());
+      populateDemands(
+              demandsEvent.getDemandsToPopulate(), demandsEvent.getParentZoning(), demandsEvent.getParentNetwork());
     }else if(event.getType().equals(PopulateInitialLinkSegmentCostEvent.EVENT_TYPE)){
       /* INITIAL COST */
       PopulateInitialLinkSegmentCostEvent initialCostEvent = ((PopulateInitialLinkSegmentCostEvent) event);

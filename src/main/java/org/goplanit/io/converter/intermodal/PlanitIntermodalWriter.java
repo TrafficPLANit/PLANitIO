@@ -1,6 +1,5 @@
 package org.goplanit.io.converter.intermodal;
 
-import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
@@ -12,12 +11,12 @@ import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.service.routed.RoutedServices;
-import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Pair;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.goplanit.xml.generated.XMLElementRoutedServices;
-import org.goplanit.xml.generated.XMLElementServiceNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.v2.XMLElementRoutedServices;
+import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 import org.goplanit.zoning.Zoning;
 
 /**
@@ -155,7 +154,9 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     PlanitRoutedServicesWriterSettings routedServicesSettings = getSettings().getRoutedServicesSettings();
     PlanitRoutedServicesWriter routedServicesWriter =
         PlanitRoutedServicesWriterFactory.create(
-            routedServicesSettings.getOutputDirectory(), routedServicesSettings.getCountry(), xmlRawRoutedServices);
+            routedServicesSettings.getOutputDirectory(),
+                routedServicesSettings.getCountry(),
+                xmlRawRoutedServices);
 
     // routed services only requires service network entity references, those are present on the service
     // network writer id mappings

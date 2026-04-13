@@ -1,5 +1,33 @@
 package org.goplanit.io.output.formatter;
 
+import org.apache.commons.csv.CSVPrinter;
+import org.goplanit.io.xml.converter.XmlEnumConverter;
+import org.goplanit.io.xml.util.ApplicationProperties;
+import org.goplanit.io.xml.util.PlanitSchema;
+import org.goplanit.output.adapter.BushLinkOutputTypeAdapter;
+import org.goplanit.output.adapter.OutputAdapter;
+import org.goplanit.output.configuration.OutputConfiguration;
+import org.goplanit.output.configuration.OutputTypeConfiguration;
+import org.goplanit.output.configuration.SimulationOutputTypeConfiguration;
+import org.goplanit.output.enums.OutputType;
+import org.goplanit.output.enums.OutputTypeEnum;
+import org.goplanit.output.enums.SubOutputTypeEnum;
+import org.goplanit.output.formatter.CsvFileOutputFormatter;
+import org.goplanit.output.formatter.CsvTextFileOutputFormatter;
+import org.goplanit.output.formatter.XmlTextFileOutputFormatter;
+import org.goplanit.output.property.OutputProperty;
+import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.id.IdGroupingToken;
+import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.mode.Mode;
+import org.goplanit.utils.time.TimePeriod;
+import org.goplanit.xml.generated.v2.*;
+import org.goplanit.xml.utils.JAXBUtils;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -9,43 +37,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.apache.commons.csv.CSVPrinter;
-import org.goplanit.io.xml.converter.XmlEnumConverter;
-import org.goplanit.io.xml.util.ApplicationProperties;
-import org.goplanit.output.adapter.BushLinkOutputTypeAdapter;
-import org.goplanit.output.configuration.SimulationOutputTypeConfiguration;
-import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.zoning.OdZone;
-import org.goplanit.xml.utils.JAXBUtils;
-import org.goplanit.io.xml.util.PlanitSchema;
-import org.goplanit.output.adapter.OutputAdapter;
-import org.goplanit.output.configuration.OutputConfiguration;
-import org.goplanit.output.configuration.OutputTypeConfiguration;
-import org.goplanit.output.enums.OutputType;
-import org.goplanit.output.enums.OutputTypeEnum;
-import org.goplanit.output.enums.SubOutputTypeEnum;
-import org.goplanit.output.formatter.CsvFileOutputFormatter;
-import org.goplanit.output.formatter.CsvTextFileOutputFormatter;
-import org.goplanit.output.formatter.XmlTextFileOutputFormatter;
-import org.goplanit.output.property.OutputProperty;
-import org.goplanit.utils.exceptions.PlanItException;
-import org.goplanit.utils.id.IdGroupingToken;
-import org.goplanit.utils.misc.LoggingUtils;
-import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.time.TimePeriod;
-import org.goplanit.xml.generated.XMLElementColumn;
-import org.goplanit.xml.generated.XMLElementColumns;
-import org.goplanit.xml.generated.XMLElementCsvdata;
-import org.goplanit.xml.generated.XMLElementIteration;
-import org.goplanit.xml.generated.XMLElementMetadata;
-import org.goplanit.xml.generated.XMLElementOutputConfiguration;
-import org.goplanit.xml.generated.XMLElementOutputTimePeriod;
-import org.goplanit.xml.generated.XMLElementSimulation;
 
 /**
  * The default output formatter of PlanIt
@@ -249,13 +240,13 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     iteration.setNr(BigInteger.valueOf(iterationIndex));
     XMLElementCsvdata csvdata = new XMLElementCsvdata();
     csvdata.setValue(csvFileName);
-    iteration.getCsvdata().add(csvdata);
+    iteration.getCsvdatas().add(csvdata);
     if (currentOutputType instanceof OutputType) {
       csvdata.setType(((OutputType) currentOutputType).value());
-      metadata.get((OutputType) currentOutputType).getSimulation().getIteration().add(iteration);
+      metadata.get((OutputType) currentOutputType).getSimulation().getIterations().add(iteration);
     } else if (currentOutputType instanceof SubOutputTypeEnum) {
       csvdata.setType(((SubOutputTypeEnum) currentOutputType).value());
-      metadata.get((SubOutputTypeEnum) currentOutputType).getSimulation().getIteration().add(iteration);
+      metadata.get((SubOutputTypeEnum) currentOutputType).getSimulation().getIterations().add(iteration);
     } else {
       throw new PlanItException("invalid output type provided when updating metadata simulation output for current iteration");
     }
@@ -284,12 +275,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final SortedSet<OutputProperty> outputProperties) throws PlanItException {
 
     XMLElementColumns generatedColumns = new XMLElementColumns();
-    for (OutputProperty outputProperty : outputProperties) {
+    for (var outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
       generatedColumn.setName(outputProperty.getName());
       generatedColumn.setUnits(XmlEnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
       generatedColumn.setType(XmlEnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
-      generatedColumns.getColumn().add(generatedColumn);
+      generatedColumns.getColumns().add(generatedColumn);
     }
     return generatedColumns;
   }
@@ -301,7 +292,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param timePeriod the current time period
    * @return the XMLElementOutputConfiguration object
    */
-  private XMLElementOutputConfiguration getXmlOutputConfiguration(final OutputAdapter outputAdapter, TimePeriod timePeriod) {
+  private XMLElementOutputConfiguration getXmlOutputConfiguration(
+          final OutputAdapter outputAdapter, TimePeriod timePeriod) {
     XMLElementOutputConfiguration outputconfiguration = new XMLElementOutputConfiguration();
     outputconfiguration.setAssignment(outputAdapter.getAssignmentClassName());
     outputconfiguration.setPhysicalcost(outputAdapter.getPhysicalCostClassName());
@@ -321,9 +313,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * 
    * @param outputDirectory the output file directory
    * @param resetDirectory if true, directory will be purged of previous contents
-   * @throws PlanItException thrown if the directory cannot be opened or created
    */
-  private void createOrOpenOutputDirectory(final String outputDirectory, boolean resetDirectory) throws PlanItException {
+  private void createOrOpenOutputDirectory( final String outputDirectory, boolean resetDirectory){
     try {
 
       Path absoluteDir = Path.of(outputDirectory).toAbsolutePath();
@@ -336,7 +327,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       }
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
-      throw new PlanItException("Error when creating output directory in PLANitIO OutputFormatter", e);
+      throw new PlanItRunTimeException("Error when creating output directory in PLANitIO OutputFormatter", e);
     }
   }
 
@@ -377,7 +368,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @param directory directory to be cleared
    */
   private void purgeDirectory(final File directory) {
-    for (File file : directory.listFiles()) {
+    for (File file : Objects.requireNonNull(directory.listFiles())) {
       if (file.isDirectory())
         purgeDirectory(file);
       file.delete();
@@ -403,7 +394,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
     boolean isNewTimePeriod =
         !metadata.containsKey(currentOutputType) ||
-            !metadata.get(currentOutputType).getOutputconfiguration().getTimeperiod().getId().equals( //this is XML element
+            !metadata.get(currentOutputType).getOutputconfiguration().getTimeperiod().getId().equals(
+                    //this is XML element
                 String.valueOf(timePeriod.getXmlId()));
 
     if (isNewTimePeriod) {
@@ -521,15 +513,19 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    */
   private void logOutputInformation(final OutputAdapter outputAdapter) {
     if (isXmlDirectorySet()) {
-      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "XML meta-data directory set: " + xmlDirectory);
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +
+              "XML meta-data directory set: " + xmlDirectory);
     } else {
-      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "XML meta-data output directory unknown");
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +
+              "XML meta-data output directory unknown");
     }
 
     if (isCsvDirectorySet()) {
-      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "CSV result directory set: " + csvDirectory);
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +
+              "CSV result directory set: " + csvDirectory);
     } else {
-      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) + "CSV result directory unknown");
+      LOGGER.info(this.createLoggingPrefix(outputAdapter.getRunId()) +
+              "CSV result directory unknown");
     }
   }
 
@@ -631,7 +627,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
     
-    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
+    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(
+            outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
         iterationIndex, (csvPrinter) ->
             writeOdResultsForCurrentTimePeriodToCsvPrinter(
               outputConfiguration,
@@ -664,7 +661,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
       final TimePeriod timePeriod,
       int iterationIndex){
     
-    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
+    writeCombinedXmlAndCsvForTypeAndTimePeriodIteration(
+            outputTypeConfiguration, currentOutputType, outputAdapter, timePeriod,
         iterationIndex, (csvPrinter) ->
             writePathResultsForCurrentTimePeriodToCsvPrinter(
                 outputConfiguration,
@@ -831,10 +829,12 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * @throws PlanItException thrown if there is an error or validation failure during set up of the output formatter
    */
   @Override
-  public void initialiseBeforeSimulation(final OutputConfiguration outputConfiguration, long runId) throws PlanItException {
+  public void initialiseBeforeSimulation(final OutputConfiguration outputConfiguration, long runId) {
     
-    PlanItException.throwIf(xmlDirectory == null, "No common output directory or XML output directory has been defined");
-    PlanItException.throwIf(csvDirectory == null,"No common output directory or CSV output directory has been defined");
+    PlanItRunTimeException.throwIf(xmlDirectory == null,
+            "No common output directory or XML output directory has been defined");
+    PlanItRunTimeException.throwIf(csvDirectory == null,
+            "No common output directory or CSV output directory has been defined");
     
     createOrOpenOutputDirectory(xmlDirectory, resetXmlDirectory);
     createOrOpenOutputDirectory(csvDirectory, resetCsvDirectory);

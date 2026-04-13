@@ -1,10 +1,10 @@
 package org.goplanit.io.converter.intermodal;
 
 import org.goplanit.utils.locale.CountryNames;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.goplanit.xml.generated.XMLElementRoutedServices;
-import org.goplanit.xml.generated.XMLElementServiceNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
+import org.goplanit.xml.generated.v2.XMLElementRoutedServices;
+import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 
 /**
  * Factory for creating PLANit intermodal writers persisting both a network and zoning (useful for intermodal networks with pt element where transfer zones are part of the

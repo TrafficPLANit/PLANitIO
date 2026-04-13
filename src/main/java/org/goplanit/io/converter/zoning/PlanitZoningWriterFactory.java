@@ -1,8 +1,7 @@
 package org.goplanit.io.converter.zoning;
 
 import org.goplanit.network.LayeredNetwork;
-import org.goplanit.xml.generated.XMLElementMacroscopicZoning;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
 
 /**
  * Factory for creating PLANit Zoning Writers
@@ -26,7 +25,8 @@ public class PlanitZoningWriterFactory {
    * @param network network the zoning connects to for its connectoids
    * @return created zoning writer
    */
-  public static PlanitZoningWriter create(final LayeredNetwork<?,?> network) {
+  public static PlanitZoningWriter create(
+          final LayeredNetwork<?,?> network) {
     return create(null, null, network);
   }
 
@@ -78,7 +78,8 @@ public class PlanitZoningWriterFactory {
    * @param network network the zoning connects to for its connectoids
    * @return created zoning writer
    */
-  public static PlanitZoningWriter create(final PlanitZoningWriterSettings settings, final LayeredNetwork<?,?> network) {
+  public static PlanitZoningWriter create(
+          final PlanitZoningWriterSettings settings, final LayeredNetwork<?,?> network) {
     return new PlanitZoningWriter(settings, new XMLElementMacroscopicZoning(), network);
   }
 

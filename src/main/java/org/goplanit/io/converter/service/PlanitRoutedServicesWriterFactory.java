@@ -1,6 +1,6 @@
 package org.goplanit.io.converter.service;
 
-import org.goplanit.xml.generated.XMLElementRoutedServices;
+import org.goplanit.xml.generated.v2.XMLElementRoutedServices;
 
 /**
  * Factory for creating PLANit Routed Services writers

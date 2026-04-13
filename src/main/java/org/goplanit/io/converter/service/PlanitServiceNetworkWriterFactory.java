@@ -1,8 +1,6 @@
 package org.goplanit.io.converter.service;
 
-import org.goplanit.io.converter.network.PlanitNetworkWriter;
-import org.goplanit.xml.generated.XMLElementMacroscopicNetwork;
-import org.goplanit.xml.generated.XMLElementServiceNetwork;
+import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 
 /**
  * Factory for creating PLANit Service Network writers

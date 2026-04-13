@@ -3,13 +3,12 @@ package org.goplanit.io.xml.util;
 import java.io.File;
 import java.util.logging.Logger;
 
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.StringUtils;
-import org.goplanit.xml.generated.XMLElementPLANit;
+import org.goplanit.xml.generated.v2.XMLElementPLANit;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
@@ -48,15 +47,20 @@ public class PlanitXmlJaxbParser<T> {
   @SuppressWarnings("unchecked")
   private T getSubEntityRootElementFromCombinedXmlRootElement(XMLElementPLANit xmlRawPLANitAll) {
     /* checks limited to explicitly allowed entities within the PLANit root element */
-    if(xmlRawPLANitAll.getMacroscopicnetwork()!=null && xmlRawPLANitAll.getMacroscopicnetwork().getClass().equals(clazz)) {
+    if(xmlRawPLANitAll.getMacroscopicnetwork()!=null &&
+            xmlRawPLANitAll.getMacroscopicnetwork().getClass().equals(clazz)) {
       return (T) xmlRawPLANitAll.getMacroscopicnetwork();
-    }else if (xmlRawPLANitAll.getMacroscopiczoning()!=null && xmlRawPLANitAll.getMacroscopiczoning().getClass().equals(clazz)) {
+    }else if (xmlRawPLANitAll.getMacroscopiczoning()!=null &&
+            xmlRawPLANitAll.getMacroscopiczoning().getClass().equals(clazz)) {
       return (T) xmlRawPLANitAll.getMacroscopiczoning();
-    }else if (xmlRawPLANitAll.getMacroscopicdemand()!=null && xmlRawPLANitAll.getMacroscopicdemand().getClass().equals(clazz)) {
+    }else if (xmlRawPLANitAll.getMacroscopicdemand()!=null &&
+            xmlRawPLANitAll.getMacroscopicdemand().getClass().equals(clazz)) {
       return (T) xmlRawPLANitAll.getMacroscopicdemand();
-    }else if (xmlRawPLANitAll.getServicenetwork()!=null && xmlRawPLANitAll.getServicenetwork().getClass().equals(clazz)) {
+    }else if (xmlRawPLANitAll.getServicenetwork()!=null &&
+            xmlRawPLANitAll.getServicenetwork().getClass().equals(clazz)) {
       return (T) xmlRawPLANitAll.getServicenetwork();
-    }else if (xmlRawPLANitAll.getRoutedservices()!=null && xmlRawPLANitAll.getRoutedservices().getClass().equals(clazz)) {
+    }else if (xmlRawPLANitAll.getRoutedservices()!=null &&
+            xmlRawPLANitAll.getRoutedservices().getClass().equals(clazz)) {
       return (T) xmlRawPLANitAll.getRoutedservices();
     }
     
@@ -99,23 +103,29 @@ public class PlanitXmlJaxbParser<T> {
    */
   public boolean initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) {
     if(this.xmlRootElement==null) {
-      PlanItRunTimeException.throwIfNull(inputPathDirectory, "Input path directory for XML reader is not provided, unable to parse");
-      PlanItRunTimeException.throwIfNull(xmlFileExtension, "No XML file extension provided, unable to parse files if extension is unknown");
+      PlanItRunTimeException.throwIfNull(inputPathDirectory,
+              "Input path directory for XML reader is not provided, unable to parse");
+      PlanItRunTimeException.throwIfNull(xmlFileExtension,
+              "No XML file extension provided, unable to parse files if extension is unknown");
       
       /* first try based on dedicated file for this entity T... */
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
-      PlanItRunTimeException.throwIf(xmlFileNames.length == 0,String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
+      PlanItRunTimeException.throwIf(xmlFileNames.length == 0,
+              String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
       T rootElement = JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames);
       if(rootElement==null) {
         /*...not available, try and see if embedded in single PLANit XML file for more than one entity */
         XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(XMLElementPLANit.class, xmlFileNames);
         if(xmlRawPLANitAll==null) {
-          LOGGER.severe(String.format("Unable to parse any appropriate XML input file from %s with extension %s, either no file is present, or file is not conforming to underlying XSD",inputPathDirectory, xmlFileExtension));
+          LOGGER.severe(String.format("Unable to parse any appropriate XML input file from %s with extension %s," +
+                  " either no file is present, or file is not conforming to underlying XSD",
+                  inputPathDirectory, xmlFileExtension));
           return false;
         }
         rootElement = getSubEntityRootElementFromCombinedXmlRootElement(xmlRawPLANitAll);
         if(rootElement==null) {
-          LOGGER.severe("Unable to identify which sub element of PLANit XML root element is to be chosen as (sub) root element for this parser");
+          LOGGER.severe("Unable to identify which sub element of PLANit XML root element is to be " +
+                  "chosen as (sub) root element for this parser");
           return false;
         }
       }
@@ -136,7 +146,8 @@ public class PlanitXmlJaxbParser<T> {
       LOGGER.warning(String.format("Coordinate reference system not set, applying default %s",crs.getName().getCode()));
     }else {
       crs = PlanitCrsUtils.createCoordinateReferenceSystem(srsName);
-      PlanItRunTimeException.throwIfNull(crs, "Srs name provided (%s) but it could not be converted into a coordinate reference system",srsName);
+      PlanItRunTimeException.throwIfNull(crs, "Srs name provided (%s) but it could not " +
+              "be converted into a coordinate reference system",srsName);
     }
     return crs;
   }
