@@ -13,21 +13,26 @@ import org.goplanit.xml.utils.JAXBUtils;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * Serves as a base class for readers of PLANit XML files of which the root element is of type T
- * 
+ * Serves as a base class for readers of PLANit XML files of which the root element is of type LATEST, or LEGACY.
+ * In the latter case it will be normalised to LATEST.
+ *
+ * @param <LATEST>
+ * @param <LEGACY>
  * @author markr
  *
  */
-public class PlanitXmlJaxbParser<T> {
+public class PlanitXmlJaxbParser<LATEST, LEGACY> {
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitXmlJaxbParser.class.getCanonicalName());
     
   /** the class to create xml root element for */
-  private Class<T> clazz;
+  private Class<LATEST> latestVersionClazz;
+
+  private Class<LEGACY> legacyVersionClazz;
     
   /** root element to populate */
-  private T xmlRootElement;
+  private LATEST xmlRootElement;
   
   /**
    * Find out which of the eligible sub-elements matches the desired type. Currently the following options are supported:
@@ -45,23 +50,23 @@ public class PlanitXmlJaxbParser<T> {
    * is found
    */
   @SuppressWarnings("unchecked")
-  private T getSubEntityRootElementFromCombinedXmlRootElement(XMLElementPLANit xmlRawPLANitAll) {
+  private LATEST getSubEntityRootElementFromCombinedXmlRootElement(XMLElementPLANit xmlRawPLANitAll) {
     /* checks limited to explicitly allowed entities within the PLANit root element */
     if(xmlRawPLANitAll.getMacroscopicnetwork()!=null &&
-            xmlRawPLANitAll.getMacroscopicnetwork().getClass().equals(clazz)) {
-      return (T) xmlRawPLANitAll.getMacroscopicnetwork();
+            xmlRawPLANitAll.getMacroscopicnetwork().getClass().equals(latestVersionClazz)) {
+      return (LATEST) xmlRawPLANitAll.getMacroscopicnetwork();
     }else if (xmlRawPLANitAll.getMacroscopiczoning()!=null &&
-            xmlRawPLANitAll.getMacroscopiczoning().getClass().equals(clazz)) {
-      return (T) xmlRawPLANitAll.getMacroscopiczoning();
+            xmlRawPLANitAll.getMacroscopiczoning().getClass().equals(latestVersionClazz)) {
+      return (LATEST) xmlRawPLANitAll.getMacroscopiczoning();
     }else if (xmlRawPLANitAll.getMacroscopicdemand()!=null &&
-            xmlRawPLANitAll.getMacroscopicdemand().getClass().equals(clazz)) {
-      return (T) xmlRawPLANitAll.getMacroscopicdemand();
+            xmlRawPLANitAll.getMacroscopicdemand().getClass().equals(latestVersionClazz)) {
+      return (LATEST) xmlRawPLANitAll.getMacroscopicdemand();
     }else if (xmlRawPLANitAll.getServicenetwork()!=null &&
-            xmlRawPLANitAll.getServicenetwork().getClass().equals(clazz)) {
-      return (T) xmlRawPLANitAll.getServicenetwork();
+            xmlRawPLANitAll.getServicenetwork().getClass().equals(latestVersionClazz)) {
+      return (LATEST) xmlRawPLANitAll.getServicenetwork();
     }else if (xmlRawPLANitAll.getRoutedservices()!=null &&
-            xmlRawPLANitAll.getRoutedservices().getClass().equals(clazz)) {
-      return (T) xmlRawPLANitAll.getRoutedservices();
+            xmlRawPLANitAll.getRoutedservices().getClass().equals(latestVersionClazz)) {
+      return (LATEST) xmlRawPLANitAll.getRoutedservices();
     }
     
     return null;
@@ -75,23 +80,16 @@ public class PlanitXmlJaxbParser<T> {
     
   /** location of where to collect XML file and populate an instance of provided class
    * 
-   * @param clazz to create root element and populate it for
+   * @param latestVersionClazz to create root element and populate it for
+   * @param legacyVersionClazz to create root element and populate it for in latest version normalised
    */
-  public PlanitXmlJaxbParser(Class<T> clazz) {
-    this.clazz = clazz;
+  public PlanitXmlJaxbParser(Class<LATEST> latestVersionClazz, Class<LEGACY> legacyVersionClazz) {
+    this.latestVersionClazz = latestVersionClazz;
+    this.legacyVersionClazz = legacyVersionClazz;
     this.xmlRootElement = null;
   }
 
-  /** 
-   * Constructor where root element is already provided and assumed to be populated as well
-   * 
-   * @param xmlRootElement to use
-   */
-  public PlanitXmlJaxbParser(T xmlRootElement) {
-    this.clazz = null;
-    this.xmlRootElement = xmlRootElement;
-  }
-  
+
   // GETTERS /SETTERS
   
   /**
@@ -107,15 +105,20 @@ public class PlanitXmlJaxbParser<T> {
               "Input path directory for XML reader is not provided, unable to parse");
       PlanItRunTimeException.throwIfNull(xmlFileExtension,
               "No XML file extension provided, unable to parse files if extension is unknown");
+      PlanItRunTimeException.throwIfNull(latestVersionClazz,
+              "No XML root element class provided, unable to parse files if this is unknown");
+      PlanItRunTimeException.throwIfNull(legacyVersionClazz,
+              "No XML root element legacy class provided, unable to parse files if this is unknown");
       
-      /* first try based on dedicated file for this entity T... */
+      /* first try based on dedicated file for this entity LATEST... */
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
       PlanItRunTimeException.throwIf(xmlFileNames.length == 0,
               String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
-      T rootElement = JAXBUtils.generateInstanceFromXml(clazz, xmlFileNames);
+      LATEST rootElement = JAXBUtils.generateInstanceFromXml(xmlFileNames, latestVersionClazz, legacyVersionClazz);
       if(rootElement==null) {
         /*...not available, try and see if embedded in single PLANit XML file for more than one entity */
-        XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(XMLElementPLANit.class, xmlFileNames);
+        XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(xmlFileNames,
+                XMLElementPLANit.class, org.goplanit.xml.generated.v1.XMLElementPLANit.class);
         if(xmlRawPLANitAll==null) {
           LOGGER.severe(String.format("Unable to parse any appropriate XML input file from %s with extension %s," +
                   " either no file is present, or file is not conforming to underlying XSD",
@@ -156,7 +159,7 @@ public class PlanitXmlJaxbParser<T> {
    * 
    * @return root element
    */
-  public T getXmlRootElement() {
+  public LATEST getXmlRootElement() {
     return xmlRootElement;
   }  
   
@@ -164,12 +167,10 @@ public class PlanitXmlJaxbParser<T> {
    * 
    * @param xmlRootElement to use
    */
-  public void setXmlRootElement(T xmlRootElement) {
+  public void setXmlRootElement(LATEST xmlRootElement) {
     this.xmlRootElement = xmlRootElement;
-  }    
-      
- 
- 
+  }
+
   /**
    * mark the xml root element for garbage collection 
    */
