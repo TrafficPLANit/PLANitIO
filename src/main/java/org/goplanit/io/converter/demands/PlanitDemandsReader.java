@@ -47,7 +47,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
   
   /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementMacroscopicDemand> xmlParser;
+  private final PlanitXmlJaxbParser<
+      org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand,?> xmlParser;
 
   /**
    * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
@@ -334,7 +335,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     for (var xmlTimePeriod : xmlTimeperiods.getTimeperiods()) {
 
       /* starttime, duration */
-      int startTimeSeconds = (xmlTimePeriod.getStarttime() == null) ? defaultStartTime.toSecondOfDay() : xmlTimePeriod.getStarttime().toSecondOfDay();
+      int startTimeSeconds = (xmlTimePeriod.getStarttime() == null) ?
+          defaultStartTime.toSecondOfDay() : xmlTimePeriod.getStarttime().toSecondOfDay();
       int duration = xmlTimePeriod.getDuration().getValue().intValue();
       Durationunit durationUnit = xmlTimePeriod.getDuration().getUnit();
       if (xmlTimePeriod.getName() == null) {
@@ -412,7 +414,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       
       /* od row matrix */
       XMLElementOdRowMatrix xmlOdRowMatrix = ((XMLElementOdRowMatrix) xmlOdMatrix);      
-      String separator = (xmlOdRowMatrix.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlOdRowMatrix.getDs();
+      String separator = (xmlOdRowMatrix.getDs() == null) ?
+          PlanItInputBuilder.DEFAULT_SEPARATOR: xmlOdRowMatrix.getDs();
       separator = escapeSeparator(separator);
       final var xmlOdRow = xmlOdRowMatrix.getOdrows();
 
@@ -475,7 +478,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   /** zoning reader provides alternative way to obtain reference zoning and reference network in case not available upon
    * construction. When using a reader, reference zoning and network are expected to remain null.
    */
-  protected final PlanitZoningReader zoningReader;
+  protected PlanitZoningReader zoningReader;
   
   /** Set the demands to populate
    * 
@@ -561,14 +564,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       final LayeredNetwork<?, ?> network,
       final Zoning zoning,
       final Demands demandsToPopulate){
-    this.xmlParser = new PlanitXmlJaxbParser<>(xmlMacroscopicDemands);
-    this.settings = new PlanitDemandsReaderSettings();
-
-    setDemands(demandsToPopulate);
-
-    this.zoningReader = null;
-    this.referenceNetwork = network;
-    this.referenceZoning = zoning;
+    this(new PlanitDemandsReaderSettings(), network, zoning, demandsToPopulate);
+    this.xmlParser.setXmlRootElement(xmlMacroscopicDemands);
   }
 
   /** Constructor where parsing will be based upon the settings and already present compatible network and zoning
@@ -583,7 +580,10 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
           final LayeredNetwork<?, ?> network,
           final Zoning zoning,
           final Demands demandsToPopulate){
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicDemand.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(
+        org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand.class,
+        org.goplanit.xml.generated.v1.XMLElementMacroscopicDemand.class);
+
     this.settings = demandsSettings;
 
     setDemands(demandsToPopulate);
@@ -601,13 +601,9 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   public PlanitDemandsReader(
           final PlanitDemandsReaderSettings demandsSettings,
           final PlanitZoningReader zoningReader){
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicDemand.class);
-    this.settings = demandsSettings;
-
+    this(demandsSettings, null, null,null);
     setDemands(null);
     this.zoningReader = zoningReader;
-    this.referenceNetwork = null;
-    this.referenceZoning = null;
   }
 
   /** Parse the XMLand populate the demands memory model

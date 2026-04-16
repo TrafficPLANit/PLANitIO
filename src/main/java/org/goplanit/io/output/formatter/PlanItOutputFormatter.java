@@ -19,6 +19,7 @@ import org.goplanit.output.property.OutputProperty;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
+import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
@@ -155,17 +156,18 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
   private void finaliseXmlMetaFileAfterSimulation(
       OutputType outputType, OutputConfiguration outputConfiguration) throws Exception {
 
-    final String metaDataSchemaUri = PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD);
+    final String metaDataSchemaUri = PlanitSchema.createPlanitSchemaUri(
+        PlanitSchema.METADATA_XSD, PlanitSchema.LATEST_SCHEMA_VERSION);
     OutputTypeConfiguration outputTypeConfiguration = outputConfiguration.getOutputTypeConfiguration(outputType);
     if (xmlFileNameMap.containsKey(outputType)) {
       Path xmlFilePath = Paths.get(xmlFileNameMap.get(outputType));
       if (metadata.containsKey(outputType)) {
-        JAXBUtils.generateXmlFileFromObject(
+        JAXBUtils.marshalAndNormalize(
             metadata.get(outputType), XMLElementMetadata.class, xmlFilePath,metaDataSchemaUri);
       } else if (outputTypeConfiguration.hasActiveSubOutputTypes()) {
         Set<SubOutputTypeEnum> activeSubOutputTypes = outputTypeConfiguration.getActiveSubOutputTypes();
         for (SubOutputTypeEnum subOutputTypeEnum : activeSubOutputTypes) {
-          JAXBUtils.generateXmlFileFromObject(
+          JAXBUtils.marshalAndNormalize(
               metadata.get(subOutputTypeEnum), XMLElementMetadata.class,xmlFilePath,metaDataSchemaUri);
         }
       }
@@ -402,7 +404,7 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
 
       /* create XML meta data header setup */
       if (metadata.containsKey(currentOutputType)) {
-        JAXBUtils.generateXmlFileFromObject(metadata.get(currentOutputType), XMLElementMetadata.class,
+        JAXBUtils.marshalAndNormalize(metadata.get(currentOutputType), XMLElementMetadata.class,
             Paths.get(xmlFileNameMap.get(outputType)),PlanitSchema.createPlanitSchemaUri(PlanitSchema.METADATA_XSD));
       }
       metadata.put(currentOutputType, new XMLElementMetadata());

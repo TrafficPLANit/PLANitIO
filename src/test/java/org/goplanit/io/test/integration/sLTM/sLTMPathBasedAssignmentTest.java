@@ -75,14 +75,16 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
    * segments
    *
    * TODO: <a href="https://github.com/TrafficPLANit/PLANit/issues/117">
-   *   only 2 of three possible routes in choice set, this is incorrect, should be able to better create paths to avoid
+   *   only 2 of three possible routes in choice set, this is incorrect, should be able to
+   *   better create paths to avoid
    *   this using stochastic path searches</a>
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations() {
     try {
       final String inputPath = SLTM_SIMO_MISO_ONE_TP.toString();
-      final String projectPath = Path.of(SLTM_PATH.toString(),"SIMOMISOSltm1ModeInitialCosts500Iterations").toString();
+      final String projectPath = Path.of(SLTM_PATH.toString(),
+          "SIMOMISOSltm1ModeInitialCosts500Iterations").toString();
       String description = "sltm";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
@@ -143,7 +145,8 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
   public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations_three_time_periods() {
     try {
       final String inputPath = SLTM_SIMO_MISO_THREE_TP.toString();
-      final String projectPath = Path.of(SLTM_PATH.toString(),"SIMOMISOSltm1ModeInitCost500Iterations3TimePeriods").toString();
+      final String projectPath = Path.of(SLTM_PATH.toString(),
+          "SIMOMISOSltm1ModeInitCost500Iterations3TimePeriods").toString();
       String description = "sltm";
       String csvFileName1 = "Time_Period_1_500.csv";
       String odCsvFileName1 = "Time_Period_1_499.csv";
@@ -158,11 +161,20 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
 
       String runIdDescription = "RunId_0_" + description;
       PlanItIOTestHelper.deleteLinkFiles(
-              projectPath, runIdDescription, csvFileName1, xmlFileName1, csvFileName2, xmlFileName2, csvFileName3, xmlFileName3);
+              projectPath, runIdDescription,
+          csvFileName1, xmlFileName1,
+          csvFileName2, xmlFileName2,
+          csvFileName3, xmlFileName3);
       PlanItIOTestHelper.deleteOdFiles(
-              projectPath, runIdDescription, odCsvFileName1, xmlFileName1, odCsvFileName2, xmlFileName2, odCsvFileName3, xmlFileName3);
+              projectPath, runIdDescription,
+          odCsvFileName1, xmlFileName1,
+          odCsvFileName2, xmlFileName2,
+          odCsvFileName3, xmlFileName3);
       PlanItIOTestHelper.deletePathFiles(
-              projectPath, runIdDescription, csvFileName1, xmlFileName1, csvFileName2, xmlFileName2, csvFileName3, xmlFileName3);
+              projectPath, runIdDescription,
+          csvFileName1, xmlFileName1,
+          csvFileName2, xmlFileName2,
+          csvFileName3, xmlFileName3);
       
       /* run test with sLTM*/
       PlanItIoTestRunner runner = new PlanItIoTestRunnerPathBasedStaticLtm(inputPath, projectPath, description);
@@ -170,23 +182,35 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
       runner.setGapFunctionEpsilonGap(0.0);
       runner.setUseFixedConnectoidCost();
       runner.setPersistZeroFlow(false);
-      runner.registerInitialLinkSegmentCostByTimePeriod("0", Path.of(inputPath,"initial_link_segment_costs_time_period_1.csv").toString());
-      runner.registerInitialLinkSegmentCostByTimePeriod("1",Path.of(inputPath,"initial_link_segment_costs_time_period_2.csv").toString());
-      runner.registerInitialLinkSegmentCostByTimePeriod("2",Path.of(inputPath,"initial_link_segment_costs_time_period_3.csv").toString());
+      runner.registerInitialLinkSegmentCostByTimePeriod(
+          "0", Path.of(inputPath,"initial_link_segment_costs_time_period_1.csv").toString());
+      runner.registerInitialLinkSegmentCostByTimePeriod(
+          "1",Path.of(inputPath,"initial_link_segment_costs_time_period_2.csv").toString());
+      runner.registerInitialLinkSegmentCostByTimePeriod(
+          "2",Path.of(inputPath,"initial_link_segment_costs_time_period_3.csv").toString());
 
       runner.setupAndExecuteDefaultAssignment();        
 
       /* compare results */        
             
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName3, xmlFileName3);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName1, xmlFileName1);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName2, xmlFileName2);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName3, xmlFileName3);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName1, xmlFileName1);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName2, xmlFileName2);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName3, xmlFileName3);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.LINK, projectPath, runIdDescription, csvFileName1, xmlFileName1);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.LINK, projectPath, runIdDescription, csvFileName2, xmlFileName2);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.LINK, projectPath, runIdDescription, csvFileName3, xmlFileName3);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.OD, projectPath, runIdDescription, odCsvFileName1, xmlFileName1);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.OD, projectPath, runIdDescription, odCsvFileName2, xmlFileName2);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.OD, projectPath, runIdDescription, odCsvFileName3, xmlFileName3);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.PATH, projectPath, runIdDescription, csvFileName1, xmlFileName1);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.PATH, projectPath, runIdDescription, csvFileName2, xmlFileName2);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.PATH, projectPath, runIdDescription, csvFileName3, xmlFileName3);
       
     } catch (final Exception e) {
       e.printStackTrace();

@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.xml.generated.v2.XMLElementServiceNetwork;
 
@@ -79,7 +80,7 @@ public class PlanitServiceNetworkReaderFactory {
           final PlanitServiceNetworkReaderSettings settings, final ServiceNetwork serviceNetwork) {
     try {
       return new PlanitServiceNetworkReader(settings, serviceNetwork);
-    } catch (PlanItException e) {
+    } catch (PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
     }    
     return null;

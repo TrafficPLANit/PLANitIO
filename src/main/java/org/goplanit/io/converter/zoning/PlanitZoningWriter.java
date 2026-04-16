@@ -359,7 +359,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     if(zoning==null || zoning.getTransferConnectoids().isEmpty()) {
       LOGGER.severe("Transfer zones should not be persisted when no transfer zones exist on the zoning");
       return;
-    }    
+    }
     LOGGER.info("TransferZones: " + zoning.getTransferZones().size());
     
     if(xmlIntermodal.getValue().getTransferzones()==null) {
@@ -650,9 +650,10 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
       return;
     }
 
-    var xmlIntermodal = new XMLElementIntermodal();
+    // This creates the wrapper AND the inner Macroscopicintermodal object correctly
+    var xmlIntermodal = new ObjectFactory().createXMLElementIntermodal(new Macroscopicintermodal());
     if(xmlRawZoning.getIntermodal() == null) {
-      xmlRawZoning.setIntermodal(new Macroscopicintermodal());
+      xmlRawZoning.setIntermodal(xmlIntermodal.getValue());
     }
     
     /* transfer zones */

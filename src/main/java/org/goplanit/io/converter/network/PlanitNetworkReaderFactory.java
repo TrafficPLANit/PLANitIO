@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork;
 
@@ -27,7 +28,8 @@ public class PlanitNetworkReaderFactory {
     // compliance to avoid javadoc warnings
   }
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults
+   * for any right hand driving country
    * 
    * @return created PLANit network reader
    */
@@ -35,7 +37,8 @@ public class PlanitNetworkReaderFactory {
     return create(IdGroupingToken.collectGlobalToken());
   }   
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults
+   * for any right hand driving country
    * 
    * @param idToken to use for network
    * @return created PLANit network reader
@@ -56,7 +59,8 @@ public class PlanitNetworkReaderFactory {
     return networkReader;
   }  
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults
+   * for any right hand driving country
    * 
    * @param settings to use
    * @return created PLANit network reader
@@ -65,7 +69,8 @@ public class PlanitNetworkReaderFactory {
     return create(settings, new MacroscopicNetwork(IdGroupingToken.collectGlobalToken()));
   }   
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific
+   *  defaults for any right hand driving country
    * 
    * @param settings to use
    * @param network to use
@@ -75,14 +80,15 @@ public class PlanitNetworkReaderFactory {
           final PlanitNetworkReaderSettings settings, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(settings, network);
-    } catch (PlanItException e) {
+    } catch (PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
     }    
     return null;
   }  
    
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific
+   * defaults for any right hand driving country
    * 
    * @param inputDirectory to use (directory only, find first compatible file)
    * @param xmlFileExtension to consider
@@ -93,13 +99,14 @@ public class PlanitNetworkReaderFactory {
           final String inputDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(inputDirectory, xmlFileExtension, network);
-    } catch (PlanItException e) {
+    } catch (PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
     }    
     return null;
   }
 
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific
+   * defaults for any right hand driving country
    *
    * @param xmlRawNetwork the raw network based on the JAXB parser
    * @param network to populate
@@ -109,7 +116,7 @@ public class PlanitNetworkReaderFactory {
           final XMLElementMacroscopicNetwork xmlRawNetwork, final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(xmlRawNetwork, network);
-    } catch (PlanItException e) {
+    } catch (PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
     }
     return null;
@@ -129,7 +136,7 @@ public class PlanitNetworkReaderFactory {
           final LayeredNetwork<?,?> network) {
     try {
       return new PlanitNetworkReader(xmlRawNetwork, settings, network);
-    } catch (PlanItException e) {
+    } catch (PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
     }  
     return null;    

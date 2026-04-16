@@ -139,30 +139,26 @@ public class IntermodalTest {
 
         var accessVertex = transferConnectoid.getAccessVertex();
         for (var accessSegment : accessEntry.getAccessLinkSegments()) {
+          var firstEntry = transferConnectoid.getFirstAccessZoneEntry();
           switch (accessSegment.getXmlId()) {
             case linkSegment1XmlId:
               if (accessVertex.getXmlId().equals(node1XmlId)) {
                 assertEquals(transferConnectoid.getXmlId(), transferconnectoid1XmlId);
-                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getAccessZone().getXmlId(),
-                    transferZoneStop1XmlId);
-                assertEquals(((TransferZone) transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),
-                    TransferZoneType.PLATFORM);
+                assertEquals(firstEntry.getAccessZone().getXmlId(), transferZoneStop1XmlId);
+                assertEquals(
+                    ((TransferZone) firstEntry.getAccessZone()).getTransferZoneType(), TransferZoneType.PLATFORM);
               } else {
                 assertEquals(accessVertex.getXmlId(), node2XmlId);
                 assertEquals(transferConnectoid.getXmlId(), transferconnectoid2XmlId);
-                assertEquals(transferConnectoid.getFirstAccessZoneEntry().getAccessZone().getXmlId(),
-                    transferZoneStop2XmlId);
-                assertEquals(((TransferZone) transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),
-                    TransferZoneType.POLE);
+                assertEquals(firstEntry.getAccessZone().getXmlId(), transferZoneStop2XmlId);
+                assertEquals(((TransferZone) firstEntry.getAccessZone()).getTransferZoneType(), TransferZoneType.POLE);
               }
               break;
             case linkSegment3XmlId:
               assertEquals(accessVertex.getXmlId(), node3XmlId);
               assertEquals(transferConnectoid.getXmlId(), transferconnectoid3XmlId);
-              assertEquals(transferConnectoid.getFirstAccessZoneEntry().getAccessZone().getXmlId(),
-                  transferZoneStop3XmlId);
-              assertEquals(((TransferZone) transferConnectoid.getFirstAccessZoneEntry()).getTransferZoneType(),
-                  TransferZoneType.NONE);
+              assertEquals(firstEntry.getAccessZone().getXmlId(), transferZoneStop3XmlId);
+              assertEquals(((TransferZone) firstEntry.getAccessZone()).getTransferZoneType(), TransferZoneType.NONE);
               break;
             default:
               break;

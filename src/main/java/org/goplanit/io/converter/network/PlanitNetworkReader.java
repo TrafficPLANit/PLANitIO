@@ -59,7 +59,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   private final PlanitNetworkReaderSettings settings;
   
   /** parses the XML content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementMacroscopicNetwork> xmlParser;
+  private final PlanitXmlJaxbParser<org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork, ?> xmlParser;
           
   /** the network memory model to populate */
   private MacroscopicNetwork network;
@@ -631,12 +631,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   /** Place network to populate
    * 
    * @param network to populate
-   * @throws PlanItException thrown if error
    */
-  protected void setNetwork(final LayeredNetwork<?,?> network) throws PlanItException {
+  protected void setNetwork(final LayeredNetwork<?,?> network){
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItException("currently the PLANit network reader only supports macroscopic infrastructure" +
+      throw new PlanItRunTimeException("Currently the PLANit network reader only supports macroscopic infrastructure" +
               " networks, the provided network is not of this type");
     }
     
@@ -647,24 +646,21 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * 
    * @param settings to use
    * @param idToken to use for the network to populate
-   * @throws PlanItException  thrown if error
    */
-  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken) throws PlanItException{
-    super();
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicNetwork.class);
-    this.settings = settings;
-    setNetwork(new MacroscopicNetwork(idToken));
-  }  
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken){
+    this(settings, new MacroscopicNetwork(idToken));
+  }
   
   /** Constructor where settings are directly provided such that input information can be extracted from it
    * 
    * @param settings to use
    * @param network to populate
-   * @throws PlanItException thrown if error
    */
-  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network) throws PlanItException{
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network){
     super();
-    this.xmlParser = new PlanitXmlJaxbParser<XMLElementMacroscopicNetwork>(XMLElementMacroscopicNetwork.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(
+        org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork.class,
+        org.goplanit.xml.generated.v1.XMLElementMacroscopicNetwork.class);
     this.settings = settings;
     setNetwork(network);
   }  
@@ -673,10 +669,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * 
    * @param externalXmlRawNetwork to extract from
    * @param network to populate
-   * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(
-      XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network) throws PlanItException{
+      XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network){
     this(externalXmlRawNetwork, new PlanitNetworkReaderSettings(), network);
   }
 
@@ -685,16 +680,13 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param externalXmlRawNetwork to extract from
    * @param network to populate
    * @param settings to use
-   * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(
           XMLElementMacroscopicNetwork externalXmlRawNetwork,
           PlanitNetworkReaderSettings settings,
-          LayeredNetwork<?,?> network) throws PlanItException{
-    super();
-    this.xmlParser = new PlanitXmlJaxbParser<>(externalXmlRawNetwork);
-    this.settings = settings;
-    setNetwork(network);
+          LayeredNetwork<?,?> network){
+    this(settings, network);
+    this.xmlParser.setXmlRootElement(externalXmlRawNetwork);
   }
   
   /** Constructor
@@ -702,15 +694,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @param networkPathDirectory to use
    * @param xmlFileExtension to use
    * @param network to populate
-   * @throws PlanItException thrown if error
    */
   protected PlanitNetworkReader(
-      String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network) throws PlanItException{
-    super();
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementMacroscopicNetwork.class);
-    this.settings = new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
-    setNetwork(network);
-  }  
+      String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network){
+    this(new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension), network);
+  }
   
   /** Default XSD files used to validate input XML files against, TODO: move to properties file */
   public static final String NETWORK_XSD_FILE =
@@ -779,8 +767,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   }
   
   /**
-   * returns the first link segment for which the given external id matches. Extremely slow, because it is not indexed at the moment. Also
-   * external ids are not guaranteed to be unique so if multiple matches exist problems may arise
+   * returns the first link segment for which the given external id matches. Extremely slow, because it is not
+   * indexed at the moment. Also external ids are not guaranteed to be unique so if multiple matches exist problems
+   * may arise
    * 
    * @param network    to look in
    * @param externalId to look for

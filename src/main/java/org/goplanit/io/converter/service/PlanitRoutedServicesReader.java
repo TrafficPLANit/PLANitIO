@@ -51,7 +51,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
   private final PlanitRoutedServicesReaderSettings settings;
   
   /** parses the XML content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementRoutedServices> xmlParser;
+  private final PlanitXmlJaxbParser<org.goplanit.xml.generated.v2.XMLElementRoutedServices, ?> xmlParser;
 
   /** the routed services to populate */
   private final RoutedServices routedServices;
@@ -63,7 +63,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    */
   private void initialiseParentXmlIdTrackers() {
     initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId);
-    routedServices.getParentNetwork().getTransportLayers().forEach( layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));
+    routedServices.getParentNetwork().getTransportLayers().forEach(
+        layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));
   }    
   
   /** Parse a schedule based trip for the given routed service
@@ -124,7 +125,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     }    
     
     /* default dwell time */
-    //TODO: for some reason the xsd's default dwell time of 00:00:00 is not populated by JAXB so we do it programmatically here for now
+    //TODO: for some reason the xsd's default dwell time of 00:00:00 is not populated by JAXB so we do it
+    // programmatically here for now
     LocalTime defaultDwellTime = LocalTime.MIN;
     if(xmlRelativeLegTimings.getDwelltime()!=null) {
       defaultDwellTime = xmlRelativeLegTimings.getDwelltime();
@@ -492,7 +494,9 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    */
   protected PlanitRoutedServicesReader(
           final PlanitRoutedServicesReaderSettings settings, final RoutedServices routedServices) {
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
+    this.xmlParser = new PlanitXmlJaxbParser<>(
+        org.goplanit.xml.generated.v2.XMLElementRoutedServices.class,
+        org.goplanit.xml.generated.v1.XMLElementRoutedServices.class);
     this.settings = settings;
     this.routedServices = routedServices;
     if(routedServices.getParentNetwork() == null) {
@@ -510,7 +514,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     this(populatedXmlRawRoutedServices, new PlanitRoutedServicesReaderSettings(), routedServices);
   }
 
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to
+   *  PLANit memory model
    *
    * @param populatedXmlRawRoutedServices to extract from
    * @param settings to use
@@ -520,9 +525,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
           final XMLElementRoutedServices populatedXmlRawRoutedServices,
           final PlanitRoutedServicesReaderSettings settings,
           final RoutedServices routedServices) {
-    this.xmlParser = new PlanitXmlJaxbParser<>(populatedXmlRawRoutedServices);
-    this.settings = settings;
-    this.routedServices = routedServices;
+    this(settings, routedServices);
+    this.xmlParser.setXmlRootElement(populatedXmlRawRoutedServices);
   }
   
   /** Constructor
@@ -535,11 +539,9 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
           final String inputPathDirectory,
           final String xmlFileExtension,
           final RoutedServices routedServices){
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementRoutedServices.class);
-    this.settings = new PlanitRoutedServicesReaderSettings(
-            routedServices.getParentNetwork(), inputPathDirectory, xmlFileExtension);
-    this.routedServices = routedServices;
-  }  
+    this(new PlanitRoutedServicesReaderSettings(
+        routedServices.getParentNetwork(), inputPathDirectory, xmlFileExtension), routedServices);
+  }
   
   /** Default XSD files used to validate input XML files against, TODO: move to properties file */
   public static final String ROUTED_SERVICES_XSD_FILE =

@@ -43,15 +43,18 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
   private final PlanitServiceNetworkReaderSettings settings;
   
   /** parses the XML content in JAXB memory format */
-  private final PlanitXmlJaxbParser<XMLElementServiceNetwork> xmlParser;
+  private final PlanitXmlJaxbParser<org.goplanit.xml.generated.v2.XMLElementServiceNetwork,?> xmlParser;
   
   /** the service network to populate */
   private final ServiceNetwork serviceNetwork;
 
   /**
-   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
-   * service network is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
-   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g.,
+   * if the parsed
+   * service network is going to be modified and saved to disk afterwards, then it is advisable to sync all XML
+   * ids to the internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are
+   * chosen to be synced to internal ids)
    */
   private void syncXmlIdsToIds() {
     LOGGER.info("Syncing PLANit service network XML ids to internally generated ids, overwriting" +
@@ -343,12 +346,13 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
    * 
    * @param settings to use
    * @param serviceNetwork to populate
-   * @throws PlanItException thrown if error
    */
   protected PlanitServiceNetworkReader(
           final PlanitServiceNetworkReaderSettings settings,
-          final ServiceNetwork serviceNetwork) throws PlanItException{
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementServiceNetwork.class);
+          final ServiceNetwork serviceNetwork){
+    this.xmlParser = new PlanitXmlJaxbParser<>(
+        org.goplanit.xml.generated.v2.XMLElementServiceNetwork.class,
+        org.goplanit.xml.generated.v1.XMLElementServiceNetwork.class);
     this.settings = settings;
     this.serviceNetwork = serviceNetwork;
     if(serviceNetwork.getParentNetwork() == null) {
@@ -356,7 +360,8 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
     }
   }  
     
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to
+   * PLANit memory model
    * 
    * @param populatedXmlRawServiceNetwork to extract from
    * @param serviceNetwork to populate
@@ -367,7 +372,8 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
     this(populatedXmlRawServiceNetwork, new PlanitServiceNetworkReaderSettings(), serviceNetwork);
   }
 
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to
+   * PLANit memory model
    *
    * @param populatedXmlRawServiceNetwork to extract from
    * @param settings to use
@@ -377,9 +383,8 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
           final XMLElementServiceNetwork populatedXmlRawServiceNetwork,
           final PlanitServiceNetworkReaderSettings settings,
           final ServiceNetwork serviceNetwork) {
-    this.xmlParser = new PlanitXmlJaxbParser<>(populatedXmlRawServiceNetwork);
-    this.settings = settings;
-    this.serviceNetwork = serviceNetwork;
+    this(settings, serviceNetwork);
+    this.xmlParser.setXmlRootElement(populatedXmlRawServiceNetwork);
   }
   
   /** Constructor
@@ -392,9 +397,7 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
           String networkPathDirectory,
           String xmlFileExtension,
           ServiceNetwork serviceNetwork) {
-    this.xmlParser = new PlanitXmlJaxbParser<>(XMLElementServiceNetwork.class);
-    this.settings = new PlanitServiceNetworkReaderSettings(networkPathDirectory, xmlFileExtension);
-    this.serviceNetwork = serviceNetwork;
+    this(new PlanitServiceNetworkReaderSettings(networkPathDirectory, xmlFileExtension), serviceNetwork);
   }  
   
   /** Default XSD files used to validate input XML files against, TODO: move to properties file */

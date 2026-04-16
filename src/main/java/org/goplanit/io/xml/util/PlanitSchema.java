@@ -1,5 +1,7 @@
 package org.goplanit.io.xml.util;
 
+import org.goplanit.xml.utils.XsdLatestVersion;
+
 import java.util.regex.Pattern;
 
 /**
@@ -12,7 +14,7 @@ public class PlanitSchema {
   
   private static final String XSD_DIR= "/xsd/";
   
-  /** verify if the current version is a release version or not. A versoin is considered a release version when
+  /** verify if the current version is a release version or not. A version is considered a release version when
    * it has only numbers in it and nothing else (no a, alpha, beta, or other strings)
    * 
    * @param version to check
@@ -30,6 +32,9 @@ public class PlanitSchema {
   private static final String getReleaseVersionAsUriString() {
     return ApplicationProperties.getVersion().replace('.', '_');
   }
+
+  /** latest known version from PLANitXml */
+  public static final String LATEST_SCHEMA_VERSION = XsdLatestVersion.VERSION;
 
   /** schema for demand */
   public static final String MACROSCOPIC_NETWORK_XSD= "macroscopicnetworkinput.xsd";
@@ -59,15 +64,19 @@ public class PlanitSchema {
   public static final String RESOURCES_RELEASE_GENERIC = "planitmanual.github.io/version/";
     
   /** the schema URI location of planit macroscopic network input during development **/
-  public static final String MACROSCOPIC_NETWORK_XSD_SCHEMA_URI_DEV = XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_NETWORK_XSD;
+  public static final String MACROSCOPIC_NETWORK_XSD_SCHEMA_URI_DEV =
+      XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_NETWORK_XSD;
   
   /** the schema URI location of planit macroscopic zoning input during development **/
-  public static final String MACROSCOPIC_ZONING_XSD_SCHEMA_URI_DEV = XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_ZONING_XSD;
+  public static final String MACROSCOPIC_ZONING_XSD_SCHEMA_URI_DEV =
+      XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_ZONING_XSD;
   
   /** the schema URI location of planit macroscopic zoning input during development **/
-  public static final String MACROSCOPIC_DEMAND_XSD_SCHEMA_URI_DEV = XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_DEMAND_XSD;  
+  public static final String MACROSCOPIC_DEMAND_XSD_SCHEMA_URI_DEV =
+      XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_DEMAND_XSD;
   
-  /** the schema URI location of any PLANit XSD schema for any release version, but without the actual version or schema appended yet**/
+  /** the schema URI location of any PLANit XSD schema for any release version, but without the actual version
+   * or schema appended yet**/
   public static final String XSD_SCHEMA_URI_RELEASE_GENERIC = "https://planitmanual.github.io/version/";
 
   /**
@@ -78,19 +87,29 @@ public class PlanitSchema {
   }
   
   /** create the appropriate URI reference for the xsd schema assuming it is published according to PLANit guidelines
-   * meaning that when this is a development version it resides under {@code XSD_SCHEMA_URI_DEVELOPMENT_GENERIC} whereas if
-   * this is a release version the {@code RESOURCES_RELEASE_GENERIC} is supplemented with the correct release version and appended with
-   * the xsd schema location
+   * meaning that when this is a development version it resides under {@code XSD_SCHEMA_URI_DEVELOPMENT_GENERIC}
+   * whereas if this is a release version the {@code RESOURCES_RELEASE_GENERIC} is supplemented with the correct
+   * release version and appended with the xsd schema location and schema version
    * 
    * @param xsdFileName to create URI reference for
+   * @param schemaVersion  to use
    * @return PLANit compatible URI reference
    */
-  public static String createPlanitSchemaUri(String xsdFileName) {
+  public static String createPlanitSchemaUri(String xsdFileName, String schemaVersion) {
     boolean releaseVersion = isReleaseVersion(ApplicationProperties.getVersion());
     if(releaseVersion) {
       return RESOURCES_RELEASE_GENERIC + getReleaseVersionAsUriString() + XSD_DIR + xsdFileName;
     }else {
-      return XSD_SCHEMA_URI_DEVELOPMENT_GENERIC + xsdFileName;
+      return XSD_SCHEMA_URI_DEVELOPMENT_GENERIC + schemaVersion + "/" + xsdFileName;
     }
+  }
+
+  /**
+   * Identical to {@link #createPlanitSchemaUri(String, String)} but with latest known version injected
+   * @param xsdFileName to use
+   * @return uri
+   */
+  public static String createPlanitSchemaUri(String xsdFileName) {
+    return createPlanitSchemaUri(xsdFileName, PlanitSchema.LATEST_SCHEMA_VERSION);
   }
 }

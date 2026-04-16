@@ -105,12 +105,15 @@ public class PlanItInputBuilder extends InputBuilderListener {
           final File demandXmlFileLocation,
           final File networkXmlFileLocation) throws PlanItException {
     try {
-      xmlRawZoning = (XMLElementMacroscopicZoning) JAXBUtils.generateObjectFromXml(
-              XMLElementMacroscopicZoning.class, zoningXmlFileLocation);
-      xmlRawDemand = (XMLElementMacroscopicDemand) JAXBUtils.generateObjectFromXml(
-              XMLElementMacroscopicDemand.class, demandXmlFileLocation);
-      xmlRawNetwork = (XMLElementMacroscopicNetwork) JAXBUtils.generateObjectFromXml(
-              XMLElementMacroscopicNetwork.class, networkXmlFileLocation);
+      xmlRawZoning = (XMLElementMacroscopicZoning) JAXBUtils.unmarshalAndNormalize(zoningXmlFileLocation,
+          org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning.class,
+          org.goplanit.xml.generated.v1.XMLElementMacroscopicZoning.class);
+      xmlRawDemand = (XMLElementMacroscopicDemand) JAXBUtils.unmarshalAndNormalize(demandXmlFileLocation,
+          org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand.class,
+          org.goplanit.xml.generated.v1.XMLElementMacroscopicDemand.class);
+      xmlRawNetwork = (XMLElementMacroscopicNetwork) JAXBUtils.unmarshalAndNormalize(networkXmlFileLocation,
+          org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork.class,
+          org.goplanit.xml.generated.v1.XMLElementMacroscopicNetwork.class);
     } catch (final Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItException("Error while generating classes from XML locations in PLANitIO",e);
@@ -156,7 +159,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   private boolean parseXmlRawInputsFromSingleFile(final File[] xmlFileNames) {
     
-    XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(XMLElementPLANit.class, xmlFileNames);
+    XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(xmlFileNames,
+        org.goplanit.xml.generated.v2.XMLElementPLANit.class,
+        org.goplanit.xml.generated.v1.XMLElementPLANit.class);
+
     if(xmlRawPLANitAll!= null) {
       xmlRawZoning = xmlRawPLANitAll.getMacroscopiczoning();
       xmlRawNetwork = xmlRawPLANitAll.getMacroscopicnetwork();
@@ -179,20 +185,28 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * @return true per input demand, zoning and network file if found in xmlFileNames, false otherwise
    */
   private Triple<Boolean,Boolean,Boolean> parseXmlRawInputSeparateFiles(final File[] xmlFileNames) {
-    xmlRawZoning = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicZoning.class, xmlFileNames);
-    xmlRawNetwork = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicNetwork.class, xmlFileNames);
-    xmlRawDemand = JAXBUtils.generateInstanceFromXml(XMLElementMacroscopicDemand.class, xmlFileNames);
+    xmlRawZoning = JAXBUtils.generateInstanceFromXml(xmlFileNames,
+        org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning.class,
+        org.goplanit.xml.generated.v1.XMLElementMacroscopicZoning.class);
+    xmlRawNetwork = JAXBUtils.generateInstanceFromXml(xmlFileNames,
+        org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork.class,
+        org.goplanit.xml.generated.v1.XMLElementMacroscopicNetwork.class);
+    xmlRawDemand = JAXBUtils.generateInstanceFromXml(xmlFileNames,
+        org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand.class,
+        org.goplanit.xml.generated.v1.XMLElementMacroscopicDemand.class);
     return Triple.of(xmlRawZoning!=null, xmlRawNetwork!=null, xmlRawDemand!=null);
   }
 
   /**
    * Populate the generated input objects from three separate XML files by validating the input files first.
    *
-   * This file does the same task as setInputFilesSeparateFiles(), it does it in a different way. This method runs much more slowly than
+   * This file does the same task as setInputFilesSeparateFiles(), it does it in a different way. This method
+   * runs much more slowly than
    * setInputFilesSeparateFiles(), it takes about 60 times as long for the same input data sets.
    *
    * @param projectPath the name of the project path directory
-   * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files in the project directory
+   * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files
+   * in the project directory
    */
   @SuppressWarnings("unused")
   private void setInputFilesSeparateFilesWithValidation(
@@ -421,13 +435,14 @@ public class PlanItInputBuilder extends InputBuilderListener {
    */
   protected void populateRoutedServices(final RoutedServices routedServicesToPopulate) throws PlanItException {
     
-    /* parse raw inputs if not already done, because routed services are optional, they have not been parsed unless they were part of
-     * a combined input XML that contained other parts of the definitions */
+    /* parse raw inputs if not already done, because routed services are optional, they have not been parsed unless
+    they were part of a combined input XML that contained other parts of the definitions */
     if(xmlRawRoutedServices == null) {
       xmlRawRoutedServices =
               JAXBUtils.generateInstanceFromXml(
-                      XMLElementRoutedServices.class,
-                      FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
+                      FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension),
+                      org.goplanit.xml.generated.v2.XMLElementRoutedServices.class,
+                      org.goplanit.xml.generated.v1.XMLElementRoutedServices.class);
     }
     if(xmlRawRoutedServices == null) {
       LOGGER.severe("Unable to locate routed services XML input");
@@ -454,8 +469,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
     if(xmlRawServiceNetwork== null) {
       xmlRawServiceNetwork =
               JAXBUtils.generateInstanceFromXml(
-                      XMLElementServiceNetwork.class,
-                      FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension));
+                      FileUtils.getFilesWithExtensionFromDir(projectPath, xmlFileExtension),
+                      org.goplanit.xml.generated.v2.XMLElementServiceNetwork.class,
+                      org.goplanit.xml.generated.v1.XMLElementServiceNetwork.class);
     }
     if(xmlRawServiceNetwork == null) {
       LOGGER.severe("Unable to locate service network XML input");
@@ -574,7 +590,8 @@ public class PlanItInputBuilder extends InputBuilderListener {
    * directory, using the default extension ".xml"
    *
    * @param projectPath the location of the input file directory
-   * @throws PlanItRunTimeException thrown if one of the input required input files cannot be found, or if there is an error reading one of them
+   * @throws PlanItRunTimeException thrown if one of the input required input files cannot be found, or if there is
+   * an error reading one of them
    */
   public PlanItInputBuilder(final String projectPath) {
     this(projectPath, PlanitXmlJaxbParser.DEFAULT_XML_FILE_EXTENSION);

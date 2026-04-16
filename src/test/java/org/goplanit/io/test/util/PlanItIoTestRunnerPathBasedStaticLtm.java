@@ -63,7 +63,8 @@ public class PlanItIoTestRunnerPathBasedStaticLtm extends PlanItIoTestRunner {
    */
   public PlanItIoTestRunnerPathBasedStaticLtm(
           String inputPath, String outputPath, String description) {
-    super(inputPath, outputPath, description, PlanItIoTestRunnerPathBasedStaticLtm::createTrafficAssignmentConfigurator);
+    super(inputPath, outputPath, description,
+        PlanItIoTestRunnerPathBasedStaticLtm::createTrafficAssignmentConfigurator);
   }
 
   /**

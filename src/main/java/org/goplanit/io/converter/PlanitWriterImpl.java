@@ -32,7 +32,8 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
    */
   protected PlanitXmlWriterSettings getSettingsAsXmlWriterSettings(){
     if(!(getSettings() instanceof PlanitXmlWriterSettings)) {
-      throw new PlanItRunTimeException("Planit writer settings expected to be of type PlanitXmlWriterSettings, this is not the case");
+      throw new PlanItRunTimeException("Planit writer settings expected to be of type PlanitXmlWriterSettings, " +
+          "this is not the case");
     }
     return ((PlanitXmlWriterSettings)getSettings());
   }
@@ -71,9 +72,11 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
     PlanitXmlWriterSettings xmlWriterSettings = getSettingsAsXmlWriterSettings();
 
     PlanItRunTimeException.throwIf(
-        xmlWriterSettings.getOutputDirectory()==null || xmlWriterSettings.getOutputDirectory().isBlank(), "no output directory provided, unable to persist in native Planit XML format");
+        xmlWriterSettings.getOutputDirectory()==null || xmlWriterSettings.getOutputDirectory().isBlank(),
+        "no output directory provided, unable to persist in native Planit XML format");
     PlanItRunTimeException.throwIf(
-        xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(), "no output file name provided, unable to persist in native Planit XML format");
+        xmlWriterSettings.getFileName()==null || xmlWriterSettings.getFileName().isBlank(),
+        "no output file name provided, unable to persist in native Planit XML format");
     Path outputDir = Paths.get(xmlWriterSettings.getOutputDirectory());
     Path outputPath = Paths.get(xmlWriterSettings.getOutputDirectory(), xmlWriterSettings.getFileName());
     
@@ -81,16 +84,19 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
     
     try { 
       if(!Files.exists(outputDir)) {
-        // Files.createDirectory(outputDir.toAbsolutePath().normalize()); //<- preferred but for some reason doesn't always work with more than one subdir missing
+        // Files.createDirectory(outputDir.toAbsolutePath().normalize()); //<- preferred but for some
+        // reason doesn't always work with more than one subdir missing
         new File(outputDir.toAbsolutePath().normalize().toString()).mkdirs();
       }
     }catch(Exception e) {      
       LOGGER.severe(e.getMessage());
-      throw new PlanItRunTimeException(String.format("Unable to create output directory for %s", Paths.get(xmlWriterSettings.getOutputDirectory()).toAbsolutePath()));
+      throw new PlanItRunTimeException(String.format("Unable to create output directory for %s",
+          Paths.get(xmlWriterSettings.getOutputDirectory()).toAbsolutePath()));
     }
     
     try {      
-      JAXBUtils.generateXmlFileFromObject(xmlRootElement, rootElementClazz, outputPath, PlanitSchema.createPlanitSchemaUri(planitSchemaName));
+      JAXBUtils.marshalAndNormalize(
+          xmlRootElement, rootElementClazz, outputPath, PlanitSchema.createPlanitSchemaUri(planitSchemaName));
     }catch(Exception e) {
       LOGGER.severe(e.getMessage());
       throw new PlanItRunTimeException("Unable to persist PLANit network in native format");

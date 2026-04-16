@@ -107,7 +107,8 @@ public class RouteChoiceTest extends TestBase {
   @Test
   public void test_1_no_route_choice_single_mode() {
     try {
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"noRouteChoiceSingleMode").toString();
+      final String projectPath =
+          Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"noRouteChoiceSingleMode").toString();
       String description = "testRouteChoice1";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
@@ -1330,14 +1331,17 @@ public class RouteChoiceTest extends TestBase {
    * Test of results for TraditionalStaticAssignment for simple test case using
    * the fourth route choice example from the Traditional Static Assignment Route
    * Choice Equilibration Test cases.docx document.
-   * 
+   * <p>
    * This test case uses the <odrawmatrix> method with the plus sign as separator
    * in the macroscopicinput.xml file to define the OD demands input matrix.
+   </p>
    */
   @Test
   public void test_4_bi_directional_links_route_choice_single_mode_with_plus_sign_separator() {
     try {
-      final String projectPath = Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),"biDirectionalLinksRouteChoiceSingleModeWithPlusSignSeparator").toString();
+      final String projectPath =
+          Path.of(ROUTE_CHOICE_TEST_CASE_PATH.toString(),
+              "biDirectionalLinksRouteChoiceSingleModeWithPlusSignSeparator").toString();
       String description = "testRouteChoice4raw2";
       String csvFileName = "Time_Period_1_500.csv";
       String odCsvFileName = "Time_Period_1_499.csv";
@@ -1359,9 +1363,12 @@ public class RouteChoiceTest extends TestBase {
 
       /* compare results */                 
 
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
-      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.LINK, projectPath, runIdDescription, csvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.OD, projectPath, runIdDescription, odCsvFileName, xmlFileName);
+      PlanItIOTestHelper.runFileEqualAssertionsAndCleanUp(
+          OutputType.PATH, projectPath, runIdDescription, csvFileName, xmlFileName);
     } catch (final Exception e) {
       e.printStackTrace();
       LOGGER.severe( e.getMessage());

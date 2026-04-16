@@ -33,6 +33,13 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
     
   /** root element to populate */
   private LATEST xmlRootElement;
+
+  /** flag to indicate if input was a legacy version */
+  private boolean inputIsLegacyVersion;
+
+  public void setInputIsLegacyVersion(){
+    inputIsLegacyVersion = true;
+  }
   
   /**
    * Find out which of the eligible sub-elements matches the desired type. Currently the following options are supported:
@@ -87,6 +94,7 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
     this.latestVersionClazz = latestVersionClazz;
     this.legacyVersionClazz = legacyVersionClazz;
     this.xmlRootElement = null;
+    this.inputIsLegacyVersion = false;
   }
 
 
@@ -114,11 +122,15 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
       final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
       PlanItRunTimeException.throwIf(xmlFileNames.length == 0,
               String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
-      LATEST rootElement = JAXBUtils.generateInstanceFromXml(xmlFileNames, latestVersionClazz, legacyVersionClazz);
+      LATEST rootElement = JAXBUtils.generateInstanceFromXml(
+          xmlFileNames, latestVersionClazz, legacyVersionClazz, this::setInputIsLegacyVersion);
       if(rootElement==null) {
         /*...not available, try and see if embedded in single PLANit XML file for more than one entity */
         XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(xmlFileNames,
-                XMLElementPLANit.class, org.goplanit.xml.generated.v1.XMLElementPLANit.class);
+                XMLElementPLANit.class,
+            org.goplanit.xml.generated.v1.XMLElementPLANit.class,
+            this::setInputIsLegacyVersion);
+
         if(xmlRawPLANitAll==null) {
           LOGGER.severe(String.format("Unable to parse any appropriate XML input file from %s with extension %s," +
                   " either no file is present, or file is not conforming to underlying XSD",
@@ -176,6 +188,14 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
    */
   public void clearXmlContent() {
     this.xmlRootElement = null;
-    
+  }
+
+  /**
+   * Check if input was a legacy version. Only trustworthy after parsing
+   *
+   * @return true when legacy, false otherwise
+   */
+  public boolean isInputIsLegacyVersion(){
+    return inputIsLegacyVersion;
   }
 }

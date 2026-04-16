@@ -687,10 +687,14 @@ public class PlanItIOTestHelper {
    */
   public static boolean isXmlFileSameExceptForTimestamp(final String xmlFileStandard, final String xmlFileBeingTested)
       throws Exception {
-    final XMLElementMetadata metadataStandard = (XMLElementMetadata) JAXBUtils.generateObjectFromXml(
-        XMLElementMetadata.class, new File(xmlFileStandard));
-    final XMLElementMetadata metadataBeingTested = (XMLElementMetadata) JAXBUtils.generateObjectFromXml(
-        XMLElementMetadata.class, new File(xmlFileBeingTested));
+    final XMLElementMetadata metadataStandard = (XMLElementMetadata) JAXBUtils.unmarshalAndNormalize(
+        new File(xmlFileStandard),
+        org.goplanit.xml.generated.v2.XMLElementMetadata.class,
+        org.goplanit.xml.generated.v1.XMLElementMetadata.class);
+    final XMLElementMetadata metadataBeingTested = (XMLElementMetadata) JAXBUtils.unmarshalAndNormalize(
+        new File(xmlFileBeingTested),
+        org.goplanit.xml.generated.v2.XMLElementMetadata.class,
+        org.goplanit.xml.generated.v1.XMLElementMetadata.class);
 
     // compare <columns> and <column> elements in the generated output file against the standard
     // output file

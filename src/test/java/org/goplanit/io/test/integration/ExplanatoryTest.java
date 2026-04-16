@@ -260,7 +260,8 @@ public class ExplanatoryTest extends TestBase {
   @Test
   public void test_explanatory_traveller_type_ref_missing_from_user_class() {
     try {
-      String projectPath = Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","travellerTypeMissingFromUserClass").toString();
+      String projectPath =
+          Path.of(TEST_CASE_PATH.toString(),"explanatory","xml","travellerTypeMissingFromUserClass").toString();
       String description = "explanatory";
       String csvFileName = "Time_Period_1_2.csv";
       String odCsvFileName = "Time_Period_1_1.csv";
