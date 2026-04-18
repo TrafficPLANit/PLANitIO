@@ -103,17 +103,11 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void createZoneToConnectoidIndices(final Zoning zoning) {
     for(var connectoid : zoning.getOdConnectoids()) {
-      for(var zoneEntry : connectoid.getAccessZoneEntries().values()) {
-        zoneToConnectoidMap.putIfAbsent(zoneEntry.getAccessZone(), new ArrayList<>(1));
-        zoneToConnectoidMap.get(zoneEntry.getAccessZone()).add(connectoid);
-      }
+      connectoid.getAccessZoneStream().forEach(z -> {
+        zoneToConnectoidMap.putIfAbsent(z, new ArrayList<>(1));
+        zoneToConnectoidMap.get(z).add(connectoid);
+      });
     }
-    for(var connectoid : zoning.getTransferConnectoids()) {
-      for(var zoneEntry : connectoid.getAccessZoneEntries().values()) {
-        zoneToConnectoidMap.putIfAbsent(zoneEntry.getAccessZone(), new ArrayList<>(1));
-        zoneToConnectoidMap.get(zoneEntry.getAccessZone()).add(connectoid);
-      }
-    }    
   }
 
   /**
@@ -441,37 +435,40 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
           Zone accessZone,
           Connectoid<?> connectoid) {
 
-    var accessZoneEntry = connectoid.getAccessZoneEntry(accessZone);
+    var accessZoneEntriesByType = connectoid.getAccessZoneEntriesByType(accessZone);
+    for(var entry : accessZoneEntriesByType.values()){
 
-    /* TRANSFER ZONE REF */
-    String xmlTzRef = getPrimaryIdMapper().getZoneIdMapper().apply(accessZone);
-    xmlAccessZone.setRef(xmlTzRef);
+      /* TRANSFER ZONE REF */
+      String xmlTzRef = getPrimaryIdMapper().getZoneIdMapper().apply(accessZone);
+      xmlAccessZone.setRef(xmlTzRef);
 
-    // LENGTH
-    Optional<Double> currLengthKm = accessZoneEntry.getLengthKm();
-    xmlAccessZone.setLengthkm(BigDecimal.valueOf(currLengthKm.get()));
+      // LENGTH
+      Optional<Double> currLengthKm = entry.getLengthKm();
+      xmlAccessZone.setLengthkm(BigDecimal.valueOf(currLengthKm.get()));
 
-    /* TYPE */
-    if(!accessZoneEntry.getType().equals(ZoneConnectoidType.NONE)) {
-      xmlAccessZone.setType(createXmlZoneConnectoidType(accessZoneEntry.getType()));
-    }
-
-    if(connectoid instanceof DirectedConnectoid){
-      var directedAccessEntry = (DirectedConnectoidAccessZoneEntry) accessZoneEntry;
-
-      // MODES
-      // only list explicitly allowed modes, if none, all modes are allowed
-      String accessModesStr = createXmlModesStringFromConnectoidZoneEntry(
-          directedAccessEntry, getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
-      if(accessModesStr != null){
-        xmlAccessZone.setModes(accessModesStr);
+      /* TYPE */
+      if(!entry.getType().equals(ZoneConnectoidType.NONE)) {
+        xmlAccessZone.setType(createXmlZoneConnectoidType(entry.getType()));
       }
 
-      /* LINK SEGMENTS REFS */
-      var lsIdMapper = getComponentIdMappers().getNetworkIdMappers().getMacroscopicLinkSegmentIdMapper();
-      var lsRefs = directedAccessEntry.getAccessLinkSegments().stream().map(
-          ls -> lsIdMapper.apply((MacroscopicLinkSegment) ls)).collect(Collectors.joining(","));
-      xmlAccessZone.setLsrefs(lsRefs);
+      if(connectoid instanceof DirectedConnectoid){
+        var directedAccessEntry = (DirectedConnectoidAccessZoneEntry) entry;
+
+        // MODES
+        // only list explicitly allowed modes, if none, all modes are allowed
+        String accessModesStr = createXmlModesStringFromConnectoidZoneEntry(
+            directedAccessEntry, getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
+        if(accessModesStr != null){
+          xmlAccessZone.setModes(accessModesStr);
+        }
+
+        /* LINK SEGMENTS REFS */
+        var lsIdMapper = getComponentIdMappers().getNetworkIdMappers().getMacroscopicLinkSegmentIdMapper();
+        var lsRefs = directedAccessEntry.getAccessLinkSegments().stream().map(
+            ls -> lsIdMapper.apply(
+                (MacroscopicLinkSegment) ls)).collect(Collectors.joining(","));
+        xmlAccessZone.setLsrefs(lsRefs);
+      }
     }
   }
 
@@ -497,28 +494,28 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
     // populate od connectoid - access zone info - bypass the access zone XML entry creation as it is 1:1 currently
     // and otherwise we have it referencing the zone again despite it being listed under the zone already
-    var odAccessZoneEntry = odConnectoid.getAccessZoneEntry(accessZone);
+    var odAccessZoneEntriesByType = odConnectoid.getAccessZoneEntriesByType(accessZone);
+    for(var entry : odAccessZoneEntriesByType.values()){
+      // MODES
+      // populate modes and length as od specific extensions outside of XML access entry but drawing from memory model
+      // entry
+      // only list explicitly allowed modes, if none, all modes are allowed
+      String accessModesStr = createXmlModesStringFromConnectoidZoneEntry(
+          entry, getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
+      if(accessModesStr != null){
+        xmlConnectoid.setModes(accessModesStr);
+      }
 
-    // MODES
-    // populate modes and length as od specific extensions outside of XML access entry but drawing from memory model
-    // entry
-    // only list explicitly allowed modes, if none, all modes are allowed
-    String accessModesStr = createXmlModesStringFromConnectoidZoneEntry(
-        odAccessZoneEntry, getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
-    if(accessModesStr != null){
-      xmlConnectoid.setModes(accessModesStr);
+      // LENGTH
+      Optional<Double> currLengthKm = entry.getLengthKm();
+      xmlConnectoid.setLength(BigDecimal.valueOf(currLengthKm.get()));
+
+      /* TYPE */
+      if(!entry.getType().equals(ZoneConnectoidType.NONE)) {
+        xmlConnectoid.setType(createXmlZoneConnectoidType(entry.getType()));
+      }
     }
-
-    // LENGTH
-    Optional<Double> currLengthKm = odAccessZoneEntry.getLengthKm();
-    xmlConnectoid.setLength(BigDecimal.valueOf(currLengthKm.get()));
-
-    /* TYPE */
-    if(!odAccessZoneEntry.getType().equals(ZoneConnectoidType.NONE)) {
-      xmlConnectoid.setType(createXmlZoneConnectoidType(odAccessZoneEntry.getType()));
-    }
-
-  }   
+  }
 
   /** Populate an XML origin-destination zone
    * 
