@@ -303,7 +303,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    *   populate that field. Hence we do it here after the network has been parsed
    * </p>
    */
-  private Node parseBaseConnectoidAccessNode(Connectoidtype xmlConnectoid) {
+  private Node parseConnectoidAccessNode(Connectoidtype xmlConnectoid) {
     String accessNodeRef = xmlConnectoid.getNoderef();
     if(accessNodeRef == null){
       throw new PlanItRunTimeException(String.format("AccessNode XML id for connectoid (Id:%s) is missing",
@@ -344,14 +344,29 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     }
     return accessNode;
   }
+
+  /**
+   * Parse the connectoid based on the XML connectoid element
+   *
+   * @param xmlConnectoid to be parsed
+   * @param accessNode to use
+   * @return created connectoid
+   */
+  private Connectoid<?> parseBaseConnectoid(
+      final Connectoidtype xmlConnectoid, Node accessNode) {
+    return parseBaseConnectoid(xmlConnectoid, accessNode, null);
+  }
   
   /**
    * Parse the connectoid based on the XML connectoid element
    * 
    * @param xmlConnectoid to be parsed
+   * @param accessNode to use
+   * @param accessDownstreamOfSegments flag only relevant for directed connectoids
    * @return created connectoid
    */
-  private Connectoid<?> parseBaseConnectoid(final Connectoidtype xmlConnectoid) {
+  private Connectoid<?> parseBaseConnectoid(
+      final Connectoidtype xmlConnectoid, Node accessNode, Boolean accessDownstreamOfSegments) {
 
     /* xml id */
     String xmlId = null;
@@ -362,14 +377,12 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       return null;
     }
 
-    var accessNode = parseBaseConnectoidAccessNode(xmlConnectoid);
-
     Connectoid<?> theConnectoid = null;
     /* CONNECTOID */
     if(xmlConnectoid instanceof XMLElementConnectoid) {
       theConnectoid = zoning.getOdConnectoids().getFactory().registerNew(accessNode);
     }else if(xmlConnectoid instanceof XMLElementTransferConnectoid) {
-      theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(accessNode);
+      theConnectoid = zoning.getTransferConnectoids().getFactory().registerNew(accessNode, accessDownstreamOfSegments);
     }else{
       throw new PlanItRunTimeException("Unsupported XML connectoid type encountered, abort");
     }
@@ -529,8 +542,11 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     List<XMLElementTransferConnectoid> xmlTransferConnectoids = xmlTransferZoneAccess.getConnectoids();
     for(var xmlTransferConnectoid : xmlTransferConnectoids) {
 
-      /* base connectoid */
-      var connectoid = (DirectedConnectoid) parseBaseConnectoid(xmlTransferConnectoid);
+      // accessNode
+      var accessNode = parseConnectoidAccessNode(xmlTransferConnectoid);
+
+      /* base connectoid - postpone to infer directionality, read initial link segment first, ugly but needed */
+      DirectedConnectoid connectoid = null;
 
       var xmlAccessZoneEntries = xmlTransferConnectoid.getAccesszones();
       for(var xmlAccessZoneEntry :  xmlAccessZoneEntries){
@@ -541,19 +557,14 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         if(transferZone == null) {
           throw new PlanItRunTimeException(String.format("Provided Zone ref XML id %s is " +
                   "invalid when parsing transfer connectoid %s",
-              zoneRef, connectoid.getXmlId()));
+              zoneRef, xmlTransferConnectoid.getId()));
         }
 
+        // type
         var zoneConnectoidType = parseZoneConnectoidType(xmlAccessZoneEntry.getType());
-        var planitZoneAccessEntry = connectoid.createAccessZoneEntry(transferZone, zoneConnectoidType);
-        if(planitZoneAccessEntry == null){
-          LOGGER.warning(String.format("Unable to create access zone entry for transfer zone (%s) " +
-              "connectoid (%s) of type %s, skip entry",
-              transferZone.getIdsAsString(), connectoid.getIdsAsString(), zoneConnectoidType));
-          continue;
-        }
 
-        // link segment refs
+        // ls refs
+        DirectedConnectoidAccessZoneEntry planitZoneAccessEntry = null;
         String xmlLinkSegmentRefs = xmlAccessZoneEntry.getLsrefs();
         var lsRefsArray = xmlLinkSegmentRefs.split(String.valueOf(CharacterUtils.COMMA));
         for(var lsRef : lsRefsArray){
@@ -561,9 +572,33 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
           if(linkSegment == null) {
             LOGGER.warning(String.format("Provided access link segment XML id %s is invalid given " +
                     "available link segments in network when parsing transfer connectoid (%s)",
-                lsRef, connectoid.getIdsAsString()));
+                lsRef, xmlTransferConnectoid.getId()));
+            continue;
+          }
+
+          if(connectoid == null){
+            boolean accessDownstreamOfSegments = linkSegment.getDownstreamNode().equals(accessNode);
+            connectoid = (DirectedConnectoid) parseBaseConnectoid(
+                xmlTransferConnectoid, accessNode, accessDownstreamOfSegments);
+            if(connectoid == null){
+              LOGGER.severe(String.format("Invalid connectoid (%s) encountered, skip",xmlTransferConnectoid.getId()));
+              break;
+            }
+          }
+          if(planitZoneAccessEntry == null){
+            planitZoneAccessEntry = connectoid.createAccessZoneEntry(transferZone, zoneConnectoidType);
+            if(planitZoneAccessEntry == null){
+              LOGGER.warning(String.format("Unable to create access zone entry for transfer zone (%s) " +
+                      "connectoid (%s) of type %s, skip entry",
+                  transferZone.getIdsAsString(), connectoid.getIdsAsString(), zoneConnectoidType));
+              break;
+            }
           }
           planitZoneAccessEntry.addAccessLinkSegment(linkSegment);
+        }
+
+        if(planitZoneAccessEntry == null){
+          continue;
         }
 
         /* modes that are allowed access */
@@ -720,9 +755,13 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
                  
       /* connectoids */
       List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoids();
-      for(XMLElementConnectoid xmlOdConnectoid : xmlConnectoids) {
+      for(var xmlOdConnectoid : xmlConnectoids) {
+
+        // accessNode
+        var accessNode = parseConnectoidAccessNode(xmlOdConnectoid);
         /* parse the (Od, node reference based) undirected connectoid */
-        UndirectedConnectoid planitOdConnectoid = (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid);
+        UndirectedConnectoid planitOdConnectoid =
+            (UndirectedConnectoid) parseBaseConnectoid(xmlOdConnectoid, accessNode);
 
         //todo: we are missing stuff here such as type because of compromised way we write out connectoids for ODs
         // register zone and type is located on zone-connectoid-entry which we do not write out currently due to
