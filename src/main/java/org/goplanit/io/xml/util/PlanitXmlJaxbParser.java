@@ -16,8 +16,8 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
  * Serves as a base class for readers of PLANit XML files of which the root element is of type LATEST, or LEGACY.
  * In the latter case it will be normalised to LATEST.
  *
- * @param <LATEST>
- * @param <LEGACY>
+ * @param <LATEST> type of latest
+ * @param <LEGACY> type of legacy
  * @author markr
  *
  */

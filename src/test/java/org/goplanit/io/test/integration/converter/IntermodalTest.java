@@ -137,8 +137,8 @@ public class IntermodalTest {
         assertEquals(accessEntry.getLengthKm().get(), ConnectoidAccessZoneEntry.DEFAULT_LENGTH_KM.get(),
             Precision.EPSILON_6);
 
-        var accessVertex = transferConnectoid.getAccessVertex();
-        for (var accessSegment : accessEntry.getAccessLinkSegments()) {
+        var accessVertex = transferConnectoid.getReferenceVertex();
+        transferConnectoid.getExplicitAccessLinkSegmentsStream().forEach(accessSegment -> {
           var firstEntry = transferConnectoid.getFirstAccessZoneEntry();
           switch (accessSegment.getXmlId()) {
             case linkSegment1XmlId:
@@ -163,10 +163,9 @@ public class IntermodalTest {
             default:
               break;
           }
-        }
+        });
       }
 
-      
       /* DEMANDS */
       @SuppressWarnings("unused") final Demands demands = project.createAndRegisterDemands(zoning, network);
       

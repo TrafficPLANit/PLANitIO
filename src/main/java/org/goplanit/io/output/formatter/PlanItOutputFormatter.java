@@ -828,7 +828,6 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
    * 
    * @param outputConfiguration OutputConfiguration of the assignment
    * @param runId the id of the traffic assignment to be saved
-   * @throws PlanItException thrown if there is an error or validation failure during set up of the output formatter
    */
   @Override
   public void initialiseBeforeSimulation(final OutputConfiguration outputConfiguration, long runId) {

@@ -60,8 +60,8 @@ public class InitialCostTest {
   @Test
   public void test_reading_initial_cost_values() {
     final String projectPath = Path.of(intialCostTestCasePath.toString(),"readingInitialCostValues").toString();
-    String initialCostsFileLocation = Path.of(projectPath.toString(),"initial_link_segment_costs.csv").toString();
-    String initialCostsFileLocationXmlId = Path.of(projectPath.toString(),"initial_link_segment_costs_xml_id.csv").toString();
+    String initialCostsFileLocation = Path.of(projectPath,"initial_link_segment_costs.csv").toString();
+    String initialCostsFileLocationXmlId = Path.of(projectPath,"initial_link_segment_costs_xml_id.csv").toString();
     try {
       
       /* planit */
@@ -72,7 +72,8 @@ public class InitialCostTest {
       
       /* reference */
       Reader in = new FileReader(initialCostsFileLocationXmlId);
-      CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
+      CSVParser parser = CSVParser.parse(in,
+          CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).setIgnoreSurroundingSpaces(true).build());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String linkSegmentXmlIdHeader = LinkSegmentXmlIdOutputProperty.NAME;
       String costHeader = LinkSegmentCostOutputProperty.NAME;
@@ -99,8 +100,8 @@ public class InitialCostTest {
   @Test
   public void test_reading_initial_cost_values_with_missing_rows() {
     final String projectPath = Path.of(intialCostTestCasePath.toString(),"readingInitialCostValues").toString();
-    String initialCostsFileLocation = Path.of(projectPath.toString(),"initial_link_segment_costs.csv").toString();
-    String initialCostsFileLocationMissingRows = Path.of(projectPath.toString(),"initial_link_segment_costs1.csv").toString();
+    String initialCostsFileLocation = Path.of(projectPath,"initial_link_segment_costs.csv").toString();
+    String initialCostsFileLocationMissingRows = Path.of(projectPath,"initial_link_segment_costs1.csv").toString();
 
     try {
       /* planit */
@@ -111,7 +112,8 @@ public class InitialCostTest {
       
       /* reference */
       Reader in = new FileReader(initialCostsFileLocationMissingRows);
-      CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreSurroundingSpaces());
+      CSVParser parser = CSVParser.parse(in,
+          CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).setIgnoreSurroundingSpaces(true).build());
       String modeHeader = ModeXmlIdOutputProperty.NAME;
       String upstreamNodeXmlIdHeader = UpstreamNodeXmlIdOutputProperty.NAME;
       String downstreamNodeXmlIdHeader = DownstreamNodeXmlIdOutputProperty.NAME;
@@ -142,7 +144,7 @@ public class InitialCostTest {
   public void test_reading_initial_cost_values_with_missing_rows_in_input_file() {
     try {
       final String projectPath = Path.of(intialCostTestCasePath.toString(),"readingInitialCostValuesWithLinkSegmentsMissingInInputFile").toString();
-      String initialCostsFileLocation = Path.of(projectPath.toString(),"initial_link_segment_costs_external_id.csv").toString();
+      String initialCostsFileLocation = Path.of(projectPath,"initial_link_segment_costs_external_id.csv").toString();
 
       String description = "readingInitialCostValuesWithMissingRows";
       
