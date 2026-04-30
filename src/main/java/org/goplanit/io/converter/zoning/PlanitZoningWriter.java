@@ -28,6 +28,8 @@ import org.locationtech.jts.geom.Polygon;
 
 import javax.annotation.Nonnull;
 
+import static org.goplanit.utils.zoning.ZoneConnectoidType.PT_VEHICLE_STOP;
+
 /**
  * A class that takes a PLANit zoning and persists it to file in the PLANit native XML format.
  * 
@@ -227,7 +229,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     transferConnectoid.getAccessZoneEntriesByType().forEach((k,zoneTypeEntries) -> {
       zoneTypeEntries.forEach( (type, zoneTypeEntry) -> {
         var xmlAccessZone = new  org.goplanit.xml.generated.v2.Accesszone();
-        populateXmlDirectedConnectoidAccessZone(
+        populateXmlConnectoidAccessZoneEntry(
             xmlAccessZone, zoneTypeEntry, transferConnectoid);
         xmlAccessZones.add(xmlAccessZone);
       });
@@ -334,7 +336,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
             transferConnectoid.getXmlId(), transferConnectoid.getId()));
         return;
       }
-      if(!transferConnectoid.hasAccessLinkSegments(ZoneConnectoidType.PT_VEHICLE_STOP)) {
+      if(transferConnectoid.hasAccessZoneEntries(PT_VEHICLE_STOP) &&
+          !transferConnectoid.hasAccessLinkSegments(PT_VEHICLE_STOP)) {
         LOGGER.warning(String.format("DISCARD: transfer connectoid %s (id:%d) has no access link segment for PT_VEHICLE_STOP",
             transferConnectoid.getXmlId(), transferConnectoid.getId()));
         return;
@@ -437,7 +440,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param accessZoneTypeEntry to use
    * @param connectoid to use
    */
-  private void populateXmlDirectedConnectoidAccessZone(
+  private void populateXmlConnectoidAccessZoneEntry(
           org.goplanit.xml.generated.v2.Accesszone xmlAccessZone,
           ConnectoidAccessZoneEntry accessZoneTypeEntry,
           Connectoid connectoid) {
