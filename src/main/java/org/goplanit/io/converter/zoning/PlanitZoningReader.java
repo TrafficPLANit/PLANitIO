@@ -564,7 +564,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
           continue;
         }else if(xmlLinkSegmentRefs != null && !zoneConnectoidType.equals(ZoneConnectoidType.PT_VEHICLE_STOP)){
           LOGGER.severe(String.format("%s type entry for connectoid %s is expected to not have explicit link " +
-              "access segments, but it has, assume type should be PT_STOP", zoneConnectoidType, connectoid.getIdsAsString()));
+              "access segments, but it has, assume type should be PT_STOP as legacy v1 format",
+              zoneConnectoidType, connectoid.getIdsAsString()));
           zoneConnectoidType = ZoneConnectoidType.PT_VEHICLE_STOP;
         }
 
