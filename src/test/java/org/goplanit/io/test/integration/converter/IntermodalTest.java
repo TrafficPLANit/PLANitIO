@@ -17,6 +17,8 @@ import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.zoning.*;
+import org.goplanit.utils.zoning.connectoid.ConnectoidAccessZoneEntry;
+import org.goplanit.utils.zoning.connectoid.ZoneConnectoidType;
 import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

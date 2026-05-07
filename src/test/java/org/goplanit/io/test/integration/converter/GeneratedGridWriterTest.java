@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-import static org.goplanit.utils.zoning.ZoneConnectoidType.*;
+import static org.goplanit.utils.zoning.connectoid.ZoneConnectoidType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 

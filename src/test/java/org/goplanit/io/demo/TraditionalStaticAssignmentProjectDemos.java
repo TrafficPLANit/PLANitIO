@@ -22,7 +22,7 @@ import org.goplanit.network.Network;
 import org.goplanit.output.configuration.LinkOutputTypeConfiguration;
 import org.goplanit.output.configuration.OdOutputTypeConfiguration;
 import org.goplanit.output.configuration.PathOutputTypeConfiguration;
-import org.goplanit.output.enums.OdSkimSubOutputType;
+import org.goplanit.output.enums.SkimSubOutputType;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.enums.PathOutputIdentificationType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
@@ -470,7 +470,7 @@ public class TraditionalStaticAssignmentProjectDemos {
       OdOutputTypeConfiguration odOutputConfiguration = (OdOutputTypeConfiguration) ta.activateOutput(OutputType.OD);
       
       // * NEW *
-      odOutputConfiguration.activateOdSkimOutputType(OdSkimSubOutputType.COST);
+      odOutputConfiguration.activateOdSkimOutputType(SkimSubOutputType.COST);
       odOutputConfiguration.removeProperty(OutputPropertyType.RUN_ID);
 
       project.executeAllTrafficAssignments();

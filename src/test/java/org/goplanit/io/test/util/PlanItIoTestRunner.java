@@ -14,7 +14,7 @@ import org.goplanit.io.output.formatter.PlanItOutputFormatter;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.output.configuration.*;
-import org.goplanit.output.enums.OdSkimSubOutputType;
+import org.goplanit.output.enums.SkimSubOutputType;
 import org.goplanit.output.enums.OutputType;
 import org.goplanit.output.enums.PathOutputIdentificationType;
 import org.goplanit.output.formatter.MemoryOutputFormatter;
@@ -201,7 +201,7 @@ public class PlanItIoTestRunner {
         /* OD OUTPUT CONFIGURATION */
         final OdOutputTypeConfiguration originDestinationOutputTypeConfiguration =
                 (OdOutputTypeConfiguration) taConfigurator.activateOutput(OutputType.OD);
-        originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(OdSkimSubOutputType.NONE);
+        originDestinationOutputTypeConfiguration.deactivateOdSkimOutputType(SkimSubOutputType.NONE);
         originDestinationOutputTypeConfiguration.removeProperty(OutputPropertyType.TIME_PERIOD_XML_ID);
 
         /* PATH OUTPUT CONFIGURATION */

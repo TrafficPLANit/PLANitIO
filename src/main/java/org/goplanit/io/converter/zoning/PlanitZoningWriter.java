@@ -20,6 +20,7 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.utils.zoning.Zone;
+import org.goplanit.utils.zoning.connectoid.*;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.LineString;
@@ -28,7 +29,7 @@ import org.locationtech.jts.geom.Polygon;
 
 import javax.annotation.Nonnull;
 
-import static org.goplanit.utils.zoning.ZoneConnectoidType.PT_VEHICLE_STOP;
+import static org.goplanit.utils.zoning.connectoid.ZoneConnectoidType.PT_VEHICLE_STOP;
 
 /**
  * A class that takes a PLANit zoning and persists it to file in the PLANit native XML format.

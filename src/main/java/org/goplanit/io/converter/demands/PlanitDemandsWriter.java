@@ -5,7 +5,7 @@ import org.goplanit.converter.idmapping.DemandsIdMapper;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
-import org.goplanit.od.demand.OdDemands;
+import org.goplanit.zoning.zonetozone.OdDemands;
 import org.goplanit.userclass.UserClass;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdMapperType;

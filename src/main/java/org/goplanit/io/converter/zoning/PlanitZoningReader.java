@@ -24,6 +24,7 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.utils.zoning.Zone;
+import org.goplanit.utils.zoning.connectoid.*;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 import org.goplanit.zoning.ZoningModifierUtils;
@@ -609,7 +610,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
       }
 
-      registerBySourceId(Connectoid.class, connectoid);      
+      registerBySourceId(Connectoid.class, connectoid);
     }        
   }
 
