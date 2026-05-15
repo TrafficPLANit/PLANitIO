@@ -26,7 +26,7 @@ import org.xmlunit.matchers.CompareMatcher;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * JUnit test cases for the converters provided in the Planit native format
+ * JUnit test cases for the converters provided in the PLANit native format
  * 
  * @author markr
  *

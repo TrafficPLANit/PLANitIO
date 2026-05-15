@@ -18,6 +18,7 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetworkModifierUtils;
 import org.goplanit.network.layer.macroscopic.AccessGroupPropertiesFactory;
+import org.goplanit.network.layer.physical.MovementFactoryImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
@@ -76,17 +77,20 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   }
 
   /**
-   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
-   * network is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
-   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g.,
+   * if the parsed network is going to be modified and saved to disk afterwards, then it is advisable to sync all XML
+   * ids to the internal ids upon parsing because this avoids the risk of generating duplicate XML ids during editing
+   * of the network (when XML ids are chosen to be synced to internal ids)
    */
   private void syncXmlIdsToIds() {
-    LOGGER.info("Syncing PLANit physical network XML ids to internally generated ids, overwriting original XML ids");
+    LOGGER.info("Syncing PLANit physical network XML ids to internally generated ids, overwriting " +
+        "original XML ids");
     MacroscopicNetworkModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(this.network);
   }
 
   /**
-   * Update the XML macroscopic network element to include default values for any properties not included in the input file
+   * Update the XML macroscopic network element to include default values for any properties not included in
+   * the input file
    */
   private void injectMissingDefaultsToRawXmlNetwork() {
     XMLElementMacroscopicNetwork rootElement = xmlParser.getXmlRootElement();
@@ -107,7 +111,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
            
    }  
       
-  /** parse the usability component of the mode xml element. It is assumed they should be present, if not default values are created
+  /** parse the usability component of the mode xml element. It is assumed they should be present, if not default
+   * values are created
    * @param generatedMode mode to extract information from
    * @return usabilityFeatures that are parsed
    */
@@ -122,7 +127,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType);
   }
 
-  /** parse the physical features component of the mode xml element. It is assumed they should be present, if not default values are created
+  /** parse the physical features component of the mode xml element. It is assumed they should be present, if not
+   * default values are created
    * @param generatedMode mode to extract information from
    * @return physicalFeatures that are parsed
    */  
@@ -308,6 +314,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
          
     /* parse links, link segments */
     parseLinkAndLinkSegments(xmlLayer, networkLayer, jtsUtils);
+
+    /* parse turns */
+    parseTurns(xmlLayer, networkLayer);
     
     return networkLayer;
   }
@@ -626,7 +635,38 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       }
       /* end LINK SEGMENT */
     }
-  }  
+  }
+
+  /**
+   * Parse turns
+   *
+   * @param xmlLayer to parse from
+   * @param networkLayer to populate
+   */
+  protected void parseTurns(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
+    var xmlTurns = xmlLayer.getTurns();
+    var xmlTurnBans = xmlTurns.getBen(); // should be bans, jaxb - naming bug
+
+    boolean banned = true;
+    for(var xmlBan : xmlTurnBans){
+      var planitTurnXmlId = xmlBan.getId();
+
+      var planitFromSegmentXmlId = xmlBan.getFromref();
+      var planitToSegmentXmlId = xmlBan.getToref();
+      if(StringUtils.isNullOrBlank(planitFromSegmentXmlId)){
+        LOGGER.severe(String.format("from segment id for turn ban (%s) null or blank, skipping",planitTurnXmlId));
+        continue;
+      }
+      if(StringUtils.isNullOrBlank(planitToSegmentXmlId)){
+        LOGGER.severe(String.format("to segment id for turn ban (%s) null or blank, skipping",planitTurnXmlId));
+        continue;
+      }
+      var fromSegment = getBySourceId(MacroscopicLinkSegment.class,planitFromSegmentXmlId);
+      var toSegment = getBySourceId(MacroscopicLinkSegment.class,planitToSegmentXmlId);
+
+      todo add to layer
+    }
+  }
 
   /** Place network to populate
    * 
@@ -665,7 +705,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     setNetwork(network);
   }  
     
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit
+   * memory model
    * 
    * @param externalXmlRawNetwork to extract from
    * @param network to populate
@@ -675,7 +716,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     this(externalXmlRawNetwork, new PlanitNetworkReaderSettings(), network);
   }
 
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit
+   *  memory model
    *
    * @param externalXmlRawNetwork to extract from
    * @param network to populate
@@ -702,7 +744,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   
   /** Default XSD files used to validate input XML files against, TODO: move to properties file */
   public static final String NETWORK_XSD_FILE =
-          "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicnetworkinput.xsd";
+          "https://goplanit.org/xsd/v2/macroscopicnetworkinput.xsd";
 
   /**
    * {@inheritDoc}

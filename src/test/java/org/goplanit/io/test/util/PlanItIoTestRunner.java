@@ -241,7 +241,8 @@ public class PlanItIoTestRunner {
    *
    * @return TestOutputDto containing results, builder and project from the run
    */
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteDefaultAssignment(){
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder>
+  setupAndExecuteDefaultAssignment(){
     return setupAndExecuteAssignment(null, null);
   }   
 
@@ -251,13 +252,15 @@ public class PlanItIoTestRunner {
    * @param setPhysicalCostParameters lambda function which sets parameters of cost function
    * @return TestOutputDto containing results, builder and project from the run
    */
-  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder> setupAndExecuteWithPhysicalCostConfiguration(
+  public TestOutputDto<MemoryOutputFormatter, CustomPlanItProject, PlanItInputBuilder>
+  setupAndExecuteWithPhysicalCostConfiguration(
       final TriConsumer<LayeredNetwork<?,?>, PhysicalCostConfigurator<?>, PlanItInputBuilder> setPhysicalCostParameters) {
     return setupAndExecuteAssignment(null, setPhysicalCostParameters);
   }
   
   /**
-   * Run a test case with a custom link output type configuration consumer. Store the results in a MemoryOutputFormatter.
+   * Run a test case with a custom link output type configuration consumer. Store the results in a
+   * MemoryOutputFormatter.
    *
    * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type
    *                                            configuration in addition to default settings
@@ -274,7 +277,8 @@ public class PlanItIoTestRunner {
    * MemoryOutputFormatter.
    *
    * @param setPhysicalCostParameters lambda function which sets parameters of cost function
-   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type configuration
+   * @param linkOutputTypeConfigurationConsumer lambda function which sets parameters of link output type
+   *                                            configuration
    *                                            in addition to default settings
    * @return TestOutputDto containing results, builder and project from the run
    */    
