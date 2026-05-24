@@ -23,12 +23,15 @@ import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
 import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.macroscopic.*;
+import org.goplanit.utils.network.layer.physical.Movement;
+import org.goplanit.utils.network.layer.physical.Movements;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
 import org.goplanit.xml.generated.v2.*;
 
 /**
- * Writer to persist a PLANit network to disk in the native PLANit format. By default the xml ids are used for writing out the ids in the XML. 
+ * Writer to persist a PLANit network to disk in the native PLANit format. By default the xml ids are used for writing
+ * out the ids in the XML.
  * 
  * @author markr
  *
@@ -46,6 +49,62 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   
   /* track logging prefix for current layer */
   private String currLayerLogPrefix;
+
+  /**
+   * Populate the xml /<ban/> element. If movement is not a ban, log and skip
+   *
+   * @param xmlTurnBanList to add movement to
+   * @param movement to populate from
+   */
+  private void populateXmlTurnBan(List<org.goplanit.xml.generated.v2.BanType> xmlTurnBanList, final Movement movement) {
+    if(!movement.isBanned()){
+      LOGGER.info(String.format(
+          "Currently only banned turns are persisted in PLANit IO native XML format, ignored (%s)",
+          movement.getIdsAsString()));
+      return;
+    }
+    var xmlTurnBan = new org.goplanit.xml.generated.v2.BanType();
+
+    /* XML id */
+    xmlTurnBan.setId(getPrimaryIdMapper().getMovementIdMapper().apply(movement));
+
+    /* external id */
+    if(movement.hasExternalId()) {
+      xmlTurnBan.setExternalid(movement.getExternalId());
+    }
+
+    xmlTurnBan.setFromref(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper().apply(
+        (MacroscopicLinkSegment) movement.getSegmentFrom()));
+    xmlTurnBan.setToref(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper().apply(
+        (MacroscopicLinkSegment) movement.getSegmentTo()));
+
+    /* turn bans */
+    xmlTurnBanList.add(xmlTurnBan);
+  }
+
+  /** Populate the xml /<turns/> element
+   *
+   * @param xmlNetworkLayer to populate link segments on
+   * @param movements to populate XML with
+   */
+  private void populateXmlTurns(XMLElementInfrastructureLayer xmlNetworkLayer, Movements movements) {
+    var xmlTurns = xmlNetworkLayer.getTurns();
+    if(movements.isEmpty()){
+      xmlNetworkLayer.setTurns(null);
+      return;
+    }
+
+    if(xmlTurns == null) {
+      xmlTurns = new TurnsType();
+      xmlNetworkLayer.setTurns(xmlTurns);
+    }
+
+    // jaxb naming issue, should be "bans"
+    final var xmlBannedTurns = xmlTurns.getBen();
+    movements.streamSortedBy(getPrimaryIdMapper().getMovementIdMapper()).forEach(turnBan -> {
+      populateXmlTurnBan(xmlBannedTurns, turnBan);
+    });
+  }
 
   /**
    * populate a single xml link segment element based on the passed in PLANit link segment
@@ -175,7 +234,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param links to populate from
    */
   private void populateXmlLinks(final XMLElementInfrastructureLayer xmlNetworkLayer, final MacroscopicLinks links) {
-    XMLElementLinks xmlLinks = xmlNetworkLayer.getLinks(); 
+    XMLElementLinks xmlLinks = xmlNetworkLayer.getLinks();
     if(xmlLinks == null) {
       xmlLinks = new XMLElementLinks();
       xmlNetworkLayer.setLinks(xmlLinks);
@@ -547,9 +606,14 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
         
     /* nodes */
     LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
-    populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());      
-  }  
-  
+    populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());
+
+    /* restricted movements */
+    LOGGER.info(String.format("%s Movements: %d", currLayerLogPrefix, physicalNetworkLayer.getMovements().size()));
+    populateXmlTurns(xmlNetworkLayer, physicalNetworkLayer.getMovements());
+  }
+
+
   /** Populate the available network layers
    * 
    * @param network to extract layers from and populate xml

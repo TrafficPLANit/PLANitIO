@@ -645,26 +645,33 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    */
   protected void parseTurns(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
     var xmlTurns = xmlLayer.getTurns();
+    if(xmlTurns == null){
+      return;
+    }
     var xmlTurnBans = xmlTurns.getBen(); // should be bans, jaxb - naming bug
+    if(xmlTurnBans == null){
+      return;
+    }
 
     boolean banned = true;
+    var movementFactory = networkLayer.getMovements().getFactory();
     for(var xmlBan : xmlTurnBans){
       var planitTurnXmlId = xmlBan.getId();
 
       var planitFromSegmentXmlId = xmlBan.getFromref();
       var planitToSegmentXmlId = xmlBan.getToref();
       if(StringUtils.isNullOrBlank(planitFromSegmentXmlId)){
-        LOGGER.severe(String.format("from segment id for turn ban (%s) null or blank, skipping",planitTurnXmlId));
+        LOGGER.severe(String.format("From segment id for turn ban (%s) null or blank, skipping",planitTurnXmlId));
         continue;
       }
       if(StringUtils.isNullOrBlank(planitToSegmentXmlId)){
-        LOGGER.severe(String.format("to segment id for turn ban (%s) null or blank, skipping",planitTurnXmlId));
+        LOGGER.severe(String.format("To segment id for turn ban (%s) null or blank, skipping",planitTurnXmlId));
         continue;
       }
       var fromSegment = getBySourceId(MacroscopicLinkSegment.class,planitFromSegmentXmlId);
       var toSegment = getBySourceId(MacroscopicLinkSegment.class,planitToSegmentXmlId);
 
-      todo add to layer
+      movementFactory.create(fromSegment, toSegment, banned);
     }
   }
 

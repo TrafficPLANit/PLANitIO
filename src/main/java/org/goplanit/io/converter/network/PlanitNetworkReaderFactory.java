@@ -47,8 +47,7 @@ public class PlanitNetworkReaderFactory {
     return create(new PlanitNetworkReaderSettings(), new MacroscopicNetwork(idToken));    
   }
   
-  /** Create a PLANitNetworkReader which will create its own macroscopic network and non-locale specific 
-   *  defaults for any right hand driving country
+  /** Create a PLANitNetworkReader which will parse a network in the given directory
    * 
    * @param inputDirectory to use (directory only, find first compatible file)
    * @return created PLANit network reader
