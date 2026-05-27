@@ -14,21 +14,26 @@ import org.goplanit.zoning.Zoning;
 public class PlanitDemandsReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
 
   /**
-   * {@inheritDoc}
+   * Constructor
    */
   public PlanitDemandsReaderSettings(){
     super();
   }
 
   /**
-   * {@inheritDoc}
+   * Constructor with input dir
+   *
+   * @param inputDirectory to use
    */
   public PlanitDemandsReaderSettings(final String inputDirectory){
     super(inputDirectory);
   }
 
   /**
-   * {@inheritDoc}
+   * Constructor with input dir and file ext
+   *
+   * @param inputDirectory to use
+   * @param xmlFileExtension to use
    */
   public PlanitDemandsReaderSettings(final String inputDirectory, final String xmlFileExtension) {
     super(inputDirectory, xmlFileExtension);
