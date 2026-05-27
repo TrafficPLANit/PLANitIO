@@ -25232,6 +25232,9 @@
                     </linksegment>
                 </link>
             </links>
+            <turns>
+                <ban id="1" fromref="2439" toref="139"/>
+            </turns>
         </layer>
     </infrastructurelayers>
 </macroscopicnetwork>

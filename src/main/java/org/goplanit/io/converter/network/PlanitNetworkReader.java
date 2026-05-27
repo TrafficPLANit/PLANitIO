@@ -18,7 +18,6 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetworkModifierUtils;
 import org.goplanit.network.layer.macroscopic.AccessGroupPropertiesFactory;
-import org.goplanit.network.layer.physical.MovementFactoryImpl;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
@@ -671,7 +670,13 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       var fromSegment = getBySourceId(MacroscopicLinkSegment.class,planitFromSegmentXmlId);
       var toSegment = getBySourceId(MacroscopicLinkSegment.class,planitToSegmentXmlId);
 
-      movementFactory.create(fromSegment, toSegment, banned);
+      var movement = movementFactory.registerNew(fromSegment, toSegment, banned);
+      if(planitTurnXmlId == null){
+        LOGGER.warning("Movement is missing a unique id, salvage by syncing to internal id, fix as may result " +
+            "in undefined behaviour");
+        planitTurnXmlId = String.valueOf(movement.getId());
+      }
+      movement.setXmlId(planitTurnXmlId);
     }
   }
 

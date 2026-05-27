@@ -130,6 +130,7 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
 
     } catch (final Exception e) {
       LOGGER.severe( e.getMessage());
+      e.printStackTrace();
       fail(e.getMessage());
     }
   }
