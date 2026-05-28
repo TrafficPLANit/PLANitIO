@@ -23,8 +23,8 @@ import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
 import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.macroscopic.*;
-import org.goplanit.utils.network.layer.physical.Movement;
-import org.goplanit.utils.network.layer.physical.Movements;
+import org.goplanit.utils.network.layer.physical.BannedMovement;
+import org.goplanit.utils.network.layer.physical.BannedMovements;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
 import org.goplanit.xml.generated.v2.*;
@@ -54,29 +54,24 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * Populate the xml /<ban/> element. If movement is not a ban, log and skip
    *
    * @param xmlTurnBanList to add movement to
-   * @param movement to populate from
+   * @param bannedMovement to populate from
    */
-  private void populateXmlTurnBan(List<org.goplanit.xml.generated.v2.BanType> xmlTurnBanList, final Movement movement) {
-    if(!movement.isBanned()){
-      LOGGER.info(String.format(
-          "Currently only banned turns are persisted in PLANit IO native XML format, ignored (%s)",
-          movement.getIdsAsString()));
-      return;
-    }
+  private void populateXmlTurnBan(
+      List<org.goplanit.xml.generated.v2.BanType> xmlTurnBanList, final BannedMovement bannedMovement) {
     var xmlTurnBan = new org.goplanit.xml.generated.v2.BanType();
 
     /* XML id */
-    xmlTurnBan.setId(getPrimaryIdMapper().getMovementIdMapper().apply(movement));
+    xmlTurnBan.setId(getPrimaryIdMapper().getMovementIdMapper().apply(bannedMovement));
 
     /* external id */
-    if(movement.hasExternalId()) {
-      xmlTurnBan.setExternalid(movement.getExternalId());
+    if(bannedMovement.hasExternalId()) {
+      xmlTurnBan.setExternalid(bannedMovement.getExternalId());
     }
 
     xmlTurnBan.setFromref(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper().apply(
-        (MacroscopicLinkSegment) movement.getSegmentFrom()));
+        (MacroscopicLinkSegment) bannedMovement.getSegmentFrom()));
     xmlTurnBan.setToref(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper().apply(
-        (MacroscopicLinkSegment) movement.getSegmentTo()));
+        (MacroscopicLinkSegment) bannedMovement.getSegmentTo()));
 
     /* turn bans */
     xmlTurnBanList.add(xmlTurnBan);
@@ -85,11 +80,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   /** Populate the xml /<turns/> element
    *
    * @param xmlNetworkLayer to populate link segments on
-   * @param movements to populate XML with
+   * @param bannedMovements to populate XML with
    */
-  private void populateXmlTurns(XMLElementInfrastructureLayer xmlNetworkLayer, Movements movements) {
+  private void populateXmlTurns(XMLElementInfrastructureLayer xmlNetworkLayer, BannedMovements bannedMovements) {
     var xmlTurns = xmlNetworkLayer.getTurns();
-    if(movements.isEmpty()){
+    if(bannedMovements.isEmpty()){
       xmlNetworkLayer.setTurns(null);
       return;
     }
@@ -101,7 +96,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
 
     // jaxb naming issue, should be "bans"
     final var xmlBannedTurns = xmlTurns.getBen();
-    movements.streamSortedBy(getPrimaryIdMapper().getMovementIdMapper()).forEach(turnBan -> {
+    bannedMovements.streamSortedBy(getPrimaryIdMapper().getMovementIdMapper()).forEach(turnBan -> {
       populateXmlTurnBan(xmlBannedTurns, turnBan);
     });
   }
@@ -609,8 +604,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());
 
     /* restricted movements */
-    LOGGER.info(String.format("%s Movements: %d", currLayerLogPrefix, physicalNetworkLayer.getMovements().size()));
-    populateXmlTurns(xmlNetworkLayer, physicalNetworkLayer.getMovements());
+    LOGGER.info(String.format("%s Movements: %d", currLayerLogPrefix, physicalNetworkLayer.getBannedMovements().size()));
+    populateXmlTurns(xmlNetworkLayer, physicalNetworkLayer.getBannedMovements());
   }
 
 

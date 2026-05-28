@@ -652,8 +652,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       return;
     }
 
-    boolean banned = true;
-    var movementFactory = networkLayer.getMovements().getFactory();
+    var bannedMovementFactory = networkLayer.getBannedMovements().getFactory();
     for(var xmlBan : xmlTurnBans){
       var planitTurnXmlId = xmlBan.getId();
 
@@ -670,13 +669,13 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       var fromSegment = getBySourceId(MacroscopicLinkSegment.class,planitFromSegmentXmlId);
       var toSegment = getBySourceId(MacroscopicLinkSegment.class,planitToSegmentXmlId);
 
-      var movement = movementFactory.registerNew(fromSegment, toSegment, banned);
+      var bannedMovement = bannedMovementFactory.registerNew(fromSegment, toSegment);
       if(planitTurnXmlId == null){
         LOGGER.warning("Movement is missing a unique id, salvage by syncing to internal id, fix as may result " +
             "in undefined behaviour");
-        planitTurnXmlId = String.valueOf(movement.getId());
+        planitTurnXmlId = String.valueOf(bannedMovement.getId());
       }
-      movement.setXmlId(planitTurnXmlId);
+      bannedMovement.setXmlId(planitTurnXmlId);
     }
   }
 
