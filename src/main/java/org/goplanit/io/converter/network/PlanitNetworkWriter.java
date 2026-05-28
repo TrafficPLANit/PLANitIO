@@ -604,7 +604,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     populateXmlNodes(xmlNetworkLayer, physicalNetworkLayer.getNodes());
 
     /* restricted movements */
-    LOGGER.info(String.format("%s Movements: %d", currLayerLogPrefix, physicalNetworkLayer.getBannedMovements().size()));
+    LOGGER.info(String.format("%s Banned movements: %d", currLayerLogPrefix,
+        physicalNetworkLayer.getBannedMovements().size()));
     populateXmlTurns(xmlNetworkLayer, physicalNetworkLayer.getBannedMovements());
   }
 
