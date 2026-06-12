@@ -37,6 +37,9 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
   /** flag to indicate if input was a legacy version */
   private boolean inputIsLegacyVersion;
 
+  /**
+   * Mark as legacy version
+   */
   public void setInputIsLegacyVersion(){
     inputIsLegacyVersion = true;
   }
