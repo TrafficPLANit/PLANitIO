@@ -360,7 +360,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
    */
   @Override
   public DemandsIdMapper getPrimaryIdMapper() {
-    return getComponentIdMappers().getDemandsIdMapperIdMapper();
+    return getComponentIdMappers().getDemandsIdMapper();
   }
 
   /**
