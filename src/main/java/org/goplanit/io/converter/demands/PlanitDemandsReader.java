@@ -32,6 +32,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static org.goplanit.io.converter.demands.TimePeriodXmlUtils.parseTimePeriod;
+
 /**
  * Reader to parse PLANit demands from native XML format
  * 
@@ -333,40 +335,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     
     /* time period */
     for (var xmlTimePeriod : xmlTimeperiods.getTimeperiods()) {
-
-      /* starttime, duration */
-      int startTimeSeconds = (xmlTimePeriod.getStarttime() == null) ?
-          defaultStartTime.toSecondOfDay() : xmlTimePeriod.getStarttime().toSecondOfDay();
-      int duration = xmlTimePeriod.getDuration().getValue().intValue();
-      Durationunit durationUnit = xmlTimePeriod.getDuration().getUnit();
-      if (xmlTimePeriod.getName() == null) {
-        xmlTimePeriod.setName("");
-      }
-      switch (durationUnit) {
-        case H:
-          duration *= 3600;
-          break;
-        case M:
-          duration *= 60;
-          break;
-        case S:
-          break;
-      }
-      
-      /* PLANit time period */
-      TimePeriod timePeriod = demands.timePeriods.getFactory().registerNew(
-              xmlTimePeriod.getName(), startTimeSeconds, duration /*converted to seconds*/);
-      
-      /* xml id */
-      if(xmlTimePeriod.getId() != null && !xmlTimePeriod.getId().isBlank()) {
-        timePeriod.setXmlId(xmlTimePeriod.getId());
-      }      
-      
-      /* external id */
-      if(xmlTimePeriod.getExternalid() != null && !xmlTimePeriod.getExternalid().isBlank()) {
-        timePeriod.setExternalId(xmlTimePeriod.getExternalid());
-      }         
-      
+      var timePeriod = parseTimePeriod(xmlTimePeriod, defaultStartTime, demands.timePeriods);
       registerBySourceId(TimePeriod.class, timePeriod);
     }
   }  

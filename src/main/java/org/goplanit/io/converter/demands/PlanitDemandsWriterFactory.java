@@ -56,8 +56,9 @@ public class PlanitDemandsWriterFactory {
             demandsPath, PlanitDemandsWriterSettings.DEFAULT_DEMANDS_XML), parentZoning, new XMLElementMacroscopicDemand());
   }
   
-  /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format. By providing the XML memory model instance to populate
-   * we make it possible for the writer to embed the persisting in another larger XML memory model that is marshalled by an entity other than this writer in the future
+  /** Create a PlanitDemandsWriter which can persist a PLANit demands in the native PLANit XML format.
+   * By providing the XML memory model instance to populate we make it possible for the writer to embed the
+   * persisting in another larger XML memory model that is marshalled by an entity other than this writer in the future
    * 
    * @param settings the settings to use
    * @param parentZoning to use

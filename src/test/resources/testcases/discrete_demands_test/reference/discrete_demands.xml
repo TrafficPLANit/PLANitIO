@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<discretedemand xmlns="http://goplanit.org/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://goplanit.org/v2 https://www.goplanit.org/xsd/v2/discretedemandinput.xsd">
+    <id>0</id>
+    <timeperiods>
+        <timeperiod id="0">
+            <name>all day</name>
+            <duration unit="s">86400</duration>
+        </timeperiod>
+    </timeperiods>
+    <households>
+        <household id="0" zoneref="0"/>
+        <household id="1" zoneref="2"/>
+    </households>
+    <persons>
+        <person id="0" hhref="0">
+            <schedule init="home">
+                <tourref ref="0"/>
+                <tourref ref="5"/>
+            </schedule>
+        </person>
+        <person id="1" hhref="0">
+            <schedule init="home">
+                <tourref ref="1"/>
+            </schedule>
+        </person>
+        <person id="2" hhref="1">
+            <schedule init="home">
+                <tourref ref="2"/>
+            </schedule>
+        </person>
+        <person id="3" hhref="1">
+            <schedule init="home">
+                <tourref ref="3"/>
+            </schedule>
+        </person>
+    </persons>
+    <tours>
+        <tour id="0" purp="work" o="0" d="1" start_time="08:00:00" end_time="17:30:00">
+            <tourtrip ref="0"/>
+            <subtour ref="4"/>
+            <tourtrip ref="6"/>
+        </tour>
+        <tour id="1" purp="work" o="0" d="2" start_time="08:00:00" end_time="17:30:00">
+            <tourtrip ref="1"/>
+            <tourtrip ref="7"/>
+        </tour>
+        <tour id="2" purp="shopping" o="2" d="3" start_time="10:00:00" end_time="13:00:00">
+            <tourtrip ref="2"/>
+            <tourtrip ref="8"/>
+        </tour>
+        <tour id="3" purp="gym" o="2" d="4" start_time="15:00:00" end_time="16:00:00">
+            <tourtrip ref="3"/>
+            <tourtrip ref="9"/>
+        </tour>
+        <tour id="4" purp="gym" o="1" d="2" start_time="12:30:00" end_time="13:30:00" parentref="0">
+            <tourtrip ref="4"/>
+            <tourtrip ref="5"/>
+        </tour>
+        <tour id="5" purp="shopping" o="1" d="3" start_time="18:00:00" end_time="20:30:00">
+            <tourtrip ref="10"/>
+            <tourtrip ref="11"/>
+        </tour>
+    </tours>
+    <trips>
+        <trip id="0" purp="to:work" mode="0" start_time="08:00:00" tourref="0" direction="outbound"/>
+        <trip id="1" purp="to:work" mode="2" start_time="08:00:00" tourref="1" direction="outbound"/>
+        <trip id="2" purp="to:shopping" mode="1" start_time="10:00:00" tourref="2" direction="outbound"/>
+        <trip id="3" purp="to:gym" mode="3" start_time="15:00:00" tourref="3" direction="outbound"/>
+        <trip id="4" purp="to:gym" mode="3" start_time="12:30:00" tourref="4" direction="outbound"/>
+        <trip id="5" purp="from:gym" mode="3" start_time="13:10:00" tourref="4" direction="inbound"/>
+        <trip id="6" purp="from:work" mode="0" start_time="17:00:00" tourref="0" direction="inbound"/>
+        <trip id="7" purp="from:work" mode="2" start_time="16:45:00" tourref="1" direction="inbound"/>
+        <trip id="8" purp="from:shopping" mode="3" start_time="12:40:00" tourref="2" direction="inbound"/>
+        <trip id="9" purp="from:gym" mode="3" start_time="15:40:00" tourref="3" direction="inbound"/>
+        <trip id="10" purp="to:shopping" mode="3" start_time="18:00:00" tourref="5" direction="outbound"/>
+        <trip id="11" purp="from:shopping" mode="3" start_time="20:20:00" tourref="5" direction="inbound"/>
+    </trips>
+</discretedemand>

@@ -88,7 +88,7 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
   public static final String DEFAULT_XML_FILE_EXTENSION = ".xml";  
   
     
-  /** location of where to collect XML file and populate an instance of provided class
+  /** Location of where to collect XML file and populate an instance of provided class
    * 
    * @param latestVersionClazz to create root element and populate it for
    * @param legacyVersionClazz to create root element and populate it for in latest version normalised

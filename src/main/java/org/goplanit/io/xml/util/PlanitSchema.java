@@ -36,11 +36,14 @@ public class PlanitSchema {
   /** latest known version from PLANitXml */
   public static final String LATEST_SCHEMA_VERSION = XsdLatestVersion.VERSION;
 
-  /** schema for demand */
+  /** schema for network */
   public static final String MACROSCOPIC_NETWORK_XSD= "macroscopicnetworkinput.xsd";
 
-  /** schema for demand */
+  /** schema for macroscopic demand */
   public static final String MACROSCOPIC_DEMAND_XSD= "macroscopicdemandinput.xsd";
+
+  /** schema for discrete demand */
+  public static final String DISCRETE_DEMAND_XSD = "discretedemandinput.xsd";
 
   /** schema for zoning */
   public static final String MACROSCOPIC_ZONING_XSD= "macroscopiczoninginput.xsd";
@@ -71,9 +74,13 @@ public class PlanitSchema {
   public static final String MACROSCOPIC_ZONING_XSD_SCHEMA_URI_DEV =
       XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_ZONING_XSD;
   
-  /** the schema URI location of planit macroscopic zoning input during development **/
+  /** the schema URI location of planit macroscopic demand input during development **/
   public static final String MACROSCOPIC_DEMAND_XSD_SCHEMA_URI_DEV =
-      XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+MACROSCOPIC_DEMAND_XSD;
+      XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+ MACROSCOPIC_DEMAND_XSD;
+
+  /** the schema URI location of planit discrete demand input during development **/
+  public static final String DISCRETE_DEMAND_XSD_SCHEMA_URI_DEV =
+      XSD_SCHEMA_URI_DEVELOPMENT_GENERIC+ DISCRETE_DEMAND_XSD;
   
   /** the schema URI location of any PLANit XSD schema for any release version, but without the actual version
    * or schema appended yet**/

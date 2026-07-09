@@ -14,9 +14,7 @@ import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 
-import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.logging.Logger;
@@ -41,8 +39,10 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
   /** the XML to populate */
   private final XMLElementMacroscopicDemand xmlRawDemands;
   
-  /** track user classes per mode as this is not yet supported 100%, so we need to identify if an unsupported situation is provided */
+  /** track user classes per mode as this is not yet supported 100%, so we need to identify if an unsupported
+   * situation is provided */
   private final Map<Mode,Set<UserClass>> userClassesPerMode;
+
 
   /** Populate the demands configuration's time periods
    * 
@@ -55,45 +55,11 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       return;
     }
         
-    var xmlTimePeriods = new XMLElementTimePeriods();
-    xmlDemandConfiguration.setTimeperiods(xmlTimePeriods );
+    var xmlTimePeriods = new TimePeriodsContainerType();
+    xmlDemandConfiguration.setTimeperiods(xmlTimePeriods);
     demands.timePeriods.streamSortedBy(getPrimaryIdMapper().getTimePeriodIdMapper()).forEach(timePeriod -> {
-      var xmlTimePeriod = new org.goplanit.xml.generated.v2.Timeperiod();
-      xmlTimePeriods.getTimeperiods().add(xmlTimePeriod);
-      
-      /* XML id */
-      xmlTimePeriod.setId(getPrimaryIdMapper().getTimePeriodIdMapper().apply(timePeriod));
-      
-      /* external id */
-      if(timePeriod.hasExternalId()) {
-        xmlTimePeriod.setExternalid(timePeriod.getExternalId());
-      }
-      
-      /* name/description */
-      if(timePeriod.hasDescription()) {
-        xmlTimePeriod.setName(timePeriod.getDescription());
-      }      
-      
-      /* start time */
-      if(timePeriod.getStartTimeSeconds() > 0) {
-        try {
-          xmlTimePeriod.setStarttime(LocalTime.ofSecondOfDay(timePeriod.getStartTimeSeconds()));
-        } catch (Exception e) {
-          LOGGER.severe(e.getMessage());
-          throw new PlanItRunTimeException("Error when generating start time of time period "+ timePeriod.getXmlId()+
-                  " when persisting demand configuration",e);
-        }  
-      }      
-                
-      /* duration */
-      if(timePeriod.getDurationSeconds()<=0) {
-        throw new PlanItRunTimeException("Error duration of time period %s  is not positive, this is not allowed",
-                timePeriod.getXmlId());
-      }
-      var xmlDuration = new XMLElementDuration();
-      xmlDuration.setUnit(Durationunit.S); // TODO: ideally we keep the original unit so input and output files are consistent
-      xmlDuration.setValue(BigInteger.valueOf(timePeriod.getDurationSeconds()));
-      xmlTimePeriod.setDuration(xmlDuration);           
+      TimePeriodXmlUtils.addTimePeriod(
+          xmlTimePeriods, timePeriod, getPrimaryIdMapper().getTimePeriodIdMapper());
     });
   }
 
