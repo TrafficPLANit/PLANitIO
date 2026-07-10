@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.goplanit.converter.network.NetworkReaderImpl;
 import org.goplanit.io.xml.network.physical.macroscopic.XmlMacroscopicNetworkLayerHelper;
-import org.goplanit.io.xml.util.xmlEnumConversionUtil;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.mode.ModeFeaturesFactory;
 import org.goplanit.network.MacroscopicNetwork;
@@ -121,7 +121,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     }
     
     /* parse set values */
-    UseOfModeType useOfModeType = xmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());
+    UseOfModeType useOfModeType = XmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());
     
     return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType);
   }
@@ -138,11 +138,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     
     /* parse set values */
     VehicularModeType vehicleType =
-            xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());
+            XmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getVehicletype());
     MotorisationModeType motorisationType =
-            xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());
+            XmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getMotorisationtype());
     TrackModeType trackType =
-            xmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());
+            XmlEnumConversionUtil.xmlToPlanit(generatedMode.getPhysicalfeatures().getTracktype());
     
     return ModeFeaturesFactory.createPhysicalFeatures(vehicleType, motorisationType, trackType);
   }    
@@ -160,7 +160,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       if(xmlMode.getId() != null && !xmlMode.getId().isBlank()) {
         modeXmlId = xmlMode.getId();
       }      
-      
+
+      //todo: brittle, we should use the predefined attribute to map to the name of the predefined instead
       /* name, generate unique name if undefined */
       String name = xmlMode.getName();
       String potentialPredefinedModeType = name;

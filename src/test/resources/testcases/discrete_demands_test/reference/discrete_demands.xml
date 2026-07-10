@@ -62,17 +62,17 @@
         </tour>
     </tours>
     <trips>
-        <trip id="0" purp="to:work" mode="0" start_time="08:00:00" tourref="0" direction="outbound"/>
-        <trip id="1" purp="to:work" mode="2" start_time="08:00:00" tourref="1" direction="outbound"/>
-        <trip id="2" purp="to:shopping" mode="1" start_time="10:00:00" tourref="2" direction="outbound"/>
-        <trip id="3" purp="to:gym" mode="3" start_time="15:00:00" tourref="3" direction="outbound"/>
-        <trip id="4" purp="to:gym" mode="3" start_time="12:30:00" tourref="4" direction="outbound"/>
-        <trip id="5" purp="from:gym" mode="3" start_time="13:10:00" tourref="4" direction="inbound"/>
-        <trip id="6" purp="from:work" mode="0" start_time="17:00:00" tourref="0" direction="inbound"/>
-        <trip id="7" purp="from:work" mode="2" start_time="16:45:00" tourref="1" direction="inbound"/>
-        <trip id="8" purp="from:shopping" mode="3" start_time="12:40:00" tourref="2" direction="inbound"/>
-        <trip id="9" purp="from:gym" mode="3" start_time="15:40:00" tourref="3" direction="inbound"/>
-        <trip id="10" purp="to:shopping" mode="3" start_time="18:00:00" tourref="5" direction="outbound"/>
-        <trip id="11" purp="from:shopping" mode="3" start_time="20:20:00" tourref="5" direction="inbound"/>
+        <trip id="0" purp="to:work" mode="car" start_time="08:00:00" tourref="0" direction="outbound"/>
+        <trip id="1" purp="to:work" mode="train" start_time="08:00:00" tourref="1" direction="outbound"/>
+        <trip id="2" purp="to:shopping" mode="bus" start_time="10:00:00" tourref="2" direction="outbound"/>
+        <trip id="3" purp="to:gym" mode="pedestrian" start_time="15:00:00" tourref="3" direction="outbound"/>
+        <trip id="4" purp="to:gym" mode="pedestrian" start_time="12:30:00" tourref="4" direction="outbound"/>
+        <trip id="5" purp="from:gym" mode="pedestrian" start_time="13:10:00" tourref="4" direction="inbound"/>
+        <trip id="6" purp="from:work" mode="car" start_time="17:00:00" tourref="0" direction="inbound"/>
+        <trip id="7" purp="from:work" mode="train" start_time="16:45:00" tourref="1" direction="inbound"/>
+        <trip id="8" purp="from:shopping" mode="pedestrian" start_time="12:40:00" tourref="2" direction="inbound"/>
+        <trip id="9" purp="from:gym" mode="pedestrian" start_time="15:40:00" tourref="3" direction="inbound"/>
+        <trip id="10" purp="to:shopping" mode="pedestrian" start_time="18:00:00" tourref="5" direction="outbound"/>
+        <trip id="11" purp="from:shopping" mode="pedestrian" start_time="20:20:00" tourref="5" direction="inbound"/>
     </trips>
 </discretedemand>

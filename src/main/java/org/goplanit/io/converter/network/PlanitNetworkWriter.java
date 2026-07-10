@@ -6,10 +6,10 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
-import org.goplanit.io.xml.util.xmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
@@ -408,11 +408,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     try {
       /* motorisation type */
       xmlPhysicalFeatures.setMotorisationtype(
-              xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getMotorisationType()));
+              XmlEnumConversionUtil.planitToXml(physicalModeFeatures.getMotorisationType()));
       /* track type */
-      xmlPhysicalFeatures.setTracktype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
+      xmlPhysicalFeatures.setTracktype(XmlEnumConversionUtil.planitToXml(physicalModeFeatures.getTrackType()));
       /* vehicle type */
-      xmlPhysicalFeatures.setVehicletype(xmlEnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
+      xmlPhysicalFeatures.setVehicletype(XmlEnumConversionUtil.planitToXml(physicalModeFeatures.getVehicularType()));
     }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
@@ -435,7 +435,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     try {
       /* motorisation type */
-      xmlUseFeatures.setUsedtotype(xmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
+      xmlUseFeatures.setUsedtotype(XmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
     }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");

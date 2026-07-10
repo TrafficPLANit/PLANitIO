@@ -1,13 +1,15 @@
 package org.goplanit.io.xml.util;
 
+import org.goplanit.demands.discrete.util.DirectionBound;
+import org.goplanit.output.enums.DataType;
+import org.goplanit.output.property.OutputProperty;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.mode.MotorisationModeType;
 import org.goplanit.utils.mode.TrackModeType;
 import org.goplanit.utils.mode.UseOfModeType;
 import org.goplanit.utils.mode.VehicularModeType;
 import org.goplanit.utils.unit.Unit;
-import org.goplanit.xml.generated.v2.MotorisationType;
-import org.goplanit.xml.generated.v2.VehicularType;
+import org.goplanit.xml.generated.v2.*;
 
 /**
  * Some methods to convert the XML schema enums to PLANit memory model enums
@@ -15,12 +17,12 @@ import org.goplanit.xml.generated.v2.VehicularType;
  * @author markr
  *
  */
-public class xmlEnumConversionUtil {
+public class XmlEnumConversionUtil {
 
   /**
    * Dummy constructor as never instantiated
    */
-  private xmlEnumConversionUtil() {
+  private XmlEnumConversionUtil() {
     // compliance to avoid javadoc warnings
   }
   
@@ -217,6 +219,90 @@ public class xmlEnumConversionUtil {
     }else{
       throw new PlanItRunTimeException(String.format(
           "Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable", planitTimeUnit));
+    }
+  }
+
+  /**
+   * Convert JAXB TripDirectionType to native PLANit DirectionBound exactly
+   */
+  public static DirectionBound xmlToPlanit(TripDirectionType xmlDirection) {
+    if (xmlDirection == null) {
+      return null;
+    }
+
+    switch (xmlDirection) {
+      case OUTBOUND:
+        return DirectionBound.OUTBOUND;
+      case INBOUND:
+        return DirectionBound.INBOUND;
+      default:
+        throw new IllegalArgumentException("Unsupported XML direction enum constant: " + xmlDirection);
+    }
+  }
+
+  /**
+   * Convert values from Type enumeration in PLANit project to generated Typevalues enumeration
+   *
+   * @param type value of Type enumeration
+   * @return value of generated Typevalues enumeration
+   */
+  public static Typevalues planitToXml(DataType type) {
+    switch (type) {
+      case DOUBLE:
+        return Typevalues.DOUBLE;
+      case FLOAT:
+        return Typevalues.FLOAT;
+      case INTEGER:
+        return Typevalues.INTEGER;
+      case LONG:
+        return Typevalues.INTEGER;
+      case BOOLEAN:
+        return Typevalues.BOOLEAN;
+      case SRSNAME:
+        return Typevalues.SRSNAME;
+      case STRING:
+        return Typevalues.STRING;
+      default:
+        throw new PlanItRunTimeException("Data type " + type.value() + " has not been defined in the type values" +
+            " simple type in the output XSD file");
+    }
+  }
+
+  /**
+   * Convert values from Units enumeration in PLANit project to generated Unitsvalues enumeration
+   *
+   * @param outputProperty value of Units enumeration
+   * @return value of generated Unitsvalues enumeration
+   */
+  public static Unitsvalues planitToXml(OutputProperty outputProperty) {
+    Unit outputPropertyUnit = outputProperty.getDefaultUnit();
+    if(outputProperty.supportsUnitOverride() && outputProperty.isUnitOverride()) {
+      outputPropertyUnit = outputProperty.getOverrideUnit();
+    }
+
+    if(outputPropertyUnit.equals(Unit.VEH_KM)){
+      return Unitsvalues.VEH_KM;
+    }else if(outputPropertyUnit.equals(Unit.PCU_KM)){
+      return Unitsvalues.PCU_KM;
+    }else if(outputPropertyUnit.equals(Unit.NONE)){
+      return Unitsvalues.NONE;
+    }else if(outputPropertyUnit.equals(Unit.VEH_HOUR)){
+      return Unitsvalues.VEH_H;
+    }else if(outputPropertyUnit.equals(Unit.PCU_HOUR)) {
+      return Unitsvalues.PCU_H;
+    }else if(outputPropertyUnit.equals(Unit.KM_HOUR)) {
+      return Unitsvalues.KM_H;
+    }else if(outputPropertyUnit.equals(Unit.HOUR)) {
+      return Unitsvalues.H;
+    }else if(outputPropertyUnit.equals(Unit.KM)) {
+      return Unitsvalues.KM;
+    }else if(outputPropertyUnit.equals(Unit.SRS)) {
+      return Unitsvalues.SRS;
+    }else if(outputPropertyUnit.equals(Unit.MILLISECOND)) {
+      return Unitsvalues.MS;
+    }else{
+      throw new PlanItRunTimeException("Units type " + outputProperty + " has not been defined in the units " +
+          "values simple type in the output XSD file.");
     }
   }
 

@@ -1,9 +1,9 @@
 package org.goplanit.io.output.formatter;
 
 import org.apache.commons.csv.CSVPrinter;
-import org.goplanit.io.xml.converter.XmlEnumConverter;
 import org.goplanit.io.xml.util.ApplicationProperties;
 import org.goplanit.io.xml.util.PlanitSchema;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.output.adapter.BushLinkOutputTypeAdapter;
 import org.goplanit.output.adapter.OutputAdapter;
 import org.goplanit.output.configuration.OutputConfiguration;
@@ -19,7 +19,6 @@ import org.goplanit.output.property.OutputProperty;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGroupingToken;
-import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
@@ -280,8 +279,8 @@ public class PlanItOutputFormatter extends CsvFileOutputFormatter
     for (var outputProperty : outputProperties) {
       XMLElementColumn generatedColumn = new XMLElementColumn();
       generatedColumn.setName(outputProperty.getName());
-      generatedColumn.setUnits(XmlEnumConverter.convertFromPlanItToXmlGeneratedUnits(outputProperty));
-      generatedColumn.setType(XmlEnumConverter.convertFromPlanItToXmlGeneratedType(outputProperty.getDataType()));
+      generatedColumn.setUnits(XmlEnumConversionUtil.planitToXml(outputProperty));
+      generatedColumn.setType(XmlEnumConversionUtil.planitToXml(outputProperty.getDataType()));
       generatedColumns.getColumns().add(generatedColumn);
     }
     return generatedColumns;

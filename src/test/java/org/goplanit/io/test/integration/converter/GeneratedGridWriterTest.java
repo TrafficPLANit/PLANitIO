@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+import static org.goplanit.io.test.util.PlanItIOTestHelper.deleteFile;
 import static org.goplanit.utils.zoning.connectoid.ZoneConnectoidType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -94,6 +95,9 @@ public class GeneratedGridWriterTest {
 
       assert(PlanItIOTestHelper.compareFiles(
           referenceZoning.toString(), createdZoningPath.toString(), true));
+
+      deleteFile(Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "network.xml").toString());
+      deleteFile(Path.of(GRID_WRITER_OUTPUT_PATH.toAbsolutePath().toString(), "zoning.xml").toString());
 
     }catch(Exception e){
       e.printStackTrace();

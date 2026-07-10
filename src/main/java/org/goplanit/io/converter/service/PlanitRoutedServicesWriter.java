@@ -4,7 +4,7 @@ import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
-import org.goplanit.io.xml.util.xmlEnumConversionUtil;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.locale.CountryNames;
@@ -94,7 +94,7 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
       var frequency = new org.goplanit.xml.generated.v2.Frequency();
 
       /* unit */
-      frequency.setUnit(xmlEnumConversionUtil.planitToXml(getSettings().getTripFrequencyTimeUnit()));
+      frequency.setUnit(XmlEnumConversionUtil.planitToXml(getSettings().getTripFrequencyTimeUnit()));
 
       /* frequency value */
       frequency.setValue((float) HOUR.convertTo(getSettings().getTripFrequencyTimeUnit(),

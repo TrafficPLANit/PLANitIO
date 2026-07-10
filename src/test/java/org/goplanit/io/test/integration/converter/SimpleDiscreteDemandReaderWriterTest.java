@@ -1,7 +1,10 @@
 package org.goplanit.io.test.integration.converter;
 
 import org.goplanit.demands.discrete.DiscreteDemands;
+import org.goplanit.demands.discrete.tour.Tour;
+import org.goplanit.demands.discrete.trip.Trip;
 import org.goplanit.demands.discrete.util.DirectionBound;
+import org.goplanit.io.converter.demands.PlanitDiscreteDemandsReaderFactory;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsWriterFactory;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.logging.Logging;
@@ -11,6 +14,7 @@ import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.zoning.Zoning;
+import org.goplanit.zoning.ZoningModifierUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +28,9 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.goplanit.io.test.util.PlanItIOTestHelper.deleteFile;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * JUnit test cases for converting discrete demands to PLANit XML
@@ -32,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author markr
  *
  */
-public class SimpleDiscreteDemandWriterTest extends TestBase {
+public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
 
   /**
    * the logger
@@ -46,7 +52,7 @@ public class SimpleDiscreteDemandWriterTest extends TestBase {
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
-      LOGGER = Logging.createLogger(SimpleDiscreteDemandWriterTest.class);
+      LOGGER = Logging.createLogger(SimpleDiscreteDemandReaderWriterTest.class);
     }
   }
 
@@ -238,11 +244,175 @@ public class SimpleDiscreteDemandWriterTest extends TestBase {
       // convert
       writer.write(discreteDemands);
 
+      String theOutputFile = Path.of(PLANIT_OUTPUT_DIR.toString(), "discrete_demands.xml").toString();
+      String theRefFile =Path.of(PLANIT_REF_DIR.toString(),"discrete_Demands.xml").toString();
       org.hamcrest.MatcherAssert.assertThat(
           /* xml unit functionality comparing the two files */
-          Input.fromFile(Path.of(PLANIT_OUTPUT_DIR.toString(), "network.xml").toString()),
-          CompareMatcher.isSimilarTo(
-              Input.fromFile(Path.of(PLANIT_REF_DIR.toString(),"network.xml").toString())));
+          Input.fromFile(theOutputFile),
+          CompareMatcher.isSimilarTo(Input.fromFile(theRefFile)));
+
+      deleteFile(theOutputFile);
+    } catch (final Exception e) {
+      e.printStackTrace();
+      LOGGER.severe(e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Test case which takes a reference PLANit XML discrete demands setup,
+   * parses it using the reader, and asserts the reconstructed in-memory
+   * graph properties match the model specifications.
+   */
+  @Test
+  public void testPlanitXmlToMemoryModel() {
+
+    // we use the same setup as the one we wrote to disk above, so we can use its reference to parse.
+    final Path PLANIT_REF_DIR = Path.of(TEST_CASE_PATH.toString(), "discrete_demands_test", "reference");
+
+    try {
+      var network = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
+      var carMode = network.getModes().getFactory().registerNew(PredefinedModeType.CAR);
+      var busMode = network.getModes().getFactory().registerNew(PredefinedModeType.BUS);
+      var trainMode = network.getModes().getFactory().registerNew(PredefinedModeType.TRAIN);
+      var walkMode = network.getModes().getFactory().registerNew(PredefinedModeType.PEDESTRIAN);
+      network.getTransportLayers().getFactory().registerNew(network.getModes());
+
+      var zoning = new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
+
+      // Instantiate zones programmatically
+      var zone0 = zoning.getOdZones().getFactory().registerNew();
+      var zone1 = zoning.getOdZones().getFactory().registerNew();
+      var zone2 = zoning.getOdZones().getFactory().registerNew();
+      var zone3 = zoning.getOdZones().getFactory().registerNew();
+      var zone4 = zoning.getOdZones().getFactory().registerNew();
+      ZoningModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+
+      var demandsReader = PlanitDiscreteDemandsReaderFactory.create(
+          PLANIT_REF_DIR.toAbsolutePath().toString(), network, zoning);
+      var discreteDemands = (DiscreteDemands) demandsReader.read();
+
+      // --- DOMAIN MODEL VERIFICATION ASSERTIONS ---
+
+      // Time Periods Assertion
+      var timePeriods = discreteDemands.getTimePeriods();
+      assertEquals(1, timePeriods.size(), "Should have exactly 1 global time period registered.");
+      var globalPeriod = timePeriods.getFirst();
+      assertNotNull(globalPeriod);
+      assertEquals(0, globalPeriod.getStartTimeSeconds());
+      assertEquals(24 * 3600, globalPeriod.getDurationSeconds());
+
+      // Households Count & Integrity
+      var households = discreteDemands.getHouseholds();
+      assertEquals(2, households.size(), "Should parse exactly 2 unique households.");
+
+      // Persons Count & Split Integrity
+      var persons = discreteDemands.getPersons();
+      assertEquals(4, persons.size(), "Should parse exactly 4 unique individual agents.");
+
+      // Verify each person has initial purpose set to "home"
+      persons.forEach(person ->
+          assertEquals("home", person.getInitialPurpose(), "Initial purpose must decode to 'home'.")
+      );
+
+      // Deep Validation on Agent 0's complex schedule hierarchy (Person 0)
+      var person0 = persons.stream()
+          .filter(p -> "0".equals(p.getXmlId()))
+          .findFirst()
+          .orElseThrow(() -> new AssertionError("Person with XML ID 'p0' was not found."));
+
+      // --- SPATIAL MAPPING CHECKS: HOUSEHOLDS ---
+      assertNotNull(person0.getHousehold());
+      assertNotNull(person0.getHousehold().getZone(), "Household must have a validated spatial anchor.");
+      assertEquals("0", person0.getHousehold().getZone().getXmlId(),
+          "p0 household must anchor to zone0 mapping exactly.");
+
+      // Tours verification
+      var tours = discreteDemands.getTours();
+      assertEquals(6, tours.size(),
+          "Should find 6 total tours across all agents (4 main tours + 1 sub-tour + 1 sequential tour).");
+
+      // Pull main work tour of person 0
+      var workTourP0 = tours.stream()
+          .filter(t -> "0".equals(t.getXmlId()))
+          .findFirst()
+          .orElseThrow(() -> new AssertionError("Tour 'tour0_p0' was not registered."));
+
+      // Verify Tour 1 Mode Mapping (Train)
+      var workTourP1 = tours.stream()
+          .filter(t -> "1".equals(t.getXmlId()))
+          .findFirst()
+          .orElseThrow();
+      assertTrue(workTourP1.hasSchedule(), "Expected Tour 1 to have a schedule");
+      var p1Outbound = (Trip) workTourP1.getSchedule().get(0);
+      assertEquals(PredefinedModeType.TRAIN, p1Outbound.getMode().getPredefinedModeType(),
+          "Tour 1 outbound trip should map exactly to TRAIN.");
+
+      // Verify Tour 2 Mode Mapping (Bus to Destination, Walk Back)
+      var shoppingTourP2 = tours.stream()
+          .filter(t -> "2".equals(t.getXmlId()))
+          .findFirst()
+          .orElseThrow();
+      var p2Outbound = (Trip) shoppingTourP2.getSchedule().get(0);
+      var p2Inbound = (Trip) shoppingTourP2.getSchedule().get(1);
+      assertEquals(PredefinedModeType.BUS, p2Outbound.getMode().getPredefinedModeType(),
+          "Tour 2 outbound trip should map exactly to BUS.");
+      assertEquals(PredefinedModeType.PEDESTRIAN, p2Inbound.getMode().getPredefinedModeType(),
+          "Tour 2 inbound trip should map exactly to PEDESTRIAN (walk back).");
+
+      assertEquals(PURPOSE_WORK, workTourP0.getPurpose());
+      assertEquals(LocalTime.of(8, 0), workTourP0.getStartTime());
+      assertEquals(LocalTime.of(17, 30), workTourP0.getEndTime());
+
+      // --- SPATIAL MAPPING CHECKS: TOURS ---
+      assertNotNull(workTourP0.getOrigin(), "Tour origin zone link cannot be null.");
+      assertNotNull(workTourP0.getDestination(), "Tour destination zone link cannot be null.");
+      assertEquals("0", workTourP0.getOrigin().getXmlId(), "Tour origin must map to zone0.");
+      assertEquals("1", workTourP0.getDestination().getXmlId(), "Tour destination must map to zone1.");
+      assertEquals(0, workTourP0.getOrigin().getId(), "Tour origin must map to zone0.");
+      assertEquals(1, workTourP0.getDestination().getId(), "Tour destination must map to zone1.");
+
+      // Verify Schedule Reconstruction Chronology for Person 0
+      var scheduleP0 = workTourP0.getSchedule();
+      assertNotNull(scheduleP0, "Tour schedule must be reassembled and populated.");
+      assertEquals(3, scheduleP0.size(),
+          "The work tour schedule for p0 should possess 3 chronological segments.");
+
+      var firstSegment = scheduleP0.get(0);
+      assertTrue(firstSegment instanceof Trip, "First segment must be a Trip.");
+      var outboundTrip = (Trip) firstSegment;
+      assertEquals(DirectionBound.OUTBOUND, outboundTrip.getDirection());
+      assertNotNull(outboundTrip.getMode(), "Trip mode should not be null.");
+      assertEquals(PredefinedModeType.CAR, outboundTrip.getMode().getPredefinedModeType(),
+          "Outbound trip should map exactly to CAR mode.");
+
+      var secondSegment = scheduleP0.get(1);
+      assertTrue(secondSegment instanceof Tour, "Second segment must be the nested sub-tour.");
+      var subTour = (Tour) secondSegment;
+      assertEquals(PURPOSE_GYM, subTour.getPurpose());
+      assertEquals(workTourP0, subTour.getParentTour(),
+          "The sub-tour's parent tour link must be wired up correctly.");
+
+      // Verify sub-tour's internal trips and their modes (Walk)
+      var subTourSchedule = subTour.getSchedule();
+      assertEquals(2, subTourSchedule.size(),
+          "Sub-tour schedule should contain 2 trips (outbound + inbound).");
+
+      var subTourOutbound = (Trip) subTourSchedule.get(0);
+      assertEquals(PredefinedModeType.PEDESTRIAN, subTourOutbound.getMode().getPredefinedModeType(),
+          "Sub-tour outbound trip should be a WALK/PEDESTRIAN mode.");
+
+      var subTourInbound = (Trip) subTourSchedule.get(1);
+      assertEquals(PredefinedModeType.PEDESTRIAN, subTourInbound.getMode().getPredefinedModeType(),
+          "Sub-tour inbound trip should be a WALK/PEDESTRIAN mode.");
+
+      var thirdSegment = scheduleP0.get(2);
+      assertTrue(thirdSegment instanceof Trip, "Third segment must be a Trip.");
+      var inboundTrip = (Trip) thirdSegment;
+      assertEquals(DirectionBound.INBOUND, inboundTrip.getDirection());
+      assertNotNull(inboundTrip.getMode(), "Inbound trip mode should not be null.");
+      assertEquals(PredefinedModeType.CAR, inboundTrip.getMode().getPredefinedModeType(),
+          "Inbound trip back home should map exactly to CAR mode.");
 
     } catch (final Exception e) {
       e.printStackTrace();
@@ -250,4 +420,5 @@ public class SimpleDiscreteDemandWriterTest extends TestBase {
       fail(e.getMessage());
     }
   }
+
 }

@@ -121,14 +121,14 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     // Get or initialize the top-level <households> container element
     var householdsElement = xmlRawDiscreteDemand.getHouseholds();
     if (householdsElement == null) {
-      householdsElement = new HouseholdsType();
+      householdsElement = new XMLElementHouseholds();
       xmlRawDiscreteDemand.setHouseholds(householdsElement);
     }
-    List<HouseholdType> xmlHouseholds =  householdsElement.getHouseholds();
+    List<XMLElementHousehold> xmlHouseholds =  householdsElement.getHouseholds();
 
     // Iterate over internal domain model and map to JAXB elements
     for (var domainHousehold : discreteDemands.getHouseholds()) {
-      var xmlHousehold = new HouseholdType();
+      var xmlHousehold = new XMLElementHousehold();
 
       var mappedId = getPrimaryIdMapper().getHouseholdClassIdMapper().apply(domainHousehold);
       if(mappedId == null){
@@ -285,15 +285,15 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     // Get or initialize the top-level <tours> container element
     var toursElement = xmlRawDiscreteDemand.getTours();
     if (toursElement == null) {
-      toursElement = new ToursType();
+      toursElement = new XMLElementTours();
       xmlRawDiscreteDemand.setTours(toursElement);
     }
-    List<TourType> xmlTours = toursElement.getTours();
+    List<XMLElementTour> xmlTours = toursElement.getTours();
 
     // Iterate over internal domain model and map to JAXB elements
     var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper();
     for (var domainTour : discreteDemands.getTours()) {
-      var xmlTour = new TourType();
+      var xmlTour = new XMLElementTour();
 
       // Map and validate Tour Primary ID
       var mappedId = getPrimaryIdMapper().getTourClassIdMapper().apply(domainTour);
@@ -385,14 +385,14 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     // Get or initialize the top-level <trips> container element
     var tripsElement = xmlRawDiscreteDemand.getTrips();
     if (tripsElement == null) {
-      tripsElement = new TripsType();
+      tripsElement = new XMLElementTrips();
       xmlRawDiscreteDemand.setTrips(tripsElement);
     }
-    List<TripType> xmlTrips = tripsElement.getTrips();
+    List<XMLElementTrip> xmlTrips = tripsElement.getTrips();
 
     // Iterate over internal domain model and map to JAXB elements
     for (var domainTrip : discreteDemands.getTrips()) {
-      var xmlTrip = new TripType();
+      var xmlTrip = new XMLElementTrip();
 
       // Map and validate Trip Primary ID
       var mappedId = getPrimaryIdMapper().getTripClassIdMapper().apply(domainTrip);
@@ -433,7 +433,8 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
             domainTrip.getIdsAsString()));
         continue;
       }
-      var modeRef = getComponentIdMappers().getNetworkIdMappers().getModeIdMapper().apply(domainTrip.getMode());
+      var modeRef = getXmlModeReference(
+          domainTrip.getMode(), getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
       if (StringUtils.isNullOrBlank(modeRef)) {
         LOGGER.severe(String.format("Trip (%s) is missing a valid mapped mode id for mode (%s), skipping",
             domainTrip.getIdsAsString(), domainTrip.getMode().getIdsAsString()));
@@ -476,7 +477,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
    * @param xmlTour target JAXB tour element
    * @return true if successfully mapped; false if a structural validation fails
    */
-  private boolean addXmlActivitySchedule(Tour domainTour, TourType xmlTour) {
+  private boolean addXmlActivitySchedule(Tour domainTour, XMLElementTour xmlTour) {
     var domainSchedule = domainTour.getSchedule();
     var xmlElements = xmlTour.getSubtoursAndTourtrips();
 

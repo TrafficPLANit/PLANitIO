@@ -38,7 +38,8 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
     return ((PlanitXmlWriterSettings)getSettings());
   }
 
-  /** Get the reference to use whenever a mode reference is encountered
+  /** Get the reference to use whenever a mode reference is encountered. Special treatment for predefined modes
+   * so whenever we use mode ids either in parsing or writing it should go through this logic.
    *
    * @param mode to collect reference for
    * @param modeIdMapper to use

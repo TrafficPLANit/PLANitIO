@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.service.RoutedServicesReader;
-import org.goplanit.io.xml.util.xmlEnumConversionUtil;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
@@ -216,7 +216,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     if(xmlTimeUnit == null){
       throw new PlanItRunTimeException("Unavailable time unit for frequency in trip %s",routedTrip.getXmlId());
     }
-    org.goplanit.utils.unit.TimeUnit planitFrequencyTimeUnit = xmlEnumConversionUtil.xmlToPlanit(xmlTimeUnit);
+    org.goplanit.utils.unit.TimeUnit planitFrequencyTimeUnit = XmlEnumConversionUtil.xmlToPlanit(xmlTimeUnit);
     
     /* XML frequency */
     double xmlNonNormalisedFrequency = xmlFrequency.getValue();

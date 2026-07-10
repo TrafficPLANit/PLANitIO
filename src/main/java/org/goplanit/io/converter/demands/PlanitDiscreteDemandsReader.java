@@ -10,6 +10,7 @@ import org.goplanit.demands.discrete.tour.Tour;
 import org.goplanit.demands.discrete.trip.Trip;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
@@ -17,12 +18,15 @@ import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
+import org.goplanit.utils.wrapper.MapWrapper;
+import org.goplanit.utils.wrapper.MapWrapperImpl;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.Zone;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 
 import java.time.LocalTime;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.goplanit.io.converter.demands.TimePeriodXmlUtils.parseTimePeriod;
@@ -151,13 +155,14 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         household.setExternalId(xmlHousehold.getExternalid());
       }
 
-      var zone = getBySourceId(Zone.class,xmlHousehold.getZoneref());
+      var zone = (OdZone) getBySourceId(Zone.class,xmlHousehold.getZoneref());
       if (zone == null) {
         LOGGER.severe(String.format(
             "Household (%s) references zone ID '%s' which cannot be found in the registered network zoning. Skipping.",
             xmlHousehold.getId(), xmlHousehold.getZoneref()));
         continue;
       }
+      household.setZone(zone);
 
       //Register plumbing registry tracking
       registerBySourceId(Household.class, household);
@@ -275,7 +280,12 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
     populateTrips();
 
+    // now we can populate the person schedules with all information parsed ...
+    populatePersonSchedules();
+    // ... and the trips on the tour schedules
+    populateTourSchedules();
   }
+
 
   /**
    * Populate tours without schedule, we do that later
@@ -350,6 +360,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
             xmlTour.getId(), startTime, endTime));
         continue;
       }
+      tour.setStartEndTime(startTime, endTime);
 
       // we do post loop for parent-tours, since they may not all be parsed yet
 
@@ -397,21 +408,15 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       return;
     }
 
+    @SuppressWarnings("unchecked")
+    MapWrapperImpl<String,Mode> modesByXmlId = (MapWrapperImpl<String,Mode>) getSourceIdContainer(Mode.class);
     var tripsContainer = discreteDemands.getTrips();
     for (var xmlTrip : xmlTrips) {
-      // 1. Structural Guard Checks
       if (StringUtils.isNullOrBlank(xmlTrip.getId())) {
         LOGGER.severe("Encountered a trip with a missing or blank XML ID. Skipping entry.");
         continue;
       }
 
-      // todo: we could derive the purpose using functionality on trip given its tour is present, so this check
-      //  has to move lower for that
-      if (StringUtils.isNullOrBlank(xmlTrip.getPurp())) {
-        LOGGER.severe(String.format("Trip (%s) is missing its travel purpose ('purp'). Skipping.",
-            xmlTrip.getId()));
-        continue;
-      }
       if (StringUtils.isNullOrBlank(xmlTrip.getMode())) {
         LOGGER.severe(String.format("Trip (%s) is missing its mandatory transport mode. Skipping.", xmlTrip.getId()));
         continue;
@@ -422,7 +427,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         continue;
       }
 
-      // Resolve Mandatory Parent Tour Link
+      // Mandatory Parent Tour Link
       var parentTour = getBySourceId(Tour.class, xmlTrip.getTourref());
       if (parentTour == null) {
         LOGGER.severe(String.format(
@@ -431,50 +436,199 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         continue;
       }
 
+      // start end time
       var tripStartTime = xmlTrip.getStartTime();
       if (tripStartTime != null) {
         if (parentTour.getStartTime() != null && tripStartTime.isBefore(parentTour.getStartTime())) {
           LOGGER.severe(String.format(
-              "Trip (%s) departs at %s, which occurs BEFORE its parent Tour (%s) starts (%s). Skipping corrupt schedule link.",
+              "Trip (%s) departs at %s, which occurs BEFORE its parent Tour (%s) starts (%s). " +
+                  "Skipping corrupt schedule link.",
               xmlTrip.getId(), tripStartTime, parentTour.getXmlId(), parentTour.getStartTime()));
           continue;
         }
         if (parentTour.getEndTime() != null && tripStartTime.isAfter(parentTour.getEndTime())) {
           LOGGER.severe(String.format(
-              "Trip (%s) departs at %s, which occurs AFTER its parent Tour (%s) ends (%s). Skipping corrupt schedule link.",
+              "Trip (%s) departs at %s, which occurs AFTER its parent Tour (%s) ends (%s)." +
+                  " Skipping corrupt schedule link.",
               xmlTrip.getId(), tripStartTime, parentTour.getXmlId(), parentTour.getEndTime()));
           continue;
         }
       }
 
+      // direction
       if (xmlTrip.getDirection() == null) {
         LOGGER.severe(String.format(
             "Trip (%s) is missing a valid direction attribute (must exactly match 'outbound' or 'inbound'). Skipping.",
             xmlTrip.getId()));
         continue;
       }
-      var direction = xmlTrip.getDirection();
+      var direction = XmlEnumConversionUtil.xmlToPlanit(xmlTrip.getDirection());
 
+      // object and ids
       var trip = tripsContainer.getFactory().registerNew(parentTour, direction, false);
       trip.setXmlId(xmlTrip.getId());
-
-      // 4. Map optional metadata attributes
       if (!StringUtils.isNullOrBlank(xmlTrip.getExternalid())) {
         trip.setExternalId(xmlTrip.getExternalid());
       }
 
-      //trip.setDescription(xmlTrip.getDescr());
-
-
-
-      //Map Direction Attribute (Enum handling)
-      if (xmlTrip.getDirection() != null) {
-        // Assuming your domain model uses a clean equivalent enum or accepts the string/JAXB enum directly
-        //trip.setDirection(xmlTrip.getDirection());
+      // purpose
+      if (StringUtils.isNullOrBlank(xmlTrip.getPurp())) {
+        LOGGER.severe(String.format("Trip (%s) is missing its travel purpose ('purp'). " +
+                "Deriving from trip and direction instead",
+            xmlTrip.getId()));
+        trip.derivePurposeFromDirectionAndTour();
+      }else{
+        trip.setPurpose(xmlTrip.getPurp());
       }
 
-      // 7. Register identity mapping for the final schedule assembly pass
+      // Resolve via modes, xml indexed, and assumed writer has accounted for predefined modes being mapped to their
+      // names as XML id
+      // todo: using xml id with contextual information should be phased out, deal with predefined modes in
+      //  IO differently
+      var mode = modesByXmlId.get(xmlTrip.getMode());
+      if (mode == null) {
+        LOGGER.severe(String.format(
+            "Trip (%s) references mode '%s' which cannot be found in the active network infrastructure layers. Skipping.",
+            xmlTrip.getId(), xmlTrip.getMode()));
+        continue;
+      }
+      trip.setMode(mode);
+
+      //trip.setDescription(xmlTrip.getDescr());
+
       registerBySourceId(Trip.class, trip);
+    }
+  }
+
+  /**
+   * Second pass: Reconstructs internal chronological activity schedules
+   * for all parsed individuals by anchoring registered tours and trips.
+   */
+  private void populatePersonSchedules() {
+    if(discreteDemands.getPersons().isEmpty()){
+      return;
+    }
+
+    var xmlDiscreteDemands = xmlParser.getXmlRootElement();
+    var xmlPersonsElement = xmlDiscreteDemands.getPersons();
+    for (var xmlPerson : xmlPersonsElement.getPersons()) {
+      var person = getBySourceId(Person.class, xmlPerson.getId());
+      if (person == null) {
+        continue;
+      }
+
+      // Individual has no explicit plan/schedule registered --> dismiss
+      var xmlSchedule = xmlPerson.getSchedule();
+      if (xmlSchedule == null) {
+        continue;
+      }
+      var xmlScheduleChoices = xmlSchedule.getTourrevesAndTripreves();
+      if (xmlScheduleChoices == null || xmlScheduleChoices.isEmpty()) {
+        continue;
+      }
+
+      // process schedule in order as that is how it is supposed to be registered on the person
+      var domainSchedule = person.getSchedule();
+      for (Object xmlChoice : xmlScheduleChoices) {
+
+        // Case A: The entry is a reference to a Tour (<tourref ref="..." />)
+        if (xmlChoice instanceof Tourref) {
+          var tourRef = (Tourref) xmlChoice;
+          var tour = getBySourceId(Tour.class, tourRef.getRef());
+          if (tour == null) {
+            LOGGER.severe(String.format(
+                "Person (%s) schedule references Tour ID '%s' which cannot be found. Skipping schedule leg.",
+                xmlPerson.getId(), tourRef.getRef()));
+            continue;
+          }
+          // Append the configured master tour into the person's plan timeline
+          domainSchedule.add(tour);
+          tour.setPerson(person);
+        }
+        // Case B: The entry is a direct reference to a standalone Trip (<tripref ref="..." />) --> not allowed at top
+        //         level
+        else if (xmlChoice instanceof Tripref) {
+          var tripRef = (Tripref) xmlChoice;
+          var trip = getBySourceId(Trip.class, tripRef.getRef());
+
+          LOGGER.severe(String.format("Person schedule can only have tour's as top-level entries, found a trip (%s) " +
+              "for person (%s), this is not yet supported, skip", person.getIdsAsString(), trip.getIdsAsString()));
+        }else {
+          LOGGER.warning(String.format("Unrecognized JAXB polymorphic schedule type '%s' for Person (%s).",
+              xmlChoice.getClass().getSimpleName(), xmlPerson.getId()));
+        }
+      }
+    }
+  }
+
+  /**
+   * Second pass: Reconstructs internal chronological timelines for all individual
+   * master tours by registering their trip segment and nested sub-tour references.
+   */
+  private void populateTourSchedules() {
+    if (discreteDemands.getTours().isEmpty()) {
+      return;
+    }
+
+    var xmlDiscreteDemands = xmlParser.getXmlRootElement();
+    var xmlToursElement = xmlDiscreteDemands.getTours();
+    if (xmlToursElement == null || xmlToursElement.getTours() == null) {
+      return;
+    }
+
+    for (var xmlTour : xmlToursElement.getTours()) {
+      var currTour = getBySourceId(Tour.class, xmlTour.getId());
+      if (currTour == null) {
+        continue;
+      }
+
+      var xmlTourChoices = xmlTour.getSubtoursAndTourtrips();
+      if (xmlTourChoices == null || xmlTourChoices.isEmpty()) {
+        continue;
+      }
+      var tourSchedule = currTour.getSchedule();
+      for (Object xmlChoice : xmlTourChoices) {
+
+        // Case A: Element is a leaf-node trip segment reference (<tourtrip ref="..." />)
+        if (xmlChoice instanceof Tourtrip) {
+          var tourTripRef = (Tourtrip) xmlChoice;
+          var childTrip = getBySourceId(Trip.class, tourTripRef.getRef());
+
+          if (childTrip == null) {
+            LOGGER.severe(String.format(
+                "Tour (%s) references a Trip ID '%s' that cannot be found. Skipping leg reference.",
+                xmlTour.getId(), tourTripRef.getRef()));
+            continue;
+          }
+
+          // Anchor the trip into this tour's internal sequence
+          tourSchedule.add(childTrip);
+        }
+
+        // Case B: Element is a nested sub-tour reference (<subtour ref="..." />)
+        else if (xmlChoice instanceof Subtour) {
+          var subTourRef = (Subtour) xmlChoice;
+          var childTour = getBySourceId(Tour.class, subTourRef.getRef());
+
+          if (childTour == null) {
+            LOGGER.severe(String.format(
+                "Tour (%s) references a nested Sub-tour ID '%s' that cannot be found. Skipping leg reference.",
+                xmlTour.getId(), subTourRef.getRef()));
+            continue;
+          }
+
+          // Establish the nested structural parent link
+          childTour.setParentTour(currTour);
+
+          // Anchor the nested sub-tour into this tour's internal sequence
+          tourSchedule.add(childTour);
+        }
+
+        else {
+          LOGGER.warning(String.format("Unrecognized JAXB polymorphic internal tour type '%s' inside Tour (%s).",
+              xmlChoice.getClass().getSimpleName(), xmlTour.getId()));
+        }
+      }
     }
   }
 
