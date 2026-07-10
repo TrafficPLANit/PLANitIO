@@ -4,6 +4,7 @@ import org.goplanit.converter.demands.DemandsWriter;
 import org.goplanit.converter.idmapping.DemandsIdMapper;
 import org.goplanit.demands.Demands;
 import org.goplanit.io.converter.PlanitWriterImpl;
+import org.goplanit.io.converter.network.ModeXmlUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.zoning.zonetozone.OdDemands;
 import org.goplanit.userclass.UserClass;
@@ -92,7 +93,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
       if(userClass.getMode()==null) {
         LOGGER.warning(String.format("User class %s has no referenced mode", userClass.getXmlId()));
       }else {
-        xmlUserClass.setModeref(getXmlModeReference(
+        xmlUserClass.setModeref(ModeXmlUtils.getXmlModeReference(
                 userClass.getMode(), getComponentIdMappers().getNetworkIdMappers().getModeIdMapper()));
         if(!userClassesPerMode.containsKey(userClass.getMode())) {
           var userClassesForMode = new HashSet<UserClass>();

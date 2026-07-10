@@ -52,6 +52,7 @@ public class PlanitDiscreteDemandsWriterFactory {
    *  in the native PLANit XML format
    * 
    * @param demandsPath the path to use for persisting
+   * @param parentNetwork to use
    * @param parentZoning to use
    * @return created PlanitDiscreteDemandsWriter writer
    */

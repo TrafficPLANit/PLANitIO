@@ -7,6 +7,7 @@ import org.goplanit.demands.discrete.person.Person;
 import org.goplanit.demands.discrete.tour.Tour;
 import org.goplanit.demands.discrete.trip.Trip;
 import org.goplanit.io.converter.PlanitWriterImpl;
+import org.goplanit.io.converter.network.ModeXmlUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
@@ -433,7 +434,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
             domainTrip.getIdsAsString()));
         continue;
       }
-      var modeRef = getXmlModeReference(
+      var modeRef = ModeXmlUtils.getXmlModeReference(
           domainTrip.getMode(), getComponentIdMappers().getNetworkIdMappers().getModeIdMapper());
       if (StringUtils.isNullOrBlank(modeRef)) {
         LOGGER.severe(String.format("Trip (%s) is missing a valid mapped mode id for mode (%s), skipping",

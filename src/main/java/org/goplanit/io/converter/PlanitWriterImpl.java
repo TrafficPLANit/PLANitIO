@@ -5,14 +5,12 @@ import org.goplanit.io.xml.util.PlanitSchema;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdMapperType;
-import org.goplanit.utils.mode.Mode;
 import org.goplanit.xml.utils.JAXBUtils;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -36,30 +34,6 @@ public abstract class PlanitWriterImpl<T> extends CrsWriterImpl<T>{
           "this is not the case");
     }
     return ((PlanitXmlWriterSettings)getSettings());
-  }
-
-  /** Get the reference to use whenever a mode reference is encountered. Special treatment for predefined modes
-   * so whenever we use mode ids either in parsing or writing it should go through this logic.
-   *
-   * @param mode to collect reference for
-   * @param modeIdMapper to use
-   * @return modeReference for the mode
-   */
-  protected String getXmlModeReference(Mode mode, Function<Mode, String> modeIdMapper) {
-    String modeReference = null;
-
-    if(mode.isPredefinedModeType()) {
-      /* predefined modes, must utilise, their predefined XML id/name, this overrules the mapper (if any) */
-      modeReference = mode.getXmlId();
-    }else {
-      modeReference =modeIdMapper.apply(mode);
-    }
-
-    if(modeReference == null) {
-      LOGGER.severe(String.format("mode reference cound not be obtained for mode %s", mode));
-    }
-
-    return modeReference;
   }
 
   /**

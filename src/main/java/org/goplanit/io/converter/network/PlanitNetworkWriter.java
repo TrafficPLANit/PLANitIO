@@ -306,7 +306,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     /* mode ref id */
     Set<Mode> accessModes = accessGroupProperties.getAccessModes();
     String modeRefs = accessModes.stream().map(mode ->
-            getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper())).sorted().collect
+            ModeXmlUtils.getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper())).sorted().collect
             (Collectors.joining(","));
     xmlAccessGroup.setModerefs(modeRefs);
     
@@ -452,7 +452,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     var xmlMode = new org.goplanit.xml.generated.v2.Mode();
     
     /* Xml id */
-    xmlMode.setId(getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper()));
+    xmlMode.setId(ModeXmlUtils.getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper()));
     
     /* external id */
     if(mode.hasExternalId()) {
