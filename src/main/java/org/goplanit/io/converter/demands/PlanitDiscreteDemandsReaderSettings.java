@@ -2,6 +2,9 @@ package org.goplanit.io.converter.demands;
 
 import org.goplanit.converter.ConverterReaderSettings;
 import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Settings for the PLANit discrete demands reader
@@ -10,6 +13,9 @@ import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
  *
  */
 public class PlanitDiscreteDemandsReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
+
+  /** logger to use */
+  private static final Logger LOGGER = Logger.getLogger(PlanitDiscreteDemandsReaderSettings.class.getCanonicalName());
 
   /**
    * Constructor
@@ -35,6 +41,15 @@ public class PlanitDiscreteDemandsReaderSettings extends PlanitXmlReaderSettings
    */
   public PlanitDiscreteDemandsReaderSettings(final String inputDirectory, final String xmlFileExtension) {
     super(inputDirectory, xmlFileExtension);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Discrete Demands Reader Settings"));
+    super.logSettings();
   }
 
 }

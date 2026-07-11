@@ -7,6 +7,7 @@ import org.goplanit.converter.FileBasedConverterWriterSettings;
 import org.goplanit.converter.SingleFileBasedConverterWriterSettings;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.CharacterUtils;
+import org.goplanit.utils.misc.LoggingUtils;
 
 /**
  * Settings relevant for persisting Planit Xml output
@@ -84,8 +85,10 @@ public class PlanitXmlWriterSettings extends SingleFileBasedConverterWriterSetti
    * Convenience method to log all the current settings
    */
   public void logSettings() {
-    LOGGER.info(String.format("Decimal fidelity set to %s", decimalFormat.getMaximumFractionDigits()));
-    
+    LOGGER.info(LoggingUtils.settingsValue("Decimal fidelity", decimalFormat.getMaximumFractionDigits(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Tuple separator", tupleSeparator, 0));
+    LOGGER.info(LoggingUtils.settingsValue("Comma separator", commaSeparator, 0));
+    LOGGER.info(LoggingUtils.settingsValue("Decimal separator", decimalSeparator, 0));
     super.logSettings();
   }  
 

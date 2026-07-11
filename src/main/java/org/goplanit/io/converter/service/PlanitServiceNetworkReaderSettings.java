@@ -3,6 +3,9 @@ package org.goplanit.io.converter.service;
 import org.goplanit.converter.ConverterReaderSettings;
 import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
 import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Configurable settings for the PLANit service network reader
@@ -11,6 +14,9 @@ import org.goplanit.network.MacroscopicNetwork;
  *
  */
 public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings implements ConverterReaderSettings {
+
+  /** logger to use */
+  private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkReaderSettings.class.getCanonicalName());
 
   /**
    * Constructor.
@@ -27,7 +33,16 @@ public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings 
    */
   public PlanitServiceNetworkReaderSettings() {
     super();
-  }  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Service Network Reader Settings"));
+    super.logSettings();
+  }
 
 
 }

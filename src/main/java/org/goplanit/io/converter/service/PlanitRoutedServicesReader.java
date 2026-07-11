@@ -552,6 +552,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    */
   @Override
   public RoutedServices read(){
+
+    getSettings().logSettings();
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(

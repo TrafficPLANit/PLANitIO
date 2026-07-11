@@ -2,6 +2,9 @@ package org.goplanit.io.converter.zoning;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Settings for the PLANit zoning writer
@@ -10,6 +13,9 @@ import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
  *
  */
 public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implements ConverterWriterSettings {
+
+  /** logger to use */
+  private static final Logger LOGGER = Logger.getLogger(PlanitZoningWriterSettings.class.getCanonicalName());
 
 
   /** default zoning file name to use */
@@ -61,5 +67,14 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
   @Override
   public void reset() {
     super.reset();
-  } 
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Zoning Writer Settings"));
+    super.logSettings();
+  }
 }

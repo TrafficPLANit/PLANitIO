@@ -409,6 +409,8 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
    */
   @Override
   public ServiceNetwork read(){
+
+    getSettings().logSettings();
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());

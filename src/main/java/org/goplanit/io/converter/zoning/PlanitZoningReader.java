@@ -888,6 +888,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     /* initialise the indices used, if needed */
     initialiseXmlIdTrackers();
     initialiseParentNetworkXmlIdTrackers(macroscopicNetwork);
+
+    // log settings
+    getSettings().logSettings();
     
     // create and register zones, centroids and connectoids
     try {

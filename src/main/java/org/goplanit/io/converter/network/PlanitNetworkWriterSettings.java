@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 /**
  * configurable settings for the PLANit writer
@@ -54,6 +55,15 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
   @Override
   public void reset() {
     super.reset();
-  }  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Network Writer Settings"));
+    super.logSettings();
+  }
   
 }

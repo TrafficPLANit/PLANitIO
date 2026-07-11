@@ -2,6 +2,7 @@ package org.goplanit.io.converter.demands;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.text.DecimalFormat;
 import java.util.logging.Logger;
@@ -61,6 +62,15 @@ public class PlanitDiscreteDemandsWriterSettings extends PlanitXmlWriterSettings
   @Override
   public void reset() {
     super.reset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Discrete Demands Writer Settings"));
+    super.logSettings();
   }
 
 }

@@ -6,6 +6,9 @@ import org.goplanit.io.converter.service.PlanitRoutedServicesReaderSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Settings of PLANit intermodal reader
@@ -14,7 +17,9 @@ import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
  *
  */
 public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
-  
+
+  private static final Logger LOGGER = Logger.getLogger(PlanitIntermodalReaderSettings.class.getCanonicalName());
+
   /** the network settings to use */
   protected final PlanitNetworkReaderSettings networkSettings;
   
@@ -50,7 +55,9 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
    * @param xmlFileExtension to use
    */
   public PlanitIntermodalReaderSettings(final String inputPathDirectory, final String xmlFileExtension) {
-    this(new PlanitNetworkReaderSettings(inputPathDirectory, xmlFileExtension), new PlanitZoningReaderSettings(inputPathDirectory, xmlFileExtension));
+    this(
+        new PlanitNetworkReaderSettings(inputPathDirectory, xmlFileExtension),
+        new PlanitZoningReaderSettings(inputPathDirectory, xmlFileExtension));
   }      
   
   /**
@@ -65,8 +72,10 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
     this(
         networkSettings,
         zoningSettings,
-        new PlanitServiceNetworkReaderSettings(networkSettings.getInputDirectory(), networkSettings.getXmlFileExtension()),
-        new PlanitRoutedServicesReaderSettings(networkSettings.getInputDirectory(), networkSettings.getXmlFileExtension()));
+        new PlanitServiceNetworkReaderSettings(
+            networkSettings.getInputDirectory(), networkSettings.getXmlFileExtension()),
+        new PlanitRoutedServicesReaderSettings(
+            networkSettings.getInputDirectory(), networkSettings.getXmlFileExtension()));
   }
 
   /**
@@ -105,6 +114,7 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings {
    */
   @Override
   public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Intermodal Reader Settings"));
     getNetworkSettings().logSettings();
     getZoningSettings().logSettings();
     getServiceNetworkSettings().logSettings();

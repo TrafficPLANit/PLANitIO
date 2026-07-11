@@ -6,6 +6,9 @@ import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Settings for PLANit intermodal writer
@@ -14,6 +17,8 @@ import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
  *
  */
 public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
+
+  private static final Logger LOGGER = Logger.getLogger(PlanitIntermodalWriterSettings.class.getCanonicalName());
 
   /** the network settings to use */
   protected final PlanitNetworkWriterSettings networkSettings;
@@ -79,6 +84,17 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
     getZoningSettings().reset();
     getServiceNetworkSettings().reset();
     getRoutedServicesSettings().reset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Intermodal Writer Settings"));
+    getNetworkSettings().logSettings();
+    getZoningSettings().logSettings();
+    getServiceNetworkSettings().logSettings();
+    getRoutedServicesSettings().logSettings();
   }
 
   /** Collect zoning settings

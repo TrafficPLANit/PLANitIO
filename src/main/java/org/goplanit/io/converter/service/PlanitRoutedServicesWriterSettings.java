@@ -2,6 +2,7 @@ package org.goplanit.io.converter.service;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.unit.TimeUnit;
 
 import java.util.logging.Logger;
@@ -74,8 +75,10 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
    */
   @Override
   public void logSettings(){
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Routed Services Writer Settings"));
+    LOGGER.info(LoggingUtils.settingsValue("Trip frequency time unit", getTripFrequencyTimeUnit(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Log services without trips", isLogServicesWithoutTrips(), 0));
     super.logSettings();
-    LOGGER.info(String.format("Trip frequency time unit set to %s", getTripFrequencyTimeUnit()));
   }
 
   // ************* getters/setters ******************

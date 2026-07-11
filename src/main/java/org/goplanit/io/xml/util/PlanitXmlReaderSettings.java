@@ -1,6 +1,9 @@
 package org.goplanit.io.xml.util;
 
 import org.goplanit.converter.ConverterReaderSettings;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Settings relevant for a Planit Xml reader
@@ -9,6 +12,9 @@ import org.goplanit.converter.ConverterReaderSettings;
  *
  */
 public class PlanitXmlReaderSettings implements ConverterReaderSettings {
+
+  /** logger to use */
+  private static final Logger LOGGER = Logger.getLogger(PlanitXmlReaderSettings.class.getCanonicalName());
 
   /** directory to look in */
   private String inputDirectory;
@@ -66,7 +72,9 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
    */
   @Override
   public void logSettings() {
-
+    LOGGER.info(LoggingUtils.settingsValue("Input directory", getInputDirectory(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("XML file extension", getXmlFileExtension(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Sync XML ids to ids", isSyncXmlIdsToIds(), 0));
   }
   
   /** The input path directory used

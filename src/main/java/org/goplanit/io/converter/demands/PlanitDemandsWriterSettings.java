@@ -5,10 +5,11 @@ import java.util.logging.Logger;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 /**
- * Configurable settings for the PLANit demands writer. Note that the default decimalformat used is a maximum of 4 digits 
- * to reduce the size of the OD matrices. This can however be altered by the user if desired.
+ * Configurable settings for the PLANit demands writer. Note that the default decimal format used is a maximum of
+ * 4 digits to reduce the size of the OD matrices. This can however be altered by the user if desired.
  * 
  * @author markr
  *
@@ -79,6 +80,17 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
   @Override
   public void reset() {
     super.reset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("PLANit Demands Writer Settings"));
+    LOGGER.info(LoggingUtils.settingsValue("Origin separator", getOriginSeparator(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Destination separator", getDestinationSeparator(), 0));
+    super.logSettings();
   }
 
   /**

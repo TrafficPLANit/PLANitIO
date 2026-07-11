@@ -780,7 +780,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
             
     /* defaults */
     initialiseXmlIdTrackers();
-    injectMissingDefaultsToRawXmlNetwork();       
+    injectMissingDefaultsToRawXmlNetwork();
+
+    // log settings
+    getSettings().logSettings();
     
     try {
       

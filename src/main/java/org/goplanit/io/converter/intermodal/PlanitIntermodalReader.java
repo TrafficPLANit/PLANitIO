@@ -245,7 +245,7 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
   }
 
   /**
-   * PArse network, zoning, service network, and routed services that belong together
+   * Parse network, zoning, service network, and routed services that belong together
    *
    * @return created network, zoning, service network and services
    */
