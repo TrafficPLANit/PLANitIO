@@ -726,17 +726,17 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* initialise */
     {
       getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+      getSettings().logSettings();
       prepareCoordinateReferenceSystem(
           zoning.getCoordinateReferenceSystem(),
           getSettings().getDestinationCoordinateReferenceSystem(),
-          getSettings().getCountry());
+          getSettings().getCountry(),
+          true);
       LOGGER.info(String.format("Persisting PLANit zoning to: %s",
           Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
       
       createZoneToConnectoidIndices(zoning); 
     }
-    
-    getSettings().logSettings();
     
     /* xml id */
     populateXmlId(zoning);

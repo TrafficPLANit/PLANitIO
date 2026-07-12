@@ -333,13 +333,14 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
 
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+    getSettings().logSettings();
     prepareCoordinateReferenceSystem(
             serviceNetwork.getCoordinateReferenceSystem(),
             getSettings().getDestinationCoordinateReferenceSystem(),
-            getCountryName());
+            getCountryName(),
+            true);
     LOGGER.info(String.format("Persisting PLANit service network to: %s",
             Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName())));
-    getSettings().logSettings();
     
     /* xml id */
     populateTopLevelElement(serviceNetwork);

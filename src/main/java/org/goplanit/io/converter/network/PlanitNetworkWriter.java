@@ -711,12 +711,14 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+    getSettings().logSettings();
     prepareCoordinateReferenceSystem(
             macroscopicNetwork.getCoordinateReferenceSystem(),
-            getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+            getSettings().getDestinationCoordinateReferenceSystem(),
+            getSettings().getCountry(),
+            true);
     LOGGER.info(String.format("Persisting PLANit network to: %s",
             Paths.get(getSettings().getOutputDirectory(), getSettings().getFileName()).toString()));
-    getSettings().logSettings();
     
     /* xml id */
     populateXmlId(macroscopicNetwork);
