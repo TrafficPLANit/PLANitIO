@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.goplanit.io.xml.util.XmlEnumConversionUtil;
+import org.goplanit.utils.geo.PlanitCrsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
@@ -623,7 +624,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
     
     /* srs name */
-    xmlInfrastructureLayers.setSrsname(extractSrsName(getDestinationCoordinateReferenceSystem()));
+    xmlInfrastructureLayers.setSrsname(
+        PlanitCrsUtils.extractSrsName(getDestinationCoordinateReferenceSystem()));
     
     LOGGER.info("Network layers:" + network.getTransportLayers().size());
     final var finalXmlInfrastructureLayers = xmlInfrastructureLayers;

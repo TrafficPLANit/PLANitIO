@@ -10,8 +10,7 @@ import java.util.List;
 import net.opengis.gml.*;
 
 import org.goplanit.utils.geo.PlanitJtsUtils;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.*;
 
 /**
  * Utilities specific to GML
@@ -199,7 +198,8 @@ public class PlanitGmlUtils {
   
   /** Create a GML PolygonType from a JTS Polygon
    * 
-   * @param outerBoundaryCoordinates of the JTS polygon, e.g. last coordinate is equal to first and at least three coordinates
+   * @param outerBoundaryCoordinates of the JTS polygon, e.g. last coordinate is equal to first and at least
+   *                                 three coordinates
    * @return created PolygonType
    */  
   public static PolygonType createGmlPolygonType(Coordinate[] outerBoundaryCoordinates) {
@@ -208,7 +208,7 @@ public class PlanitGmlUtils {
     
     /* exterior */
     var xmlAbstractRingPropertyType =
-        openGisObjectFactory.createOuterBoundaryIs(openGisObjectFactory.createAbstractRingPropertyType());
+        openGisObjectFactory.createExterior(openGisObjectFactory.createAbstractRingPropertyType());
     gmlPolygonType.setExterior(xmlAbstractRingPropertyType);    
 
     /* linear ring */
@@ -217,10 +217,57 @@ public class PlanitGmlUtils {
     xmlAbstractRingPropertyType.getValue().setRing(xmlLinearRingType);
     
     /* coordinates */
-    xmlLinearRingType.getValue().getCoord().addAll(createGmlCoordList(outerBoundaryCoordinates));          
+    //xmlLinearRingType.getValue().getCoord().addAll(createGmlCoordList(outerBoundaryCoordinates)); old
+    xmlLinearRingType.getValue().setPosList(createGmlPosListType(outerBoundaryCoordinates));
 
     return gmlPolygonType;
-  }  
+  }
+
+  /** Create a GML MultiPolygonType from a JTS MultiPolygon
+   *
+   * @param jtsMultiPolygon the JTS MultiPolygon containing 1 or more polygons
+   * @return created MultiPolygonType
+   */
+  public static MultiPolygonType createGmlMultiPolygonType(MultiPolygon jtsMultiPolygon) {
+    ObjectFactory openGisObjectFactory = new ObjectFactory();
+    MultiPolygonType gmlMultiPolygonType = new MultiPolygonType();
+
+    // Loop through each Polygon in the MultiPolygon collection
+    for (int i = 0; i < jtsMultiPolygon.getNumGeometries(); i++) {
+      Polygon jtsPolygon = (Polygon) jtsMultiPolygon.getGeometryN(i);
+
+      // Map the exterior ring via posList
+      PolygonType gmlPolygonType = createGmlPolygonType(jtsPolygon.getExteriorRing().getCoordinates());
+
+      // Map interior rings (holes) via posList if any are found in the zoning dataset
+      for (int j = 0; j < jtsPolygon.getNumInteriorRing(); j++) {
+        LinearRing interiorRing = jtsPolygon.getInteriorRingN(j);
+
+        /* <gml:interiorBoundaryIs> element wrapper matching your schema configuration */
+        var xmlInteriorAbstractRingPropertyType =
+            openGisObjectFactory.createInterior(openGisObjectFactory.createAbstractRingPropertyType());
+
+        /* <gml:LinearRing> element */
+        var xmlInteriorLinearRingType =
+            openGisObjectFactory.createLinearRing(openGisObjectFactory.createLinearRingType());
+        xmlInteriorAbstractRingPropertyType.getValue().setRing(xmlInteriorLinearRingType);
+
+        /* Inject space-separated coordinates */
+        xmlInteriorLinearRingType.getValue().setPosList(createGmlPosListType(interiorRing.getCoordinates()));
+
+        gmlPolygonType.getInterior().add(xmlInteriorAbstractRingPropertyType);
+      }
+
+      // 3. FIX: Instantiate the property wrapper expected by the polygonMember list
+      PolygonPropertyType polygonMember = new PolygonPropertyType();
+      polygonMember.setPolygon(gmlPolygonType);
+
+      // This add operation will now succeed without compilation or runtime casting errors
+      gmlMultiPolygonType.getPolygonMember().add(polygonMember);
+    }
+
+    return gmlMultiPolygonType;
+  }
 
  
 

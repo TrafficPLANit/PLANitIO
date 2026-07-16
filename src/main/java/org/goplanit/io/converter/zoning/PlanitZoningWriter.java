@@ -7,7 +7,10 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.goplanit.network.LayeredNetwork;
+import org.goplanit.utils.geo.PlanitCrsUtils;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
@@ -24,6 +27,7 @@ import org.goplanit.utils.zoning.connectoid.*;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
@@ -305,7 +309,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    */
   private void populateXmlTransferZoneAccess(final Zoning zoning, final XMLElementIntermodal xmlIntermodal) {
     if(zoning== null || zoning.getTransferConnectoids().isEmpty()) {
-      LOGGER.severe("transfer zone access should not be persisted when no transfer connectoids " +
+      LOGGER.severe("Transfer zone access should not be persisted when no transfer connectoids " +
           "exist on the zoning");
       return;
     }
@@ -530,7 +534,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param odZone to extract information from
    */
   private void populateXmlOdZone(final OdZone odZone) {
-    if(!zoneToConnectoidMap.containsKey(odZone)) {
+    if(!zoneToConnectoidMap.containsKey(odZone) && settings.isRemoveDanglingZones()) {
       LOGGER.warning(String.format("DISCARD: od zone (%s) without connectoids found; dangling",
           odZone.getIdsAsString()));
       return;
@@ -558,9 +562,28 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     if(odZone.hasGeometry()) {
       if(odZone.getGeometry() instanceof Polygon) {
         xmlOdZone.setPolygon(createGmlPolygonType((Polygon)odZone.getGeometry()));
+      }else if(odZone.getGeometry() instanceof MultiPolygon){
+        var multiPoly = (MultiPolygon)odZone.getGeometry();
+        if(multiPoly.getNumGeometries() == 1){
+          Polygon singlePoly = (Polygon) multiPoly.getGeometryN(0);
+          if (singlePoly.getNumInteriorRing() == 0) {
+            // 1 Island, 0 Holes -> Simple Polygon
+            xmlOdZone.setPolygon(createGmlPolygonType(singlePoly));
+          } else {
+            // 1 Island, 1+ Holes -> Maps to MultiPolygon
+            xmlOdZone.setMultiPolygon(createGmlMultiPolygonType((MultiPolygon) odZone.getGeometry()));
+          }
+        }else {
+          // multiple disjoint polygons --> MultiPolygon
+          xmlOdZone.setMultiPolygon(createGmlMultiPolygonType((MultiPolygon) odZone.getGeometry()));
+        }
       }else if(odZone.getGeometry() instanceof Point) {
         getCentroidLocation = z -> (Point) z.getGeometry();
         geometryIsPoint = true;
+      }else{
+        LOGGER.warning(String.format(
+            "Zone (%s) has unsupported geometry (%s) type for persisting, ignoring geometry",
+            odZone.getIdsAsString(), odZone.getGeometry().getGeometryType()));
       }
     }
 
@@ -574,30 +597,32 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     }
 
     /* connectoids */
-    var xmlConnectoids = new XMLElementConnectoids();
-    xmlOdZone.setConnectoids(xmlConnectoids);
-    zoneToConnectoidMap.get(odZone).stream().sorted(
-        Comparator.comparing(getPrimaryIdMapper().getConnectoidIdMapper())).forEach(connectoid -> {
-            
-      /* od zones in xml only record their undirected connectoids at this point in time since they allow access
-       * from all incoming link(segment)s */
-      if(connectoid instanceof OdConnectoid) {
-        
-        var odConnectoid = (OdConnectoid)connectoid;
-        if(!odConnectoid.hasAccessZoneEntry(odZone)) {
-          LOGGER.severe(String.format("OD conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone " +
-                  "is not registered as access zone",
-              odConnectoid.getXmlId(), odConnectoid.getId(), odZone.getXmlId(), odZone.getId()));
+    if(!zoneToConnectoidMap.isEmpty()) {
+      var xmlConnectoids = new XMLElementConnectoids();
+      xmlOdZone.setConnectoids(xmlConnectoids);
+      zoneToConnectoidMap.get(odZone).stream().sorted(
+          Comparator.comparing(getPrimaryIdMapper().getConnectoidIdMapper())).forEach(connectoid -> {
+
+        /* od zones in xml only record their undirected connectoids at this point in time since they allow access
+         * from all incoming link(segment)s */
+        if (connectoid instanceof OdConnectoid) {
+
+          var odConnectoid = (OdConnectoid) connectoid;
+          if (!odConnectoid.hasAccessZoneEntry(odZone)) {
+            LOGGER.severe(String.format("OD conectoid %s (id:%d) is expected to support od zone %s (id:%d), but zone " +
+                    "is not registered as access zone",
+                odConnectoid.getXmlId(), odConnectoid.getId(), odZone.getXmlId(), odZone.getId()));
+          }
+
+          /* populate od connectoid */
+          var xmlOdConnectoidBase = new XMLElementConnectoid();
+          populateXmlOdConnectoid(xmlOdConnectoidBase, odConnectoid, odZone);
+
+          /* register */
+          xmlConnectoids.getConnectoids().add(xmlOdConnectoidBase);
         }
-        
-        /* populate od connectoid */
-        var xmlOdConnectoidBase = new XMLElementConnectoid();              
-        populateXmlOdConnectoid(xmlOdConnectoidBase, odConnectoid, odZone);
-                       
-        /* register */        
-        xmlConnectoids.getConnectoids().add(xmlOdConnectoidBase);
-      }
-    });
+      });
+    }
   }
   
   /** Populate the XML id of the XML zoning element
@@ -619,9 +644,10 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   /** Make sure the XML zonings destination crs is set (if any)
    */
   private void populateXmlZoningSrsName(){
-    xmlRawZoning.setSrsname(extractSrsName(getDestinationCoordinateReferenceSystem()));
-  }  
-  
+    xmlRawZoning.setSrsname(
+        PlanitCrsUtils.extractSrsName(getDestinationCoordinateReferenceSystem()));
+  }
+
   /** Populate the origin-destination zones of this zoning
    * 
    * @param zoning to use

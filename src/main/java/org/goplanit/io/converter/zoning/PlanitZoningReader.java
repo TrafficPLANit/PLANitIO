@@ -1,9 +1,6 @@
 package org.goplanit.io.converter.zoning;
 
-import net.opengis.gml.CoordinatesType;
-import net.opengis.gml.LineStringType;
-import net.opengis.gml.LinearRingType;
-import net.opengis.gml.PolygonType;
+import net.opengis.gml.*;
 import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.network.NetworkReader;
 import org.goplanit.converter.zoning.ZoningReader;
@@ -30,6 +27,8 @@ import org.goplanit.zoning.Zoning;
 import org.goplanit.zoning.ZoningModifierUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Polygon;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -171,34 +170,120 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       }
     }
   }
+
+  /** Isolated single GML Polygon parser helper
+   *
+   * @param zone zone to parse for
+   * @param xmlPolygon the XML polygon
+   * @return create JTS polygon
+   */
+  private static Polygon parsePolygonGeometry(final Zone zone, final PolygonType xmlPolygon) {
+
+    var exteriorProperty = xmlPolygon.getExterior();
+    if (exteriorProperty == null) {
+      LOGGER.warning(String.format("Zones only support polygon geometries with an outer exterior, however " +
+          "this is missing for zone %s", zone.getXmlId()));
+      return null;
+    }
+    if (exteriorProperty.getValue().getRing() == null) {
+      LOGGER.warning(String.format("Expected ring element missing within polygon exterior element for zone %s",
+          zone.getXmlId()));
+      return null;
+    }
+
+    Polygon exteriorPolygon = null;
+    if (exteriorProperty.getValue().getRing().getValue() instanceof LinearRingType) {
+      LinearRingType xmlLinearRing = (LinearRingType) exteriorProperty.getValue().getRing().getValue();
+      var posList = xmlLinearRing.getPosList().getValue();
+      if(!PlanitJtsUtils.isClosed2D(posList)){
+        posList = PlanitJtsUtils.makeClosed2DWithinTolerance(posList, 0.00001);
+        if(!PlanitJtsUtils.isClosed2D(posList)){
+          var coords = PlanitJtsUtils.createCoordinates(posList);
+          LOGGER.warning(String.format("Unclosed Polygon for zone (%s): [%s] - [%s]," +
+                  " force close for now", zone.getIdsAsString(), coords[0], coords[coords.length-1]));
+          posList = PlanitJtsUtils.makeClosed2D(posList);
+        }
+      }
+
+      exteriorPolygon = PlanitJtsUtils.create2DPolygon(posList);
+    } else {
+      LOGGER.warning(String.format("Expected linear ring within polygon exterior element for zone %s, " +
+          "but different ring type was encountered", zone.getXmlId()));
+      return null;
+    }
+
+    if (exteriorPolygon == null) {
+      return null;
+    }
+
+    var interiorList = xmlPolygon.getInterior();
+    if (interiorList == null || interiorList.isEmpty()) {
+      return exteriorPolygon;
+    }
+
+    // Parse Interior Rings (Holes)
+    var interiorRings = new ArrayList<LinearRing>();
+    if (xmlPolygon.getInterior() != null) {
+      for (var interiorProperty : xmlPolygon.getInterior()) {
+        if (interiorProperty != null && interiorProperty.getValue() != null &&
+            interiorProperty.getValue().getRing() != null) {
+          if (interiorProperty.getValue().getRing().getValue() instanceof LinearRingType) {
+            LinearRingType xmlInnerLinearRing = (LinearRingType) interiorProperty.getValue().getRing().getValue();
+            var posList = xmlInnerLinearRing.getPosList().getValue();
+            if(!PlanitJtsUtils.isClosed2D(posList)) {
+              posList = PlanitJtsUtils.makeClosed2DWithinTolerance(posList, 0.00001);
+              if (!PlanitJtsUtils.isClosed2D(posList)) {
+                var coords = PlanitJtsUtils.createCoordinates(posList);
+                LOGGER.warning(String.format("Unclosed inner Polygon for zone (%s): [%s] - [%s]," +
+                    " force close for now", zone.getIdsAsString(), coords[0], coords[coords.length - 1]));
+                posList = PlanitJtsUtils.makeClosed2D(posList);
+              }
+            }
+
+            var holePoly = PlanitJtsUtils.create2DPolygon(posList);
+            if (holePoly != null) {
+              interiorRings.add(holePoly.getExteriorRing());
+            }
+          }
+        }
+      }
+    }
+
+    return PlanitJtsUtils.createPolygonWithHoles(exteriorPolygon.getExteriorRing(), interiorRings);
+  }
   
   /** Public Transport to parse the geometry of the zone if any is provided
    * 
    * @param zone to populate geometry on
    * @param xmlPolygon to extract it from, or
+   * @param xmlMultiPolygon to extract if from, or
    * @param xmlLineString to extract it from
    */
   private static void populateZoneGeometry(
-      final Zone zone, final PolygonType xmlPolygon, final LineStringType xmlLineString) {
+      final Zone zone,
+      final PolygonType xmlPolygon,
+      final MultiPolygonType xmlMultiPolygon,
+      final LineStringType xmlLineString) {
     
     Geometry geometry = null;
-    if(xmlPolygon != null) {
-      if(xmlPolygon.getExterior() == null) {
-        LOGGER.warning(String.format("zones only support polygon geometries with an outer exterior, however " +
-                "this is missing for zone %s",zone.getXmlId()));
-      }else {
-        if(xmlPolygon.getExterior().getValue().getRing() == null) {
-          LOGGER.warning(String.format("expected ring element missing within polygon exterior element for zone %s",
-                  zone.getXmlId()));
-        }else if(xmlPolygon.getExterior().getValue().getRing().getValue() instanceof LinearRingType) {
-          /* found the actual content */
-          LinearRingType xmlLinearRing = (LinearRingType) xmlPolygon.getExterior().getValue().getRing().getValue();
-          geometry = PlanitJtsUtils.create2DPolygon(xmlLinearRing.getPosList().getValue());
-        }else {
-          LOGGER.warning(String.format("expected linear ring within polygon exterior element for zone %s, " +
-                  "but different ring type was encountered",zone.getXmlId()));
-        }                    
+    if (xmlPolygon != null) {
+      geometry = parsePolygonGeometry(zone, xmlPolygon);
+    } else if (xmlMultiPolygon != null) {
+
+      var polygons = new ArrayList<Polygon>();
+      for (var member : xmlMultiPolygon.getPolygonMember()) {
+        if (member != null && member.getPolygon() != null) {
+          var poly = parsePolygonGeometry(zone, member.getPolygon());
+          if (poly != null) {
+            polygons.add(poly);
+          }
+        }
       }
+
+      if (!polygons.isEmpty()) {
+        geometry = PlanitJtsUtils.createMultiPolygon(polygons.toArray(new Polygon[0]));
+      }
+
     }else if(xmlLineString != null) {
       if(xmlLineString.getCoordinates() != null) {
         CoordinatesType ct = xmlLineString.getCoordinates();
@@ -213,11 +298,12 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   /** Parse the geometry of the zone if any is provided
    * 
    * @param zone to populate geometry on
-   * @param xmlPolygon to extract it from
+   * @param xmlPolygon to extract it from, or
+   * @param xmlMultiPolygon to extract it from
    */
   private static void populateZoneGeometry(
-      final Zone zone, final PolygonType xmlPolygon) {
-    populateZoneGeometry(zone, xmlPolygon, null);
+      final Zone zone, final PolygonType xmlPolygon, final MultiPolygonType xmlMultiPolygon) {
+    populateZoneGeometry(zone, xmlPolygon, xmlMultiPolygon, null);
   }  
   
   /** Given the passed in connectoid, xml connectoid information and reference position (if any) determine the length
@@ -465,7 +551,8 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       }
             
       /* geometry */
-      populateZoneGeometry(transferZone, xmlTransferzone.getPolygon(), xmlTransferzone.getLineString());     
+      populateZoneGeometry(
+          transferZone, xmlTransferzone.getPolygon(), null /* never multi */, xmlTransferzone.getLineString());
     }
     
   }
@@ -748,10 +835,16 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       parseBaseZone(zone, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
       
       /* geometry */
-      populateZoneGeometry(zone, xmlZone.getPolygon());      
+      populateZoneGeometry(zone, xmlZone.getPolygon(), xmlZone.getMultiPolygon());
                  
       /* connectoids */
+      if(xmlZone.getConnectoids() == null){
+        continue;
+      }
       List<XMLElementConnectoid> xmlConnectoids = xmlZone.getConnectoids().getConnectoids();
+      if(xmlConnectoids == null){
+        continue;
+      }
       for(var xmlOdConnectoid : xmlConnectoids) {
 
         // accessNode

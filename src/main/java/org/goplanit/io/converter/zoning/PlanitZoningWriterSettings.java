@@ -17,9 +17,14 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningWriterSettings.class.getCanonicalName());
 
+  private boolean removeDanglingZones = DEFAULT_REMOVE_DANGLING_ZONES;
+
 
   /** default zoning file name to use */
   public static final String DEFAULT_ZONING_XML = "zoning.xml";
+
+  /** default we remove dangling zones (zones without a connctoid) */
+  public static final boolean DEFAULT_REMOVE_DANGLING_ZONES = true;
 
   /**
    * Default constructor
@@ -76,5 +81,24 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
   public void logSettings() {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Zoning Writer Settings"));
     super.logSettings();
+    LOGGER.info(LoggingUtils.settingsValue("Remove dangling zones", isRemoveDanglingZones(), 0));
+  }
+
+  /** flag on removal of dangling zones
+   * Get the value of removeDanglingZones.
+   *
+   * @return value of removeDanglingZones
+   */
+  public boolean isRemoveDanglingZones() {
+    return removeDanglingZones;
+  }
+
+  /**
+   * Set the value of removeDanglingZones.
+   *
+   * @param removeDanglingZones value of removeDanglingZones
+   */
+  public void setRemoveDanglingZones(boolean removeDanglingZones) {
+    this.removeDanglingZones = removeDanglingZones;
   }
 }
