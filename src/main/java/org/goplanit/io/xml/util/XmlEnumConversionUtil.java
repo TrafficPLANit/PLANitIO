@@ -141,19 +141,23 @@ public class XmlEnumConversionUtil {
   public static UseOfModeType xmlToPlanit(final  org.goplanit.xml.generated.v2.UsedToType xmlUseOfType) {
     
     switch (xmlUseOfType) {
-    case GOODS:
-      return UseOfModeType.GOODS;
-    case HIGH_OCCUPANCY:
-      return UseOfModeType.HIGH_OCCUPANCY;
-    case PRIVATE:
-      return UseOfModeType.PRIVATE;
-    case PUBLIC:
-      return UseOfModeType.PUBLIC;
-    case RIDE_SHARE:
-      return UseOfModeType.RIDE_SHARE;    
-    default:
-      throw new PlanItRunTimeException(String.format("mapping from xml track type %s to PLANit track type unavailable",
-              xmlUseOfType));
+      case GOODS:
+        return UseOfModeType.GOODS;
+      case TAXI:
+        return UseOfModeType.TAXI;
+      case ACTIVE:
+        return UseOfModeType.ACTIVE;
+      case PRIVATE:
+        return UseOfModeType.PRIVATE;
+      case PUBLIC:
+        return UseOfModeType.PUBLIC;
+      case RIDE_SHARE:
+        return UseOfModeType.RIDE_SHARE;
+      case EMERGENCY:
+        return UseOfModeType.EMERGENCY;
+      default:
+        throw new PlanItRunTimeException(
+            String.format("Mapping from xml track type %s to PLANit track type unavailable",xmlUseOfType));
     }
   }   
 
@@ -163,19 +167,23 @@ public class XmlEnumConversionUtil {
    */
   public static  org.goplanit.xml.generated.v2.UsedToType planitToXml(UseOfModeType useOfType) {
     switch (useOfType) {
-    case GOODS:
-      return  org.goplanit.xml.generated.v2.UsedToType.GOODS;
-    case HIGH_OCCUPANCY:
-      return  org.goplanit.xml.generated.v2.UsedToType.HIGH_OCCUPANCY;
-    case PRIVATE:
-      return  org.goplanit.xml.generated.v2.UsedToType.PRIVATE;
-    case PUBLIC:
-      return org.goplanit.xml.generated.v2.UsedToType.PUBLIC;
-    case RIDE_SHARE:
-      return  org.goplanit.xml.generated.v2.UsedToType.RIDE_SHARE;
-    default:
-      throw new PlanItRunTimeException(String.format("Mapping from PLANit used-to type %s to XML used-to type " +
-              "unavailable",useOfType.toString()));
+      case GOODS:
+        return  org.goplanit.xml.generated.v2.UsedToType.GOODS;
+      case TAXI:
+        return  org.goplanit.xml.generated.v2.UsedToType.TAXI;
+      case ACTIVE:
+        return  org.goplanit.xml.generated.v2.UsedToType.ACTIVE;
+      case PRIVATE:
+        return  org.goplanit.xml.generated.v2.UsedToType.PRIVATE;
+      case PUBLIC:
+        return org.goplanit.xml.generated.v2.UsedToType.PUBLIC;
+      case RIDE_SHARE:
+        return  org.goplanit.xml.generated.v2.UsedToType.RIDE_SHARE;
+      case EMERGENCY:
+        return  org.goplanit.xml.generated.v2.UsedToType.EMERGENCY;
+      default:
+        throw new PlanItRunTimeException(String.format("Mapping from PLANit used-to type %s to XML used-to type " +
+                "unavailable",useOfType.toString()));
     }
   } 
   
