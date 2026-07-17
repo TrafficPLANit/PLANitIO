@@ -81,6 +81,7 @@ public class TimePeriodXmlUtils {
         defaultStartTime.toSecondOfDay() : xmlTimePeriod.getStarttime().toSecondOfDay();
     int duration = xmlTimePeriod.getDuration().getValue().intValue();
     Durationunit durationUnit = xmlTimePeriod.getDuration().getUnit();
+
     if (xmlTimePeriod.getName() == null) {
       xmlTimePeriod.setName("");
     }

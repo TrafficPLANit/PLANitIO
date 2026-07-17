@@ -18,7 +18,6 @@ import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.time.TimePeriod;
-import org.goplanit.utils.wrapper.MapWrapper;
 import org.goplanit.utils.wrapper.MapWrapperImpl;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.Zone;
@@ -26,7 +25,6 @@ import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 
 import java.time.LocalTime;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.goplanit.io.converter.demands.TimePeriodXmlUtils.parseTimePeriod;
@@ -44,6 +42,31 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
   /** parses the xml content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementDiscreteDemand,?> xmlParser;
+
+  /** track start time as local time for quick comparisons */
+  private LocalTime timePeriodStartTimeAsLocalTime;
+
+  /** track end time as local time for quick comparisons, if exceeds midnight, it wraps around (does not go beyond) */
+  private LocalTime timePeriodEndTimeAsLocalTime;
+
+  /**
+   * Check if start occurs before end taking wrap around into account if it exists
+   *
+   * @param startTime to check
+   * @param endTime to check
+   * @return flag
+   */
+  private boolean isInvalidOrder(LocalTime startTime, LocalTime endTime){
+    if(timePeriodStartTimeAsLocalTime.isBefore(timePeriodEndTimeAsLocalTime)){
+      return startTime.isAfter(endTime); // no wrap around --> normal check
+    }else{
+      // case 1: start time > end time but end time has not wrapped around --> invalid
+      // case 2: start time has wrapped round, but end time < start time --> invalid
+      return (startTime.isAfter(endTime) && endTime.isAfter(timePeriodStartTimeAsLocalTime)) ||
+          (startTime.isBefore(timePeriodStartTimeAsLocalTime) &&  endTime.isBefore(startTime));
+    }
+
+  }
 
   /**
    * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g.,
@@ -116,6 +139,28 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     for (var xmlTimePeriod : xmlTimePeriods.getTimeperiods()) {
       var timePeriod = parseTimePeriod(xmlTimePeriod, defaultStartTime, discreteDemands.getTimePeriods());
       registerBySourceId(TimePeriod.class, timePeriod);
+    }
+
+    // we currently only allow a single time period to keep things simple. It is needed to have the one so we can
+    // determine if start and end times of activities are moving forward in time since the start point as the period
+    // may wrap around a day
+    if(discreteDemands.getTimePeriods().size() > 1){
+      LOGGER.severe(String.format(
+          "Only single time period per discrete demand file is currently support, but found %d, abort",
+          discreteDemands.getTimePeriods().size()));
+      throw new PlanItRunTimeException("Invalid time period specification");
+    }
+
+    this.timePeriodStartTimeAsLocalTime =
+        LocalTime.ofSecondOfDay(discreteDemands.getTimePeriods().getFirst().getStartTimeSeconds());
+    this.timePeriodEndTimeAsLocalTime =
+        LocalTime.ofSecondOfDay( (discreteDemands.getTimePeriods().getFirst().getStartTimeSeconds() +
+        discreteDemands.getTimePeriods().getFirst().getDurationSeconds()) % LocalTime.MAX.toSecondOfDay());
+
+    // in case of exactly 1 day, we subtract 1 second to ensure we can distinguish start from end
+    if(timePeriodStartTimeAsLocalTime.equals(timePeriodEndTimeAsLocalTime) &&
+        discreteDemands.getTimePeriods().getFirst().getDurationSeconds() > 0){
+      this.timePeriodEndTimeAsLocalTime = timePeriodEndTimeAsLocalTime.minusSeconds(1);
     }
   }
 
@@ -353,11 +398,12 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
             xmlTour.getId()));
         continue;
       }
-      if (startTime.isAfter(endTime)) {
+      if (isInvalidOrder(startTime, endTime)) {
         LOGGER.severe(String.format(
             "Tour (%s) has an invalid temporal layout: start_time (%s) occurs after end_time (%s). " +
                 "Skipping corrupt tour structure.",
             xmlTour.getId(), startTime, endTime));
+        isInvalidOrder(startTime, endTime);
         continue;
       }
       tour.setStartEndTime(startTime, endTime);
