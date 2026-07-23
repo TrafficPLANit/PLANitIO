@@ -17,6 +17,7 @@ import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
+import org.goplanit.utils.time.LocalTimeUtils;
 import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.utils.wrapper.MapWrapperImpl;
 import org.goplanit.utils.zoning.OdZone;
@@ -25,6 +26,7 @@ import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 
 import java.time.LocalTime;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static org.goplanit.io.converter.demands.TimePeriodXmlUtils.parseTimePeriod;
@@ -49,6 +51,19 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
   /** track end time as local time for quick comparisons, if exceeds midnight, it wraps around (does not go beyond) */
   private LocalTime timePeriodEndTimeAsLocalTime;
 
+  /** track person trips discarded because the mode is not active/available in the corresponding network.
+   */
+  private final Map<String, Set<String>> discardedTripsByMode = new TreeMap<>();
+
+  /** track person tours discarded.
+   */
+  private final Set<String> missingTours = new TreeSet<>();
+
+  /** tours may be incomplete when trips are missing or the schedule is invaid, track them, and then remove them from
+   * memory model after parsing is complete
+   */
+  private final Set<String> toursWithCorruptSchedule = new TreeSet<>();
+
   /**
    * Check if start occurs before end taking wrap around into account if it exists
    *
@@ -57,15 +72,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
    * @return flag
    */
   private boolean isInvalidOrder(LocalTime startTime, LocalTime endTime){
-    if(timePeriodStartTimeAsLocalTime.isBefore(timePeriodEndTimeAsLocalTime)){
-      return startTime.isAfter(endTime); // no wrap around --> normal check
-    }else{
-      // case 1: start time > end time but end time has not wrapped around --> invalid
-      // case 2: start time has wrapped round, but end time < start time --> invalid
-      return (startTime.isAfter(endTime) && endTime.isAfter(timePeriodStartTimeAsLocalTime)) ||
-          (startTime.isBefore(timePeriodStartTimeAsLocalTime) &&  endTime.isBefore(startTime));
-    }
-
+    return !LocalTimeUtils.isValidOrderForWrapAroundDayAnchors(
+        timePeriodStartTimeAsLocalTime, timePeriodEndTimeAsLocalTime, startTime, endTime);
   }
 
   /**
@@ -484,21 +492,15 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
       // start end time
       var tripStartTime = xmlTrip.getStartTime();
-      if (tripStartTime != null) {
-        if (parentTour.getStartTime() != null && tripStartTime.isBefore(parentTour.getStartTime())) {
-          LOGGER.severe(String.format(
-              "Trip (%s) departs at %s, which occurs BEFORE its parent Tour (%s) starts (%s). " +
-                  "Skipping corrupt schedule link.",
-              xmlTrip.getId(), tripStartTime, parentTour.getXmlId(), parentTour.getStartTime()));
-          continue;
-        }
-        if (parentTour.getEndTime() != null && tripStartTime.isAfter(parentTour.getEndTime())) {
-          LOGGER.severe(String.format(
-              "Trip (%s) departs at %s, which occurs AFTER its parent Tour (%s) ends (%s)." +
-                  " Skipping corrupt schedule link.",
-              xmlTrip.getId(), tripStartTime, parentTour.getXmlId(), parentTour.getEndTime()));
-          continue;
-        }
+      var parentTourStartTime = parentTour.getStartTime();
+
+      if (!LocalTimeUtils.isValidForWrapAroundDayAnchors(
+          parentTour.getStartTime(), parentTour.getEndTime(), tripStartTime)) {
+        LOGGER.severe(String.format(
+            "Trip (%s) departs at %s, which invalid given parent Tour (%s) period (%s - %s). " +
+                "Skipping corrupt schedule link.",
+            xmlTrip.getId(), tripStartTime, parentTour.getXmlId(), parentTour.getStartTime(), parentTour.getEndTime()));
+        continue;
       }
 
       // direction
@@ -517,6 +519,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         trip.setExternalId(xmlTrip.getExternalid());
       }
 
+      trip.setStartTime(tripStartTime);
+
       // purpose
       if (StringUtils.isNullOrBlank(xmlTrip.getPurp())) {
         LOGGER.severe(String.format("Trip (%s) is missing its travel purpose ('purp'). " +
@@ -533,9 +537,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       //  IO differently
       var mode = modesByXmlId.get(xmlTrip.getMode());
       if (mode == null) {
-        LOGGER.severe(String.format(
-            "Trip (%s) references mode '%s' which cannot be found in the active network infrastructure layers. Skipping.",
-            xmlTrip.getId(), xmlTrip.getMode()));
+        var missingTrips = discardedTripsByMode.computeIfAbsent(
+            xmlTrip.getMode(), (s) -> new HashSet<>()).add(xmlTrip.getId()); // add missing trip by mode
         continue;
       }
       trip.setMode(mode);
@@ -625,6 +628,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     for (var xmlTour : xmlToursElement.getTours()) {
       var currTour = getBySourceId(Tour.class, xmlTour.getId());
       if (currTour == null) {
+        missingTours.add(xmlTour.getId());
         continue;
       }
 
@@ -640,10 +644,14 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
           var tourTripRef = (Tourtrip) xmlChoice;
           var childTrip = getBySourceId(Trip.class, tourTripRef.getRef());
 
-          if (childTrip == null) {
-            LOGGER.severe(String.format(
-                "Tour (%s) references a Trip ID '%s' that cannot be found. Skipping leg reference.",
-                xmlTour.getId(), tourTripRef.getRef()));
+          if (childTrip == null){
+            if(discardedTripsByMode.entrySet().stream().noneMatch( e -> e.getValue().contains(tourTripRef.getRef()))) {
+              // log only when genuinely missing and not actively discarded earlier due to known reason
+              LOGGER.severe(String.format(
+                  "Tour (%s) references a Trip (%s) that cannot be found. Skipping leg reference.",
+                  xmlTour.getId(), tourTripRef.getRef()));
+            }
+            toursWithCorruptSchedule.add(xmlTour.getId());
             continue;
           }
 
@@ -660,6 +668,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
             LOGGER.severe(String.format(
                 "Tour (%s) references a nested Sub-tour ID '%s' that cannot be found. Skipping leg reference.",
                 xmlTour.getId(), subTourRef.getRef()));
+            toursWithCorruptSchedule.add(xmlTour.getId());
             continue;
           }
 
@@ -668,14 +677,38 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
           // Anchor the nested sub-tour into this tour's internal sequence
           tourSchedule.add(childTour);
-        }
-
-        else {
+        }else {
           LOGGER.warning(String.format("Unrecognized JAXB polymorphic internal tour type '%s' inside Tour (%s).",
               xmlChoice.getClass().getSimpleName(), xmlTour.getId()));
+          toursWithCorruptSchedule.add(xmlTour.getId());
         }
       }
     }
+  }
+
+  /**
+   * Log stats from parsing
+   */
+  private void logStatsAndCleanup() {
+
+    // issues info
+    if (!discardedTripsByMode.isEmpty()) {
+      discardedTripsByMode.forEach((modeStr,ignoredTrips) ->
+          LOGGER.warning(String.format(
+              "Skipped %d Trips with unavailable network mode '%s'",ignoredTrips.size(), modeStr)));
+    }
+    if (!toursWithCorruptSchedule.isEmpty()) {
+        LOGGER.warning(String.format(
+              "Found %d Tours with corrupt/incomplete schedules, clearing touched schedules from result",
+            toursWithCorruptSchedule.size()));
+
+        toursWithCorruptSchedule.forEach(tourSourceId ->
+            discreteDemands.getDiscreteDemandsModifier().removeTour(
+                getBySourceId(Tour.class, tourSourceId), true));
+    }
+
+    // parsed info
+    discreteDemands.logInfo(LoggingUtils.discreteDemandsPrefix(discreteDemands.getId()));
   }
 
   /** Reference to demand schema location TODO: move to properties file*/
@@ -763,6 +796,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
             
       initialiseParentXmlIdTrackers(getReferenceNetwork(), getReferenceZoning());
       initialiseXmlIdTrackers();
+
+      getSettings().logSettings();
       
       xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
       var xmlDiscreteDemands = xmlParser.getXmlRootElement();
@@ -789,7 +824,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       }
 
       /* log stats */
-      discreteDemands.logInfo(LoggingUtils.discreteDemandsPrefix(discreteDemands.getId()));
+      logStatsAndCleanup();
       
       /* free */
       xmlParser.clearXmlContent();           
@@ -801,8 +836,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     }
     
     return discreteDemands;
-  } 
-  
+  }
+
 
   /**
    * {@inheritDoc}
@@ -817,6 +852,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
    */  
   @Override
   public void reset() {
+    discardedTripsByMode.clear();
+    toursWithCorruptSchedule.clear();
   }
 
   /**

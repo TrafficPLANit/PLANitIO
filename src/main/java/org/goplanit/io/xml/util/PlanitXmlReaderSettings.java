@@ -71,10 +71,10 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
-    LOGGER.info(LoggingUtils.settingsValue("Input directory", getInputDirectory(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("XML file extension", getXmlFileExtension(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Sync XML ids to ids", isSyncXmlIdsToIds(), 0));
+  public void logSettings(int level) {
+    LOGGER.info(LoggingUtils.settingsValue("Input directory", getInputDirectory(), level));
+    LOGGER.info(LoggingUtils.settingsValue("XML file extension", getXmlFileExtension(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Sync XML ids to ids", isSyncXmlIdsToIds(), level));
   }
   
   /** The input path directory used

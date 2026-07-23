@@ -89,12 +89,12 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
   /**
    * {@inheritDoc}
    */
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Intermodal Writer Settings"));
-    getNetworkSettings().logSettings();
-    getZoningSettings().logSettings();
-    getServiceNetworkSettings().logSettings();
-    getRoutedServicesSettings().logSettings();
+    getNetworkSettings().logSettings(level);
+    getZoningSettings().logSettings(level);
+    getServiceNetworkSettings().logSettings(level);
+    getRoutedServicesSettings().logSettings(level);
   }
 
   /** Collect zoning settings

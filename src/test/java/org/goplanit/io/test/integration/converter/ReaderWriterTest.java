@@ -43,7 +43,10 @@ public class ReaderWriterTest {
   public void readerWriterTest() {
     try {
       //TODO
-      // populate with Sydney planit network -> write to disk as planit network, use that to store. Then apply this for the read/write test
+      // populate with Sydney planit network -> write to disk as planit network, use that to store.
+      // Then apply this for the read/write test
+
+      // todo: do the same for discrete demands read a file, then write, then read and compare
     }catch(Exception e){
       e.printStackTrace();
       LOGGER.severe(e.getMessage());
