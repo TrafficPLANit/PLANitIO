@@ -2,7 +2,9 @@ package org.goplanit.io.test.integration.converter;
 
 import org.goplanit.demands.discrete.DiscreteDemands;
 import org.goplanit.demands.discrete.tour.Tour;
+import org.goplanit.demands.discrete.tour.TourImpl;
 import org.goplanit.demands.discrete.trip.Trip;
+import org.goplanit.demands.discrete.trip.TripImpl;
 import org.goplanit.demands.discrete.util.DirectionBound;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsReaderFactory;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsWriterFactory;
@@ -125,7 +127,9 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       //          |
       //          HOME (zone0)
       //          |
-      //          +-- Trip OUTBOUND [walk] 18:00
+      //          +-- Trip OUTBOUND [walk] 18:00 - SHOPPING1
+      //          |
+      //          +-- Trip OUTBOUND [walk] 18:30 - SHOPPING2
       //          |
       //          +-- TOUR: SHOPPING
       //          |    zone1 -> zone3
@@ -226,12 +230,22 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
           person0, tour0_p0.getDestination(), zone3,
           LocalTime.of(18, 0), LocalTime.of(20, 30), addToSchedule);
       tour_after_tour0_p0.setPurpose(PURPOSE_SHOPPING);
-      //  with inbound + outbound trip for this next tour
+      //  with 2xinbound + 1xoutbound trip for this next tour
       {
-        var tour_after_tour0_outbound = discreteDemands.getTrips().getFactory().registerNew(
+        // outbound trip 0: tour origin -> zone4
+        var tour_after_tour0_outbound0 = discreteDemands.getTrips().getFactory().registerNew(
             tour_after_tour0_p0, DirectionBound.OUTBOUND, addToSchedule);
-        tour_after_tour0_outbound.setMode(walkMode);
-        tour_after_tour0_outbound.syncStartTimeToTourStartTime();
+        tour_after_tour0_outbound0.setMode(walkMode);
+        tour_after_tour0_outbound0.syncStartTimeToTourStartTime();
+        tour_after_tour0_outbound0.setDestination(zone4);
+        tour_after_tour0_outbound0.setPurpose("shopping1");
+        // outbound trip 1: zone4 -> tour destination
+        var tour_after_tour0_outbound1 = discreteDemands.getTrips().getFactory().registerNew(
+            tour_after_tour0_p0, DirectionBound.OUTBOUND, addToSchedule);
+        tour_after_tour0_outbound1.setMode(walkMode);
+        tour_after_tour0_outbound1.setStartTime(LocalTime.of(18,30));
+        tour_after_tour0_outbound1.setOrigin(tour_after_tour0_p0.getOrigin());
+        tour_after_tour0_outbound1.setPurpose("shopping2");
         var tour_after_tour0_inbound = discreteDemands.getTrips().getFactory().registerNew(
             tour_after_tour0_p0, DirectionBound.INBOUND, addToSchedule);
         tour_after_tour0_inbound.setMode(walkMode);
@@ -331,6 +345,10 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       var tours = discreteDemands.getTours();
       assertEquals(6, tours.size(),
           "Should find 6 total tours across all agents (4 main tours + 1 sub-tour + 1 sequential tour).");
+      var trips = discreteDemands.getTrips();
+      assertEquals(13, trips.size(),
+          "Should find 13 total trips across all agents (4*2 main tour trips + 1*2 sub-tour trips + " +
+              "1*2 sequential tour trips + 1 extra due to multi-outbound trips for sequential tour trip (shopping)).");
 
       // Pull main work tour of person 0
       var workTourP0 = tours.stream()
@@ -379,7 +397,7 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
           "The work tour schedule for p0 should possess 3 chronological segments.");
 
       var firstSegment = scheduleP0.get(0);
-      assertTrue(firstSegment instanceof Trip, "First segment must be a Trip.");
+      assertTrue(firstSegment instanceof TripImpl, "First segment must be a Trip.");
       var outboundTrip = (Trip) firstSegment;
       assertEquals(DirectionBound.OUTBOUND, outboundTrip.getDirection());
       assertNotNull(outboundTrip.getMode(), "Trip mode should not be null.");
@@ -387,7 +405,7 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
           "Outbound trip should map exactly to CAR mode.");
 
       var secondSegment = scheduleP0.get(1);
-      assertTrue(secondSegment instanceof Tour, "Second segment must be the nested sub-tour.");
+      assertTrue(secondSegment instanceof TourImpl, "Second segment must be the nested sub-tour.");
       var subTour = (Tour) secondSegment;
       assertEquals(PURPOSE_GYM, subTour.getPurpose());
       assertEquals(workTourP0, subTour.getParentTour(),
@@ -407,7 +425,7 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
           "Sub-tour inbound trip should be a WALK/PEDESTRIAN mode.");
 
       var thirdSegment = scheduleP0.get(2);
-      assertTrue(thirdSegment instanceof Trip, "Third segment must be a Trip.");
+      assertTrue(thirdSegment instanceof TripImpl, "Third segment must be a Trip.");
       var inboundTrip = (Trip) thirdSegment;
       assertEquals(DirectionBound.INBOUND, inboundTrip.getDirection());
       assertNotNull(inboundTrip.getMode(), "Inbound trip mode should not be null.");

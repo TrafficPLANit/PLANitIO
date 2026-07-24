@@ -6,8 +6,8 @@ import org.goplanit.demands.discrete.DiscreteDemands;
 import org.goplanit.demands.discrete.DiscreteDemandsModifierUtils;
 import org.goplanit.demands.discrete.household.Household;
 import org.goplanit.demands.discrete.person.Person;
-import org.goplanit.demands.discrete.tour.Tour;
-import org.goplanit.demands.discrete.trip.Trip;
+import org.goplanit.demands.discrete.tour.TourImpl;
+import org.goplanit.demands.discrete.trip.TripImpl;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.io.xml.util.XmlEnumConversionUtil;
@@ -115,8 +115,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     initialiseSourceIdMap(TimePeriod.class, TimePeriod::getXmlId);
     initialiseSourceIdMap(Household.class, Household::getXmlId);
     initialiseSourceIdMap(Person.class, Person::getXmlId);
-    initialiseSourceIdMap(Tour.class, Tour::getXmlId);
-    initialiseSourceIdMap(Trip.class, Trip::getXmlId);
+    initialiseSourceIdMap(TourImpl.class, TourImpl::getXmlId);
+    initialiseSourceIdMap(TripImpl.class, TripImpl::getXmlId);
   }
 
   /**
@@ -159,11 +159,10 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       throw new PlanItRunTimeException("Invalid time period specification");
     }
 
-    this.timePeriodStartTimeAsLocalTime =
-        LocalTime.ofSecondOfDay(discreteDemands.getTimePeriods().getFirst().getStartTimeSeconds());
+    var tp = discreteDemands.getTimePeriods().getFirst();
+    this.timePeriodStartTimeAsLocalTime = LocalTime.ofSecondOfDay(tp.getStartTimeSeconds());
     this.timePeriodEndTimeAsLocalTime =
-        LocalTime.ofSecondOfDay( (discreteDemands.getTimePeriods().getFirst().getStartTimeSeconds() +
-        discreteDemands.getTimePeriods().getFirst().getDurationSeconds()) % LocalTime.MAX.toSecondOfDay());
+        LocalTime.ofSecondOfDay( (tp.getStartTimeSeconds() +tp.getDurationSeconds()) % LocalTimeUtils.SECONDS_IN_DAY);
 
     // in case of exactly 1 day, we subtract 1 second to ensure we can distinguish start from end
     if(timePeriodStartTimeAsLocalTime.equals(timePeriodEndTimeAsLocalTime) &&
@@ -418,7 +417,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
       // we do post loop for parent-tours, since they may not all be parsed yet
 
-      registerBySourceId(Tour.class, tour);
+      registerBySourceId(TourImpl.class, tour);
     }
 
     // Resolve and stitch self-referential parent sub-tours
@@ -427,12 +426,12 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         continue; // Standard top-level tour, no parent hierarchy to resolve
       }
 
-      var planitTour = getBySourceId(Tour.class, xmlTour.getId());
+      var planitTour = getBySourceId(TourImpl.class, xmlTour.getId());
       if (planitTour == null) {
         continue; // Skip if the instance itself failed validation in Pass 1
       }
 
-      var parentTour = getBySourceId(Tour.class, xmlTour.getParentref());
+      var parentTour = getBySourceId(TourImpl.class, xmlTour.getParentref());
       if (parentTour == null) {
         LOGGER.severe(String.format(
             "Sub-tour (%s) references parent tour ID '%s' which does not exist anywhere in the dataset. " +
@@ -482,7 +481,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       }
 
       // Mandatory Parent Tour Link
-      var parentTour = getBySourceId(Tour.class, xmlTrip.getTourref());
+      var parentTour = getBySourceId(TourImpl.class, xmlTrip.getTourref());
       if (parentTour == null) {
         LOGGER.severe(String.format(
             "Trip (%s) references parent tour ID '%s' which cannot be found in the registered tours. Skipping.",
@@ -543,9 +542,20 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       }
       trip.setMode(mode);
 
+      // Spatial Reference Resolution (Origin & Destination Zones) - optional for trips as is most cases derivable
+      // from tour
+      var originZone = (OdZone) getBySourceId(Zone.class, xmlTrip.getO());
+      if (originZone != null) {
+        trip.setOrigin(originZone);
+      }
+      var destinationZone = (OdZone) getBySourceId(Zone.class, xmlTrip.getD());
+      if (destinationZone != null) {
+        trip.setDestination(destinationZone);
+      }
+
       //trip.setDescription(xmlTrip.getDescr());
 
-      registerBySourceId(Trip.class, trip);
+      registerBySourceId(TripImpl.class, trip);
     }
   }
 
@@ -583,7 +593,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         // Case A: The entry is a reference to a Tour (<tourref ref="..." />)
         if (xmlChoice instanceof Tourref) {
           var tourRef = (Tourref) xmlChoice;
-          var tour = getBySourceId(Tour.class, tourRef.getRef());
+          var tour = getBySourceId(TourImpl.class, tourRef.getRef());
           if (tour == null) {
             LOGGER.severe(String.format(
                 "Person (%s) schedule references Tour ID '%s' which cannot be found. Skipping schedule leg.",
@@ -598,7 +608,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         //         level
         else if (xmlChoice instanceof Tripref) {
           var tripRef = (Tripref) xmlChoice;
-          var trip = getBySourceId(Trip.class, tripRef.getRef());
+          var trip = getBySourceId(TripImpl.class, tripRef.getRef());
 
           LOGGER.severe(String.format("Person schedule can only have tour's as top-level entries, found a trip (%s) " +
               "for person (%s), this is not yet supported, skip", person.getIdsAsString(), trip.getIdsAsString()));
@@ -626,7 +636,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     }
 
     for (var xmlTour : xmlToursElement.getTours()) {
-      var currTour = getBySourceId(Tour.class, xmlTour.getId());
+      var currTour = getBySourceId(TourImpl.class, xmlTour.getId());
       if (currTour == null) {
         missingTours.add(xmlTour.getId());
         continue;
@@ -642,7 +652,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         // Case A: Element is a leaf-node trip segment reference (<tourtrip ref="..." />)
         if (xmlChoice instanceof Tourtrip) {
           var tourTripRef = (Tourtrip) xmlChoice;
-          var childTrip = getBySourceId(Trip.class, tourTripRef.getRef());
+          var childTrip = getBySourceId(TripImpl.class, tourTripRef.getRef());
 
           if (childTrip == null){
             if(discardedTripsByMode.entrySet().stream().noneMatch( e -> e.getValue().contains(tourTripRef.getRef()))) {
@@ -662,7 +672,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         // Case B: Element is a nested sub-tour reference (<subtour ref="..." />)
         else if (xmlChoice instanceof Subtour) {
           var subTourRef = (Subtour) xmlChoice;
-          var childTour = getBySourceId(Tour.class, subTourRef.getRef());
+          var childTour = getBySourceId(TourImpl.class, subTourRef.getRef());
 
           if (childTour == null) {
             LOGGER.severe(String.format(
@@ -704,7 +714,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
         toursWithCorruptSchedule.forEach(tourSourceId ->
             discreteDemands.getDiscreteDemandsModifier().removeTour(
-                getBySourceId(Tour.class, tourSourceId), true));
+                getBySourceId(TourImpl.class, tourSourceId), true));
     }
 
     // parsed info

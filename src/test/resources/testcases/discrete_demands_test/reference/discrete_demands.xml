@@ -59,6 +59,7 @@
         <tour id="5" purp="shopping" o="1" d="3" start_time="18:00:00" end_time="20:30:00">
             <tourtrip ref="10"/>
             <tourtrip ref="11"/>
+            <tourtrip ref="12"/>
         </tour>
     </tours>
     <trips>
@@ -72,7 +73,8 @@
         <trip id="7" purp="from:work" mode="train" start_time="16:45:00" tourref="1" direction="inbound"/>
         <trip id="8" purp="from:shopping" mode="pedestrian" start_time="12:40:00" tourref="2" direction="inbound"/>
         <trip id="9" purp="from:gym" mode="pedestrian" start_time="15:40:00" tourref="3" direction="inbound"/>
-        <trip id="10" purp="to:shopping" mode="pedestrian" start_time="18:00:00" tourref="5" direction="outbound"/>
-        <trip id="11" purp="from:shopping" mode="pedestrian" start_time="20:20:00" tourref="5" direction="inbound"/>
+        <trip id="10" purp="shopping1" mode="pedestrian" start_time="18:00:00" tourref="5" direction="outbound"/>
+        <trip id="11" o="1" purp="shopping2" mode="pedestrian" start_time="18:30:00" tourref="5" direction="outbound"/>
+        <trip id="12" purp="from:shopping" mode="pedestrian" start_time="20:20:00" tourref="5" direction="inbound"/>
     </trips>
 </discretedemand>

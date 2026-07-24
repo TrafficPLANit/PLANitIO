@@ -5,7 +5,9 @@ import org.goplanit.converter.idmapping.DiscreteDemandsIdMapper;
 import org.goplanit.demands.discrete.DiscreteDemands;
 import org.goplanit.demands.discrete.person.Person;
 import org.goplanit.demands.discrete.tour.Tour;
+import org.goplanit.demands.discrete.tour.TourImpl;
 import org.goplanit.demands.discrete.trip.Trip;
+import org.goplanit.demands.discrete.trip.TripImpl;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.converter.network.ModeXmlUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
@@ -239,7 +241,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
       if (element == null) continue;
 
       // Use reflection/type verification to identify the strategy type
-      if (element instanceof Tour) {
+      if (element instanceof TourImpl) {
 
         var xmlTourRef = new Tourref();
         var tourId = getPrimaryIdMapper().getTourClassIdMapper().apply((Tour)element);
@@ -253,7 +255,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         // xmlTourRef.setDescr(element.getDescription()); // Optional: map description if available
         xmlElements.add(xmlTourRef);
 
-      } else if (element instanceof Trip) {
+      } else if (element instanceof TripImpl) {
 
         var xmlTripRef = new Tripref();
         var tripId = getPrimaryIdMapper().getTripClassIdMapper().apply((Trip)element);
@@ -317,7 +319,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
       // Map core travel attributes (Purpose, Origin, Destination)
       xmlTour.setPurp(domainTour.getPurpose());
 
-      // Map and validate Origin Zone
+      // origin
       var originZoneRef = zoneIdMapper.apply(domainTour.getOrigin());
       if (StringUtils.isNullOrBlank(originZoneRef)) {
         LOGGER.severe(String.format(
@@ -392,6 +394,8 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     List<XMLElementTrip> xmlTrips = tripsElement.getTrips();
 
     // Iterate over internal domain model and map to JAXB elements
+    var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper();
+    boolean deriveZoneFromTourIfNotSetExplicitly = false;
     for (var domainTrip : discreteDemands.getTrips()) {
       var xmlTrip = new XMLElementTrip();
 
@@ -421,7 +425,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
       }
       xmlTrip.setTourref(tourRefId);
 
-      // 3. Map and validate Purpose
+      // Map and validate Purpose
       if (StringUtils.isNullOrBlank(domainTrip.getPurpose())) {
         xmlTrip.setPurp(domainTrip.derivePurposeFromDirectionAndTour());
       }else {
@@ -467,6 +471,17 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         }
       }
 
+      // origin
+      var originZoneRef = zoneIdMapper.apply(domainTrip.getOrigin(deriveZoneFromTourIfNotSetExplicitly));
+      if (!StringUtils.isNullOrBlank(originZoneRef)) {
+        xmlTrip.setO(originZoneRef);
+      }
+      // destination
+      var destZoneRef = zoneIdMapper.apply(domainTrip.getDestination(deriveZoneFromTourIfNotSetExplicitly));
+      if (!StringUtils.isNullOrBlank(destZoneRef)) {
+        xmlTrip.setD(destZoneRef);
+      }
+
       // Append directly to the live JAXB list only if 100% structurally sound
       xmlTrips.add(xmlTrip);
     }
@@ -485,7 +500,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     for (var element : domainSchedule) {
       if (element == null) continue;
 
-      if (element instanceof Tour) {
+      if (element instanceof TourImpl) {
         Tour subTour = (Tour) element;
         var xmlTourRef = new Subtour();
         var tourId = getPrimaryIdMapper().getTourClassIdMapper().apply(subTour);
@@ -500,7 +515,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         xmlTourRef.setRef(tourId);
         xmlElements.add(xmlTourRef);
 
-      } else if (element instanceof Trip) {
+      } else if (element instanceof TripImpl) {
         Trip subTrip = (Trip) element;
         var xmlTourtripRef = new Tourtrip();
         var tripId = getPrimaryIdMapper().getTripClassIdMapper().apply(subTrip);
