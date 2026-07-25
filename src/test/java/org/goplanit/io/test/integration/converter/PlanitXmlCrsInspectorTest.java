@@ -2,12 +2,14 @@ package org.goplanit.io.test.integration.converter;
 
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.xml.util.PlanitXmlCrsInspector;
+import org.goplanit.io.xml.util.PlanitXmlNetworkSpatialInspector;
 import org.goplanit.io.xml.util.PlanitXmlVersion;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -97,5 +99,19 @@ public class PlanitXmlCrsInspectorTest extends TestBase {
     var versionedSrsName = PlanitXmlCrsInspector.peekZoningSrsName(inputDirectory, PlanitXmlVersion.V1);
     assertTrue(versionedSrsName.isPresent());
     assertEquals("EPSG:3112", versionedSrsName.get());
+  }
+
+  /**
+   * Verify representative network coordinate can be inspected from XML without a full JAXB network read.
+   */
+  @Test
+  public void test_peek_v1_network_reference_coordinate() {
+    final String inputDirectory = Path.of(TEST_CASE_PATH.toString(), "grid10x10").toString();
+
+    var referenceCoordinate = PlanitXmlNetworkSpatialInspector.peekNetworkReferenceCoordinate(inputDirectory);
+    assertTrue(referenceCoordinate.isPresent());
+    assertNotNull(referenceCoordinate.get());
+    assertEquals(0.0, referenceCoordinate.get().x);
+    assertEquals(0.0, referenceCoordinate.get().y);
   }
 }
