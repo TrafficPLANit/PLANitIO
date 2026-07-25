@@ -55,7 +55,7 @@ public class XmlEnumConversionUtil {
     case NON_MOTORISED:
       return MotorisationType.NON_MOTORISED;      
     default:
-      throw new PlanItRunTimeException(String.format("mapping from planit motorisation type %s to xml motorisation " +
+      throw new PlanItRunTimeException(String.format("mapping from PLANit motorisation type %s to XML motorisation " +
               "type unavailable",planitMotorisationType.toString()));
     }
   }  
@@ -72,7 +72,7 @@ public class XmlEnumConversionUtil {
     case NO_VEHICLE:
       return VehicularModeType.NO_VEHICLE;      
     default:
-      throw new PlanItRunTimeException(String.format("mapping from xml vehicular type %s to PLANit vehicular type " +
+      throw new PlanItRunTimeException(String.format("mapping from XML vehicular type %s to PLANit vehicular type " +
               "unavailable",xmlVehicularType.toString()));
     }
   }  
@@ -157,7 +157,7 @@ public class XmlEnumConversionUtil {
         return UseOfModeType.EMERGENCY;
       default:
         throw new PlanItRunTimeException(
-            String.format("Mapping from xml track type %s to PLANit track type unavailable",xmlUseOfType));
+            String.format("Mapping from XML track type %s to PLANit track type unavailable",xmlUseOfType));
     }
   }   
 
@@ -232,6 +232,9 @@ public class XmlEnumConversionUtil {
 
   /**
    * Convert JAXB TripDirectionType to native PLANit DirectionBound exactly
+   *
+   * @param xmlDirection direction of trip in XML format
+   * @return PLANit direction bound
    */
   public static DirectionBound xmlToPlanit(TripDirectionType xmlDirection) {
     if (xmlDirection == null) {
