@@ -244,7 +244,7 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
             tour_after_tour0_p0, DirectionBound.OUTBOUND, addToSchedule);
         tour_after_tour0_outbound1.setMode(walkMode);
         tour_after_tour0_outbound1.setStartTime(LocalTime.of(18,30));
-        tour_after_tour0_outbound1.setOrigin(tour_after_tour0_p0.getOrigin());
+        tour_after_tour0_outbound1.setOrigin(zone4);
         tour_after_tour0_outbound1.setPurpose("shopping2");
         var tour_after_tour0_inbound = discreteDemands.getTrips().getFactory().registerNew(
             tour_after_tour0_p0, DirectionBound.INBOUND, addToSchedule);

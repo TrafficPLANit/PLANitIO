@@ -106,7 +106,7 @@ public class PlanitXmlCrsInspectorTest extends TestBase {
    */
   @Test
   public void test_peek_v1_network_reference_coordinate() {
-    final String inputDirectory = Path.of(TEST_CASE_PATH.toString(), "grid10x10").toString();
+    final String inputDirectory = Path.of(TEST_CASE_PATH.toString(), "grid10x10","reference").toString();
 
     var referenceCoordinate = PlanitXmlNetworkSpatialInspector.peekNetworkReferenceCoordinate(inputDirectory);
     assertTrue(referenceCoordinate.isPresent());
