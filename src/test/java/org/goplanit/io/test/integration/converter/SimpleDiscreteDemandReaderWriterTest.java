@@ -259,7 +259,7 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       writer.write(discreteDemands);
 
       String theOutputFile = Path.of(PLANIT_OUTPUT_DIR.toString(), "discrete_demands.xml").toString();
-      String theRefFile =Path.of(PLANIT_REF_DIR.toString(),"discrete_Demands.xml").toString();
+      String theRefFile =Path.of(PLANIT_REF_DIR.toString(),"discrete_demands.xml").toString();
       org.hamcrest.MatcherAssert.assertThat(
           /* xml unit functionality comparing the two files */
           Input.fromFile(theOutputFile),
