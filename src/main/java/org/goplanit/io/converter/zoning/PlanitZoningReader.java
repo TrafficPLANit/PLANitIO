@@ -162,7 +162,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       for(String xmlModeRef : List.of(xmlModesRef.split(","))){
         Mode mode = planitModesByXmlId.get(xmlModeRef);
         if(mode == null) {
-          LOGGER.warning(String.format("Invalid mode %s referenced by connectoid (%s)",
+          LOGGER.warning(String.format("Invalid or unsupported mode (%s) referenced by connectoid (%s)",
               xmlModeRef, connectoid.getIdsAsString()));
           continue;
         }
@@ -769,9 +769,14 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     zoning.setCoordinateReferenceSystem(crs);
 
     if(!zoning.getCoordinateReferenceSystem().equals(macroscopicNetwork.getCoordinateReferenceSystem())) {
-      LOGGER.severe(
-          String.format("Zoning crs (%s) and network crs (%s) are not compatible",
-              crs.getName(), macroscopicNetwork.getCoordinateReferenceSystem().getName()));
+      if(macroscopicNetwork.getCoordinateReferenceSystem() != null) {
+        LOGGER.severe(
+            String.format("Zoning crs (%s) and network crs (%s) are not compatible",
+                crs.getName(), macroscopicNetwork.getCoordinateReferenceSystem().getName()));
+      }else{
+        LOGGER.warning(
+            String.format("Zoning crs (%s) set but network crs missing, verify correctness", crs.getName()));
+      }
     }
     this.jtsUtils = new PlanitJtsCrsUtils(crs);
   }
@@ -818,16 +823,19 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     LOGGER.info("Parsing OD zones...");
 
     if(getReferenceNetwork().getTransportLayers().size() > 1){
-      throw new PlanItRunTimeException("Currently PlaniIO does not support more than a single layer");
+      throw new PlanItRunTimeException("Currently PlanitIO does not support more than a single layer");
     }
-    if(getReferenceNetwork().getTransportLayers().size() < 1){
-      throw new PlanItRunTimeException("At least a single network layer should be present");
-    }
-    var layer = getReferenceNetwork().getTransportLayers().getFirst();
+
     Map<String, Mode> planitModesByXmlId = new HashMap<>();
-    var modes = layer.getSupportedModes();
-    modes.forEach( mode -> planitModesByXmlId.put(mode.getXmlId(), mode));
-    
+
+    // no longer throw if no layers, this allows us to parse zones without connectoids requiring modes. If we do have
+    // connectoids with zone based access, they will log warnings regardless, so this is more flexible
+    if(getReferenceNetwork().getTransportLayers().size() == 1){
+      var layer = getReferenceNetwork().getTransportLayers().getFirst();
+      var modes = layer.getSupportedModes();
+      modes.forEach( mode -> planitModesByXmlId.put(mode.getXmlId(), mode));
+    }
+
     /* zone */
     for (final org.goplanit.xml.generated.v2.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZones()) {
       /* create zone */
