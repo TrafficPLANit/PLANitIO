@@ -179,7 +179,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     /* transfer zones */
     xmlTransferGroup.setTzrefs(
         transferGroup.getTransferZones().stream().map(
-                transferZone -> getPrimaryIdMapper().getZoneIdMapper().apply(transferZone)).sorted().collect(
+                transferZone -> getPrimaryIdMapper().getTransferZoneIdMapper().apply(transferZone)).sorted().collect(
                         Collectors.joining(getSettings().getCommaSeparator().toString())));
   }
 
@@ -253,7 +253,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlTransferZones.getZones().add(xmlTransferZone);
     
     /* id */
-    xmlTransferZone.setId(getPrimaryIdMapper().getZoneIdMapper().apply(transferZone));
+    xmlTransferZone.setId(getPrimaryIdMapper().getTransferZoneIdMapper().apply(transferZone));
     
     /* external id */
     if(transferZone.hasExternalId()) {
@@ -377,7 +377,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     
     /* transfer zones */
     var xmlTransferZones = xmlIntermodal.getValue().getTransferzones();
-    zoning.getTransferZones().streamSortedBy(getPrimaryIdMapper().getZoneIdMapper()).forEach( transferZone -> {
+    zoning.getTransferZones().streamSortedBy(getPrimaryIdMapper().getTransferZoneIdMapper()).forEach( transferZone -> {
       
       /* transfer zone */
       populateXmlTransferZone(transferZone, xmlTransferZones);
@@ -451,8 +451,14 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
           Connectoid connectoid) {
 
     /* TRANSFER ZONE REF */
-    String xmlTzRef = getPrimaryIdMapper().getZoneIdMapper().apply(accessZoneTypeEntry.getAccessZone());
-    xmlAccessZone.setRef(xmlTzRef);
+    var accessZone = accessZoneTypeEntry.getAccessZone();
+    if(accessZone instanceof TransferZone) {
+      String xmlTzRef = getPrimaryIdMapper().getTransferZoneIdMapper().apply((TransferZone) accessZone);
+      xmlAccessZone.setRef(xmlTzRef);
+    }else{
+      throw new PlanItRunTimeException(
+          "Expected transfer zone for connectoid access zone but found something else");
+    }
 
     // LENGTH
     Optional<Double> currLengthKm = accessZoneTypeEntry.getLengthKm();
@@ -544,7 +550,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     xmlRawZoning.getZones().getZones().add(xmlOdZone);
     
     /* (xml) id */
-    xmlOdZone.setId(getPrimaryIdMapper().getZoneIdMapper().apply(odZone));
+    xmlOdZone.setId(getPrimaryIdMapper().getOdZoneIdMapper().apply(odZone));
     
     /* external id */
     if(odZone.hasExternalId()) {
@@ -667,7 +673,7 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
 
     /* zones */
     zoning.getOdZones().streamSortedBy(
-        getPrimaryIdMapper().getZoneIdMapper()).forEach(this::populateXmlOdZone);
+        getPrimaryIdMapper().getOdZoneIdMapper()).forEach(this::populateXmlOdZone);
   }
 
   /** Populate the transfer zones of this zoning

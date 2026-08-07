@@ -9,6 +9,7 @@ import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.zoning.zonetozone.OdDemandMatrix;
 import org.goplanit.zoning.zonetozone.OdDemands;
 import org.goplanit.userclass.TravellerType;
@@ -72,9 +73,11 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   private void initialiseParentXmlIdTrackers(LayeredNetwork<?,?> network, Zoning zoning) {
     initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
     
-    initialiseSourceIdMap(Zone.class, Zone::getXmlId);
-    getSourceIdContainer(Zone.class).addAll(zoning.getOdZones());
-    getSourceIdContainer(Zone.class).addAll(zoning.getTransferZones());
+    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getXmlId);
+    getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoning.getOdZones());
+
+    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
+    getSourceIdContainer(TransferZone.getTransferZoneIdClass()).addAll(zoning.getTransferZones());
   } 
   
   /**
@@ -356,7 +359,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
           Zones<OdZone> zones) {
     
     @SuppressWarnings("unchecked")
-    MapWrapper<String, Zone> xmlIdZoneMap = (MapWrapper<String,Zone>)getSourceIdContainer(Zone.class);
+    MapWrapper<String, OdZone> xmlIdZoneMap = (MapWrapper<String,OdZone>)getSourceIdContainer(OdZone.getOdZoneIdClass());
     if (xmlOdMatrix instanceof XMLElementOdCellByCellMatrix) {
       
       /* cell-by-cell matrix */

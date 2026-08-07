@@ -179,7 +179,7 @@ public class PlanitDemandsWriter extends PlanitWriterImpl<Demands> implements De
     var xmlOdRowsList = xmlOdDemandsEntry.getOdrows();
 
     final DoubleAdder totalTripDemandVehH = new DoubleAdder();
-    final var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper();
+    final var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getOdZoneIdMapper();
     /* stream sorted by the ordering used for persisting zones */
     this.referenceZoning.getOdZones().streamSortedBy(zoneIdMapper).forEach( originZone -> {
 

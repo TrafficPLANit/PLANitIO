@@ -21,6 +21,7 @@ import org.goplanit.utils.time.LocalTimeUtils;
 import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.utils.wrapper.MapWrapperImpl;
 import org.goplanit.utils.zoning.OdZone;
+import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.Zone;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
@@ -107,9 +108,11 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
 
     // zone XML index
-    initialiseSourceIdMap(Zone.class, Zone::getXmlId);
-    getSourceIdContainer(Zone.class).addAll(zoning.getOdZones());
-    getSourceIdContainer(Zone.class).addAll(zoning.getTransferZones());
+    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), OdZone::getXmlId);
+    getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoning.getOdZones());
+
+    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
+    getSourceIdContainer(TransferZone.getTransferZoneIdClass()).addAll(zoning.getTransferZones());
   }
 
   /**
@@ -213,7 +216,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         household.setExternalId(xmlHousehold.getExternalid());
       }
 
-      var zone = (OdZone) getBySourceId(Zone.class,xmlHousehold.getZoneref());
+      var zone = (OdZone) getBySourceId(OdZone.getOdZoneIdClass(),xmlHousehold.getZoneref());
       if (zone == null) {
         LOGGER.severe(String.format(
             "Household (%s) references zone ID '%s' which cannot be found in the registered network zoning. Skipping.",
@@ -380,13 +383,13 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       }
 
       // Spatial Reference Resolution (Origin & Destination Zones)
-      var originZone = (OdZone) getBySourceId(Zone.class, xmlTour.getO());
+      var originZone = (OdZone) getBySourceId(OdZone.getOdZoneIdClass(), xmlTour.getO());
       if (originZone == null) {
         LOGGER.severe(String.format("Tour (%s) references origin zone '%s' which cannot be found. " +
             "Skipping.", xmlTour.getId(), xmlTour.getO()));
         continue;
       }
-      var destinationZone = (OdZone) getBySourceId(Zone.class, xmlTour.getD());
+      var destinationZone = (OdZone) getBySourceId(OdZone.getOdZoneIdClass(), xmlTour.getD());
       if (destinationZone == null) {
         LOGGER.severe(String.format("Tour (%s) references destination zone '%s' which cannot " +
             "be found. Skipping.", xmlTour.getId(), xmlTour.getD()));
@@ -550,11 +553,11 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
       // Spatial Reference Resolution (Origin & Destination Zones) - optional for trips as is most cases derivable
       // from tour
-      var originZone = (OdZone) getBySourceId(Zone.class, xmlTrip.getO());
+      var originZone = (OdZone) getBySourceId(OdZone.getOdZoneIdClass(), xmlTrip.getO());
       if (originZone != null) {
         trip.setOrigin(originZone);
       }
-      var destinationZone = (OdZone) getBySourceId(Zone.class, xmlTrip.getD());
+      var destinationZone = (OdZone) getBySourceId(OdZone.getOdZoneIdClass(), xmlTrip.getD());
       if (destinationZone != null) {
         trip.setDestination(destinationZone);
       }

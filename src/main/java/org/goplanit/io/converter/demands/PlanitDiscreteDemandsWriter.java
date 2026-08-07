@@ -147,7 +147,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         xmlHousehold.setExternalid(domainHousehold.getExternalId());
       }
 
-      var zoneRef = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper().apply(domainHousehold.getZone());
+      var zoneRef = getComponentIdMappers().getZoningIdMappers().getOdZoneIdMapper().apply(domainHousehold.getZone());
       if(StringUtils.isNullOrBlank(zoneRef)){
         LOGGER.severe(String.format(
             "Household (%s) has no zone, not allowed, skipping",domainHousehold.getIdsAsString()));
@@ -294,7 +294,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     List<XMLElementTour> xmlTours = toursElement.getTours();
 
     // Iterate over internal domain model and map to JAXB elements
-    var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper();
+    var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getOdZoneIdMapper();
     for (var domainTour : discreteDemands.getTours()) {
       var xmlTour = new XMLElementTour();
 
@@ -394,7 +394,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     List<XMLElementTrip> xmlTrips = tripsElement.getTrips();
 
     // Iterate over internal domain model and map to JAXB elements
-    var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getZoneIdMapper();
+    var zoneIdMapper = getComponentIdMappers().getZoningIdMappers().getOdZoneIdMapper();
     boolean deriveZoneFromTourIfNotSetExplicitly = false;
     for (var domainTrip : discreteDemands.getTrips()) {
       var xmlTrip = new XMLElementTrip();
