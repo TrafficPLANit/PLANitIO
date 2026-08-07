@@ -83,8 +83,9 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * id as well for quick lookups
    */
   private void initialiseXmlIdTrackers() {
-    initialiseSourceIdMap(Zone.class, Zone::getXmlId);
-    initialiseSourceIdMap(Connectoid.class, Connectoid::getXmlId);
+    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), OdZone::getXmlId);
+    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
+    initialiseSourceIdMap(Connectoid.getConnectoidIdClass(), Connectoid::getXmlId);
   }  
     
   /** Parse passed in transfer zone type
@@ -98,18 +99,20 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       return TransferZoneType.NONE;
     }else {
       switch (xmlTransferZone) {
-      case PLATFORM:
-        return TransferZoneType.PLATFORM;
-      case STOP_POLE:
-        return TransferZoneType.POLE;
-      case UNKNOWN:
-        return TransferZoneType.UNKNOWN;
-      case NONE:
-        return TransferZoneType.NONE;        
-      default:
-        LOGGER.warning(String.format("Unsupported transfer stop type %s found, changed to `unknown`",
-            xmlTransferZone.value()));
-        return TransferZoneType.UNKNOWN;
+        case PLATFORM:
+          return TransferZoneType.PLATFORM;
+        case STOP_POLE:
+          return TransferZoneType.POLE;
+        case SMALL_STATION:
+            return TransferZoneType.SMALL_STATION;
+        case UNKNOWN:
+          return TransferZoneType.UNKNOWN;
+        case NONE:
+          return TransferZoneType.NONE;
+        default:
+          LOGGER.warning(String.format("Unsupported transfer stop type %s found, changed to `unknown`",
+              xmlTransferZone.value()));
+          return TransferZoneType.UNKNOWN;
       }
     }
     
@@ -337,6 +340,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * Parse common properties of a zone regardless if it is an od or transfer zone
    * 
    * @param zone to register on
+   * @param zoneIdClazz to register source for
    * @param xmlId to use
    * @param externalId to use (can be null)
    * @param name to use (can be null)
@@ -344,6 +348,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    */
   private void parseBaseZone(
       final Zone zone,
+      final Class<? extends Zone> zoneIdClazz,
       final String xmlId,
       final String externalId,
       final String name,
@@ -356,7 +361,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       throw new PlanItRunTimeException("Zone cannot be parsed, its (XML) id is not set");
     }
     /* all zones regardless of subtype are expected to have unique ids */
-    registerBySourceId(Zone.class, zone);
+    registerBySourceId(zoneIdClazz, zone);
     
     /* external id */        
     if(externalId != null && !externalId.isBlank()) {
@@ -507,11 +512,11 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     for (String transferZoneXmlId : transferZoneRefsByXmlId) {
 
         /* transfer zone */
-        TransferZone transferZone = (TransferZone) getBySourceId(Zone.class, transferZoneXmlId);
+        TransferZone transferZone = getBySourceId(TransferZone.getTransferZoneIdClass(), transferZoneXmlId);
         if (transferZone == null) {
             LOGGER.warning(String.format("Transfer zone group %s (id:%d) references transfer zone %s that is " +
                             "not available in the parser, transfer zone ignored",
-                    transferGroup.getXmlId(), transferGroup.getId(), transferZoneRefsByXmlId));
+                    transferGroup.getXmlId(), transferGroup.getId(), Arrays.toString(transferZoneRefsByXmlId)));
         }
         transferGroup.addTransferZone(transferZone);
     }
@@ -536,8 +541,13 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     for(var xmlTransferzone : xmlTransferZonesList) {
       /* base zone elements parsed and PLANit version registered */
       TransferZone transferZone = zoning.getTransferZones().getFactory().registerNew();
-      parseBaseZone(transferZone, xmlTransferzone.getId(), xmlTransferzone.getExternalid(),
-          xmlTransferzone.getName(), xmlTransferzone.getCentroid());
+      parseBaseZone(
+          transferZone,
+          TransferZone.getTransferZoneIdClass(),
+          xmlTransferzone.getId(),
+          xmlTransferzone.getExternalid(),
+          xmlTransferzone.getName(),
+          xmlTransferzone.getCentroid());
       
       /* type */
       if(xmlTransferzone.getType()!= null) {
@@ -634,7 +644,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
         // zone ref
         var zoneRef = xmlAccessZoneEntry.getRef();
-        var transferZone = (TransferZone) getBySourceId(Zone.class, zoneRef);
+        var transferZone = (TransferZone) getBySourceId(TransferZone.getTransferZoneIdClass(), zoneRef);
         if(transferZone == null) {
           throw new PlanItRunTimeException(String.format("Provided Zone ref XML id %s is " +
                   "invalid when parsing transfer connectoid %s",
@@ -840,7 +850,13 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     for (final org.goplanit.xml.generated.v2.Zone xmlZone : xmlParser.getXmlRootElement().getZones().getZones()) {
       /* create zone */
       OdZone zone = zoning.getOdZones().getFactory().registerNew();
-      parseBaseZone(zone, xmlZone.getId(), xmlZone.getExternalid(), xmlZone.getId(), xmlZone.getCentroid());
+      parseBaseZone(
+          zone,
+          OdZone.getOdZoneIdClass(),
+          xmlZone.getId(),
+          xmlZone.getExternalid(),
+          xmlZone.getId(),
+          xmlZone.getCentroid());
       
       /* geometry */
       populateZoneGeometry(zone, xmlZone.getPolygon(), xmlZone.getMultiPolygon());

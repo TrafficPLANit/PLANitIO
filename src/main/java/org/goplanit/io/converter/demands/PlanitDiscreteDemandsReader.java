@@ -59,10 +59,16 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
    */
   private final Set<String> missingTours = new TreeSet<>();
 
-  /** tours may be incomplete when trips are missing or the schedule is invaid, track them, and then remove them from
-   * memory model after parsing is complete
+  /** tours may be corrupt when trips/schedule is invalid, track them, and then remove them from
+   * memory model after parsing is complete. This does not include schedules with trips where a mode is missing. These
+   * are tracked separately as this could potentially be intentional
    */
   private final Set<String> toursWithCorruptSchedule = new TreeSet<>();
+
+  /** tours may be incomplete when trips are missing due to the mode not being available, track them, and then
+   * remove them from memory model after parsing is complete
+   */
+  private final Set<String> toursWithUnavailableModeSchedule = new TreeSet<>();
 
   /**
    * Check if start occurs before end taking wrap around into account if it exists
@@ -660,8 +666,10 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
               LOGGER.severe(String.format(
                   "Tour (%s) references a Trip (%s) that cannot be found. Skipping leg reference.",
                   xmlTour.getId(), tourTripRef.getRef()));
+              toursWithCorruptSchedule.add(xmlTour.getId());
+            }else{
+              toursWithUnavailableModeSchedule.add(xmlTour.getId());
             }
-            toursWithCorruptSchedule.add(xmlTour.getId());
             continue;
           }
 
@@ -709,12 +717,21 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
     }
     if (!toursWithCorruptSchedule.isEmpty()) {
         LOGGER.warning(String.format(
-              "Found %d Tours with corrupt/incomplete schedules, clearing touched schedules from result",
+              "Found %d Tours with corrupt schedules, clearing touched schedules from result",
             toursWithCorruptSchedule.size()));
 
         toursWithCorruptSchedule.forEach(tourSourceId ->
             discreteDemands.getDiscreteDemandsModifier().removeTour(
                 getBySourceId(TourImpl.class, tourSourceId), true));
+    }
+    if (!toursWithUnavailableModeSchedule.isEmpty()) {
+      LOGGER.warning(String.format(
+          "Found %d Tours with missing trips due to mode unavailability, clearing touched schedules from result",
+          toursWithUnavailableModeSchedule.size()));
+
+      toursWithUnavailableModeSchedule.forEach(tourSourceId ->
+          discreteDemands.getDiscreteDemandsModifier().removeTour(
+              getBySourceId(TourImpl.class, tourSourceId), true));
     }
 
     // parsed info
@@ -864,6 +881,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
   public void reset() {
     discardedTripsByMode.clear();
     toursWithCorruptSchedule.clear();
+    toursWithUnavailableModeSchedule.clear();
   }
 
   /**
