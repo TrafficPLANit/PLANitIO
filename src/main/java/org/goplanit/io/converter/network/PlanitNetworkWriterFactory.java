@@ -33,7 +33,19 @@ public class PlanitNetworkWriterFactory {
    * @return created PLANit network writer
    */
   public static PlanitNetworkWriter create(PlanitNetworkWriterSettings settings) {
-    return new PlanitNetworkWriter(settings, new XMLElementMacroscopicNetwork());
+    return create(settings, new XMLElementMacroscopicNetwork());
+  }
+
+  /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format based on settings
+   * provided.
+   *
+   * @param settings network writer settings to use
+   * @param xmlRawNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
+   * @return created PLANit network writer
+   */
+  public static PlanitNetworkWriter create(
+      PlanitNetworkWriterSettings settings, XMLElementMacroscopicNetwork xmlRawNetwork) {
+    return new PlanitNetworkWriter(settings, xmlRawNetwork);
   }
   
   /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format
@@ -52,18 +64,20 @@ public class PlanitNetworkWriterFactory {
    * @return created PLANit network writer 
    */
   public static PlanitNetworkWriter create(String networkPath, String countryName) {
-    return create(networkPath, countryName, new XMLElementMacroscopicNetwork());    
+    return create(new PlanitNetworkWriterSettings(networkPath, countryName), new XMLElementMacroscopicNetwork());
   }
   
-  /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format. By providing the XML memory model instance to populate
-   * we make it possible for the writer to embed the persisting in another larger XML memory model that is marshalled by an entity other than this writer in the future
+  /** Create a PLANitNetworkWriter which can persist a PLANit network in the native PLANit XML format.
+   * By providing the XML memory model instance to populate we make it possible for the writer to embed the
+   * persisting in another larger XML memory model that is marshalled by an entity other than this writer in the future
    * 
    * @param networkPath the file to use for persisting
    * @param countryName the country to base the projection method on if available
    * @param xmlRawNetwork, use this specific xml memory model equivalent in this instance before marshalling via JAXb
    * @return created PLANit network writer 
    */
-  public static PlanitNetworkWriter create(String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
+  public static PlanitNetworkWriter create(
+      String networkPath, String countryName, XMLElementMacroscopicNetwork xmlRawNetwork) {
     return new PlanitNetworkWriter(networkPath, countryName, xmlRawNetwork);    
   }    
      

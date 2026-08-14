@@ -61,15 +61,14 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     /* network writer */
     PlanitNetworkWriterSettings networkSettings = getSettings().getNetworkSettings();
     PlanitNetworkWriter networkWriter = PlanitNetworkWriterFactory.create(
-        networkSettings.getOutputDirectory(), networkSettings.getCountry(), xmlRawNetwork);
+        networkSettings, xmlRawNetwork);
     networkWriter.setIdMapperType(getIdMapperType());
     networkWriter.write(macroscopicNetwork);
 
     /* zoning writer - with pt component via transfer zones */
     PlanitZoningWriterSettings zoningSettings = getSettings().getZoningSettings();
     PlanitZoningWriter zoningWriter =
-            PlanitZoningWriterFactory.create(
-                zoningSettings.getOutputDirectory(), zoningSettings.getCountry(), macroscopicNetwork);
+            PlanitZoningWriterFactory.create(zoningSettings, macroscopicNetwork);
     zoningWriter.setParentIdMappers(networkWriter.getPrimaryIdMapper()); // pass on parent ref mapping
     zoningWriter.setIdMapperType(getIdMapperType());
     zoningWriter.write(zoning);
