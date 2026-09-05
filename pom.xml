@@ -67,7 +67,7 @@
 		   <groupId>org.xmlunit</groupId>
 		   <artifactId>xmlunit-core</artifactId>
 		   <optional>true</optional>
-		   <scope>test</scope>
+		   <scope>compile</scope>
 		 </dependency>
 
 		  <dependency>
