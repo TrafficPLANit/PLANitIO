@@ -1,5 +1,6 @@
 package org.goplanit.io.xml.util;
 
+import org.goplanit.demands.discrete.tour.TourParticipantRole;
 import org.goplanit.demands.discrete.util.DirectionBound;
 import org.goplanit.output.enums.DataType;
 import org.goplanit.output.property.OutputProperty;
@@ -248,6 +249,49 @@ public class XmlEnumConversionUtil {
         return DirectionBound.INBOUND;
       default:
         throw new IllegalArgumentException("Unsupported XML direction enum constant: " + xmlDirection);
+    }
+  }
+
+  /**
+   * Convert JAXB TourParticipantRoleType to native PLANit TourParticipantRole. An absent role means the tour
+   * belongs to the person referencing it, matching the schema's default
+   *
+   * @param xmlRole role of a participation in XML format, may be absent
+   * @return PLANit participant role, primary when absent
+   */
+  public static TourParticipantRole xmlToPlanit(TourParticipantRoleType xmlRole) {
+    if (xmlRole == null) {
+      return TourParticipantRole.PRIMARY;
+    }
+
+    switch (xmlRole) {
+      case PRIMARY:
+        return TourParticipantRole.PRIMARY;
+      case ACCOMPANYING:
+        return TourParticipantRole.ACCOMPANYING;
+      default:
+        throw new IllegalArgumentException("Unsupported XML tour participant role enum constant: " + xmlRole);
+    }
+  }
+
+  /**
+   * Convert native PLANit TourParticipantRole to its JAXB TourParticipantRoleType counterpart
+   *
+   * @param planitRole role of a participation
+   * @return XML participant role
+   */
+  public static TourParticipantRoleType planitToXml(TourParticipantRole planitRole) {
+    if (planitRole == null) {
+      return null;
+    }
+
+    switch (planitRole) {
+      case PRIMARY:
+        return TourParticipantRoleType.PRIMARY;
+      case ACCOMPANYING:
+        return TourParticipantRoleType.ACCOMPANYING;
+      default:
+        throw new IllegalArgumentException("Unsupported PLANit tour participant role: " + planitRole);
     }
   }
 

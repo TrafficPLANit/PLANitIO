@@ -4,6 +4,7 @@ import org.goplanit.converter.demands.DiscreteDemandsWriter;
 import org.goplanit.converter.idmapping.DiscreteDemandsIdMapper;
 import org.goplanit.demands.discrete.DiscreteDemands;
 import org.goplanit.demands.discrete.person.Person;
+import org.goplanit.demands.discrete.tour.ParticipantTour;
 import org.goplanit.demands.discrete.tour.Tour;
 import org.goplanit.demands.discrete.tour.TourImpl;
 import org.goplanit.demands.discrete.trip.Trip;
@@ -11,6 +12,7 @@ import org.goplanit.demands.discrete.trip.TripImpl;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.converter.network.ModeXmlUtils;
 import org.goplanit.io.xml.util.PlanitSchema;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdMapperType;
@@ -241,10 +243,11 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
       if (element == null) continue;
 
       // Use reflection/type verification to identify the strategy type
-      if (element instanceof TourImpl) {
+      if (element instanceof ParticipantTour) {
 
+        var participation = (ParticipantTour) element;
         var xmlTourRef = new Tourref();
-        var tourId = getPrimaryIdMapper().getTourClassIdMapper().apply((Tour)element);
+        var tourId = getPrimaryIdMapper().getTourClassIdMapper().apply(participation.getTour());
         if (StringUtils.isNullOrBlank(tourId)) {
           LOGGER.severe(String.format("Tour reference ID is null for person (%s), skipping tour entry",
               domainPerson.getIdsAsString()));
@@ -252,6 +255,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         }
 
         xmlTourRef.setRef(tourId);
+        xmlTourRef.setRole(xmlRoleToWrite(participation));
         // xmlTourRef.setDescr(element.getDescription()); // Optional: map description if available
         xmlElements.add(xmlTourRef);
 
@@ -493,6 +497,22 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
    * @param xmlTour target JAXB tour element
    * @return true if successfully mapped; false if a structural validation fails
    */
+  /**
+   * The XML role to write for a participation. The primary role is the schema's default and is therefore left out,
+   * so a tour with a single participant is written exactly as it has always been. A tour without a primary
+   * participant is not valid to persist and is rejected rather than written out incomplete
+   *
+   * @param participation to establish the role to write for
+   * @return XML role, null when it is the primary participation and the attribute is to be omitted
+   */
+  private static TourParticipantRoleType xmlRoleToWrite(ParticipantTour participation) {
+    if (!participation.getTour().hasPrimaryParticipant()) {
+      throw new PlanItRunTimeException("Tour (%s) has no primary participant, unable to persist it",
+          participation.getTour().getIdsAsString());
+    }
+    return participation.isPrimary() ? null : XmlEnumConversionUtil.planitToXml(participation.getRole());
+  }
+
   private boolean addXmlActivitySchedule(Tour domainTour, XMLElementTour xmlTour) {
     var domainSchedule = domainTour.getSchedule();
     var xmlElements = xmlTour.getSubtoursAndTourtrips();
@@ -500,10 +520,10 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
     for (var element : domainSchedule) {
       if (element == null) continue;
 
-      if (element instanceof TourImpl) {
-        Tour subTour = (Tour) element;
+      if (element instanceof ParticipantTour) {
+        var participation = (ParticipantTour) element;
         var xmlTourRef = new Subtour();
-        var tourId = getPrimaryIdMapper().getTourClassIdMapper().apply(subTour);
+        var tourId = getPrimaryIdMapper().getTourClassIdMapper().apply(participation.getTour());
 
         if (StringUtils.isNullOrBlank(tourId)) {
           LOGGER.severe(String.format(
@@ -513,6 +533,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         }
 
         xmlTourRef.setRef(tourId);
+        xmlTourRef.setRole(xmlRoleToWrite(participation));
         xmlElements.add(xmlTourRef);
 
       } else if (element instanceof TripImpl) {

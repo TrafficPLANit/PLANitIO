@@ -1,7 +1,9 @@
 package org.goplanit.io.test.integration.converter;
 
 import org.goplanit.demands.discrete.DiscreteDemands;
+import org.goplanit.demands.discrete.tour.ParticipantTour;
 import org.goplanit.demands.discrete.tour.Tour;
+import org.goplanit.demands.discrete.tour.TourParticipantRole;
 import org.goplanit.demands.discrete.tour.TourImpl;
 import org.goplanit.demands.discrete.trip.Trip;
 import org.goplanit.demands.discrete.trip.TripImpl;
@@ -168,6 +170,11 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       var tour2_p2 = discreteDemands.getTours().getFactory().registerNew(
           person2, zone2, zone3, LocalTime.of(10, 0), LocalTime.of(13, 0), addToSchedule);
       tour2_p2.setPurpose(PURPOSE_SHOPPING);
+
+      // household1 shops together: person3 joins person2's shopping tour rather than making one of their own. The
+      // tour and its trips are shared, only the participation is person3's own
+      person3.getSchedule().add(tour2_p2.addParticipant(person3, TourParticipantRole.ACCOMPANYING));
+
       var tour3_p3 = discreteDemands.getTours().getFactory().registerNew(
           person3, zone2, zone4, LocalTime.of(15, 0), LocalTime.of(16, 0), addToSchedule);
       tour3_p3.setPurpose(PURPOSE_GYM);
@@ -378,6 +385,31 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       assertEquals(PredefinedModeType.PEDESTRIAN, p2Inbound.getMode().getPredefinedModeType(),
           "Tour 2 inbound trip should map exactly to PEDESTRIAN (walk back).");
 
+      // --- JOINT TOUR: household1 shops together, so tour 2 is shared by person2 and person3 ---
+      var person2 = persons.stream().filter(p -> "2".equals(p.getXmlId())).findFirst().orElseThrow();
+      var person3 = persons.stream().filter(p -> "3".equals(p.getXmlId())).findFirst().orElseThrow();
+
+      assertTrue(shoppingTourP2.hasMultipleParticipants(), "Shopping tour should be shared by two persons.");
+      assertEquals(2, shoppingTourP2.getParticipantTours().size(), "Shopping tour should hold two participations.");
+      assertEquals(person2, shoppingTourP2.getPrimaryParticipant(),
+          "The shopping tour should still belong to person2, the accompanying reference must not take it over.");
+      assertTrue(shoppingTourP2.getParticipants().containsAll(java.util.List.of(person2, person3)),
+          "Both household members should participate in the shopping tour.");
+
+      // person2 keeps a single, primary participation
+      assertEquals(1, person2.getSchedule().size(), "Person2 schedule should hold one participation.");
+      assertTrue(((ParticipantTour) person2.getSchedule().get(0)).isPrimary(),
+          "Person2 should be the primary participant of their own tour.");
+
+      // person3 accompanies on the shopping tour first, then makes their own gym tour
+      assertEquals(2, person3.getSchedule().size(), "Person3 schedule should hold two participations.");
+      var person3Shopping = (ParticipantTour) person3.getSchedule().get(0);
+      assertEquals(shoppingTourP2, person3Shopping.getTour(), "Person3's first entry should be the shared tour.");
+      assertFalse(person3Shopping.isPrimary(), "Person3 only accompanies on the shopping tour.");
+      assertEquals(TourParticipantRole.ACCOMPANYING, person3Shopping.getRole(), "Role did not survive the round trip.");
+      assertTrue(((ParticipantTour) person3.getSchedule().get(1)).isPrimary(),
+          "Person3's own gym tour should be primary.");
+
       assertEquals(PURPOSE_WORK, workTourP0.getPurpose());
       assertEquals(LocalTime.of(8, 0), workTourP0.getStartTime());
       assertEquals(LocalTime.of(17, 30), workTourP0.getEndTime());
@@ -405,8 +437,11 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
           "Outbound trip should map exactly to CAR mode.");
 
       var secondSegment = scheduleP0.get(1);
-      assertTrue(secondSegment instanceof TourImpl, "Second segment must be the nested sub-tour.");
-      var subTour = (Tour) secondSegment;
+      assertTrue(secondSegment instanceof ParticipantTour,
+          "Second segment must be a participation in the nested sub-tour.");
+      var subTourParticipation = (ParticipantTour) secondSegment;
+      assertTrue(subTourParticipation.isPrimary(), "Sub-tour participation should be primary.");
+      var subTour = subTourParticipation.getTour();
       assertEquals(PURPOSE_GYM, subTour.getPurpose());
       assertEquals(workTourP0, subTour.getParentTour(),
           "The sub-tour's parent tour link must be wired up correctly.");

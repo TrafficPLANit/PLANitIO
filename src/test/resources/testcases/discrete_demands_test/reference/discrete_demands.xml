@@ -30,6 +30,7 @@
         </person>
         <person id="3" hhref="1">
             <schedule init="home">
+                <tourref ref="2" role="accompanying"/>
                 <tourref ref="3"/>
             </schedule>
         </person>

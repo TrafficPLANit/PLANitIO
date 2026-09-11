@@ -6,6 +6,7 @@ import org.goplanit.demands.discrete.DiscreteDemands;
 import org.goplanit.demands.discrete.DiscreteDemandsModifierUtils;
 import org.goplanit.demands.discrete.household.Household;
 import org.goplanit.demands.discrete.person.Person;
+import org.goplanit.demands.discrete.person.PersonUtils;
 import org.goplanit.demands.discrete.tour.TourImpl;
 import org.goplanit.demands.discrete.trip.TripImpl;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
@@ -14,6 +15,7 @@ import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.id.ExternalIdAbleUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
@@ -42,6 +44,9 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDiscreteDemandsReader.class.getCanonicalName());
+
+  /** maximum number of persons listed individually when reporting an issue affecting many of them */
+  private static final int MAX_LOGGED_PERSONS = 10;
 
   /** parses the xml content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementDiscreteDemand,?> xmlParser;
@@ -500,16 +505,6 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
       // start end time
       var tripStartTime = xmlTrip.getStartTime();
-      var parentTourStartTime = parentTour.getStartTime();
-
-      if (!LocalTimeUtils.isValidForWrapAroundDayAnchors(
-          parentTour.getStartTime(), parentTour.getEndTime(), tripStartTime)) {
-        LOGGER.severe(String.format(
-            "Trip (%s) departs at %s, which invalid given parent Tour (%s) period (%s - %s). " +
-                "Skipping corrupt schedule link.",
-            xmlTrip.getId(), tripStartTime, parentTour.getXmlId(), parentTour.getStartTime(), parentTour.getEndTime()));
-        continue;
-      }
 
       // direction
       if (xmlTrip.getDirection() == null) {
@@ -609,9 +604,10 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
                 xmlPerson.getId(), tourRef.getRef()));
             continue;
           }
-          // Append the configured master tour into the person's plan timeline
-          domainSchedule.add(tour);
-          tour.setPerson(person);
+          /* a person's schedule holds a participation in the tour rather than the tour itself, so that one tour can
+           * be shared by several persons. An absent role means the tour belongs to this person; a tour with more
+           * than one primary participant is rejected by the model as invalid */
+          domainSchedule.add(tour.addParticipant(person, XmlEnumConversionUtil.xmlToPlanit(tourRef.getRole())));
         }
         // Case B: The entry is a direct reference to a standalone Trip (<tripref ref="..." />) --> not allowed at top
         //         level
@@ -665,10 +661,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
           if (childTrip == null){
             if(discardedTripsByMode.entrySet().stream().noneMatch( e -> e.getValue().contains(tourTripRef.getRef()))) {
-              // log only when genuinely missing and not actively discarded earlier due to known reason
-              LOGGER.severe(String.format(
-                  "Tour (%s) references a Trip (%s) that cannot be found. Skipping leg reference.",
-                  xmlTour.getId(), tourTripRef.getRef()));
+              // genuinely missing rather than actively discarded earlier due to a known reason
               toursWithCorruptSchedule.add(xmlTour.getId());
             }else{
               toursWithUnavailableModeSchedule.add(xmlTour.getId());
@@ -686,25 +679,77 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
           var childTour = getBySourceId(TourImpl.class, subTourRef.getRef());
 
           if (childTour == null) {
-            LOGGER.severe(String.format(
-                "Tour (%s) references a nested Sub-tour ID '%s' that cannot be found. Skipping leg reference.",
-                xmlTour.getId(), subTourRef.getRef()));
             toursWithCorruptSchedule.add(xmlTour.getId());
             continue;
           }
 
-          // Establish the nested structural parent link
+          // Establish the nested structural parent link, a sub-tour is made by the person whose tour it sits within
           childTour.setParentTour(currTour);
+          var parentPerson = currTour.getPrimaryParticipant();
+          if (parentPerson == null) {
+            toursWithCorruptSchedule.add(xmlTour.getId());
+            continue;
+          }
 
           // Anchor the nested sub-tour into this tour's internal sequence
-          tourSchedule.add(childTour);
+          tourSchedule.add(childTour.addParticipant(parentPerson, XmlEnumConversionUtil.xmlToPlanit(subTourRef.getRole())));
         }else {
-          LOGGER.warning(String.format("Unrecognized JAXB polymorphic internal tour type '%s' inside Tour (%s).",
-              xmlChoice.getClass().getSimpleName(), xmlTour.getId()));
           toursWithCorruptSchedule.add(xmlTour.getId());
         }
       }
     }
+  }
+
+  /**
+   * Remove each person owning one of the given tours, including all their other tours and trips, and report them in
+   * a single entry. A tour without an owner has no person to remove, in which case the tour chain itself is discarded
+   *
+   * @param tourSourceIds source ids of the tours whose owners are to be rejected
+   * @param reason phrasing describing why the persons are rejected, used in the log entry
+   */
+  private void rejectPersonsOwningTours(Set<String> tourSourceIds, String reason) {
+    var modifier = discreteDemands.getDiscreteDemandsModifier();
+    int totalPersonCount = discreteDemands.getPersons().size();
+
+    var rejectedPersons = new LinkedHashSet<Person>();
+    for (var tourSourceId : tourSourceIds) {
+      var tour = getBySourceId(TourImpl.class, tourSourceId);
+      if (tour == null) {
+        continue;
+      }
+      if (tour.getParticipants().isEmpty()) {
+        modifier.removeTour(tour, true);
+        continue;
+      }
+      /* the tour is unusable for everyone on it, not just the person it belongs to */
+      rejectedPersons.addAll(tour.getParticipants());
+    }
+    rejectedPersons.forEach(modifier::removePerson);
+
+    LOGGER.warning(String.format("Rejected %s persons %s, removing them entirely from the result, persons %s",
+        LoggingUtils.countWithPercentage(rejectedPersons.size(), totalPersonCount), reason,
+        ExternalIdAbleUtils.toIdsAsString(rejectedPersons, MAX_LOGGED_PERSONS)));
+  }
+
+  /**
+   * Remove each person whose schedule is not in chronological order, including all their tours and trips, and report
+   * them in a single entry. Such a schedule cannot be interpreted reliably, so the person is discarded rather than
+   * partially retained
+   */
+  private void rejectNonChronologicalPersons() {
+    var offendingPersons = PersonUtils.findPersonsWithNonChronologicalSchedule(
+        discreteDemands.getPersons(), timePeriodStartTimeAsLocalTime);
+    if (offendingPersons.isEmpty()) {
+      return;
+    }
+
+    LOGGER.warning(String.format(
+        "Rejected %s persons whose schedule is not in chronological order, for example a tour ending before one of " +
+            "its own trips departs, removing them entirely from the result, persons %s",
+        LoggingUtils.countWithPercentage(offendingPersons.size(), discreteDemands.getPersons().size()),
+        ExternalIdAbleUtils.toIdsAsString(offendingPersons, MAX_LOGGED_PERSONS)));
+
+    offendingPersons.forEach(person -> discreteDemands.getDiscreteDemandsModifier().removePerson(person));
   }
 
   /**
@@ -719,13 +764,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
               "Skipped %d Trips with unavailable network mode '%s'",ignoredTrips.size(), modeStr)));
     }
     if (!toursWithCorruptSchedule.isEmpty()) {
-        LOGGER.warning(String.format(
-              "Found %d Tours with corrupt schedules, clearing touched schedules from result",
-            toursWithCorruptSchedule.size()));
-
-        toursWithCorruptSchedule.forEach(tourSourceId ->
-            discreteDemands.getDiscreteDemandsModifier().removeTour(
-                getBySourceId(TourImpl.class, tourSourceId), true));
+      rejectPersonsOwningTours(
+          toursWithCorruptSchedule, "with tours referencing trips or sub-tours that cannot be found");
     }
     if (!toursWithUnavailableModeSchedule.isEmpty()) {
       LOGGER.warning(String.format(
@@ -736,6 +776,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
           discreteDemands.getDiscreteDemandsModifier().removeTour(
               getBySourceId(TourImpl.class, tourSourceId), true));
     }
+
+    rejectNonChronologicalPersons();
 
     // parsed info
     discreteDemands.logInfo(LoggingUtils.discreteDemandsPrefix(discreteDemands.getId()));
