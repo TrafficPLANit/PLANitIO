@@ -13,3 +13,10 @@
 /bin
 /doc
 /docs
+
+# Generated test output formatter artifacts. Checked-in reference outputs use
+# stable names without the RunId token.
+/src/test/resources/testcases/**/Link_RunId_*
+/src/test/resources/testcases/**/Origin-Destination_RunId_*
+/src/test/resources/testcases/**/Path_RunId_*
+/src/test/resources/testcases/**/Simulation_RunId_*
