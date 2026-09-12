@@ -187,6 +187,18 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
    */  
   @Override
   public void reset() {
+    xmlRawNetwork.setConfiguration(null);
+    xmlRawNetwork.setInfrastructurelayers(null);
+
+    xmlRawZoning.setZones(null);
+    xmlRawZoning.setIntermodal(null);
+    xmlRawZoning.setSrsname(null);
+
+    xmlRawServiceNetwork.getServicenetworklayers().clear();
+
+    xmlRawRoutedServices.setServicelayers(null);
+    xmlRawRoutedServices.setId(null);
+    xmlRawRoutedServices.setExternalid(null);
   }
 
   /**

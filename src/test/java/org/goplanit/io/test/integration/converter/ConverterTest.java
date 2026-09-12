@@ -15,14 +15,21 @@ import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.logging.Logging;
+import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.network.ServiceNetwork;
+import org.goplanit.service.routed.RoutedServices;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
+import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.locale.CountryNames;
+import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.builder.Input;
 import org.xmlunit.matchers.CompareMatcher;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -160,6 +167,86 @@ public class ConverterTest extends TestBase {
       e.printStackTrace();
       fail();
     }
+  }
+
+  /**
+   * Test that a factory-created intermodal reader and writer are reusable. Factory-created readers own the PLANit
+   * entities they populate, so reusing the reader is expected to create fresh entities for each conversion pass.
+   */
+  @Test
+  public void testPlanit2PlanitIntermodalConverterReuse() {
+    try {
+      final String projectPath = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
+      final String inputPath = Path.of(projectPath, "input").toString();
+
+      /* reader */
+      PlanitIntermodalReader planitReader = PlanitIntermodalReaderFactory.create(inputPath);
+
+      /* writer */
+      PlanitIntermodalWriter planitWriter = PlanitIntermodalWriterFactory.create(projectPath, CountryNames.AUSTRALIA);
+
+      /* convert twice with the same converter-backed reader/writer pair */
+      var converter = IntermodalConverterFactory.create(planitReader, planitWriter);
+      converter.convert();
+      converter.convertWithServices();
+
+      org.hamcrest.MatcherAssert.assertThat(
+          Input.fromFile(Path.of(projectPath, "network.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"network.xml").toString())));
+
+      org.hamcrest.MatcherAssert.assertThat(
+          Input.fromFile(Path.of(projectPath,"zoning.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"zoning.xml").toString())));
+
+      org.hamcrest.MatcherAssert.assertThat(
+          Input.fromFile(Path.of(projectPath,"service_network.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"service_network.xml").toString())));
+
+      org.hamcrest.MatcherAssert.assertThat(
+          Input.fromFile(Path.of(projectPath,"routed_services.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath,"routed_services.xml").toString())));
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail();
+    }
+  }
+
+  /**
+   * Test that a reader with caller-provided toPopulate entities is intentionally single-use. The reader cannot safely
+   * infer whether appending the same input again is valid for caller-owned objects, so reuse must fail explicitly.
+   */
+  @Test
+  public void testPlanit2PlanitIntermodalCallerProvidedToPopulateReuseThrows() {
+    final String projectPath = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
+    final String inputPath = Path.of(projectPath, "input").toString();
+
+    IdGroupingToken idToken = IdGroupingToken.collectGlobalToken();
+    MacroscopicNetwork network = new MacroscopicNetwork(idToken);
+    Zoning zoning = new Zoning(idToken, network.getNetworkGroupingTokenId());
+    ServiceNetwork serviceNetwork = new ServiceNetwork(idToken, network);
+    RoutedServices routedServices = new RoutedServices(idToken, serviceNetwork);
+
+    PlanitIntermodalReader planitReader = PlanitIntermodalReaderFactory.create(
+        inputPath,
+        ".xml",
+        network,
+        zoning,
+        serviceNetwork,
+        routedServices);
+    PlanitIntermodalWriter planitWriter = PlanitIntermodalWriterFactory.create(projectPath, CountryNames.AUSTRALIA);
+    var converter = IntermodalConverterFactory.create(planitReader, planitWriter);
+
+    try {
+      converter.convert();
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail();
+    }
+
+    assertThrows(PlanItRunTimeException.class, converter::convertWithServices);
   }
 
 }

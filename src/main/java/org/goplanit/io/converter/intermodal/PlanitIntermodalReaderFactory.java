@@ -71,12 +71,7 @@ public class PlanitIntermodalReaderFactory {
    */
   public static PlanitIntermodalReader create(
       IdGroupingToken idGroupingToken, final PlanitIntermodalReaderSettings intermodalSettings){
-    MacroscopicNetwork network = new MacroscopicNetwork(idGroupingToken);
-    ServiceNetwork serviceNetwork = new ServiceNetwork(idGroupingToken, network);
-    Zoning zoning = new Zoning(idGroupingToken, network.getNetworkGroupingTokenId());
-    RoutedServices routedServices = new RoutedServices(idGroupingToken, serviceNetwork);
-
-    return new PlanitIntermodalReader(intermodalSettings, network, zoning, serviceNetwork, routedServices);
+    return new PlanitIntermodalReader(intermodalSettings, idGroupingToken);
   }
 
   /** Factory method for intermodal reader( without services)

@@ -33,6 +33,12 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
   /** intermodal reader settings to use */
   protected final PlanitIntermodalReaderSettings intermodalReaderSettings;
 
+  /** id token for readers that create their own PLANit entities on each read */
+  protected final IdGroupingToken internallyCreatedIdToken;
+
+  /** track reuse when the caller provided the PLANit entities to populate */
+  protected boolean externallyProvidedToPopulateConsumed;
+
   /** the network to populate */
   protected final MacroscopicNetwork networkToPopulate;
 
@@ -58,7 +64,66 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
   protected final XMLElementRoutedServices xmlRawRoutedServices;
 
 
-  private void validate(boolean withRoutedServices){
+  /** Verify if this reader owns the entities it populates. */
+  private boolean isToPopulateInternallyCreated() {
+    return internallyCreatedIdToken != null;
+  }
+
+  /**
+   * Collect a network and zoning for a read without services.
+   *
+   * @return network and zoning to populate
+   */
+  private Pair<MacroscopicNetwork, Zoning> collectNetworkAndZoningToPopulate() {
+    if(isToPopulateInternallyCreated()) {
+      MacroscopicNetwork network = new MacroscopicNetwork(internallyCreatedIdToken);
+      return Pair.of(
+          network,
+          new Zoning(internallyCreatedIdToken, network.getNetworkGroupingTokenId()));
+    }
+
+    PlanItRunTimeException.throwIf(
+        externallyProvidedToPopulateConsumed,
+        "PLANit intermodal reader cannot be reused with caller-provided toPopulate entities");
+    externallyProvidedToPopulateConsumed = true;
+
+    return Pair.of(networkToPopulate, zoningToPopulate);
+  }
+
+  /**
+   * Collect network, zoning, service network, and routed services for a read with services.
+   *
+   * @return entities to populate
+   */
+  private Quadruple<MacroscopicNetwork, Zoning, ServiceNetwork, RoutedServices> collectAllToPopulate() {
+    if(isToPopulateInternallyCreated()) {
+      MacroscopicNetwork network = new MacroscopicNetwork(internallyCreatedIdToken);
+      ServiceNetwork serviceNetwork = new ServiceNetwork(internallyCreatedIdToken, network);
+      return Quadruple.of(
+          network,
+          new Zoning(internallyCreatedIdToken, network.getNetworkGroupingTokenId()),
+          serviceNetwork,
+          new RoutedServices(internallyCreatedIdToken, serviceNetwork));
+    }
+
+    PlanItRunTimeException.throwIf(
+        externallyProvidedToPopulateConsumed,
+        "PLANit intermodal reader cannot be reused with caller-provided toPopulate entities");
+    externallyProvidedToPopulateConsumed = true;
+
+    return Quadruple.of(
+        networkToPopulate,
+        zoningToPopulate,
+        serviceNetworkToPopulate,
+        routedServicesToPopulate);
+  }
+
+  private void validate(
+      MacroscopicNetwork networkToPopulate,
+      Zoning zoningToPopulate,
+      ServiceNetwork serviceNetworkToPopulate,
+      RoutedServices routedServicesToPopulate,
+      boolean withRoutedServices){
     PlanItRunTimeException.throwIf(networkToPopulate==null, "physical network to populate is null");
     PlanItRunTimeException.throwIf(zoningToPopulate==null, "zoning to populate is null");
     if(withRoutedServices) {
@@ -97,11 +162,13 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    */
   protected PlanitIntermodalReader(PlanitIntermodalReaderSettings settings, IdGroupingToken idToken) {
     this.intermodalReaderSettings = settings;
+    this.internallyCreatedIdToken = idToken;
+    this.externallyProvidedToPopulateConsumed = false;
 
-    this.networkToPopulate = new MacroscopicNetwork(idToken);
+    this.networkToPopulate = null;
     this.xmlRawNetwork = null;
 
-    this.zoningToPopulate = new Zoning(idToken, networkToPopulate.getNetworkGroupingTokenId());
+    this.zoningToPopulate = null;
     this.xmlRawZoning = null;
 
     this.serviceNetworkToPopulate = null;
@@ -196,6 +263,8 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
       ServiceNetwork serviceNetwork,
       RoutedServices routedServices) {
     this.intermodalReaderSettings =  settings;
+    this.internallyCreatedIdToken = null;
+    this.externallyProvidedToPopulateConsumed = false;
 
     this.networkToPopulate = network;
     this.xmlRawNetwork = xmlRawNetwork;
@@ -215,7 +284,21 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    */
   @Override
   public Pair<MacroscopicNetwork, Zoning> read(){
-    validate(false);
+    var toPopulate = collectNetworkAndZoningToPopulate();
+    return read(toPopulate.first(), toPopulate.second());
+  }
+
+  /**
+   * Read network and zoning into the provided entities.
+   *
+   * @param networkToPopulate network to populate
+   * @param zoningToPopulate zoning to populate
+   * @return populated network and zoning
+   */
+  private Pair<MacroscopicNetwork, Zoning> read(
+      MacroscopicNetwork networkToPopulate,
+      Zoning zoningToPopulate){
+    validate(networkToPopulate, zoningToPopulate, null, null, false);
 
     /* network */
     PlanitNetworkReader networkReader;
@@ -251,21 +334,22 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
    */
   @Override
   public Quadruple<MacroscopicNetwork, Zoning, ServiceNetwork, RoutedServices> readWithServices(){
-    validate(true);
+    var toPopulate = collectAllToPopulate();
+    validate(toPopulate.first(), toPopulate.second(), toPopulate.third(), toPopulate.fourth(), true);
 
     // network + zoning
-    var networkZoning = read();
+    var networkZoning = read(toPopulate.first(), toPopulate.second());
     // sync CRS post-reading content (including CRS)
-    serviceNetworkToPopulate.setCoordinateReferenceSystem(networkZoning.first().getCoordinateReferenceSystem());
+    toPopulate.third().setCoordinateReferenceSystem(networkZoning.first().getCoordinateReferenceSystem());
 
     // service network
     PlanitServiceNetworkReader serviceNetworkReader;
     if(xmlRawServiceNetwork == null) {
       serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(
-          getSettings().getServiceNetworkSettings(), serviceNetworkToPopulate);
+          getSettings().getServiceNetworkSettings(), toPopulate.third());
     }else{
       serviceNetworkReader = PlanitServiceNetworkReaderFactory.create(
-          xmlRawServiceNetwork, getSettings().getServiceNetworkSettings(), serviceNetworkToPopulate);
+          xmlRawServiceNetwork, getSettings().getServiceNetworkSettings(), toPopulate.third());
     }
     var serviceNetwork = serviceNetworkReader.read();
 
@@ -273,10 +357,10 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
     PlanitRoutedServicesReader routedServicesReader;
     if(xmlRawRoutedServices == null) {
       routedServicesReader = PlanitRoutedServicesReaderFactory.create(
-          getSettings().getRoutedServicesSettings(), routedServicesToPopulate);
+          getSettings().getRoutedServicesSettings(), toPopulate.fourth());
     }else{
       routedServicesReader = PlanitRoutedServicesReaderFactory.create(
-          xmlRawRoutedServices, getSettings().getRoutedServicesSettings(), routedServicesToPopulate);
+          xmlRawRoutedServices, getSettings().getRoutedServicesSettings(), toPopulate.fourth());
     }
     var routedServices = routedServicesReader.read();
 
