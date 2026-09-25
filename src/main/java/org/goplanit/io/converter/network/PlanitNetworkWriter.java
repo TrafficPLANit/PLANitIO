@@ -26,6 +26,8 @@ import org.goplanit.utils.mode.UsabilityModeFeatures;
 import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.graph.directed.BannedMovement;
 import org.goplanit.utils.graph.directed.BannedMovements;
+import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
+import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
 import org.goplanit.xml.generated.v2.*;
@@ -100,6 +102,78 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     bannedMovements.streamSortedBy(getPrimaryIdMapper().getMovementIdMapper()).forEach(turnBan -> {
       populateXmlTurnBan(xmlBannedTurns, turnBan);
     });
+  }
+
+  /**
+   * Populate the xml {@code <segments>} element of an intersection for one role, left out when there are no segments
+   *
+   * @param xmlIntersection to add the element to
+   * @param role of the segments
+   * @param segments with this role, written sorted by their mapped ids
+   */
+  private void populateXmlIntersectionSegments(
+      XMLElementIntersection xmlIntersection,
+      IntersectionSegmentRoleType role,
+      List<MacroscopicLinkSegment> segments) {
+    if(segments.isEmpty()){
+      return;
+    }
+
+    var xmlSegments = new XMLElementIntersectionSegments();
+    xmlSegments.setType(role);
+    xmlSegments.setRefs(segments.stream().map(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper()).sorted()
+        .collect(Collectors.joining(",")));
+    xmlIntersection.getSegments().add(xmlSegments);
+  }
+
+  /**
+   * Populate the xml {@code <intersection>} element
+   *
+   * @param xmlIntersectionList to add the intersection to
+   * @param intersection to populate from
+   */
+  private void populateXmlIntersection(
+      List<XMLElementIntersection> xmlIntersectionList, final Intersection intersection) {
+    var xmlIntersection = new XMLElementIntersection();
+
+    /* XML id */
+    xmlIntersection.setId(getPrimaryIdMapper().getIntersectionIdMapper().apply(intersection));
+
+    /* external id */
+    if(intersection.hasExternalId()) {
+      xmlIntersection.setExternalid(intersection.getExternalId());
+    }
+
+    /* member nodes, sorted by their mapped ids, control and kinds */
+    xmlIntersection.setNoderefs(intersection.getMemberNodes().stream().map(
+        node -> getPrimaryIdMapper().getVertexIdMapper().apply(node)).sorted().collect(Collectors.joining(",")));
+    xmlIntersection.setControl(XmlEnumConversionUtil.planitToXml(intersection.getControlType()));
+    intersection.getTypes().forEach(type -> xmlIntersection.getTypes().add(XmlEnumConversionUtil.planitToXml(type)));
+
+    /* approach and internal segments */
+    populateXmlIntersectionSegments(
+        xmlIntersection, IntersectionSegmentRoleType.APPROACH, intersection.getApproachSegments());
+    populateXmlIntersectionSegments(
+        xmlIntersection, IntersectionSegmentRoleType.INTERNAL, intersection.getInternalSegments());
+
+    xmlIntersectionList.add(xmlIntersection);
+  }
+
+  /** Populate the xml {@code <intersections>} element, left out when the layer has no intersections
+   *
+   * @param xmlNetworkLayer to populate intersections on
+   * @param intersections to populate XML with, sorted by their mapped ids
+   */
+  private void populateXmlIntersections(XMLElementInfrastructureLayer xmlNetworkLayer, Intersections intersections) {
+    if(intersections.isEmpty()){
+      xmlNetworkLayer.setIntersections(null);
+      return;
+    }
+
+    var xmlIntersections = new XMLElementIntersections();
+    xmlNetworkLayer.setIntersections(xmlIntersections);
+    intersections.streamSortedBy(getPrimaryIdMapper().getIntersectionIdMapper()).forEach(
+        intersection -> populateXmlIntersection(xmlIntersections.getIntersections(), intersection));
   }
 
   /**
@@ -608,6 +682,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     LOGGER.info(String.format("%s Banned movements: %d", currLayerLogPrefix,
         physicalNetworkLayer.getBannedMovements().size()));
     populateXmlTurns(xmlNetworkLayer, physicalNetworkLayer.getBannedMovements());
+
+    /* intersections */
+    LOGGER.info(String.format("%s Intersections: %d", currLayerLogPrefix,
+        physicalNetworkLayer.getIntersections().size()));
+    populateXmlIntersections(xmlNetworkLayer, physicalNetworkLayer.getIntersections());
   }
 
 

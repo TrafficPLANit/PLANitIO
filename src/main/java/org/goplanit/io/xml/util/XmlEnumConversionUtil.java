@@ -9,6 +9,8 @@ import org.goplanit.utils.mode.MotorisationModeType;
 import org.goplanit.utils.mode.TrackModeType;
 import org.goplanit.utils.mode.UseOfModeType;
 import org.goplanit.utils.mode.VehicularModeType;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionControlType;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
 import org.goplanit.utils.unit.Unit;
 import org.goplanit.xml.generated.v2.*;
 
@@ -228,6 +230,74 @@ public class XmlEnumConversionUtil {
     }else{
       throw new PlanItRunTimeException(String.format(
           "Mapping from PLANit time unit (Units) %s to XML TimeUnit unavailable", planitTimeUnit));
+    }
+  }
+
+  /** Convert intersection control type from XML to PLANit
+   *
+   * @param xmlControlType to convert
+   * @return result
+   */
+  public static IntersectionControlType xmlToPlanit(final XMLElementIntersectionControlType xmlControlType) {
+    switch (xmlControlType) {
+      case SIGNALISED:
+        return IntersectionControlType.SIGNALISED;
+      case UNSIGNALISED:
+        return IntersectionControlType.UNSIGNALISED;
+      default:
+        throw new PlanItRunTimeException(String.format("Mapping from XML intersection control type %s to PLANit " +
+            "intersection control type unavailable", xmlControlType));
+    }
+  }
+
+  /** Convert intersection control type from PLANit to XML
+   *
+   * @param planitControlType to convert
+   * @return result
+   */
+  public static XMLElementIntersectionControlType planitToXml(final IntersectionControlType planitControlType) {
+    switch (planitControlType) {
+      case SIGNALISED:
+        return XMLElementIntersectionControlType.SIGNALISED;
+      case UNSIGNALISED:
+        return XMLElementIntersectionControlType.UNSIGNALISED;
+      default:
+        throw new PlanItRunTimeException(String.format("Mapping from PLANit intersection control type %s to XML " +
+            "intersection control type unavailable", planitControlType));
+    }
+  }
+
+  /** Convert intersection kind from XML to PLANit
+   *
+   * @param xmlType to convert
+   * @return result
+   */
+  public static IntersectionType xmlToPlanit(final IntersectionTypeType xmlType) {
+    switch (xmlType) {
+      case JUNCTION:
+        return IntersectionType.JUNCTION;
+      case CROSSING:
+        return IntersectionType.CROSSING;
+      default:
+        throw new PlanItRunTimeException(String.format("Mapping from XML intersection type %s to PLANit " +
+            "intersection type unavailable", xmlType));
+    }
+  }
+
+  /** Convert intersection kind from PLANit to XML
+   *
+   * @param planitType to convert
+   * @return result
+   */
+  public static IntersectionTypeType planitToXml(final IntersectionType planitType) {
+    switch (planitType) {
+      case JUNCTION:
+        return IntersectionTypeType.JUNCTION;
+      case CROSSING:
+        return IntersectionTypeType.CROSSING;
+      default:
+        throw new PlanItRunTimeException(String.format("Mapping from PLANit intersection type %s to XML " +
+            "intersection type unavailable", planitType));
     }
   }
 

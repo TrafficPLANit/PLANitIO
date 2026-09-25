@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<macroscopicnetwork xmlns="http://goplanit.org/v2" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://goplanit.org/v2 https://www.goplanit.org/xsd/v2/macroscopicnetworkinput.xsd">
+    <id>0</id>
+    <configuration>
+        <modes>
+            <mode id="car" predefined="true">
+                <name>car</name>
+                <maxspeed>130.0</maxspeed>
+                <pcu>1.0</pcu>
+                <physicalfeatures>
+                    <vehicletype>vehicle</vehicletype>
+                    <motorisationtype>motorised</motorisationtype>
+                    <tracktype>road</tracktype>
+                </physicalfeatures>
+                <usabilityfeatures>
+                    <usedtotype>private</usedtotype>
+                </usabilityfeatures>
+            </mode>
+        </modes>
+    </configuration>
+    <infrastructurelayers srsname="EPSG:404000">
+        <layer id="0">
+            <layerconfiguration>
+                <linksegmenttypes>
+                    <linksegmenttype id="0">
+                        <name>default</name>
+                        <maxdensitylane>180.0</maxdensitylane>
+                        <capacitylane>1800.0</capacitylane>
+                        <access>
+                            <accessgroup moderefs="car"/>
+                        </access>
+                    </linksegmenttype>
+                </linksegmenttypes>
+            </layerconfiguration>
+            <nodes>
+                <node id="0">
+                    <gml:Point>
+                        <gml:pos>0.0 0.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="1">
+                    <gml:Point>
+                        <gml:pos>-100.0 0.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="2">
+                    <gml:Point>
+                        <gml:pos>0.0 100.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="3">
+                    <gml:Point>
+                        <gml:pos>0.0 -100.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="4">
+                    <gml:Point>
+                        <gml:pos>100.0 0.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="5">
+                    <gml:Point>
+                        <gml:pos>200.0 0.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="6">
+                    <gml:Point>
+                        <gml:pos>300.0 0.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="7">
+                    <gml:Point>
+                        <gml:pos>200.0 100.0</gml:pos>
+                    </gml:Point>
+                </node>
+                <node id="8">
+                    <gml:Point>
+                        <gml:pos>300.0 100.0</gml:pos>
+                    </gml:Point>
+                </node>
+            </nodes>
+            <links>
+                <link id="0" nodearef="1" nodebref="0">
+                    <linksegment id="0" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="1" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="1" nodearef="2" nodebref="0">
+                    <linksegment id="2" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="3" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="2" nodearef="3" nodebref="0">
+                    <linksegment id="4" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="5" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="3" nodearef="0" nodebref="4">
+                    <linksegment id="6" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="7" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="4" nodearef="4" nodebref="5">
+                    <linksegment id="8" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="9" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="5" nodearef="5" nodebref="6">
+                    <linksegment id="10" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="11" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="6" nodearef="7" nodebref="5">
+                    <linksegment id="12" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="13" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+                <link id="7" nodearef="8" nodebref="6">
+                    <linksegment id="14" dir="a_b" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <linksegment id="15" dir="b_a" typeref="0">
+                        <numberoflanes>1</numberoflanes>
+                        <maxspeed>50.0</maxspeed>
+                    </linksegment>
+                    <length unit="km">0.1</length>
+                </link>
+            </links>
+            <turns>
+                <ban id="0" fromref="0" toref="5"/>
+            </turns>
+            <intersections>
+                <intersection id="i1" externalid="ext-1" noderefs="0" control="signalised" types="junction crossing">
+                    <segments type="approach" refs="0,2,4,7"/>
+                </intersection>
+                <intersection id="i2" noderefs="4" control="unsignalised" types="crossing">
+                    <segments type="approach" refs="6,9"/>
+                </intersection>
+                <intersection id="i3" externalid="ext-3" noderefs="5,6" control="signalised" types="junction">
+                    <segments type="approach" refs="8,12,14"/>
+                    <segments type="internal" refs="10,11"/>
+                </intersection>
+            </intersections>
+        </layer>
+    </infrastructurelayers>
+</macroscopicnetwork>

@@ -1,9 +1,12 @@
 package org.goplanit.io.converter.network;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -34,6 +37,8 @@ import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
+import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
+import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
 import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
@@ -317,6 +322,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
 
     /* parse turns */
     parseTurns(xmlLayer, networkLayer);
+
+    /* parse intersections */
+    parseIntersections(xmlLayer, networkLayer);
     
     return networkLayer;
   }
@@ -677,6 +685,131 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         planitTurnXmlId = String.valueOf(bannedMovement.getId());
       }
       bannedMovement.setXmlId(planitTurnXmlId);
+    }
+  }
+
+  /**
+   * Parse the member nodes of an intersection. None are returned, with a single warning, when the intersection lists
+   * no nodes, a node that is unknown, or a node that belongs to an intersection read earlier
+   *
+   * @param xmlIntersection to parse from
+   * @param intersections read so far
+   * @return member nodes in the order listed, null when the intersection is to be discarded
+   */
+  private List<Node> parseIntersectionMemberNodes(
+      XMLElementIntersection xmlIntersection, Intersections intersections) {
+    var xmlId = xmlIntersection.getId();
+    if(StringUtils.isNullOrBlank(xmlIntersection.getNoderefs())){
+      LOGGER.warning(String.format("DISCARD: Intersection %s lists no nodes", xmlId));
+      return null;
+    }
+
+    var memberNodes = new ArrayList<Node>();
+    for(var nodeRef : xmlIntersection.getNoderefs().split(CharacterUtils.COMMA.toString())){
+      var node = getBySourceId(Node.class, nodeRef.trim());
+      if(node == null){
+        LOGGER.warning(String.format("DISCARD: Intersection %s references unknown node %s", xmlId, nodeRef.trim()));
+        return null;
+      }
+      var other = intersections.getByMemberNode(node);
+      if(other != null){
+        LOGGER.warning(String.format("DISCARD: Intersection %s shares node %s with intersection %s read earlier",
+            xmlId, nodeRef.trim(), other.getXmlId()));
+        return null;
+      }
+      if(!memberNodes.contains(node)){
+        memberNodes.add(node);
+      }
+    }
+    return memberNodes;
+  }
+
+  /**
+   * Parse the approach and internal segments of an intersection by role. A segment that is unknown, or that the
+   * intersection refuses for its role, is skipped with a single warning. A role listed more than once makes the file
+   * malformed, so reading fails
+   *
+   * @param xmlIntersection to parse from
+   * @param intersection to add the segments to
+   * @throws PlanItRunTimeException when the intersection lists a role more than once
+   */
+  private void parseIntersectionSegments(
+      XMLElementIntersection xmlIntersection, Intersection intersection) {
+    var xmlId = xmlIntersection.getId();
+    var rolesRead = EnumSet.noneOf(IntersectionSegmentRoleType.class);
+    for(var xmlSegments : xmlIntersection.getSegments()){
+      var role = xmlSegments.getType();
+      if(role != null && !rolesRead.add(role)){
+        throw new PlanItRunTimeException(String.format("Intersection %s lists its %s segments more than once",
+            xmlId, role.value()));
+      }
+      if(role == null || StringUtils.isNullOrBlank(xmlSegments.getRefs())){
+        LOGGER.warning(String.format("IGNORE: Segments of intersection %s have no known role or no refs", xmlId));
+        continue;
+      }
+
+      for(var segmentRef : xmlSegments.getRefs().split(CharacterUtils.COMMA.toString())){
+        var segment = getBySourceId(MacroscopicLinkSegment.class, segmentRef.trim());
+        if(segment == null){
+          LOGGER.warning(String.format("IGNORE: Intersection %s %s segment %s is unknown",
+              xmlId, role.value(), segmentRef.trim()));
+          continue;
+        }
+        boolean added = role == IntersectionSegmentRoleType.APPROACH ?
+            intersection.addApproachSegment(segment) : intersection.addInternalSegment(segment);
+        if(!added){
+          LOGGER.warning(String.format("IGNORE: Intersection %s refuses %s segment %s (it does not meet its nodes " +
+              "as the role requires, or is listed twice)",xmlId, role.value(), segmentRef.trim()));
+        }
+      }
+    }
+  }
+
+  /**
+   * Parse the intersections of the layer, once its nodes and link segments are registered. Each intersection is built
+   * completely before it is registered. It is discarded, with a single warning, when it has no known control or kind,
+   * or when its nodes cannot be used; see {@link #parseIntersectionMemberNodes}
+   *
+   * @param xmlLayer to parse from
+   * @param networkLayer to populate
+   */
+  protected void parseIntersections(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
+    var xmlIntersections = xmlLayer.getIntersections();
+    if(xmlIntersections == null){
+      return;
+    }
+
+    var intersections = networkLayer.getIntersections();
+    for(var xmlIntersection : xmlIntersections.getIntersections()){
+      var xmlId = xmlIntersection.getId();
+      var memberNodes = parseIntersectionMemberNodes(xmlIntersection, intersections);
+      if(memberNodes == null){
+        continue;
+      }
+
+      var kinds = xmlIntersection.getTypes().stream().filter(Objects::nonNull).map(
+          XmlEnumConversionUtil::xmlToPlanit).collect(Collectors.toList());
+      if(xmlIntersection.getControl() == null || kinds.isEmpty()){
+        LOGGER.warning(String.format("DISCARD: Intersection %s has no known control or kind", xmlId));
+        continue;
+      }
+
+      var intersection = intersections.getFactory().create(
+          memberNodes.get(0), XmlEnumConversionUtil.xmlToPlanit(xmlIntersection.getControl()), kinds.get(0));
+      memberNodes.forEach(intersection::addMemberNode);
+      kinds.forEach(intersection::addType);
+      parseIntersectionSegments(xmlIntersection, intersection);
+
+      if(xmlId == null){
+        LOGGER.warning("Intersection is missing a unique id, salvage by syncing to internal id, fix as may result " +
+            "in undefined behaviour");
+        xmlId = String.valueOf(intersection.getId());
+      }
+      intersection.setXmlId(xmlId);
+      if(!StringUtils.isNullOrBlank(xmlIntersection.getExternalid())){
+        intersection.setExternalId(xmlIntersection.getExternalid());
+      }
+      intersections.getFactory().register(intersection);
     }
   }
 
