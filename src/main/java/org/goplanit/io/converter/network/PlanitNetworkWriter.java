@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.utils.geo.PlanitCrsUtils;
@@ -19,6 +18,7 @@ import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.mode.Modes;
 import org.goplanit.utils.mode.PhysicalModeFeatures;
@@ -121,8 +121,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
 
     var xmlSegments = new XMLElementIntersectionSegments();
     xmlSegments.setType(role);
-    xmlSegments.setRefs(segments.stream().map(getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper()).sorted()
-        .collect(Collectors.joining(",")));
+    xmlSegments.setRefs(
+        StringUtils.toSortedCommaSeparatedString(segments, getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper()));
     xmlIntersection.getSegments().add(xmlSegments);
   }
 
@@ -145,8 +145,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
 
     /* member nodes, sorted by their mapped ids, control and kinds */
-    xmlIntersection.setNoderefs(intersection.getMemberNodes().stream().map(
-        node -> getPrimaryIdMapper().getVertexIdMapper().apply(node)).sorted().collect(Collectors.joining(",")));
+    xmlIntersection.setNoderefs(StringUtils.toSortedCommaSeparatedString(
+        intersection.getMemberNodes(), getPrimaryIdMapper().getVertexIdMapper()));
     xmlIntersection.setControl(XmlEnumConversionUtil.planitToXml(intersection.getControlType()));
     intersection.getTypes().forEach(type -> xmlIntersection.getTypes().add(XmlEnumConversionUtil.planitToXml(type)));
 
@@ -380,9 +380,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     
     /* mode ref id */
     Set<Mode> accessModes = accessGroupProperties.getAccessModes();
-    String modeRefs = accessModes.stream().map(mode ->
-            ModeXmlUtils.getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper())).sorted().collect
-            (Collectors.joining(","));
+    String modeRefs = StringUtils.toSortedCommaSeparatedString(
+        accessModes, mode -> ModeXmlUtils.getXmlModeReference(mode, getPrimaryIdMapper().getModeIdMapper()));
     xmlAccessGroup.setModerefs(modeRefs);
     
     /* critical speed */
@@ -656,8 +655,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
       return;
     }
     
-    String xmlModesStr = physicalNetworkLayer.getSupportedModes().stream().map(
-        m -> getPrimaryIdMapper().getModeIdMapper().apply(m)).sorted().collect(Collectors.joining(","));
+    String xmlModesStr = StringUtils.toSortedCommaSeparatedString(
+        physicalNetworkLayer.getSupportedModes(), getPrimaryIdMapper().getModeIdMapper());
     LOGGER.info(String.format("%s Supported modes: %s", currLayerLogPrefix, xmlModesStr));
     if(network.getTransportLayers().size()>1) {      
       xmlNetworkLayer.setModes(xmlModesStr);

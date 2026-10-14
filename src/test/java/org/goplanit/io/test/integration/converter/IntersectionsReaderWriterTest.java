@@ -18,7 +18,6 @@ import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerUtils;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
@@ -254,7 +253,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
     var ban = layer.getBannedMovements().iterator().next();
     ((MacroscopicLinkSegment) ban.getSegmentTo()).setLinkSegmentType(
         layer.getLinkSegmentTypes().getFactory().registerNew("no access"));
-    MacroscopicNetworkLayerUtils.removeInfrastructureWithoutModeAccess(layer);
+    layer.getLayerModifier().removeInfrastructureWithoutModeAccess();
     assertTrue(layer.getBannedMovements().isEmpty());
 
     PlanitNetworkWriterFactory.create(outputPath.toAbsolutePath().toString()).write(network);
