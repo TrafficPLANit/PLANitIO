@@ -25233,7 +25233,7 @@
                 </link>
             </links>
             <turns>
-                <ban id="1" fromref="2439" toref="139"/>
+                <ban id="1" fromlsref="2439" tolsref="139"/>
             </turns>
         </layer>
     </infrastructurelayers>

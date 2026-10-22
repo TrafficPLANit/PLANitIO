@@ -170,17 +170,32 @@
                 </link>
             </links>
             <turns>
-                <ban id="0" fromref="0" toref="5"/>
+                <ban id="0" fromlsref="0" tolsref="5"/>
+                <ban id="1" fromlsref="0" tolsref="6" moderefs="bus"/>
             </turns>
+            <independentmovements>
+                <movement id="m8" fromlsref="0" tolsref="8" length="0.1"/>
+                <movement id="m9" fromlsref="0" tolsref="8" length="0.1" bannedmoderefs="bus"/>
+            </independentmovements>
             <intersections>
-                <intersection id="i1" noderefs="0" control="signalised" types="junction">
-                    <segments type="approach" refs="0,2,99,1"/>
+                <intersection id="i1" noderef="0" control="signalised" types="junction">
+                    <approaches>
+                        <approach ref="0"/>
+                        <approach ref="2"/>
+                        <approach ref="99"/>
+                        <approach ref="1"/>
+                    </approaches>
                 </intersection>
-                <intersection id="i2" noderefs="4,42" control="unsignalised" types="crossing"/>
-                <intersection id="i3" noderefs="0" control="signalised" types="junction"/>
-                <intersection id="i4" noderefs="5,6" control="signalised" types="junction">
-                    <segments type="internal" refs="10,13"/>
-                </intersection>
+                <intersection id="i3" noderef="0" control="signalised" types="junction"/>
+                <spatialintersection id="i2" noderefs="4,42" control="unsignalised" types="crossing"/>
+                <spatialintersection id="i4" noderefs="5,6" control="signalised" types="junction">
+                    <internalsegments refs="10,13"/>
+                    <movements>
+                        <movement id="m1" fromlsref="99" tolsref="15" length="0.0"/>
+                        <movement id="m2" fromlsref="8" tolsref="15" length="0.0"/>
+                        <movement id="m3" fromlsref="8" tolsref="15" length="0.0"/>
+                    </movements>
+                </spatialintersection>
             </intersections>
         </layer>
     </infrastructurelayers>

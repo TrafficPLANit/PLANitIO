@@ -170,13 +170,15 @@
                 </link>
             </links>
             <turns>
-                <ban id="0" fromref="0" toref="5"/>
+                <ban id="0" fromlsref="0" tolsref="5"/>
             </turns>
             <intersections>
-                <intersection id="i3" noderefs="5,6" control="signalised" types="junction">
-                    <segments type="internal" refs="10"/>
-                    <segments type="internal" refs="11"/>
-                </intersection>
+                <spatialintersection id="i3" noderefs="5,6" control="signalised" types="junction">
+                    <internalsegments refs="10,11"/>
+                    <internalsignalsegments>
+                        <internalsignalsegment ref="10"/>
+                    </internalsignalsegments>
+                </spatialintersection>
             </intersections>
         </layer>
     </infrastructurelayers>

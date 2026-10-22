@@ -170,19 +170,43 @@
                 </link>
             </links>
             <turns>
-                <ban id="0" fromref="0" toref="5"/>
+                <ban id="0" fromlsref="0" tolsref="5"/>
+                <ban id="1" fromlsref="2" tolsref="6" moderefs="car"/>
             </turns>
+            <independentmovements>
+                <movement id="m9" fromlsref="0" tolsref="8" length="0.2" directban="true"/>
+            </independentmovements>
             <intersections>
-                <intersection id="i1" externalid="ext-1" noderefs="0" control="signalised" types="junction crossing">
-                    <segments type="approach" refs="0,2,4,7"/>
+                <intersection id="i1" externalid="ext-1" noderef="0" control="signalised" types="junction crossing">
+                    <approaches>
+                        <approach ref="0"/>
+                        <approach ref="2"/>
+                        <approach ref="4" signal="false"/>
+                        <approach ref="7"/>
+                    </approaches>
                 </intersection>
-                <intersection id="i2" noderefs="4" control="unsignalised" types="crossing">
-                    <segments type="approach" refs="6,9"/>
+                <intersection id="i2" noderef="4" control="unsignalised" types="crossing">
+                    <approaches>
+                        <approach ref="6"/>
+                        <approach ref="9" signal="true"/>
+                    </approaches>
                 </intersection>
-                <intersection id="i3" externalid="ext-3" noderefs="5,6" control="signalised" types="junction">
-                    <segments type="approach" refs="8,12,14"/>
-                    <segments type="internal" refs="10,11"/>
-                </intersection>
+                <spatialintersection id="i3" externalid="ext-3" noderefs="5,6" control="signalised" types="junction">
+                    <approaches>
+                        <approach ref="8"/>
+                        <approach ref="12"/>
+                        <approach ref="14"/>
+                    </approaches>
+                    <internalsegments refs="10"/>
+                    <internalsignalsegments>
+                        <internalsignalsegment ref="11"/>
+                    </internalsignalsegments>
+                    <movements>
+                        <movement id="m1" externalid="ext-m1" fromlsref="8" tolsref="15" length="0.02" directban="true"/>
+                        <movement id="m2" fromlsref="12" tolsref="9" length="0.0"/>
+                        <movement id="m3" fromlsref="14" tolsref="9" length="0.02" bannedmoderefs="car"/>
+                    </movements>
+                </spatialintersection>
             </intersections>
         </layer>
     </infrastructurelayers>

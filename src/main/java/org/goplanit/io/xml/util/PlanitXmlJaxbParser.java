@@ -1,7 +1,10 @@
 package org.goplanit.io.xml.util;
 
 import java.io.File;
+import java.util.Set;
 import java.util.logging.Logger;
+
+import javax.xml.namespace.QName;
 
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitCrsUtils;
@@ -36,6 +39,9 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
 
   /** flag to indicate if input was a legacy version */
   private boolean inputIsLegacyVersion;
+
+  /** names of the elements removed from the schema; a file still holding one stops the parsing */
+  private Set<QName> elementsRemovedFromSchema = Set.of();
 
   /**
    * Mark as legacy version
@@ -126,13 +132,14 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
       PlanItRunTimeException.throwIf(xmlFileNames.length == 0,
               String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
       LATEST rootElement = JAXBUtils.generateInstanceFromXml(
-          xmlFileNames, latestVersionClazz, legacyVersionClazz, this::setInputIsLegacyVersion);
+          xmlFileNames, latestVersionClazz, legacyVersionClazz, this::setInputIsLegacyVersion,
+          elementsRemovedFromSchema);
       if(rootElement==null) {
         /*...not available, try and see if embedded in single PLANit XML file for more than one entity */
         XMLElementPLANit xmlRawPLANitAll = JAXBUtils.generateInstanceFromXml(xmlFileNames,
                 XMLElementPLANit.class,
             org.goplanit.xml.generated.v1.XMLElementPLANit.class,
-            this::setInputIsLegacyVersion);
+            this::setInputIsLegacyVersion, elementsRemovedFromSchema);
 
         if(xmlRawPLANitAll==null) {
           LOGGER.severe(String.format("Unable to parse any appropriate XML input file from %s with extension %s," +
@@ -184,6 +191,15 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
    */
   public void setXmlRootElement(LATEST xmlRootElement) {
     this.xmlRootElement = xmlRootElement;
+  }
+
+  /** Set the names of the elements removed from the schema. Parsing a file that still holds one stops with an error
+   * naming it, rather than reading the file without that element's content
+   *
+   * @param elementsRemovedFromSchema names of the removed elements
+   */
+  public void setElementsRemovedFromSchema(Set<QName> elementsRemovedFromSchema) {
+    this.elementsRemovedFromSchema = elementsRemovedFromSchema;
   }
 
   /**
