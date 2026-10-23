@@ -36,6 +36,7 @@ import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionTyp
 import org.goplanit.utils.network.layer.macroscopic.intersection.NonSpatialIntersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.SpatialIntersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUtils;
+import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -139,8 +140,8 @@ public class IntersectionsReaderWriterTest extends TestBase {
   }
 
   /** XML ids of the given segments */
-  private static Set<String> segmentIds(List<MacroscopicLinkSegment> segments) {
-    return segments.stream().map(MacroscopicLinkSegment::getXmlId).collect(Collectors.toSet());
+  private static Set<String> segmentIds(List<LinkSegment> segments) {
+    return segments.stream().map(LinkSegment::getXmlId).collect(Collectors.toSet());
   }
 
   /** a movement as the XML ids of its from and to segments, its length, external id and direct ban with its modes */
@@ -158,7 +159,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   }
 
   /** the internal segments with a signal of the intersection, an empty list for a non-spatial one */
-  private static List<MacroscopicLinkSegment> internalSegmentsWithSignal(Intersection intersection) {
+  private static List<LinkSegment> internalSegmentsWithSignal(Intersection intersection) {
     return intersection instanceof SpatialIntersection ?
         ((SpatialIntersection) intersection).getInternalSegmentsWithSignal() : List.of();
   }
@@ -179,7 +180,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   }
 
   /** the approaches of the intersection with a signal of their own */
-  private static List<MacroscopicLinkSegment> approachesWithOwnSignal(Intersection intersection) {
+  private static List<LinkSegment> approachesWithOwnSignal(Intersection intersection) {
     return intersection.getApproachSegments().stream().filter(intersection::hasOwnSignal).collect(Collectors.toList());
   }
 

@@ -140,7 +140,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
       return null;
     }
 
-    var segmentIdMapper = getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper();
+    var segmentIdMapper = getPrimaryIdMapper().getLinkSegmentIdMapper();
     var xmlApproaches = new XMLElementIntersectionApproaches();
     var sortedApproaches = intersection.getApproaches().stream().sorted(
         Comparator.comparing(IntersectionSegment::getLinkSegment, Comparator.comparing(segmentIdMapper)));
@@ -169,7 +169,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    */
   private void populateXmlIntersectionInternalSegments(
       XMLElementSpatialIntersection xmlIntersection, SpatialIntersection intersection) {
-    var segmentIdMapper = getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper();
+    var segmentIdMapper = getPrimaryIdMapper().getLinkSegmentIdMapper();
     var plain = intersection.getIntersectionInternalSegments().stream().filter(internal -> !internal.hasSignal())
         .map(IntersectionSegment::getLinkSegment).collect(Collectors.toList());
     var withSignal = intersection.getIntersectionInternalSegments().stream()
@@ -209,7 +209,7 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
 
     var movementIdMapper = getPrimaryIdMapper().getSpatialMovementIdMapper();
-    var segmentIdMapper = getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper();
+    var segmentIdMapper = getPrimaryIdMapper().getLinkSegmentIdMapper();
     var xmlMovements = new XMLElementMovements();
     movements.stream().sorted(Comparator.comparing(movementIdMapper)).forEach(movement -> {
       var xmlMovement = new XMLElementMovement();
