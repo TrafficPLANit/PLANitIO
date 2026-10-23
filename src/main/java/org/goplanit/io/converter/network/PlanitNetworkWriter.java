@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.goplanit.io.xml.util.XmlEnumConversionUtil;
-import org.goplanit.utils.containers.ListUtils;
 import org.goplanit.utils.geo.PlanitCrsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
@@ -30,6 +29,8 @@ import org.goplanit.utils.network.layer.macroscopic.*;
 import org.goplanit.utils.graph.directed.BannedTurn;
 import org.goplanit.utils.graph.directed.BannedTurns;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSegment;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSignalSegment;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
 import org.goplanit.utils.network.layer.macroscopic.intersection.NonSpatialIntersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.SpatialIntersection;
@@ -48,6 +49,17 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
  
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkWriter.class.getCanonicalName());
+
+  /**
+   * A green ratio or saturation flow factor of an approach or internal segment as written: left out when it is 1, the
+   * value it has when left out
+   *
+   * @param value to write
+   * @return the value, null when it is 1 so the attribute is left out
+   */
+  private static Double nullWhenOne(double value) {
+    return value == 1 ? null : value;
+  }
                  
   /** XML memory model equivalent of the PLANit memory mode */
   private final XMLElementMacroscopicNetwork xmlRawNetwork;
@@ -117,27 +129,31 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
 
   /**
    * Create the xml {@code <approaches>} element of an intersection of either kind. Whether an approach has a signal of
-   * its own is written only where it differs from the control type
+   * its own is written only where it differs from the control type, and its green ratio and saturation flow factor only
+   * where they are not 1
    *
    * @param intersection to populate from, its approaches written sorted by their mapped ids
    * @return the element, null when the intersection has no approaches and the element is left out
    */
   private XMLElementIntersectionApproaches createXmlIntersectionApproaches(Intersection intersection) {
-    if(intersection.getApproachSegments().isEmpty()){
+    if(intersection.getApproaches().isEmpty()){
       return null;
     }
 
     var segmentIdMapper = getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper();
     var xmlApproaches = new XMLElementIntersectionApproaches();
-    var sortedApproachSegments =
-        intersection.getApproachSegments().stream().sorted(Comparator.comparing(segmentIdMapper));
-    sortedApproachSegments.forEach(approachSegment -> {
+    var sortedApproaches = intersection.getApproaches().stream().sorted(
+        Comparator.comparing(IntersectionSegment::getLinkSegment, Comparator.comparing(segmentIdMapper)));
+    sortedApproaches.forEach(approach -> {
       var xmlApproach = new XMLElementIntersectionApproach();
-      xmlApproach.setRef(segmentIdMapper.apply(approachSegment));
-      boolean hasOwnSignal = intersection.hasOwnSignal(approachSegment);
-      if(hasOwnSignal != intersection.isSignalised()){
-        xmlApproach.setSignal(hasOwnSignal);
+      xmlApproach.setRef(segmentIdMapper.apply(approach.getLinkSegment()));
+      if(approach.hasSignal() != intersection.isSignalised()){
+        xmlApproach.setSignal(approach.hasSignal());
       }
+      if(approach instanceof IntersectionSignalSegment){
+        xmlApproach.setGreenratio(nullWhenOne(((IntersectionSignalSegment) approach).getGreenRatio()));
+      }
+      xmlApproach.setSatflowfactor(nullWhenOne(approach.getSaturationFlowFactor()));
       xmlApproaches.getApproaches().add(xmlApproach);
     });
     return xmlApproaches;
@@ -145,7 +161,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
 
   /**
    * Populate the xml {@code <internalsegments>} and {@code <internalsignalsegments>} elements of a spatial
-   * intersection, each left out when it would be empty. Each internal segment is written in one of the two
+   * intersection, each left out when it would be empty. Each internal segment is written in one of the two, one with a
+   * signal with its green ratio and saturation flow factor where they are not 1
    *
    * @param xmlIntersection to add the elements to
    * @param intersection to populate from, its internal segments written sorted by their mapped ids
@@ -153,9 +170,11 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   private void populateXmlIntersectionInternalSegments(
       XMLElementSpatialIntersection xmlIntersection, SpatialIntersection intersection) {
     var segmentIdMapper = getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper();
-    var withSignal = intersection.getInternalSegmentsWithSignal();
-    var plain = intersection.getInternalSegments().stream().filter(
-        segment -> !ListUtils.containsByIdentity(withSignal, segment)).collect(Collectors.toList());
+    var plain = intersection.getIntersectionInternalSegments().stream().filter(internal -> !internal.hasSignal())
+        .map(IntersectionSegment::getLinkSegment).collect(Collectors.toList());
+    var withSignal = intersection.getIntersectionInternalSegments().stream()
+        .filter(IntersectionSignalSegment.class::isInstance).map(IntersectionSignalSegment.class::cast)
+        .collect(Collectors.toList());
     if(!plain.isEmpty()){
       var xmlInternalSegments = new XMLElementIntersectionInternalSegments();
       xmlInternalSegments.setRefs(StringUtils.toSortedCommaSeparatedString(plain, segmentIdMapper));
@@ -163,9 +182,12 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     }
     if(!withSignal.isEmpty()){
       var xmlInternalSignalSegments = new XMLElementIntersectionInternalSignalSegments();
-      withSignal.stream().map(segmentIdMapper).sorted().forEach(segmentRef -> {
+      withSignal.stream().sorted(Comparator.comparing(
+          IntersectionSignalSegment::getLinkSegment, Comparator.comparing(segmentIdMapper))).forEach(internal -> {
         var xmlInternalSignalSegment = new XMLElementIntersectionInternalSignalSegment();
-        xmlInternalSignalSegment.setRef(segmentRef);
+        xmlInternalSignalSegment.setRef(segmentIdMapper.apply(internal.getLinkSegment()));
+        xmlInternalSignalSegment.setGreenratio(nullWhenOne(internal.getGreenRatio()));
+        xmlInternalSignalSegment.setSatflowfactor(nullWhenOne(internal.getSaturationFlowFactor()));
         xmlInternalSignalSegments.getInternalsignalsegments().add(xmlInternalSignalSegment);
       });
       xmlIntersection.setInternalsignalsegments(xmlInternalSignalSegments);
@@ -175,7 +197,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   /**
    * Create the xml {@code <movements>} element for movements, of a spatial intersection or independent ones. Only a
    * ban placed on a movement itself is written: {@code directban} when there is one, with {@code bannedmoderefs} when
-   * it does not ban every mode
+   * it does not ban every mode. A green ratio or saturation flow factor is written whenever the movement has one, also
+   * when it is 1, since it is used in place of its approach's
    *
    * @param movements to populate from, written sorted by their mapped ids
    * @return the element, null when there are no movements and the element is left out
@@ -204,6 +227,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
               movement.getExplicitlyDirectlyBannedModes(), getPrimaryIdMapper().getModeIdMapper()));
         }
       }
+      xmlMovement.setGreenratio(movement.getGreenRatio());
+      xmlMovement.setSatflowfactor(movement.getSaturationFlowFactor());
       xmlMovements.getMovements().add(xmlMovement);
     });
     return xmlMovements;

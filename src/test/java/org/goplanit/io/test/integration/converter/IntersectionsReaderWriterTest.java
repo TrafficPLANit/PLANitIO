@@ -2,7 +2,9 @@ package org.goplanit.io.test.integration.converter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Handler;
@@ -25,8 +27,11 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicBannedTurn;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.SpatialMovement;
+import org.goplanit.utils.network.layer.macroscopic.intersection.CapacityFactorOrigin;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionControlType;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSegment;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSignalSegment;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
 import org.goplanit.utils.network.layer.macroscopic.intersection.NonSpatialIntersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.SpatialIntersection;
@@ -42,9 +47,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests reading and writing intersections in the native PLANit network format: the round trip, a layer without
- * intersections, and what the reader skips, discards or rejects. Also that removing infrastructure takes the banned
- * turns on it along, so the network is still written and read back without errors
+ * Tests reading and writing intersections in the native PLANit network format, with their green ratios and saturation
+ * flow factors: the round trip, a layer without intersections, and what the reader skips, discards or rejects. Also
+ * that removing infrastructure takes the banned turns on it along, so the network is still written and read back
+ * without errors
  *
  * @author markr
  */
@@ -58,6 +64,39 @@ public class IntersectionsReaderWriterTest extends TestBase {
 
   /** the network reader's logger, held here so the recorder stays attached to the instance the reader uses */
   private static final Logger READER_LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());
+
+  /** the movement of the spatial intersection with the given XML id */
+  private static SpatialMovement movementByXmlId(SpatialIntersection intersection, String xmlId) {
+    return intersection.getMovements().stream().filter(m -> xmlId.equals(m.getXmlId())).findFirst().orElseThrow();
+  }
+
+  /** the approaches and internal segments of the intersection, the latter for a spatial one only */
+  private static List<IntersectionSegment> intersectionSegments(Intersection intersection) {
+    var intersectionSegments = new ArrayList<IntersectionSegment>(intersection.getApproaches());
+    if (intersection instanceof SpatialIntersection) {
+      intersectionSegments.addAll(((SpatialIntersection) intersection).getIntersectionInternalSegments());
+    }
+    return intersectionSegments;
+  }
+
+  /**
+   * Each green ratio and saturation flow factor of the layer as text: those of every approach and internal segment, by
+   * the XML ids of the intersection and link segment, and those of every movement, null when it uses its approach's
+   */
+  private static Set<String> capacityFactors(MacroscopicNetworkLayer layer) {
+    var capacityFactors = new HashSet<String>();
+    for (var intersection : layer.getIntersections()) {
+      for (var intersectionSegment : intersectionSegments(intersection)) {
+        capacityFactors.add(String.join("|", intersection.getXmlId(), intersectionSegment.getLinkSegment().getXmlId(),
+            intersectionSegment instanceof IntersectionSignalSegment ?
+                String.valueOf(((IntersectionSignalSegment) intersectionSegment).getGreenRatio()) : "no signal",
+            String.valueOf(intersectionSegment.getSaturationFlowFactor())));
+      }
+    }
+    layer.getSpatialMovements().forEach(movement -> capacityFactors.add(String.join("|", movement.getXmlId(),
+        String.valueOf(movement.getGreenRatio()), String.valueOf(movement.getSaturationFlowFactor()))));
+    return capacityFactors;
+  }
 
   /** records the warnings the network reader logs while a test runs */
   private WarningRecorder readerWarnings;
@@ -253,6 +292,62 @@ public class IntersectionsReaderWriterTest extends TestBase {
     assertEquals(1, readerWarnings.count);
   }
 
+  /**
+   * The green ratios and saturation flow factors in the input are read as set directly, on approaches, on an internal
+   * segment with a signal and on movements, where a value of 1 is kept. A value outside 0 to 1 is skipped with one
+   * warning, so that approach has 1, and so is a green ratio on an approach without a signal
+   */
+  @Test
+  public void capacityFactorsAreRead() {
+    var layer = readLayer(INTERSECTIONS_PATH.resolve("capacity_factors").resolve("input"));
+    var segments = layer.getLinkSegments();
+
+    var i1 = byXmlId(layer, "i1");
+    var from0 = (IntersectionSignalSegment) i1.getApproach(segments.getByXmlId("0"));
+    assertEquals(0.44, from0.getGreenRatio());
+    assertEquals(CapacityFactorOrigin.SET_DIRECTLY, from0.getGreenRatioOrigin());
+    assertEquals(0.95, from0.getSaturationFlowFactor());
+    var from4 = i1.getApproach(segments.getByXmlId("4"));
+    assertFalse(from4.hasSignal());
+    assertEquals(0.5, from4.getSaturationFlowFactor());
+    var from2 = (IntersectionSignalSegment) i1.getApproach(segments.getByXmlId("2"));
+    assertEquals(1, from2.getGreenRatio());
+    assertNull(from2.getGreenRatioOrigin());
+
+    var i3 = (SpatialIntersection) byXmlId(layer, "i3");
+    assertEquals(0.44, ((IntersectionSignalSegment) i3.getApproach(segments.getByXmlId("8"))).getGreenRatio());
+    var withSignal = (IntersectionSignalSegment) i3.getIntersectionInternalSegment(segments.getByXmlId("11"));
+    assertEquals(0.6, withSignal.getGreenRatio());
+    assertEquals(0.9, withSignal.getSaturationFlowFactor());
+    assertEquals(CapacityFactorOrigin.SET_DIRECTLY, withSignal.getGreenRatioOrigin());
+    var m1 = movementByXmlId(i3, "m1");
+    assertEquals(0.15, m1.getGreenRatio());
+    assertNull(m1.getSaturationFlowFactor());
+    assertEquals(0.15, i3.getGreenRatioUsedBy(m1));
+    var m4 = movementByXmlId(i3, "m4");
+    assertEquals(1, m4.getGreenRatio());
+    assertEquals(0.8, m4.getSaturationFlowFactor());
+    assertEquals(2, readerWarnings.count);
+  }
+
+  /** An input without green ratios and saturation flow factors reads 1 for every approach and internal segment with a
+   * signal, and every movement uses its approach's values */
+  @Test
+  public void inputWithoutCapacityFactorsReadsOne() {
+    var layer = readLayer(INTERSECTIONS_PATH.resolve("roundtrip").resolve("input"));
+
+    for (var intersection : layer.getIntersections()) {
+      for (var intersectionSegment : intersectionSegments(intersection)) {
+        assertEquals(1, intersectionSegment.getEffectiveCapacityFactor());
+        assertNull(intersectionSegment.getSaturationFlowFactorOrigin());
+      }
+    }
+    for (var movement : layer.getSpatialMovements()) {
+      assertNull(movement.getGreenRatio());
+      assertNull(movement.getSaturationFlowFactor());
+    }
+  }
+
   /** An intersection still using the replaced segments lists makes reading fail, rather than reading it without its
    * segments */
   @Test
@@ -317,6 +412,37 @@ public class IntersectionsReaderWriterTest extends TestBase {
       assertEquals(3, written.split("directban=\"true\"", -1).length - 1);
       assertEquals(1, written.split("bannedmoderefs=\"", -1).length - 1);
       assertEquals(1, written.split("tolsref=\"6\" moderefs=\"car\"/>", -1).length - 1);
+      /* without values, no green ratio or saturation flow factor is written */
+      assertFalse(written.contains("greenratio"));
+      assertFalse(written.contains("satflowfactor"));
+    } finally {
+      PlanItIOTestHelper.deleteFile(projectPath.resolve("network.xml").toAbsolutePath().toString());
+    }
+  }
+
+  /**
+   * Green ratios and saturation flow factors written and read back are equal to those written. A value of 1 on an
+   * approach or internal segment is left out, while on a movement it is written; a value skipped when read is not
+   * written
+   */
+  @Test
+  public void roundTripKeepsCapacityFactors() throws Exception {
+    var projectPath = INTERSECTIONS_PATH.resolve("capacity_factors");
+    var originalNetwork = readNetwork(projectPath.resolve("input"));
+    var original = originalNetwork.getTransportLayers().getFirst();
+
+    PlanitNetworkWriterFactory.create(projectPath.toAbsolutePath().toString()).write(originalNetwork);
+    IdGenerator.reset();
+    var readBack = readLayer(projectPath);
+
+    try {
+      assertEquals(capacityFactors(original), capacityFactors(readBack));
+
+      var written = Files.readString(projectPath.resolve("network.xml"));
+      assertEquals(2, written.split("greenratio=\"0.44\"", -1).length - 1);
+      assertEquals(1, written.split("greenratio=\"1.0\"", -1).length - 1);
+      assertEquals(5, written.split("greenratio=\"", -1).length - 1);
+      assertEquals(4, written.split("satflowfactor=\"", -1).length - 1);
     } finally {
       PlanItIOTestHelper.deleteFile(projectPath.resolve("network.xml").toAbsolutePath().toString());
     }

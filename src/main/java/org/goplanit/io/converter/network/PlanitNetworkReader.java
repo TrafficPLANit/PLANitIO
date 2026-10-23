@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.DoublePredicate;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -39,7 +41,9 @@ import org.goplanit.utils.network.layer.macroscopic.AccessGroupProperties;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
+import org.goplanit.utils.network.layer.macroscopic.intersection.CapacityFactorOrigin;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSignalSegment;
 import org.goplanit.utils.network.layer.macroscopic.SpatialMovements;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
@@ -412,9 +416,33 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   }
 
   /**
+   * Set the green ratio and saturation flow factor of an approach, internal segment with a signal or movement, those
+   * present in the input, as set directly. A value outside 0 to 1, which its setter refuses, is skipped with a single
+   * warning, so the default applies, and so is a green ratio listed for an approach without a signal
+   *
+   * @param greenRatio as read, null when left out
+   * @param saturationFlowFactor as read, null when left out
+   * @param greenRatioSetter sets the green ratio, false when it refuses the value, null when there is no signal
+   * @param saturationFlowFactorSetter sets the saturation flow factor, false when it refuses the value
+   * @param context where the values are listed, for the warning
+   */
+  private void parseCapacityFactors(Double greenRatio, Double saturationFlowFactor, DoublePredicate greenRatioSetter,
+      DoublePredicate saturationFlowFactorSetter, Supplier<String> context) {
+    if(greenRatio != null && greenRatioSetter == null){
+      LOGGER.warning(String.format("IGNORE: %s lists green ratio %.2f, but has no signal", context.get(), greenRatio));
+    }else if(greenRatio != null && !greenRatioSetter.test(greenRatio)){
+      LOGGER.warning(String.format("IGNORE: %s lists green ratio %s outside 0 to 1", context.get(), greenRatio));
+    }
+    if(saturationFlowFactor != null && !saturationFlowFactorSetter.test(saturationFlowFactor)){
+      LOGGER.warning(String.format("IGNORE: %s lists saturation flow factor %s outside 0 to 1",
+          context.get(), saturationFlowFactor));
+    }
+  }
+
+  /**
    * Parse the approaches of an intersection of either kind, with whether each has a signal of its own where that
-   * differs from the control type. A segment that is unknown, or that the intersection refuses as an approach, is
-   * skipped with a single warning
+   * differs from the control type, and its green ratio and saturation flow factor. A segment that is unknown, or that
+   * the intersection refuses as an approach, is skipped with a single warning
    *
    * @param xmlId of the intersection
    * @param xmlIntersection to parse from, of either kind
@@ -429,22 +457,27 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         if(segment == null){
           continue;
         }
-        if(!intersection.addApproachSegment(segment)){
+        var hasOwnSignal = xmlApproach.isSignal() != null ? xmlApproach.isSignal() : intersection.isSignalised();
+        var approach = intersection.addNewApproach(segment, hasOwnSignal);
+        if(approach == null){
           LOGGER.warning(String.format("IGNORE: Intersection %s refuses approach %s (it does not enter the " +
               "intersection, or is listed twice)", xmlId, xmlApproach.getRef().trim()));
           continue;
         }
-        if(xmlApproach.isSignal() != null){
-          intersection.setApproachSegmentHasOwnSignal(segment, xmlApproach.isSignal());
-        }
+        parseCapacityFactors(xmlApproach.getGreenratio(), xmlApproach.getSatflowfactor(),
+            approach instanceof IntersectionSignalSegment ? value -> ((IntersectionSignalSegment) approach)
+                .setGreenRatio(value, CapacityFactorOrigin.SET_DIRECTLY) : null,
+            value -> approach.setSaturationFlowFactor(value, CapacityFactorOrigin.SET_DIRECTLY),
+            () -> String.format("Intersection %s, approach %s", xmlId, xmlApproach.getRef().trim()));
       }
     }
   }
 
   /**
-   * Parse the plain internal segments and the internal segments with a signal of a spatial intersection. A segment that
-   * is unknown, or that the intersection refuses for its role, is skipped with a single warning. A segment listed both
-   * as a plain internal segment and as one with a signal is kept with a signal, with a warning
+   * Parse the plain internal segments and the internal segments with a signal of a spatial intersection, the latter
+   * with their green ratio and saturation flow factor. A segment that is unknown, or that the intersection refuses for
+   * its role, is skipped with a single warning. A segment listed both as a plain internal segment and as one with a
+   * signal is kept with a signal, with a warning
    *
    * @param xmlIntersection to parse from
    * @param intersection to add the internal segments to
@@ -456,7 +489,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     if(xmlInternalSegments != null && !StringUtils.isNullOrBlank(xmlInternalSegments.getRefs())){
       for(var segmentRef : xmlInternalSegments.getRefs().split(CharacterUtils.COMMA.toString())){
         var segment = findIntersectionSegment(xmlId, segmentRef);
-        if(segment != null && !intersection.addInternalSegment(segment)){
+        if(segment != null && !intersection.addNewInternalSegment(segment)){
           LOGGER.warning(String.format("IGNORE: Intersection %s refuses internal segment %s (it does not run " +
               "between its nodes, or is listed twice)", xmlId, segmentRef.trim()));
         }
@@ -474,17 +507,25 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
           LOGGER.warning(String.format("Intersection %s lists segment %s both as a plain internal segment and as " +
               "one with a signal, kept with a signal", xmlId, xmlSignalSegment.getRef().trim()));
         }
-        if(!intersection.addInternalSegmentWithSignal(segment)){
+        if(!intersection.addNewInternalSegmentWithSignal(segment)){
           LOGGER.warning(String.format("IGNORE: Intersection %s refuses internal segment with a signal %s (it does " +
               "not run between its nodes, or is listed twice)", xmlId, xmlSignalSegment.getRef().trim()));
+          continue;
         }
+        var withSignal = (IntersectionSignalSegment) intersection.getIntersectionInternalSegment(segment);
+        parseCapacityFactors(xmlSignalSegment.getGreenratio(), xmlSignalSegment.getSatflowfactor(),
+            value -> withSignal.setGreenRatio(value, CapacityFactorOrigin.SET_DIRECTLY),
+            value -> withSignal.setSaturationFlowFactor(value, CapacityFactorOrigin.SET_DIRECTLY),
+            () -> String.format("Intersection %s, internal segment with a signal %s",
+                xmlId, xmlSignalSegment.getRef().trim()));
       }
     }
   }
 
   /**
-   * Create a spatial movement from its xml element, not registered: its link segments, length and, when there is one,
-   * the ban placed on it directly. Banned modes imply a direct ban. A movement with an unknown segment or mode, or
+   * Create a spatial movement from its xml element, not registered: its link segments, length, when there is one the
+   * ban placed on it directly, and its green ratio and saturation flow factor when listed. Banned modes imply a direct
+   * ban. A movement with an unknown segment or mode, or
    * without the fromlsref or tolsref naming its link segments, is not created, with a single warning
    *
    * @param xmlMovement to parse
@@ -508,6 +549,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     if(Boolean.TRUE.equals(xmlMovement.isDirectban()) || !bannedModes.isEmpty()){
       movement.banDirectly(bannedModes);
     }
+    parseCapacityFactors(xmlMovement.getGreenratio(), xmlMovement.getSatflowfactor(), movement::setGreenRatio,
+        movement::setSaturationFlowFactor, () -> String.format("%s, movement %s", context, xmlMovement.getId()));
     movement.setXmlId(xmlMovement.getId());
     if(!StringUtils.isNullOrBlank(xmlMovement.getExternalid())){
       movement.setExternalId(xmlMovement.getExternalid());
@@ -539,6 +582,11 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         LOGGER.warning(String.format("IGNORE: Intersection %s refuses movement %s (it does not start on one of its " +
             "approaches, or is listed twice)", xmlId, xmlMovement.getId()));
         continue;
+      }
+      if(intersection.isMovementGreenRatioBelowOneWithoutSignal(movement)){
+        LOGGER.warning(String.format(
+            "Intersection %s, movement %s lists green ratio %.2f, but its approach has no signal", xmlId,
+            xmlMovement.getId(), movement.getGreenRatio()));
       }
       spatialMovements.register(movement);
     }
