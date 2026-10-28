@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -97,6 +98,12 @@ public class IntersectionsReaderWriterTest extends TestBase {
     layer.getSpatialMovements().forEach(movement -> capacityFactors.add(String.join("|", movement.getXmlId(),
         String.valueOf(movement.getGreenRatio()), String.valueOf(movement.getSaturationFlowFactor()))));
     return capacityFactors;
+  }
+
+  /** the external id of each banned turn of the layer, "null" when it has none, by its XML id */
+  private static Map<String, String> bannedTurnExternalIds(MacroscopicNetworkLayer layer) {
+    return layer.getBannedTurns().stream().map(MacroscopicBannedTurn.class::cast)
+        .collect(Collectors.toMap(ban -> ban.getXmlId(), ban -> String.valueOf(ban.getExternalId())));
   }
 
   /** records the warnings the network reader logs while a test runs */
@@ -373,6 +380,8 @@ public class IntersectionsReaderWriterTest extends TestBase {
     var projectPath = INTERSECTIONS_PATH.resolve("roundtrip");
     var originalNetwork = readNetwork(projectPath.resolve("input"));
     var original = originalNetwork.getTransportLayers().getFirst();
+    /* a ban keeps its external id, such as the OSM relation it comes from */
+    original.getBannedTurns().forEach(ban -> ban.setExternalId("relation " + ban.getXmlId()));
 
     PlanitNetworkWriterFactory.create(projectPath.toAbsolutePath().toString()).write(originalNetwork);
     IdGenerator.reset();
@@ -398,6 +407,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
       assertEquals(original.getSpatialMovements().size(), readBack.getSpatialMovements().size());
       assertEquals(independentMovements(original), independentMovements(readBack));
       assertEquals(bannedTurns(original), bannedTurns(readBack));
+      assertEquals(bannedTurnExternalIds(original), bannedTurnExternalIds(readBack));
 
       /* empty lists, signals following the control type and absent external ids are left out */
       var written = Files.readString(projectPath.resolve("network.xml"));

@@ -693,8 +693,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       registerBySourceId(MacroscopicLinkSegmentType.class, linkSegmentType);
       
       /* only road going modes are added by default if no access groups are specified */
-      Collection<Mode> supportedDefaultRoadModes = networkLayer.getSupportedModes().stream().filter( 
-          mode -> mode.getPhysicalFeatures().getTrackType() == TrackModeType.ROAD).collect(Collectors.toSet());
+      Collection<Mode> supportedDefaultRoadModes = networkLayer.getSupportedModes().stream().filter(
+          Mode::isRoadMode).collect(Collectors.toSet());
             
       /* mode properties, only set when allowed, otherwise not */       
       if(xmlLinkSegmentType.getAccess() != null) {
@@ -989,6 +989,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         planitTurnXmlId = String.valueOf(bannedTurn.getId());
       }
       bannedTurn.setXmlId(planitTurnXmlId);
+      if(!StringUtils.isNullOrBlank(xmlBan.getExternalid())){
+        bannedTurn.setExternalId(xmlBan.getExternalid());
+      }
     }
   }
 
