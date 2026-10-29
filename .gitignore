@@ -13,3 +13,5 @@
 /bin
 /doc
 /docs
+# output of test runs, written next to the reference files it is compared against, which have no RunId in their name
+/src/test/resources/**/*_RunId_*
