@@ -278,6 +278,8 @@ public class XmlEnumConversionUtil {
         return IntersectionType.JUNCTION;
       case CROSSING:
         return IntersectionType.CROSSING;
+      case RAMP_METER:
+        return IntersectionType.RAMP_METER;
       default:
         throw new PlanItRunTimeException(String.format("Mapping from XML intersection type %s to PLANit " +
             "intersection type unavailable", xmlType));
@@ -295,6 +297,8 @@ public class XmlEnumConversionUtil {
         return IntersectionTypeType.JUNCTION;
       case CROSSING:
         return IntersectionTypeType.CROSSING;
+      case RAMP_METER:
+        return IntersectionTypeType.RAMP_METER;
       default:
         throw new PlanItRunTimeException(String.format("Mapping from PLANit intersection type %s to XML " +
             "intersection type unavailable", planitType));

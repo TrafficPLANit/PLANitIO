@@ -207,6 +207,11 @@
                         <movement id="m3" fromlsref="14" tolsref="9" length="0.02" bannedmoderefs="car"/>
                     </movements>
                 </spatialintersection>
+                <intersection id="i4" noderef="7" control="signalised" types="ramp_meter">
+                    <approaches>
+                        <approach ref="13"/>
+                    </approaches>
+                </intersection>
             </intersections>
         </layer>
     </infrastructurelayers>

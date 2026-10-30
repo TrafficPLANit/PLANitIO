@@ -232,7 +232,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   public void intersectionsAreRead() {
     var layer = readLayer(INTERSECTIONS_PATH.resolve("roundtrip").resolve("input"));
 
-    assertEquals(3, layer.getIntersections().size());
+    assertEquals(4, layer.getIntersections().size());
     var i1 = byXmlId(layer, "i1");
     assertTrue(i1 instanceof NonSpatialIntersection);
     assertEquals("ext-1", i1.getExternalId());
@@ -255,6 +255,13 @@ public class IntersectionsReaderWriterTest extends TestBase {
     assertEquals(Set.of("10", "11"), segmentIds(i3.getInternalSegments()));
     assertEquals(Set.of("11"), segmentIds(i3.getInternalSegmentsWithSignal()));
     assertSame(i3, layer.getIntersections().getByMemberNode(i3.getMemberNodes().get(1)));
+
+    var i4 = byXmlId(layer, "i4");
+    assertTrue(i4 instanceof NonSpatialIntersection);
+    assertEquals(IntersectionControlType.SIGNALISED, i4.getControlType());
+    assertEquals(EnumSet.of(IntersectionType.RAMP_METER), i4.getTypes());
+    assertEquals(Set.of("7"), nodeIds(i4));
+    assertEquals(Set.of("13"), segmentIds(approachesWithOwnSignal(i4)));
     /* banned modes imply a direct ban, as for m3 */
     assertEquals(Set.of("8|15|0.02|ext-m1|direct|", "12|9|0.0|null|none|", "14|9|0.02|null|direct|car"),
         movements(i3));
@@ -321,6 +328,10 @@ public class IntersectionsReaderWriterTest extends TestBase {
     var from2 = (IntersectionSignalSegment) i1.getApproach(segments.getByXmlId("2"));
     assertEquals(1, from2.getGreenRatio());
     assertNull(from2.getGreenRatioOrigin());
+
+    var rampMeterApproach = (IntersectionSignalSegment) byXmlId(layer, "i4").getApproach(segments.getByXmlId("1"));
+    assertEquals(0.9, rampMeterApproach.getGreenRatio());
+    assertEquals(CapacityFactorOrigin.SET_DIRECTLY, rampMeterApproach.getGreenRatioOrigin());
 
     var i3 = (SpatialIntersection) byXmlId(layer, "i3");
     assertEquals(0.44, ((IntersectionSignalSegment) i3.getApproach(segments.getByXmlId("8"))).getGreenRatio());
@@ -452,7 +463,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
       var written = Files.readString(projectPath.resolve("network.xml"));
       assertEquals(2, written.split("greenratio=\"0.44\"", -1).length - 1);
       assertEquals(1, written.split("greenratio=\"1.0\"", -1).length - 1);
-      assertEquals(5, written.split("greenratio=\"", -1).length - 1);
+      assertEquals(6, written.split("greenratio=\"", -1).length - 1);
       assertEquals(4, written.split("satflowfactor=\"", -1).length - 1);
     } finally {
       PlanItIOTestHelper.deleteFile(projectPath.resolve("network.xml").toAbsolutePath().toString());
