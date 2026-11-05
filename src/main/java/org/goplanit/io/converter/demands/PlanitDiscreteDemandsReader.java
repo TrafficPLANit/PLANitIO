@@ -45,9 +45,6 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitDiscreteDemandsReader.class.getCanonicalName());
 
-  /** maximum number of persons listed individually when reporting an issue affecting many of them */
-  private static final int MAX_LOGGED_PERSONS = 10;
-
   /** parses the xml content in JAXB memory format */
   private final PlanitXmlJaxbParser<XMLElementDiscreteDemand,?> xmlParser;
 
@@ -230,6 +227,10 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       }
       household.setZone(zone);
 
+      // cars and income, each not known when absent
+      household.setNumberOfCars(xmlHousehold.getCars());
+      household.setYearlyIncome(xmlHousehold.getYearlyincome());
+
       //Register plumbing registry tracking
       registerBySourceId(Household.class, household);
     }
@@ -296,6 +297,13 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       if (!StringUtils.isNullOrBlank(xmlSchedule.getInit())) {
         person.setInitialPurpose(xmlSchedule.getInit());
       }
+
+      // who the person is, each not known when absent
+      person.setAge(xmlPerson.getAge());
+      person.setSex(XmlEnumConversionUtil.xmlToPlanit(xmlPerson.getSex()));
+      person.setEmploymentStatus(XmlEnumConversionUtil.xmlToPlanit(xmlPerson.getEmployment()));
+      person.setStudyStatus(XmlEnumConversionUtil.xmlToPlanit(xmlPerson.getStudy()));
+      person.setCarLicence(xmlPerson.isCarlicence());
 
       //Register identity tracking
       registerBySourceId(Person.class, person);
@@ -606,8 +614,9 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
           }
           /* a person's schedule holds a participation in the tour rather than the tour itself, so that one tour can
            * be shared by several persons. An absent role means the tour belongs to this person; a tour with more
-           * than one primary participant is rejected by the model as invalid */
-          domainSchedule.add(tour.addParticipant(person, XmlEnumConversionUtil.xmlToPlanit(tourRef.getRole())));
+           * than one primary participant is rejected by the model as invalid. An absent driver means not known */
+          domainSchedule.add(tour.addParticipant(
+              person, XmlEnumConversionUtil.xmlToPlanit(tourRef.getRole()), tourRef.isDriver()));
         }
         // Case B: The entry is a direct reference to a standalone Trip (<tripref ref="..." />) --> not allowed at top
         //         level
@@ -692,7 +701,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
           }
 
           // Anchor the nested sub-tour into this tour's internal sequence
-          tourSchedule.add(childTour.addParticipant(parentPerson, XmlEnumConversionUtil.xmlToPlanit(subTourRef.getRole())));
+          tourSchedule.add(childTour.addParticipant(
+              parentPerson, XmlEnumConversionUtil.xmlToPlanit(subTourRef.getRole()), subTourRef.isDriver()));
         }else {
           toursWithCorruptSchedule.add(xmlTour.getId());
         }
@@ -728,7 +738,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
     LOGGER.warning(String.format("Rejected %s persons %s, removing them entirely from the result, persons %s",
         LoggingUtils.countWithPercentage(rejectedPersons.size(), totalPersonCount), reason,
-        ExternalIdAbleUtils.toIdsAsString(rejectedPersons, MAX_LOGGED_PERSONS)));
+        ExternalIdAbleUtils.toIdsAsString(rejectedPersons, StringUtils.DEFAULT_MAX_LISTED_ENTRIES)));
   }
 
   /**
@@ -747,7 +757,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
         "Rejected %s persons whose schedule is not in chronological order, for example a tour ending before one of " +
             "its own trips departs, removing them entirely from the result, persons %s",
         LoggingUtils.countWithPercentage(offendingPersons.size(), discreteDemands.getPersons().size()),
-        ExternalIdAbleUtils.toIdsAsString(offendingPersons, MAX_LOGGED_PERSONS)));
+        ExternalIdAbleUtils.toIdsAsString(offendingPersons, StringUtils.DEFAULT_MAX_LISTED_ENTRIES)));
 
     offendingPersons.forEach(person -> discreteDemands.getDiscreteDemandsModifier().removePerson(person));
   }

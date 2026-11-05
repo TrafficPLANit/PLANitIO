@@ -1,8 +1,12 @@
 package org.goplanit.io.test.integration.converter;
 
 import org.goplanit.demands.discrete.DiscreteDemands;
+import org.goplanit.demands.discrete.household.Household;
+import org.goplanit.demands.discrete.person.EmploymentStatus;
+import org.goplanit.demands.discrete.person.Person;
+import org.goplanit.demands.discrete.person.Sex;
+import org.goplanit.demands.discrete.person.StudyStatus;
 import org.goplanit.demands.discrete.tour.ParticipantTour;
-import org.goplanit.demands.discrete.tour.Tour;
 import org.goplanit.demands.discrete.tour.TourParticipantRole;
 import org.goplanit.demands.discrete.tour.TourImpl;
 import org.goplanit.demands.discrete.trip.Trip;
@@ -11,6 +15,7 @@ import org.goplanit.demands.discrete.util.DirectionBound;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsReaderFactory;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsWriterFactory;
 import org.goplanit.io.test.integration.TestBase;
+import org.goplanit.io.xml.util.XmlEnumConversionUtil;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.id.IdGenerator;
@@ -53,6 +58,60 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
   private static final String PURPOSE_SHOPPING = "shopping";
   private static final String PURPOSE_GYM = "gym";
 
+  /**
+   * Network with the modes the discrete demands of these tests use
+   *
+   * @return network
+   */
+  private static MacroscopicNetwork createNetwork() {
+    var network = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
+    network.getModes().getFactory().registerNew(PredefinedModeType.CAR);
+    network.getModes().getFactory().registerNew(PredefinedModeType.BUS);
+    network.getModes().getFactory().registerNew(PredefinedModeType.TRAIN);
+    network.getModes().getFactory().registerNew(PredefinedModeType.PEDESTRIAN);
+    network.getTransportLayers().getFactory().registerNew(network.getModes());
+    return network;
+  }
+
+  /**
+   * Zoning with the five zones the discrete demands of these tests use, their XML ids equal to their ids so the
+   * reader can find them
+   *
+   * @param network the zoning belongs to
+   * @return zoning
+   */
+  private static Zoning createZoning(MacroscopicNetwork network) {
+    var zoning = new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
+    for (int index = 0; index < 5; ++index) {
+      zoning.getOdZones().getFactory().registerNew();
+    }
+    ZoningModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+    return zoning;
+  }
+
+  /**
+   * Assert that none of the person's age, sex, employment status, study status and car licence is known
+   *
+   * @param person to check
+   */
+  private static void assertNoAttributeKnown(Person person) {
+    assertNull(person.getAge());
+    assertNull(person.getSex());
+    assertNull(person.getEmploymentStatus());
+    assertNull(person.getStudyStatus());
+    assertNull(person.getCarLicence());
+  }
+
+  /**
+   * Assert that neither the household's number of cars nor its yearly income is known
+   *
+   * @param household to check
+   */
+  private static void assertNoAttributeKnown(Household household) {
+    assertNull(household.getNumberOfCars());
+    assertNull(household.getYearlyIncome());
+  }
+
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -88,12 +147,11 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
 
     try {
 
-      var network = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
-      var carMode = network.getModes().getFactory().registerNew(PredefinedModeType.CAR);
-      var busMode = network.getModes().getFactory().registerNew(PredefinedModeType.BUS);
-      var trainMode = network.getModes().getFactory().registerNew(PredefinedModeType.TRAIN);
-      var walkMode = network.getModes().getFactory().registerNew(PredefinedModeType.PEDESTRIAN);
-      network.getTransportLayers().getFactory().registerNew(network.getModes());
+      var network = createNetwork();
+      var carMode = network.getModes().get(PredefinedModeType.CAR);
+      var busMode = network.getModes().get(PredefinedModeType.BUS);
+      var trainMode = network.getModes().get(PredefinedModeType.TRAIN);
+      var walkMode = network.getModes().get(PredefinedModeType.PEDESTRIAN);
 
       var zoning = new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
       var zone0 = zoning.getOdZones().getFactory().registerNew();
@@ -292,22 +350,8 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
     final Path PLANIT_REF_DIR = Path.of(TEST_CASE_PATH.toString(), "discrete_demands_test", "reference");
 
     try {
-      var network = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
-      var carMode = network.getModes().getFactory().registerNew(PredefinedModeType.CAR);
-      var busMode = network.getModes().getFactory().registerNew(PredefinedModeType.BUS);
-      var trainMode = network.getModes().getFactory().registerNew(PredefinedModeType.TRAIN);
-      var walkMode = network.getModes().getFactory().registerNew(PredefinedModeType.PEDESTRIAN);
-      network.getTransportLayers().getFactory().registerNew(network.getModes());
-
-      var zoning = new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
-
-      // Instantiate zones programmatically
-      var zone0 = zoning.getOdZones().getFactory().registerNew();
-      var zone1 = zoning.getOdZones().getFactory().registerNew();
-      var zone2 = zoning.getOdZones().getFactory().registerNew();
-      var zone3 = zoning.getOdZones().getFactory().registerNew();
-      var zone4 = zoning.getOdZones().getFactory().registerNew();
-      ZoningModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+      var network = createNetwork();
+      var zoning = createZoning(network);
 
       var demandsReader = PlanitDiscreteDemandsReaderFactory.create(
           PLANIT_REF_DIR.toAbsolutePath().toString(), network, zoning);
@@ -336,6 +380,10 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
           assertEquals("home", person.getInitialPurpose(), "Initial purpose must decode to 'home'.")
       );
 
+      // the reference file says nothing about who the persons are, nor about the households' cars and income
+      persons.forEach(SimpleDiscreteDemandReaderWriterTest::assertNoAttributeKnown);
+      households.forEach(SimpleDiscreteDemandReaderWriterTest::assertNoAttributeKnown);
+
       // Deep Validation on Agent 0's complex schedule hierarchy (Person 0)
       var person0 = persons.stream()
           .filter(p -> "0".equals(p.getXmlId()))
@@ -352,6 +400,8 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       var tours = discreteDemands.getTours();
       assertEquals(6, tours.size(),
           "Should find 6 total tours across all agents (4 main tours + 1 sub-tour + 1 sequential tour).");
+      // the reference file says nothing about who drives
+      tours.forEach(tour -> tour.getParticipantTours().forEach(participation -> assertNull(participation.getDriver())));
       var trips = discreteDemands.getTrips();
       assertEquals(13, trips.size(),
           "Should find 13 total trips across all agents (4*2 main tour trips + 1*2 sub-tour trips + " +
@@ -471,6 +521,119 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
       e.printStackTrace();
       LOGGER.severe(e.getMessage());
       fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Whether a person drives survives writing and reading back, on a person's schedule (tourref) and on a tour's
+   * schedule (subtour): true and false where known, and not known where it is not
+   */
+  @Test
+  public void testDriverValuesSurviveRoundTrip() {
+    final Path PLANIT_OUTPUT_DIR = Path.of(TEST_CASE_PATH.toString(), "discrete_demands_test");
+    final Path PLANIT_REF_DIR = Path.of(TEST_CASE_PATH.toString(), "discrete_demands_test", "reference");
+
+    try {
+      var network = createNetwork();
+      var zoning = createZoning(network);
+      var discreteDemands = (DiscreteDemands) PlanitDiscreteDemandsReaderFactory.create(
+          PLANIT_REF_DIR.toAbsolutePath().toString(), network, zoning).read();
+
+      // household1 shops together and person3 drives; person0 drives on their gym sub tour; the rest is not known
+      var shoppingTour = discreteDemands.getTours().getByXmlId("2");
+      shoppingTour.setDriver(shoppingTour.getParticipantTours().get(1));
+      var gymSubTour = discreteDemands.getTours().getByXmlId("4");
+      gymSubTour.setDriver(gymSubTour.getPrimaryParticipation());
+
+      var writer = PlanitDiscreteDemandsWriterFactory.create(
+          PLANIT_OUTPUT_DIR.toAbsolutePath().toString(), network, zoning);
+      writer.setIdMapperType(IdMapperType.XML);
+      writer.write(discreteDemands);
+      var readBack = (DiscreteDemands) PlanitDiscreteDemandsReaderFactory.create(
+          PLANIT_OUTPUT_DIR.toAbsolutePath().toString(), network, zoning).read();
+
+      var readShoppingTour = readBack.getTours().getByXmlId("2");
+      assertEquals(Boolean.FALSE, readShoppingTour.getPrimaryParticipation().getDriver());
+      assertEquals(Boolean.TRUE, readShoppingTour.getParticipantTours().get(1).getDriver());
+      assertEquals(Boolean.TRUE, readBack.getTours().getByXmlId("4").getPrimaryParticipation().getDriver());
+      assertNull(readBack.getTours().getByXmlId("0").getPrimaryParticipation().getDriver());
+
+      deleteFile(Path.of(PLANIT_OUTPUT_DIR.toString(), "discrete_demands.xml").toString());
+    } catch (final Exception e) {
+      e.printStackTrace();
+      LOGGER.severe(e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Who a person is, and a household's cars and yearly income, survive writing and reading back where known; a person
+   * and a household without them stay without them
+   */
+  @Test
+  public void testPersonAndHouseholdAttributesSurviveRoundTrip() {
+    final Path PLANIT_OUTPUT_DIR = Path.of(TEST_CASE_PATH.toString(), "discrete_demands_test");
+    final Path PLANIT_REF_DIR = Path.of(TEST_CASE_PATH.toString(), "discrete_demands_test", "reference");
+
+    try {
+      var network = createNetwork();
+      var zoning = createZoning(network);
+      var discreteDemands = (DiscreteDemands) PlanitDiscreteDemandsReaderFactory.create(
+          PLANIT_REF_DIR.toAbsolutePath().toString(), network, zoning).read();
+
+      // person0 is a 45 year old woman working full-time with a car licence, in household0 with 2 cars; person2 and
+      // household1 stay not known
+      var person0 = discreteDemands.getPersons().getByXmlId("0");
+      person0.setAge(45);
+      person0.setSex(Sex.FEMALE);
+      person0.setEmploymentStatus(EmploymentStatus.FULL_TIME);
+      person0.setStudyStatus(StudyStatus.NOT_STUDYING);
+      person0.setCarLicence(true);
+      person0.getHousehold().setNumberOfCars(2);
+      person0.getHousehold().setYearlyIncome(96024.0);
+
+      var writer = PlanitDiscreteDemandsWriterFactory.create(
+          PLANIT_OUTPUT_DIR.toAbsolutePath().toString(), network, zoning);
+      writer.setIdMapperType(IdMapperType.XML);
+      writer.write(discreteDemands);
+      var readBack = (DiscreteDemands) PlanitDiscreteDemandsReaderFactory.create(
+          PLANIT_OUTPUT_DIR.toAbsolutePath().toString(), network, zoning).read();
+
+      var readPerson0 = readBack.getPersons().getByXmlId("0");
+      assertEquals(Integer.valueOf(45), readPerson0.getAge());
+      assertEquals(Sex.FEMALE, readPerson0.getSex());
+      assertEquals(EmploymentStatus.FULL_TIME, readPerson0.getEmploymentStatus());
+      assertEquals(StudyStatus.NOT_STUDYING, readPerson0.getStudyStatus());
+      assertEquals(Boolean.TRUE, readPerson0.getCarLicence());
+      assertEquals(Integer.valueOf(2), readPerson0.getHousehold().getNumberOfCars());
+      assertEquals(Double.valueOf(96024.0), readPerson0.getHousehold().getYearlyIncome());
+
+      var readPerson2 = readBack.getPersons().getByXmlId("2");
+      assertNoAttributeKnown(readPerson2);
+      assertNoAttributeKnown(readPerson2.getHousehold());
+
+      deleteFile(Path.of(PLANIT_OUTPUT_DIR.toString(), "discrete_demands.xml").toString());
+    } catch (final Exception e) {
+      e.printStackTrace();
+      LOGGER.severe(e.getMessage());
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Every value of sex, employment status and study status converts to its XML form and back to itself
+   */
+  @Test
+  public void testEveryPersonAttributeValueConvertsToXmlAndBack() {
+    for (var sex : Sex.values()) {
+      assertEquals(sex, XmlEnumConversionUtil.xmlToPlanit(XmlEnumConversionUtil.planitToXml(sex)));
+    }
+    for (var employmentStatus : EmploymentStatus.values()) {
+      assertEquals(employmentStatus,
+          XmlEnumConversionUtil.xmlToPlanit(XmlEnumConversionUtil.planitToXml(employmentStatus)));
+    }
+    for (var studyStatus : StudyStatus.values()) {
+      assertEquals(studyStatus, XmlEnumConversionUtil.xmlToPlanit(XmlEnumConversionUtil.planitToXml(studyStatus)));
     }
   }
 

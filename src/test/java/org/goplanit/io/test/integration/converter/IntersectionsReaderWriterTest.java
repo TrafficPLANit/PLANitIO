@@ -8,19 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.goplanit.io.converter.network.PlanitNetworkReader;
-import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
+import org.goplanit.io.test.util.WarningRecorder;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
@@ -109,31 +105,9 @@ public class IntersectionsReaderWriterTest extends TestBase {
   /** records the warnings the network reader logs while a test runs */
   private WarningRecorder readerWarnings;
 
-  /** counts warnings and more severe records */
-  private static class WarningRecorder extends Handler {
-
-    /** number of records counted */
-    int count = 0;
-
-    @Override public void publish(LogRecord record) {
-      if (record.getLevel().intValue() >= Level.WARNING.intValue()) {
-        ++count;
-      }
-    }
-
-    @Override public void flush() {}
-
-    @Override public void close() {}
-  }
-
-  /** read the network in the given directory */
-  private static MacroscopicNetwork readNetwork(Path directory) {
-    return PlanitNetworkReaderFactory.create(directory.toAbsolutePath().toString()).read();
-  }
-
   /** read the network in the given directory, and return its only layer */
   private static MacroscopicNetworkLayer readLayer(Path directory) {
-    return readNetwork(directory).getTransportLayers().getFirst();
+    return PlanItIOTestHelper.readNetwork(directory).getTransportLayers().getFirst();
   }
 
   /** the intersection of the layer with the given XML id, null when none */
@@ -268,7 +242,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
     assertEquals(Set.of("0|8|0.2|null|direct|"), independentMovements(layer));
     assertEquals(4, layer.getSpatialMovements().size());
     assertEquals(Set.of("0|5|", "2|6|car"), bannedTurns(layer));
-    assertEquals(0, readerWarnings.count);
+    assertEquals(0, readerWarnings.getCount());
   }
 
   /**
@@ -294,7 +268,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
     assertTrue(i4.getMovements().isEmpty());
     assertTrue(layer.getSpatialMovements().isEmpty());
     assertEquals(Set.of("0|5|"), bannedTurns(layer));
-    assertEquals(11, readerWarnings.count);
+    assertEquals(11, readerWarnings.getCount());
   }
 
   /** A segment listed both as a plain internal segment and as one with a signal is kept with a signal, warned once */
@@ -304,7 +278,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
 
     assertEquals(Set.of("10", "11"), segmentIds(i3.getInternalSegments()));
     assertEquals(Set.of("10"), segmentIds(i3.getInternalSegmentsWithSignal()));
-    assertEquals(1, readerWarnings.count);
+    assertEquals(1, readerWarnings.getCount());
   }
 
   /**
@@ -346,7 +320,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
     var m4 = movementByXmlId(i3, "m4");
     assertEquals(1, m4.getGreenRatio());
     assertEquals(0.8, m4.getSaturationFlowFactor());
-    assertEquals(2, readerWarnings.count);
+    assertEquals(2, readerWarnings.getCount());
   }
 
   /** An input without green ratios and saturation flow factors reads 1 for every approach and internal segment with a
@@ -389,7 +363,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   @Test
   public void roundTripKeepsIntersections() throws Exception {
     var projectPath = INTERSECTIONS_PATH.resolve("roundtrip");
-    var originalNetwork = readNetwork(projectPath.resolve("input"));
+    var originalNetwork = PlanItIOTestHelper.readNetwork(projectPath.resolve("input"));
     var original = originalNetwork.getTransportLayers().getFirst();
     /* a ban keeps its external id, such as the OSM relation it comes from */
     original.getBannedTurns().forEach(ban -> ban.setExternalId("relation " + ban.getXmlId()));
@@ -450,7 +424,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   @Test
   public void roundTripKeepsCapacityFactors() throws Exception {
     var projectPath = INTERSECTIONS_PATH.resolve("capacity_factors");
-    var originalNetwork = readNetwork(projectPath.resolve("input"));
+    var originalNetwork = PlanItIOTestHelper.readNetwork(projectPath.resolve("input"));
     var original = originalNetwork.getTransportLayers().getFirst();
 
     PlanitNetworkWriterFactory.create(projectPath.toAbsolutePath().toString()).write(originalNetwork);
@@ -474,7 +448,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   @Test
   public void layerWithoutIntersectionsIsWrittenWithoutSection() throws Exception {
     var outputPath = INTERSECTIONS_PATH;
-    var network = readNetwork(Path.of(TEST_CASE_PATH.toString(), "grid10x10", "reference"));
+    var network = PlanItIOTestHelper.readNetwork(Path.of(TEST_CASE_PATH.toString(), "grid10x10", "reference"));
 
     PlanitNetworkWriterFactory.create(outputPath.toAbsolutePath().toString()).write(network);
 
@@ -494,7 +468,7 @@ public class IntersectionsReaderWriterTest extends TestBase {
   @Test
   public void banOnSegmentRemovedForModeAccessIsGoneAfterRoundTrip() throws Exception {
     var outputPath = INTERSECTIONS_PATH;
-    var network = readNetwork(INTERSECTIONS_PATH.resolve("roundtrip").resolve("input"));
+    var network = PlanItIOTestHelper.readNetwork(INTERSECTIONS_PATH.resolve("roundtrip").resolve("input"));
     var layer = network.getTransportLayers().getFirst();
     assertEquals(2, layer.getBannedTurns().size());
 
@@ -506,11 +480,11 @@ public class IntersectionsReaderWriterTest extends TestBase {
 
     PlanitNetworkWriterFactory.create(outputPath.toAbsolutePath().toString()).write(network);
     IdGenerator.reset();
-    readerWarnings.count = 0;
+    readerWarnings.reset();
     try {
       var readBack = readLayer(outputPath);
       assertEquals(Set.of("2|6|car"), bannedTurns(readBack));
-      assertEquals(0, readerWarnings.count);
+      assertEquals(0, readerWarnings.getCount());
     } finally {
       PlanItIOTestHelper.deleteFile(outputPath.resolve("network.xml").toAbsolutePath().toString());
     }

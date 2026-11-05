@@ -15,6 +15,8 @@ import java.util.stream.IntStream;
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.io.FileUtils;
+import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.output.property.OutputProperty;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.math.Precision;
@@ -553,6 +555,16 @@ public class PlanItIOTestHelper {
                 memoryOutputFormatter, iterationIndex, simulationMap, OutputType.SIMULATION));
   }
    
+  /**
+   * Read the PLANit network in the given directory
+   *
+   * @param directory holding the network file
+   * @return network read
+   */
+  public static MacroscopicNetwork readNetwork(Path directory) {
+    return PlanitNetworkReaderFactory.create(directory.toAbsolutePath().toString()).read();
+  }
+
   /**
    * Deletes a file from the file system
    *

@@ -159,6 +159,10 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
         xmlHousehold.setZoneref(zoneRef);
       }
 
+      // cars and income, each left out when not known
+      xmlHousehold.setCars(domainHousehold.getNumberOfCars());
+      xmlHousehold.setYearlyincome(domainHousehold.getYearlyIncome());
+
       // Append directly to the live JAXB-managed array list
       xmlHouseholds.add(xmlHousehold);
     }
@@ -211,6 +215,13 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
       }
       xmlPerson.setHhref(householdRef);
 
+      // who the person is, each left out when not known
+      xmlPerson.setAge(domainPerson.getAge());
+      xmlPerson.setSex(XmlEnumConversionUtil.planitToXml(domainPerson.getSex()));
+      xmlPerson.setEmployment(XmlEnumConversionUtil.planitToXml(domainPerson.getEmploymentStatus()));
+      xmlPerson.setStudy(XmlEnumConversionUtil.planitToXml(domainPerson.getStudyStatus()));
+      xmlPerson.setCarlicence(domainPerson.getCarLicence());
+
       // Delegate schedule processing cleanly
       addXmlActivitySchedule(domainPerson, xmlPerson);
 
@@ -256,6 +267,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
 
         xmlTourRef.setRef(tourId);
         xmlTourRef.setRole(xmlRoleToWrite(participation));
+        xmlTourRef.setDriver(participation.getDriver());
         // xmlTourRef.setDescr(element.getDescription()); // Optional: map description if available
         xmlElements.add(xmlTourRef);
 
@@ -534,6 +546,7 @@ public class PlanitDiscreteDemandsWriter extends PlanitWriterImpl<DiscreteDemand
 
         xmlTourRef.setRef(tourId);
         xmlTourRef.setRole(xmlRoleToWrite(participation));
+        xmlTourRef.setDriver(participation.getDriver());
         xmlElements.add(xmlTourRef);
 
       } else if (element instanceof TripImpl) {

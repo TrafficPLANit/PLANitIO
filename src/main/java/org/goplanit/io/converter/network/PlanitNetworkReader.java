@@ -34,6 +34,7 @@ import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.*;
+import org.goplanit.utils.mode.DriverType;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.NetworkLayer;
@@ -75,7 +76,23 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * {@code <approaches>}, {@code <internalsegments>} and {@code <internalsignalsegments>} */
   private static final Set<QName> ELEMENTS_REMOVED_FROM_SCHEMA =
       Set.of(new QName(PlanitNamespacePrefixMapper.NAMESPACE_V2_URI, "segments"));
-  
+
+  /**
+   * Warn when a feature the file gives a predefined mode differs from its type's, which the mode keeps
+   *
+   * @param <T> type of the feature
+   * @param predefinedMode the feature belongs to
+   * @param featureName to name in the warning
+   * @param inFile value in the file, null when left out, which is not compared
+   * @param ofType value of the mode's type
+   */
+  private static <T> void warnIfFeatureDiffersFromType(Mode predefinedMode, String featureName, T inFile, T ofType) {
+    LoggingUtils.logWarningIf(LOGGER, String.format(
+            "Predefined mode %s has %s %s in the network file but %s as predefined mode, keeping %s",
+            predefinedMode.getName(), featureName, inFile, ofType, ofType),
+        inFile, value -> value != null && !value.equals(ofType));
+  }
+
   /** the settings for this reader */
   private final PlanitNetworkReaderSettings settings;
   
@@ -143,8 +160,30 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     
     /* parse set values */
     UseOfModeType useOfModeType = XmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());
-    
-    return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType);
+    DriverType driverType = XmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getDrivertype());
+
+    return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType, driverType);
+  }
+
+  /**
+   * Warn about each usability feature the file gives a predefined mode that differs from its type's, which the mode
+   * keeps. A feature the file leaves out is not compared
+   *
+   * @param generatedMode mode as read from the file
+   * @param predefinedMode created for it from its type
+   */
+  private void warnAboutUsabilityFeaturesDifferingFromType(
+      org.goplanit.xml.generated.v2.Mode generatedMode, Mode predefinedMode) {
+    if(generatedMode.getUsabilityfeatures() == null) {
+      return;
+    }
+
+    var featuresInFile = parseUsabilityModeFeatures(generatedMode);
+    var featuresOfType = predefinedMode.getUseFeatures();
+    warnIfFeatureDiffersFromType(
+        predefinedMode, "use of type", featuresInFile.getUseOfType(), featuresOfType.getUseOfType());
+    warnIfFeatureDiffersFromType(
+        predefinedMode, "driver type", featuresInFile.getDriverType(), featuresOfType.getDriverType());
   }
 
   /** parse the physical features component of the mode xml element. It is assumed they should be present, if not
@@ -204,8 +243,10 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
                  
       Mode mode = null;
       if(modeType != PredefinedModeType.CUSTOM) {
-        /* predefined mode use factory, ignore other attributes (if any) */
+        /* predefined mode use factory, its features are its type's, a file giving other usability features is warned
+         * about */
         mode = this.network.getModes().getFactory().registerNew(modeType);
+        warnAboutUsabilityFeaturesDifferingFromType(xmlMode, mode);
       }else {
         
         /* custom mode, parse all components to correctly configure the custom mode */

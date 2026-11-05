@@ -1,10 +1,14 @@
 package org.goplanit.io.xml.util;
 
+import org.goplanit.demands.discrete.person.EmploymentStatus;
+import org.goplanit.demands.discrete.person.Sex;
+import org.goplanit.demands.discrete.person.StudyStatus;
 import org.goplanit.demands.discrete.tour.TourParticipantRole;
 import org.goplanit.demands.discrete.util.DirectionBound;
 import org.goplanit.output.enums.DataType;
 import org.goplanit.output.property.OutputProperty;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.mode.DriverType;
 import org.goplanit.utils.mode.MotorisationModeType;
 import org.goplanit.utils.mode.TrackModeType;
 import org.goplanit.utils.mode.UseOfModeType;
@@ -21,6 +25,19 @@ import org.goplanit.xml.generated.v2.*;
  *
  */
 public class XmlEnumConversionUtil {
+
+  /**
+   * Convert an enum constant to the constant of the same name in another enum, for enums whose XML and PLANit forms
+   * name their values alike
+   *
+   * @param value to convert, may be null
+   * @param targetType enum to convert to
+   * @return constant of the same name, null when value is null
+   * @param <T> type of the enum to convert to
+   */
+  private static <T extends Enum<T>> T convertByName(Enum<?> value, Class<T> targetType) {
+    return value == null ? null : Enum.valueOf(targetType, value.name());
+  }
 
   /**
    * Dummy constructor as never instantiated
@@ -188,7 +205,27 @@ public class XmlEnumConversionUtil {
         throw new PlanItRunTimeException(String.format("Mapping from PLANit used-to type %s to XML used-to type " +
                 "unavailable",useOfType.toString()));
     }
-  } 
+  }
+
+  /**
+   * Convert JAXB DriverType to native PLANit DriverType
+   *
+   * @param xmlDriverType who drives a mode in XML format, may be absent
+   * @return PLANit driver type, null when absent
+   */
+  public static DriverType xmlToPlanit(org.goplanit.xml.generated.v2.DriverType xmlDriverType) {
+    return convertByName(xmlDriverType, DriverType.class);
+  }
+
+  /**
+   * Convert native PLANit DriverType to its JAXB DriverType counterpart
+   *
+   * @param planitDriverType who drives a mode, may be null
+   * @return XML driver type, null when not known
+   */
+  public static org.goplanit.xml.generated.v2.DriverType planitToXml(DriverType planitDriverType) {
+    return convertByName(planitDriverType, org.goplanit.xml.generated.v2.DriverType.class);
+  }
   
   /** Convert TimeUnit type from XML to PLANit Unit
    * 
@@ -367,6 +404,66 @@ public class XmlEnumConversionUtil {
       default:
         throw new IllegalArgumentException("Unsupported PLANit tour participant role: " + planitRole);
     }
+  }
+
+  /**
+   * Convert JAXB SexType to native PLANit Sex
+   *
+   * @param xmlSex sex in XML format, may be absent
+   * @return PLANit sex, null when absent
+   */
+  public static Sex xmlToPlanit(SexType xmlSex) {
+    return convertByName(xmlSex, Sex.class);
+  }
+
+  /**
+   * Convert native PLANit Sex to its JAXB SexType counterpart
+   *
+   * @param planitSex sex of a person, may be null
+   * @return XML sex, null when not known
+   */
+  public static SexType planitToXml(Sex planitSex) {
+    return convertByName(planitSex, SexType.class);
+  }
+
+  /**
+   * Convert JAXB EmploymentStatusType to native PLANit EmploymentStatus
+   *
+   * @param xmlEmploymentStatus employment status in XML format, may be absent
+   * @return PLANit employment status, null when absent
+   */
+  public static EmploymentStatus xmlToPlanit(EmploymentStatusType xmlEmploymentStatus) {
+    return convertByName(xmlEmploymentStatus, EmploymentStatus.class);
+  }
+
+  /**
+   * Convert native PLANit EmploymentStatus to its JAXB EmploymentStatusType counterpart
+   *
+   * @param planitEmploymentStatus employment status of a person, may be null
+   * @return XML employment status, null when not known
+   */
+  public static EmploymentStatusType planitToXml(EmploymentStatus planitEmploymentStatus) {
+    return convertByName(planitEmploymentStatus, EmploymentStatusType.class);
+  }
+
+  /**
+   * Convert JAXB StudyStatusType to native PLANit StudyStatus
+   *
+   * @param xmlStudyStatus study status in XML format, may be absent
+   * @return PLANit study status, null when absent
+   */
+  public static StudyStatus xmlToPlanit(StudyStatusType xmlStudyStatus) {
+    return convertByName(xmlStudyStatus, StudyStatus.class);
+  }
+
+  /**
+   * Convert native PLANit StudyStatus to its JAXB StudyStatusType counterpart
+   *
+   * @param planitStudyStatus study status of a person, may be null
+   * @return XML study status, null when not known
+   */
+  public static StudyStatusType planitToXml(StudyStatus planitStudyStatus) {
+    return convertByName(planitStudyStatus, StudyStatusType.class);
   }
 
   /**

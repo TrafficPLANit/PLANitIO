@@ -660,6 +660,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     try {
       /* motorisation type */
       xmlUseFeatures.setUsedtotype(XmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getUseOfType()));
+      /* driver type, left out when not known */
+      xmlUseFeatures.setDrivertype(XmlEnumConversionUtil.planitToXml(usabilityModeFeatures.getDriverType()));
     }catch(PlanItRunTimeException e) {
       LOGGER.severe(e.getMessage());
       LOGGER.severe("unable to set physical features on mode properties");
