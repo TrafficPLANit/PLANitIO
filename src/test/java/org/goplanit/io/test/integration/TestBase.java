@@ -1,14 +1,21 @@
 package org.goplanit.io.test.integration;
 
+import org.goplanit.logging.Logging;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.test.LinkSegmentExpectedResultsDto;
 import org.goplanit.utils.time.TimePeriod;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.logging.Logger;
 
 public abstract class TestBase {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   protected static final Path TEST_CASE_PATH = Path.of("src","test","resources","testcases");
 
@@ -73,4 +80,22 @@ public abstract class TestBase {
   /* TODO: refactor UGLY: timeperiod, mode origin link segment id, result DTO */
   protected SortedMap<TimePeriod, SortedMap<Mode, SortedMap<Long, LinkSegmentExpectedResultsDto>>> linkIdResultsMap;
 
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUpLogger() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(TestBase.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDownLogger() {
+    Logging.closeLogger(LOGGER);
+  }
 }
