@@ -3,6 +3,7 @@ package org.goplanit.io.converter.zoning;
 import org.goplanit.converter.network.NetworkReader;
 import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
 import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
 import org.goplanit.zoning.Zoning;
 
@@ -13,6 +14,19 @@ import org.goplanit.zoning.Zoning;
  *
  */
 public class PlanitZoningReaderFactory {
+
+  /**
+   * A zoning for the network: on a macroscopic network it follows the network's changes, so its connectoids stay
+   * valid, see {@link Zoning#attachTo(MacroscopicNetwork)}
+   *
+   * @param network the zoning lies on
+   * @return the zoning, empty
+   */
+  private static Zoning createZoningOn(final LayeredNetwork<?, ?> network) {
+    return network instanceof MacroscopicNetwork ?
+        new Zoning(network.getIdGroupingToken(), (MacroscopicNetwork) network) :
+        new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
+  }
 
   /**
    * Dummy constructor as never instantiated
@@ -33,7 +47,7 @@ public class PlanitZoningReaderFactory {
         pathDirectory,
         PlanitXmlReaderSettings.DEFAULT_XML_EXTENSION,
         network,
-        new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId()));
+        createZoningOn(network));
   }
 
   
@@ -58,8 +72,7 @@ public class PlanitZoningReaderFactory {
    */
   public static PlanitZoningReader create(
       final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?, ?> referenceNetwork) {
-    return new PlanitZoningReader(
-        zoningSettings, referenceNetwork, new Zoning(referenceNetwork.getIdGroupingToken(), referenceNetwork.getNetworkGroupingTokenId()));
+    return new PlanitZoningReader(zoningSettings, referenceNetwork, createZoningOn(referenceNetwork));
   }
   
   /** Factory method

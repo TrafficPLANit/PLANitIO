@@ -994,7 +994,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
             " unable to read zoning");
       }
       setReferenceNetwork(readNetwork);
-      setZoning(new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId()));
+      setZoning(new Zoning(network.getIdGroupingToken(), (MacroscopicNetwork) network));
     }else if(!(network instanceof MacroscopicNetwork)) {
       throw new PlanItRunTimeException("Unable to read zoning, provided network is not compatible with " +
           "Macroscopic network");

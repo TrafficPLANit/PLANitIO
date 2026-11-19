@@ -226,8 +226,10 @@ public class PlanitIntermodalReader implements IntermodalReader<ServiceNetwork, 
           xmlRawNetwork, getSettings().getNetworkSettings(), networkToPopulate);
     }
     MacroscopicNetwork referenceNetwork = networkReader.read();
-        
-    /* zoning */   
+    /* the zoning is made before the network is read, so it follows the network's layers once they exist */
+    zoningToPopulate.attachTo(referenceNetwork);
+
+    /* zoning */
     PlanitZoningReader zoningReader;
     if(xmlRawZoning == null){
       zoningReader = PlanitZoningReaderFactory.create(
