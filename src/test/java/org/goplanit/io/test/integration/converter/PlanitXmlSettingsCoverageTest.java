@@ -28,8 +28,9 @@ public class PlanitXmlSettingsCoverageTest {
 
   /** the coverage of every settings class the PLANit readers and writers reach */
   private static final SettingsCoverage COVERAGE = SettingsCoverage.of(PlanitIntermodalReaderSettings.class,
-      PlanitIntermodalWriterSettings.class, PlanitDemandsReaderSettings.class, PlanitDiscreteDemandsReaderSettings.class,
-      PlanitDemandsWriterSettings.class, PlanitDiscreteDemandsWriterSettings.class);
+      PlanitIntermodalWriterSettings.class, PlanitDemandsReaderSettings.class,
+      PlanitDiscreteDemandsReaderSettings.class, PlanitDemandsWriterSettings.class,
+      PlanitDiscreteDemandsWriterSettings.class);
 
   /** Every method changing settings has exactly one marker */
   @Test
@@ -49,7 +50,9 @@ public class PlanitXmlSettingsCoverageTest {
     assertEquals(List.of(), COVERAGE.findKeysWithoutRead());
   }
 
-  /** Every key a convenience is covered by exists, a key of a part found through the key naming the part's file */
+  /**
+   * Every key a convenience is covered by exists, a key of nested settings found through the key naming their file
+   */
   @Test
   public void everyCoveringKeyExists() {
     assertEquals(List.of(), COVERAGE.findUnknownCoveringKeys());

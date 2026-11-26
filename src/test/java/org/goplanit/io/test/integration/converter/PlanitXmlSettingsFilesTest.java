@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests the settings files of the PLANit readers and writers: every key read from a file and written out again, the
  * global defaults written out, the readers' files apart from the writers', stacked files, and intermodal files naming
- * the files of their parts
+ * the files of their nested settings
  *
  * @author markr
  */
@@ -287,11 +287,11 @@ public class PlanitXmlSettingsFilesTest {
   }
 
   /**
-   * An intermodal reader file names the files of its parts, relative to itself, each part made from its file as on
-   * its own; the parts not named keep their defaults
+   * An intermodal reader file names the files of its nested settings, relative to itself, each of them made from its
+   * file as on its own; the nested settings not named keep their defaults
    */
   @Test
-  public void intermodalReaderNamingItsParts() throws IOException, URISyntaxException {
+  public void intermodalReaderNamingTheFilesOfItsNestedSettings() throws IOException, URISyntaxException {
     writeFile("run/network.yaml", READER_HEADER + "inputSource: planit_osm\n");
     writeFile("run/zoning.yaml", READER_HEADER + "inputSource: planit_gis\n");
     var file = writeFile("run/intermodal.yaml", READER_HEADER + "network: network.yaml\nzoning: zoning.yaml\n");
@@ -306,9 +306,9 @@ public class PlanitXmlSettingsFilesTest {
     assertNull(settings.getRoutedServicesSettings().getInputSource());
   }
 
-  /** A key of a part in an intermodal file is a problem naming the key */
+  /** A key of nested settings in an intermodal file is a problem naming the key */
   @Test
-  public void partKeyInTheIntermodalFileRefused() {
+  public void keyOfNestedSettingsInTheIntermodalFileRefused() {
     var problem = SettingsFileAssertionUtils.assertThrowsOneSettingsProblem(SettingsProblemKind.UNKNOWN_KEY,
         () -> PlanitXmlWriterSettingsFactory.createIntermodalWriterSettingsFromYaml(
             List.of(SettingsSource.ofText(WRITER_HEADER + "outputDirectory: out\n"))));
@@ -327,11 +327,11 @@ public class PlanitXmlSettingsFilesTest {
   }
 
   /**
-   * Intermodal writer settings written out write a file naming a file per part, each written next to it under its
-   * key, and read back give the same settings
+   * Intermodal writer settings written out write a file naming a file for each of their nested settings, each written
+   * next to it, named after it followed by the key, and read back give the same settings
    */
   @Test
-  public void intermodalWriterWrittenOutWithItsParts() throws IOException {
+  public void intermodalWriterWrittenOutWithItsNestedSettings() throws IOException {
     var settings = new PlanitIntermodalWriterSettings();
     settings.getNetworkSettings().setFileName("roads.xml");
     settings.getZoningSettings().setRemoveDanglingZones(false);
@@ -341,9 +341,10 @@ public class PlanitXmlSettingsFilesTest {
     settings.writeSettingsFile(file, SettingsFileContentType.KEYS_DIFFERING_FROM_DEFAULTS, false);
 
     var lines = Files.readAllLines(file);
-    for (var part : List.of("network", "zoning", "serviceNetwork", "routedServices")) {
-      assertTrue(lines.contains(part + ": " + part + ".yaml"), part);
-      assertTrue(Files.exists(file.resolveSibling(part + ".yaml")), part);
+    for (var key : List.of("network", "zoning", "serviceNetwork", "routedServices")) {
+      var nestedSettingsFileName = "intermodal_" + key + ".yaml";
+      assertTrue(lines.contains(key + ": " + nestedSettingsFileName), key);
+      assertTrue(Files.exists(file.resolveSibling(nestedSettingsFileName)), key);
     }
     var readBack =
         PlanitXmlWriterSettingsFactory.createIntermodalWriterSettingsFromYaml(List.of(SettingsSource.ofFile(file)));

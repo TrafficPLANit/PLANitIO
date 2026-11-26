@@ -51,6 +51,13 @@ public class PlanitXmlReaderSettings extends FileBasedConverterReaderSettings im
   /** flag indicating default for syncing XML ids with internal ids */
   public static final boolean DEFAULT_SYNC_XMLIDS_TO_IDS = false;
 
+  /**
+   * The schema of every PLANit reader settings source: the header of these settings, {@code planitIoReaderSettings: 1},
+   * and every key of a reader at the top level, or, for the intermodal reader, the settings files of the readers it
+   * holds. One schema serves every reader, as they all take the same keys
+   */
+  public static final SettingsSchema SCHEMA = new SettingsSchema(PlanitXmlReaderSettings.class);
+
   
   /**
    * Default constructor using default file extension and user must set output dir afterwards manually
@@ -154,6 +161,6 @@ public class PlanitXmlReaderSettings extends FileBasedConverterReaderSettings im
    */
   @Override
   public SettingsSchema getSettingsSchema() {
-    return PlanitXmlReaderSettingsSchema.SCHEMA;
+    return SCHEMA;
   }
 }

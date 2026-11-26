@@ -64,10 +64,17 @@ public class PlanitXmlWriterSettings extends SingleFileBasedConverterWriterSetti
   protected boolean validate() {
     /* other settings are not always mandatory */
     return super.validate();
-  }    
-  
+  }
+
   /**
-   * Default constructor 
+   * The schema of every PLANit writer settings source: the header of these settings, {@code planitIoWriterSettings: 1},
+   * and every key of a writer at the top level, or, for the intermodal writer, the settings files of the writers it
+   * holds. One schema serves every writer, each file taking the keys of its own writer
+   */
+  public static final SettingsSchema SCHEMA = new SettingsSchema(PlanitXmlWriterSettings.class);
+
+  /**
+   * Default constructor
    */
   public PlanitXmlWriterSettings() {
     super();
@@ -210,7 +217,7 @@ public class PlanitXmlWriterSettings extends SingleFileBasedConverterWriterSetti
    */
   @Override
   public SettingsSchema getSettingsSchema() {
-    return PlanitXmlWriterSettingsSchema.SCHEMA;
+    return SCHEMA;
   }
 
 }

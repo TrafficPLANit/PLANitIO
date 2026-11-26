@@ -6,7 +6,7 @@ import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
-import org.goplanit.io.converter.PlanitXmlWriterSettingsSchema;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.settings.SettingsSchema;
 import org.goplanit.utils.settings.YamlWriteSettingsSupport;
@@ -199,7 +199,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings, 
    */
   @Override
   public SettingsSchema getSettingsSchema() {
-    return PlanitXmlWriterSettingsSchema.SCHEMA;
+    return PlanitXmlWriterSettings.SCHEMA;
   }
 
 }

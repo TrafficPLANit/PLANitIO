@@ -25,7 +25,7 @@ import org.goplanit.utils.settings.SettingsYamlLoader;
  * </pre>
  * <p>
  * It is the one place to find how PLANit writer settings are made from files. The sources follow
- * {@link PlanitXmlWriterSettingsSchema} and apply in order, a later source winning for a replacing key. Each writer has
+ * {@link PlanitXmlWriterSettings#SCHEMA} and apply in order, a later source winning for a replacing key. Each writer has
  * a file of its own; the intermodal writer's file names the files of the writers it holds. Every problem in the
  * sources is reported together, see {@link SettingsProblemsException}. The settings made are ordinary settings, so
  * nothing that takes settings changes, and code changing them afterwards wins. Settings made in code keep using the
@@ -48,7 +48,7 @@ public final class PlanitXmlWriterSettingsFactory {
    * @throws SettingsProblemsException holding every problem found in the sources
    */
   public static PlanitNetworkWriterSettings createNetworkWriterSettingsFromYaml(List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitNetworkWriterSettings.class);
   }
 
@@ -60,7 +60,7 @@ public final class PlanitXmlWriterSettingsFactory {
    * @throws SettingsProblemsException holding every problem found in the sources
    */
   public static PlanitZoningWriterSettings createZoningWriterSettingsFromYaml(List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitZoningWriterSettings.class);
   }
 
@@ -72,7 +72,7 @@ public final class PlanitXmlWriterSettingsFactory {
    * @throws SettingsProblemsException holding every problem found in the sources
    */
   public static PlanitDemandsWriterSettings createDemandsWriterSettingsFromYaml(List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitDemandsWriterSettings.class);
   }
 
@@ -85,7 +85,7 @@ public final class PlanitXmlWriterSettingsFactory {
    */
   public static PlanitDiscreteDemandsWriterSettings createDiscreteDemandsWriterSettingsFromYaml(
       List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitDiscreteDemandsWriterSettings.class);
   }
 
@@ -98,7 +98,7 @@ public final class PlanitXmlWriterSettingsFactory {
    */
   public static PlanitServiceNetworkWriterSettings createServiceNetworkWriterSettingsFromYaml(
       List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitServiceNetworkWriterSettings.class);
   }
 
@@ -111,7 +111,7 @@ public final class PlanitXmlWriterSettingsFactory {
    */
   public static PlanitRoutedServicesWriterSettings createRoutedServicesWriterSettingsFromYaml(
       List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitRoutedServicesWriterSettings.class);
   }
 
@@ -123,7 +123,7 @@ public final class PlanitXmlWriterSettingsFactory {
    * @throws SettingsProblemsException holding every problem found in the sources and the files they name
    */
   public static PlanitIntermodalWriterSettings createIntermodalWriterSettingsFromYaml(List<SettingsSource> sources) {
-    return new SettingsYamlLoader(PlanitXmlWriterSettingsSchema.SCHEMA, sources)
+    return new SettingsYamlLoader(PlanitXmlWriterSettings.SCHEMA, sources)
         .create(PlanitIntermodalWriterSettings.class);
   }
 }

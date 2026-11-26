@@ -6,7 +6,7 @@ import org.goplanit.io.converter.service.PlanitRoutedServicesReaderSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
-import org.goplanit.io.converter.PlanitXmlReaderSettingsSchema;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.settings.SettingsSchema;
 import org.goplanit.utils.settings.YamlWriteSettingsSupport;
@@ -94,9 +94,9 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings, 
         zoningSettings,
         new PlanitServiceNetworkReaderSettings(),
         new PlanitRoutedServicesReaderSettings());
-    for (var partSettings : List.of(serviceNetworkSettings, routedServicesSettings)) {
-      partSettings.setInputSource(networkSettings.getInputSource());
-      partSettings.setXmlFileExtension(networkSettings.getXmlFileExtension());
+    for (var nestedSettings : List.of(serviceNetworkSettings, routedServicesSettings)) {
+      nestedSettings.setInputSource(networkSettings.getInputSource());
+      nestedSettings.setXmlFileExtension(networkSettings.getXmlFileExtension());
     }
   }
 
@@ -196,7 +196,7 @@ public class PlanitIntermodalReaderSettings implements ConverterReaderSettings, 
    */
   @Override
   public SettingsSchema getSettingsSchema() {
-    return PlanitXmlReaderSettingsSchema.SCHEMA;
+    return PlanitXmlReaderSettings.SCHEMA;
   }
 
 }
