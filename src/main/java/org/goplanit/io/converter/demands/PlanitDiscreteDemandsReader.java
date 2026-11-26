@@ -62,9 +62,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
    */
   private final Set<String> missingTours = new TreeSet<>();
 
-  /** tours may be corrupt when trips/schedule is invalid, track them, and then remove them from
-   * memory model after parsing is complete. This does not include schedules with trips where a mode is missing. These
-   * are tracked separately as this could potentially be intentional
+  /** tours with a corrupt schedule, as their trips or schedule are invalid, to remove from the memory model after
+   * parsing. Schedules with trips whose mode is missing are tracked separately, as that may be intentional
    */
   private final Set<String> toursWithCorruptSchedule = new TreeSet<>();
 
@@ -940,10 +939,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
   }
 
   /**
-   * each reader is expected to ensure that it relates to a zoning
-   * this reference zoning can be obtained (after reading is complete). the converter uses this to avoid the user
-   * having to manually transfer this zoning to the writer which also requires this same zoning consistency
-   * This is what this method enables
+   * Each reader ensures it relates to a zoning, which this gives once reading is complete. The converter uses it to
+   * pass that zoning to the writer, which needs the same zoning, so the user does not have to do that by hand
    */
   @Override
   public Zoning getReferenceZoning() {

@@ -198,11 +198,10 @@ public class PlanItInputBuilder extends InputBuilderListener {
   }
 
   /**
-   * Populate the generated input objects from three separate XML files by validating the input files first.
+   * Populate the generated input objects from three separate XML files, validating the input files first.
    *
-   * This file does the same task as setInputFilesSeparateFiles(), it does it in a different way. This method
-   * runs much more slowly than
-   * setInputFilesSeparateFiles(), it takes about 60 times as long for the same input data sets.
+   * This does the same as setInputFilesSeparateFiles() in a different way, and takes about 60 times as long on the
+   * same input data sets.
    *
    * @param projectPath the name of the project path directory
    * @throws PlanItException thrown if one or more of the input objects could not be populated from the XML files

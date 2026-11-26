@@ -135,10 +135,9 @@ public class PlanItIOTestHelper {
   }
   
   /**
-   * Compares the Path or Origin-Destination values stored in the MemoryOutputFormatter
-   * with the expected results
+   * Compares the Path or Origin-Destination values stored in the MemoryOutputFormatter with the expected results
    * <p>
-   *   Note that we only check a single output property per type currently:
+   *   Currently only a single output property per type is checked:
    *   <ul>
    *     <li>PATH: PATH_STRING</li>
    *     <li>OD: OD_COST</li>
@@ -433,10 +432,9 @@ public class PlanItIOTestHelper {
   }
 
   /**
-   * Compares the results from an assignment run stored in a MemoryOutputFormatter
-   * object to known results stored in a Map. It generates a JUnit test failure if
-   * the results maps have different contents.
-   * 
+   * Compares the results from an assignment run stored in a MemoryOutputFormatter object to known results stored in
+   * a Map. It generates a JUnit test failure if the results maps have different contents.
+   *
    * This method uses links which are identified by the external Ids of the start and end nodes.
    *
    * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
@@ -474,10 +472,9 @@ public class PlanItIOTestHelper {
   }
   
   /**
-   * Compares the results from an assignment run stored in a MemoryOutputFormatter
-   * object to known results stored in a Map. It generates a JUnit test failure if
-   * the results maps have different contents.
-   * 
+   * Compares the results from an assignment run stored in a MemoryOutputFormatter object to known results stored in
+   * a Map. It generates a JUnit test failure if the results maps have different contents.
+   *
    * This method uses links which are identified by link segment Ids.
    *
    * @param memoryOutputFormatter the MemoryOuptutFormatter object which stores results from a test run
@@ -683,12 +680,10 @@ public class PlanItIOTestHelper {
   }
 
   /**
-   * Tests whether two XML output files contain the same data contents but were
-   * created at different times.
+   * Tests whether two XML output files contain the same data contents but were created at different times.
    *
-   * This test only works on XML output files. For the test to pass, the data
-   * contents of the two files must be equal but their timestamps (the times they
-   * were created) must be different
+   * This test only works on XML output files. For the test to pass, the data contents of the two files must be equal
+   * but their timestamps (the times they were created) must be different
    *
    * @param xmlFileStandard location of the first XML file to be compared (expected results, created
    *          previously)

@@ -19,22 +19,20 @@ import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.zoning.Zoning;
 
 /**
- * Wrapper around PLANitProject with most common defaults automatically activated. Limitations
- * include:
- * - Only allows for a single assignment
- * - Only allows for a single zoning system, network and demands input
+ * Wrapper around PLANitProject with the most common defaults automatically activated. Limitations:
+ * - only a single assignment
+ * - only a single zoning system, network and demands input
  *
- * Advanced users who want to utilize all the flexibility of PLANit should instead use
- * CustomPLANitProject in the PLANit core.
+ * Advanced users who want all the flexibility of PLANit should use CustomPLANitProject in the PLANit core instead.
  *
- * Default configuration for this type of project:
+ * Default configuration:
  * <ol>
  * <li>Use the native output formatter (PLANitIO format)</li>
  * <li>Use a macroscopic network</li>
  * <li>Use the native input parser (PLANitIO format)</li>
- * <li>The assignment will by default persist link outputs and OD outputs (no paths)</li>
- * <li>Parsing of the inputs occurs after configuration of all other components to quickly identify
- * user configuration errors</li>
+ * <li>The assignment persists link outputs and OD outputs by default (no paths)</li>
+ * <li>The inputs are parsed after all other components are configured, to find user configuration errors
+ * quickly</li>
  * </ol>
  *
  * @author markr
@@ -115,11 +113,9 @@ public class PlanItSimpleProject extends CustomPlanItProject {
   }
 
   /**
-   * On a simple project we only allow a single assignment to be registered. This is verified here.
-   * If multiple assignments are required within the same project, then a simple project cannot be used.
-   * Registration of a traffic assignment type also includes parsing the network, zoning, and demands that are
-   * registered alongside the chosen assignment method.
-   * Currently, supports the following types:
+   * A simple project allows only a single assignment to be registered, which is verified here. A project that needs
+   * several assignments cannot be a simple project. Registering a traffic assignment type also parses the network,
+   * zoning and demands registered with the chosen assignment method. Currently supported types:
    * <ul>
    *   <li>TrafficAssignment.TRADITIONAL_STATIC_ASSIGNMENT, yielding a TraditionalStaticAssignmentConfigurator</li>
    *   <li>TrafficAssignment.SLTM, yielding a StaticLtmConfigurator</li>

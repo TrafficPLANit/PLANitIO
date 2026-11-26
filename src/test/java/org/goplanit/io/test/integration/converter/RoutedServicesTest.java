@@ -55,9 +55,8 @@ public class RoutedServicesTest {
   }
   
   /**
-   * TODO: in the future include a routed services example in the getting started but as long as we do not have a PT assignment module
-   * this is quite pointless. For now however we already put the resources under the getting started to remind ourselves this should happen
-   * at some point 
+   * TODO: include a routed services example in the getting started once there is a PT assignment module; until then
+   * it is quite pointless. The resources are already under the getting started, as a reminder
    */
   @Test
   public void gettingStartedTestWithRoutedServices() {

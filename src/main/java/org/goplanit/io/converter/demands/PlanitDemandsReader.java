@@ -657,10 +657,9 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
   }
 
   /**
-   * each demands reader is expected to ensure that its demand relates to a zoning
-   * this reference zoning can be obtained (after reading is complete). the converter uses this to avoid the user
-   * having to manually transfer this zoning to the writer which also requires this same zoning consistency
-   * This is what this method enables
+   * Each demands reader ensures its demands relate to a zoning, which this gives once reading is complete. The
+   * converter uses it to pass that zoning to the writer, which needs the same zoning, so the user does not have to do
+   * that by hand
    */
   @Override
   public Zoning getReferenceZoning() {

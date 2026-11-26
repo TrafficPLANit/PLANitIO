@@ -566,8 +566,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   /**
    * Create a spatial movement from its xml element, not registered: its link segments, length, when there is one the
    * ban placed on it directly, and its green ratio and saturation flow factor when listed. Banned modes imply a direct
-   * ban. A movement with an unknown segment or mode, or
-   * without the fromlsref or tolsref naming its link segments, is not created, with a single warning
+   * ban. A movement with an unknown segment or mode, or without the fromlsref or tolsref naming its link segments, is
+   * not created, with a single warning
    *
    * @param xmlMovement to parse
    * @param spatialMovements whose factory creates the movement

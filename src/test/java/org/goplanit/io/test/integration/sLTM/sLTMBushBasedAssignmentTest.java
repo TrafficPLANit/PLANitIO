@@ -70,15 +70,13 @@ public class sLTMBushBasedAssignmentTest extends TestBase {
   }
 
   /**
-   * This test checks that PlanItProject reads the initial costs from a file
-   * correctly, and outputs them after 500 iterations using sLTM traffic assignment
+   * Checks that PlanItProject reads the initial costs from a file correctly, and outputs them after 500 iterations
+   * using sLTM traffic assignment
    *
-   * The test input initial costs file uses Link Segment Id to identify link
-   * segments
+   * The test input initial costs file uses Link Segment Id to identify link segments
    *
-   * TODO: currently disabled because we are reusing the original traditional static assignment runner
-   * which is not
-   * compatible for the connectoid costs and throws. Easy fix but have not had time. Disable for now
+   * TODO: disabled because it reuses the original traditional static assignment runner, which is not compatible with
+   * the connectoid costs and throws. Easy fix but have not had time
    *
    */
   @Disabled("not yet finalised")

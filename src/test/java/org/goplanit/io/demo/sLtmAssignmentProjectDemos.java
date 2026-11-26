@@ -20,14 +20,15 @@ import org.goplanit.supply.fundamentaldiagram.FundamentalDiagram;
 import org.goplanit.zoning.Zoning;
 
 /**
- * Demo class. Show casing how to setup typical sLTM assignment projects in PLANit. Curretnly they exist to showcase the proposed
- * user options for sLTM even though sLTM itself is not yet available within PLANit (11_8_2021), based on these examples we will start implemenbting the underlying 
- * algorithms based on Raadsen and Bliemer (2021): General solution scheme for the Static Link Transmission Model .
- * 
- * Future Note: if any of the demos no longer work or do not compile, fix them here but also in the Example section of the Java manual website as these are all
- * copies of those examples.
- * 
- * TODO: Somehow include assertions and include in testing cycle, this is currently not done yet
+ * Demo class showing how to set up typical sLTM assignment projects in PLANit. Currently they show the proposed user
+ * options for sLTM, even though sLTM itself is not yet available within PLANit (11_8_2021). Based on these examples
+ * we will start implementing the underlying algorithms, based on Raadsen and Bliemer (2021): General solution scheme
+ * for the Static Link Transmission Model.
+ *
+ * Future Note: if any of the demos no longer work or compile, fix them here and also in the Example section of the
+ * Java manual website, as these are all copies of those examples.
+ *
+ * TODO: Somehow include assertions and include in testing cycle, this is not done yet
  *
  * @author markr
  *

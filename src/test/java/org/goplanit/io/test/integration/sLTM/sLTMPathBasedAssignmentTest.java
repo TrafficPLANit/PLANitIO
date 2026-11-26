@@ -68,16 +68,14 @@ public class sLTMPathBasedAssignmentTest extends TestBase {
   }
 
   /**
-   * This test checks that PlanItProject reads the initial costs from a file
-   * correctly, and outputs them after 500 iterations using sLTM traffic assignment
+   * Checks that PlanItProject reads the initial costs from a file correctly, and outputs them after 500 iterations
+   * using sLTM traffic assignment
    *
-   * The test input initial costs file uses Link Segment Id to identify link
-   * segments
+   * The test input initial costs file uses Link Segment Id to identify link segments
    *
    * TODO: <a href="https://github.com/TrafficPLANit/PLANit/issues/117">
-   *   only 2 of three possible routes in choice set, this is incorrect, should be able to
-   *   better create paths to avoid
-   *   this using stochastic path searches</a>
+   *   only 2 of three possible routes in choice set, this is incorrect, stochastic path searches should create
+   *   better paths to avoid this</a>
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_initial_costs_500_iterations() {

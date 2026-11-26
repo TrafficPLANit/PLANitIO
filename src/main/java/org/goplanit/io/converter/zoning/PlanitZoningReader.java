@@ -394,11 +394,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   }
 
   /**
-   * Legacy version aware parsing logic
+   * Legacy version aware parsing of a connectoid's access node
    * <p>
-   *   in v1 node ref was not present for od connectoids nor transfer ocnnectoid because it was derived from the link
-   *   segment. In v2 this is changed. This means in the mapping from v1 to v2 we do not yet have the ability to
-   *   populate that field. Hence we do it here after the network has been parsed
+   *   In v1 od and transfer connectoids had no node ref, as it was derived from the link segment. v2 has one, but the
+   *   mapping from v1 to v2 cannot fill it in yet, so it is filled in here, after the network has been parsed
    * </p>
    */
   private Node parseConnectoidAccessNode(Connectoidtype xmlConnectoid) {

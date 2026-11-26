@@ -38,12 +38,13 @@ import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.zoning.Zoning;
 
 /**
- * Demo class. Show casing how to setup typical static assignment PLANit projects
- * 
- * Note: if any of the demos no longer work or do not compile, fix them here but also in the Example section of the Java manual website as these are all
- * copies of those examples.
- * 
- * TODO: somehow include assertions and include in testing cycle, this is currently not done yet except for the getting started demo
+ * Demo class showing how to set up typical static assignment PLANit projects
+ *
+ * Note: if any of the demos no longer work or compile, fix them here and also in the Example section of the Java
+ * manual website, as these are all copies of those examples.
+ *
+ * TODO: somehow include assertions and include in testing cycle, this is not done yet except for the getting started
+ * demo
  *
  * @author markr
  *
@@ -480,12 +481,12 @@ public class TraditionalStaticAssignmentProjectDemos {
   }  
   
   /**
-   * The Getting started demo as provided on the website. We let it throw an exception instead of cathing it because it is the only runnable test
-   * of the bunch and is called from the integration tests to ensure it remains runnable.
-   * 
-   *  It must be a viable example because it is used in the getting started on the website. Hence it is part of the testing cycle to ensure it remains up to date
-   *  and viable. If any issues are found that require changing the demo, they should also be reflected in the getting started on the website
-   *  
+   * The Getting started demo as provided on the website. It throws an exception instead of catching it, because it is
+   * the only runnable test of the bunch and is called from the integration tests to keep it runnable.
+   *
+   * It must be a viable example, as the getting started on the website uses it, so it is part of the testing cycle to
+   * keep it up to date and viable. Any change the demo needs should also be made in the getting started on the website
+   *
    * @throws PlanItException thrown when error
    */
   public static void gettingStartedDemo(String overrideProjectPath) throws PlanItException {

@@ -82,13 +82,12 @@ public class ShortestPathAndAssignmentTest extends TestBase {
   
   /**
    * Test that PlanItProject reads in the values of one initial costs file
-   * 
-   * This test case uses the example from the course notes of ITLS6102 Strategic
-   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
-   * course notes.
-   * 
-   * Time_Period_1 uses route A to B in the example, which has a total route cost
-   * of 85 (the fifth argument in the ResultDto constructor).
+   *
+   * This test case uses the example from the course notes of ITLS6102 Strategic Transport Planning, Lecture 1
+   * (Overview), the example on Page 122 of the 2019 course notes.
+   *
+   * Time_Period_1 uses route A to B in the example, which has a total route cost of 85 (the fifth argument in the
+   * ResultDto constructor).
    */
   @Test
   public void test_basic_shortest_path_algorithm_a_to_b_one_initial_cost_file() {
@@ -126,13 +125,11 @@ public class ShortestPathAndAssignmentTest extends TestBase {
 
   /**
    * Test that PlanItProject reads in the values of two initial costs files
-   * 
-   * This test case uses the example from the course notes of ITLS6102 Strategic
-   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
-   * course notes.
-   * 
-   * Time_Period_1 uses route A to B in the example, which has a total route cost
-   * of 85.
+   *
+   * This test case uses the example from the course notes of ITLS6102 Strategic Transport Planning, Lecture 1
+   * (Overview), the example on Page 122 of the 2019 course notes.
+   *
+   * Time_Period_1 uses route A to B in the example, which has a total route cost of 85.
    */
   @Test
   public void test_basic_shortest_path_algorithm_a_to_b_two_initial_cost_files() {
@@ -171,16 +168,15 @@ public class ShortestPathAndAssignmentTest extends TestBase {
 
   /**
    * Test of results for TraditionalStaticAssignment for simple test case.
-   * 
-   * This test case uses the example from the course notes of ITLS6102 Strategic
-   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
-   * course notes.
-   * 
-   * This test case uses route A to C in the example, which has a total route cost
-   * of 77 (the fifth argument in the ResultDto constructor).
-   * 
-   * This test sets the maximum speed (1) on each link segment.  The link segment type maximum speed is set to a value 
-   * which is too high (2).  The code should take the lower of these values for each link, giving the correct result.
+   *
+   * This test case uses the example from the course notes of ITLS6102 Strategic Transport Planning, Lecture 1
+   * (Overview), the example on Page 122 of the 2019 course notes.
+   *
+   * This test case uses route A to C in the example, which has a total route cost of 77 (the fifth argument in the
+   * ResultDto constructor).
+   *
+   * This test sets the maximum speed (1) on each link segment, and the link segment type maximum speed to a value
+   * which is too high (2). The code should take the lower of these values for each link, giving the correct result.
    */
  @Test
   public void test_basic_shortest_path_algorithm_a_to_c_with_link_segment_maximum_speed() {
@@ -240,13 +236,12 @@ public class ShortestPathAndAssignmentTest extends TestBase {
   
   /**
    * Test of results for TraditionalStaticAssignment for simple test case.
-   * 
-   * This test case uses the example from the course notes of ITLS6102 Strategic
-   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
-   * course notes.
-   * 
-   * This test case uses route A to C in the example, which has a total route cost
-   * of 77 (the fifth argument in the ResultDto constructor).
+   *
+   * This test case uses the example from the course notes of ITLS6102 Strategic Transport Planning, Lecture 1
+   * (Overview), the example on Page 122 of the 2019 course notes.
+   *
+   * This test case uses route A to C in the example, which has a total route cost of 77 (the fifth argument in the
+   * ResultDto constructor).
    */
   @Test
   public void test_basic_shortest_path_algorithm_a_to_c() {
@@ -359,13 +354,12 @@ public class ShortestPathAndAssignmentTest extends TestBase {
 
   /**
    * Test of results for TraditionalStaticAssignment for simple test case.
-   * 
-   * This test case uses the example from the course notes of ITLS6102 Strategic
-   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
-   * course notes.
-   * 
-   * This test case uses route A to D in the example, which has a total route cost
-   * of 108 (the fifth argument in the ResultDto constructor).
+   *
+   * This test case uses the example from the course notes of ITLS6102 Strategic Transport Planning, Lecture 1
+   * (Overview), the example on Page 122 of the 2019 course notes.
+   *
+   * This test case uses route A to D in the example, which has a total route cost of 108 (the fifth argument in the
+   * ResultDto constructor).
    */
   @Test
   public void test_basic_shortest_path_algorithm_a_to_d() {
@@ -632,17 +626,14 @@ public class ShortestPathAndAssignmentTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * three time periods.
-   * 
-   * This test case uses the example from the course notes of ITLS6102 Strategic
-   * Transport Planning, Lecture 1 (Overview), the example on Page 122 of the 2019
-   * course notes.
-   * 
-   * Time_Period_1 uses route A to B in the example, which has a total route cost
-   * of 85 (the fifth argument in the ResultDto constructor). Time Period 2 uses
-   * route A to C in the example, which has a total route cost of 77. Time Period
-   * 3 uses route A to D in the example, which has a total route cost of 108.
+   * Test of results for TraditionalStaticAssignment for simple test case using three time periods.
+   *
+   * This test case uses the example from the course notes of ITLS6102 Strategic Transport Planning, Lecture 1
+   * (Overview), the example on Page 122 of the 2019 course notes.
+   *
+   * Time_Period_1 uses route A to B in the example, which has a total route cost of 85 (the fifth argument in the
+   * ResultDto constructor). Time Period 2 uses route A to C, with a total route cost of 77. Time Period 3 uses route
+   * A to D, with a total route cost of 108.
    */
   @Test
   public void test_basic_shortest_path_algorithm_three_time_periods() {

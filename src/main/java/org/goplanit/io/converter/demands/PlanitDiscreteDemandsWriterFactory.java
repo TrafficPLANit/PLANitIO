@@ -20,10 +20,9 @@ public class PlanitDiscreteDemandsWriterFactory {
     // compliance to avoid javadoc warnings
   }
 
-  /** Create a PlanitDiscreteDemandsWriter which can persist a PLANit PlanitDiscreteDemandsWriter in the native
-   * PLANit XML format. The reference
-   * zoning is expected to be set manually, or will be provided automatically when using a converter. The user is
-   * expected to provide the output location via the settings afterwards.
+  /** Create a PlanitDiscreteDemandsWriter which can persist PLANit discrete demands in the native PLANit XML format.
+   * The reference zoning must be set manually, unless a converter provides it. The user sets the output location in
+   * the settings afterwards.
    *
    * @return created PlanitDiscreteDemandsWriter writer
    */
@@ -69,11 +68,10 @@ public class PlanitDiscreteDemandsWriterFactory {
         new XMLElementDiscreteDemand());
   }
   
-  /** Create a PlanitDiscreteDemandsWriter which can persist a PLANit PlanitDiscreteDemandsWriter in the native
-   * PLANit XML format. By providing the XML memory model instance to populate
-   * we make it possible for the writer to embed the persisting in another larger XML memory model that is
-   * marshalled by an entity other than this writer in the future
-   * 
+  /** Create a PlanitDiscreteDemandsWriter which can persist PLANit discrete demands in the native PLANit XML format.
+   * Given the XML memory model instance to populate, the writer can embed what it persists in another, larger XML
+   * memory model that is marshalled by an entity other than this writer in the future
+   *
    * @param settings the settings to use
    * @param parentNetwork to use
    * @param parentZoning to use

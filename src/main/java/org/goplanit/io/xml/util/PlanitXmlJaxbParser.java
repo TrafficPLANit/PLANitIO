@@ -47,7 +47,7 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
   private Set<QName> elementsRemovedFromSchema = Set.of();
 
   /**
-   * Find out which of the eligible sub-elements matches the desired type. Currently the following options are supported:
+   * Find out which of the eligible sub-elements matches the desired type. Currently supported options:
    * 
    * <ul>
    * <li>macroscopicnetwork</li>

@@ -93,10 +93,9 @@ public class PlanitSchema {
     // compliance to avoid javadoc warnings
   }
   
-  /** create the appropriate URI reference for the xsd schema assuming it is published according to PLANit guidelines
-   * meaning that when this is a development version it resides under {@code XSD_SCHEMA_URI_DEVELOPMENT_GENERIC}
-   * whereas if this is a release version the {@code RESOURCES_RELEASE_GENERIC} is supplemented with the correct
-   * release version and appended with the xsd schema location and schema version
+  /** create the URI reference for the xsd schema, assuming it is published following the PLANit guidelines: a
+   * development version is under {@code XSD_SCHEMA_URI_DEVELOPMENT_GENERIC}, while a release version is
+   * {@code RESOURCES_RELEASE_GENERIC} followed by the release version, the xsd schema location and schema version
    * 
    * @param xsdFileName to create URI reference for
    * @param schemaVersion  to use

@@ -100,9 +100,8 @@ public class RouteChoiceTest extends TestBase {
   }
   
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the first route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
+   * Test of results for TraditionalStaticAssignment for simple test case using the first route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
    */
   @Test
   public void test_1_no_route_choice_single_mode() {
@@ -244,10 +243,8 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the second route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
+   * Test of results for TraditionalStaticAssignment for simple test case using the second route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode() {
@@ -315,11 +312,10 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * This test checks that PlanItProject reads the initial costs from a file
-   * correctly, and outputs them after the first iteration.
-   * 
-   * The test input initial costs file uses Link Segment Id to identify link
-   * segments
+   * Checks that PlanItProject reads the initial costs from a file correctly, and outputs them after the first
+   * iteration.
+   *
+   * The test input initial costs file uses Link Segment Id to identify link segments
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration() {
@@ -363,9 +359,8 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * This test runs the same network using one iteration with different initial
-   * costs for each time, checking that the results are different for each time
-   * period.
+   * Runs the same network for one iteration with different initial costs for each time period, checking that the
+   * results differ per time period.
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_and_three_time_periods() {
@@ -429,12 +424,10 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * This test checks that PlanItProject reads the initial costs from a file
-   * correctly, and outputs them after the first iteration.
-   * 
-   * The test input initial costs file uses Link Segment External Id to identify
-   * link segments
+   * Checks that PlanItProject reads the initial costs from a file correctly, and outputs them after the first
+   * iteration.
    *
+   * The test input initial costs file uses Link Segment External Id to identify link segments
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_one_iteration_using_link_segment_external_ids() {
@@ -475,10 +468,8 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * This test checks that PlanItProject reads the initial costs from a file
-   * correctly, and outputs them after 500 iterations.
-   * The test input initial costs file uses Link Segment Id to identify link
-   * segments
+   * Checks that PlanItProject reads the initial costs from a file correctly, and outputs them after 500 iterations.
+   * The test input initial costs file uses Link Segment Id to identify link segments
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations() {
@@ -520,8 +511,7 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * This test runs the same network with three time periods with different initial
-   * costs for each, running the test for 500 iterations.
+   * Runs the same network for 500 iterations with three time periods, each with different initial costs.
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_and_three_time_periods() {
@@ -580,10 +570,8 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * This test checks that PlanItProject reads the initial costs from a file
-   * correctly, and outputs them after 500 iterations.
-   * The test input initial costs file uses Link Segment External Id to identify
-   * link segments.
+   * Checks that PlanItProject reads the initial costs from a file correctly, and outputs them after 500 iterations.
+   * The test input initial costs file uses Link Segment External Id to identify link segments.
    */
   @Test
   public void test_2_SIMO_MISO_route_choice_single_mode_with_initial_costs_and_500_iterations_using_link_segment_external_ids() {
@@ -627,9 +615,8 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the third route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
+   * Test of results for TraditionalStaticAssignment for simple test case using the third route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
    */
   @Test
   public void test_3_MIMO_route_choice_single_mode() {
@@ -696,12 +683,10 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fourth route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
-   * 
-   * This test case uses the odrowmatrix element in the macroscopicinput.xml file
-   * to define the OD demands input matrix.
+   * Test of results for TraditionalStaticAssignment for simple test case using the fourth route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
+   *
+   * This test case uses the odrowmatrix element in the macroscopicinput.xml file to define the OD demands input matrix.
    */
   @Test
   public void test_4_bi_directional_links_route_choice_single_mode() {
@@ -890,14 +875,11 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fourth route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
-   * 
-   * This test case uses two time periods.
-   * 
-   * This test case uses the <odrowmatrix> method in the macroscopicinput.xml file
-   * to define the OD demands input matrix.
+   * Test of results for TraditionalStaticAssignment for simple test case using the fourth route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
+   *
+   * This test case uses two time periods, and the <odrowmatrix> method in the macroscopicinput.xml file to define
+   * the OD demands input matrix.
    */
   @Test
   public void test_4_bi_directional_links_route_choice_single_mode_with_two_time_periods() {
@@ -1287,12 +1269,11 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fourth route choice from the Traditional Static Assignment Route Choice
-   * Equilibration Test cases.docx document.
-   * 
-   * This test case uses the <odrawmatrix> method in the macroscopicinput.xml file
-   * to define the OD demands input matrix.
+   * Test of results for TraditionalStaticAssignment for simple test case using the fourth route choice from the
+   * Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
+   *
+   * This test case uses the <odrawmatrix> method in the macroscopicinput.xml file to define the OD demands input
+   * matrix.
    */
   @Test
   public void test_4_bi_directional_links_route_choice_single_mode_using_odrawmatrix() {
@@ -1328,13 +1309,12 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fourth route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
+   * Test of results for TraditionalStaticAssignment for simple test case using the fourth route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
    * <p>
-   * This test case uses the <odrawmatrix> method with the plus sign as separator
-   * in the macroscopicinput.xml file to define the OD demands input matrix.
-   </p>
+   * This test case uses the <odrawmatrix> method with the plus sign as separator in the macroscopicinput.xml file to
+   * define the OD demands input matrix.
+   * </p>
    */
   @Test
   public void test_4_bi_directional_links_route_choice_single_mode_with_plus_sign_separator() {
@@ -1377,10 +1357,9 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fifth route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
-   * 
+   * Test of results for TraditionalStaticAssignment for simple test case using the fifth route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
+   *
    * This test case uses two modes and some modes are not allowed on some links.
    */
   @Test
@@ -1473,12 +1452,10 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fifth route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
-   * 
-   * This test case identifies links using link Id (all other tests use link
-   * external Id).
+   * Test of results for TraditionalStaticAssignment for simple test case using the fifth route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
+   *
+   * This test case identifies links using link Id (all other tests use link external Id).
    */
   @Test
   public void test_5_SIMO_MISO_route_choice_two_modes_identify_links_by_id() {
@@ -1582,13 +1559,11 @@ public class RouteChoiceTest extends TestBase {
   }
 
   /**
-   * Test of results for TraditionalStaticAssignment for simple test case using
-   * the fifth route choice example from the Traditional Static Assignment Route
-   * Choice Equilibration Test cases.docx document.
-   * 
-   * This test case uses two modes and only one route is possible for trucks.  The
-   * persistZeroFlow flag is set to true, meaning that some of the OD costs are 
-   * reported as "Inifinity" for forbidden truck routes.
+   * Test of results for TraditionalStaticAssignment for simple test case using the fifth route choice example from
+   * the Traditional Static Assignment Route Choice Equilibration Test cases.docx document.
+   *
+   * This test case uses two modes and only one route is possible for trucks. The persistZeroFlow flag is set to true,
+   * so some of the OD costs are reported as "Infinity" for forbidden truck routes.
    */
   @Test
   public void test_5_SIMO_MISO_route_choice_two_modes_with_impossible_route() {

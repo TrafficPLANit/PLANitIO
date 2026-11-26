@@ -136,8 +136,8 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
 
 
   /**
-   * Test case which constructs a minimal in memory PLANit network and zoning, and the constructs an in memory
-   * discrete demands setup and persists it as a PLANit xml
+   * Construct a minimal PLANit network and zoning in memory, then a discrete demands setup in memory, and persist it
+   * as PLANit xml
    */
   @Test
   public void testMemoryModelToPlanitXml() {
@@ -339,9 +339,8 @@ public class SimpleDiscreteDemandReaderWriterTest extends TestBase {
   }
 
   /**
-   * Test case which takes a reference PLANit XML discrete demands setup,
-   * parses it using the reader, and asserts the reconstructed in-memory
-   * graph properties match the model specifications.
+   * Read a reference PLANit XML discrete demands setup and assert that the properties of the memory model read match
+   * the model specifications.
    */
   @Test
   public void testPlanitXmlToMemoryModel() {
