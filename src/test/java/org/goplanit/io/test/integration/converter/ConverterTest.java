@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
 import org.goplanit.converter.network.NetworkConverterFactory;
+import org.goplanit.converter.zoning.ZoningConverterFactory;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReader;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalWriter;
@@ -13,16 +14,25 @@ import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkWriter;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
+import org.goplanit.io.converter.zoning.PlanitZoningReader;
+import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
+import org.goplanit.io.converter.zoning.PlanitZoningWriter;
+import org.goplanit.io.converter.zoning.PlanitZoningWriterFactory;
+import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.logging.Logging;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
+import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.xmlunit.builder.Input;
 import org.xmlunit.matchers.CompareMatcher;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -82,7 +92,62 @@ public class ConverterTest extends TestBase {
       fail();
     }
   }
-  
+
+  /**
+   * Test that reading a PLANit zoning in native format and writing it with a writer made from its settings alone, the
+   * converter giving it the network the reader read, results in the same file as the original input that was read
+   *
+   * @param outputPath to write to
+   */
+  @Test
+  public void testPlanit2PlanitZoningConverter(@TempDir Path outputPath) {
+    try {
+      final String inputPath = Path.of(TEST_CASE_PATH.toString(), "converter_test", "input").toString();
+
+      /* reader, on the network its network reader reads */
+      PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
+      networkReader.getSettings().setInputDirectory(inputPath);
+      PlanitZoningReader planitReader = PlanitZoningReaderFactory.create(networkReader);
+      planitReader.getSettings().setInputDirectory(inputPath);
+
+      /* writer, made without a network */
+      PlanitZoningWriter planitWriter = PlanitZoningWriterFactory.create(
+          new PlanitZoningWriterSettings(outputPath.toString(), CountryNames.AUSTRALIA));
+
+      /* convert */
+      ZoningConverterFactory.create(planitReader, planitWriter).convert();
+
+      org.hamcrest.MatcherAssert.assertThat(
+          Input.fromFile(outputPath.resolve("zoning.xml").toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(Path.of(inputPath, "zoning.xml").toString())));
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail();
+    }
+  }
+
+  /**
+   * Test that a PLANit zoning writer made without a network refuses to write a zoning on its own, outside a converter
+   *
+   * @param outputPath to write to
+   */
+  @Test
+  public void testPlanitZoningWriterWithoutNetworkRefusesToWrite(@TempDir Path outputPath) {
+    final String inputPath = Path.of(TEST_CASE_PATH.toString(), "converter_test", "input").toString();
+
+    PlanitNetworkReader networkReader = PlanitNetworkReaderFactory.create();
+    networkReader.getSettings().setInputDirectory(inputPath);
+    PlanitZoningReader zoningReader = PlanitZoningReaderFactory.create(networkReader);
+    zoningReader.getSettings().setInputDirectory(inputPath);
+    Zoning zoning = zoningReader.read();
+
+    PlanitZoningWriter planitWriter = PlanitZoningWriterFactory.create(
+        new PlanitZoningWriterSettings(outputPath.toString(), CountryNames.AUSTRALIA));
+    assertThrows(PlanItRunTimeException.class, () -> planitWriter.write(zoning));
+  }
+
   /**
    * Test that reading a planit intermodal network (network and (pt) zoning) in native format and then writing it results in the same
    * files as the original input that was read.

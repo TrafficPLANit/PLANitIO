@@ -881,7 +881,7 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
       getSettings().logSettings();
       
-      xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
+      xmlParser.initialiseAndParseXmlRootElement(settings.getInputSource(), settings.getXmlFileExtension());
       var xmlDiscreteDemands = xmlParser.getXmlRootElement();
       
       /* xml id */

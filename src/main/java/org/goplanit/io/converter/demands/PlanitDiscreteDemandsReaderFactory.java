@@ -2,7 +2,7 @@ package org.goplanit.io.converter.demands;
 
 import org.goplanit.demands.discrete.DiscreteDemands;
 import org.goplanit.io.converter.zoning.PlanitZoningReader;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.xml.generated.v2.XMLElementDiscreteDemand;
 import org.goplanit.zoning.Zoning;

@@ -1,24 +1,44 @@
-package org.goplanit.io.xml.util;
+package org.goplanit.io.converter;
 
-import org.goplanit.converter.ConverterReaderSettings;
+import org.goplanit.converter.FileBasedConverterReaderSettings;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.settings.SettingsSchema;
+import org.goplanit.utils.settings.YamlWriteSettingsSupport;
+import org.goplanit.utils.settings.annotations.CoveredBySettingsKey;
+import org.goplanit.utils.settings.annotations.SettingsHeader;
+import org.goplanit.utils.settings.annotations.SettingsKeyLevel;
+import org.goplanit.utils.settings.annotations.SettingsRead;
+import org.goplanit.utils.settings.annotations.SettingsWrite;
 
 import java.util.logging.Logger;
 
 /**
  * Settings relevant for a Planit Xml reader
- * 
+ * <p>
+ * Each PLANit reader has a settings file of its own, headed {@code planitIoReaderSettings: 1}, holding every key at
+ * the top level, such as
+ * </p>
+ * <pre>
+ * planitIoReaderSettings: 1
+ * inputSource: planit_osm
+ * syncXmlIdsToIds: true
+ * </pre>
+ * <p>
+ * The input source is a folder holding the PLANit files, where the reader looks for the file of the part it reads, or
+ * that one file. The readers' files are apart from the writers', so a step reading PLANit and writing another format
+ * uses a whole file for each. {@link PlanitXmlReaderSettingsFactory} makes the settings of each reader from such
+ * files.
+ * </p>
+ *
  * @author markr
  *
  */
-public class PlanitXmlReaderSettings implements ConverterReaderSettings {
+@SettingsHeader(key = "planitIoReaderSettings", version = 1)
+public class PlanitXmlReaderSettings extends FileBasedConverterReaderSettings implements YamlWriteSettingsSupport {
 
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitXmlReaderSettings.class.getCanonicalName());
 
-  /** directory to look in */
-  private String inputDirectory;
-  
   /** xml file extension to use */
   private String xmlFileExtension;
 
@@ -55,7 +75,8 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
    *  @param xmlFileExtension to use
    */
   public PlanitXmlReaderSettings(final String inputDirectory, final String xmlFileExtension) {
-    this.inputDirectory = inputDirectory;
+    super();
+    setInputDirectory(inputDirectory);
     this.xmlFileExtension = xmlFileExtension;
   }
 
@@ -72,38 +93,35 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
    */
   @Override
   public void logSettings(int level) {
-    LOGGER.info(LoggingUtils.settingsValue("Input directory", getInputDirectory(), level));
+    super.logSettings(level);
     LOGGER.info(LoggingUtils.settingsValue("XML file extension", getXmlFileExtension(), level));
     LOGGER.info(LoggingUtils.settingsValue("Sync XML ids to ids", isSyncXmlIdsToIds(), level));
   }
   
-  /** The input path directory used
-   * 
-   * @return directory used
+  /** Set the input source to a local folder, absolute or relative to the working folder, as a settings file in the
+   * working folder giving it as {@code inputSource} would
+   *
+   * @param inputDirectory to use, null for none
    */
-  public String getInputDirectory() {
-    return this.inputDirectory;
-  }
-  
-  /** Set the input path directory used
-   * 
-   * @param inputDirectory to use
-   */
+  @CoveredBySettingsKey("inputSource")
   public void setInputDirectory(String inputDirectory) {
-    this.inputDirectory = inputDirectory;
-  }  
-  
+    setInputSource(inputDirectory);
+  }
+
   /** the XML extension used to check for within path directory used
-   * 
+   *
    * @return XML file extension used
    */
+  @SettingsRead(key = "xmlFileExtension")
   public String getXmlFileExtension() {
     return this.xmlFileExtension;
-  } 
-  
+  }
+
   /** the xml extension used to check for within path directory used
    * @param xmlFileExtension extension to use
    */
+  @SettingsWrite(key = "xmlFileExtension", level = SettingsKeyLevel.UNCOMMON,
+      description = "The extension of the PLANit files looked for when reading a folder, such as .xml")
   public void setXmlFileExtension(String xmlFileExtension) {
     this.xmlFileExtension = xmlFileExtension;
   }
@@ -113,6 +131,7 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
    *
    * @return true when syncing is active, false otherwise
    */
+  @SettingsRead(key = "syncXmlIdsToIds")
   public boolean isSyncXmlIdsToIds() {
     return syncXmlIdsToIds;
   }
@@ -122,7 +141,17 @@ public class PlanitXmlReaderSettings implements ConverterReaderSettings {
    *
    * @param syncXmlIdsToIds syncing active when true, false otherwise
    */
+  @SettingsWrite(key = "syncXmlIdsToIds", level = SettingsKeyLevel.UNCOMMON,
+      description = "Replace the XML ids read with the ids PLANit gives the entities read")
   public void setSyncXmlIdsToIds(boolean syncXmlIdsToIds) {
     this.syncXmlIdsToIds = syncXmlIdsToIds;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public SettingsSchema getSettingsSchema() {
+    return PlanitXmlReaderSettingsSchema.SCHEMA;
   }
 }

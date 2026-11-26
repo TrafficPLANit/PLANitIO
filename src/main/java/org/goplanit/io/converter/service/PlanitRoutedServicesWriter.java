@@ -35,9 +35,6 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesWriter.class.getCanonicalName());
 
-  /** XML memory model equivalent of the PLANit memory model */
-  private final XMLElementRoutedServices xmlRawRoutedServices;
-
   /** used to create instances of XML gregorian calendars */
   private static DatatypeFactory xmlDataTypeFactory;
   static {
@@ -48,6 +45,9 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
           "Exception while creating DatatypeFactory", e);
     }
   }
+
+  /** XML memory model equivalent of the PLANit memory model */
+  private final XMLElementRoutedServices xmlRawRoutedServices;
 
   /** routed services writer settings to use */
   private final PlanitRoutedServicesWriterSettings settings;
@@ -367,6 +367,27 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     });
   }
 
+  /**
+   * Populate the top level XML element for the routed services and include parent network reference. In case no XML id is set, attempt to salvage
+   * with internal id's and log warnings for user verification of correctness.
+   *
+   * @param routedServices to use
+   */
+  private void populateTopLevelElement(RoutedServices routedServices) {
+    /* xml id */
+    if(!routedServices.hasXmlId()) {
+      LOGGER.warning(String.format("Routed services has no XML id defined, adopting internally generated id %d" +
+              " instead",routedServices.getId()));
+      routedServices.setXmlId(String.valueOf(routedServices.getId()));
+    }
+    xmlRawRoutedServices.setId(routedServices.getXmlId());
+
+    /* external id */
+    if(routedServices.hasExternalId()){
+      xmlRawRoutedServices.setExternalid(routedServices.getExternalId());
+    }
+  }
+
   /** Populate the available routed services layers
    *
    * @param routedServices to extract layers from and populate xml
@@ -406,27 +427,6 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
     });
   }
 
-  /**
-   * Populate the top level XML element for the routed services and include parent network reference. In case no XML id is set, attempt to salvage
-   * with internal id's and log warnings for user verification of correctness.
-   *
-   * @param routedServices to use
-   */
-  private void populateTopLevelElement(RoutedServices routedServices) {
-    /* xml id */
-    if(!routedServices.hasXmlId()) {
-      LOGGER.warning(String.format("Routed services has no XML id defined, adopting internally generated id %d" +
-              " instead",routedServices.getId()));
-      routedServices.setXmlId(String.valueOf(routedServices.getId()));
-    }
-    xmlRawRoutedServices.setId(routedServices.getXmlId());
-
-    /* external id */
-    if(routedServices.hasExternalId()){
-      xmlRawRoutedServices.setExternalid(routedServices.getExternalId());
-    }
-  }
-
   /** Constructor
    *
    * @param xmlRawRoutedServices to populate with PLANit routed services when persisting
@@ -452,9 +452,19 @@ public class PlanitRoutedServicesWriter extends PlanitWriterImpl<RoutedServices>
    */
   protected PlanitRoutedServicesWriter(
           String outputPath, String countryName, XMLElementRoutedServices xmlRawRoutedServices) {
+    this(new PlanitRoutedServicesWriterSettings(
+        outputPath, PlanitRoutedServicesWriterSettings.DEFAULT_ROUTED_SERVICES_XML, countryName), xmlRawRoutedServices);
+  }
+
+  /** Constructor
+   *
+   * @param settings to use
+   * @param xmlRawRoutedServices to populate with PLANit routed services when persisting
+   */
+  protected PlanitRoutedServicesWriter(
+      PlanitRoutedServicesWriterSettings settings, XMLElementRoutedServices xmlRawRoutedServices) {
     super(IdMapperType.XML);
-    this.settings = new PlanitRoutedServicesWriterSettings(
-        outputPath, PlanitRoutedServicesWriterSettings.DEFAULT_ROUTED_SERVICES_XML, countryName);
+    this.settings = settings;
     this.xmlRawRoutedServices = xmlRawRoutedServices;
   }
 

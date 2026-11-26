@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.service;
 
 import org.goplanit.converter.ConverterWriterSettings;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
@@ -26,6 +26,7 @@ public class PlanitServiceNetworkWriterSettings extends PlanitXmlWriterSettings 
    */
   public PlanitServiceNetworkWriterSettings() {
     super();
+    setFileName(DEFAULT_SERVICE_NETWORK_XML);
   }
 
   /**
@@ -35,7 +36,7 @@ public class PlanitServiceNetworkWriterSettings extends PlanitXmlWriterSettings 
    * @param countryName to use (not used as long as service network has no explicit geo locations embedded)
    */
   public PlanitServiceNetworkWriterSettings(final String outputPathDirectory, final String countryName) {
-    super(outputPathDirectory, countryName);
+    super(outputPathDirectory, DEFAULT_SERVICE_NETWORK_XML, countryName);
   }
 
   /**
@@ -61,9 +62,9 @@ public class PlanitServiceNetworkWriterSettings extends PlanitXmlWriterSettings 
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Service Network Writer Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
   
 }

@@ -1,8 +1,7 @@
 package org.goplanit.io.converter.zoning;
 
 import org.goplanit.converter.network.NetworkReader;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
-import org.goplanit.network.LayeredNetwork;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
 import org.goplanit.zoning.Zoning;
@@ -16,16 +15,14 @@ import org.goplanit.zoning.Zoning;
 public class PlanitZoningReaderFactory {
 
   /**
-   * A zoning for the network: on a macroscopic network it follows the network's changes, so its connectoids stay
-   * valid, see {@link Zoning#attachTo(MacroscopicNetwork)}
+   * A zoning for the network, following the network's changes so its connectoids stay valid, see
+   * {@link Zoning#attachTo(MacroscopicNetwork)}
    *
    * @param network the zoning lies on
    * @return the zoning, empty
    */
-  private static Zoning createZoningOn(final LayeredNetwork<?, ?> network) {
-    return network instanceof MacroscopicNetwork ?
-        new Zoning(network.getIdGroupingToken(), (MacroscopicNetwork) network) :
-        new Zoning(network.getIdGroupingToken(), network.getNetworkGroupingTokenId());
+  private static Zoning createZoningOn(final MacroscopicNetwork network) {
+    return new Zoning(network.getIdGroupingToken(), network);
   }
 
   /**
@@ -42,7 +39,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create(
-      final String pathDirectory, final LayeredNetwork<?,?> network){
+      final String pathDirectory, final MacroscopicNetwork network){
     return create(
         pathDirectory,
         PlanitXmlReaderSettings.DEFAULT_XML_EXTENSION,
@@ -60,7 +57,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create(
-      final String pathDirectory, final String xmlFileExtension, final LayeredNetwork<?,?> network, final Zoning zoning){
+      final String pathDirectory, final String xmlFileExtension, final MacroscopicNetwork network, final Zoning zoning){
     return create(new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension), network, zoning);
   }
 
@@ -71,7 +68,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create(
-      final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?, ?> referenceNetwork) {
+      final PlanitZoningReaderSettings zoningSettings, final MacroscopicNetwork referenceNetwork) {
     return new PlanitZoningReader(zoningSettings, referenceNetwork, createZoningOn(referenceNetwork));
   }
   
@@ -83,7 +80,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static PlanitZoningReader create(
-      final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?, ?> referenceNetwork, final Zoning zoningToPopulate) {
+      final PlanitZoningReaderSettings zoningSettings, final MacroscopicNetwork referenceNetwork, final Zoning zoningToPopulate) {
     return new PlanitZoningReader(zoningSettings, referenceNetwork, zoningToPopulate);
   }
 
@@ -95,7 +92,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static  PlanitZoningReader create(
-      final XMLElementMacroscopicZoning xmlRawZoning, final LayeredNetwork<?,?> network, final Zoning zoning){
+      final XMLElementMacroscopicZoning xmlRawZoning, final MacroscopicNetwork network, final Zoning zoning){
     return new PlanitZoningReader(xmlRawZoning, network, zoning);
   }
 
@@ -108,7 +105,7 @@ public class PlanitZoningReaderFactory {
    * @return created PLANit zoning reader
    */
   public static  PlanitZoningReader create(
-      final XMLElementMacroscopicZoning xmlRawZoning, final PlanitZoningReaderSettings zoningSettings, final LayeredNetwork<?,?> network, final Zoning zoning){
+      final XMLElementMacroscopicZoning xmlRawZoning, final PlanitZoningReaderSettings zoningSettings, final MacroscopicNetwork network, final Zoning zoning){
     return new PlanitZoningReader(xmlRawZoning, zoningSettings, network, zoning);
   }
 

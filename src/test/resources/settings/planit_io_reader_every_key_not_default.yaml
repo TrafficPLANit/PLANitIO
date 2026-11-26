@@ -1,0 +1,10 @@
+# The kind of these settings and the version of their keys
+planitIoReaderSettings: 1
+# --- standard ---
+# The file or folder to read, as a path relative to this settings file or a URL
+inputSource: https://example.org/planit/network.xml
+# --- uncommon ---
+# Replace the XML ids read with the ids PLANit gives the entities read
+syncXmlIdsToIds: true
+# The extension of the PLANit files looked for when reading a folder, such as .xml
+xmlFileExtension: .planit

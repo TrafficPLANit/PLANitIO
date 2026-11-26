@@ -311,9 +311,19 @@ public class PlanitServiceNetworkWriter extends UnTypedPlanitCrsWriterImpl<Servi
    */
   protected PlanitServiceNetworkWriter(
           String networkPath, String countryName, XMLElementServiceNetwork xmlRawServiceNetwork) {
+    this(new PlanitServiceNetworkWriterSettings(
+        networkPath, PlanitServiceNetworkWriterSettings.DEFAULT_SERVICE_NETWORK_XML, countryName), xmlRawServiceNetwork);
+  }
+
+  /** Constructor
+   *
+   * @param settings to use
+   * @param xmlRawServiceNetwork to populate with PLANit service network when persisting
+   */
+  protected PlanitServiceNetworkWriter(
+      PlanitServiceNetworkWriterSettings settings, XMLElementServiceNetwork xmlRawServiceNetwork) {
     super(IdMapperType.XML);
-    this.settings = new PlanitServiceNetworkWriterSettings(
-        networkPath, PlanitServiceNetworkWriterSettings.DEFAULT_SERVICE_NETWORK_XML, countryName);
+    this.settings = settings;
     this.xmlRawServiceNetwork = xmlRawServiceNetwork;
   }
 

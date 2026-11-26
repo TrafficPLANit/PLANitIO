@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.demands;
 
 import org.goplanit.converter.ConverterReaderSettings;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.zoning.Zoning;
@@ -49,9 +49,9 @@ public class PlanitDemandsReaderSettings extends PlanitXmlReaderSettings impleme
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Demands Reader Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
 
 }

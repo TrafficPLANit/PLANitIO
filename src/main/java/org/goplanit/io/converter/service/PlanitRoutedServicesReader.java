@@ -557,7 +557,7 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
         
     /* parse the XML raw network to extract PLANit network from */   
     xmlParser.initialiseAndParseXmlRootElement(
-            getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+            getSettings().getInputSource(), getSettings().getXmlFileExtension());
     PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(),
             "No valid PLANit XML routed services could be parsed into memory, abort");
     

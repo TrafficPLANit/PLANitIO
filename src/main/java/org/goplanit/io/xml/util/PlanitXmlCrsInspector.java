@@ -1,5 +1,6 @@
 package org.goplanit.io.xml.util;
 
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.StringUtils;

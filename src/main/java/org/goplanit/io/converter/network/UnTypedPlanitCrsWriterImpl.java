@@ -5,7 +5,7 @@ import org.geotools.geometry.jts.JTS;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.io.converter.PlanitWriterImpl;
 import org.goplanit.io.geo.PlanitGmlUtils;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.locationtech.jts.geom.*;
 
 import java.util.logging.Logger;

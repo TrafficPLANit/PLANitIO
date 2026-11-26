@@ -4,8 +4,11 @@ import java.text.DecimalFormat;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.ConverterWriterSettings;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.settings.annotations.SettingsKeyLevel;
+import org.goplanit.utils.settings.annotations.SettingsRead;
+import org.goplanit.utils.settings.annotations.SettingsWrite;
 
 /**
  * Configurable settings for the PLANit demands writer. Note that the default decimal format used is a maximum of
@@ -24,21 +27,30 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
   private String originSeparator = DEFAULT_ORIGIN_SEPARATOR;
   
   /** destination separator used in matrix values element */
-  private String destinationSeparator = DEFAULT_DESTINATION_SEPARATOR;   
-      
-  /** default origin separator used in matrix values element */
-  public static String DEFAULT_ORIGIN_SEPARATOR = " ";
-  
-  /** default origin separator used in matrix values element */
-  public static String DEFAULT_DESTINATION_SEPARATOR = ",";  
+  private String destinationSeparator = DEFAULT_DESTINATION_SEPARATOR;
+
+  /**
+   * Write the OD values with at most four fraction digits, more being of no use for demands
+   */
+  private void useFourFractionDigits() {
+    var demandWriterDecimalFormat = (DecimalFormat)this.getDecimalFormat().clone();
+    demandWriterDecimalFormat.setMaximumFractionDigits(4);
+    setDecimalFormat(demandWriterDecimalFormat);
+  }
 
   /** Validate the settings
-   * 
+   *
    * @return true when valid, false otherwise
    */
   protected boolean validate() {
     return super.validate();
   }
+
+  /** default origin separator used in matrix values element */
+  public static String DEFAULT_ORIGIN_SEPARATOR = " ";
+
+  /** default origin separator used in matrix values element */
+  public static String DEFAULT_DESTINATION_SEPARATOR = ",";
 
   /** default demands file name to use */
   public static final String DEFAULT_DEMANDS_XML = "demands.xml";
@@ -48,6 +60,8 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    */
   public PlanitDemandsWriterSettings() {
     super();
+    setFileName(DEFAULT_DEMANDS_XML);
+    useFourFractionDigits();
   }
   
   /**
@@ -67,12 +81,8 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    */
   public PlanitDemandsWriterSettings(String outputPathDirectory, final String fileName) {
     super(outputPathDirectory, fileName, null /* no country used for demands */);
-    
-    /* update decimal format to 4 digits for od values */
-    var demandWriterDecimalFormat = (DecimalFormat)this.getDecimalFormat().clone();
-    demandWriterDecimalFormat.setMaximumFractionDigits(4);
-    setDecimalFormat(demandWriterDecimalFormat);
-  }  
+    useFourFractionDigits();
+  }
   
   /**
    * {@inheritDoc}
@@ -86,17 +96,18 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Demands Writer Settings"));
-    LOGGER.info(LoggingUtils.settingsValue("Origin separator", getOriginSeparator(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Destination separator", getDestinationSeparator(), 0));
-    super.logSettings();
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("Origin separator", getOriginSeparator(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Destination separator", getDestinationSeparator(), level));
   }
 
   /**
    * separator used in between origins
    * @return sep string
    */
+  @SettingsRead(key = "originSeparator")
   public String getOriginSeparator() {
     return originSeparator;
   }
@@ -105,6 +116,8 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    * set separator used in between origins
    * @param originSeparator string to use
    */
+  @SettingsWrite(key = "originSeparator", level = SettingsKeyLevel.RARE,
+      description = "The text between the rows of two origins in the demand matrix, such as a space")
   public void setOriginSeparator(String originSeparator) {
     this.originSeparator = originSeparator;
   }
@@ -113,6 +126,7 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    * separator used in between destinations
    * @return sep string
    */
+  @SettingsRead(key = "destinationSeparator")
   public String getDestinationSeparator() {
     return destinationSeparator;
   }
@@ -121,6 +135,8 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
    * set separator used in between destinations
    * @param destinationSeparator string to use
    */
+  @SettingsWrite(key = "destinationSeparator", level = SettingsKeyLevel.RARE,
+      description = "The text between the values of two destinations in a row of the demand matrix, such as a comma")
   public void setDestinationSeparator(String destinationSeparator) {
     this.destinationSeparator = destinationSeparator;
   }

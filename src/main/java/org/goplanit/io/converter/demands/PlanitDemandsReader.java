@@ -604,7 +604,7 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       initialiseParentXmlIdTrackers(getReferenceNetwork(), getReferenceZoning());
       initialiseXmlIdTrackers();
       
-      xmlParser.initialiseAndParseXmlRootElement(settings.getInputDirectory(), settings.getXmlFileExtension());
+      xmlParser.initialiseAndParseXmlRootElement(settings.getInputSource(), settings.getXmlFileExtension());
       
       /* xml id */
       String demandsXmlId = xmlParser.getXmlRootElement().getId();

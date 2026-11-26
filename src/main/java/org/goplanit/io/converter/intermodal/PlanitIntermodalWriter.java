@@ -135,11 +135,8 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     /* perform persistence for services */
 
     /* service network writer */
-    PlanitServiceNetworkWriterSettings serviceNetworkSettings = getSettings().getServiceNetworkSettings();
     PlanitServiceNetworkWriter serviceNetworkWriter = PlanitServiceNetworkWriterFactory.create(
-        serviceNetworkSettings.getOutputDirectory(),
-        serviceNetworkSettings.getCountry(),
-        xmlRawServiceNetwork);
+        getSettings().getServiceNetworkSettings(), xmlRawServiceNetwork);
 
     // service network writer requires physical network id ref mapping and possibly zoning one as well
     var networkIdMapper = networkAndZoningWriter.first().getPrimaryIdMapper();
@@ -150,12 +147,8 @@ public class PlanitIntermodalWriter implements IntermodalWriter<ServiceNetwork, 
     serviceNetworkWriter.write(serviceNetwork);
 
     /* routed services writer */
-    PlanitRoutedServicesWriterSettings routedServicesSettings = getSettings().getRoutedServicesSettings();
     PlanitRoutedServicesWriter routedServicesWriter =
-        PlanitRoutedServicesWriterFactory.create(
-            routedServicesSettings.getOutputDirectory(),
-                routedServicesSettings.getCountry(),
-                xmlRawRoutedServices);
+        PlanitRoutedServicesWriterFactory.create(getSettings().getRoutedServicesSettings(), xmlRawRoutedServices);
 
     // routed services only requires service network entity references, those are present on the service
     // network writer id mappings

@@ -3,7 +3,7 @@ package org.goplanit.io.converter.network;
 import java.util.logging.Logger;
 
 import org.goplanit.converter.ConverterWriterSettings;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.goplanit.utils.misc.LoggingUtils;
 
 /**
@@ -26,6 +26,7 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
    */
   public PlanitNetworkWriterSettings() {
     super();
+    setFileName(DEFAULT_NETWORK_XML);
   }
   
   /**
@@ -61,9 +62,9 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Network Writer Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
   
 }

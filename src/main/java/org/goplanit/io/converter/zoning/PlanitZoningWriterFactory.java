@@ -1,6 +1,6 @@
 package org.goplanit.io.converter.zoning;
 
-import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning;
 
 /**
@@ -18,6 +18,27 @@ public class PlanitZoningWriterFactory {
     // compliance to avoid javadoc warnings
   }
 
+  /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format, on default
+   * settings; the output directory is set on its settings afterwards, the network on the writer or by the zoning
+   * converter from its reader
+   *
+   * @return created zoning writer
+   */
+  public static PlanitZoningWriter create() {
+    return create(new PlanitZoningWriterSettings());
+  }
+
+  /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format with the given
+   * settings, such as made from settings files; the network is set on the writer or by the zoning converter from its
+   * reader
+   *
+   * @param settings the settings to use for persisting
+   * @return created zoning writer
+   */
+  public static PlanitZoningWriter create(final PlanitZoningWriterSettings settings) {
+    return create(settings, null);
+  }
+
   /** Create a PLANitZoningWriter which can persist a PLANit zoning in the native PLANit XML format.
    * User is expected to provide the required inputs via settings and writer after creation as they
    * are not pre-populated.
@@ -26,7 +47,7 @@ public class PlanitZoningWriterFactory {
    * @return created zoning writer
    */
   public static PlanitZoningWriter create(
-          final LayeredNetwork<?,?> network) {
+          final MacroscopicNetwork network) {
     return create(null, null, network);
   }
 
@@ -37,7 +58,7 @@ public class PlanitZoningWriterFactory {
    * @param network network the zoning connects to for its connectoids
    * @return created zoning writer
    */
-  public static PlanitZoningWriter create(final String zoningPath, final LayeredNetwork<?,?> network) {
+  public static PlanitZoningWriter create(final String zoningPath, final MacroscopicNetwork network) {
     return create(zoningPath, null, network);
   }
   
@@ -49,7 +70,7 @@ public class PlanitZoningWriterFactory {
    * @return created zoning writer 
    */
   public static PlanitZoningWriter create(
-      final String zoningPath, final String countryName, final LayeredNetwork<?,?> network) {
+      final String zoningPath, final String countryName, final MacroscopicNetwork network) {
     return create(zoningPath, countryName, new XMLElementMacroscopicZoning(), network);
   }
   
@@ -67,7 +88,7 @@ public class PlanitZoningWriterFactory {
       final String zoningPath,
       final String countryName,
       final XMLElementMacroscopicZoning xmlRawZoning,
-      final LayeredNetwork<?,?> network) {
+      final MacroscopicNetwork network) {
     return new PlanitZoningWriter(zoningPath, countryName, xmlRawZoning, network);
   }
 
@@ -80,7 +101,7 @@ public class PlanitZoningWriterFactory {
    * @return created zoning writer
    */
   public static PlanitZoningWriter create(
-          final PlanitZoningWriterSettings settings, final LayeredNetwork<?,?> network) {
+          final PlanitZoningWriterSettings settings, final MacroscopicNetwork network) {
     return new PlanitZoningWriter(settings, new XMLElementMacroscopicZoning(), network);
   }
 

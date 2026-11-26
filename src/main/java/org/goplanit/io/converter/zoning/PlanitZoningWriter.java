@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
-import org.goplanit.network.LayeredNetwork;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.geo.PlanitCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.id.IdMapperType;
@@ -45,18 +45,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningWriter.class.getCanonicalName());  
-    
-  /** XML memory model equivalent of the PLANit memory mode */
-  private final XMLElementMacroscopicZoning xmlRawZoning;
-
-  /** reference network to use for connectoids layer cross-refs */
-  private final LayeredNetwork<?,?> referenceNetwork;
-
-  /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
-  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
-  
-  /** settings to use */
-  private final PlanitZoningWriterSettings settings;
 
   /** Convert PLANit connectoid type to XML PLANit connectoid type
    * 
@@ -108,19 +96,6 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     }
   }   
   
-  /** Create mapping from zone to its connectoids
-   * 
-   * @param zoning to base mapping on
-   */
-  private void createZoneToConnectoidIndices(final Zoning zoning) {
-    for(var connectoid : zoning.getOdConnectoids()) {
-      connectoid.getAccessZoneStream().forEach(z -> {
-        zoneToConnectoidMap.putIfAbsent(z, new ArrayList<>(1));
-        zoneToConnectoidMap.get(z).add(connectoid);
-      });
-    }
-  }
-
   /**
    * Create allowed modes string, when null all modes are allowed and element does not need to be populated
    *
@@ -140,7 +115,32 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
     }
     return csvModeIdString;
   }
+    
+  /** XML memory model equivalent of the PLANit memory mode */
+  private final XMLElementMacroscopicZoning xmlRawZoning;
+
+  /** reference network to use for connectoids layer cross-refs, null until set */
+  private MacroscopicNetwork referenceNetwork;
+
+  /** mapping from zone to connectoids since in the memory model zones are not mapped to connectoids */
+  private final Map<Zone,List<Connectoid>> zoneToConnectoidMap = new HashMap<>();
   
+  /** settings to use */
+  private final PlanitZoningWriterSettings settings;
+
+  /** Create mapping from zone to its connectoids
+   *
+   * @param zoning to base mapping on
+   */
+  private void createZoneToConnectoidIndices(final Zoning zoning) {
+    for(var connectoid : zoning.getOdConnectoids()) {
+      connectoid.getAccessZoneStream().forEach(z -> {
+        zoneToConnectoidMap.putIfAbsent(z, new ArrayList<>(1));
+        zoneToConnectoidMap.get(z).add(connectoid);
+      });
+    }
+  }
+
   /** Populate the XML transfer group based on the PLANit memory model transfer zone group instance
    * @param xmlTransferGroup to populate
    * @param transferGroup to use
@@ -708,13 +708,13 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    * @param zoningPath to persist zoning on
    * @param countryName to optimise projection for (if available, otherwise ignore)
    * @param xmlRawZoning XML zoning to populate
-   * @param network network the zoning connects to for its connectoids
+   * @param network network the zoning connects to for its connectoids, null when set later
    */
   protected PlanitZoningWriter(
       final String zoningPath,
       final String countryName,
       final XMLElementMacroscopicZoning xmlRawZoning,
-      final LayeredNetwork<?,?> network) {
+      final MacroscopicNetwork network) {
     this(new PlanitZoningWriterSettings(zoningPath, PlanitZoningWriterSettings.DEFAULT_ZONING_XML, countryName),
         xmlRawZoning,
         network);
@@ -724,12 +724,12 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
    *
    * @param settings to use
    * @param xmlRawZoning XML zoning to populate
-   * @param network network the zoning connects to for its connectoids
+   * @param network network the zoning connects to for its connectoids, null when set later
    */
   protected PlanitZoningWriter(
       @Nonnull PlanitZoningWriterSettings settings,
       @Nonnull XMLElementMacroscopicZoning xmlRawZoning,
-      @Nonnull final LayeredNetwork<?,?> network) {
+      final MacroscopicNetwork network) {
     super(IdMapperType.XML);
     this.settings = settings;
     this.xmlRawZoning = xmlRawZoning;
@@ -754,6 +754,8 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
         "No output directory set for writing PLANit network");
     PlanItRunTimeException.throwIfNull(getSettings().getFileName(),
         "No file name set for writing PLANit network");
+    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),
+        "No reference network set for writing PLANit zoning");
 
     /* initialise */
     {
@@ -806,6 +808,22 @@ public class PlanitZoningWriter extends UnTypedPlanitCrsWriterImpl<Zoning> imple
   @Override
   public PlanitZoningWriterSettings getSettings() {
     return this.settings;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setReferenceNetwork(MacroscopicNetwork referenceNetwork) {
+    this.referenceNetwork = referenceNetwork;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public MacroscopicNetwork getReferenceNetwork() {
+    return referenceNetwork;
   }
 
 }

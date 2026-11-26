@@ -55,7 +55,29 @@ public class PlanitRoutedServicesWriterFactory {
    */
   public static PlanitRoutedServicesWriter create(String networkPath, String countryName, XMLElementRoutedServices xmlRawRoutedServices) {
     return new PlanitRoutedServicesWriter(networkPath, countryName, xmlRawRoutedServices);
-  }    
+  }
+
+  /** Create a writer persisting PLANit routed services in the native PLANit XML format with the settings given, such
+   * as settings made from a settings file
+   *
+   * @param settings to use
+   * @return created writer
+   */
+  public static PlanitRoutedServicesWriter create(PlanitRoutedServicesWriterSettings settings) {
+    return create(settings, new XMLElementRoutedServices());
+  }
+
+  /** Create a writer persisting PLANit routed services in the native PLANit XML format with the settings given,
+   * populating the XML memory model given
+   *
+   * @param settings to use
+   * @param xmlRawRoutedServices to populate with PLANit routed services when persisting
+   * @return created writer
+   */
+  public static PlanitRoutedServicesWriter create(
+      PlanitRoutedServicesWriterSettings settings, XMLElementRoutedServices xmlRawRoutedServices) {
+    return new PlanitRoutedServicesWriter(settings, xmlRawRoutedServices);
+  }
      
      
 }

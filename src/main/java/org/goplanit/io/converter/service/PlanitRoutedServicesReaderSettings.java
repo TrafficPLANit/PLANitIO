@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.service;
 
 import org.goplanit.converter.ConverterReaderSettings;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.misc.LoggingUtils;
 
@@ -23,7 +23,7 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
    *
    */
   public PlanitRoutedServicesReaderSettings() {
-    this(".", DEFAULT_XML_EXTENSION);
+    this(null, DEFAULT_XML_EXTENSION);
   }
 
   /**
@@ -52,9 +52,9 @@ public class PlanitRoutedServicesReaderSettings extends PlanitXmlReaderSettings 
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Routed Services Reader Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
 
 }

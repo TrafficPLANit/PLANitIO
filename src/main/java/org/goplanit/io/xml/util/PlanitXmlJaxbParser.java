@@ -1,6 +1,8 @@
 package org.goplanit.io.xml.util;
 
 import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -11,6 +13,7 @@ import org.goplanit.utils.geo.PlanitCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.StringUtils;
+import org.goplanit.utils.misc.UrlUtils;
 import org.goplanit.xml.generated.v2.XMLElementPLANit;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
@@ -43,13 +46,6 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
   /** names of the elements removed from the schema; a file still holding one stops the parsing */
   private Set<QName> elementsRemovedFromSchema = Set.of();
 
-  /**
-   * Mark as legacy version
-   */
-  public void setInputIsLegacyVersion(){
-    inputIsLegacyVersion = true;
-  }
-  
   /**
    * Find out which of the eligible sub-elements matches the desired type. Currently the following options are supported:
    * 
@@ -106,20 +102,35 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
     this.inputIsLegacyVersion = false;
   }
 
+  /**
+   * Mark as legacy version
+   */
+  public void setInputIsLegacyVersion(){
+    inputIsLegacyVersion = true;
+  }
+
 
   // GETTERS /SETTERS
   
   /**
-   * Parse the raw XML root (and rest) from file if not already set via constructor
-   * 
-   * @param inputPathDirectory to use
+   * Parse the raw XML root (and rest) from file if not already set via constructor. The input source is a local folder,
+   * whose files with the extension are the candidates, or one local file, the only candidate
+   * <p>
+   * PLANit inputs come as a folder holding one file per part, such as {@code network.xml} and {@code zoning.xml}, or
+   * as one file holding several parts under one PLANit root element. Each reader looks for its own part: first a
+   * candidate whose root element is that part, then a candidate holding all parts, from which it takes its part. So a
+   * network reader and a zoning reader can be given the same folder or the same file. The candidates must be local, as
+   * they are parsed from disk.
+   * </p>
+   *
+   * @param inputSource to use, a local folder or file
    * @param xmlFileExtension to use
    * @return true when success, false when something was parsed but no appropriate match could be found
    */
-  public boolean initialiseAndParseXmlRootElement(String inputPathDirectory, String xmlFileExtension) {
+  public boolean initialiseAndParseXmlRootElement(URL inputSource, String xmlFileExtension) {
     if(this.xmlRootElement==null) {
-      PlanItRunTimeException.throwIfNull(inputPathDirectory,
-              "Input path directory for XML reader is not provided, unable to parse");
+      PlanItRunTimeException.throwIfNull(inputSource,
+              "Input source for XML reader is not provided, unable to parse");
       PlanItRunTimeException.throwIfNull(xmlFileExtension,
               "No XML file extension provided, unable to parse files if extension is unknown");
       PlanItRunTimeException.throwIfNull(latestVersionClazz,
@@ -127,10 +138,15 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
       PlanItRunTimeException.throwIfNull(legacyVersionClazz,
               "No XML root element legacy class provided, unable to parse files if this is unknown");
       
+      var input = UrlUtils.asLocalPath(inputSource);
+      PlanItRunTimeException.throwIfNull(input,
+              "Input source %s of XML reader is not a local file or folder, unable to parse", inputSource);
+
       /* first try based on dedicated file for this entity LATEST... */
-      final File[] xmlFileNames = FileUtils.getFilesWithExtensionFromDir(inputPathDirectory, xmlFileExtension);
+      final File[] xmlFileNames = Files.isRegularFile(input) ?
+          new File[] {input.toFile()} : FileUtils.getFilesWithExtensionFromDir(input.toString(), xmlFileExtension);
       PlanItRunTimeException.throwIf(xmlFileNames.length == 0,
-              String.format("Directory %s contains no files with extension %s",inputPathDirectory, xmlFileExtension));
+              String.format("Directory %s contains no files with extension %s", input, xmlFileExtension));
       LATEST rootElement = JAXBUtils.generateInstanceFromXml(
           xmlFileNames, latestVersionClazz, legacyVersionClazz, this::setInputIsLegacyVersion,
           elementsRemovedFromSchema);
@@ -144,7 +160,7 @@ public class PlanitXmlJaxbParser<LATEST, LEGACY> {
         if(xmlRawPLANitAll==null) {
           LOGGER.severe(String.format("Unable to parse any appropriate XML input file from %s with extension %s," +
                   " either no file is present, or file is not conforming to underlying XSD",
-                  inputPathDirectory, xmlFileExtension));
+                  input, xmlFileExtension));
           return false;
         }
         rootElement = getSubEntityRootElementFromCombinedXmlRootElement(xmlRawPLANitAll);

@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.demands;
 
 import org.goplanit.converter.ConverterWriterSettings;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.goplanit.utils.misc.LoggingUtils;
 
 import java.text.DecimalFormat;
@@ -35,6 +35,7 @@ public class PlanitDiscreteDemandsWriterSettings extends PlanitXmlWriterSettings
    */
   public PlanitDiscreteDemandsWriterSettings() {
     super();
+    setFileName(DEFAULT_DEMANDS_XML);
   }
 
   /**
@@ -68,9 +69,9 @@ public class PlanitDiscreteDemandsWriterSettings extends PlanitXmlWriterSettings
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Discrete Demands Writer Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
 
 }

@@ -413,7 +413,7 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
     getSettings().logSettings();
         
     /* parse the XML raw network to extract PLANit network from */   
-    xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+    xmlParser.initialiseAndParseXmlRootElement(getSettings().getInputSource(), getSettings().getXmlFileExtension());
     PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(),
             "No valid PLANit XML service network could be parsed into memory, abort");
     

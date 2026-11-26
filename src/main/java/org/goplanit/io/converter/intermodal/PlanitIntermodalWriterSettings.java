@@ -6,17 +6,37 @@ import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettingsSchema;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.settings.SettingsSchema;
+import org.goplanit.utils.settings.YamlWriteSettingsSupport;
+import org.goplanit.utils.settings.annotations.DelegatedToSyncedInternalSettingsKeys;
+import org.goplanit.utils.settings.annotations.SettingsFileReference;
+import org.goplanit.utils.settings.annotations.SettingsKeyLevel;
 
 import java.util.logging.Logger;
 
 /**
  * Settings for PLANit intermodal writer
- * 
+ * <p>
+ * Its settings file names the settings files of the writers it holds, each relative to it, and holds none of their
+ * keys, such as
+ * </p>
+ * <pre>
+ * planitIoWriterSettings: 1
+ * network: network_writer.yaml
+ * zoning: zoning_writer.yaml
+ * </pre>
+ * <p>
+ * Each writer is made from its file as it would be on its own, so a value every writer shares, such as the output
+ * directory, is given in each file; a writer whose file is not named keeps its defaults. Written out, it writes its
+ * file and one file per writer next to it, named after the key.
+ * </p>
+ *
  * @author markr
  *
  */
-public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
+public class PlanitIntermodalWriterSettings implements ConverterWriterSettings, YamlWriteSettingsSupport {
 
   private static final Logger LOGGER = Logger.getLogger(PlanitIntermodalWriterSettings.class.getCanonicalName());
 
@@ -101,14 +121,18 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    * 
    * @return zoning settings
    */
+  @SettingsFileReference(key = "zoning", level = SettingsKeyLevel.STANDARD,
+      description = "The settings file of the zoning writer, relative to this settings file")
   public PlanitZoningWriterSettings getZoningSettings() {
     return zoningSettings;
   }
 
   /** Collect network settings
-   * 
+   *
    * @return network settings
    */
+  @SettingsFileReference(key = "network", level = SettingsKeyLevel.STANDARD,
+      description = "The settings file of the network writer, relative to this settings file")
   public  PlanitNetworkWriterSettings getNetworkSettings() {
     return networkSettings;
   }
@@ -117,6 +141,8 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    *
    * @return service network settings
    */
+  @SettingsFileReference(key = "serviceNetwork", level = SettingsKeyLevel.UNCOMMON,
+      description = "The settings file of the service network writer, relative to this settings file")
   public  PlanitServiceNetworkWriterSettings getServiceNetworkSettings() {
     return serviceNetworkSettings;
   }
@@ -125,14 +151,17 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    *
    * @return routed services settings
    */
+  @SettingsFileReference(key = "routedServices", level = SettingsKeyLevel.UNCOMMON,
+      description = "The settings file of the routed services writer, relative to this settings file")
   public  PlanitRoutedServicesWriterSettings getRoutedServicesSettings() {
     return routedServicesSettings;
   }
 
   /** Set the outputPathDirectory used on both zoning and (service) network settings
-   * 
+   *
    * @param outputDirectory to use
    */
+  @DelegatedToSyncedInternalSettingsKeys("outputDirectory")
   public void setOutputDirectory(String outputDirectory) {
     getZoningSettings().setOutputDirectory(outputDirectory);
     getNetworkSettings().setOutputDirectory(outputDirectory);
@@ -144,6 +173,7 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    * 
    * @param countryName to use
    */
+  @DelegatedToSyncedInternalSettingsKeys("country")
   public void setCountry(String countryName) {
     getZoningSettings().setCountry(countryName);
     getNetworkSettings().setCountry(countryName);
@@ -156,11 +186,20 @@ public class PlanitIntermodalWriterSettings implements ConverterWriterSettings {
    * 
    * @param destinationCoordinateReferenceSystem to use
    */
+  @DelegatedToSyncedInternalSettingsKeys("destinationCrs")
   public void setDestinationCoordinateReferenceSystem(CoordinateReferenceSystem destinationCoordinateReferenceSystem) {
     getZoningSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
     getNetworkSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
     getServiceNetworkSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
     getRoutedServicesSettings().setDestinationCoordinateReferenceSystem(destinationCoordinateReferenceSystem);
-  }  
-  
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public SettingsSchema getSettingsSchema() {
+    return PlanitXmlWriterSettingsSchema.SCHEMA;
+  }
+
 }

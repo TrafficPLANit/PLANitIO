@@ -1,29 +1,45 @@
 package org.goplanit.io.test.integration.converter;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.logging.Logger;
 
+import org.goplanit.converter.intermodal.IntermodalConverterFactory;
 import org.goplanit.demands.Demands;
+import org.goplanit.io.converter.PlanitXmlReaderSettingsFactory;
+import org.goplanit.io.converter.PlanitXmlWriterSettingsFactory;
+import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
+import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderSettings;
+import org.goplanit.io.converter.intermodal.PlanitIntermodalWriterFactory;
+import org.goplanit.io.converter.intermodal.PlanitIntermodalWriterSettings;
 import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.logging.Logging;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.project.CustomPlanItProject;
+import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.id.IdGenerator;
+import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.mode.PredefinedModeType;
 import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.time.ExtendedLocalTime;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.utils.zoning.connectoid.ConnectoidAccessZoneEntry;
+import org.goplanit.utils.settings.SettingsSource;
 import org.goplanit.utils.zoning.connectoid.ZoneConnectoidType;
 import org.goplanit.zoning.Zoning;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.xmlunit.builder.Input;
+import org.xmlunit.matchers.CompareMatcher;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,8 +76,29 @@ public class IntermodalTest {
   
   private static final String transferconnectoid1XmlId = "transfer1";
   private static final String transferconnectoid2XmlId = "transfer2";
-  private static final String transferconnectoid3XmlId = "transfer3";    
-     
+  private static final String transferconnectoid3XmlId = "transfer3";
+
+  /** the files an intermodal writer writes with services, by the file names its default settings give */
+  private static final List<String> FILES_WRITTEN_WITH_SERVICES =
+      List.of("network.xml", "zoning.xml", "service_network.xml", "routed_services.xml");
+
+  /**
+   * Convert with services through PLANit's intermodal reader and writer, the ids generated starting afresh so two
+   * conversions give the same ids
+   *
+   * @param readerSettings of the intermodal reader
+   * @param writerSettings of the intermodal writer
+   * @throws PlanItException when the conversion fails
+   */
+  private static void convertWithServices(
+      PlanitIntermodalReaderSettings readerSettings, PlanitIntermodalWriterSettings writerSettings)
+      throws PlanItException {
+    IdGenerator.reset();
+    IntermodalConverterFactory.create(
+        PlanitIntermodalReaderFactory.create(readerSettings), PlanitIntermodalWriterFactory.create(writerSettings))
+        .convertWithServices();
+  }
+
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -70,16 +107,20 @@ public class IntermodalTest {
     } 
   }
   
-  @BeforeEach
-  public void beforeTest() {
-  }  
-
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
   }
- 
+
+  /** folder for the settings files and the files written */
+  @TempDir
+  public Path tempDir;
+
+  @BeforeEach
+  public void beforeTest() {
+  }
+
   /**
    * test case which only tries to parse a minimal intermodal setup (without routes), does not run an assignment
    * but simply tests the correct parsing of the inputs 
@@ -248,6 +289,67 @@ public class IntermodalTest {
       LOGGER.severe( e.getMessage());
       fail(e.getMessage());
     }
+  }
+
+  /**
+   * The minimal intermodal case with services, converted through PLANit's intermodal reader and writer with settings
+   * made from settings files, writes the same files as with the same settings made in code. The files name the files
+   * of the readers and writers held, the reader's naming one file for all four readers, which reads the one input file
+   * holding every part, and the writer's giving each writer's output directory relative to its file
+   */
+  @Test
+  public void test_intermodal_conversion_with_settings_from_files() throws IOException, PlanItException {
+    final Path caseFolder = Path.of(intermodalTestCasePath.toString(), "minimal_input_with_services").toAbsolutePath();
+    final Path inCode = Files.createDirectories(tempDir.resolve("in_code"));
+    final Path fromFiles = Files.createDirectories(tempDir.resolve("from_files"));
+
+    convertWithServices(new PlanitIntermodalReaderSettings(caseFolder.toString()),
+        new PlanitIntermodalWriterSettings(inCode.toString(), CountryNames.AUSTRALIA));
+
+    final String readerHeader = "planitIoReaderSettings: 1\n";
+    Files.writeString(tempDir.resolve("planit_input.yaml"),
+        readerHeader + "inputSource: " + caseFolder.resolve("macroscopicinput.xml") + "\n");
+    final Path readerFile = Files.writeString(tempDir.resolve("intermodal_reader.yaml"), readerHeader +
+        "network: planit_input.yaml\nzoning: planit_input.yaml\nserviceNetwork: planit_input.yaml\n" +
+        "routedServices: planit_input.yaml\n");
+
+    final String writerHeader = "planitIoWriterSettings: 1\noutputDirectory: from_files\ncountry: Australia\n";
+    Files.writeString(tempDir.resolve("network_writer.yaml"), writerHeader + "fileName: network.xml\n");
+    Files.writeString(tempDir.resolve("zoning_writer.yaml"), writerHeader + "fileName: zoning.xml\n");
+    Files.writeString(tempDir.resolve("service_network_writer.yaml"), writerHeader + "fileName: service_network.xml\n");
+    Files.writeString(tempDir.resolve("routed_services_writer.yaml"), writerHeader + "fileName: routed_services.xml\n");
+    final Path writerFile = Files.writeString(tempDir.resolve("intermodal_writer.yaml"),
+        "planitIoWriterSettings: 1\nnetwork: network_writer.yaml\nzoning: zoning_writer.yaml\n" +
+            "serviceNetwork: service_network_writer.yaml\nroutedServices: routed_services_writer.yaml\n");
+
+    convertWithServices(
+        PlanitXmlReaderSettingsFactory.createIntermodalReaderSettingsFromYaml(List.of(SettingsSource.ofFile(readerFile))),
+        PlanitXmlWriterSettingsFactory.createIntermodalWriterSettingsFromYaml(List.of(SettingsSource.ofFile(writerFile))));
+
+    for (var fileName : FILES_WRITTEN_WITH_SERVICES) {
+      org.hamcrest.MatcherAssert.assertThat(fileName, Input.fromFile(fromFiles.resolve(fileName).toString()),
+          CompareMatcher.isSimilarTo(Input.fromFile(inCode.resolve(fileName).toString())));
+    }
+  }
+
+  /**
+   * The intermodal writer writes the service network and the routed services with the settings it holds for them, not
+   * only their output directory and country: here the file names given to those two settings
+   */
+  @Test
+  public void test_intermodal_writer_writes_services_with_their_settings() throws IOException, PlanItException {
+    final Path caseFolder = Path.of(intermodalTestCasePath.toString(), "minimal_input_with_services").toAbsolutePath();
+    final Path output = Files.createDirectories(tempDir.resolve("output"));
+    var writerSettings = new PlanitIntermodalWriterSettings(output.toString(), CountryNames.AUSTRALIA);
+    writerSettings.getServiceNetworkSettings().setFileName("lines.xml");
+    writerSettings.getRoutedServicesSettings().setFileName("services.xml");
+
+    convertWithServices(new PlanitIntermodalReaderSettings(caseFolder.toString()), writerSettings);
+
+    assertTrue(Files.exists(output.resolve("lines.xml")));
+    assertTrue(Files.exists(output.resolve("services.xml")));
+    assertFalse(Files.exists(output.resolve("service_network.xml")));
+    assertFalse(Files.exists(output.resolve("routed_services.xml")));
   }
 }
   

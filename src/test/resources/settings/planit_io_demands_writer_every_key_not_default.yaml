@@ -1,0 +1,27 @@
+# The kind of these settings and the version of their keys
+planitIoWriterSettings: 1
+# --- standard ---
+# The country written for, by its full English name, such as Australia, whose projected coordinate reference system is
+# written in when destinationCrs is not given
+country: Australia
+# The coordinate reference system to write in, by its code, such as EPSG:28356; when not given, that of the country,
+# else that of the data read
+destinationCrs: EPSG:28356
+# The folder to write to, relative to this settings file
+outputDirectory: out
+# The name of the file to write, in the output directory, such as roads.xml
+fileName: trips.xml
+# --- uncommon ---
+# The pattern numbers are written with, such as #.###, as Java's DecimalFormat reads it
+decimalFormat: '#0.###'
+# --- rare ---
+# The character between the x and the y of one coordinate, such as a comma
+commaSeparator: ;
+# The character between the whole part and the decimals of a number, such as a point
+decimalSeparator: ','
+# The character between two coordinates of a line or polygon, such as a space
+tupleSeparator: _
+# The text between the values of two destinations in a row of the demand matrix, such as a comma
+destinationSeparator: ;
+# The text between the rows of two origins in the demand matrix, such as a space
+originSeparator: _

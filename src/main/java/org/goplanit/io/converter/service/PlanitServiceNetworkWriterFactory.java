@@ -55,7 +55,29 @@ public class PlanitServiceNetworkWriterFactory {
    */
   public static PlanitServiceNetworkWriter create(String networkPath, String countryName, XMLElementServiceNetwork xmlRawServiceNetwork) {
     return new PlanitServiceNetworkWriter(networkPath, countryName, xmlRawServiceNetwork);
-  }    
+  }
+
+  /** Create a writer persisting a PLANit service network in the native PLANit XML format with the settings given, such
+   * as settings made from a settings file
+   *
+   * @param settings to use
+   * @return created writer
+   */
+  public static PlanitServiceNetworkWriter create(PlanitServiceNetworkWriterSettings settings) {
+    return create(settings, new XMLElementServiceNetwork());
+  }
+
+  /** Create a writer persisting a PLANit service network in the native PLANit XML format with the settings given,
+   * populating the XML memory model given
+   *
+   * @param settings to use
+   * @param xmlRawServiceNetwork to populate with PLANit service network when persisting
+   * @return created writer
+   */
+  public static PlanitServiceNetworkWriter create(
+      PlanitServiceNetworkWriterSettings settings, XMLElementServiceNetwork xmlRawServiceNetwork) {
+    return new PlanitServiceNetworkWriter(settings, xmlRawServiceNetwork);
+  }
      
      
 }

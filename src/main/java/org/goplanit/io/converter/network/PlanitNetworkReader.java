@@ -1203,7 +1203,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     /* parse the XML raw network to extract PLANit network from */
     try {
       xmlParser.initialiseAndParseXmlRootElement(
-          getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+          getSettings().getInputSource(), getSettings().getXmlFileExtension());
     } catch (IllegalStateException e) {
       /* a file holding an element removed from the schema */
       throw new PlanItRunTimeException(e.getMessage(), e);

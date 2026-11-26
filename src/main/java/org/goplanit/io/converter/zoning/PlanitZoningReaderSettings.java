@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.zoning;
 
 import org.goplanit.converter.ConverterReaderSettings;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
@@ -47,9 +47,9 @@ public class PlanitZoningReaderSettings extends PlanitXmlReaderSettings implemen
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Zoning Reader Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
 
   // GETTERS/SETTERS

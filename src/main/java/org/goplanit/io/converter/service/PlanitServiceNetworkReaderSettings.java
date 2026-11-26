@@ -1,7 +1,7 @@
 package org.goplanit.io.converter.service;
 
 import org.goplanit.converter.ConverterReaderSettings;
-import org.goplanit.io.xml.util.PlanitXmlReaderSettings;
+import org.goplanit.io.converter.PlanitXmlReaderSettings;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.misc.LoggingUtils;
 
@@ -39,9 +39,9 @@ public class PlanitServiceNetworkReaderSettings extends PlanitXmlReaderSettings 
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Service Network Reader Settings"));
-    super.logSettings();
+    super.logSettings(level);
   }
 
 

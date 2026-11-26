@@ -5,7 +5,6 @@ import org.goplanit.converter.BaseReaderImpl;
 import org.goplanit.converter.network.NetworkReader;
 import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
-import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
@@ -47,46 +46,6 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(PlanitZoningReader.class.getCanonicalName());
-  
-  /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning, ?> xmlParser;
-
-  /**
-   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the
-   * parsed
-   * zoning is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the
-   * internal ids upon parsing
-   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are
-   * chosen to be synced to internal ids)
-   */
-  private void syncXmlIdsToIds() {
-    LOGGER.info("Syncing PLANit zoning XML ids to internally generated ids, overwriting original XML ids");
-    ZoningModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(zoning);
-  }
-  
-  /**
-   * initialise the XML id trackers and populate them for the network references, 
-   * so we can lay indices on the XML id as well for quick lookups
-   * 
-   * @param network to use
-   */
-  private void initialiseParentNetworkXmlIdTrackers(MacroscopicNetwork network) {    
-    initialiseSourceIdMap(Node.class, Node::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Node.class).addAll(layer.getNodes()));    
-    initialiseSourceIdMap(MacroscopicLinkSegment.class, MacroscopicLinkSegment::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(MacroscopicLinkSegment.class).addAll(
-        layer.getLinkSegments()));
-  }  
-  
-  /**
-   * initialise the XML id trackers for the to be populated zoning entities, so we can lay indices on the XML
-   * id as well for quick lookups
-   */
-  private void initialiseXmlIdTrackers() {
-    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), OdZone::getXmlId);
-    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
-    initialiseSourceIdMap(Connectoid.getConnectoidIdClass(), Connectoid::getXmlId);
-  }  
     
   /** Parse passed in transfer zone type
    * 
@@ -331,10 +290,53 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     }
   }    
   
+  /** parses the xml content in JAXB memory format */
+  private final PlanitXmlJaxbParser<org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning, ?> xmlParser;
+  
   /**
    * geometric utility class based on network crs 
    */
   private PlanitJtsCrsUtils jtsUtils = null;  
+
+  /** network reader to use to create network if not provided outright (may be null) */
+  private final NetworkReader networkReader;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the
+   * parsed
+   * zoning is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the
+   * internal ids upon parsing
+   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are
+   * chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit zoning XML ids to internally generated ids, overwriting original XML ids");
+    ZoningModifierUtils.updateAndSyncManagedIdEntitiesContainerXmlIdsToIds(zoning);
+  }
+  
+  /**
+   * initialise the XML id trackers and populate them for the network references, 
+   * so we can lay indices on the XML id as well for quick lookups
+   * 
+   * @param network to use
+   */
+  private void initialiseParentNetworkXmlIdTrackers(MacroscopicNetwork network) {    
+    initialiseSourceIdMap(Node.class, Node::getXmlId);
+    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Node.class).addAll(layer.getNodes()));    
+    initialiseSourceIdMap(MacroscopicLinkSegment.class, MacroscopicLinkSegment::getXmlId);
+    network.getTransportLayers().forEach( layer -> getSourceIdContainer(MacroscopicLinkSegment.class).addAll(
+        layer.getLinkSegments()));
+  }  
+  
+  /**
+   * initialise the XML id trackers for the to be populated zoning entities, so we can lay indices on the XML
+   * id as well for quick lookups
+   */
+  private void initialiseXmlIdTrackers() {
+    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), OdZone::getXmlId);
+    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
+    initialiseSourceIdMap(Connectoid.getConnectoidIdClass(), Connectoid::getXmlId);
+  }  
   
   /**
    * Parse common properties of a zone regardless if it is an od or transfer zone
@@ -734,33 +736,6 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     }
   }
 
-  /**
-   * Parse the intermodal zones, i.e., platforms, stops, stations, etc. from XML element into PLANit memory
-   * 
-   * @param modes that can be referred to
-   * @throws PlanItException thrown if error
-   */
-  protected void populateIntermodal(final Modes modes) throws PlanItException{
-    if(xmlParser.getXmlRootElement().getIntermodal() == null) {
-      LOGGER.info("No Transfer zones present, skip");
-      return;
-    }
-    LOGGER.info("Parsing transfer zones...");
-    
-    /* intermodal elements present */
-    var xmlInterModal = xmlParser.getXmlRootElement().getIntermodal();
-    
-    /* transferzones */
-    populateTransferZones(xmlInterModal);
-    
-    /* transfer zone access connectoids */
-    populateTransferZoneAccess(modes, xmlInterModal);
-    
-    /* transfer zone groups */
-    populateTransferZoneGroups(xmlInterModal);    
-  
-  }
-
   /** Use the zoning crs if it is available from file, otherwise revert to the network crs. When zoning and 
    * network crs are incompatible log to user, this is discouraged.
    * 
@@ -793,15 +768,39 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
 
   /** settings for the zoning reader */
   protected final PlanitZoningReaderSettings settings;
-
-  /** network reader to use to create network if not provided outright (may be null) */
-  private final NetworkReader networkReader;
   
   /** the zoning to populate */
   protected Zoning zoning;
   
   /** the network this zoning relates to */
-  protected LayeredNetwork<?,?> network;
+  protected MacroscopicNetwork network;
+
+  /**
+   * Parse the intermodal zones, i.e., platforms, stops, stations, etc. from XML element into PLANit memory
+   * 
+   * @param modes that can be referred to
+   * @throws PlanItException thrown if error
+   */
+  protected void populateIntermodal(final Modes modes) throws PlanItException{
+    if(xmlParser.getXmlRootElement().getIntermodal() == null) {
+      LOGGER.info("No Transfer zones present, skip");
+      return;
+    }
+    LOGGER.info("Parsing transfer zones...");
+    
+    /* intermodal elements present */
+    var xmlInterModal = xmlParser.getXmlRootElement().getIntermodal();
+    
+    /* transferzones */
+    populateTransferZones(xmlInterModal);
+    
+    /* transfer zone access connectoids */
+    populateTransferZoneAccess(modes, xmlInterModal);
+    
+    /* transfer zone groups */
+    populateTransferZoneGroups(xmlInterModal);    
+  
+  }
       
   /** Set the zoning to populate
    * 
@@ -815,7 +814,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param network to use
    */
-  protected void setReferenceNetwork(final LayeredNetwork<?,?> network) {
+  protected void setReferenceNetwork(final MacroscopicNetwork network) {
     this.network = network;
   }
   
@@ -925,7 +924,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param zoning to populate
    */
   protected PlanitZoningReader(
-      final PlanitZoningReaderSettings settings, final LayeredNetwork<?,?> network, final Zoning zoning) {
+      final PlanitZoningReaderSettings settings, final MacroscopicNetwork network, final Zoning zoning) {
     this.xmlParser = new PlanitXmlJaxbParser<>(
         org.goplanit.xml.generated.v2.XMLElementMacroscopicZoning.class,
         org.goplanit.xml.generated.v1.XMLElementMacroscopicZoning.class);
@@ -946,7 +945,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   protected PlanitZoningReader(
       final String pathDirectory,
       final String xmlFileExtension,
-      final LayeredNetwork<?,?> network,
+      final MacroscopicNetwork network,
       final Zoning zoning) {
     this(new PlanitZoningReaderSettings(pathDirectory, xmlFileExtension), network, zoning);
   }
@@ -959,7 +958,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * @param zoning to populate
    */
   protected PlanitZoningReader(
-      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final LayeredNetwork<?,?> network, final Zoning zoning) {
+      final XMLElementMacroscopicZoning xmlMacroscopicZoning, final MacroscopicNetwork network, final Zoning zoning) {
     this(xmlMacroscopicZoning, new PlanitZoningReaderSettings(), network, zoning);
   }
 
@@ -974,11 +973,14 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   protected PlanitZoningReader(
       final XMLElementMacroscopicZoning xmlMacroscopicZoning,
       final PlanitZoningReaderSettings settings,
-      final LayeredNetwork<?,?> network,
+      final MacroscopicNetwork network,
       final Zoning zoning) {
     this(settings, network, zoning);
     this.xmlParser.setXmlRootElement(xmlMacroscopicZoning);
   }
+  
+  /** Reference to zoning schema location, TODO: move to properties file */
+  public static final String ZONING_XSD_FILE = "https://www.goplanit.org/xsd/macroscopiczoninginput.xsd";
 
   /** Read the zoning from disk
    * 
@@ -993,18 +995,15 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
         throw new PlanItRunTimeException("No reference network available after parsing from provided network reader" +
             " unable to read zoning");
       }
-      setReferenceNetwork(readNetwork);
-      setZoning(new Zoning(network.getIdGroupingToken(), (MacroscopicNetwork) network));
-    }else if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItRunTimeException("Unable to read zoning, provided network is not compatible with " +
-          "Macroscopic network");
+      setReferenceNetwork((MacroscopicNetwork) readNetwork);
+      setZoning(new Zoning(network.getIdGroupingToken(), network));
+    }else{
+      PlanItRunTimeException.throwIfNull(network, "Unable to read zoning, no network provided");
     }
-
-    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork) network;   
 
     /* initialise the indices used, if needed */
     initialiseXmlIdTrackers();
-    initialiseParentNetworkXmlIdTrackers(macroscopicNetwork);
+    initialiseParentNetworkXmlIdTrackers(network);
 
     // log settings
     getSettings().logSettings();
@@ -1014,7 +1013,7 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       
       /* populate Xml memory model */
       xmlParser.initialiseAndParseXmlRootElement(
-          getSettings().getInputDirectory(), getSettings().getXmlFileExtension());
+          getSettings().getInputSource(), getSettings().getXmlFileExtension());
       PlanItRunTimeException.throwIfNull(xmlParser.getXmlRootElement(),
           "No valid PLANit XML zoning could be parsed into memory, abort");
       
@@ -1028,13 +1027,13 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
       zoning.setXmlId(zoningXmlId);      
       
       /* initialise and validate crs compatibility */
-      parseCoordinateReferenceSystem(macroscopicNetwork);               
+      parseCoordinateReferenceSystem(network);
       
       /* OD zones */
       populateODZones();
       
       /* Intermodal/transfer zones, i.e., platforms, stations, etc. */
-      populateIntermodal(macroscopicNetwork.getModes());
+      populateIntermodal(network.getModes());
 
       if(getSettings().isSyncXmlIdsToIds()){
         syncXmlIdsToIds();
@@ -1057,9 +1056,6 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
     return zoning;
   }
   
-  /** Reference to zoning schema location, TODO: move to properties file */
-  public static final String ZONING_XSD_FILE = "https://www.goplanit.org/xsd/macroscopiczoninginput.xsd";
-  
   /** Settings for this reader
    * 
    * @return settings
@@ -1069,10 +1065,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
   }
 
   /**
-   * Access to reference network used
-   * @return reference network
+   * {@inheritDoc}
    */
-  public LayeredNetwork<?,?> getReferenceNetwork(){
+  @Override
+  public MacroscopicNetwork getReferenceNetwork(){
     return this.network;
   }
 

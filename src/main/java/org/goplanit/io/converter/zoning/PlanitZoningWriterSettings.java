@@ -1,8 +1,11 @@
 package org.goplanit.io.converter.zoning;
 
 import org.goplanit.converter.ConverterWriterSettings;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
+import org.goplanit.io.converter.PlanitXmlWriterSettings;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.settings.annotations.SettingsKeyLevel;
+import org.goplanit.utils.settings.annotations.SettingsRead;
+import org.goplanit.utils.settings.annotations.SettingsWrite;
 
 import java.util.logging.Logger;
 
@@ -78,10 +81,10 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("PLANit Zoning Writer Settings"));
-    super.logSettings();
-    LOGGER.info(LoggingUtils.settingsValue("Remove dangling zones", isRemoveDanglingZones(), 0));
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("Remove dangling zones", isRemoveDanglingZones(), level));
   }
 
   /** flag on removal of dangling zones
@@ -89,6 +92,7 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    *
    * @return value of removeDanglingZones
    */
+  @SettingsRead(key = "removeDanglingZones")
   public boolean isRemoveDanglingZones() {
     return removeDanglingZones;
   }
@@ -98,6 +102,8 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
    *
    * @param removeDanglingZones value of removeDanglingZones
    */
+  @SettingsWrite(key = "removeDanglingZones", level = SettingsKeyLevel.UNCOMMON,
+      description = "Leave out the zones without a connectoid, logging each one")
   public void setRemoveDanglingZones(boolean removeDanglingZones) {
     this.removeDanglingZones = removeDanglingZones;
   }

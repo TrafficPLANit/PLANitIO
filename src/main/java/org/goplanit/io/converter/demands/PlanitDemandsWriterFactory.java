@@ -25,10 +25,18 @@ public class PlanitDemandsWriterFactory {
    * @return created demands writer
    */
   public static PlanitDemandsWriter create() {
-    return new PlanitDemandsWriter(
-        new PlanitDemandsWriterSettings(
-            PlanitDemandsWriterSettings.DEFAULT_DEMANDS_XML),
-        new XMLElementMacroscopicDemand());
+    return create(new PlanitDemandsWriterSettings());
+  }
+
+  /** Create a PLANitDemandsWriter which can persist a PLANit demands in the native PLANit XML format with the given
+   * settings, such as made from settings files. The reference zoning is set manually, or by the demands converter
+   * from its reader
+   *
+   * @param settings the settings to use
+   * @return created demands writer
+   */
+  public static PlanitDemandsWriter create(final PlanitDemandsWriterSettings settings) {
+    return new PlanitDemandsWriter(settings, new XMLElementMacroscopicDemand());
   }
 
   /** Create a PLANitDemandsWriter which can persist a PLANit demands in the native PLANit XML format. The reference

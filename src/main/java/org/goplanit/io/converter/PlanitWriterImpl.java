@@ -2,7 +2,6 @@ package org.goplanit.io.converter;
 
 import org.goplanit.converter.CrsWriterImpl;
 import org.goplanit.io.xml.util.PlanitSchema;
-import org.goplanit.io.xml.util.PlanitXmlWriterSettings;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.xml.utils.JAXBUtils;
