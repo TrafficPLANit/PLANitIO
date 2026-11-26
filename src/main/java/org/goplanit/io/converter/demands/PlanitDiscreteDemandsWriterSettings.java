@@ -63,6 +63,7 @@ public class PlanitDiscreteDemandsWriterSettings extends PlanitXmlWriterSettings
   @Override
   public void reset() {
     super.reset();
+    setFileName(DEFAULT_DEMANDS_XML);
   }
 
   /**

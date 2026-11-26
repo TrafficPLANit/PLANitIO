@@ -199,6 +199,10 @@ public class PlanitXmlWriterSettings extends SingleFileBasedConverterWriterSetti
    */
   public void reset() {
     super.reset();
+    this.decimalFormat = Precision.DEFAULT_DECIMAL_FORMAT;
+    this.tupleSeparator = CharacterUtils.SPACE;
+    this.commaSeparator = CharacterUtils.COMMA;
+    this.decimalSeparator = CharacterUtils.DECIMAL_POINT;
   }
 
   /**

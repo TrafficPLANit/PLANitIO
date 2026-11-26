@@ -56,6 +56,7 @@ public class PlanitNetworkWriterSettings extends PlanitXmlWriterSettings impleme
   @Override
   public void reset() {
     super.reset();
+    setFileName(DEFAULT_NETWORK_XML);
   }
 
   /**

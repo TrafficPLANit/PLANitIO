@@ -37,6 +37,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -58,14 +59,19 @@ public class PlanitXmlSettingsFilesTest {
 
   /**
    * One kind of reader or writer settings, with its two files: every key not at its default, and the global defaults
+   *
+   * @param <S> the type of the settings
    */
-  private static final class SettingsKind {
+  private static final class SettingsKind<S extends YamlWriteSettingsSupport> {
 
     /** makes the settings from sources */
-    private final Function<List<SettingsSource>, ? extends YamlWriteSettingsSupport> fromYaml;
+    private final Function<List<SettingsSource>, S> fromYaml;
 
     /** makes the settings at their defaults */
-    private final Supplier<? extends YamlWriteSettingsSupport> atDefaults;
+    private final Supplier<S> atDefaults;
+
+    /** resets the settings */
+    private final Consumer<S> reset;
 
     /** the file setting every key to a value other than its default */
     private final Path everyKeyNotDefaultFile;
@@ -78,16 +84,29 @@ public class PlanitXmlSettingsFilesTest {
      *
      * @param fromYaml makes the settings from sources
      * @param atDefaults makes the settings at their defaults
+     * @param reset resets the settings
      * @param everyKeyNotDefaultPrefix of the file of every key not at its default in the settings folder
      * @param globalDefaultsPrefix of the file of the global defaults in the settings folder
      */
-    private SettingsKind(Function<List<SettingsSource>, ? extends YamlWriteSettingsSupport> fromYaml,
-        Supplier<? extends YamlWriteSettingsSupport> atDefaults, String everyKeyNotDefaultPrefix,
-        String globalDefaultsPrefix) {
+    private SettingsKind(Function<List<SettingsSource>, S> fromYaml, Supplier<S> atDefaults, Consumer<S> reset,
+        String everyKeyNotDefaultPrefix, String globalDefaultsPrefix) {
       this.fromYaml = fromYaml;
       this.atDefaults = atDefaults;
+      this.reset = reset;
       this.everyKeyNotDefaultFile = SETTINGS_DIR.resolve(everyKeyNotDefaultPrefix + "_every_key_not_default.yaml");
       this.globalDefaultsFile = SETTINGS_DIR.resolve(globalDefaultsPrefix + "_global_defaults.yaml");
+    }
+
+    /**
+     * Verify that settings made from the file of every key not at its default, then reset, write every key as the
+     * settings at their defaults do
+     *
+     * @param folder to write the files to
+     * @throws IOException when a file cannot be written or read
+     */
+    private void assertResetGivesSettingsAsMadeNew(Path folder) throws IOException {
+      SettingsFileAssertionUtils.assertResetGivesSettingsAsMadeNew(
+          fromYaml, reset, everyKeyNotDefaultFile, atDefaults.get(), folder);
     }
   }
 
@@ -114,32 +133,40 @@ public class PlanitXmlSettingsFilesTest {
    * each kind of reader and writer settings with its files, the readers sharing theirs, and the writers with the keys
    * of every writer only sharing their file of every key not at its default, their default file names differing
    */
-  private static final List<SettingsKind> SETTINGS_KINDS = List.of(
-      new SettingsKind(PlanitXmlReaderSettingsFactory::createNetworkReaderSettingsFromYaml,
-          PlanitNetworkReaderSettings::new, READER_FILES, READER_FILES),
-      new SettingsKind(PlanitXmlReaderSettingsFactory::createZoningReaderSettingsFromYaml,
-          PlanitZoningReaderSettings::new, READER_FILES, READER_FILES),
-      new SettingsKind(PlanitXmlReaderSettingsFactory::createDemandsReaderSettingsFromYaml,
-          PlanitDemandsReaderSettings::new, READER_FILES, READER_FILES),
-      new SettingsKind(PlanitXmlReaderSettingsFactory::createDiscreteDemandsReaderSettingsFromYaml,
-          PlanitDiscreteDemandsReaderSettings::new, READER_FILES, READER_FILES),
-      new SettingsKind(PlanitXmlReaderSettingsFactory::createServiceNetworkReaderSettingsFromYaml,
-          PlanitServiceNetworkReaderSettings::new, READER_FILES, READER_FILES),
-      new SettingsKind(PlanitXmlReaderSettingsFactory::createRoutedServicesReaderSettingsFromYaml,
-          PlanitRoutedServicesReaderSettings::new, READER_FILES, READER_FILES),
-      new SettingsKind(PlanitXmlWriterSettingsFactory::createNetworkWriterSettingsFromYaml,
-          PlanitNetworkWriterSettings::new, WRITER_FILES, "planit_io_network_writer"),
-      new SettingsKind(PlanitXmlWriterSettingsFactory::createServiceNetworkWriterSettingsFromYaml,
-          PlanitServiceNetworkWriterSettings::new, WRITER_FILES, "planit_io_service_network_writer"),
-      new SettingsKind(PlanitXmlWriterSettingsFactory::createDiscreteDemandsWriterSettingsFromYaml,
-          PlanitDiscreteDemandsWriterSettings::new, WRITER_FILES, "planit_io_discrete_demands_writer"),
-      new SettingsKind(PlanitXmlWriterSettingsFactory::createZoningWriterSettingsFromYaml,
-          PlanitZoningWriterSettings::new, "planit_io_zoning_writer", "planit_io_zoning_writer"),
-      new SettingsKind(PlanitXmlWriterSettingsFactory::createDemandsWriterSettingsFromYaml,
-          PlanitDemandsWriterSettings::new, "planit_io_demands_writer", "planit_io_demands_writer"),
-      new SettingsKind(PlanitXmlWriterSettingsFactory::createRoutedServicesWriterSettingsFromYaml,
-          PlanitRoutedServicesWriterSettings::new, "planit_io_routed_services_writer",
-          "planit_io_routed_services_writer"));
+  private static final List<SettingsKind<?>> SETTINGS_KINDS = List.of(
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createNetworkReaderSettingsFromYaml,
+          PlanitNetworkReaderSettings::new, PlanitNetworkReaderSettings::reset, READER_FILES, READER_FILES),
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createZoningReaderSettingsFromYaml,
+          PlanitZoningReaderSettings::new, PlanitZoningReaderSettings::reset, READER_FILES, READER_FILES),
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createDemandsReaderSettingsFromYaml,
+          PlanitDemandsReaderSettings::new, PlanitDemandsReaderSettings::reset, READER_FILES, READER_FILES),
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createDiscreteDemandsReaderSettingsFromYaml,
+          PlanitDiscreteDemandsReaderSettings::new, PlanitDiscreteDemandsReaderSettings::reset, READER_FILES,
+          READER_FILES),
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createServiceNetworkReaderSettingsFromYaml,
+          PlanitServiceNetworkReaderSettings::new, PlanitServiceNetworkReaderSettings::reset, READER_FILES,
+          READER_FILES),
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createRoutedServicesReaderSettingsFromYaml,
+          PlanitRoutedServicesReaderSettings::new, PlanitRoutedServicesReaderSettings::reset, READER_FILES,
+          READER_FILES),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createNetworkWriterSettingsFromYaml,
+          PlanitNetworkWriterSettings::new, PlanitNetworkWriterSettings::reset, WRITER_FILES,
+          "planit_io_network_writer"),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createServiceNetworkWriterSettingsFromYaml,
+          PlanitServiceNetworkWriterSettings::new, PlanitServiceNetworkWriterSettings::reset, WRITER_FILES,
+          "planit_io_service_network_writer"),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createDiscreteDemandsWriterSettingsFromYaml,
+          PlanitDiscreteDemandsWriterSettings::new, PlanitDiscreteDemandsWriterSettings::reset, WRITER_FILES,
+          "planit_io_discrete_demands_writer"),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createZoningWriterSettingsFromYaml,
+          PlanitZoningWriterSettings::new, PlanitZoningWriterSettings::reset, "planit_io_zoning_writer",
+          "planit_io_zoning_writer"),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createDemandsWriterSettingsFromYaml,
+          PlanitDemandsWriterSettings::new, PlanitDemandsWriterSettings::reset, "planit_io_demands_writer",
+          "planit_io_demands_writer"),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createRoutedServicesWriterSettingsFromYaml,
+          PlanitRoutedServicesWriterSettings::new, PlanitRoutedServicesWriterSettings::reset,
+          "planit_io_routed_services_writer", "planit_io_routed_services_writer"));
 
   /** the logger, giving the log output PLANit's format */
   private static Logger LOGGER = null;
@@ -202,6 +229,17 @@ public class PlanitXmlSettingsFilesTest {
     for (var kind : SETTINGS_KINDS) {
       SettingsFileAssertionUtils.assertFileWrittenBySettingsAtTheirDefaults(
           kind.fromYaml, kind.atDefaults.get(), kind.globalDefaultsFile, tempDir);
+    }
+  }
+
+  /**
+   * For each reader and writer, settings made from the file of every key not at its default and then reset write
+   * every key as the settings at their defaults do: a reset puts every key back to its default
+   */
+  @Test
+  public void resetGivesSettingsAsMadeNew() throws IOException {
+    for (var kind : SETTINGS_KINDS) {
+      kind.assertResetGivesSettingsAsMadeNew(tempDir);
     }
   }
 

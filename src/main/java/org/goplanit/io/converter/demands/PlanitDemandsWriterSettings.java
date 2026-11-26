@@ -90,6 +90,10 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
   @Override
   public void reset() {
     super.reset();
+    setFileName(DEFAULT_DEMANDS_XML);
+    useFourFractionDigits();
+    this.originSeparator = DEFAULT_ORIGIN_SEPARATOR;
+    this.destinationSeparator = DEFAULT_DESTINATION_SEPARATOR;
   }
 
   /**

@@ -85,7 +85,9 @@ public class PlanitXmlReaderSettings extends FileBasedConverterReaderSettings im
    */
   @Override
   public void reset() {
-    //todo
+    super.reset();
+    this.xmlFileExtension = DEFAULT_XML_EXTENSION;
+    this.syncXmlIdsToIds = DEFAULT_SYNC_XMLIDS_TO_IDS;
   }
 
   /**

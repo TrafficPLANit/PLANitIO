@@ -72,6 +72,9 @@ public class PlanitRoutedServicesWriterSettings extends PlanitXmlWriterSettings 
   @Override
   public void reset() {
     super.reset();
+    setFileName(DEFAULT_ROUTED_SERVICES_XML);
+    this.frequencyTimeUnit = DEFAULT_FREQUENCY_TIME_UNIT;
+    this.logServicesWithoutTrips = DEFAULT_LOG_SERVICES_WITHOUT_TRIPS;
   }
 
   /**

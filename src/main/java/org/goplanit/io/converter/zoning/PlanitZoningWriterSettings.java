@@ -75,6 +75,8 @@ public class PlanitZoningWriterSettings extends PlanitXmlWriterSettings implemen
   @Override
   public void reset() {
     super.reset();
+    setFileName(DEFAULT_ZONING_XML);
+    this.removeDanglingZones = DEFAULT_REMOVE_DANGLING_ZONES;
   }
 
   /**
