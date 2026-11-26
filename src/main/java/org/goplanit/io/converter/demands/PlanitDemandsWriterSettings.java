@@ -47,10 +47,10 @@ public class PlanitDemandsWriterSettings extends PlanitXmlWriterSettings impleme
   }
 
   /** default origin separator used in matrix values element */
-  public static String DEFAULT_ORIGIN_SEPARATOR = " ";
+  public static final String DEFAULT_ORIGIN_SEPARATOR = " ";
 
   /** default origin separator used in matrix values element */
-  public static String DEFAULT_DESTINATION_SEPARATOR = ",";
+  public static final String DEFAULT_DESTINATION_SEPARATOR = ",";
 
   /** default demands file name to use */
   public static final String DEFAULT_DEMANDS_XML = "demands.xml";

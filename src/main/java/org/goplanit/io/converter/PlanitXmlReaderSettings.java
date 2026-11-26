@@ -46,10 +46,10 @@ public class PlanitXmlReaderSettings extends FileBasedConverterReaderSettings im
   private boolean syncXmlIdsToIds = DEFAULT_SYNC_XMLIDS_TO_IDS;
 
   /** default extension for XML */
-  public static String DEFAULT_XML_EXTENSION = ".xml";
+  public static final String DEFAULT_XML_EXTENSION = ".xml";
 
   /** flag indicating default for syncing XML ids with internal ids */
-  public static boolean DEFAULT_SYNC_XMLIDS_TO_IDS = false;
+  public static final boolean DEFAULT_SYNC_XMLIDS_TO_IDS = false;
 
   
   /**
