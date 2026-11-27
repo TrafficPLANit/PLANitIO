@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Pricing read: a base price, a factor override for heavy goods, two time bands and two distance bands -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>pricing</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="westconnex" name="WestConnex" tollroadrefs="m4,rozelle,m8,m5east">
+      <pricing>
+        <price start="1.73" perkm="0.64"/>
+        <priceoverride moderefs="heavygoods" factor="3"/>
+        <timebandoverride id="night">
+          <timebandentry temporalunit="hour" temporalunitmultiplier="8" temporaloffset="21"/>
+          <priceoverride moderefs="heavygoods" factor="1"/>
+        </timebandoverride>
+        <timebandoverride id="am">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="hour" temporalunitmultiplier="3" temporaloffset="7"/>
+          <price perkm="0.80"/>
+        </timebandoverride>
+        <distancebandoverride per="use" tokm="10" factor="1"/>
+        <distancebandoverride per="use" fromkm="10" factor="0.5"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

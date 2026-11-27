@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Unknown reference in a layout: one unknown link segment type, three unknown link segments -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>unknown_reference_in_layout</id>
+  <parentnetwork>1</parentnetwork>
+  <modeschemes>
+    <modescheme id="trucks" name="Truck charge" moderefs="heavygoods">
+      <include typerefs="motorway,trunk,primary,nosuchtype"/>
+      <exclude lsrefs="nosuchsegment"/>
+      <sections>
+        <section id="urban" lsrefs="5101,nosuchsectionsegment"/>
+      </sections>
+      <pricing>
+        <price perkm="0.167">
+          <sectionprice sectionref="urban" perkm="0.25"/>
+        </price>
+      </pricing>
+    </modescheme>
+  </modeschemes>
+  <entryexitschemes>
+    <entryexitscheme id="ticketroad" name="Closed motorway, ticket system" tollroadrefs="ticketroad">
+      <gates>
+        <gate id="north"   entrylsrefs="601,602,nosuchentry" exitlsrefs="603"/>
+        <gate id="central" entrylsrefs="611"     exitlsrefs="612,613"/>
+        <gate id="south"   entrylsrefs="621"     exitlsrefs="622"/>
+      </gates>
+      <pricing>
+        <price>
+          <pair fromgateref="north"   togateref="central" amount="2.40"/>
+          <pair fromgateref="north"   togateref="south"   amount="4.90"/>
+          <pair fromgateref="central" togateref="south"   amount="2.60"/>
+          <pair fromgateref="central" togateref="north"   amount="2.40"/>
+          <pair fromgateref="south"   togateref="north"   amount="4.90"/>
+          <pair fromgateref="south"   togateref="central" amount="2.60"/>
+        </price>
+      </pricing>
+    </entryexitscheme>
+  </entryexitschemes>
+</networkpricing>

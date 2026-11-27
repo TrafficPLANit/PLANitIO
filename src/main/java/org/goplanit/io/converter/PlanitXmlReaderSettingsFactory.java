@@ -6,10 +6,11 @@ import org.goplanit.io.converter.demands.PlanitDemandsReaderSettings;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsReaderSettings;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderSettings;
 import org.goplanit.io.converter.network.PlanitNetworkReaderSettings;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingReaderSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesReaderSettings;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
-import org.goplanit.utils.exceptions.SettingsProblemsException;
+import org.goplanit.utils.exceptions.ProblemsRunTimeException;
 import org.goplanit.utils.settings.SettingsSource;
 import org.goplanit.utils.settings.SettingsYamlLoader;
 
@@ -25,9 +26,9 @@ import org.goplanit.utils.settings.SettingsYamlLoader;
  * </pre>
  * <p>
  * It is the one place to find how PLANit reader settings are made from files. The sources follow
- * {@link PlanitXmlReaderSettings#SCHEMA} and apply in order, a later source winning for a replacing key. Each reader has
- * a file of its own; the intermodal reader's file names the files of the readers it holds. Every problem in the
- * sources is reported together, see {@link SettingsProblemsException}. The settings made are ordinary settings, so
+ * {@link PlanitXmlReaderSettings#SCHEMA} and apply in order, a later source winning for a replacing key. Each reader
+ * has a file of its own; the intermodal reader's file names the files of the readers it holds. Every problem in the
+ * sources is reported together, see {@link ProblemsRunTimeException}. The settings made are ordinary settings, so
  * nothing that takes settings changes, and code changing them afterwards wins. Settings made in code keep using the
  * constructors of the settings and the readers' own factories.
  * </p>
@@ -45,7 +46,7 @@ public final class PlanitXmlReaderSettingsFactory {
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources
+   * @throws ProblemsRunTimeException holding every problem found in the sources
    */
   public static PlanitNetworkReaderSettings createNetworkReaderSettingsFromYaml(List<SettingsSource> sources) {
     return new SettingsYamlLoader(PlanitXmlReaderSettings.SCHEMA, sources)
@@ -57,7 +58,7 @@ public final class PlanitXmlReaderSettingsFactory {
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources
+   * @throws ProblemsRunTimeException holding every problem found in the sources
    */
   public static PlanitZoningReaderSettings createZoningReaderSettingsFromYaml(List<SettingsSource> sources) {
     return new SettingsYamlLoader(PlanitXmlReaderSettings.SCHEMA, sources)
@@ -69,7 +70,7 @@ public final class PlanitXmlReaderSettingsFactory {
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources
+   * @throws ProblemsRunTimeException holding every problem found in the sources
    */
   public static PlanitDemandsReaderSettings createDemandsReaderSettingsFromYaml(List<SettingsSource> sources) {
     return new SettingsYamlLoader(PlanitXmlReaderSettings.SCHEMA, sources)
@@ -81,7 +82,7 @@ public final class PlanitXmlReaderSettingsFactory {
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources
+   * @throws ProblemsRunTimeException holding every problem found in the sources
    */
   public static PlanitDiscreteDemandsReaderSettings createDiscreteDemandsReaderSettingsFromYaml(
       List<SettingsSource> sources) {
@@ -90,11 +91,24 @@ public final class PlanitXmlReaderSettingsFactory {
   }
 
   /**
+   * Network pricing reader settings made from YAML sources
+   *
+   * @param sources in the order they apply
+   * @return the settings
+   * @throws ProblemsRunTimeException holding every problem found in the sources
+   */
+  public static PlanitNetworkPricingReaderSettings createNetworkPricingReaderSettingsFromYaml(
+      List<SettingsSource> sources) {
+    return new SettingsYamlLoader(PlanitXmlReaderSettings.SCHEMA, sources)
+        .create(PlanitNetworkPricingReaderSettings.class);
+  }
+
+  /**
    * Service network reader settings made from YAML sources
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources
+   * @throws ProblemsRunTimeException holding every problem found in the sources
    */
   public static PlanitServiceNetworkReaderSettings createServiceNetworkReaderSettingsFromYaml(
       List<SettingsSource> sources) {
@@ -107,7 +121,7 @@ public final class PlanitXmlReaderSettingsFactory {
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources
+   * @throws ProblemsRunTimeException holding every problem found in the sources
    */
   public static PlanitRoutedServicesReaderSettings createRoutedServicesReaderSettingsFromYaml(
       List<SettingsSource> sources) {
@@ -120,7 +134,7 @@ public final class PlanitXmlReaderSettingsFactory {
    *
    * @param sources in the order they apply
    * @return the settings
-   * @throws SettingsProblemsException holding every problem found in the sources and the files they name
+   * @throws ProblemsRunTimeException holding every problem found in the sources and the files they name
    */
   public static PlanitIntermodalReaderSettings createIntermodalReaderSettingsFromYaml(List<SettingsSource> sources) {
     return new SettingsYamlLoader(PlanitXmlReaderSettings.SCHEMA, sources)

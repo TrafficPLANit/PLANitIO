@@ -16,6 +16,7 @@ import org.goplanit.component.event.PopulateDemandsEvent;
 import org.goplanit.component.event.PopulateInitialLinkSegmentCostEvent;
 import org.goplanit.component.event.PopulateNetworkEvent;
 import org.goplanit.component.event.PopulateRoutedServicesEvent;
+import org.goplanit.component.event.PopulateNetworkPricingEvent;
 import org.goplanit.component.event.PopulateServiceNetworkEvent;
 import org.goplanit.component.event.PopulateZoningEvent;
 import org.goplanit.cost.physical.initial.InitialMacroscopicLinkSegmentCost;
@@ -24,6 +25,8 @@ import org.goplanit.input.InputBuilderListener;
 import org.goplanit.io.converter.demands.PlanitDemandsReader;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingReaderFactory;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingReaderSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesReader;
 import org.goplanit.io.converter.service.PlanitRoutedServicesReaderFactory;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
@@ -36,6 +39,7 @@ import org.goplanit.xml.generated.v2.*;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.MacroscopicNetwork;
+import org.goplanit.pricing.NetworkPricing;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.output.property.DownstreamNodeXmlIdOutputProperty;
 import org.goplanit.output.property.LinkSegmentCostOutputProperty;
@@ -488,6 +492,17 @@ public class PlanItInputBuilder extends InputBuilderListener {
   }
 
   /**
+   * Populate a network pricing from the pricing file in the project folder, the first file there that is one. A
+   * project creates a pricing only when asked, so a folder without one stops with an error
+   *
+   * @param networkPricingToPopulate to populate, made on the network it refers to
+   */
+  protected void populateNetworkPricing(final NetworkPricing networkPricingToPopulate) {
+    var settings = new PlanitNetworkPricingReaderSettings(projectPath, xmlFileExtension);
+    PlanitNetworkPricingReaderFactory.create(settings, networkPricingToPopulate).read();
+  }
+
+  /**
    * Populate the initial link segment cost from a CSV file
    *
    * @param initialCostEvent to extract context from to populate its component that it carries
@@ -583,6 +598,23 @@ public class PlanItInputBuilder extends InputBuilderListener {
   /** The default separator that is assumed when no separator is provided */
   public static final String DEFAULT_SEPARATOR = ",";  
 
+  /**
+   * Validates an input XML file against an XSD file
+   *
+   * @param xmlFileLocation input XML file
+   * @param schemaFileLocation XSD file to validate XML file against
+   * @return true if the file is valid, false otherwise
+   */
+  public static boolean validateXmlInputFile(final File xmlFileLocation, final String schemaFileLocation) {
+    try {
+      JAXBUtils.validateXml(xmlFileLocation, schemaFileLocation);
+      return true;
+    } catch (final Exception e) {
+      LOGGER.info(e.getMessage());
+      return false;
+    }
+  }
+
 
   /**
    * Constructor which generates the input objects from files in a specified
@@ -611,23 +643,6 @@ public class PlanItInputBuilder extends InputBuilderListener {
     
     this.projectPath = projectPath;
     this.xmlFileExtension = xmlFileExtension;
-  }
-
-  /**
-   * Validates an input XML file against an XSD file
-   *
-   * @param xmlFileLocation input XML file
-   * @param schemaFileLocation XSD file to validate XML file against
-   * @return true if the file is valid, false otherwise
-   */
-  public static boolean validateXmlInputFile(final File xmlFileLocation, final String schemaFileLocation) {
-    try {
-      JAXBUtils.validateXml(xmlFileLocation, schemaFileLocation);
-      return true;
-    } catch (final Exception e) {
-      LOGGER.info(e.getMessage());
-      return false;
-    }
   }
 
   /**
@@ -663,6 +678,9 @@ public class PlanItInputBuilder extends InputBuilderListener {
       /* ROUTED SERVICES */
       PopulateRoutedServicesEvent routedServicesEvent = ((PopulateRoutedServicesEvent) event);
       populateRoutedServices(routedServicesEvent.getRoutedServicesToPopulate());
+    }else if(event.getType().equals(PopulateNetworkPricingEvent.EVENT_TYPE)){
+      /* NETWORK PRICING */
+      populateNetworkPricing(((PopulateNetworkPricingEvent) event).getNetworkPricingToPopulate());
     } else {      
       /* generic case */
       LOGGER.fine("Event component " + event.getClass().getCanonicalName() + " ignored by PlanItInputBuilder");

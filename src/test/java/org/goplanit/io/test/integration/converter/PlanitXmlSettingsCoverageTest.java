@@ -6,6 +6,8 @@ import org.goplanit.io.converter.demands.PlanitDiscreteDemandsReaderSettings;
 import org.goplanit.io.converter.demands.PlanitDiscreteDemandsWriterSettings;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderSettings;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalWriterSettings;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingReaderSettings;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingWriterSettings;
 import org.goplanit.utils.settings.SettingsCoverage;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * every key has a read; and every key a convenience is covered by exists
  * <p>
  * The intermodal reader and writer settings reach the network, zoning, service network and routed services settings
- * through the files they name; the demands and discrete demands settings are reached on their own.
+ * through the files they name; the demands, discrete demands and network pricing settings are reached on their own.
  * </p>
  *
  * @author markr
@@ -30,7 +32,8 @@ public class PlanitXmlSettingsCoverageTest {
   private static final SettingsCoverage COVERAGE = SettingsCoverage.of(PlanitIntermodalReaderSettings.class,
       PlanitIntermodalWriterSettings.class, PlanitDemandsReaderSettings.class,
       PlanitDiscreteDemandsReaderSettings.class, PlanitDemandsWriterSettings.class,
-      PlanitDiscreteDemandsWriterSettings.class);
+      PlanitDiscreteDemandsWriterSettings.class, PlanitNetworkPricingReaderSettings.class,
+      PlanitNetworkPricingWriterSettings.class);
 
   /** Every method changing settings has exactly one marker */
   @Test

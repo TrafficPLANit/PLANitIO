@@ -11,11 +11,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
-import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.WarningRecorder;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.IdGenerator;
@@ -34,12 +31,9 @@ import org.goplanit.utils.network.layer.macroscopic.intersection.NonSpatialInter
 import org.goplanit.utils.network.layer.macroscopic.intersection.SpatialIntersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUtils;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
-import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.xml.utils.JAXBUtils;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,16 +46,13 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author markr
  */
-public class IntersectionsReaderWriterTest extends TestBase {
+public class IntersectionsReaderWriterTest extends NetworkReaderWriterTestBase {
 
   /** the logger */
   private static Logger LOGGER = null;
 
   /** location of the intersections test cases */
   private static final Path INTERSECTIONS_PATH = Path.of(TEST_CASE_PATH.toString(), "intersections");
-
-  /** the network reader's logger, held here so the recorder stays attached to the instance the reader uses */
-  private static final Logger READER_LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());
 
   /** the movement of the spatial intersection with the given XML id */
   private static SpatialMovement movementByXmlId(SpatialIntersection intersection, String xmlId) {
@@ -102,27 +93,9 @@ public class IntersectionsReaderWriterTest extends TestBase {
         .collect(Collectors.toMap(ban -> ban.getXmlId(), ban -> String.valueOf(ban.getExternalId())));
   }
 
-  /** records the warnings the network reader logs while a test runs */
-  private WarningRecorder readerWarnings;
-
-  /** read the network in the given directory, and return its only layer */
-  private static MacroscopicNetworkLayer readLayer(Path directory) {
-    return PlanItIOTestHelper.readNetwork(directory).getTransportLayers().getFirst();
-  }
-
   /** the intersection of the layer with the given XML id, null when none */
   private static Intersection byXmlId(MacroscopicNetworkLayer layer, String xmlId) {
     return layer.getIntersections().stream().filter(i -> xmlId.equals(i.getXmlId())).findFirst().orElse(null);
-  }
-
-  /** XML ids of the member nodes */
-  private static Set<String> nodeIds(Intersection intersection) {
-    return intersection.getMemberNodes().stream().map(Node::getXmlId).collect(Collectors.toSet());
-  }
-
-  /** XML ids of the given segments */
-  private static Set<String> segmentIds(List<LinkSegment> segments) {
-    return segments.stream().map(LinkSegment::getXmlId).collect(Collectors.toSet());
   }
 
   /** a movement as the XML ids of its from and to segments, its length, external id and direct ban with its modes */
@@ -178,18 +151,6 @@ public class IntersectionsReaderWriterTest extends TestBase {
     IdGenerator.reset();
   }
 
-  @BeforeEach
-  public void recordReaderWarnings() {
-    IdGenerator.reset();
-    readerWarnings = new WarningRecorder();
-    READER_LOGGER.addHandler(readerWarnings);
-  }
-
-  @AfterEach
-  public void stopRecordingReaderWarnings() {
-    READER_LOGGER.removeHandler(readerWarnings);
-  }
-
   // READING
 
   /** A v2 network without intersections reads as before, with an empty intersections container */
@@ -212,30 +173,30 @@ public class IntersectionsReaderWriterTest extends TestBase {
     assertEquals("ext-1", i1.getExternalId());
     assertEquals(IntersectionControlType.SIGNALISED, i1.getControlType());
     assertEquals(EnumSet.of(IntersectionType.JUNCTION, IntersectionType.CROSSING), i1.getTypes());
-    assertEquals(Set.of("0"), nodeIds(i1));
-    assertEquals(Set.of("0", "2", "4", "7"), segmentIds(i1.getApproachSegments()));
-    assertEquals(Set.of("0", "2", "7"), segmentIds(approachesWithOwnSignal(i1)));
+    assertEquals(Set.of("0"), xmlIds(i1.getMemberNodes()));
+    assertEquals(Set.of("0", "2", "4", "7"), xmlIds(i1.getApproachSegments()));
+    assertEquals(Set.of("0", "2", "7"), xmlIds(approachesWithOwnSignal(i1)));
 
     var i2 = byXmlId(layer, "i2");
     assertTrue(i2 instanceof NonSpatialIntersection);
     assertFalse(i2.hasExternalId());
     assertEquals(IntersectionControlType.UNSIGNALISED, i2.getControlType());
     assertEquals(EnumSet.of(IntersectionType.CROSSING), i2.getTypes());
-    assertEquals(Set.of("9"), segmentIds(approachesWithOwnSignal(i2)));
+    assertEquals(Set.of("9"), xmlIds(approachesWithOwnSignal(i2)));
 
     var i3 = (SpatialIntersection) byXmlId(layer, "i3");
-    assertEquals(Set.of("5", "6"), nodeIds(i3));
-    assertEquals(Set.of("8", "12", "14"), segmentIds(i3.getApproachSegments()));
-    assertEquals(Set.of("10", "11"), segmentIds(i3.getInternalSegments()));
-    assertEquals(Set.of("11"), segmentIds(i3.getInternalSegmentsWithSignal()));
+    assertEquals(Set.of("5", "6"), xmlIds(i3.getMemberNodes()));
+    assertEquals(Set.of("8", "12", "14"), xmlIds(i3.getApproachSegments()));
+    assertEquals(Set.of("10", "11"), xmlIds(i3.getInternalSegments()));
+    assertEquals(Set.of("11"), xmlIds(i3.getInternalSegmentsWithSignal()));
     assertSame(i3, layer.getIntersections().getByMemberNode(i3.getMemberNodes().get(1)));
 
     var i4 = byXmlId(layer, "i4");
     assertTrue(i4 instanceof NonSpatialIntersection);
     assertEquals(IntersectionControlType.SIGNALISED, i4.getControlType());
     assertEquals(EnumSet.of(IntersectionType.RAMP_METER), i4.getTypes());
-    assertEquals(Set.of("7"), nodeIds(i4));
-    assertEquals(Set.of("13"), segmentIds(approachesWithOwnSignal(i4)));
+    assertEquals(Set.of("7"), xmlIds(i4.getMemberNodes()));
+    assertEquals(Set.of("13"), xmlIds(approachesWithOwnSignal(i4)));
     /* banned modes imply a direct ban, as for m3 */
     assertEquals(Set.of("8|15|0.02|ext-m1|direct|", "12|9|0.0|null|none|", "14|9|0.02|null|direct|car"),
         movements(i3));
@@ -260,11 +221,11 @@ public class IntersectionsReaderWriterTest extends TestBase {
     assertNull(byXmlId(layer, "i3"));
 
     var i1 = byXmlId(layer, "i1");
-    assertEquals(Set.of("0", "2"), segmentIds(i1.getApproachSegments()));
+    assertEquals(Set.of("0", "2"), xmlIds(i1.getApproachSegments()));
 
     var i4 = (SpatialIntersection) byXmlId(layer, "i4");
     assertTrue(i4.getApproachSegments().isEmpty());
-    assertEquals(Set.of("10"), segmentIds(i4.getInternalSegments()));
+    assertEquals(Set.of("10"), xmlIds(i4.getInternalSegments()));
     assertTrue(i4.getMovements().isEmpty());
     assertTrue(layer.getSpatialMovements().isEmpty());
     assertEquals(Set.of("0|5|"), bannedTurns(layer));
@@ -276,8 +237,8 @@ public class IntersectionsReaderWriterTest extends TestBase {
   public void internalSegmentListedTwiceIsKeptWithSignal() {
     var i3 = (SpatialIntersection) byXmlId(readLayer(INTERSECTIONS_PATH.resolve("listed_twice")), "i3");
 
-    assertEquals(Set.of("10", "11"), segmentIds(i3.getInternalSegments()));
-    assertEquals(Set.of("10"), segmentIds(i3.getInternalSegmentsWithSignal()));
+    assertEquals(Set.of("10", "11"), xmlIds(i3.getInternalSegments()));
+    assertEquals(Set.of("10"), xmlIds(i3.getInternalSegmentsWithSignal()));
     assertEquals(1, readerWarnings.getCount());
   }
 
@@ -381,12 +342,12 @@ public class IntersectionsReaderWriterTest extends TestBase {
         assertEquals(written.getExternalId(), read.getExternalId());
         assertEquals(written.getControlType(), read.getControlType());
         assertEquals(written.getTypes(), read.getTypes());
-        assertEquals(nodeIds(written), nodeIds(read));
-        assertEquals(segmentIds(written.getApproachSegments()), segmentIds(read.getApproachSegments()));
-        assertEquals(segmentIds(approachesWithOwnSignal(written)), segmentIds(approachesWithOwnSignal(read)));
-        assertEquals(segmentIds(IntersectionUtils.getInternalSegmentsOf(written)),
-            segmentIds(IntersectionUtils.getInternalSegmentsOf(read)));
-        assertEquals(segmentIds(internalSegmentsWithSignal(written)), segmentIds(internalSegmentsWithSignal(read)));
+        assertEquals(xmlIds(written.getMemberNodes()), xmlIds(read.getMemberNodes()));
+        assertEquals(xmlIds(written.getApproachSegments()), xmlIds(read.getApproachSegments()));
+        assertEquals(xmlIds(approachesWithOwnSignal(written)), xmlIds(approachesWithOwnSignal(read)));
+        assertEquals(xmlIds(IntersectionUtils.getInternalSegmentsOf(written)),
+            xmlIds(IntersectionUtils.getInternalSegmentsOf(read)));
+        assertEquals(xmlIds(internalSegmentsWithSignal(written)), xmlIds(internalSegmentsWithSignal(read)));
         assertEquals(movements(written), movements(read));
       }
       assertEquals(original.getSpatialMovements().size(), readBack.getSpatialMovements().size());

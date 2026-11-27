@@ -9,7 +9,6 @@ import org.goplanit.io.input.PlanItInputBuilder;
 import org.goplanit.io.xml.util.PlanitXmlJaxbParser;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
-import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.zoning.zonetozone.OdDemandMatrix;
 import org.goplanit.zoning.zonetozone.OdDemands;
 import org.goplanit.userclass.TravellerType;
@@ -48,48 +47,6 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
 
   /** list of reserved characters used */
   private static final List<String> RESERVED_CHARACTERS = Arrays.asList(new String[]{"+", "*", "^"});
-  
-  /** parses the xml content in JAXB memory format */
-  private final PlanitXmlJaxbParser<
-      org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand,?> xmlParser;
-
-  /**
-   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the parsed
-   * demands is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to the internal ids upon parsing
-   * because this avoids the risk of generating duplicate XML ids during editing of the network (when XML ids are chosen to be synced to internal ids)
-   */
-  private void syncXmlIdsToIds() {
-    LOGGER.info("Syncing PLANit demands XML ids to internally generated ids, overwriting original XML ids");
-    DemandsModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(demands);
-  }
-  
-  /**
-   * initialise the XML id trackers and populate them for the network and or zoning references, 
-   * so we can lay indices on the XML id as well for quick lookups
-   * 
-   * @param network to use
-   * @param zoning to use
-   */
-  private void initialiseParentXmlIdTrackers(LayeredNetwork<?,?> network, Zoning zoning) {
-    initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
-    
-    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getXmlId);
-    getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoning.getOdZones());
-
-    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
-    getSourceIdContainer(TransferZone.getTransferZoneIdClass()).addAll(zoning.getTransferZones());
-  } 
-  
-  /**
-   * initialise the XML id trackers of generated PLANit entity types, so we can lay indices on the XML id as well
-   * for quick lookups
-   * 
-   */
-  private void initialiseXmlIdTrackers() {    
-    initialiseSourceIdMap(UserClass.class, UserClass::getXmlId);   
-    initialiseSourceIdMap(TravellerType.class, TravellerType::getXmlId);
-    initialiseSourceIdMap(TimePeriod.class, TimePeriod::getXmlId);
-  }   
   
   /**
    * Generate default traveller type if none defined in XML files
@@ -203,6 +160,44 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     
   }
   
+  /** parses the xml content in JAXB memory format */
+  private final PlanitXmlJaxbParser<
+      org.goplanit.xml.generated.v2.XMLElementMacroscopicDemand,?> xmlParser;
+
+  /**
+   * Initialise event listeners in case we want to make changes to the XML ids after parsing is complete, e.g., if the
+   * parsed demands is going to be modified and saved to disk afterwards, then it is advisable to sync all XML ids to
+   * the internal ids upon parsing because this avoids the risk of generating duplicate XML ids during editing of the
+   * network (when XML ids are chosen to be synced to internal ids)
+   */
+  private void syncXmlIdsToIds() {
+    LOGGER.info("Syncing PLANit demands XML ids to internally generated ids, overwriting original XML ids");
+    DemandsModifierUtils.syncManagedIdEntitiesContainerXmlIdsToIds(demands);
+  }
+  
+  /**
+   * initialise the XML id trackers and populate them for the network and or zoning references, 
+   * so we can lay indices on the XML id as well for quick lookups
+   * 
+   * @param network to use
+   * @param zoning to use
+   */
+  private void initialiseParentXmlIdTrackers(LayeredNetwork<?,?> network, Zoning zoning) {
+    initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
+    initialiseZoneSourceIdMaps(zoning);
+  } 
+  
+  /**
+   * initialise the XML id trackers of generated PLANit entity types, so we can lay indices on the XML id as well
+   * for quick lookups
+   * 
+   */
+  private void initialiseXmlIdTrackers() {    
+    initialiseSourceIdMap(UserClass.class, UserClass::getXmlId);   
+    initialiseSourceIdMap(TravellerType.class, TravellerType::getXmlId);
+    initialiseSourceIdMap(TimePeriod.class, TimePeriod::getXmlId);
+  }   
+  
   /**
    * Check if all required settings are indeed set by the user
    *
@@ -223,7 +218,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
     
     /* traveller types */
     XMLElementTravellerTypes xmlTravellertypes =
-        (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes() : demandconfiguration.getTravellertypes();
+        (demandconfiguration.getTravellertypes() == null) ? new XMLElementTravellerTypes() :
+            demandconfiguration.getTravellertypes();
     if (xmlTravellertypes.getTravellertypes().isEmpty()) {
       xmlTravellertypes.getTravellertypes().add(generateDefaultXMLTravellerType());
     }
@@ -359,7 +355,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
           Zones<OdZone> zones) {
     
     @SuppressWarnings("unchecked")
-    MapWrapper<String, OdZone> xmlIdZoneMap = (MapWrapper<String,OdZone>)getSourceIdContainer(OdZone.getOdZoneIdClass());
+    MapWrapper<String, OdZone> xmlIdZoneMap =
+        (MapWrapper<String, OdZone>) getSourceIdContainer(OdZone.getOdZoneIdClass());
     if (xmlOdMatrix instanceof XMLElementOdCellByCellMatrix) {
       
       /* cell-by-cell matrix */
@@ -391,7 +388,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
       separator = escapeSeparator(separator);
       final var xmlOdRow = xmlOdRowMatrix.getOdrows();
 
-      /* construct same ref ordering for cols based on the row ordering as this cannot be assumed to be consistent with internal ids */
+      /* construct same ref ordering for cols based on the row ordering as this cannot be assumed to be consistent
+       * with internal ids */
       var destinationZoneOrderList = new ArrayList<Zone>(xmlOdRow.size());
       for (final var xmlDestinationZone : xmlOdRow) {
         final Zone destinationZone = xmlIdZoneMap.get(xmlDestinationZone.getRef());
@@ -420,13 +418,15 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
 //      final Values xmlValues = ((XMLElementOdRawMatrix) xmlOdMatrix).getValues();
 //      String originSeparator = (xmlValues.getOs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR : xmlValues.getOs();
 //      originSeparator = escapeSeparator(originSeparator);
-//      String destinationSeparator = (xmlValues.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlValues.getDs();
+//      String destinationSeparator =
+//          (xmlValues.getDs() == null) ? PlanItInputBuilder.DEFAULT_SEPARATOR: xmlValues.getDs();
 //      destinationSeparator = escapeSeparator(destinationSeparator);
 //
 //      if (originSeparator.equals(destinationSeparator)) {
 //        populateDemandMatrixRawForEqualSeparators(xmlValues, originSeparator, pcu, odDemandMatrix, zones);
 //      } else {
-//        populateDemandMatrixRawDifferentSeparators(xmlValues, originSeparator, destinationSeparator, pcu, odDemandMatrix, zones);
+//        populateDemandMatrixRawDifferentSeparators(
+//            xmlValues, originSeparator, destinationSeparator, pcu, odDemandMatrix, zones);
 //      }
     }       
   }
@@ -524,7 +524,8 @@ public class PlanitDemandsReader extends BaseReaderImpl<Demands> implements Dema
           "https://trafficplanit.github.io/PLANitManual/xsd/macroscopicdemandinput.xsd";
 
 
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory
+   * model
    * 
    * @param xmlMacroscopicDemands to extract from
    * @param network reference network for the demands to read

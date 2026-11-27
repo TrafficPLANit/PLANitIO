@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Parent network does not match: the network read is 1 -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>parent_network_mismatch</id>
+  <parentnetwork>2</parentnetwork>
+  <locationschemes>
+    <locationscheme id="harbour" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

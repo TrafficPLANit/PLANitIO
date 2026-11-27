@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Amounts of the other kind of scheme: a pair of gates in a location scheme's price, refused by the schema, so
+     checked with lxml (tools/validate_xml.py), as the Java validator cannot fetch the GML schemas -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>pairinlocationscheme</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="westconnex" name="WestConnex" tollroadrefs="m4">
+      <pricing>
+        <price start="1.73" perkm="0.64">
+          <pair fromgateref="north" togateref="south" amount="4.90"/>
+        </price>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

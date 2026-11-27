@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Unknown section or gate: a section price and a pair name what their schemes do not have -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>unknown_section_or_gate</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="orbital" name="Orbital motorway" tollroadrefs="orbital">
+      <sections>
+        <section id="z1w" lsrefs="801,802"/>
+        <section id="z1e" lsrefs="803,804"/>
+      </sections>
+      <pricing>
+        <price start="1.00">
+          <sectionprice sectionref="z1w" perkm="0.40"/>
+          <sectionprice sectionref="z1e" perkm="0.38"/>
+          <sectionprice sectionref="nosuchsection" perkm="0.50"/>
+        </price>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+  <entryexitschemes>
+    <entryexitscheme id="ticketroad" name="Closed motorway, ticket system" tollroadrefs="ticketroad">
+      <gates>
+        <gate id="north"   entrylsrefs="601,602" exitlsrefs="603"/>
+        <gate id="central" entrylsrefs="611"     exitlsrefs="612,613"/>
+        <gate id="south"   entrylsrefs="621"     exitlsrefs="622"/>
+      </gates>
+      <pricing>
+        <price>
+          <pair fromgateref="north"   togateref="central" amount="2.40"/>
+          <pair fromgateref="north"   togateref="south"   amount="4.90"/>
+          <pair fromgateref="central" togateref="south"   amount="2.60"/>
+          <pair fromgateref="central" togateref="north"   amount="2.40"/>
+          <pair fromgateref="south"   togateref="north"   amount="4.90"/>
+          <pair fromgateref="south"   togateref="central" amount="2.60"/>
+          <pair fromgateref="nosuchgate" togateref="north" amount="1.00"/>
+        </price>
+      </pricing>
+    </entryexitscheme>
+  </entryexitschemes>
+</networkpricing>

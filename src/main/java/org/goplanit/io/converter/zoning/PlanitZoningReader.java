@@ -320,12 +320,10 @@ public class PlanitZoningReader extends BaseReaderImpl<Zoning> implements Zoning
    * 
    * @param network to use
    */
-  private void initialiseParentNetworkXmlIdTrackers(MacroscopicNetwork network) {    
-    initialiseSourceIdMap(Node.class, Node::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Node.class).addAll(layer.getNodes()));    
-    initialiseSourceIdMap(MacroscopicLinkSegment.class, MacroscopicLinkSegment::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(MacroscopicLinkSegment.class).addAll(
-        layer.getLinkSegments()));
+  private void initialiseParentNetworkXmlIdTrackers(MacroscopicNetwork network) {
+    initialiseSourceIdMap(Node.class, Node::getXmlId, network.getTransportLayers(), layer -> layer.getNodes());
+    initialiseSourceIdMap(MacroscopicLinkSegment.class, MacroscopicLinkSegment::getXmlId,
+        network.getTransportLayers(), layer -> layer.getLinkSegments());
   }  
   
   /**

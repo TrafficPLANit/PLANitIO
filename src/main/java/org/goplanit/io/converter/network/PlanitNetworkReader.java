@@ -33,6 +33,7 @@ import org.goplanit.utils.id.IdGroupingToken;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
+import org.goplanit.utils.network.layer.macroscopic.tollroad.TollRoad;
 import org.goplanit.utils.mode.*;
 import org.goplanit.utils.mode.DriverType;
 import org.goplanit.utils.mode.Mode;
@@ -60,6 +61,8 @@ import org.locationtech.jts.geom.Point;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import net.opengis.gml.PointType;
+import org.goplanit.utils.id.ExternalIdAbleUtils;
+import org.goplanit.utils.network.layer.physical.LinkSegmentUtils;
 
 /**
  * Implementation of the network reader for the PLANit XML native format
@@ -71,6 +74,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
   
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(PlanitNetworkReader.class.getCanonicalName());
+
+  /** most link segments or modes listed in one warning */
+  private static final int MAX_LISTED = 10;
 
   /** elements removed from the network schema: an intersection's {@code <segments>} lists, replaced by its
    * {@code <approaches>}, {@code <internalsegments>} and {@code <internalsignalsegments>} */
@@ -111,6 +117,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     initialiseSourceIdMap(MacroscopicLinkSegment.class, MacroscopicLinkSegment::getXmlId);
     initialiseSourceIdMap(MacroscopicLinkSegmentType.class, MacroscopicLinkSegmentType::getXmlId);
     initialiseSourceIdMap(Node.class, Node::getXmlId);
+    initialiseSourceIdMap(TollRoad.class, TollRoad::getXmlId);
   }
 
   /**
@@ -159,7 +166,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     }
     
     /* parse set values */
-    UseOfModeType useOfModeType = XmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());
+    UseOfModeType useOfModeType =
+        XmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getUsedtotype());
     DriverType driverType = XmlEnumConversionUtil.xmlToPlanit(generatedMode.getUsabilityfeatures().getDrivertype());
 
     return ModeFeaturesFactory.createUsabilityFeatures(useOfModeType, driverType);
@@ -385,6 +393,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
 
     /* parse intersections */
     parseIntersections(xmlLayer, networkLayer);
+
+    /* parse toll roads */
+    parseTollRoads(xmlLayer, networkLayer);
     
     return networkLayer;
   }
@@ -396,12 +407,9 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
    * @return the modes, empty when none are listed, null when one is unknown
    */
   private List<Mode> parseModeRefs(String modeRefs) {
-    if(StringUtils.isNullOrBlank(modeRefs)){
-      return List.of();
-    }
-    var modes = Arrays.stream(modeRefs.split(CharacterUtils.COMMA.toString()))
-        .map(modeRef -> getBySourceId(Mode.class, modeRef.trim())).collect(Collectors.toList());
-    return modes.contains(null) ? null : modes;
+    var unknown = new ArrayList<String>();
+    var modes = findBySourceIds(Mode.class, modeRefs, unknown::add);
+    return unknown.isEmpty() ? modes : null;
   }
 
   /**
@@ -672,6 +680,290 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
     intersections.getFactory().register(intersection);
   }
 
+  /**
+   * Parse turns
+   *
+   * @param xmlLayer to parse from
+   * @param networkLayer to populate
+   */
+  protected void parseTurns(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
+    var xmlTurns = xmlLayer.getTurns();
+    if(xmlTurns == null){
+      return;
+    }
+    var xmlTurnBans = xmlTurns.getBen(); // should be bans, jaxb - naming bug
+    if(xmlTurnBans == null){
+      return;
+    }
+
+    var bannedTurnFactory = networkLayer.getBannedTurns().getFactory();
+    for(var xmlBan : xmlTurnBans){
+      var planitTurnXmlId = xmlBan.getId();
+
+      /* written before banned turns named their link segments as fromlsref and tolsref: stop rather than guess */
+      var planitFromSegmentXmlId = xmlBan.getFromlsref();
+      var planitToSegmentXmlId = xmlBan.getTolsref();
+      PlanItRunTimeException.throwIf(StringUtils.isNullOrBlank(planitFromSegmentXmlId),
+          "From segment id (fromlsref) for turn ban (%s) null or blank", planitTurnXmlId);
+      PlanItRunTimeException.throwIf(StringUtils.isNullOrBlank(planitToSegmentXmlId),
+          "To segment id (tolsref) for turn ban (%s) null or blank", planitTurnXmlId);
+      var fromSegment = getBySourceId(MacroscopicLinkSegment.class,planitFromSegmentXmlId);
+      var toSegment = getBySourceId(MacroscopicLinkSegment.class,planitToSegmentXmlId);
+      var bannedModes = parseModeRefs(xmlBan.getModerefs());
+      if(bannedModes == null){
+        LOGGER.warning(String.format("IGNORE: Turn ban %s lists an unknown mode", planitTurnXmlId));
+        continue;
+      }
+
+      var bannedTurn = bannedTurnFactory.registerNew(fromSegment, toSegment, bannedModes);
+      if(planitTurnXmlId == null){
+        LOGGER.warning("Banned turn is missing a unique id, salvage by syncing to internal id, fix as may result " +
+            "in undefined behaviour");
+        planitTurnXmlId = String.valueOf(bannedTurn.getId());
+      }
+      bannedTurn.setXmlId(planitTurnXmlId);
+      if(!StringUtils.isNullOrBlank(xmlBan.getExternalid())){
+        bannedTurn.setExternalId(xmlBan.getExternalid());
+      }
+    }
+  }
+
+  /**
+   * Parse the spatial movements of the layer that belong to no intersection. Such a movement is stored only because a
+   * ban is placed on it directly, so one without a direct ban is skipped with a single warning, as is one that cannot
+   * be created, see {@link #createSpatialMovement(XMLElementMovement, SpatialMovements, String)}
+   *
+   * @param xmlLayer to parse from
+   * @param networkLayer to populate
+   */
+  protected void parseIndependentMovements(
+      XMLElementInfrastructureLayer xmlLayer,
+      MacroscopicNetworkLayer networkLayer) {
+    if(xmlLayer.getIndependentmovements() == null){
+      return;
+    }
+    var spatialMovements = networkLayer.getSpatialMovements();
+    for(var xmlMovement : xmlLayer.getIndependentmovements().getMovements()){
+      var movement = createSpatialMovement(xmlMovement, spatialMovements, "Independent movements");
+      if(movement == null){
+        continue;
+      }
+      if(!movement.hasDirectBan()){
+        LOGGER.warning(String.format("IGNORE: Independent movement %s has no direct ban, the only reason to store one",
+            xmlMovement.getId()));
+        continue;
+      }
+      spatialMovements.register(movement);
+    }
+  }
+
+  /**
+   * Parse the intersections of the layer, once its nodes and link segments are registered. Each intersection is built
+   * completely before it is registered. It is discarded, with a single warning, when it has no known control or kind,
+   * or when its nodes cannot be used; see {@link #parseIntersectionMemberNodes}
+   * <p>
+   * An intersection refers to nodes and link segments by their XML ids, so it can only be read once they are, and a
+   * file written by hand or by another tool may refer to what is not there; reading leniently, one warning each, keeps
+   * the rest of the network usable.
+   * </p>
+   *
+   * @param xmlLayer to parse from
+   * @param networkLayer to populate
+   */
+  protected void parseIntersections(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
+    var xmlIntersections = xmlLayer.getIntersections();
+    if(xmlIntersections == null){
+      return;
+    }
+
+    var intersections = networkLayer.getIntersections();
+    for(var xmlIntersection : xmlIntersections.getIntersections()){
+      var xmlId = xmlIntersection.getId();
+      var memberNodes = parseIntersectionMemberNodes(xmlId, xmlIntersection.getNoderef(), "noderef", intersections);
+      var kinds = parseIntersectionKinds(xmlId, xmlIntersection);
+      if(memberNodes == null || kinds == null){
+        continue;
+      }
+      if(memberNodes.size() != 1){
+        LOGGER.warning(String.format("DISCARD: Intersection %s lists more than one node in noderef", xmlId));
+        continue;
+      }
+
+      var intersection = intersections.getFactory().createNonSpatial(
+          memberNodes.get(0), XmlEnumConversionUtil.xmlToPlanit(xmlIntersection.getControl()), kinds.get(0));
+      kinds.forEach(intersection::addType);
+      parseIntersectionApproaches(xmlId, xmlIntersection, intersection);
+      registerParsedIntersection(intersection, xmlId, xmlIntersection.getExternalid(), intersections);
+    }
+
+    for(var xmlIntersection : xmlIntersections.getSpatialintersections()){
+      var xmlId = xmlIntersection.getId();
+      var memberNodes = parseIntersectionMemberNodes(xmlId, xmlIntersection.getNoderefs(), "noderefs", intersections);
+      var kinds = parseIntersectionKinds(xmlId, xmlIntersection);
+      if(memberNodes == null || kinds == null){
+        continue;
+      }
+
+      var intersection = intersections.getFactory().createSpatial(
+          memberNodes, XmlEnumConversionUtil.xmlToPlanit(xmlIntersection.getControl()), kinds);
+      parseIntersectionApproaches(xmlId, xmlIntersection, intersection);
+      parseIntersectionInternalSegments(xmlIntersection, intersection);
+      parseSpatialIntersectionMovements(xmlIntersection, intersection, networkLayer.getSpatialMovements());
+      registerParsedIntersection(intersection, xmlId, xmlIntersection.getExternalid(), intersections);
+    }
+  }
+
+  /**
+   * Parse the toll roads of the layer, once its link segments and the network's modes are registered. A toll road is
+   * not read, with a single warning, when its id was used before in the network, when it gives both priced and priced
+   * exempt modes, when it names no known priced mode, or when none of its link segments is known; an unknown link
+   * segment or mode is skipped with a single warning. Before the factory makes it, its link segments already on another
+   * toll road are left off, and it is not read when none is left, each with a single warning; a priced mode none of its
+   * link segments allows is kept, with a warning, as priced modes say who pays, not who may use the road
+   * <p>
+   * The checks run here, through the layer's toll roads and {@link LinkSegmentUtils#findModesAllowedByNone}, because a
+   * factory only makes and registers: any other caller building toll roads asks the same
+   * questions before registering.
+   * </p>
+   *
+   * @param xmlLayer to parse from
+   * @param networkLayer to populate
+   */
+  protected void parseTollRoads(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
+    var xmlTollRoads = xmlLayer.getTollroads();
+    if(xmlTollRoads == null){
+      return;
+    }
+
+    for(var xmlTollRoad : xmlTollRoads.getTollroads()){
+      var xmlId = xmlTollRoad.getId();
+      if(getBySourceId(TollRoad.class, xmlId) != null){
+        LOGGER.warning(String.format("DISCARD: Toll road %s has an id used before in the network", xmlId));
+        continue;
+      }
+      var pricedModes = ModeXmlUtils.findPricedModeSelection("Toll road " + xmlId, xmlTollRoad.getPricedmoderefs(),
+          xmlTollRoad.getPricedexemptmoderefs(), (refs, unknownRef) -> findBySourceIds(Mode.class, refs, unknownRef),
+          LOGGER);
+      if(pricedModes == null){
+        continue;
+      }
+      var unknownLinkSegments = new ArrayList<String>();
+      var linkSegments = findBySourceIds(
+          MacroscopicLinkSegment.class, xmlTollRoad.getLsrefs(), unknownLinkSegments::add);
+      if(linkSegments.isEmpty()){
+        LOGGER.warning(String.format("DISCARD: Toll road %s lists no known link segment", xmlId));
+        continue;
+      }
+      unknownLinkSegments.forEach(lsRef -> LOGGER.warning(String.format(
+          "IGNORE: Toll road %s lists unknown link segment %s", xmlId, lsRef)));
+
+      var tollRoads = networkLayer.getTollRoads();
+      var onAnotherTollRoad = tollRoads.findLinkSegmentsOnATollRoad(linkSegments);
+      var kept = tollRoads.findLinkSegmentsNotOnATollRoad(linkSegments);
+      if(kept.isEmpty()){
+        LOGGER.warning(String.format("DISCARD: Toll road %s not registered: none of its link segments %s can be "
+            + "added, each is already on another toll road", xmlId,
+            ExternalIdAbleUtils.toIdsAsString(onAnotherTollRoad, MAX_LISTED)));
+        continue;
+      }
+      if(!onAnotherTollRoad.isEmpty()){
+        LOGGER.warning(String.format(
+            "IGNORE: Link segments %s are left off toll road %s, each is already on another toll road",
+            ExternalIdAbleUtils.toIdsAsString(onAnotherTollRoad, MAX_LISTED), xmlId));
+      }
+      var modesNoLinkSegmentAllows = LinkSegmentUtils.findModesAllowedByNone(pricedModes.getPricedModes(), kept);
+      if(!modesNoLinkSegmentAllows.isEmpty()){
+        LOGGER.warning(String.format(
+            "Toll road %s prices modes %s that none of its link segments allows, kept as they say who pays", xmlId,
+            ExternalIdAbleUtils.toIdsAsString(modesNoLinkSegmentAllows, MAX_LISTED)));
+      }
+      var tollRoad = tollRoads.getFactory().registerNew(kept, pricedModes);
+      tollRoad.setXmlId(xmlId);
+      if(!StringUtils.isNullOrBlank(xmlTollRoad.getExternalid())){
+        tollRoad.setExternalId(xmlTollRoad.getExternalid());
+      }
+      tollRoad.setName(xmlTollRoad.getName());
+      registerBySourceId(TollRoad.class, tollRoad);
+    }
+  }
+
+  /** Place network to populate
+   * 
+   * @param network to populate
+   */
+  protected void setNetwork(final LayeredNetwork<?,?> network){
+    /* currently we only support macroscopic infrastructure networks */
+    if(!(network instanceof MacroscopicNetwork)) {
+      throw new PlanItRunTimeException("Currently the PLANit network reader only supports macroscopic infrastructure" +
+              " networks, the provided network is not of this type");
+    }
+    
+    this.network = (MacroscopicNetwork) network;
+  }
+  
+  /** Constructor where settings are directly provided such that input information can be exracted from it
+   * 
+   * @param settings to use
+   * @param idToken to use for the network to populate
+   */
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken){
+    this(settings, new MacroscopicNetwork(idToken));
+  }
+  
+  /** Constructor where settings are directly provided such that input information can be extracted from it
+   * 
+   * @param settings to use
+   * @param network to populate
+   */
+  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network){
+    super();
+    this.xmlParser = new PlanitXmlJaxbParser<>(
+        org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork.class,
+        org.goplanit.xml.generated.v1.XMLElementMacroscopicNetwork.class);
+    this.xmlParser.setElementsRemovedFromSchema(ELEMENTS_REMOVED_FROM_SCHEMA);
+    this.settings = settings;
+    setNetwork(network);
+  }  
+    
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit
+   * memory model
+   * 
+   * @param externalXmlRawNetwork to extract from
+   * @param network to populate
+   */
+  protected PlanitNetworkReader(XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network){
+    this(externalXmlRawNetwork, new PlanitNetworkReaderSettings(), network);
+  }
+
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit
+   *  memory model
+   *
+   * @param externalXmlRawNetwork to extract from
+   * @param network to populate
+   * @param settings to use
+   */
+  protected PlanitNetworkReader(
+      XMLElementMacroscopicNetwork externalXmlRawNetwork,
+      PlanitNetworkReaderSettings settings,
+      LayeredNetwork<?,?> network){
+    this(settings, network);
+    this.xmlParser.setXmlRootElement(externalXmlRawNetwork);
+  }
+  
+  /** Constructor
+   * 
+   * @param networkPathDirectory to use
+   * @param xmlFileExtension to use
+   * @param network to populate
+   */
+  protected PlanitNetworkReader(String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network){
+    this(new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension), network);
+  }
+  
+  /** Default XSD files used to validate input XML files against, TODO: move to properties file */
+  public static final String NETWORK_XSD_FILE =
+          "https://goplanit.org/xsd/v2/macroscopicnetworkinput.xsd";
+
   /** Parse the link segment types
    * 
    * @param xmlLayerconfiguration to extract them from
@@ -742,7 +1034,7 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         List<XMLElementAccessGroup> xmlAccessGroups = xmlLinkSegmentType.getAccess().getAccessgroups();
         for (XMLElementAccessGroup xmlAccessGroup : xmlAccessGroups) {                  
           /* mode access properties */
-          parseLinkSegmentTypeAccessProperties(xmlAccessGroup, linkSegmentType, supportedDefaultRoadModes);                                 
+          parseLinkSegmentTypeAccessProperties(xmlAccessGroup, linkSegmentType, supportedDefaultRoadModes);
         }          
       }else {
         /* all ROAD modes allowed */
@@ -886,7 +1178,8 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
         /* geometry */
         LineString theLineString = XmlMacroscopicNetworkLayerHelper.parseLinkGeometry(xmlLink);        
         double length = XmlMacroscopicNetworkLayerHelper.parseLength(xmlLink, theLineString, jtsUtils);   
-        link = networkLayer.getLinks().getFactory().registerNew(startNode, endNode, length, true /* register on nodes */);
+        link = networkLayer.getLinks().getFactory().registerNew(
+            startNode, endNode, length, true /* register on nodes */);
         link.setXmlId(xmlLink.getId());
         link.setGeometry(theLineString);                      
         
@@ -987,212 +1280,6 @@ public class PlanitNetworkReader extends NetworkReaderImpl {
       /* end LINK SEGMENT */
     }
   }
-
-  /**
-   * Parse turns
-   *
-   * @param xmlLayer to parse from
-   * @param networkLayer to populate
-   */
-  protected void parseTurns(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
-    var xmlTurns = xmlLayer.getTurns();
-    if(xmlTurns == null){
-      return;
-    }
-    var xmlTurnBans = xmlTurns.getBen(); // should be bans, jaxb - naming bug
-    if(xmlTurnBans == null){
-      return;
-    }
-
-    var bannedTurnFactory = networkLayer.getBannedTurns().getFactory();
-    for(var xmlBan : xmlTurnBans){
-      var planitTurnXmlId = xmlBan.getId();
-
-      /* written before banned turns named their link segments as fromlsref and tolsref: stop rather than guess */
-      var planitFromSegmentXmlId = xmlBan.getFromlsref();
-      var planitToSegmentXmlId = xmlBan.getTolsref();
-      PlanItRunTimeException.throwIf(StringUtils.isNullOrBlank(planitFromSegmentXmlId),
-          "From segment id (fromlsref) for turn ban (%s) null or blank", planitTurnXmlId);
-      PlanItRunTimeException.throwIf(StringUtils.isNullOrBlank(planitToSegmentXmlId),
-          "To segment id (tolsref) for turn ban (%s) null or blank", planitTurnXmlId);
-      var fromSegment = getBySourceId(MacroscopicLinkSegment.class,planitFromSegmentXmlId);
-      var toSegment = getBySourceId(MacroscopicLinkSegment.class,planitToSegmentXmlId);
-      var bannedModes = parseModeRefs(xmlBan.getModerefs());
-      if(bannedModes == null){
-        LOGGER.warning(String.format("IGNORE: Turn ban %s lists an unknown mode", planitTurnXmlId));
-        continue;
-      }
-
-      var bannedTurn = bannedTurnFactory.registerNew(fromSegment, toSegment, bannedModes);
-      if(planitTurnXmlId == null){
-        LOGGER.warning("Banned turn is missing a unique id, salvage by syncing to internal id, fix as may result " +
-            "in undefined behaviour");
-        planitTurnXmlId = String.valueOf(bannedTurn.getId());
-      }
-      bannedTurn.setXmlId(planitTurnXmlId);
-      if(!StringUtils.isNullOrBlank(xmlBan.getExternalid())){
-        bannedTurn.setExternalId(xmlBan.getExternalid());
-      }
-    }
-  }
-
-  /**
-   * Parse the spatial movements of the layer that belong to no intersection. Such a movement is stored only because a
-   * ban is placed on it directly, so one without a direct ban is skipped with a single warning, as is one that cannot
-   * be created, see {@link #createSpatialMovement(XMLElementMovement, SpatialMovements, String)}
-   *
-   * @param xmlLayer to parse from
-   * @param networkLayer to populate
-   */
-  protected void parseIndependentMovements(
-      XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
-    if(xmlLayer.getIndependentmovements() == null){
-      return;
-    }
-    var spatialMovements = networkLayer.getSpatialMovements();
-    for(var xmlMovement : xmlLayer.getIndependentmovements().getMovements()){
-      var movement = createSpatialMovement(xmlMovement, spatialMovements, "Independent movements");
-      if(movement == null){
-        continue;
-      }
-      if(!movement.hasDirectBan()){
-        LOGGER.warning(String.format("IGNORE: Independent movement %s has no direct ban, the only reason to store one",
-            xmlMovement.getId()));
-        continue;
-      }
-      spatialMovements.register(movement);
-    }
-  }
-
-  /**
-   * Parse the intersections of the layer, once its nodes and link segments are registered. Each intersection is built
-   * completely before it is registered. It is discarded, with a single warning, when it has no known control or kind,
-   * or when its nodes cannot be used; see {@link #parseIntersectionMemberNodes}
-   *
-   * @param xmlLayer to parse from
-   * @param networkLayer to populate
-   */
-  protected void parseIntersections(XMLElementInfrastructureLayer xmlLayer, MacroscopicNetworkLayer networkLayer) {
-    var xmlIntersections = xmlLayer.getIntersections();
-    if(xmlIntersections == null){
-      return;
-    }
-
-    var intersections = networkLayer.getIntersections();
-    for(var xmlIntersection : xmlIntersections.getIntersections()){
-      var xmlId = xmlIntersection.getId();
-      var memberNodes = parseIntersectionMemberNodes(xmlId, xmlIntersection.getNoderef(), "noderef", intersections);
-      var kinds = parseIntersectionKinds(xmlId, xmlIntersection);
-      if(memberNodes == null || kinds == null){
-        continue;
-      }
-      if(memberNodes.size() != 1){
-        LOGGER.warning(String.format("DISCARD: Intersection %s lists more than one node in noderef", xmlId));
-        continue;
-      }
-
-      var intersection = intersections.getFactory().createNonSpatial(
-          memberNodes.get(0), XmlEnumConversionUtil.xmlToPlanit(xmlIntersection.getControl()), kinds.get(0));
-      kinds.forEach(intersection::addType);
-      parseIntersectionApproaches(xmlId, xmlIntersection, intersection);
-      registerParsedIntersection(intersection, xmlId, xmlIntersection.getExternalid(), intersections);
-    }
-
-    for(var xmlIntersection : xmlIntersections.getSpatialintersections()){
-      var xmlId = xmlIntersection.getId();
-      var memberNodes = parseIntersectionMemberNodes(xmlId, xmlIntersection.getNoderefs(), "noderefs", intersections);
-      var kinds = parseIntersectionKinds(xmlId, xmlIntersection);
-      if(memberNodes == null || kinds == null){
-        continue;
-      }
-
-      var intersection = intersections.getFactory().createSpatial(
-          memberNodes, XmlEnumConversionUtil.xmlToPlanit(xmlIntersection.getControl()), kinds);
-      parseIntersectionApproaches(xmlId, xmlIntersection, intersection);
-      parseIntersectionInternalSegments(xmlIntersection, intersection);
-      parseSpatialIntersectionMovements(xmlIntersection, intersection, networkLayer.getSpatialMovements());
-      registerParsedIntersection(intersection, xmlId, xmlIntersection.getExternalid(), intersections);
-    }
-  }
-
-  /** Place network to populate
-   * 
-   * @param network to populate
-   */
-  protected void setNetwork(final LayeredNetwork<?,?> network){
-    /* currently we only support macroscopic infrastructure networks */
-    if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItRunTimeException("Currently the PLANit network reader only supports macroscopic infrastructure" +
-              " networks, the provided network is not of this type");
-    }
-    
-    this.network = (MacroscopicNetwork) network;
-  }
-  
-  /** Constructor where settings are directly provided such that input information can be exracted from it
-   * 
-   * @param settings to use
-   * @param idToken to use for the network to populate
-   */
-  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, IdGroupingToken idToken){
-    this(settings, new MacroscopicNetwork(idToken));
-  }
-  
-  /** Constructor where settings are directly provided such that input information can be extracted from it
-   * 
-   * @param settings to use
-   * @param network to populate
-   */
-  protected PlanitNetworkReader(PlanitNetworkReaderSettings settings, LayeredNetwork<?,?> network){
-    super();
-    this.xmlParser = new PlanitXmlJaxbParser<>(
-        org.goplanit.xml.generated.v2.XMLElementMacroscopicNetwork.class,
-        org.goplanit.xml.generated.v1.XMLElementMacroscopicNetwork.class);
-    this.xmlParser.setElementsRemovedFromSchema(ELEMENTS_REMOVED_FROM_SCHEMA);
-    this.settings = settings;
-    setNetwork(network);
-  }  
-    
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit
-   * memory model
-   * 
-   * @param externalXmlRawNetwork to extract from
-   * @param network to populate
-   */
-  protected PlanitNetworkReader(
-      XMLElementMacroscopicNetwork externalXmlRawNetwork, LayeredNetwork<?,?> network){
-    this(externalXmlRawNetwork, new PlanitNetworkReaderSettings(), network);
-  }
-
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit
-   *  memory model
-   *
-   * @param externalXmlRawNetwork to extract from
-   * @param network to populate
-   * @param settings to use
-   */
-  protected PlanitNetworkReader(
-          XMLElementMacroscopicNetwork externalXmlRawNetwork,
-          PlanitNetworkReaderSettings settings,
-          LayeredNetwork<?,?> network){
-    this(settings, network);
-    this.xmlParser.setXmlRootElement(externalXmlRawNetwork);
-  }
-  
-  /** Constructor
-   * 
-   * @param networkPathDirectory to use
-   * @param xmlFileExtension to use
-   * @param network to populate
-   */
-  protected PlanitNetworkReader(
-      String networkPathDirectory, String xmlFileExtension, LayeredNetwork<?,?> network){
-    this(new PlanitNetworkReaderSettings(networkPathDirectory, xmlFileExtension), network);
-  }
-  
-  /** Default XSD files used to validate input XML files against, TODO: move to properties file */
-  public static final String NETWORK_XSD_FILE =
-          "https://goplanit.org/xsd/v2/macroscopicnetworkinput.xsd";
 
   /**
    * {@inheritDoc}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mode the toll road does not price: the truck toll road prices heavy goods only -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>mode_not_priced</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="truckroad" name="Truck toll road" moderefs="car,heavygoods" tollroadrefs="truckroad">
+      <pricing>
+        <price start="6.50"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

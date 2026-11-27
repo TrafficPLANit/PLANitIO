@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cap with both an amount and a count -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>cap_with_amount_and_count</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="zone" name="Congestion charge zone" tollroadrefs="zone">
+      <pricing>
+        <price start="18"/>
+        <cap id="daily" amount="15" activateabovecount="1" per="day"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

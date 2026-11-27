@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Top-level cap naming one scheme -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>top_level_cap_naming_one_scheme</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="harbour" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+  <caps>
+    <cap id="weekly" amount="60" per="week" schemerefs="harbour"/>
+  </caps>
+</networkpricing>

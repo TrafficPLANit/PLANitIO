@@ -45,6 +45,9 @@ public class PlanitSchema {
   /** schema for discrete demand */
   public static final String DISCRETE_DEMAND_XSD = "discretedemandinput.xsd";
 
+  /** schema for network pricing */
+  public static final String NETWORK_PRICING_XSD = "networkpricinginput.xsd";
+
   /** schema for zoning */
   public static final String MACROSCOPIC_ZONING_XSD= "macroscopiczoninginput.xsd";
 
@@ -63,7 +66,10 @@ public class PlanitSchema {
   /** the schema URI location (dir) of XML components during development **/
   public static final String XSD_SCHEMA_URI_DEVELOPMENT_GENERIC = "https://www.goplanit.org/xsd/";
   
-  /** base location for any resources (such as schemas) for any release version, but without the actual version or resource appended yet**/
+  /**
+   * base location for any resources (such as schemas) for any release version, but without the actual version or
+   * resource appended yet
+   */
   public static final String RESOURCES_RELEASE_GENERIC = "planitmanual.github.io/version/";
     
   /** the schema URI location of planit macroscopic network input during development **/

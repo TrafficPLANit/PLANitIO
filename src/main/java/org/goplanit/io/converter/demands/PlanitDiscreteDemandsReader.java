@@ -23,8 +23,6 @@ import org.goplanit.utils.time.LocalTimeUtils;
 import org.goplanit.utils.time.TimePeriod;
 import org.goplanit.utils.wrapper.MapWrapperImpl;
 import org.goplanit.utils.zoning.OdZone;
-import org.goplanit.utils.zoning.TransferZone;
-import org.goplanit.utils.zoning.Zone;
 import org.goplanit.xml.generated.v2.*;
 import org.goplanit.zoning.Zoning;
 
@@ -104,16 +102,8 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
    * @param zoning to use
    */
   private void initialiseParentXmlIdTrackers(LayeredNetwork<?,?> network, Zoning zoning) {
-
-    // mode xml index
     initialiseSourceIdMap(Mode.class, Mode::getXmlId, network.getModes());
-
-    // zone XML index
-    initialiseSourceIdMap(OdZone.getOdZoneIdClass(), OdZone::getXmlId);
-    getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoning.getOdZones());
-
-    initialiseSourceIdMap(TransferZone.getTransferZoneIdClass(), TransferZone::getXmlId);
-    getSourceIdContainer(TransferZone.getTransferZoneIdClass()).addAll(zoning.getTransferZones());
+    initialiseZoneSourceIdMaps(zoning);
   }
 
   /**
@@ -307,56 +297,6 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
       //Register identity tracking
       registerBySourceId(Person.class, person);
     }
-  }
-
-  /** settings for the reader */
-  protected final PlanitDiscreteDemandsReaderSettings settings;
-
-  /** the discrete demands to populate */
-  protected DiscreteDemands discreteDemands;
-
-  /**
-   * Reference network to use
-   */
-  protected LayeredNetwork<?, ?> referenceNetwork;
-
-  /**
-   * Reference zoning to use
-   */
-  protected Zoning referenceZoning;
-
-  /** zoning reader provides alternative way to obtain reference zoning and reference network in case not available upon
-   * construction. When using a reader, reference zoning and network are expected to remain null.
-   */
-  protected PlanitZoningReader zoningReader;
-
-  /** Set the demands to populate
-   *
-   * @param discreteDemands to populate
-   */
-  protected void setDiscreteDemands(final DiscreteDemands discreteDemands) {
-    this.discreteDemands = discreteDemands;
-  }
-
-  /**
-   * Parses the discrete demand contents of the XML
-   */
-  protected void populateDiscreteDemandContents() {
-
-    parseTimePeriods();
-
-    parseHouseholds();
-
-    parsePersonsWithoutSchedule();
-
-    populateToursWithoutSchedule();
-
-    populateTrips();
-
-    // now we can populate the person schedules with all information parsed ...
-    populatePersonSchedules();
-    // ... and the trips on the tour schedules
-    populateTourSchedules();
   }
 
 
@@ -790,6 +730,56 @@ public class PlanitDiscreteDemandsReader extends BaseReaderImpl<DiscreteDemands>
 
     // parsed info
     discreteDemands.logInfo(LoggingUtils.discreteDemandsPrefix(discreteDemands.getId()));
+  }
+
+  /** settings for the reader */
+  protected final PlanitDiscreteDemandsReaderSettings settings;
+
+  /** the discrete demands to populate */
+  protected DiscreteDemands discreteDemands;
+
+  /**
+   * Reference network to use
+   */
+  protected LayeredNetwork<?, ?> referenceNetwork;
+
+  /**
+   * Reference zoning to use
+   */
+  protected Zoning referenceZoning;
+
+  /** zoning reader provides alternative way to obtain reference zoning and reference network in case not available upon
+   * construction. When using a reader, reference zoning and network are expected to remain null.
+   */
+  protected PlanitZoningReader zoningReader;
+
+  /** Set the demands to populate
+   *
+   * @param discreteDemands to populate
+   */
+  protected void setDiscreteDemands(final DiscreteDemands discreteDemands) {
+    this.discreteDemands = discreteDemands;
+  }
+
+  /**
+   * Parses the discrete demand contents of the XML
+   */
+  protected void populateDiscreteDemandContents() {
+
+    parseTimePeriods();
+
+    parseHouseholds();
+
+    parsePersonsWithoutSchedule();
+
+    populateToursWithoutSchedule();
+
+    populateTrips();
+
+    // now we can populate the person schedules with all information parsed ...
+    populatePersonSchedules();
+    // ... and the trips on the tour schedules
+    populateTourSchedules();
   }
 
   /** Reference to demand schema location TODO: move to properties file*/

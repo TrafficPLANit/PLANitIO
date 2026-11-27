@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The example of the road pricing research note: the pricing of the toll roads of the layer "road" of the
+     network example intermodalnetwork.xml, whose link segments, link segment types, modes and toll roads it
+     refers to, showing every element. The amounts of WestConnex and the Harbour are real; the rest is invented
+     to show the format -->
+<networkpricing xmlns="http://goplanit.org/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://goplanit.org/v2 ../../xsd/v2/networkpricinginput.xsd"
+                currency="AUD" year="2025">
+  <id>sydney2025</id>
+  <parentnetwork>1</parentnetwork>
+
+  <modeschemes>
+    <modescheme id="trucks" name="Truck charge" moderefs="heavygoods">
+      <description>Per km on motorways, trunk and primary roads; less on primary roads, more on urban motorways and
+        in the weekday morning peak</description>
+      <include typerefs="motorway,trunk,primary" lsrefs="5001,5002"/>
+      <exclude typerefs="motorway_link" lsrefs="7003"/>
+      <sections>
+        <section id="primary" name="Primary roads" typerefs="primary"/>
+        <section id="urban" name="Urban motorways" lsrefs="5101,5102,5103"/>
+      </sections>
+      <pricing>
+        <price perkm="0.167">                                         <!-- segments outside both sections -->
+          <sectionprice sectionref="primary" perkm="0.12"/>
+          <sectionprice sectionref="urban" perkm="0.25"/>
+        </price>
+        <timebandoverride id="am">
+          <timebandentry days="monday tuesday wednesday thursday friday" schoolholidays="excluded"
+                         temporalunit="hour" temporalunitmultiplier="3" temporaloffset="7"/>      <!-- 07:00-10:00 -->
+          <price perkm="0.20">                                        <!-- primary stays 0.12 -->
+            <sectionprice sectionref="urban" perkm="0.30"/>
+          </price>
+        </timebandoverride>
+      </pricing>
+    </modescheme>
+
+    <modescheme id="light" name="Distance charge for light vehicles" moderefs="car,lightgoods,motorcycle">
+      <description>Per km on motorways; the first 20 km each day are free, a quarter
+        less beyond 200 km a day</description>
+      <include typerefs="motorway"/>
+      <pricing>
+        <price perkm="0.10"/>
+        <priceoverride moderefs="motorcycle" factor="0.5"/>
+        <distancebandoverride per="day" tokm="20" factor="0"/>
+        <distancebandoverride per="day" fromkm="200" factor="0.75"/>
+      </pricing>
+    </modescheme>
+
+    <modescheme id="ev" name="Distance charge for electric vehicles" moderefs="electric_car">
+      <include layerrefs="road"/>
+      <pricing>
+        <price perkm="0.025"/>
+      </pricing>
+    </modescheme>
+  </modeschemes>
+
+  <locationschemes>
+    <locationscheme id="westconnex" name="WestConnex" tollroadrefs="m4,rozelle,m8,m5east">
+      <description>M4, M4 East, M8, M5 East and Rozelle, run by Transurban</description>
+      <pricing>
+        <price start="1.73" perkm="0.64"/>
+        <priceoverride moderefs="heavygoods" factor="3"/>
+        <timebandoverride id="night">                                 <!-- trucks pay the car toll at night -->
+          <timebandentry temporalunit="hour" temporalunitmultiplier="8" temporaloffset="21"/>     <!-- 21:00-05:00 -->
+          <priceoverride moderefs="heavygoods" factor="1"/>
+        </timebandoverride>
+        <cap amount="12.25" per="use" moderefs="car,lightgoods"/>
+        <cap amount="36.75" per="use" moderefs="heavygoods"/>
+      </pricing>
+    </locationscheme>
+
+    <locationscheme id="harbour" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>                                         <!-- night -->
+        <priceoverride moderefs="heavygoods" factor="3"/>             <!-- also in both bands -->
+        <timebandoverride id="shoulder">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="minute" temporalunitmultiplier="390" temporaloffset="570"/>  <!-- 09:30-16:00 -->
+          <timebandentry days="saturday sunday"
+                         temporalunit="hour" temporalunitmultiplier="12" temporaloffset="8"/>       <!-- 08:00-20:00 -->
+          <price start="3.30"/>
+        </timebandoverride>
+        <timebandoverride id="peak">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="minute" temporalunitmultiplier="180" temporaloffset="390"/>  <!-- 06:30-09:30 -->
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="minute" temporalunitmultiplier="180" temporaloffset="960"/>  <!-- 16:00-19:00 -->
+          <price start="4.41"/>
+        </timebandoverride>
+      </pricing>
+    </locationscheme>
+
+    <locationscheme id="truckroad" name="Truck toll road" tollroadrefs="truckroad">
+      <pricing>                                                       <!-- trucks only, as the toll road says -->
+        <price start="6.50"/>
+      </pricing>
+    </locationscheme>
+
+    <locationscheme id="orbital" name="Orbital motorway" tollroadrefs="orbital">
+      <description>Per km by zone and direction plus a trip charge, dearer westbound in the morning peak</description>
+      <sections>                                                      <!-- the scheme's own, on the toll road -->
+        <section id="z1w" name="Zone 1 westbound" lsrefs="801,802"/>
+        <section id="z1e" name="Zone 1 eastbound" lsrefs="803,804"/>
+      </sections>
+      <pricing>
+        <price start="1.00">                                          <!-- trip charge, once per use -->
+          <sectionprice sectionref="z1w" perkm="0.40"/>
+          <sectionprice sectionref="z1e" perkm="0.38"/>
+        </price>
+        <priceoverride moderefs="heavygoods" factor="3"/>
+        <priceoverride moderefs="motorcycle" start="0.50"/>           <!-- per km as for cars -->
+        <timebandoverride id="ampeak">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="minute" temporalunitmultiplier="270" temporaloffset="360"/>  <!-- 06:00-10:30 -->
+          <price>
+            <sectionprice sectionref="z1w" perkm="0.55"/>             <!-- z1e as in the base -->
+          </price>
+        </timebandoverride>
+        <minimum amount="2.00"/>                                      <!-- every use costs at least 2.00 -->
+      </pricing>
+    </locationscheme>
+
+    <locationscheme id="cordon" name="City cordon" moderefs="car,heavygoods" tollroadrefs="cordon">
+      <pricing>                                                       <!-- no base price: free outside the bands -->
+        <timebandoverride id="peak">
+          <timebandentry days="monday tuesday wednesday thursday friday" publicholidays="excluded"
+                         temporalunit="hour" temporalunitmultiplier="2" temporaloffset="7"/>         <!-- 07:00-09:00 -->
+          <price start="5.00"/>
+          <priceoverride moderefs="heavygoods" start="8.00"/>
+        </timebandoverride>
+        <timebandoverride id="day">
+          <timebandentry days="monday tuesday wednesday thursday friday" publicholidays="excluded"
+                         temporalunit="hour" temporalunitmultiplier="9" temporaloffset="9"/>         <!-- 09:00-18:00 -->
+          <price start="3.00"/>
+        </timebandoverride>
+        <cap activateabovecount="1" per="hour"/>                      <!-- one charge an hour -->
+        <cap amount="15" per="day"/>
+      </pricing>
+    </locationscheme>
+
+    <locationscheme id="zone" name="Congestion charge zone" exemptmoderefs="taxi,motorcycle" tollroadrefs="zone">
+      <pricing>
+        <timebandoverride id="charging">
+          <!-- every day 07:00-18:00 -->
+          <timebandentry temporalunit="hour" temporalunitmultiplier="11" temporaloffset="7"/>
+          <price start="18"/>
+        </timebandoverride>
+        <cap activateabovecount="1" per="day"/>                       <!-- once a day -->
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+
+  <entryexitschemes>
+    <entryexitscheme id="ticketroad" name="Closed motorway, ticket system" tollroadrefs="ticketroad">
+      <description>Prices per pair of interchanges, from the operator's table</description>
+      <gates>                                                         <!-- the scheme's own, at the toll road's ends -->
+        <gate id="north"   externalid="12" name="North interchange"   entrylsrefs="601,602" exitlsrefs="603"/>
+        <gate id="central" externalid="14" name="Central interchange" entrylsrefs="611"     exitlsrefs="612,613"/>
+        <gate id="south"   externalid="17" name="South interchange"   entrylsrefs="621"     exitlsrefs="622"/>
+      </gates>                                                        <!-- externalid: the junction number -->
+      <pricing>
+        <price>
+          <pair fromgateref="north"   togateref="central" amount="2.40"/>
+          <pair fromgateref="north"   togateref="south"   amount="4.90"/>
+          <pair fromgateref="central" togateref="south"   amount="2.60"/>
+          <pair fromgateref="central" togateref="north"   amount="2.40"/>
+          <pair fromgateref="south"   togateref="north"   amount="4.90"/>
+          <pair fromgateref="south"   togateref="central" amount="2.60"/>
+        </price>
+        <priceoverride moderefs="heavygoods" factor="3"/>
+        <timebandoverride id="am">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="hour" temporalunitmultiplier="3" temporaloffset="7"/>         <!-- 07:00-10:00 -->
+          <price>
+            <pair fromgateref="south" togateref="north" amount="6.10"/>   <!-- other pairs from the base -->
+          </price>
+        </timebandoverride>
+      </pricing>
+    </entryexitscheme>
+  </entryexitschemes>
+
+  <caps>                                                              <!-- only caps across several schemes -->
+    <cap amount="60"  per="week"  schemerefs="westconnex,harbour"/>
+    <cap amount="400" per="month" schemerefs="westconnex,trucks,ticketroad" moderefs="heavygoods"/>
+  </caps>
+
+</networkpricing>

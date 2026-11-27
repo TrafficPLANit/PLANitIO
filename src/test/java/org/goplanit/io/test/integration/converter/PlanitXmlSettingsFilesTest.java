@@ -11,6 +11,9 @@ import org.goplanit.io.converter.intermodal.PlanitIntermodalWriterSettings;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReaderSettings;
 import org.goplanit.io.converter.network.PlanitNetworkWriterSettings;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingReaderFactory;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingReaderSettings;
+import org.goplanit.io.converter.pricing.PlanitNetworkPricingWriterSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesReaderSettings;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterFactory;
 import org.goplanit.io.converter.service.PlanitRoutedServicesWriterSettings;
@@ -20,6 +23,7 @@ import org.goplanit.io.converter.service.PlanitServiceNetworkWriterSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningWriterSettings;
+import org.goplanit.io.test.util.PlanItIOTestHelper;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.settings.SettingsFileContentType;
@@ -117,6 +121,10 @@ public class PlanitXmlSettingsFilesTest {
   private static final Path CONVERTER_TEST_INPUT =
       Path.of("src", "test", "resources", "testcases", "converter_test", "input");
 
+  /** the network and pricing of the road pricing research note's example */
+  private static final Path NETWORK_PRICING_TEST_INPUT =
+      Path.of("src", "test", "resources", "testcases", "networkpricing");
+
   /** the header of reader settings */
   private static final String READER_HEADER = "planitIoReaderSettings: 1\n";
 
@@ -149,6 +157,9 @@ public class PlanitXmlSettingsFilesTest {
       new SettingsKind<>(PlanitXmlReaderSettingsFactory::createRoutedServicesReaderSettingsFromYaml,
           PlanitRoutedServicesReaderSettings::new, PlanitRoutedServicesReaderSettings::reset, READER_FILES,
           READER_FILES),
+      new SettingsKind<>(PlanitXmlReaderSettingsFactory::createNetworkPricingReaderSettingsFromYaml,
+          PlanitNetworkPricingReaderSettings::new, PlanitNetworkPricingReaderSettings::reset, READER_FILES,
+          READER_FILES),
       new SettingsKind<>(PlanitXmlWriterSettingsFactory::createNetworkWriterSettingsFromYaml,
           PlanitNetworkWriterSettings::new, PlanitNetworkWriterSettings::reset, WRITER_FILES,
           "planit_io_network_writer"),
@@ -158,6 +169,9 @@ public class PlanitXmlSettingsFilesTest {
       new SettingsKind<>(PlanitXmlWriterSettingsFactory::createDiscreteDemandsWriterSettingsFromYaml,
           PlanitDiscreteDemandsWriterSettings::new, PlanitDiscreteDemandsWriterSettings::reset, WRITER_FILES,
           "planit_io_discrete_demands_writer"),
+      new SettingsKind<>(PlanitXmlWriterSettingsFactory::createNetworkPricingWriterSettingsFromYaml,
+          PlanitNetworkPricingWriterSettings::new, PlanitNetworkPricingWriterSettings::reset, WRITER_FILES,
+          "planit_io_network_pricing_writer"),
       new SettingsKind<>(PlanitXmlWriterSettingsFactory::createZoningWriterSettingsFromYaml,
           PlanitZoningWriterSettings::new, PlanitZoningWriterSettings::reset, "planit_io_zoning_writer",
           "planit_io_zoning_writer"),
@@ -270,7 +284,7 @@ public class PlanitXmlSettingsFilesTest {
     var problem = SettingsFileAssertionUtils.assertThrowsOneSettingsProblem(SettingsProblemKind.UNKNOWN_KEY,
         () -> PlanitXmlWriterSettingsFactory.createNetworkWriterSettingsFromYaml(
             List.of(SettingsSource.ofText(WRITER_HEADER + "removeDanglingZones: false\n"))));
-    assertEquals("removeDanglingZones", problem.getKeyPath());
+    assertEquals("removeDanglingZones", problem.getSubject());
   }
 
   /** The zoning writer made from a file of its own takes the keys of every writer and its own */
@@ -284,6 +298,27 @@ public class PlanitXmlSettingsFilesTest {
     assertEquals(tempDir.resolve("run/out"), Path.of(settings.getOutputDirectory()));
     assertEquals("zones.xml", settings.getFileName());
     assertFalse(settings.isRemoveDanglingZones());
+  }
+
+  /**
+   * The network pricing reader made from a file of its own reads the pricing file from the folder the file names
+   * ("Network pricing reader on its own")
+   *
+   * @throws IOException when a file cannot be written
+   */
+  @Test
+  public void networkPricingReaderOnItsOwn() throws IOException {
+    Files.createDirectories(tempDir.resolve("run/pricing"));
+    Files.copy(NETWORK_PRICING_TEST_INPUT.resolve("example").resolve("networkpricing.xml"),
+        tempDir.resolve("run/pricing/networkpricing.xml"));
+    var file = writeFile("run/pricing_reader.yaml", READER_HEADER + "inputSource: pricing\n");
+    var settings = PlanitXmlReaderSettingsFactory.createNetworkPricingReaderSettingsFromYaml(
+        List.of(SettingsSource.ofFile(file)));
+
+    var network = PlanItIOTestHelper.readNetwork(NETWORK_PRICING_TEST_INPUT.resolve("network"));
+    var pricing = PlanitNetworkPricingReaderFactory.create(settings, network).read();
+    assertEquals("sydney2025", pricing.getXmlId());
+    assertEquals(10, pricing.streamSchemes().count());
   }
 
   /**
@@ -312,7 +347,7 @@ public class PlanitXmlSettingsFilesTest {
     var problem = SettingsFileAssertionUtils.assertThrowsOneSettingsProblem(SettingsProblemKind.UNKNOWN_KEY,
         () -> PlanitXmlWriterSettingsFactory.createIntermodalWriterSettingsFromYaml(
             List.of(SettingsSource.ofText(WRITER_HEADER + "outputDirectory: out\n"))));
-    assertEquals("outputDirectory", problem.getKeyPath());
+    assertEquals("outputDirectory", problem.getSubject());
   }
 
   /** A file an intermodal file names that is not there is one problem naming that file, and no settings are made */

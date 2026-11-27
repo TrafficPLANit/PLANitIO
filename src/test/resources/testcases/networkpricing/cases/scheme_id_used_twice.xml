@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Scheme id used twice: the location scheme has the id of the mode scheme -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>scheme_id_used_twice</id>
+  <parentnetwork>1</parentnetwork>
+  <modeschemes>
+    <modescheme id="a" name="Truck charge" moderefs="heavygoods">
+      <include typerefs="motorway"/>
+      <pricing>
+        <price perkm="0.167"/>
+      </pricing>
+    </modescheme>
+  </modeschemes>
+  <locationschemes>
+    <locationscheme id="a" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

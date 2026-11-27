@@ -15,8 +15,13 @@ import org.goplanit.utils.mode.UseOfModeType;
 import org.goplanit.utils.mode.VehicularModeType;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionControlType;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
+import org.goplanit.utils.pricing.HolidayInclusion;
+import org.goplanit.utils.pricing.PricingPeriod;
 import org.goplanit.utils.unit.Unit;
 import org.goplanit.xml.generated.v2.*;
+
+import java.time.DayOfWeek;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Some methods to convert the XML schema enums to PLANit memory model enums
@@ -464,6 +469,139 @@ public class XmlEnumConversionUtil {
    */
   public static StudyStatusType planitToXml(StudyStatus planitStudyStatus) {
     return convertByName(planitStudyStatus, StudyStatusType.class);
+  }
+
+  /**
+   * Convert a JAXB day of the week to Java's
+   *
+   * @param xmlDay day in XML format
+   * @return the day
+   */
+  public static DayOfWeek xmlToPlanit(DayOfWeekType xmlDay) {
+    return convertByName(xmlDay, DayOfWeek.class);
+  }
+
+  /**
+   * Convert a day of the week to its JAXB counterpart
+   *
+   * @param day to convert
+   * @return the day in XML format
+   */
+  public static DayOfWeekType planitToXml(DayOfWeek day) {
+    return convertByName(day, DayOfWeekType.class);
+  }
+
+  /**
+   * Convert a JAXB holiday inclusion to PLANit's
+   *
+   * @param xmlHolidayInclusion in XML format, may be absent
+   * @return PLANit holiday inclusion, null when absent
+   */
+  public static HolidayInclusion xmlToPlanit(HolidayInclusionType xmlHolidayInclusion) {
+    return convertByName(xmlHolidayInclusion, HolidayInclusion.class);
+  }
+
+  /**
+   * Convert a PLANit holiday inclusion to its JAXB counterpart
+   *
+   * @param holidayInclusion to convert, may be null
+   * @return holiday inclusion in XML format, null when not given
+   */
+  public static HolidayInclusionType planitToXml(HolidayInclusion holidayInclusion) {
+    return convertByName(holidayInclusion, HolidayInclusionType.class);
+  }
+
+  /**
+   * Convert a PLANit holiday inclusion to its JAXB counterpart, left out when included, as that is the schema's default
+   * for {@code publicholidays} and {@code schoolholidays}; so an explicit {@code "included"} read is not written back
+   *
+   * @param holidayInclusion to convert
+   * @return holiday inclusion in XML format, null when included or not given
+   */
+  public static HolidayInclusionType planitToXmlOrNullWhenIncluded(HolidayInclusion holidayInclusion) {
+    return holidayInclusion == HolidayInclusion.INCLUDED ? null : planitToXml(holidayInclusion);
+  }
+
+  /**
+   * Convert a JAXB temporal unit to Java's
+   *
+   * @param xmlTemporalUnit in XML format
+   * @return the unit
+   */
+  public static ChronoUnit xmlToPlanit(TemporalUnitType xmlTemporalUnit) {
+    switch (xmlTemporalUnit) {
+      case MINUTE:
+        return ChronoUnit.MINUTES;
+      case HOUR:
+        return ChronoUnit.HOURS;
+      case DAY:
+        return ChronoUnit.DAYS;
+      case YEAR:
+        return ChronoUnit.YEARS;
+      default:
+        throw new IllegalArgumentException("Unsupported XML temporal unit: " + xmlTemporalUnit);
+    }
+  }
+
+  /**
+   * Convert a temporal unit to its JAXB counterpart
+   *
+   * @param temporalUnit minutes, hours, days or years
+   * @return the unit in XML format
+   */
+  public static TemporalUnitType planitToXml(ChronoUnit temporalUnit) {
+    switch (temporalUnit) {
+      case MINUTES:
+        return TemporalUnitType.MINUTE;
+      case HOURS:
+        return TemporalUnitType.HOUR;
+      case DAYS:
+        return TemporalUnitType.DAY;
+      case YEARS:
+        return TemporalUnitType.YEAR;
+      default:
+        throw new IllegalArgumentException("Unsupported temporal unit in PLANit XML: " + temporalUnit);
+    }
+  }
+
+  /**
+   * Convert a JAXB cap period to PLANit's
+   *
+   * @param xmlPeriod in XML format
+   * @return the period
+   */
+  public static PricingPeriod xmlToPlanit(CapPeriodType xmlPeriod) {
+    return convertByName(xmlPeriod, PricingPeriod.class);
+  }
+
+  /**
+   * Convert a PLANit pricing period to its JAXB counterpart for a cap
+   *
+   * @param period to convert
+   * @return the period in XML format
+   */
+  public static CapPeriodType planitToXmlCapPeriod(PricingPeriod period) {
+    return convertByName(period, CapPeriodType.class);
+  }
+
+  /**
+   * Convert a JAXB distance band period to PLANit's
+   *
+   * @param xmlPeriod in XML format
+   * @return the period
+   */
+  public static PricingPeriod xmlToPlanit(DistanceBandPeriodType xmlPeriod) {
+    return convertByName(xmlPeriod, PricingPeriod.class);
+  }
+
+  /**
+   * Convert a PLANit pricing period to its JAXB counterpart for a distance band, which has no hour
+   *
+   * @param period to convert, a use, day, week or month
+   * @return the period in XML format
+   */
+  public static DistanceBandPeriodType planitToXmlDistanceBandPeriod(PricingPeriod period) {
+    return convertByName(period, DistanceBandPeriodType.class);
   }
 
   /**

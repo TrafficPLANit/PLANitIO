@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<macroscopicnetwork
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:gml="http://www.opengis.net/gml"                     
+   xmlns="http://goplanit.org/v2" xsi:schemaLocation="http://goplanit.org/v2 ../../xsd/v2/macroscopicnetworkinput.xsd">
+  <id>1</id>
+  <!-- the layer "road" holds the toll roads, and the link segments, that the network pricing example
+       networkpricing.xml prices -->
+  <configuration>
+    <!-- the available modes are on the top level configuration of the network -->                                   
+    <modes>
+      <mode id="car" predefined="true">
+        <name>car</name>
+      </mode>
+      <!-- a predefined mode is named by its PLANit name; its features are PLANit's defaults -->
+      <mode id="heavygoods" predefined="true">
+        <name>hgv</name>
+      </mode>
+      <mode id="lightgoods" predefined="true">
+        <name>goods</name>
+      </mode>
+      <mode id="motorcycle" predefined="true">
+        <name>motor_bike</name>
+      </mode>
+      <mode id="taxi" predefined="true">
+        <name>taxi</name>
+      </mode>
+      <mode id="bus" predefined="true">
+        <name>bus</name>
+      </mode>
+      <!-- a custom mode gives its own features -->
+      <mode id="electric_car" predefined="false">
+        <name>electric car</name>
+        <maxspeed>130</maxspeed>
+        <pcu>1</pcu>
+        <physicalfeatures>
+          <vehicletype>vehicle</vehicletype>
+          <motorisationtype>motorised</motorisationtype>
+          <tracktype>road</tracktype>
+        </physicalfeatures>
+        <usabilityfeatures>
+          <usedtotype>private</usedtotype>
+        </usabilityfeatures>
+      </mode>
+      <mode id="train" predefined="true">
+        <name>train</name>
+      </mode>
+    </modes>        
+  </configuration>
+  <infrastructurelayers srsname="EPSG:4326">
+    <!-- a layer supports a subset of modes, each of which can only occur on one layer each  -->
+    <layer id="road" externalid="someid" modes="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+      <!-- each layer has its own configuration, in case of a macroscopic network these contain the link segment types -->
+      <layerconfiguration>
+          <linksegmenttypes>                                
+			      <linksegmenttype id="1">                          
+			        <name>local road</name>                         
+			        <maxdensitylane>180</maxdensitylane>                  
+			        <capacitylane>2000</capacitylane>                   
+			        <access>
+			          <accessgroup moderefs="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+			            <maxspeed>40</maxspeed>                     
+			            <critspeed>35</critspeed>                   
+			          </accessgroup>
+			        </access>
+			      </linksegmenttype>
+          <linksegmenttype id="motorway">
+            <name>motorway</name>
+            <maxdensitylane>180</maxdensitylane>
+            <capacitylane>2000</capacitylane>
+            <access>
+              <accessgroup moderefs="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+                <maxspeed>100</maxspeed>
+              </accessgroup>
+            </access>
+          </linksegmenttype>
+          <linksegmenttype id="motorway_link">
+            <name>motorway link</name>
+            <maxdensitylane>180</maxdensitylane>
+            <capacitylane>1500</capacitylane>
+            <access>
+              <accessgroup moderefs="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+                <maxspeed>60</maxspeed>
+              </accessgroup>
+            </access>
+          </linksegmenttype>
+          <linksegmenttype id="trunk">
+            <name>trunk</name>
+            <maxdensitylane>180</maxdensitylane>
+            <capacitylane>1800</capacitylane>
+            <access>
+              <accessgroup moderefs="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+                <maxspeed>80</maxspeed>
+              </accessgroup>
+            </access>
+          </linksegmenttype>
+          <linksegmenttype id="primary">
+            <name>primary</name>
+            <maxdensitylane>180</maxdensitylane>
+            <capacitylane>1600</capacitylane>
+            <access>
+              <accessgroup moderefs="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+                <maxspeed>60</maxspeed>
+              </accessgroup>
+            </access>
+          </linksegmenttype>
+          <linksegmenttype id="secondary">
+            <name>secondary</name>
+            <maxdensitylane>180</maxdensitylane>
+            <capacitylane>1200</capacitylane>
+            <access>
+              <accessgroup moderefs="car,heavygoods,lightgoods,motorcycle,electric_car,taxi,bus">
+                <maxspeed>50</maxspeed>
+              </accessgroup>
+            </access>
+          </linksegmenttype>
+			    </linksegmenttypes> 
+      </layerconfiguration>
+      <!-- ids of nodes, links, still need to be unique across layers to make sure outputs can easily be identified, internal ids
+           might not be unique across all layers, depending on how it is configured, but should be unique within the context (layer).
+           the user however should not be aware of this -->
+	    <nodes>
+	      <node id="1">                                 
+	        <name>George Street roundabout</name>
+	        <gml:Point>
+	          <gml:pos>150.512796 -34.900145</gml:pos>
+	        </gml:Point>                            
+	      </node>
+	      <node id="2"> 
+	        <name>Broadway intersection</name>
+	        <gml:Point>
+	          <gml:pos>150.512527 -34.900319</gml:pos>
+	        </gml:Point>          
+	      </node>       
+	      <node id="wa"/>
+	      <node id="w0"/>
+	      <node id="w1"/>
+	      <node id="w2"/>
+	      <node id="w3"/>
+	      <node id="w4"/>
+	      <node id="w5"/>
+	      <node id="w6"/>
+	      <node id="wb"/>
+	      <node id="ha"/>
+	      <node id="hn"/>
+	      <node id="hc"/>
+	      <node id="hb"/>
+	      <node id="ht"/>
+	      <node id="hd"/>
+	      <node id="ta"/>
+	      <node id="t0"/>
+	      <node id="t1"/>
+	      <node id="t2"/>
+	      <node id="tb"/>
+	      <node id="o0"/>
+	      <node id="o1"/>
+	      <node id="o2"/>
+	      <node id="k1"/>
+	      <node id="c1"/>
+	      <node id="k2"/>
+	      <node id="c2"/>
+	      <node id="k3"/>
+	      <node id="c3"/>
+	      <node id="z0"/>
+	      <node id="z1"/>
+	      <node id="z2"/>
+	      <node id="z3"/>
+	      <node id="p0"/>
+	      <node id="p1"/>
+	      <node id="u0"/>
+	      <node id="ua"/>
+	      <node id="u1"/>
+	      <node id="u2"/>
+	      <node id="u3"/>
+	      <node id="u4"/>
+	      <node id="north"/>
+	      <node id="central"/>
+	      <node id="south"/>
+	      <node id="fn"/>
+	      <node id="fn2"/>
+	      <node id="fc"/>
+	      <node id="fc2"/>
+	      <node id="fs"/>
+	      <node id="x1"/>
+	      <node id="x2"/>
+	      <node id="x3"/>
+	      <node id="x4"/>
+	      <node id="x5"/>
+	    </nodes>    
+	    <links>
+	      <link id="1" nodearef="1" nodebref="2">             
+	        <name>Broadway</name>                       
+	        <gml:LineString>                  
+	          <gml:coordinates cs="," ts=" ">150.512796,-34.900145 150.512527,-34.900319</gml:coordinates>
+	        </gml:LineString> 
+	        <linksegment id="1" dir="a_b" typeref="1">  
+	          <numberoflanes>2</numberoflanes>      
+	          <maxspeed>50</maxspeed>                       
+	        </linksegment>
+	        <linksegment id="2" dir="b_a" typeref="1">
+	          <numberoflanes>1</numberoflanes>
+	          <maxspeed>50</maxspeed>
+	        </linksegment>          
+	        <length unit="km">1.33</length>                 
+	      </link>
+	      <!-- WestConnex: M4 and M4 East, Rozelle, M8, M5 East -->
+	      <link id="l9001" nodearef="wa" nodebref="w0">
+	        <linksegment id="9001" dir="a_b" typeref="primary"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <link id="l101" nodearef="w0" nodebref="w1">
+	        <linksegment id="101" dir="a_b" typeref="motorway"/>
+	        <length unit="km">3.0</length>
+	      </link>
+	      <link id="l102" nodearef="w1" nodebref="w2">
+	        <linksegment id="102" dir="a_b" typeref="motorway"/>
+	        <length unit="km">2.5</length>
+	      </link>
+	      <link id="l103" nodearef="w2" nodebref="w3">
+	        <linksegment id="103" dir="a_b" typeref="motorway"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <link id="l104" nodearef="w3" nodebref="w4">
+	        <linksegment id="104" dir="a_b" typeref="motorway"/>
+	        <length unit="km">4.0</length>
+	      </link>
+	      <link id="l105" nodearef="w4" nodebref="w5">
+	        <linksegment id="105" dir="a_b" typeref="motorway"/>
+	        <length unit="km">2.0</length>
+	      </link>
+	      <link id="l106" nodearef="w5" nodebref="w6">
+	        <linksegment id="106" dir="a_b" typeref="motorway"/>
+	        <length unit="km">3.5</length>
+	      </link>
+	      <link id="l9002" nodearef="w6" nodebref="wb">
+	        <linksegment id="9002" dir="a_b" typeref="primary"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <!-- Sydney Harbour Bridge and Tunnel, southbound -->
+	      <link id="l9101" nodearef="ha" nodebref="hn">
+	        <linksegment id="9101" dir="a_b" typeref="trunk"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <link id="l2045" nodearef="hn" nodebref="hc">
+	        <linksegment id="2045" dir="a_b" typeref="trunk"/>
+	        <length unit="km">1.1</length>
+	      </link>
+	      <link id="l9102" nodearef="hb" nodebref="ht">
+	        <linksegment id="9102" dir="a_b" typeref="motorway"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <link id="l2046" nodearef="ht" nodebref="hc">
+	        <linksegment id="2046" dir="a_b" typeref="motorway"/>
+	        <length unit="km">2.3</length>
+	      </link>
+	      <link id="l9103" nodearef="hc" nodebref="hd">
+	        <linksegment id="9103" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <!-- Truck toll road -->
+	      <link id="l9201" nodearef="ta" nodebref="t0">
+	        <linksegment id="9201" dir="a_b" typeref="trunk"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <link id="l701" nodearef="t0" nodebref="t1">
+	        <linksegment id="701" dir="a_b" typeref="trunk"/>
+	        <length unit="km">5.0</length>
+	      </link>
+	      <link id="l702" nodearef="t1" nodebref="t2">
+	        <linksegment id="702" dir="a_b" typeref="trunk"/>
+	        <length unit="km">5.0</length>
+	      </link>
+	      <link id="l9202" nodearef="t2" nodebref="tb">
+	        <linksegment id="9202" dir="a_b" typeref="trunk"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <!-- Orbital motorway, both directions: 801 and 802 westbound, 803 and 804 eastbound -->
+	      <link id="l8001" nodearef="o0" nodebref="o1">
+	        <linksegment id="803" dir="a_b" typeref="motorway"/>
+	        <linksegment id="802" dir="b_a" typeref="motorway"/>
+	        <length unit="km">6.0</length>
+	      </link>
+	      <link id="l8002" nodearef="o1" nodebref="o2">
+	        <linksegment id="804" dir="a_b" typeref="motorway"/>
+	        <linksegment id="801" dir="b_a" typeref="motorway"/>
+	        <length unit="km">6.0</length>
+	      </link>
+	      <!-- City cordon: the crossings into the city -->
+	      <link id="l3001" nodearef="k1" nodebref="c1">
+	        <linksegment id="3001" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.3</length>
+	      </link>
+	      <link id="l3002" nodearef="k2" nodebref="c2">
+	        <linksegment id="3002" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.3</length>
+	      </link>
+	      <link id="l3003" nodearef="k3" nodebref="c3">
+	        <linksegment id="3003" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.3</length>
+	      </link>
+	      <!-- Congestion charge zone: the roads inside it -->
+	      <link id="l4001" nodearef="z0" nodebref="z1">
+	        <linksegment id="4001" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l4002" nodearef="z1" nodebref="z2">
+	        <linksegment id="4002" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l4003" nodearef="z2" nodebref="z3">
+	        <linksegment id="4003" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l4004" nodearef="z3" nodebref="z0">
+	        <linksegment id="4004" dir="a_b" typeref="primary"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <!-- Port roads and an urban motorway, which the truck charge prices or exempts by type and link segment -->
+	      <link id="l5001" nodearef="p0" nodebref="p1">
+	        <linksegment id="5001" dir="a_b" typeref="secondary"/>
+	        <length unit="km">2.0</length>
+	      </link>
+	      <link id="l5002" nodearef="p1" nodebref="u0">
+	        <linksegment id="5002" dir="a_b" typeref="secondary"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <link id="l7001" nodearef="ua" nodebref="u0">
+	        <linksegment id="7001" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.4</length>
+	      </link>
+	      <link id="l5101" nodearef="u0" nodebref="u1">
+	        <linksegment id="5101" dir="a_b" typeref="motorway"/>
+	        <length unit="km">1.5</length>
+	      </link>
+	      <link id="l5102" nodearef="u1" nodebref="u2">
+	        <linksegment id="5102" dir="a_b" typeref="motorway"/>
+	        <length unit="km">1.5</length>
+	      </link>
+	      <link id="l5103" nodearef="u2" nodebref="u3">
+	        <linksegment id="5103" dir="a_b" typeref="motorway"/>
+	        <length unit="km">1.5</length>
+	      </link>
+	      <link id="l7003" nodearef="u3" nodebref="u4">
+	        <linksegment id="7003" dir="a_b" typeref="motorway"/>
+	        <length unit="km">1.0</length>
+	      </link>
+	      <!-- Closed motorway with a ticket system: carriageways between the north, central and south interchanges, their ramps, and the streets the ramps join -->
+	      <link id="l630" nodearef="north" nodebref="central">
+	        <linksegment id="630" dir="a_b" typeref="motorway"/>
+	        <length unit="km">8.0</length>
+	      </link>
+	      <link id="l631" nodearef="central" nodebref="south">
+	        <linksegment id="631" dir="a_b" typeref="motorway"/>
+	        <length unit="km">7.0</length>
+	      </link>
+	      <link id="l632" nodearef="south" nodebref="central">
+	        <linksegment id="632" dir="a_b" typeref="motorway"/>
+	        <length unit="km">7.0</length>
+	      </link>
+	      <link id="l633" nodearef="central" nodebref="north">
+	        <linksegment id="633" dir="a_b" typeref="motorway"/>
+	        <length unit="km">8.0</length>
+	      </link>
+	      <link id="l601" nodearef="fn" nodebref="north">
+	        <linksegment id="601" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l602" nodearef="fn2" nodebref="north">
+	        <linksegment id="602" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l603" nodearef="north" nodebref="fn">
+	        <linksegment id="603" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l611" nodearef="fc" nodebref="central">
+	        <linksegment id="611" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l612" nodearef="central" nodebref="fc">
+	        <linksegment id="612" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l613" nodearef="central" nodebref="fc2">
+	        <linksegment id="613" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l621" nodearef="fs" nodebref="south">
+	        <linksegment id="621" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l622" nodearef="south" nodebref="fs">
+	        <linksegment id="622" dir="a_b" typeref="motorway_link"/>
+	        <length unit="km">0.5</length>
+	      </link>
+	      <link id="l6901" nodearef="x1" nodebref="fn">
+	        <linksegment id="6901" dir="a_b" typeref="1"/>
+	        <linksegment id="6902" dir="b_a" typeref="1"/>
+	        <length unit="km">0.6</length>
+	      </link>
+	      <link id="l6903" nodearef="x2" nodebref="fn2">
+	        <linksegment id="6903" dir="a_b" typeref="1"/>
+	        <length unit="km">0.6</length>
+	      </link>
+	      <link id="l6911" nodearef="x3" nodebref="fc">
+	        <linksegment id="6911" dir="a_b" typeref="1"/>
+	        <linksegment id="6912" dir="b_a" typeref="1"/>
+	        <length unit="km">0.6</length>
+	      </link>
+	      <link id="l6913" nodearef="fc2" nodebref="x4">
+	        <linksegment id="6913" dir="a_b" typeref="1"/>
+	        <length unit="km">0.6</length>
+	      </link>
+	      <link id="l6921" nodearef="x5" nodebref="fs">
+	        <linksegment id="6921" dir="a_b" typeref="1"/>
+	        <linksegment id="6922" dir="b_a" typeref="1"/>
+	        <length unit="km">0.6</length>
+	      </link>
+	    </links>
+	    <!-- toll roads: the link segments tolled together, and who pays on them, never what they pay, which the network pricing says -->
+	    <tollroads>
+	      <tollroad id="m4" name="M4 and M4 East" lsrefs="101,102"/>
+	      <tollroad id="rozelle" name="Rozelle Interchange" lsrefs="103"/>
+	      <tollroad id="m8" name="M8" lsrefs="104,105"/>
+	      <tollroad id="m5east" name="M5 East" lsrefs="106"/>
+	      <tollroad id="bridge" name="Sydney Harbour Bridge" lsrefs="2045"/>
+	      <tollroad id="tunnel" name="Sydney Harbour Tunnel" lsrefs="2046"/>
+	      <tollroad id="truckroad" name="Truck toll road" pricedmoderefs="heavygoods" lsrefs="701,702"/>
+	      <tollroad id="orbital" name="Orbital motorway" lsrefs="801,802,803,804"/>
+	      <tollroad id="ticketroad" name="Closed motorway, ticket system" lsrefs="601,602,603,611,612,613,621,622,630,631,632,633"/>
+	      <tollroad id="cordon" name="City cordon crossings" lsrefs="3001,3002,3003"/>
+	      <tollroad id="zone" name="Congestion charge zone" lsrefs="4001,4002,4003,4004"/>
+	    </tollroads>
+	    
+    </layer>            
+    <layer id="railnetwork" modes="train">
+      <layerconfiguration>
+        <linksegmenttypes>
+          <linksegmenttype id="2">
+            <name>track</name>
+            <maxdensitylane>20</maxdensitylane>
+            <capacitylane>100</capacitylane>
+            <access>
+              <accessgroup moderefs="train">
+                <maxspeed>100</maxspeed>
+              </accessgroup>
+            </access>
+          </linksegmenttype>
+        </linksegmenttypes>
+      </layerconfiguration>
+      <nodes>
+        <node id="3">
+          <name>Central</name>
+        </node>
+        <node id="4">
+          <name>Redfern</name>
+        </node>
+      </nodes>
+      <links>
+        <link id="2" nodearef="3" nodebref="4">
+          <linksegment id="3" dir="a_b" typeref="2"/>
+          <linksegment id="4" dir="b_a" typeref="2"/>
+          <length unit="km">1.2</length>
+        </link>
+      </links>
+    </layer>             
+  </infrastructurelayers>
+</macroscopicnetwork>

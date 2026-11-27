@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Scheme breaking a pricing rule: overlapping time bands, an override with both amounts and a factor -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>scheme_breaking_rule</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="overlap" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+        <timebandoverride id="peak">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="hour" temporalunitmultiplier="3" temporaloffset="7"/>
+          <price start="4.41"/>
+        </timebandoverride>
+        <timebandoverride id="shoulder">
+          <timebandentry days="monday tuesday wednesday thursday friday"
+                         temporalunit="hour" temporalunitmultiplier="2" temporaloffset="9"/>
+          <price start="3.30"/>
+        </timebandoverride>
+      </pricing>
+    </locationscheme>
+    <locationscheme id="both" name="WestConnex" tollroadrefs="m4,rozelle,m8,m5east">
+      <pricing>
+        <price start="1.73" perkm="0.64"/>
+        <priceoverride moderefs="heavygoods" start="5.00" factor="3"/>
+      </pricing>
+    </locationscheme>
+    <locationscheme id="orbital" name="Orbital motorway" tollroadrefs="orbital">
+      <pricing>
+        <price start="1.00"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

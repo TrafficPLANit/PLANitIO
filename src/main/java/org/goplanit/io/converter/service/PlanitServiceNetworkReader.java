@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> implements ServiceNetworkReader {
   
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkReader.class.getCanonicalName());            
+  private static final Logger LOGGER = Logger.getLogger(PlanitServiceNetworkReader.class.getCanonicalName());
   
   /** the settings for this reader */
   private final PlanitServiceNetworkReaderSettings settings;
@@ -334,12 +334,10 @@ public class PlanitServiceNetworkReader extends BaseReaderImpl<ServiceNetwork> i
    * 
    * @param network
    */
-  private void initialiseParentXmlIdTrackers(MacroscopicNetwork network) {    
-    initialiseSourceIdMap(Node.class, Node::getXmlId);
-    network.getTransportLayers().forEach( layer -> getSourceIdContainer(Node.class).addAll(layer.getNodes()));    
-    initialiseSourceIdMap(LinkSegment.class, LinkSegment::getXmlId);
-    network.getTransportLayers().forEach(
-            layer -> getSourceIdContainer(LinkSegment.class).addAll(layer.getLinkSegments()));
+  private void initialiseParentXmlIdTrackers(MacroscopicNetwork network) {
+    initialiseSourceIdMap(Node.class, Node::getXmlId, network.getTransportLayers(), layer -> layer.getNodes());
+    initialiseSourceIdMap(
+        LinkSegment.class, LinkSegment::getXmlId, network.getTransportLayers(), layer -> layer.getLinkSegments());
   }   
 
   /** Constructor where settings and service network are directly provided

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Year in a time band entry -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>year_in_band</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="harbour" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+        <timebandoverride id="yearly">
+          <timebandentry temporalunit="year" temporaloffset="0"/>
+          <price start="4.41"/>
+        </timebandoverride>
+      </pricing>
+    </locationscheme>
+    <locationscheme id="orbital" name="Orbital motorway" tollroadrefs="orbital">
+      <pricing>
+        <price start="1.00"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

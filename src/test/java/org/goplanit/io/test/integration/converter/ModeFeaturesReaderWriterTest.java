@@ -4,7 +4,7 @@ import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkWriterFactory;
 import org.goplanit.io.test.integration.TestBase;
 import org.goplanit.io.test.util.PlanItIOTestHelper;
-import org.goplanit.io.test.util.WarningRecorder;
+import org.goplanit.utils.test.LogRecorder;
 import org.goplanit.mode.ModeFeaturesFactory;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.id.IdGenerator;
@@ -66,12 +66,12 @@ public class ModeFeaturesReaderWriterTest extends TestBase {
   }
 
   /** records the warnings the network reader logs while a test runs */
-  private WarningRecorder readerWarnings;
+  private LogRecorder readerWarnings;
 
   @BeforeEach
   public void recordReaderWarnings() {
     IdGenerator.reset();
-    readerWarnings = new WarningRecorder();
+    readerWarnings = new LogRecorder();
     READER_LOGGER.addHandler(readerWarnings);
   }
 

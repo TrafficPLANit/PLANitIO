@@ -45,7 +45,7 @@ import org.goplanit.xml.generated.v2.Schedule;
 public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> implements RoutedServicesReader {
   
   /** the logger */
-  private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesReader.class.getCanonicalName());            
+  private static final Logger LOGGER = Logger.getLogger(PlanitRoutedServicesReader.class.getCanonicalName());
   
   /** the settings for this reader */
   private final PlanitRoutedServicesReaderSettings settings;
@@ -62,9 +62,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
    * 
    */
   private void initialiseParentXmlIdTrackers() {
-    initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId);
-    routedServices.getParentNetwork().getTransportLayers().forEach(
-        layer -> getSourceIdContainer(ServiceLegSegment.class).addAll(layer.getLegSegments()));
+    initialiseSourceIdMap(ServiceLegSegment.class, ServiceLegSegment::getXmlId,
+        routedServices.getParentNetwork().getTransportLayers(), layer -> layer.getLegSegments());
   }    
   
   /** Parse a schedule based trip for the given routed service
@@ -118,7 +117,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     
     /* XML relative leg timings */
     XMLElementRelativeTimings xmlRelativeLegTimings = xmlSchedule.getReltimings();
-    if(xmlRelativeLegTimings==null || xmlRelativeLegTimings.getLegs()==null || xmlRelativeLegTimings.getLegs().isEmpty()) {
+    if(xmlRelativeLegTimings==null || xmlRelativeLegTimings.getLegs()==null ||
+        xmlRelativeLegTimings.getLegs().isEmpty()) {
       LOGGER.warning(String.format("IGNORE: Schedule based trip %s has no relative timings (reltimings=) " +
               "for its legs defined",routedTrip.getXmlId()));
       return;
@@ -379,10 +379,11 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       
       /* memory model mode and compatibility */
       final String finalModeXmlRef = modeXmlRef;
-      Mode supportedMode = routedServicesLayer.getParentLayer().getParentNetworkLayer().getSupportedModes().stream().filter(
-          mode -> finalModeXmlRef.equals(mode.getXmlId())).findFirst().orElseThrow(
-              () -> new PlanItException("Invalid mode %s referenced by routed service layer %s",
-                      finalModeXmlRef, routedServicesLayer.getXmlId()));
+      Mode supportedMode = routedServicesLayer.getParentLayer().getParentNetworkLayer().getSupportedModes().stream()
+          .filter(mode -> finalModeXmlRef.equals(mode.getXmlId()))
+          .findFirst()
+          .orElseThrow(() -> new PlanItException("Invalid mode %s referenced by routed service layer %s",
+              finalModeXmlRef, routedServicesLayer.getXmlId()));
       if(!routedServicesLayer.getParentLayer().supports(supportedMode)) {
         LOGGER.severe(String.format("DISCARD: routed services defines a mode %s that is not " +
                 "supported on the parent service layer %s of the routed services",
@@ -452,7 +453,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
       return;
     }
     
-    //TODO: in future the reference should lead to a lookup of this network instead of it already locked in since this is too restrictive
+    //TODO: in future the reference should lead to a lookup of this network instead of it already locked in since
+    // this is too restrictive
     //      in more general use cases
     String parentNetworkXmlId = xmlServiceLayers.getServicenetworkref();
     PlanItException.throwIfNull(routedServices.getParentNetwork(), "No parent service network available " +
@@ -504,7 +506,8 @@ public class PlanitRoutedServicesReader extends BaseReaderImpl<RoutedServices> i
     }
   }  
     
-  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory model
+  /** Constructor where file has already been parsed and we only need to convert from raw XML objects to PLANit memory
+   * model
    * 
    * @param populatedXmlRawRoutedServices to extract from
    * @param routedServices to populate

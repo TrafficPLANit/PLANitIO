@@ -34,6 +34,7 @@ import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSig
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
 import org.goplanit.utils.network.layer.macroscopic.intersection.NonSpatialIntersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.SpatialIntersection;
+import org.goplanit.utils.network.layer.macroscopic.tollroad.TollRoads;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.physical.Nodes;
 import org.goplanit.xml.generated.v2.*;
@@ -240,7 +241,9 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
    * @param xmlIntersection to populate
    * @param intersection to populate from
    */
-  private void populateXmlIntersectionBase(XMLElementIntersectionBase xmlIntersection, final Intersection intersection) {
+  private void populateXmlIntersectionBase(
+      XMLElementIntersectionBase xmlIntersection,
+      final Intersection intersection) {
     xmlIntersection.setControl(XmlEnumConversionUtil.planitToXml(intersection.getControlType()));
     intersection.getTypes().forEach(type -> xmlIntersection.getTypes().add(XmlEnumConversionUtil.planitToXml(type)));
     xmlIntersection.setApproaches(createXmlIntersectionApproaches(intersection));
@@ -311,6 +314,45 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     });
   }
 
+  /**
+   * Populate the xml {@code <tollroads>} element of a layer: each toll road with its link segments in its own order and
+   * the modes that pay as given, named or exempted, so one naming neither is written with neither and keeps paying by
+   * default. Left out when the layer has no toll roads
+   *
+   * @param xmlNetworkLayer to populate on
+   * @param tollRoads to populate from, written sorted by their mapped ids
+   */
+  private void populateXmlTollRoads(XMLElementInfrastructureLayer xmlNetworkLayer, TollRoads tollRoads) {
+    if(tollRoads.isEmpty()){
+      xmlNetworkLayer.setTollroads(null);
+      return;
+    }
+
+    var xmlTollRoads = new XMLElementTollRoads();
+    xmlNetworkLayer.setTollroads(xmlTollRoads);
+    var modeIdMapper = getPrimaryIdMapper().getModeIdMapper();
+    tollRoads.streamSortedBy(getPrimaryIdMapper().getTollRoadIdMapper()).forEach(tollRoad -> {
+      var xmlTollRoad = new XMLElementTollRoad();
+      xmlTollRoad.setId(getPrimaryIdMapper().getTollRoadIdMapper().apply(tollRoad));
+      if(tollRoad.hasExternalId()){
+        xmlTollRoad.setExternalid(tollRoad.getExternalId());
+      }
+      xmlTollRoad.setName(tollRoad.getName());
+      xmlTollRoad.setLsrefs(StringUtils.toCommaSeparatedString(tollRoad.getLinkSegments(),
+          getPrimaryIdMapper().getMacroscopicLinkSegmentIdMapper()));
+      var pricedModes = tollRoad.getPricedModeSelection();
+      if(!pricedModes.getPricedModes().isEmpty()){
+        xmlTollRoad.setPricedmoderefs(
+            StringUtils.toSortedCommaSeparatedString(pricedModes.getPricedModes(), modeIdMapper));
+      }
+      if(!pricedModes.getExemptedModes().isEmpty()){
+        xmlTollRoad.setPricedexemptmoderefs(
+            StringUtils.toSortedCommaSeparatedString(pricedModes.getExemptedModes(), modeIdMapper));
+      }
+      xmlTollRoads.getTollroads().add(xmlTollRoad);
+    });
+  }
+
   /** Populate the xml {@code <independentmovements>} element: the spatial movements of the layer that belong to no
    * intersection. Left out when there are none
    *
@@ -320,7 +362,8 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
   private void populateXmlIndependentMovements(
       XMLElementInfrastructureLayer xmlNetworkLayer, MacroscopicNetworkLayer layer) {
     Set<SpatialMovement> ofIntersections = Collections.newSetFromMap(new IdentityHashMap<>());
-    layer.getIntersections().streamSpatial().forEach(intersection -> ofIntersections.addAll(intersection.getMovements()));
+    layer.getIntersections().streamSpatial()
+        .forEach(intersection -> ofIntersections.addAll(intersection.getMovements()));
     var independent = layer.getSpatialMovements().stream()
         .filter(movement -> !ofIntersections.contains(movement)).collect(Collectors.toList());
     xmlNetworkLayer.setIndependentmovements(createXmlMovements(independent));
@@ -841,6 +884,10 @@ public class PlanitNetworkWriter extends UnTypedPlanitCrsWriterImpl<LayeredNetwo
     LOGGER.info(String.format("%s Intersections: %d", currLayerLogPrefix,
         physicalNetworkLayer.getIntersections().size()));
     populateXmlIntersections(xmlNetworkLayer, physicalNetworkLayer.getIntersections());
+
+    /* toll roads */
+    LOGGER.info(String.format("%s Toll roads: %d", currLayerLogPrefix, physicalNetworkLayer.getTollRoads().size()));
+    populateXmlTollRoads(xmlNetworkLayer, physicalNetworkLayer.getTollRoads());
   }
 
 

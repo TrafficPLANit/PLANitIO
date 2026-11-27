@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Amounts of the other kind of scheme: a rate per km on an entry-exit scheme's price, refused by the schema, so
+     checked with lxml (tools/validate_xml.py), as the Java validator cannot fetch the GML schemas -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>perkminentryexitscheme</id>
+  <parentnetwork>1</parentnetwork>
+  <entryexitschemes>
+    <entryexitscheme id="ticketroad" name="Closed motorway, ticket system" tollroadrefs="ticketroad">
+      <gates>
+        <gate id="north" entrylsrefs="601" exitlsrefs="603"/>
+        <gate id="south" entrylsrefs="621" exitlsrefs="622"/>
+      </gates>
+      <pricing>
+        <price perkm="0.20">
+          <pair fromgateref="north" togateref="south" amount="4.90"/>
+        </price>
+      </pricing>
+    </entryexitscheme>
+  </entryexitschemes>
+</networkpricing>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A zoning of one zone on the example network, so a project can be made on the network and its pricing -->
+<macroscopiczoning xmlns="http://goplanit.org/v2" srsname="EPSG:4326">
+  <id>zoning</id>
+  <zones>
+    <zone id="1">
+      <connectoids>
+        <connectoid type="access_egress" id="c1" noderef="1">
+          <length>0.0</length>
+        </connectoid>
+      </connectoids>
+    </zone>
+  </zones>
+</macroscopiczoning>

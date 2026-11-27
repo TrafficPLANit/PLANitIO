@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Unknown toll road: scheme lost lists a toll road the network does not have -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>unknown_toll_road</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="lost" tollroadrefs="m4,nosuchroad">
+      <pricing>
+        <price start="1.00"/>
+      </pricing>
+    </locationscheme>
+    <locationscheme id="harbour" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>

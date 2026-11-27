@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Time band entry written as read: one entry in hours and one in minutes; holiday settings written as read: the
+     entry in minutes excludes public holidays, the one in hours gives no holiday settings -->
+<networkpricing xmlns="http://goplanit.org/v2" currency="AUD" year="2025">
+  <id>time_band_entries</id>
+  <parentnetwork>1</parentnetwork>
+  <locationschemes>
+    <locationscheme id="westconnex" name="WestConnex" tollroadrefs="m4,rozelle,m8,m5east">
+      <pricing>
+        <price start="1.73" perkm="0.64"/>
+        <timebandoverride id="am">
+          <timebandentry temporalunit="hour" temporalunitmultiplier="3" temporaloffset="7"/>      <!-- 07:00-10:00 -->
+          <price perkm="0.80"/>
+        </timebandoverride>
+      </pricing>
+    </locationscheme>
+    <locationscheme id="harbour" name="Sydney Harbour Bridge and Tunnel" tollroadrefs="bridge,tunnel">
+      <pricing>
+        <price start="2.76"/>
+        <timebandoverride id="peak">
+          <timebandentry publicholidays="excluded"
+                         temporalunit="minute" temporalunitmultiplier="180" temporaloffset="390"/> <!-- 06:30-09:30 -->
+          <price start="4.41"/>
+        </timebandoverride>
+      </pricing>
+    </locationscheme>
+  </locationschemes>
+</networkpricing>
